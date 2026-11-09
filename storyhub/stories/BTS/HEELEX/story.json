@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELEX",
+  "course": "BTS",
+  "lessonCode": "HEELEX",
+  "title": "Fritz Von Erich: Exemplar",
+  "audience": "students",
+  "narrativeQuestion": "What does a full credit America's Most Hated presentation look like?",
+  "chapters": [
+    {
+      "id": "s1",
+      "title": "Who and When",
+      "claim": "Jack Adkisson of Jewett, Texas, wrestled as a German from Munich starting about 1953, eight years after a war that killed about 405,000 Americans.",
+      "namedPeople": [
+        {
+          "name": "Fritz Von Erich",
+          "role": "heel",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A01"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01",
+        "A02"
+      ],
+      "interactionIds": [
+        "I01",
+        "I02",
+        "V01"
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "How Wrestling Used the War",
+      "claim": "The invented name, a fake brother, the Nazi salute and a 1953 letter show the German act was a business choice.",
+      "namedPeople": [
+        {
+          "name": "Waldo Von Erich",
+          "role": "fake brother",
+          "anchorStatus": "not-available",
+          "note": "No free photograph located."
+        },
+        {
+          "name": "Ed McLemore",
+          "role": "Dallas promoter",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "What Fritz Tells Us",
+      "claim": "The Nazi act ended when Adkisson bought the Dallas office in 1966 and needed his hometown to cheer.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I01",
+        "I03",
+        "V02"
+      ]
+    },
+    {
+      "id": "time",
+      "title": "Does It Fit in Three Minutes?",
+      "claim": "The script runs about two and a half minutes at 150 words a minute.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "The 1953 letter quote comes from Notre Dame's Rare Books and Special Collections blog on the Jack Pfefer collection.",
+    "About 405,000 American military deaths follows the U.S. Department of Veterans Affairs figure.",
+    "The Ringer describes Fritz's Nazi salute and Waldo's goose step."
+  ]
+}

@@ -19,7 +19,7 @@ const checks = [
     'First Day Hidden History verdicts use Debunked instead of Supported',
   ],
   [
-    firstDay.includes('Current U.S. History unit: The Gilded Age.')
+    firstDay.includes('The current unit is always on the <a href="/us-history/">U.S. History page</a>.')
       && firstDay.includes('The table below is the original launch map, not the live pacing calendar.'),
     'First Day pacing copy names the current unit and does not present the launch map as live pacing',
   ],
@@ -35,10 +35,16 @@ const checks = [
     'A fresh Learning Hub profile starts at a real zero-day streak',
   ],
   [
-    hallPassOps.includes('Version 24 is deployed.')
-      && hallPassOps.includes('314 runtime behavior checks')
-      && hallPassOps.includes('protected post-deployment `?mode=releasecheck` result is not yet recorded'),
-    'Hall Pass operations identifies Version 24 without overstating protected releasecheck evidence',
+    hallPassOps.includes('Version 30 is deployed.')
+      && hallPassOps.includes('baa8ad44416d5023796f112501de8461233e918c')
+      && hallPassOps.includes('35777981230')
+      && hallPassOps.includes('35778256624')
+      && hallPassOps.includes('6ab2df797957c4000848c386')
+      && hallPassOps.includes('2026-09-21-backend-b')
+      && hallPassOps.includes('2026-09-22-all-teacher-rpcs')
+      && hallPassOps.includes('2026-09-22-roster-sync-v1')
+      && hallPassOps.includes('2026-09-22-roster-write-v1'),
+    'Hall Pass operations identifies the verified Version 30 production fingerprint',
   ],
   [
     hallPassOps.includes('Students are not blocked afterward: a late sign-in is recorded immediately at 0 points until the teacher reviews whether to award the daily point.'),

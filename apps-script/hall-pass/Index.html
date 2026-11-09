@@ -280,6 +280,24 @@
       .help-trigger { display:inline-grid; place-items:center; margin-left:7px; width:25px; height:25px; padding:0; vertical-align:middle; border:1px solid #d5d9e5; border-radius:50%; color:#697086; background:#fafbfe; font:600 12px/1 var(--display); }
       .help-trigger:hover, .help-trigger[aria-expanded="true"] { color:var(--accent-dark); border-color:var(--accent); background:var(--accent-soft); }
       .help-tooltip { position:fixed; z-index:100; max-width:min(310px,calc(100vw - 24px)); padding:13px 15px; border:1px solid #3c4056; background:#202437; color:#fff; border-radius:11px; font:400 12px/1.6 var(--display); box-shadow:0 8px 24px #17182726; }
+      .setup-dialog { width:min(620px,calc(100% - 32px)); max-height:min(88vh,860px); overflow:auto; }
+      .setup-dialog form { display:grid; gap:14px; }
+      .setup-dialog p { margin:0; }
+      .reduced-setup { display:grid; gap:10px; border-top:1px solid rgba(0,0,0,.1); padding-top:12px; }
+      .reduced-setup > summary { cursor:pointer; font-weight:700; }
+      .reduced-setup[open] > summary { margin-bottom:6px; }
+      .reduced-setup > * + * { margin-top:10px; }
+      .setup-dialog input, .setup-dialog select, .setup-dialog textarea { width:100%; }
+      .bell-table { width:100%; border-collapse:collapse; }
+      .bell-table th, .bell-table td { padding:4px 6px; text-align:left; font-size:13px; }
+      .setup-error { color:#b42318; font-weight:600; }
+      .setup-card .setup-links { display:grid; gap:10px; margin-top:14px; }
+      .setup-card .setup-links label { display:grid; gap:6px; font-size:13px; font-weight:600; }
+      .setup-banner { margin-bottom:16px; }
+      .kiosk-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0; }
+      .kiosk-keypad button { min-height:64px; font-size:26px; touch-action:manipulation; }
+      .kiosk-tools { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; }
+      .lunch-preview { border:1px solid var(--line); border-radius:12px; padding:12px; background:#f8f9ff; font-size:13px; }
       .teacher-action-dialog { width:min(520px,calc(100% - 32px)); padding:28px; border:1px solid var(--line); border-radius:20px; color:var(--ink); background:white; }
       .teacher-action-dialog h2 { margin:0 0 14px; font-size:25px; line-height:1.2; letter-spacing:-.6px; }
       .teacher-action-dialog p { margin:0 0 20px; font-size:14px; color:var(--muted); line-height:1.65; }
@@ -331,11 +349,146 @@
         .attention-banner { align-items:flex-start; }
       }
       @media (max-width:380px) { .field-grid { grid-template-columns:1fr; } .brandbar small { display:none; } }
+
+      .ck-pocket { display:grid; grid-template-columns:minmax(160px, .8fr) minmax(0, 1.2fr); gap:24px; padding:22px; border-radius:26px; background:#f3ecdf; color:#1c1915; border:1px solid #d5c8b2; }
+      .ck-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; border-radius:18px; background:#10241c; color:#c6ef73; text-align:center; }
+      .ck-screen picture { display:block; height:150px; }
+      .ck-screen img { object-fit:contain; }
+      .ck-screen h3 { font-size:25px; margin:6px 0; }
+      .ck-screen p { font-size:13px; line-height:1.6; margin:0; }
+      .ck-screen .ck-label { color:#c6ef73; font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
+      .ck-controls { min-width:0; display:grid; gap:12px; align-content:center; }
+      .ck-controls p { margin:0; font-size:13px; line-height:1.6; }
+      .ck-controls summary { cursor:pointer; font-size:14px; font-weight:700; padding:10px 0; }
+      .ck-controls form { display:grid; gap:12px; }
+      .ck-friends { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding:8px 0; border:0; margin:0; min-width:0; }
+      .ck-friends legend { font-size:12px; }
+      .ck-friends label { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:6px 0; border-radius:12px; background:#e6dcc8; font-size:12px; }
+      .ck-friends input { width:18px; height:18px; accent-color:#08765a; }
+      .ck-friends img { max-width:100%; height:56px; object-fit:contain; }
+      .ck-friends small { font-size:10px; }
+      .ck-name { display:grid; gap:6px; font-size:13px; }
+      .ck-name input { width:100%; min-height:44px; border:1px solid #8b8172; border-radius:10px; padding:8px 12px; background:#fffaf2; color:#1c1915; }
+      .ck-controls .secondary { min-height:44px; background:#fffaf2; color:#1c1915; border-color:#8b8172; }
+      .ck-controls .ck-note { font-size:11px; }
+      .ck-berries { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+      .ck-berries button { width:44px; height:44px; border-radius:50%; border:1px solid #075f49; background:#10241c; color:#c6ef73; font-size:22px; }
+      .ck-berries button:disabled { opacity:.6; }
+      @media(max-width:600px) { .ck-pocket { grid-template-columns:1fr; gap:16px; padding:14px; } }
+      .ck-pocket { gap:20px; padding:20px; }
+      .ck-world { position:relative; overflow:hidden; min-height:390px; padding:22px 18px; background:linear-gradient(155deg,#102c29,#254537); color:#fff5dc; isolation:isolate; }
+      .ck-world::before { content:''; position:absolute; width:160%; height:135px; bottom:-35px; left:-30%; background:#314d35; border-radius:50% 50% 0 0; }
+      .ck-world > :not(.ck-atmosphere) { position:relative; z-index:1; }
+      .ck-world .ck-label { color:#d6f5b0; margin:0; }
+      .ck-world .ck-home-label { color:#fff5dc; font-size:12px; margin:6px 0 0; }
+      .ck-world h3 { font-size:29px; letter-spacing:-.04em; max-width:100%; overflow-wrap:anywhere; }
+      .ck-world #ck-message { overflow-wrap:anywhere; min-height:60px; max-width:310px; line-height:1.6; font-size:14px; }
+      .ck-atmosphere { position:absolute; inset:60px 0 auto; height:145px; pointer-events:none; }
+      .ck-atmosphere i { position:absolute; left:13%; top:25%; width:38px; height:14px; border-radius:50px; background:#b9d5bc; opacity:.65; box-shadow:12px -7px 0 -2px #b9d5bc; animation:ck-drift 9s ease-in-out infinite alternate; }
+      .ck-atmosphere i:nth-child(2) { left:73%; top:60%; transform:scale(.65); animation-delay:-4s; }
+      .ck-atmosphere i:nth-child(3) { left:55%; top:0; width:10px; height:10px; background:#f9d98d; box-shadow:none; border-radius:50%; animation-delay:-2s; }
+      .ck-home-grove { background:linear-gradient(145deg,#112c27,#28402b); }
+      .ck-home-grove::before { background:#354e2e; }
+      .ck-home-grove .ck-atmosphere i { width:26px; height:48px; background:#9cbf79; border-radius:90% 0 90% 0; box-shadow:none; opacity:.5; }
+      .ck-home-cove { background:linear-gradient(145deg,#12313c,#214652); }
+      .ck-home-cove::before { border-radius:35%; background:repeating-linear-gradient(0deg,#254b53 0 20px,#38616a 21px 23px,#254b53 24px 40px); }
+      .ck-home-cove .ck-atmosphere i { background:#b4d8dc; box-shadow:12px -7px 0 -2px #b4d8dc; }
+      .ck-home-sky { background:linear-gradient(145deg,#1f2b4b,#3f4668); }
+      .ck-home-sky::before { bottom:-55px; background:#53597b; height:150px; }
+      .ck-home-sky .ck-atmosphere i { width:45px; height:20px; background:#d5d2ed; box-shadow:14px -8px 0 -2px #d5d2ed; }
+      .ck-home-cosmos { background:radial-gradient(ellipse at 70% 25%,#493969,#171c39 70%); }
+      .ck-home-cosmos::before { background:#343049; }
+      .ck-home-cosmos .ck-atmosphere i { width:4px; height:4px; background:#ffe8ac; box-shadow:25px 18px #ffe8ac,43px -25px #ffe8ac,-18px 55px #ffe8ac; opacity:.9; border-radius:50%; }
+      .ck-world .ck-pet { display:block; border:0; padding:0; margin:5px auto 0; width:174px; min-height:167px; background:transparent; color:inherit; border-radius:50%; cursor:pointer; }
+      .ck-pet picture { height:164px; display:flex; align-items:center; justify-content:center; }
+      .ck-pet img { filter:drop-shadow(0 12px 8px #0005); }
+      .ck-pet.is-bouncing { animation:ck-boop .5s ease; }
+      .ck-world .ck-mood { display:inline-block; width:fit-content; border:1px solid #a8d5b36b; border-radius:30px; padding:3px 10px; margin:3px 0 5px; font-size:11px; color:#fff5dc; background:#10241c70; }
+      .ck-world .ck-daydream { margin-top:18px; padding:12px; border-radius:12px; background:#0c182b66; color:#fff5dc; font-size:12px; max-width:310px; }
+      .ck-daydream span { display:block; margin-bottom:4px; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:#e4eebf; }
+      .ck-kicker { color:#655033; font-size:10px!important; text-transform:uppercase; letter-spacing:.12em; font-weight:700; margin-bottom:6px!important; }
+      .ck-controls h4 { margin:0; font-size:23px; line-height:1.2; letter-spacing:-.035em; }
+      .ck-growth { padding:12px; background:#e6ddcb; border:1px solid #cabea7; border-radius:12px; }
+      .ck-growth > div { display:flex; justify-content:space-between; gap:8px; font-size:12px; }
+      .ck-growth progress { display:block; width:100%; height:8px; border:0; border-radius:5px; overflow:hidden; margin:9px 0; accent-color:#245640; background:#c8bfae; }
+      .ck-growth progress::-webkit-progress-bar { background:#c8bfae; border-radius:5px; }
+      .ck-growth progress::-webkit-progress-value { background:#245640; border-radius:5px; }
+      .ck-growth progress::-moz-progress-bar { background:#245640; border-radius:5px; }
+      .ck-growth p { font-size:11px; }
+      .ck-action-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .ck-name select { width:100%; min-height:44px; border:1px solid #8b8172; border-radius:10px; padding:8px; background:#fffaf2; color:#1c1915; font:inherit; }
+      .ck-play:empty { display:none; }
+      .ck-play:not(:empty) { padding:14px; background:#fffaf2; border:1px solid #cabea7; border-radius:16px; }
+      .ck-game-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+      .ck-game-head h4 { font-size:19px; }
+      .ck-game-head button { min-width:44px; min-height:44px; border:1px solid #8b8172; border-radius:12px; background:#fffaf2; color:#1c1915; font:inherit; font-size:24px; cursor:pointer; }
+      .ck-game-status { margin:8px 0 12px!important; min-height:42px; font-size:12px!important; }
+      .ck-berries { justify-content:center; }
+      .ck-berries button { color:#f4b7b1; background:#223f32; box-shadow:inset 0 0 0 5px #304e3d; }
+      .ck-card-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+      .ck-card-grid button { min-height:58px; border:1px solid #193c2c; border-radius:12px; background:#193c2c; color:#d6f5b0; font-size:26px; cursor:pointer; }
+      .ck-card-grid button[aria-pressed="true"] { background:#e8dfcd; color:#263827; }
+      .ck-card-grid button.is-matched { background:#d4e6af; color:#233d24; border-color:#6e8d54; opacity:1; }
+      .ck-echo-trail { display:flex; justify-content:center; flex-wrap:wrap; gap:6px; padding:0; margin:10px 0; list-style:none; }
+      .ck-echo-trail li { text-align:center; padding:6px; background:#ece3d1; border-radius:10px; font-size:10px; min-width:38px; }
+      .ck-echo-trail span { display:block; font-size:22px; }
+      .ck-echo-actions { display:grid; gap:7px; margin:10px 0; }
+      .ck-echo-notes { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
+      .ck-echo-notes button { display:grid; justify-items:center; gap:3px; min-height:62px; border:1px solid #80745e; border-radius:10px; background:#e8dfcd; color:#263827; padding:6px 2px; font-size:11px; cursor:pointer; }
+      .ck-echo-notes button span { font-size:25px; }
+      .ck-echo-notes button:disabled { opacity:.55; }
+      .ck-journey { grid-column:1/-1; padding-top:2px; border-top:1px solid #cabea7; }
+      .ck-journey summary { cursor:pointer; padding:14px 0; font-size:14px; font-weight:700; }
+      .ck-journey summary > span { float:right; font-size:11px; font-weight:400; }
+      .ck-journey ol { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; padding:0; list-style:none; margin:0 0 12px; }
+      .ck-journey li { display:grid; gap:5px; padding:12px 9px; border:1px dashed #a99b85; border-radius:14px; font-size:11px; line-height:1.4; background:#e8e0d1; color:#514938; }
+      .ck-journey li.is-earned { border-style:solid; background:#fffaf2; color:#1c1915; }
+      .ck-journey li[aria-current] { border:2px solid #245640; padding:11px 8px; }
+      .ck-keepsake { display:grid; place-items:center; width:38px; height:38px; border-radius:50%; background:#d5cdbd; color:#514938; font-size:25px; }
+      .is-earned .ck-keepsake { background:#deebbb; color:#29432d; }
+      .ck-journey small { font-size:10px; }
+      .ck-pocket .ck-note { font-size:12px; line-height:1.6; margin:0; }
+      .ck-bus-link { display:inline-block; margin:2px 8px 6px 0; padding:10px 18px; border-radius:12px; background:#173b31; color:#fff8e6; font-weight:800; font-size:15px; text-decoration:none; }
+      .ck-bus-link:hover, .ck-bus-link:focus-visible { background:#0f2a23; outline:3px solid #f2c14e; outline-offset:2px; }
+      .ck-pocket :focus-visible { outline:3px solid #087458; outline-offset:3px; }
+      .ck-world :focus-visible { outline-color:#d6f5b0; }
+      .ck-pocket [hidden] { display:none!important; }
+      @keyframes ck-boop { 0%,100%{transform:translateY(0) rotate(0)} 35%{transform:translateY(-12px) rotate(-5deg)} 70%{transform:translateY(-4px) rotate(4deg)} }
+      @keyframes ck-drift { from{translate:-5px 0} to{translate:8px -5px} }
+      @media(max-width:600px) { .ck-pocket { padding:14px; gap:16px; } .ck-world{min-height:390px;} .ck-journey ol{grid-template-columns:repeat(2,minmax(0,1fr));} .ck-journey li:last-child{grid-column:1/-1;} }
+      @media(prefers-reduced-motion:reduce) { .ck-atmosphere i,.ck-pet.is-bouncing { animation:none!important; } }
+
+      .ck-school-camp {margin:24px -14px 0; padding:8px; border:1px solid var(--line);border-radius:12px;background:white;}
+      .ck-camp-top {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+      .ck-school-camp iframe {display:block;width:100%;height:min(920px,85vh);min-height:600px;border:0;margin-top:12px;}
+      .ck-school-camp h3 {font-size:22px;}
+      body.kiosk-mode .shell { width:min(900px,calc(100% - 32px)); padding:16px 0; }
+      .kiosk-mode .brandbar { margin-bottom:12px; font-size:16px; }
+      .kiosk-mode .top { margin-bottom:14px; }
+      .kiosk-mode h1 { font-size:34px; }
+      .kiosk-mode .school { display:none; }
+      .kiosk-mode .card { padding:22px; }
+      .kiosk-mode .pin-box { max-width:none; padding:0; }
+      .kiosk-mode .pin-box::before { display:none; }
+      .kiosk-mode .pin-box h2 { font-size:27px; }
+      .kiosk-mode .pin-label { margin-top:14px; }
+      .kiosk-mode .pin-input { min-height:54px; }
+      .kiosk-mode .kiosk-keypad { gap:10px; margin:12px 0; }
+      .kiosk-mode .kiosk-keypad button { min-height:56px; margin-top:0; }
+      .kiosk-mode .pin-help { margin-top:12px; }
+      .kiosk-mode .privacy { margin-top:12px; font-size:10px; }
+      @media(min-width:600px) {
+        .kiosk-mode .pin-box { display:grid; grid-template-columns:minmax(220px,1fr) minmax(220px,1fr); gap:8px 32px; align-items:center; }
+        .kiosk-mode .pin-box > * { grid-column:1; }
+        .kiosk-mode .pin-box .kiosk-keypad { grid-column:2; grid-row:1 / span 7; }
+        .kiosk-mode .pin-box .pin-help { grid-column:1 / -1; }
+        .kiosk-mode .kiosk-tools { margin:0; }
+      }
     </style>
   </head>
-  <body>
+  <body data-site-brand="<?= siteBrand ?>">
     <main class="shell">
-      <div class="brandbar"><span class="brandmark" aria-hidden="true">t/d</span><span>the desk<span style="color:var(--accent)">.</span></span><small>CLASSROOM TOOLS</small></div>
+      <div class="brandbar"><span class="brandmark" id="brand-mark" aria-hidden="true">t/d</span><span id="brand-name">the desk<span style="color:var(--accent)">.</span></span><small id="brand-note">CLASSROOM TOOLS</small></div>
       <header class="top">
         <div>
           <p class="eyebrow" id="app-eyebrow">grantdesk // out-of-room pass</p>
@@ -354,7 +507,8 @@
 
     <script>
       const APP_MODE = <?!= JSON.stringify(appMode) ?>;
-      const TEACHER_CONTRACT = '2026-09-05-memberships';
+      if (APP_MODE === 'kiosk') document.body.classList.add('kiosk-mode');
+      const TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
       const CALL_TIMEOUT_MS = 45000;
       const BUSY_LOCK_TEXT = 'The classroom system is handling other students right now.';
       const STUDENT_BUSY_RETRY_DELAYS_MS = [600, 900, 1300, 1800, 2400, 3000, 3600];
@@ -386,22 +540,39 @@
       let pollTick = 0;
       let teacherKnownPassIds = null;
       let teacherAudioContext = null;
+      let studentRefreshFailures = 0;
 
+      // Only Mr. Auch's copy carries the desk branding; other teachers see plain Hall Pass.
+      const SITE_BRANDED = document.body.dataset.siteBrand === 'desk';
+      const EYEBROW_PREFIX = SITE_BRANDED ? 'grantdesk // ' : '';
+      if (!SITE_BRANDED) {
+        document.querySelector('#brand-mark').textContent = 'HP';
+        document.querySelector('#brand-name').textContent = 'Hall Pass';
+        document.querySelector('#brand-note').textContent = 'CLASSROOM PASS';
+        appEyebrow.textContent = 'out-of-room pass';
+        const tagline = document.querySelector('.top .school');
+        if (tagline) tagline.hidden = true;
+      }
       document.body.classList.toggle('teacher-mode', APP_MODE === 'teacher');
       document.body.classList.toggle('checkin-mode', APP_MODE === 'checkin');
       modeLabel.textContent = APP_MODE === 'teacher' ? 'teacher view' : APP_MODE === 'kiosk' ? 'kiosk' : APP_MODE === 'checkin' ? 'daily check-in' : 'student pass';
       if (APP_MODE === 'checkin') {
-        appEyebrow.textContent = 'grantdesk // daily attendance + point';
+        appEyebrow.textContent = `${EYEBROW_PREFIX}daily attendance + point`;
         privacyNote.textContent = 'Your check-in is private. Student screens show only your own confirmation; the full daily log is limited to your teacher.';
       } else if (APP_MODE === 'teacher') {
-        appEyebrow.textContent = 'grantdesk // private classroom controls';
+        appEyebrow.textContent = `${EYEBROW_PREFIX}private classroom controls`;
         privacyNote.textContent = 'Passes and daily check-ins are visible only in this teacher view and the private teacher-owned workbook.';
       }
 
       /* ---------------------------------------------------------- plumbing */
 
       const call = (name, ...args) => new Promise((resolve, reject) => {
-        if (['getBootstrap', 'refreshTeacherState', 'teacherStartPass', 'teacherEndPass', 'teacherGetMembershipPasses', 'teacherSetStudentPassAccess', 'teacherCheckInStudent', 'teacherSetCheckInWindow', 'teacherReviewLateCheckIn'].includes(name)) args.push(TEACHER_CONTRACT);
+        const needsTeacherContract = name === 'getBootstrap'
+          || name === 'refreshTeacherState'
+          || name.startsWith('teacher')
+          || name === 'previewStudentPinEmails'
+          || name === 'sendStudentPinEmails';
+        if (needsTeacherContract) args.push(TEACHER_CONTRACT);
         let settled = false;
         const timer = setTimeout(() => {
           if (settled) return;
@@ -439,7 +610,7 @@
             if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length || spent >= STUDENT_BUSY_RETRY_BUDGET_MS) {
               throw new Error('Several hall-pass changes reached the room at the same time. Your pass was not changed. Wait five seconds and press once more; this is traffic, not a bad PIN. Your teacher can use the backup controls if needed.');
             }
-            showBusy(`Another hall-pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
+            showBusy(`Another hall-pass update is finishing. Hall Pass has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
             const jitter = Math.floor(Math.random() * 350);
             await wait(STUDENT_BUSY_RETRY_DELAYS_MS[attempt] + jitter);
           }
@@ -497,6 +668,7 @@
 
       const adoptState = (next) => {
         if (next && next.mode === 'teacher' && next.clientContract !== TEACHER_CONTRACT) throw new Error('Refresh this teacher page before continuing. The class pass rules have changed.');
+        if (state && next && state.student && (!next.student || next.student.key !== state.student.key)) closePixelCamp();
         state = next;
         if (next && next.pinToken) pinToken = next.pinToken;
         actionProof = next && next.actionProof ? next.actionProof : '';
@@ -660,7 +832,7 @@
         if (!sharedDevice()) return;
         handoffMessage = message;
         showHandoffNote(message);
-        handoffHandle = setTimeout(() => resetToPin('Enter your six-digit PIN.'), delay);
+        handoffHandle = setTimeout(() => resetToPin('Enter your 5- or 6-digit PIN.'), delay);
       };
 
       /**
@@ -674,10 +846,10 @@
         clearTimeout(idleHandle);
         idleHandle = null;
         if (!sharedDevice()) return;
-        if (screen === 'pin') return;
-        const remaining = Math.max(0, IDLE_RESET_MS - (Date.now() - lastInteraction));
+        if (screen === 'pin' && APP_MODE !== 'kiosk') return;
+        const remaining = Math.max(0, (APP_MODE === 'kiosk' ? 30000 : IDLE_RESET_MS) - (Date.now() - lastInteraction));
         idleHandle = setTimeout(() => {
-          if (sharedDevice() && screen !== 'pin') resetToPin('Enter your six-digit PIN.');
+          if (sharedDevice()) resetToPin('Enter your 5- or 6-digit PIN.');
         }, remaining);
       };
 
@@ -688,11 +860,13 @@
 
       document.addEventListener('click', noteInteraction, true);
       document.addEventListener('keydown', noteInteraction, true);
+      document.addEventListener('input', noteInteraction, true);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') noteInteraction();
       });
 
       const resetToPin = (message) => {
+        closePixelCamp();
         cancelHandoff();
         clearTimeout(idleHandle);
         pinToken = '';
@@ -700,10 +874,21 @@
         authorizedAction = '';
         state = null;
         clearError();
-        renderPin(message || 'Enter your six-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
+        renderPin(message || 'Enter your 5- or 6-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
       };
 
       /* ------------------------------------------------------------ screens */
+
+      const bindChecklingVisit = (input) => {
+        const visitButton = document.querySelector('#visit-checkling');
+        if (visitButton) visitButton.addEventListener('click', (event) => {
+          if (!input.reportValidity()) return;
+          act(event.currentTarget, async () => {
+            adoptState(await call('identifyChecklingWithPin', input.value, getPinAttemptNonce()));
+            renderResolvedState('checkling');
+          });
+        });
+      };
 
       const renderPin = (message, purpose = APP_MODE === 'checkin' ? 'checkin' : 'pass') => {
         cancelHandoff();
@@ -718,45 +903,64 @@
           <form class="pin-box" id="pin-form">
             <p class="eyebrow">${APP_MODE === 'kiosk' ? 'shared classroom kiosk' : 'your private classroom pass'}</p>
             <h2>you’re in the right place.</h2>
-            <p class="message">${escapeHtml(message || 'Use the six-digit PIN your teacher gave you.')}</p>
-            <label class="pin-label" for="pin">Your six-digit PIN</label>
-            <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
+            <p class="message">${escapeHtml(message || 'Use the 5- or 6-digit PIN your teacher gave you.')}</p>
+            <label class="pin-label" for="pin">Your 5- or 6-digit PIN</label>
+            <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off" aria-label="5- or 6-digit student PIN" required>
+            ${APP_MODE === 'kiosk' ? '<div class="kiosk-keypad" aria-label="PIN keypad">' + ['1','2','3','4','5','6','7','8','9','clear','0','delete'].map((key) => `<button class="secondary" type="button" data-digit="${key}" aria-label="${key === 'delete' ? 'Delete last digit' : key === 'clear' ? 'Clear PIN' : key}">${key === 'delete' ? '⌫' : key}</button>`).join('') + '</div>' : ''}
             <button class="primary" type="submit">${purpose === 'checkin' ? 'check in' : 'continue with PIN'} →</button>
-            <details class="pin-help"><summary>Need a hand?</summary><p>Use the six-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
+            ${purpose === 'checkin' ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
+            ${APP_MODE === 'kiosk' ? '<div class="kiosk-tools"><button class="secondary" type="button" id="kiosk-fullscreen">fullscreen / keep awake</button></div>' : ''}
+            <details class="pin-help"><summary>Need a hand?</summary><p>Use the 5- or 6-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
           </form>`;
         const input = document.querySelector('#pin');
         input.focus();
+        if (APP_MODE === 'kiosk') {
+          content.querySelectorAll('[data-digit]').forEach((key) => key.addEventListener('click', () => {
+            if (inFlight) return;
+            const digit = key.dataset.digit;
+            input.value = digit === 'clear' ? '' : digit === 'delete' ? input.value.slice(0, -1) : (input.value + digit).slice(0, 6);
+            input.focus(); noteInteraction();
+          }));
+          content.querySelector('#kiosk-fullscreen').addEventListener('click', async () => {
+            try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); } catch {}
+            try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch {}
+          });
+        }
         document.querySelector('#pin-form').addEventListener('submit', (event) => {
           event.preventDefault();
           const button = event.currentTarget.querySelector('button');
           act(button, async () => {
             try {
-              adoptState(await call(purpose === 'checkin' ? 'identifyCheckInWithPin' : 'identifyWithPin', input.value, getPinAttemptNonce()));
+              const submittedPin = input.value; input.value = '';
+              adoptState(await call('authorizeAndActStudent', purpose === 'checkin' ? 'identify-checkin' : 'identify-pass', submittedPin, '', '', getPinAttemptNonce()));
             } catch (error) {
               input.select();
               throw error;
             }
-            if (state.requiresClassSelection) renderClassSelection();
-            else await completeAuthorizedAction();
+            await finishPinResult();
           });
         });
+        bindChecklingVisit(input);
       };
 
-      const completeAuthorizedAction = async () => {
-        const proof = actionProof;
-        const action = authorizedAction;
-        const studentKey = state && state.student ? state.student.key : '';
-        const identityToken = pinToken;
-        if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
-
+      /** Draw the screen that follows a finished student action. */
+      const renderCompletedAction = (action) => {
+        if (APP_MODE === 'kiosk') {
+          const outcome = state && state.actionOutcome || {};
+          const message = action === 'RETURN' ? 'Return recorded. You’re all set.'
+            : outcome.kind === 'QUEUED' ? 'You’re in line. Your teacher will let you know when it’s your turn.'
+            : action === 'CHECKIN' ? 'Check-in recorded.'
+            : state && state.ownPass ? 'Pass started. Enter your PIN again when you return.'
+            : 'Request checked. Ask your teacher if you need help.';
+          resetToPin(message);
+          return;
+        }
         if (action === 'CHECKIN') {
-          adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
           renderCheckIn();
           if (sharedDevice()) scheduleHandoff(state.actionOutcome && state.actionOutcome.kind === 'LATE_CHECK_IN_RECORDED' ? 'Late sign-in recorded. This screen clears itself for the next student.' : 'Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
           return;
         }
         if (action === 'PASS_REQUEST') {
-          adoptState(await callWithBusyRetry('requestBathroomPass', proof, studentKey, identityToken));
           renderStudent();
           if (sharedDevice()) {
             const outcome = state.actionOutcome || {};
@@ -773,12 +977,36 @@
           return;
         }
         if (action === 'RETURN') {
-          adoptState(await callWithBusyRetry('returnPass', proof, studentKey, identityToken));
           renderStudent();
           if (sharedDevice()) scheduleHandoff('Welcome back. This screen clears itself for the next student.', HANDOFF_AFTER_RETURN_MS);
           return;
         }
         throw new Error('Refresh the page before trying that action.');
+      };
+
+      const completeAuthorizedAction = async () => {
+        const proof = actionProof;
+        const action = authorizedAction;
+        const studentKey = state && state.student ? state.student.key : '';
+        const identityToken = pinToken;
+        if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
+
+        if (action === 'CHECKIN') adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
+        else if (action === 'PASS_REQUEST') adoptState(await callWithBusyRetry('requestBathroomPass', proof, studentKey, identityToken));
+        else if (action === 'RETURN') adoptState(await callWithBusyRetry('returnPass', proof, studentKey, identityToken));
+        else throw new Error('Refresh the page before trying that action.');
+        renderCompletedAction(action);
+      };
+
+      /**
+       * After a PIN: the server usually finished the action in the same trip.
+       * It hands back an unused proof only when the class needs choosing or
+       * the room was busy, and the existing paths finish those.
+       */
+      const finishPinResult = async () => {
+        if (state.requiresClassSelection) renderClassSelection();
+        else if (state.completedAction) renderCompletedAction(state.completedAction);
+        else await completeAuthorizedAction();
       };
 
       const renderActionPin = (requestedAction, message) => {
@@ -796,9 +1024,10 @@
             <p class="message">${escapeHtml(message || (checkIn
               ? 'A fresh PIN records exactly one daily check-in.'
               : 'A fresh PIN either requests the bathroom or records your return.'))}</p>
-            <label class="pin-label" for="action-pin">Your six-digit PIN</label>
-            <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
+            <label class="pin-label" for="action-pin">Your 5- or 6-digit PIN</label>
+            <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off" aria-label="5- or 6-digit student PIN" required>
             <button class="primary" type="submit">${checkIn ? 'check in now' : 'continue'}</button>
+            ${checkIn ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
             ${canGoBack ? '<button class="secondary" id="cancel-action-pin" type="button">go back</button>' : ''}
           </form>`;
         const input = document.querySelector('#action-pin');
@@ -808,15 +1037,15 @@
           const button = event.currentTarget.querySelector('.primary');
           act(button, async () => {
             try {
-              adoptState(await call('authorizeStudentAction', input.value, requestedAction, studentKey, getPinAttemptNonce()));
+              adoptState(await call('authorizeAndActStudent', 'authorize', input.value, requestedAction, studentKey, getPinAttemptNonce()));
             } catch (error) {
               input.select();
               throw error;
             }
-            if (state.requiresClassSelection) renderClassSelection();
-            else await completeAuthorizedAction();
+            await finishPinResult();
           });
         });
+        bindChecklingVisit(input);
         const cancel = document.querySelector('#cancel-action-pin');
         if (cancel) cancel.addEventListener('click', () => (checkIn ? renderCheckIn() : renderStudent()));
         armIdleReset();
@@ -832,7 +1061,7 @@
           renderActionPin(chosen === 'checkin' ? 'CHECKIN' : 'AUTO_PASS');
           return;
         }
-        if (chosen === 'checkin') renderCheckIn();
+        if (chosen === 'checkin' || chosen === 'checkling') renderCheckIn();
         else renderStudent();
       };
 
@@ -850,7 +1079,7 @@
         content.innerHTML = `
           <div class="checkin-card">
             <div class="student-head">
-              <div><p class="eyebrow">one student · one PIN</p><h2>${escapeHtml(firstName)}, choose your class.</h2><p class="student-meta">Your identity is confirmed. This choice tells GrantDesk where to record today’s activity.</p></div>
+              <div><p class="eyebrow">one student · one PIN</p><h2>${escapeHtml(firstName)}, choose your class.</h2><p class="student-meta">${state.purpose === 'checkling' ? 'Choose the class whose Checkling you want to visit. This does not record attendance.' : 'Your identity is confirmed. This choice tells Hall Pass where to record today’s activity.'}</p></div>
             </div>
             <div class="override">
               <select id="student-class"><option value="">choose the class you are attending…</option>${options}</select>
@@ -971,7 +1200,7 @@
         }));
 
         const switchButton = document.querySelector('#switch-student');
-        if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN.'));
+        if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your 5- or 6-digit PIN.'));
         const pinButton = document.querySelector('#use-pin');
         if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your PIN if this Chromebook is not signed into your own account.'));
         const evidenceDialog = document.querySelector('#allowance-evidence-dialog');
@@ -992,6 +1221,7 @@
       };
 
       const renderCheckIn = () => {
+        closePixelCamp();
         clearError();
         clearInterval(timerHandle);
         screen = 'checkin';
@@ -1028,7 +1258,7 @@
           <div class="checkin-card">
             <div class="student-head">
               <div>
-                <p class="eyebrow">${state.checkedIn ? late ? 'late sign-in' : 'recorded for today' : state.attendanceLocked ? 'teacher attendance review' : actionIsLate ? 'late check-in available' : 'on-time check-in'}</p>
+                <p class="eyebrow">${state.checkedIn ? late ? 'late sign-in' : 'recorded for today' : state.attendanceLocked ? 'teacher attendance review' : !eligibility.allowed ? 'Checkling visit' : actionIsLate ? 'late check-in available' : 'on-time check-in'}</p>
                 <h2>${escapeHtml(firstName)}.</h2>
                 <p class="student-meta">${escapeHtml(state.student.classPeriod || 'class')} · ${escapeHtml(state.method === 'pin' ? 'student PIN' : 'school Google account')}</p>
               </div>
@@ -1074,6 +1304,7 @@
                   ? '<button class="secondary" id="checkin-next">different student</button>'
                   : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
               </div>`}
+            <div id="checkling-slot"></div>
           </div>`;
 
         const actionButton = document.querySelector('#checkin-action');
@@ -1091,11 +1322,313 @@
         }));
 
         const nextButton = document.querySelector('#checkin-next');
-        if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN to check in.'));
+        if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your 5- or 6-digit PIN to check in.'));
 
         const pinButton = document.querySelector('#checkin-pin');
-        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your one six-digit student PIN. It works in all your classes.'));
+        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your 5- or 6-digit student PIN. It works in all your classes.'));
+        renderCheckling();
         armIdleReset();
+      };
+
+      /* Checkling is a companion to the signed-in student's official record.
+         Nuzzles and snack taps are cosmetic; only the existing PIN action
+         records attendance or awards points. No student data leaves this app. */
+      // A fresh port belongs to this one PIN session; the child never receives it.
+      let campPort = null, campFrame = null, campHost = null, campGeneration = 0, campGateTimer = null;
+      const closePixelCamp = () => {
+        campGeneration++;
+        clearTimeout(campGateTimer); campGateTimer = null;
+        if (campPort) campPort.close();
+        if (campFrame) campFrame.remove();
+        if (campHost) campHost.remove();
+        campPort = campFrame = campHost = null;
+      };
+      const openPixelCamp = async () => {
+        closePixelCamp();
+        cancelHandoff(); noteInteraction();
+        const generation = campGeneration, token = pinToken, studentKey = state && state.student && state.student.key;
+        const current = () => generation === campGeneration && token === pinToken && state && state.student && studentKey === state.student.key;
+        const button = document.querySelector('#ck-open-camp');
+        button.disabled = true;
+        try {
+          const snapshot = await call('getPixelCamp',token);
+          if (!current()) return;
+          const host = document.createElement('section');
+          host.className = 'ck-school-camp'; host.setAttribute('aria-label','Pixel Camp');
+          host.innerHTML = '<div class="ck-camp-top"><h3>your Pixel Camp</h3><button type="button" class="secondary">close camp</button></div><p class="message">Progress saves to your school PIN and this class. Check the save status before closing. Use Menu → Save to file if a save fails.</p>';
+          const frame = document.createElement('iframe');
+          frame.title = 'Your school Pixel Camp';
+          frame.setAttribute('sandbox','allow-scripts allow-downloads');
+          frame.setAttribute('referrerpolicy','no-referrer');
+          const channel = new MessageChannel();
+          campPort = channel.port1; campFrame = frame; campHost = host;
+          const port = channel.port1;
+          // Only new hosts advertise this read-only gate. Old services keep their existing behavior.
+          const hasAccessGate = typeof snapshot.access?.open === 'boolean';
+          let gateFlight = null;
+          const checkAccess = () => {
+            if (!hasAccessGate || !current()) return Promise.resolve(null);
+            if (gateFlight) return gateFlight;
+            gateFlight = call('getPixelCampAccess',token).then(access => {
+              if (current()) port.postMessage({type:'access',payload:access});
+              return access;
+            }).finally(() => { gateFlight = null; });
+            return gateFlight;
+          };
+          const scheduleAccess = () => {
+            campGateTimer = setTimeout(async () => {
+              if (!current()) return;
+              if (document.visibilityState !== 'hidden') { try { await checkAccess(); } catch {} }
+              if (current()) scheduleAccess();
+            },32000 + Math.floor(Math.random()*6000));
+          };
+          if (hasAccessGate) scheduleAccess();
+          port.onmessage = async ({data}) => {
+            if (!current() || !data || typeof data !== 'object') return;
+            if (data.type === 'ready') { port.postMessage({type:'init',payload:snapshot}); return; }
+            if (data.type === 'activity') { noteInteraction(); return; }
+            if (data.type === 'close') { closePixelCamp(); document.querySelector('#ck-open-camp')?.focus(); return; }
+            if (data.type === 'access') {
+              try { const access = await checkAccess(); if (current()) port.postMessage({id:data.id,payload:access}); }
+              catch (error) { if (current()) port.postMessage({id:data.id,error:error.message}); }
+              return;
+            }
+            if (data.type !== 'save') return;
+            const request = data.payload;
+            try {
+              const saved = await call('savePixelCamp',token,request.expectedRevision,request.mutationId,request.camp);
+              if (current()) port.postMessage({id:data.id,payload:saved});
+            } catch (error) {
+              if (current()) port.postMessage({id:data.id,error:error.message || 'School save not confirmed.'});
+              try { await checkAccess(); } catch {}
+            }
+          };
+          port.start();
+          frame.onload = () => { if (current()) frame.contentWindow.postMessage({type:'checkling-camp-connect'},'*',[channel.port2]); };
+          frame.srcdoc = document.querySelector('#ck-camp-template').innerHTML;
+          host.querySelector('button').onclick = () => { closePixelCamp(); button.focus(); };
+          host.append(frame); document.querySelector('.shell').append(host); host.scrollIntoView({block:'start',behavior:'auto'});
+        } catch (error) { if (current()) showError(error.message || 'Camp could not load. Try again.'); }
+        finally { if (current()) button.disabled = false; }
+      };
+
+      const renderCheckling = () => {
+        const slot = document.querySelector('#checkling-slot');
+        if (!slot) return;
+        const companion = state.checkling;
+        if (!companion || !companion.available) {
+          slot.innerHTML = '<p class="message">Your Checkling is taking a break. Your attendance confirmation above still counts.</p>';
+          return;
+        }
+        const friends = [
+          {id:'mochi', name:'Mochi', kind:'soft-hearted monster', trait:'small friend, enormous feelings', hello:['A tiny wave. An enormous commitment to this friendship.','Currently practicing a very brave hello.','Found a comfortable patch of sunlight. Saved you half.'], nuzzle:['melts into a happy little puddle','offers a very serious tiny hug','leans in with maximum squish']},
+          {id:'bolt', name:'Bolt', kind:'curious little robot', trait:'built for small discoveries', hello:['Running today’s important program: be your friend.','Invented a machine that does absolutely nothing. Very proud.','Found a fascinating pebble. Analysis is ongoing.'], nuzzle:['makes a pleased little boop','files this under excellent human interactions','runs a very successful hug simulation']},
+          {id:'zee', name:'Zee', kind:'cosmic daydreamer', trait:'a whole universe of curiosity', hello:['Searching the universe for a good snack.','Reports that Earth friendship is going very well.','Named a constellation after a sandwich.'], nuzzle:['glows one very happy shade brighter','does the intergalactic friendship wiggle','declares this a first-class Earth nuzzle']},
+          {id:'ember', name:'Ember', kind:'pocket-sized dragon', trait:'a brave heart with tiny wings', hello:['Guarding a treasure hoard of three nice leaves.','Practicing a heroic entrance. It needs more wings.','Accidentally toasted a berry. Calls it cuisine.'], nuzzle:['tucks those tiny wings around you','gives a very careful dragon hug','puffs a little heart-shaped cloud']},
+        ];
+        const pet = companion.pet;
+        const friend = friends.find(entry => pet && entry.id === pet.species) || friends[0];
+        const journey = companion.journey || [];
+        const home = journey.find(entry => pet && entry.habitat === pet.habitat) || journey[0];
+        const habitat = home ? home.habitat : 'meadow';
+        /* Keep slashes escaped: HtmlService can strip a literal URL as a line comment. */
+        const images = 'https:\x2f\x2fgrant-desk.com/hubs/checkling/pets/';
+        const species = pet ? friend.id : 'egg';
+        const seed = Array.from(String(state.dateKey) + species).reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 17);
+        const message = companion.visitedToday
+          ? companion.countedToday ? 'You showed up. I noticed. Today is recorded.' : 'Glad you made it. Your sign-in is recorded; the point follows your teacher’s review.'
+          : companion.protectedDay ? 'Day off. I’m resting too. Your school-day streak is protected.'
+          : 'Your seat is saved. Use the check-in above when your class opens.';
+        const best = Number(companion.bestStreak) || 0;
+        const goal = Number(companion.nextMilestone) || 30;
+        slot.innerHTML = `
+          <section class="ck-pocket" aria-labelledby="ck-title">
+            <div class="ck-screen ck-world ck-home-${habitat}">
+              <p class="ck-label">checkling · ${escapeHtml(companion.stage)}</p>
+              <span class="ck-atmosphere" aria-hidden="true"><i></i><i></i><i></i></span>
+              <p class="ck-home-label">${escapeHtml(home ? home.home : 'Morning meadow')}</p>
+              <button type="button" class="ck-pet" aria-label="${pet ? `Say hello to ${escapeHtml(pet.name)}` : 'Say hello to your Checkling egg'}">
+                <picture><source media="(prefers-reduced-motion: reduce)" srcset="${images}${species}/idle-1.png"><img src="${images}${species}/animation.gif" alt="${pet ? escapeHtml(pet.name) : 'A Checkling egg'}" width="144" height="144" referrerpolicy="no-referrer" style="transform:scale(${Number(companion.scale) || 0.82})"></picture>
+              </button>
+              <span class="ck-mood" id="ck-mood">${pet ? 'happy you’re here' : 'a little possibility'}</span>
+              <h3 id="ck-title">${pet ? escapeHtml(pet.name) : 'Someone saved your seat.'}</h3>
+              <p id="ck-message" role="status">${pet ? message : 'Choose a friend. Your normal daily check-in helps them grow.'}</p>
+              ${pet ? `<p class="ck-daydream"><span>today’s tiny thought</span>${escapeHtml(friend.hello[seed % friend.hello.length])}</p>` : ''}
+            </div>
+            <div class="ck-controls">
+              <div><p class="ck-kicker">${pet ? escapeHtml(friend.trait) : 'a small beginning'}</p><h4>${pet ? 'A little world. Yours together.' : 'Meet your new desk buddy.'}</h4></div>
+              <p>Your friend grows with your best official school-day streak. Every milestone opens a new home and a keepsake. A missed day never takes one away.</p>
+              <div class="ck-growth"><div><strong>${escapeHtml(companion.stage)}</strong><span>best streak · ${best}</span></div><progress value="${Math.min(best,goal)}" max="${goal}" aria-label="${companion.nextMilestone ? `${best} of ${goal} school days toward the next stage` : 'All Checkling stages unlocked'}"></progress><p>${companion.nextMilestone ? `${Math.max(0,goal-best)} more consecutive school ${goal-best === 1 ? 'day' : 'days'} to the next little adventure.` : 'Every home unlocked. There’s still a whole world to play in.'}</p></div>
+              ${pet ? '<div class="ck-action-grid"><button type="button" class="secondary" id="ck-nuzzle">nuzzle</button><button type="button" class="secondary" id="ck-snacks">snacks</button><button type="button" class="secondary" id="ck-pairs">star pairs</button><button type="button" class="secondary" id="ck-echo">echo grove</button></div><div id="ck-play" class="ck-play" aria-label="Checkling play corner"></div>' : ''}
+              ${pet ? '<button type="button" class="secondary" id="ck-open-camp">open Pixel Camp</button><p class="ck-note">Your school PIN, original friend, earned homes and private camp save travel together.</p>' : ''}
+              ${pet ? '<button type="button" class="secondary" id="ck-ride-bus">ride the bus to the Checkaverse</button><p id="ck-bus" class="ck-note" role="status">Battle your class and keep what you catch. Your ticket carries no name.</p>' : ''}
+              <details ${pet ? '' : 'open'}><summary>${pet ? 'make it yours' : 'hatch a friend'}</summary><form id="ck-form">
+                <fieldset class="ck-friends"><legend>Choose a friend</legend>${friends.map(entry => `<label><input type="radio" name="ck-species" aria-label="${escapeHtml(entry.name + ", " + entry.kind)}" value="${entry.id}" ${entry.id === friend.id ? 'checked' : ''}><img src="${images}${entry.id}/idle-1.png" alt="" width="56" height="56" referrerpolicy="no-referrer"><span>${entry.name}</span></label>`).join('')}</fieldset>
+                <label class="ck-name">Their name<input name="ck-name" maxlength="18" required value="${escapeHtml(pet ? pet.name : friend.name)}" autocomplete="off"></label>
+                <label class="ck-name">Their little home<select name="ck-habitat" aria-label="Their little home">${journey.map(entry => `<option value="${entry.habitat}" ${entry.habitat === habitat ? 'selected' : ''} ${entry.unlocked ? '' : 'disabled'}>${escapeHtml(entry.home)}${entry.unlocked ? '' : ` · opens at ${entry.min} days`}</option>`).join('')}</select></label>
+                <button type="submit" class="secondary">${pet ? 'save friend' : 'hatch my Checkling'}</button><p id="ck-save-status" role="status"></p>
+              </form></details>
+              <p class="ck-note">Your friend and home follow this class login across devices. Play is just for fun; attendance and points come from the confirmation above. ${sharedDevice() ? `Choose ${state.checkedIn ? 'done — next student' : 'different student'} above when your visit is over.` : ''}</p>
+            </div>
+            ${journey.length ? `<details class="ck-journey"><summary>your little journey <span>${journey.filter(entry => entry.unlocked).length} / 5 keepsakes</span></summary><ol>${journey.map(entry => `<li class="${entry.unlocked ? 'is-earned' : ''}" ${entry.label === companion.stage ? 'aria-current="step"' : ''}><span class="ck-keepsake" aria-hidden="true">${entry.unlocked ? entry.symbol : '◇'}</span><strong>${escapeHtml(entry.keepsake)}</strong><span>${entry.min === 0 ? 'A new friendship' : `${entry.min} school days`} · ${escapeHtml(entry.label)}</span><small>${entry.unlocked ? 'yours to keep' : `opens ${escapeHtml(entry.home)}`}</small></li>`).join('')}</ol><p class="ck-note">Earned from your best official streak. Weekends and school closures protect it. Late points follow your teacher’s review.</p></details>` : ''}
+          </section>`;
+        const campButton = slot.querySelector('#ck-open-camp');
+        if (campButton) campButton.onclick = openPixelCamp;
+        // The bus prints a two hour ticket for the shared town. The student taps a second time to board, so no
+        // pop-up blocker can stop it and nothing opens on its own.
+        const busButton = slot.querySelector('#ck-ride-bus');
+        if (busButton) busButton.onclick = async () => {
+          const token = pinToken, line = slot.querySelector('#ck-bus');
+          busButton.disabled = true; noteInteraction();
+          line.textContent = 'Printing your bus ticket…';
+          try {
+            const ride = await call('getCheckaverseTicket', token);
+            if (token !== pinToken || !line.isConnected) return;
+            const link = document.createElement('a');
+            link.href = ride.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.className = 'ck-bus-link';
+            link.textContent = 'board the bus ↗';
+            line.textContent = '';
+            line.append(link, ' Your ticket works for two hours in the tab it opens.');
+            link.focus();
+          } catch (error) {
+            if (line.isConnected) line.textContent = error.message || 'The bus could not leave. Try again.';
+          } finally {
+            if (busButton.isConnected) busButton.disabled = false;
+          }
+        };
+        const shell = slot.querySelector('.ck-pocket');
+        // An active companion visit may outlast the brief transaction handoff.
+        // The existing two-minute inactivity reset and explicit next-student
+        // control remain authoritative for shared-screen privacy.
+        const keepVisit = () => {
+          if (!sharedDevice() || !handoffHandle) return;
+          cancelHandoff();
+          content.querySelectorAll('.handoff').forEach(note => note.remove());
+        };
+        shell.addEventListener('click', keepVisit, true);
+        shell.addEventListener('keydown', keepVisit, true);
+        const say = shell.querySelector('#ck-message');
+        const mood = shell.querySelector('#ck-mood');
+        const petButton = shell.querySelector('.ck-pet');
+        const react = (text, feeling) => {
+          if (!shell.isConnected) return;
+          say.textContent = text;
+          mood.textContent = feeling;
+          petButton.classList.remove('is-bouncing');
+          void petButton.offsetWidth;
+          petButton.classList.add('is-bouncing');
+        };
+        petButton.addEventListener('animationend', () => petButton.classList.remove('is-bouncing'));
+        let hellos = 0;
+        petButton.addEventListener('click', () => react(pet ? friend.hello[(seed + ++hellos) % friend.hello.length] : 'A tiny rustle from inside. Someone is excited to meet you.', pet ? 'feeling seen' : 'nearly ready'));
+        const form = shell.querySelector('#ck-form');
+        let defaultName = friend.name;
+        form.querySelectorAll('[name=ck-species]').forEach(radio => radio.addEventListener('change', () => {
+          const selected = friends.find(entry => entry.id === radio.value);
+          if (!pet && form.elements['ck-name'].value === defaultName) form.elements['ck-name'].value = selected.name;
+          defaultName = selected.name;
+        }));
+        form.addEventListener('submit', async event => {
+          event.preventDefault();
+          const button = form.querySelector('button[type="submit"]');
+          if (button.disabled) return;
+          const token = pinToken;
+          const identity = state.student.key;
+          button.disabled = true;
+          const status = form.querySelector('#ck-save-status');
+          status.textContent = 'Saving your little world…';
+          try {
+            const selected = form.querySelector('input[name="ck-species"]:checked').value;
+            const next = await call('saveCheckling', token, selected, form.elements['ck-name'].value, form.elements['ck-habitat'].value);
+            if (!state.student || state.student.key !== identity || pinToken !== token || screen !== 'checkin' || !form.isConnected) return;
+            adoptState(next);
+            renderCheckIn();
+            const savedMessage = document.querySelector('#ck-message');
+            if (savedMessage) savedMessage.textContent = 'Your little world is saved. Your friend is settling in.';
+          } catch (error) {
+            status.textContent = 'Couldn’t save your friend. Your check-in is unaffected. Try again.';
+          } finally { button.disabled = false; }
+        });
+        if (!pet) return;
+        let nuzzles = 0;
+        shell.querySelector('#ck-nuzzle').addEventListener('click', () => react(`${pet.name} ${friend.nuzzle[nuzzles++ % friend.nuzzle.length]}. A very good nuzzle.`, 'feeling loved'));
+        const game = shell.querySelector('#ck-play');
+        const openGame = (title, intro, body) => {
+          game.innerHTML = `<div class="ck-game-head"><h4>${title}</h4><button type="button" aria-label="Close play corner">×</button></div><p class="ck-game-status" role="status">${intro}</p>${body}`;
+          game.querySelector('.ck-game-head button').addEventListener('click', () => { game.innerHTML = ''; shell.querySelector('#ck-snacks').focus(); });
+          return game.querySelector('.ck-game-status');
+        };
+        shell.querySelector('#ck-snacks').addEventListener('click', () => {
+          let caught = 0;
+          const status = openGame('the berry patch', 'Six little berries. One very enthusiastic friend.', '<div class="ck-berries">' + Array.from({length:6}, (_,i) => `<button type="button" aria-label="Berry ${i+1}"><span aria-hidden="true">●</span></button>`).join('') + '</div>');
+          game.querySelectorAll('.ck-berries button').forEach(berry => berry.addEventListener('click', () => {
+            if (berry.disabled) return;
+            berry.disabled = true; berry.textContent = '✓'; caught++;
+            status.textContent = caught === 6 ? 'Berry legend. No extra points. Just a happy friend.' : `${caught} of 6 berries. A promising snack situation.`;
+            if (caught === 6) react(`${pet.name} has strong opinions about berries. All of them are good.`, 'snack champion');
+          }));
+        });
+        const stars = [{name:'sun',icon:'☀'},{name:'moon',icon:'☾'},{name:'leaf',icon:'❧'},{name:'star',icon:'★'}];
+        shell.querySelector('#ck-pairs').addEventListener('click', () => {
+          const deck = [0,1,2,3,0,1,2,3];
+          let random = seed;
+          for (let i=deck.length-1;i>0;i--) { random = (Math.imul(random,1664525)+1013904223) >>> 0; const j=random%(i+1); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+          const status = openGame('star pairs', 'Find four matching pairs. Take all the time you need.', '<div class="ck-card-grid">' + deck.map((_,i) => `<button type="button" aria-label="Card ${i+1}, face down" aria-pressed="false">✦</button>`).join('') + '</div><button type="button" class="secondary" id="ck-pairs-flip" hidden>turn these over</button>');
+          const cards = [...game.querySelectorAll('.ck-card-grid button')];
+          const matched = new Set(); let open = [], moves = 0;
+          const flip = game.querySelector('#ck-pairs-flip');
+          const paint = () => cards.forEach((card,i) => {
+            const visible = matched.has(i) || open.includes(i), star = stars[deck[i]];
+            card.textContent = visible ? star.icon : '✦';
+            card.setAttribute('aria-label', `Card ${i+1}, ${visible ? star.name : 'face down'}${matched.has(i) ? ', matched' : ''}`);
+            card.setAttribute('aria-pressed', String(visible));
+            card.classList.toggle('is-matched',matched.has(i));
+            card.disabled = matched.has(i);
+          });
+          flip.addEventListener('click', () => { open=[]; paint(); flip.hidden=true; status.textContent='Pick two stars. Their friends are out there.'; cards.find(button => !button.disabled).focus(); });
+          cards.forEach((card,i) => card.addEventListener('click', () => {
+            if (matched.has(i) || open.includes(i)) return;
+            if (open.length === 2) { open = []; flip.hidden=true; }
+            open.push(i); paint();
+            if (open.length < 2) { status.textContent = `A ${stars[deck[i]].name}. Where is its friend?`; return; }
+            moves++;
+            if (deck[open[0]] === deck[open[1]]) {
+              open.forEach(index => matched.add(index)); open = []; paint();
+              status.textContent = matched.size === 8 ? `Constellation complete in ${moves} turns. Four pairs, one delighted friend.` : `${matched.size/2} of 4 pairs found. A little constellation is coming together.`;
+              if (matched.size === 8) { react(`${pet.name} thinks you just arranged the whole night sky.`, 'star collector'); game.querySelector('.ck-game-head button').focus(); }
+              else cards.find(button => !button.disabled).focus();
+            } else { flip.hidden=false; status.textContent = 'Two different stars. Turn them over, or choose another card when you’re ready.'; }
+          }));
+        });
+        shell.querySelector('#ck-echo').addEventListener('click', () => {
+          let level = 3, cursor = 0, remembering = false;
+          const pattern = Array.from({length:5},(_,i) => (seed >>> (i*3))%4);
+          const status = openGame('echo grove', 'Remember the trail, then let your friend follow your footsteps.', '<ol class="ck-echo-trail" aria-label="Trail to remember"></ol><div class="ck-echo-actions"><button type="button" class="secondary" id="ck-echo-ready">ready — hide the trail</button><button type="button" class="secondary" id="ck-echo-replay">show the trail again</button></div><div class="ck-echo-notes">' + stars.map((star,i) => `<button type="button" data-note="${i}" disabled><span aria-hidden="true">${star.icon}</span>${star.name}</button>`).join('') + '</div><button type="button" class="secondary" id="ck-echo-next" hidden>try a longer trail</button>');
+          const trail = game.querySelector('.ck-echo-trail');
+          const ready = game.querySelector('#ck-echo-ready');
+          const notes = [...game.querySelectorAll('[data-note]')];
+          const next = game.querySelector('#ck-echo-next');
+          const show = () => {
+            cursor=0; remembering=false; trail.hidden=false; ready.hidden=false; next.hidden=true;
+            trail.innerHTML=pattern.slice(0,level).map(note => `<li><span aria-hidden="true">${stars[note].icon}</span>${stars[note].name}</li>`).join('');
+            notes.forEach(button => button.disabled=true);
+            status.textContent=`A ${level}-step trail. Have a look, then hide it when you’re ready.`;
+          };
+          ready.addEventListener('click', () => { remembering=true; trail.hidden=true; ready.hidden=true; notes.forEach(button => button.disabled=false); status.textContent=`Your turn. Repeat the ${level} steps.`; notes[0].focus(); });
+          game.querySelector('#ck-echo-replay').addEventListener('click', show);
+          notes.forEach((button,note) => button.addEventListener('click', () => {
+            if (!remembering) return;
+            if (pattern[cursor] !== note) { show(); status.textContent='A different path. Your friend is patient. Have another look and try again.'; ready.focus(); return; }
+            cursor++;
+            if (cursor === level) {
+              remembering=false; notes.forEach(item => item.disabled=true); next.hidden=false; next.textContent=level<5 ? 'try a longer trail' : 'take the trail again';
+              status.textContent=`Trail remembered! ${level} little steps, perfectly echoed.`;
+              react(`${pet.name} followed every step. That’s teamwork.`, 'echo explorer'); next.focus();
+            } else status.textContent=`${cursor} of ${level} steps remembered. Keep going.`;
+          }));
+          next.addEventListener('click', () => { level=Math.min(5,level+1); show(); ready.focus(); });
+          show();
+        });
       };
 
       /* ------------------------------------------------------------ teacher */
@@ -1288,6 +1821,172 @@
         document.body.append(dialog); dialog.showModal();
         (wantsInput ? input : dialog.querySelector('#teacher-action-cancel')).focus();
       });
+      /** A form dialog outside the rerendered content; polling pauses while it is open. */
+      const teacherFormDialog = (html, onSubmit) => {
+        const previous = document.activeElement;
+        const dialog = document.createElement('dialog');
+        dialog.className = 'teacher-action-dialog setup-dialog';
+        dialog.innerHTML = `<form novalidate>${html}<p class="setup-error" role="alert" hidden></p><div class="button-row"><button class="secondary" type="button" data-dialog-cancel>Cancel</button><button class="primary" type="submit">Save</button></div></form>`;
+        const form = dialog.querySelector('form');
+        const errorLine = dialog.querySelector('.setup-error');
+        const saveButton = form.querySelector('button[type="submit"]');
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          errorLine.hidden = true;
+          saveButton.disabled = true; saveButton.textContent = 'Saving…';
+          try {
+            const done = await onSubmit(form);
+            if (done !== false) dialog.close();
+          } catch (error) {
+            errorLine.textContent = error.message; errorLine.hidden = false;
+          } finally {
+            saveButton.disabled = false; saveButton.textContent = 'Save';
+          }
+        });
+        dialog.querySelector('[data-dialog-cancel]').addEventListener('click', () => dialog.close());
+        dialog.addEventListener('close', () => { dialog.remove(); if (previous && previous.isConnected) previous.focus({preventScroll:true}); }, {once:true});
+        document.body.append(dialog); dialog.showModal();
+        const first = dialog.querySelector('input, textarea, select'); if (first) first.focus();
+        return dialog;
+      };
+
+      const openClassroomSetupDialog = () => {
+        const setup = (state && state.classroomSetup) || { periods: [] };
+        const bellRows = (list, prefix, label) => (list || []).map((row) => `<tr><th scope="row">Period ${escapeHtml(row.period)}</th><td><input type="time" data-${prefix}-start="${escapeHtml(row.period)}" value="${escapeHtml(row.start)}" aria-label="${label}Period ${escapeHtml(row.period)} start"></td><td><input type="time" data-${prefix}-end="${escapeHtml(row.period)}" value="${escapeHtml(row.end)}" aria-label="${label}Period ${escapeHtml(row.period)} end"></td></tr>`).join('');
+        const rows = bellRows(setup.periods, 'bell', '');
+        const reducedList = setup.reducedPeriods && setup.reducedPeriods.length ? setup.reducedPeriods : (setup.periods || []).map((row) => ({ period: row.period, start: '', end: '' }));
+        const reducedRows = bellRows(reducedList, 'reduced', 'Reduced day ');
+        const hasReduced = reducedList.some((row) => row.start) || (setup.reducedDates || []).length > 0;
+        teacherFormDialog(`<p class="eyebrow">CLASSROOM SETUP</p><h2>your bell schedule.</h2>
+          <p>Enter a normal day's start and end time for each period you teach. Leave the rest blank. Passes open and close with these times, and students in two of your classes are routed to the one meeting now.</p>
+          <table class="bell-table"><thead><tr><th>period</th><th>starts</th><th>ends</th></tr></thead><tbody>${rows}</tbody></table>
+          <div class="field-grid">
+            <label>First day of school<input type="date" name="yearStart" value="${escapeHtml(setup.yearStart || '')}"></label>
+            <label>Last day of school<input type="date" name="yearEnd" value="${escapeHtml(setup.yearEnd || '')}"></label>
+          </div>
+          <label>Student email ending<input name="studentEmailDomain" placeholder="students.yourschool.org" value="${escapeHtml(setup.studentEmailDomain || '')}" autocomplete="off"></label>
+          <label>No-school days (one per line, like 2026-11-26)<textarea name="noSchoolDates" rows="4">${escapeHtml((setup.noSchoolDates || []).join('\n'))}</textarea></label>
+          <details class="reduced-setup"${hasReduced ? ' open' : ''}><summary>Reduced days (shortened schedule)</summary>
+            <p>On these days Hall Pass uses the reduced bell times below instead of the normal ones. Leave both blank if your school has no reduced days.</p>
+            <table class="bell-table"><thead><tr><th>period</th><th>starts</th><th>ends</th></tr></thead><tbody>${reducedRows}</tbody></table>
+            <label>Reduced days (one per line, like 2026-10-14)<textarea name="reducedDates" rows="4">${escapeHtml((setup.reducedDates || []).join('\n'))}</textarea></label>
+          </details>`,
+        async (form) => {
+          const periods = (setup.periods || []).map((row) => ({
+            period: row.period,
+            start: form.querySelector(`[data-bell-start="${row.period}"]`).value,
+            end: form.querySelector(`[data-bell-end="${row.period}"]`).value,
+          }));
+          const reducedPeriods = reducedList.map((row) => ({
+            period: row.period,
+            start: form.querySelector(`[data-reduced-start="${row.period}"]`).value,
+            end: form.querySelector(`[data-reduced-end="${row.period}"]`).value,
+          }));
+          const payload = {
+            periods,
+            reducedPeriods,
+            reducedDates: form.elements.reducedDates.value,
+            yearStart: form.elements.yearStart.value,
+            yearEnd: form.elements.yearEnd.value,
+            studentEmailDomain: form.elements.studentEmailDomain.value,
+            noSchoolDates: form.elements.noSchoolDates.value,
+          };
+          adoptState(await call('teacherSaveClassroomSetup', payload));
+          renderTeacher();
+        });
+      };
+
+      const openPasteStudentsDialog = () => {
+        const options = Array.from({ length: 8 }, (_, index) => `<option value="Period ${index + 1}">Period ${index + 1}</option>`).join('');
+        teacherFormDialog(`<p class="eyebrow">ADD STUDENTS</p><h2>paste a class list.</h2>
+          <p>Copy the name and school email columns from Google Classroom, a spreadsheet, or your student information system, then paste them below. One student per line. Students already on your list are skipped, and every new student gets a PIN.</p>
+          <div class="field-grid">
+            <label>Period<select name="period">${options}</select></label>
+            <label>Class name (optional)<input name="className" placeholder="Biology" maxlength="60" autocomplete="off"></label>
+          </div>
+          <label>Students<textarea name="students" rows="8" placeholder="Maya&#9;Okafor&#9;maya.okafor@students.school.org"></textarea></label>`,
+        async (form) => {
+          const label = form.elements.className.value.trim();
+          const classPeriod = label ? `${form.elements.period.value} — ${label}` : form.elements.period.value;
+          adoptState(await call('teacherPasteStudents', form.elements.students.value, classPeriod));
+          renderTeacher();
+        });
+      };
+
+      const openSchoolDirectoryDialog = async () => {
+        const directory = await call('teacherGetSchoolDirectoryState');
+        let previewKey = '', revision = '';
+        teacherFormDialog(`<p class="eyebrow">SCHOOLWIDE ROSTER · VERSION ${escapeHtml(directory.version)}</p><h2>one school number in every room.</h2>
+          <p>Import the school list into a separate private directory. Students stay unassigned until you add them to a class. Link verified school emails by the exact lunch number.</p>
+          ${directory.directoryUrl ? `<p><a href="${escapeHtml(directory.directoryUrl)}" target="_blank" rel="noopener">Open your private directory</a> · ${escapeHtml(directory.students)} students · ${escapeHtml(directory.withoutEmail)} need email mapping.</p>` : ''}
+          <label>Choose a task<select name="task"><option value="import">Import / update the school directory</option><option value="connect">Connect this classroom to a directory</option><option value="enroll">Enroll a student by school number</option></select></label>
+          <label>School list (number, then name; or tab-separated number, name, email)<textarea name="list" rows="7" autocomplete="off"></textarea></label>
+          <label>Verified email mapping (optional; number,school email)<textarea name="mapping" rows="4" autocomplete="off"></textarea></label>
+          <label>Directory spreadsheet link (for connection)<input name="directory" value="${escapeHtml(directory.sourceId ? ['https:', '', 'docs.google.com', 'spreadsheets', 'd', directory.sourceId, 'edit'].join('/') : directory.directoryUrl)}" autocomplete="off"></label>
+          <label>School number (for enrollment)<input name="studentId" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off"></label>
+          <label>Class / period (for enrollment)<input name="period" placeholder="Period 1" autocomplete="off"></label>
+          <div class="lunch-preview" hidden></div>
+          <label>Confirmation (shown after preview)<input name="confirmation" autocomplete="off"></label>`, async (form) => {
+          const task = form.elements.task.value, list = form.elements.list.value, mapping = form.elements.mapping.value;
+          const directoryUrl = form.elements.directory.value;
+          if (task === 'enroll') {
+            adoptState(await call('teacherEnrollSchoolStudent', form.elements.studentId.value, form.elements.period.value));
+            renderTeacher(); return true;
+          }
+          const key = JSON.stringify([task, list, mapping, directoryUrl]);
+          const box = form.querySelector('.lunch-preview');
+          const phrase = task === 'connect' ? 'USE SCHOOL DIRECTORY' : 'IMPORT SCHOOL DIRECTORY';
+          if (previewKey !== key || !revision) {
+            const result = task === 'connect'
+              ? await call('teacherConnectSchoolDirectory', directoryUrl, '', '')
+              : await call('teacherImportSchoolDirectory', list, mapping, '', '');
+            const p = result.preview; revision = p.revision; previewKey = key;
+            box.hidden = false;
+            box.innerHTML = task === 'connect'
+              ? `<p>${escapeHtml(p.matched)} current students matched. ${escapeHtml(p.unmatched.length)} need verified mappings.</p>${p.unmatched.length ? `<p>${escapeHtml(p.unmatched.join(', '))}</p>` : `<p>Current PINs will change to the exact school lunch numbers. Open identity sessions will expire.</p>`}`
+              : `<p>${escapeHtml(p.total)} students in the directory, ${escapeHtml(p.added)} added, ${escapeHtml(p.withoutEmail)} without email mappings. No class enrollments are created.</p>`;
+            box.innerHTML += `<p>Type <strong>${phrase}</strong>, then save again to apply.</p>`;
+            form.elements.confirmation.value = '';
+            return false;
+          }
+          if (form.elements.confirmation.value.trim() !== phrase) throw new Error('Type ' + phrase + ' to apply the preview.');
+          const result = task === 'connect'
+            ? await call('teacherConnectSchoolDirectory', directoryUrl, phrase, revision)
+            : await call('teacherImportSchoolDirectory', list, mapping, phrase, revision);
+          if (!result.applied) throw new Error('The change was not applied. Preview again.');
+          teacherNotice = task === 'connect' ? 'Classroom connected. Students now use their exact school lunch number.' : 'School directory imported. Students remain unassigned until enrolled in a class.';
+          renderTeacher();
+          return true;
+        });
+      };
+
+      const openLunchPinDialog = () => {
+        let previewed = '';
+        teacherFormDialog(`<p class="eyebrow">STUDENT PINS</p><h2>use lunch numbers as PINs.</h2>
+          <p>Paste two columns from the school list: each student's school email and their 5- or 6-digit lunch number. Students who are not in your classes are ignored, so the whole school list is fine.</p>
+          <label>School list<textarea name="list" rows="8" placeholder="student@students.school.org&#9;412345"></textarea></label>
+          <div class="lunch-preview" hidden></div>
+          <label class="lunch-confirm" hidden>Type USE LUNCH NUMBERS to switch<input name="confirmation" autocomplete="off"></label>`,
+        async (form) => {
+          const list = form.elements.list.value;
+          const box = form.querySelector('.lunch-preview');
+          const confirmLabel = form.querySelector('.lunch-confirm');
+          if (previewed !== list || confirmLabel.hidden) {
+            const result = await call('teacherSetLunchNumberPins', list, '');
+            const p = result.preview;
+            box.hidden = false;
+            box.innerHTML = `<p><strong>${escapeHtml(p.matched)}</strong> of your students will switch to their lunch number. <strong>${escapeHtml(p.keepOldPin)}</strong> keep their current PIN. ${escapeHtml(p.notInClasses)} list rows are not in your classes.</p>`
+              + (p.problemCount ? `<p class="setup-error">Fix ${escapeHtml(p.problemCount)} problem${p.problemCount === 1 ? '' : 's'} first: ${escapeHtml(p.problems.join('; '))}</p>` : '');
+            confirmLabel.hidden = Boolean(p.problemCount) || !p.matched;
+            previewed = list;
+            return false;
+          }
+          adoptState(await call('teacherSetLunchNumberPins', list, form.elements.confirmation.value.trim()));
+          renderTeacher();
+          return true;
+        });
+      };
+
       const teacherConfirm = (message) => teacherDialog(message, false);
       const teacherPrompt = (message) => teacherDialog(message, true);
 
@@ -1308,7 +2007,7 @@
         const late = active.filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= Number(data.lateAfterMinutes || 10)).length;
         const carryover = active.filter((pass) => pass.blocksCurrentCapacity === false).length;
         const unmatched = (data.unmatchedSignIns || []).length;
-        const pendingLateCheckIns = (data.lateCheckInsToday || []).filter((checkIn) => checkIn.status === 'LATE_PENDING').length;
+        const pendingLateCheckIns = (data.pendingLateCheckIns || []).length;
         const rollovers = (data.rolloverPassesToday || []).length;
         const usage = data.studentPassUsage || [];
         const unrecognized = new Set(usage.filter((student) => !student.googleVerified).map((student) => student.email)).size;
@@ -1387,12 +2086,12 @@
           'pass-cooldown-minutes': 'Minutes a student waits after returning before requesting again. Enter 0 to turn off this wait.',
           'late-pass-minutes': 'Show an overdue warning after this many minutes. This does not automatically return the student.',
           'stale-pass-minutes': 'Show a stronger check-on-student warning. Must be at least the overdue-warning time. This does not end a pass.',
-          'checkin-window-minutes': 'Minutes after class starts that count as on-time. Students can still sign in afterward; late sign-ins begin at 0 points until you review them.',
+          'checkin-window-minutes': 'Minutes after class starts that count as on-time. Students can still sign in late while that class is meeting; self-check-in closes when class ends.',
           'teacher-pass-sound': 'Applies only to this teacher device. Test once to enable browser audio. Choose Off for a quiet classroom.',
           'teacher-student': 'Start a pass using teacher authority. A private reason is required when overriding a restriction.',
           'teacher-checkin-student': 'Record attendance for a student who is here. A private reason is required outside the check-in window.',
           'pass-count-filter': 'Each row is one class membership. Used and remaining refer to that class for this marking period.',
-          'roster-class-period': 'Choose an existing class or enter a new class label. Existing students keep their current PIN.',
+          'roster-class-period': 'Use a class label beginning with Period 1 through Period 8 so Hall Pass can apply the correct bell schedule. Existing students keep their current PIN.',
         };
         Object.entries(help).forEach(([id, text]) => {
           const field = document.getElementById(id);
@@ -1448,6 +2147,39 @@
         intro('attendance', 'attendance.', 'See check-ins by class and help students who need a manual attendance update.');
         intro('students', 'students & access.', 'Class memberships, pass allowances, and private access settings in one place.');
         intro('settings', 'make it work for your classroom.', 'Set your pass rules, choose an alert sound, and manage PIN delivery.');
+        const setup = state.classroomSetup || null;
+        if (setup) {
+          const card = document.createElement('section');
+          card.className = 'subcard setup-card'; card.id = 'classroom-setup-card';
+          const scheduled = (setup.periods || []).filter((row) => row.start && row.end);
+          const links = setup.studentLink
+            ? `<div class="setup-links"><label>Student link (own Chromebooks)<input readonly value="${escapeHtml(setup.studentLink)}" data-copy-link></label><label>One-station link (kiosk by the door)<input readonly value="${escapeHtml(setup.kioskLink)}" data-copy-link></label></div>`
+            : '';
+          card.innerHTML = `<h3>classroom setup</h3>
+            <p class="message">${scheduled.length ? `${scheduled.length} class periods on your bell schedule` : '<strong>No bell times yet.</strong> Students cannot sign out until you add them'} · ${escapeHtml(setup.studentCount)} students in ${escapeHtml(setup.membershipCount)} class memberships.</p>
+            <div class="button-row"><button class="${scheduled.length ? 'secondary' : 'primary'}" type="button" data-open-setup="bells">bell times &amp; school calendar</button><button class="secondary" type="button" data-open-setup="students">add students by pasting</button></div>
+            ${links}`;
+          panels.settings.append(card);
+          card.querySelector('[data-open-setup="bells"]').addEventListener('click', () => openClassroomSetupDialog());
+          card.querySelector('[data-open-setup="students"]').addEventListener('click', () => openPasteStudentsDialog());
+          card.querySelectorAll('[data-copy-link]').forEach((input) => input.addEventListener('focus', () => input.select()));
+          const lunch = document.createElement('section');
+          lunch.className = 'subcard setup-card'; lunch.id = 'lunch-pin-card';
+          lunch.innerHTML = `<h3>school directory &amp; lunch-number PINs</h3>
+            <p class="message">When you have the school list, students can use their 5- or 6-digit lunch number as their PIN. Paste the list, check the preview, then confirm. Students not on the list keep their current PIN.</p>
+            <div class="button-row"><button class="secondary" type="button" id="open-lunch-pins">switch PINs to lunch numbers</button><button class="secondary" type="button" id="open-school-directory">school directory / enroll by number</button></div>`;
+          panels.settings.append(lunch);
+          lunch.querySelector('#open-lunch-pins').addEventListener('click', () => openLunchPinDialog());
+          lunch.querySelector('#open-school-directory').addEventListener('click', (event) => act(event.currentTarget, openSchoolDirectoryDialog));
+          if (!setup.bellsReady || !setup.membershipCount) {
+            const banner = document.createElement('div'); banner.className = 'attention-banner setup-banner';
+            banner.innerHTML = !setup.bellsReady
+              ? '<span><strong>Finish setting up your classroom.</strong> Add your bell times so students can sign out.</span><button class="primary" type="button">add bell times</button>'
+              : '<span><strong>Add your students.</strong> Paste your class lists and PINs are created for you.</span><button class="primary" type="button">add students</button>';
+            banner.querySelector('button').addEventListener('click', () => (setup.bellsReady ? openPasteStudentsDialog() : openClassroomSetupDialog()));
+            panels.overview.prepend(banner);
+          }
+        }
         intro('notifications', 'your classroom inbox.', 'Current observations from your classroom. Resolved items disappear when the data refreshes.');
         move('.room-summary', 'overview');
         if (actionable) {
@@ -1520,7 +2252,8 @@
         const notChecked = state.notCheckedIn || [];
         const absentToday = state.absentToday || [];
         const lateCheckInsToday = state.lateCheckInsToday || [];
-        const pendingLateCheckIns = lateCheckInsToday.filter((checkIn) => checkIn.status === 'LATE_PENDING');
+        const pendingLateCheckIns = state.pendingLateCheckIns || [];
+        const lateReviewRows = [...new Map([...lateCheckInsToday, ...pendingLateCheckIns].map((checkIn) => [checkIn.checkInId, checkIn])).values()];
         const checkInWindowMinutes = Number(state.checkInWindowMinutes || 5);
         const repeatPassesToday = state.repeatPassesToday || [];
         const rolloverPassesToday = state.rolloverPassesToday || [];
@@ -1610,11 +2343,11 @@
             <p><strong>About ${escapeHtml(lockContention.retrySignals)} pass collision${Number(lockContention.retrySignals) === 1 ? '' : 's'} were automatically retried today.</strong>${lockContention.lastAt ? ` Latest: ${escapeHtml(lockContention.lastOperation || 'pass update')} at ${formatClock(lockContention.lastAt)}.` : ''}</p>
             <p>This is the capacity rule protecting the one-student-out decision. It is not a PIN error. Daily Check-In no longer waits on this lock.</p>
           </section>` : '';
-        const checkInInboxHtml = checkInInbox.delayed ? `
+        const checkInInboxHtml = (checkInInbox.delayed || checkInInbox.lastError) ? `
           <section class="notice warning" role="status" style="margin-top:16px">
             <h3>check-ins are recorded; workbook sync is catching up.</h3>
-            <p><strong>${escapeHtml(checkInInbox.pendingCount)} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safe in the private inbox and already included in the dashboard totals.</strong>${checkInInbox.oldestAt ? ` Oldest: ${formatClock(checkInInbox.oldestAt)}.` : ''}</p>
-            <p>GrantDesk will write them to Daily Check-ins together as soon as the workbook is available. Students do not need to submit again.</p>
+            <p><strong>${escapeHtml(checkInInbox.pendingCount)} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safe in the private inbox and already included in the dashboard totals.</strong>${checkInInbox.oldestAt ? ` Oldest: ${formatClock(checkInInbox.oldestAt)}.` : ''}${checkInInbox.lastError && checkInInbox.lastError.at ? ` Last workbook error: ${formatClock(checkInInbox.lastError.at)}.` : ''}</p>
+            <p>Hall Pass will write them to Daily Check-ins together as soon as the workbook is available. Students do not need to submit again.</p>
           </section>` : '';
 
         const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
@@ -1633,7 +2366,7 @@
             <td class="method">${escapeHtml(checkIn.method)}</td>
           </tr>`).join('') : '<tr><td colspan="6">No students have checked in today.</td></tr>';
 
-        const lateCheckInRows = lateCheckInsToday.length ? lateCheckInsToday
+        const lateCheckInRows = lateReviewRows.length ? lateReviewRows
           .slice()
           .sort((a, b) => new Date(a.checkInTime) - new Date(b.checkInTime))
           .map((checkIn) => {
@@ -1645,9 +2378,9 @@
               : approved
                 ? `<button class="secondary compact danger" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="KEEP_NO_POINT">change to no point</button>`
                 : `<button class="secondary compact" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="AWARD_POINT">award point</button>`;
-            return `<tr><td class="who">${escapeHtml(checkIn.studentName)}</td><td>${escapeHtml(checkIn.classPeriod)}</td><td>${formatClock(checkIn.checkInTime)}</td><td>${escapeHtml(checkIn.point)}</td><td>${escapeHtml(decision)}</td><td class="action">${actions}</td></tr>`;
+            return `<tr><td class="who">${escapeHtml(checkIn.studentName)}</td><td>${escapeHtml(checkIn.classPeriod)}</td><td>${escapeHtml(checkIn.dateKey || '')}</td><td>${formatClock(checkIn.checkInTime)}</td><td>${escapeHtml(checkIn.point)}</td><td>${escapeHtml(decision)}</td><td class="action">${actions}</td></tr>`;
           }).join('')
-          : '<tr><td colspan="6">No late sign-ins today.</td></tr>';
+          : '<tr><td colspan="7">No late sign-ins need review.</td></tr>';
 
         const notCheckedRows = notChecked.length ? notChecked
           .slice()
@@ -1685,10 +2418,10 @@
               <td class="who">${escapeHtml(student.name)}</td>
               <td>${escapeHtml(student.classPeriod)}</td>
               <td class="email">${escapeHtml(student.email)}</td>
-              <td class="action"><button class="secondary compact danger" data-remove-student="${escapeHtml(student.key)}" data-remove-name="${escapeHtml(student.name)}" data-remove-class="${escapeHtml(student.classPeriod)}">remove from class</button></td>
+              <td class="action"><div class="table-actions"><button class="secondary compact" data-reset-pin-email="${escapeHtml(student.email)}" data-reset-pin-name="${escapeHtml(student.name)}">reset PIN</button><button class="secondary compact danger" data-remove-student="${escapeHtml(student.key)}" data-remove-name="${escapeHtml(student.name)}" data-remove-class="${escapeHtml(student.classPeriod)}">remove from class</button></div></td>
             </tr>`).join('') : '<tr><td colspan="4">No active students are on the roster.</td></tr>';
         const rosterResultHtml = teacherRosterResult ? `
-          <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new six-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
+          <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new 5- or 6-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
 
         const pinPreviewHtml = teacherPinPreview ? `
           <div class="notice warning email-preview"><p><strong>${escapeHtml(teacherPinPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(teacherPinPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(teacherPinPreview.subject)}</p><p>${escapeHtml(teacherPinPreview.example)}</p></div>` : '';
@@ -1747,29 +2480,35 @@
           ${checkInInboxHtml}
           ${roomStatusHtml}
           ${rolloverHtml}
+          <section class="teacher-section" aria-labelledby="pixel-camp-control-title">
+            <h3 id="pixel-camp-control-title">school Pixel Camp.</h3>
+            <p id="pixel-camp-access-status">${state.pixelCampAccess?.open === false ? 'School play is paused.' : 'School play is open.'}</p>
+            <p class="message">Pause stops new camp sessions and saves. Open camps pause at their next save or access check, usually within 38 seconds while visible. Students can save a file of unconfirmed progress. Attendance, passes and the public demo stay available.</p>
+            <button type="button" class="secondary" id="toggle-pixel-camp">${state.pixelCampAccess?.open === false ? 'resume school camp' : 'pause school camp'}</button>
+          </section>
           <section class="teacher-section" id="attendance-section">
             <div class="teacher-section-head">
-              <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded · ${lateCheckInsToday.length} late · ${pendingLateCheckIns.length} need point review · ${absentToday.length} marked absent</p></div>
+              <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded today · ${lateCheckInsToday.length} late today · ${pendingLateCheckIns.length} unresolved late reviews · ${absentToday.length} marked absent today</p></div>
             </div>
             <div class="checkin-summary">${summaryHtml}</div>
             <section class="subcard" id="checkin-timing" style="margin-top:18px">
               <h3>on-time window</h3>
               <div class="override">
                 <label>Minutes after class starts<input type="number" id="checkin-window-minutes" min="1" max="240" step="1" value="${escapeHtml(checkInWindowMinutes)}"></label>
-                <p class="message">After this many minutes, students are not blocked. Their sign-in is saved as late with 0 points until you decide whether to award the daily point.</p>
+                <p class="message">After this many minutes, students can still sign in while their class is meeting. The sign-in is saved as late with 0 points until you decide whether to award the daily point. Student self-check-in closes when that class ends.</p>
                 <button class="secondary" id="save-checkin-window">save check-in timing</button>
               </div>
             </section>
             <details class="subcard log" id="late-checkins-details" data-teacher-details style="margin-top:18px" ${pendingLateCheckIns.length ? 'open' : ''}>
-              <summary>late sign-ins · ${escapeHtml(lateCheckInsToday.length)} today · ${escapeHtml(pendingLateCheckIns.length)} need review</summary>
-              <p class="message" style="margin:12px 0">Late students are recorded immediately instead of being denied. Awarding the point also counts the day toward the student’s check-in streak; keeping no point preserves the late record at zero.</p>
+              <summary>late sign-ins · ${escapeHtml(lateCheckInsToday.length)} today · ${escapeHtml(pendingLateCheckIns.length)} unresolved across all days</summary>
+              <p class="message" style="margin:12px 0">Late students are recorded immediately while their class is meeting. Unresolved late arrivals stay here across school days until you decide them. Awarding the point also counts that date toward the student’s check-in streak; keeping no point preserves the late record at zero.</p>
               ${pendingLateCheckIns.length ? `
                 <div class="notice warning" style="margin:12px 0">
                   <h3>${escapeHtml(pendingLateCheckIns.length)} arrivals need review.</h3>
                   <p>Use the individual buttons below when decisions differ, or resolve every currently pending late sign-in at once.</p>
                   <div class="button-row"><button class="secondary" id="award-all-late">award all pending points</button><button class="secondary danger" id="zero-all-late">keep all pending at 0</button></div>
                 </div>` : ''}
-              <table><thead><tr><th>student</th><th>class</th><th>signed in</th><th>point</th><th>review</th><th class="action">decision</th></tr></thead><tbody>${lateCheckInRows}</tbody></table>
+              <table><thead><tr><th>student</th><th>class</th><th>date</th><th>signed in</th><th>point</th><th>review</th><th class="action">decision</th></tr></thead><tbody>${lateCheckInRows}</tbody></table>
             </details>
             <section class="subcard" style="margin-top:18px"><h3>record a student’s attendance</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
             <details class="subcard log" id="checkin-log-details" data-teacher-details style="margin-top:18px">
@@ -1794,9 +2533,9 @@
                 <div class="roster-add-grid">
                   <label>Student name<input type="text" id="roster-student-name" maxlength="120" autocomplete="off" placeholder="Last, First"></label>
                   <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="Student’s school email"></label>
-                  <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="choose or type a class"><datalist id="teacher-class-options">${classOptions}</datalist></label>
+                  <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="Period 1 — class name"><datalist id="teacher-class-options">${classOptions}</datalist></label>
                 </div>
-                <p class="message">Existing students keep the same PIN in every class. A brand-new student gets one PIN automatically and appears in PIN delivery.</p>
+                <p class="message">Class labels must begin with Period 1 through Period 8 so the bell schedule can be applied. Existing students keep the same PIN in every class; a brand-new student gets one PIN automatically and appears in PIN delivery.</p>
                 <button class="primary" id="teacher-add-student">add student to class</button>
                 ${rosterResultHtml}
               </div></div>
@@ -1863,9 +2602,12 @@
           ${passReviewDialogHtml}`;
 
         clearInterval(timerHandle);
-        timerHandle = setInterval(() => document.querySelectorAll('[data-live-time]').forEach((node) => {
-          node.textContent = elapsed(node.dataset.liveTime);
-        }), 1000);
+        timerHandle = setInterval(() => {
+          document.querySelectorAll('[data-live-time]').forEach((node) => {
+            node.textContent = elapsed(node.dataset.liveTime);
+          });
+          stampTeacher();
+        }, 1000);
 
         document.querySelector('#refresh-teacher').addEventListener('click', (event) => act(event.currentTarget, async () => {
           adoptState(await call('refreshTeacherState'));
@@ -1932,6 +2674,18 @@
             renderTeacher();
           });
         });
+
+        document.querySelectorAll('[data-reset-pin-email]').forEach((button) => button.addEventListener('click', async () => {
+          const name = button.dataset.resetPinName;
+          const reason = await teacherPrompt(`Private reason for resetting ${name}'s PIN. The old PIN will stop working and the replacement will be marked for private redelivery:`);
+          if (!reason || !reason.trim()) return;
+          if (!await teacherConfirm(`Reset ${name}'s PIN now? This changes the PIN in every one of this student's classes.`)) return;
+          act(button, async () => {
+            adoptState(await call('teacherResetStudentPin', button.dataset.resetPinEmail, reason));
+            teacherPinStatus = state.pinEmailStatus || teacherPinStatus;
+            renderTeacher();
+          });
+        }));
 
         document.querySelectorAll('[data-remove-student]').forEach((button) => button.addEventListener('click', async () => {
           const name = button.dataset.removeName;
@@ -2008,6 +2762,11 @@
         const rosterFilter = document.querySelector('#roster-filter');
         if (rosterFilter) rosterFilter.addEventListener('input', () => filterRosterRows(rosterFilter.value));
 
+        document.querySelector('#toggle-pixel-camp').addEventListener('click', event => act(event.currentTarget, async () => {
+          state.pixelCampAccess = await call('teacherSetPixelCampOpen',state.pixelCampAccess?.open === false);
+          renderTeacher();
+          document.querySelector('#toggle-pixel-camp').focus();
+        }));
         document.querySelector('#save-checkin-window').addEventListener('click', async (event) => {
           const minutes = Number(document.querySelector('#checkin-window-minutes').value);
           act(event.currentTarget, async () => {
@@ -2189,12 +2948,29 @@
         try {
           const next = await call('refreshStudentState', pinToken);
           if (inFlight || screen !== 'student') return;
+          if (studentRefreshFailures) clearError();
+          studentRefreshFailures = 0;
           adoptState(next);
           renderStudent();
         } catch (error) {
-          if (/expired/i.test(error.message || '')) resetToPin('Enter your six-digit PIN again.');
+          if (/expired/i.test(error.message || '')) {
+            studentRefreshFailures = 0;
+            resetToPin('Enter your 5- or 6-digit PIN again.');
+            return;
+          }
+          studentRefreshFailures += 1;
+          if (studentRefreshFailures >= 2) {
+            showError('Live pass status could not refresh. The last confirmed state is still on screen; reconnect or reload before relying on a queue position or return status.');
+          }
         }
       };
+
+      window.addEventListener('offline', () => {
+        if (APP_MODE === 'kiosk' && !inFlight) resetToPin('Connection lost. Reconnect before entering your PIN.');
+      });
+      window.addEventListener('online', () => {
+        if (APP_MODE === 'kiosk' && !inFlight) resetToPin('Connection restored. Enter your PIN. If a previous request was interrupted, ask your teacher to check its status first.');
+      });
 
       /* ---------------------------------------------------------------- boot */
 
@@ -2203,12 +2979,27 @@
           adoptState(await call('getBootstrap', APP_MODE));
           setTitle(state.appTitle);
           if (APP_MODE === 'teacher') renderTeacher();
-          else if (APP_MODE === 'kiosk') resetToPin('Enter your six-digit PIN.');
+          else if (APP_MODE === 'kiosk') resetToPin('Enter your 5- or 6-digit PIN.');
           else if (!state.recognized) renderPin(state.message, APP_MODE === 'checkin' ? 'checkin' : 'pass');
           else renderResolvedState(APP_MODE === 'checkin' ? 'checkin' : 'pass');
 
-          if (APP_MODE === 'teacher') refreshHandle = setInterval(refreshTeacher, 12000);
-          else if (APP_MODE !== 'checkin') refreshHandle = setInterval(refreshStudent, 5000);
+          const jitteredDelay = (base, spread) => base + Math.floor(Math.random() * spread);
+          const scheduleTeacherPoll = () => {
+            clearTimeout(refreshHandle);
+            refreshHandle = setTimeout(async () => {
+              await refreshTeacher();
+              if (APP_MODE === 'teacher') scheduleTeacherPoll();
+            }, jitteredDelay(10000, 4000));
+          };
+          const scheduleStudentPoll = () => {
+            clearTimeout(refreshHandle);
+            refreshHandle = setTimeout(async () => {
+              await refreshStudent();
+              if (APP_MODE !== 'teacher' && APP_MODE !== 'checkin') scheduleStudentPoll();
+            }, jitteredDelay(4200, 1600));
+          };
+          if (APP_MODE === 'teacher') scheduleTeacherPoll();
+          else if (APP_MODE !== 'checkin') scheduleStudentPoll();
         } catch (error) {
           screen = 'error';
           content.className = '';
@@ -2217,5 +3008,32 @@
         }
       })();
     </script>
+<template id="ck-camp-template"><!doctype html>
+<html lang="en"><head><base href="https://grant-desk.com/hubs/checkling/camp/"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102a32"><title>Checklings · Pixel Camp</title><link rel="stylesheet" href="game.css"></head>
+<body><p class="demo-school-link"><a href="https://grant-desk.com/check-in/" target="_blank" rel="noopener">Open your school camp with your PIN → Check-In</a></p><a class="skip" href="#actions">Skip to actions</a>
+<main id="game" class="game-shell">
+ <header class="top-hud panel"><div class="title-block"><h1>CHECKLINGS</h1><span class="playtest-tag">PIXEL CAMP · PLAYTEST</span></div><nav class="main-nav" aria-label="Game screens"><button type="button" data-view="home" aria-pressed="true"><span class="item i-bed" aria-hidden="true"></span><span>Camp</span></button><button type="button" data-view="trail" aria-pressed="false"><span class="item i-map" aria-hidden="true"></span><span>Trail</span></button><button type="button" data-view="practice" aria-pressed="false"><span class="item i-sword" aria-hidden="true"></span><span>Practice</span></button><button type="button" data-view="journal" aria-pressed="false"><span class="item i-book" aria-hidden="true"></span><span>Journal</span></button></nav><div class="hud-tools"><span class="stamp-counter"><span class="item i-badge" aria-hidden="true"></span><span id="stamp-count">0</span><span class="sr-only">trail stamps</span></span><button type="button" id="open-menu"><span class="item i-bag" aria-hidden="true"></span><span>Menu</span></button><span id="save-status" class="save-status">Loading…</span></div></header>
+ <div class="game-layout">
+  <aside class="party-panel panel" aria-label="Your party"><div class="section-label">YOUR PARTY</div><div id="party-list" class="party-list" role="group" aria-label="Choose a founder"></div><div class="friend-details"><div class="friend-heading"><h2 id="pet-name">Mochi</h2><button type="button" id="rename" class="tiny-button">Name</button></div><p id="pet-region" class="region-label">MEADOWS</p><div id="vitals" class="vitals"></div><p id="pet-note" class="pet-note">Ready to play.</p></div><button type="button" id="open-decor" class="decor-open"><span class="item i-planter" aria-hidden="true"></span><span>Decorate camp</span></button><div class="trail-progress"><span class="item i-badge" aria-hidden="true"></span><div><strong id="discovery-count">0 / 12</strong><span>Trail discoveries</span></div></div></aside>
+  <div class="play-area">
+   <section id="world-view" aria-label="Camp and trail"><div class="world-frame"><div class="world" id="world" data-weather="sun"><img id="world-art" class="world-art" src="assets/willowbank-pixel.png" alt="Pixel woodland camp with a shelter, grassy paths, stream and pond" fetchpriority="high"><div class="weather-shade" aria-hidden="true"></div><div class="location-hud"><div class="location-label"><span id="location-name">KETTLE CREEK</span><small id="location-hint">Pick a friend.</small></div><label class="weather-label"><span class="sr-only">Camp weather</span><select data-desk-skip id="weather"><option value="sun">Sun</option><option value="rain">Rain</option><option value="dusk">Night</option></select></label></div><button type="button" id="ground" class="ground" aria-label="Call your selected friend to a spot in camp"></button><div id="trail-landmark" class="trail-landmark" hidden aria-hidden="true"></div><div id="camp-decoration" class="camp-decoration" hidden aria-hidden="true"></div><div id="actors" class="actors"></div><div id="care-prop" class="care-prop" hidden aria-hidden="true"></div>
+    <div id="practice-welcome" class="practice-welcome panel" hidden><span class="item i-sword" aria-hidden="true"></span><h2>STUMP SPARRING</h2><p>Watch its next move.<br>Guard big hits. Find your opening.</p><button type="button" id="start-practice">Let’s practice!</button><small>No injuries. Leave any time.</small></div>
+    <div id="combat-scene" class="combat-scene" hidden><div class="combat-hud friend-hud panel"><strong id="battle-friend-name">Mochi</strong><div class="combat-meter"><span>HP</span><meter id="friend-hp" min="0" max="65" value="65" aria-label="Friend practice health"></meter><span id="friend-hp-text">65/65</span></div><div class="combat-meter"><span>SP</span><meter id="friend-sp" min="0" max="10" value="10" aria-label="Friend stamina"></meter><span id="friend-sp-text">10/10</span></div></div><div class="combat-hud enemy-hud panel"><strong>PRACTICE STUMP</strong><div class="combat-meter"><span>HP</span><meter id="enemy-hp" min="0" max="125" value="125" aria-label="Practice stump health"></meter><span id="enemy-hp-text">125/125</span></div><div class="intent-label"><span>NEXT:</span><strong id="enemy-intent">STRIKE</strong></div></div><img id="battle-friend-art" class="battle-friend-art" src="assets/mochi.png" alt="Mochi practicing"><div id="stump-sprite" class="stump-sprite" role="img" aria-label="Friendly wooden practice stump" data-pose="0" aria-busy="true"><img id="stump-art" class="stump-atlas" src="assets/practice-stump-sheet.png" alt="" width="2172" height="724" fetchpriority="low" decoding="async"></div><div id="practice-result" class="practice-result panel" hidden><span class="item i-badge" aria-hidden="true"></span><strong id="result-title">PRACTICE CLEAR!</strong><span id="result-copy">Nice work. Everyone is okay.</span><div><button type="button" id="retry-practice">Again!</button><button type="button" data-go="home">Back to camp</button></div></div></div>
+   </div></div>
+<div id="stump-picture-state" class="stump-picture-state panel" tabindex="-1" hidden><p id="stump-picture-message" role="status" aria-atomic="true">The stump picture is loading…</p><button type="button" id="retry-stump-art" hidden>Try picture again</button></div>
+   <div id="route-stops" class="route-stops" role="group" aria-label="Trail stops" hidden></div>
+   <div class="dialogue panel"><img id="speaker-art" src="assets/mochi.png" alt="" width="68" height="68"><div><strong id="speaker-name">MOCHI</strong><p id="message" role="status" aria-atomic="true">Ready to play!</p></div></div>
+   <div id="actions" class="action-panel panel" tabindex="-1"><div id="care-actions" class="commands" role="group" aria-label="Care actions"><button type="button" data-care="feed"><span class="item i-food" aria-hidden="true"></span><span>Feed</span></button><button type="button" data-care="play"><span class="item i-ball" aria-hidden="true"></span><span>Play</span></button><button type="button" data-care="clean"><span class="item i-brush" aria-hidden="true"></span><span>Brush</span></button><button type="button" data-care="rest"><span class="item i-bed" aria-hidden="true"></span><span>Rest</span></button><button type="button" data-care="observe"><span class="item i-book" aria-hidden="true"></span><span>Hang out</span></button></div><div id="trail-actions" class="commands trail-commands" role="group" aria-label="Trail actions" hidden><button type="button" id="discover"><span class="item i-map" aria-hidden="true"></span><span id="discover-label">Explore</span><small>18 energy</small></button><button type="button" data-care="rest"><span class="item i-bed" aria-hidden="true"></span><span>Rest</span><small>Free</small></button><button type="button" data-care="observe"><span class="item i-book" aria-hidden="true"></span><span>Look around</span></button><button type="button" data-go="home"><span class="item i-bag" aria-hidden="true"></span><span>Camp</span></button></div><div id="battle-actions" class="commands battle-commands" role="group" aria-label="Practice moves" hidden><button type="button" data-move="strike"><span class="item i-sword" aria-hidden="true"></span><span>Strike</span><small>3 SP</small></button><button type="button" data-move="signature"><span class="item i-badge" aria-hidden="true"></span><span id="signature-label">Signature</span><small>5 SP</small></button><button type="button" data-move="guard"><span class="item i-brush" aria-hidden="true"></span><span>Guard</span><small>+2 SP</small></button><button type="button" data-move="recover"><span class="item i-bed" aria-hidden="true"></span><span>Recover</span><small>+5 SP</small></button><button type="button" id="leave-practice"><span class="item i-bag" aria-hidden="true"></span><span>Leave</span><small>Safe</small></button></div><p id="action-hint" class="action-hint">Choose a friend. Pick an action.</p></div><details id="practice-log" class="practice-log" hidden><summary>Battle log</summary><ol id="battle-log"></ol></details></section>
+   <section id="journal-view" class="journal-view panel" tabindex="-1" aria-labelledby="journal-title" hidden><header class="journal-heading"><span class="item i-book" aria-hidden="true"></span><div><span class="section-label">FIELD JOURNAL</span><h2 id="journal-title">Mochi’s notes</h2></div><button type="button" id="journal-export"><span class="item i-bag" aria-hidden="true"></span><span>Save</span></button></header><div class="journal-page-buttons" role="group" aria-label="Journal pages"><button type="button" data-journal-page="notes" aria-pressed="true"><span class="item i-book" aria-hidden="true"></span>Notes</button><button type="button" data-journal-page="goals" aria-pressed="false"><span class="item i-badge" aria-hidden="true"></span>Camp goals</button></div><div id="journal-notes"><div class="journal-book"><div class="journal-portrait"><img id="journal-art" src="assets/mochi.png" alt="Mochi" width="220" height="220"><h3 id="journal-friend">Mochi</h3><p id="journal-progress">0/3 discoveries</p><span id="practice-badge" hidden><span class="item i-badge" aria-hidden="true"></span>Practice badge</span></div><div class="journal-pages"><ol id="journal-entries"></ol><p id="journal-empty">No notes yet.<br>Let’s go find something!</p></div></div><button type="button" data-go="trail"><span class="item i-map" aria-hidden="true"></span><span>Hit the trail</span></button></div><section id="camp-goals" aria-label="Camp goals" hidden><p id="camp-goals-summary" role="status" aria-atomic="true"></p><div id="camp-goals-list"></div></section></section>
+  </div>
+ </div>
+ <p class="game-help">Camp is safe while you’re away. <span>Demo progress · saved on this browser. For your school camp, open Check-In.</span></p>
+</main>
+<dialog id="menu-dialog" class="panel" aria-labelledby="menu-title"><form method="dialog" class="close-form"><button aria-label="Close menu">Close</button></form><h2 id="menu-title">CAMP MENU</h2><div class="menu-actions"><button type="button" id="export-save"><span class="item i-bag" aria-hidden="true"></span><span>Save to file</span></button><button type="button" id="quiet-toggle" aria-pressed="false"><span class="item i-bed" aria-hidden="true"></span><span id="quiet-label">Quiet: Off</span></button><button type="button" id="menu-decor"><span class="item i-planter" aria-hidden="true"></span><span>Decorate</span></button></div><div id="founder-picture-help" class="founder-picture-help" hidden><p id="founder-picture-message" role="status" aria-atomic="true"></p><button type="button" id="retry-founder-art">Try moving pictures</button></div><p class="menu-note">Keep a save file to bring your camp to another browser.</p><label class="load-label" for="import-file">Load a save file</label><input data-desk-skip type="file" id="import-file" accept=".json,application/json"><p id="import-message" role="status"></p><div id="import-preview" hidden><p id="import-description"></p><button type="button" id="confirm-import">Load this camp</button><small>Your current camp gets a safety copy.</small></div><button type="button" id="undo-import" hidden>Restore previous camp</button><details class="about-playtest"><summary>About this playtest</summary><p>Pixel Camp 5.0</p><p>This is a separate local sample. It does not change your real school companion or classroom rewards. Game progress stays in this browser. No account is required. The four original founders are unchanged.</p><p>Quiet mode uses still sprites. Your system’s reduced-motion setting also applies. No care drops with time. Browser saving can be unavailable; exported files keep a copy.</p></details></dialog>
+<dialog id="decor-dialog" class="panel" aria-labelledby="decor-title"><form method="dialog" class="close-form"><button aria-label="Close decorations">Close</button></form><h2 id="decor-title">CAMP DECOR</h2><p id="decor-stamps">0 trail stamps</p><div id="decor-items" class="decor-items"></div><p class="menu-note">Find things to unlock decor. You keep your stamps.</p></dialog>
+<dialog id="name-dialog" class="panel" aria-labelledby="name-title"><form id="name-form"><h2 id="name-title">A NEW NICKNAME?</h2><label for="nickname">Nickname</label><input data-desk-skip id="nickname" maxlength="24" autocomplete="off"><p class="menu-note">Blank uses the original name.</p><div class="name-actions"><button type="button" id="cancel-name">Cancel</button><button type="submit">Keep it!</button></div></form></dialog>
+<script src="school.js"></script><script src="engine.js"></script><script src="camp-goals.js"></script><script src="game.js"></script>
+</body></html>
+</template>
   </body>
 </html>

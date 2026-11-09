@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELS",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Opening identity image",
+      "sourceMode": "archival-source-photo",
+      "subject": "Gorgeous George standing in the ring in a robe, 1949",
+      "namedPeople": [
+        "Gorgeous George"
+      ],
+      "sourceUrl": "https://www.loc.gov/photos/?q=gorgeous+george",
+      "rightsStatus": "no-known-restrictions-loc",
+      "provenance": "Library of Congress Prints and Photographs Division, contact sheet frame cph 3d02373. Film edge trimmed, resized and WebP compressed.",
+      "htmlSafeZone": "Right column of the hero; caption overlays the faded lower edge.",
+      "responsiveCrop": "Portrait crop; moves above the title on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/gg-ring.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Ringside crowd for the closing question",
+      "sourceMode": "archival-source-photo",
+      "subject": "Spectators at a Gorgeous George match, 1949",
+      "namedPeople": [],
+      "sourceUrl": "https://www.loc.gov/photos/?q=gorgeous+george",
+      "rightsStatus": "no-known-restrictions-loc",
+      "provenance": "Library of Congress Prints and Photographs Division, frame cph 3d02364. Film edges trimmed, WebP compressed.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/gg-crowd.webp"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Hostage crisis evidence",
+      "sourceMode": "archival-source-photo",
+      "subject": "Street demonstration in Washington during the Iran hostage crisis, 1979, with a sign carrying an ethnic slur",
+      "namedPeople": [],
+      "sourceUrl": "https://www.loc.gov/photos/?q=iran+hostage+1979",
+      "rightsStatus": "no-known-restrictions-loc",
+      "provenance": "Library of Congress, item ppmsca 09801. Shown uncropped so the sign stays legible as evidence of prejudice; the caption names the slur as a slur without repeating it.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/protest-1979.webp"
+    },
+    {
+      "id": "A05",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Hostage crisis evidence",
+      "sourceMode": "archival-source-photo",
+      "subject": "American hostages at a holiday meal inside the U.S. embassy in Tehran, 1979",
+      "namedPeople": [],
+      "sourceUrl": "https://www.loc.gov/photos/?q=iran+hostage+1979",
+      "rightsStatus": "no-known-restrictions-loc",
+      "provenance": "Library of Congress, item ppmsca 04925. Slide mount edges trimmed, WebP compressed.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/hostages-1979.webp"
+    },
+    {
+      "id": "A06",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Sgt. Slaughter identity anchor",
+      "sourceMode": "archival-source-photo",
+      "subject": "Sgt. Slaughter walking the ring ropes in 1984",
+      "namedPeople": [
+        "Sgt. Slaughter"
+      ],
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sgt._Slaughter_1984.png",
+      "rightsStatus": "public-domain-wikimedia-commons",
+      "provenance": "Wikimedia Commons scan of a 1984 wrestling program. Magazine caption trimmed from the top, WebP compressed.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/slaughter-1984.webp"
+    },
+    {
+      "id": "A07",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Nikolai Volkoff identity anchor",
+      "sourceMode": "archival-source-photo",
+      "subject": "The Iron Sheik and Nikolai Volkoff shaking hands, 1986",
+      "namedPeople": [
+        "Nikolai Volkoff",
+        "The Iron Sheik"
+      ],
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Iron_Sheik_and_Nikolai_Volkoff_1986.png",
+      "rightsStatus": "public-domain-wikimedia-commons",
+      "provenance": "Wikimedia Commons, small original scan used at small display size. Out of costume, so the caption identifies each man.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/sheik-volkoff-1986.webp"
+    }
+  ]
+}

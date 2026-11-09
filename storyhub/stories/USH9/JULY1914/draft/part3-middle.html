@@ -1,0 +1,87 @@
+  <section id="sarajevo">
+    <div class="wrap split">
+      <div>
+        <p class="kicker">Sarajevo · Sunday, June 28, 1914</p>
+        <h2>A wrong turn on Franz Joseph Street</h2>
+        <p>Archduke Franz Ferdinand, next in line to rule Austria Hungary, visited Sarajevo with his wife Sophie to watch army exercises. Bosnia had belonged to Austria Hungary only since 1908, and many Bosnian Serbs wanted it joined to Serbia. June 28 was Vidovdan, a Serbian national holiday marking the Battle of Kosovo in 1389.</p>
+        <p>Six young conspirators, armed by a secret Serbian officers' society called the Black Hand, waited along the riverside road. At about 10:10 Nedeljko Čabrinović threw a bomb that bounced off the archduke's car and wounded officers in the car behind. After a reception at City Hall, the driver turned onto Franz Joseph Street by mistake and stopped to back up. Gavrilo Princip was standing on that corner. He fired twice, and both the archduke and Sophie were dead before noon.</p>
+        <p>Count Franz von Harrach, riding on the car's running board, later reported the archduke's last words to his wife.</p>
+        <blockquote>"Sopherl! Don't die! Stay alive for our children!"<cite>Franz Ferdinand, as recorded by Count Harrach</cite></blockquote>
+        <div class="video" data-yt="ZmHxq28440c" data-title="A Shot that Changed the World, The Great War"></div>
+        <div class="vmeta"><span>A Shot that Changed the World · The Great War</span><a href="https://www.youtube.com/watch?v=ZmHxq28440c" target="_blank" rel="noopener">Open on YouTube</a></div>
+      </div>
+      <div>
+        <figure>
+          <img src="/storyhub/ush9/thirty-seven-days/assets/domenica-sarajevo.webp" alt="Color newspaper illustration of the Sarajevo attack, showing a young man with a pistol beside the open car as officers rush in" width="820" height="1198" loading="lazy">
+          <figcaption>How the Italian weekly La Domenica del Corriere pictured the attack for its July 5 to 12, 1914 issue. The artist, Achille Beltrame, drew it from news reports. Public domain.</figcaption>
+        </figure>
+        <figure style="margin-top:22px;max-width:300px">
+          <img src="/storyhub/ush9/thirty-seven-days/assets/princip.webp" alt="Portrait of Gavrilo Princip as a young man in a suit and tie" width="560" height="814" loading="lazy">
+          <figcaption>Gavrilo Princip. At 19 he was too young for the death penalty under Austrian law and got 20 years. He died in prison of tuberculosis on April 28, 1918. Public domain.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="map3">
+    <div class="wrap">
+      <p class="kicker">Map 3 · The July Crisis</p>
+      <h2>Step through the thirty seven days</h2>
+      <p>Austria Hungary blamed Serbia. What happened next moved along the lines you saw on Map 1. Use the buttons or the slider to move day by day and watch the map change.</p>
+      <div class="board">
+        <div class="split" style="grid-template-columns:1.4fr 0.6fr">
+          <div class="mapbox" id="crisisBox"></div>
+          <div aria-live="polite" id="crisisOut">
+            <p class="daycount" id="cDay">Day 0</p>
+            <p class="date" id="cDate">June 28</p>
+            <h3 id="cHead">Shots in Sarajevo</h3>
+            <p id="cText"></p>
+            <div id="cQuote"></div>
+            <p class="score" id="cCount"></p>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" type="button" id="cBack">Back</button>
+          <button class="btn solid" type="button" id="cNext">Next day</button>
+          <label for="cRange" class="sr">Step through the July Crisis</label>
+          <input type="range" id="cRange" min="0" max="9" value="0" step="1" data-desk-skip style="flex:1;min-width:160px">
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--ent)"></i>At war, Entente side</span>
+          <span><i style="background:var(--cen)"></i>At war, Central Powers</span>
+          <span><i style="background:url(#hatchE);background:repeating-linear-gradient(45deg,var(--ent) 0 4px,var(--ent-soft) 4px 9px)"></i>Mobilizing</span>
+          <span>Black arrow: declaration of war or invasion</span><span>Gold arrow: backing or threat</span>
+        </div>
+        <noscript><p>June 28, the archduke is killed. July 5 and 6, Germany promises Austria Hungary full support. July 23, Austria Hungary sends Serbia an ultimatum. July 28, Austria Hungary declares war on Serbia. July 30, Russia mobilizes. August 1, Germany declares war on Russia. August 3, Germany declares war on France. August 4, Germany invades Belgium and Britain declares war on Germany.</p></noscript>
+      </div>
+    </div>
+  </section>
+
+  <section id="map4">
+    <div class="wrap">
+      <p class="kicker">Map 4 · The Western Front, 1914</p>
+      <h2>Six weeks to Paris</h2>
+      <p>Germany sat between France and Russia. Its answer was a plan drawn up by Count Alfred von Schlieffen in 1905. Most of the army would go through neutral Belgium, loop west of Paris and beat France in about six weeks. Then the troops would ride trains east to face Russia, which German planners expected to need about six weeks to get ready.</p>
+      <div class="board">
+        <div class="row" role="group" aria-label="Map view" style="margin-bottom:12px">
+          <button class="btn" type="button" data-view="plan" aria-pressed="true">The plan</button>
+          <button class="btn" type="button" data-view="real" aria-pressed="false">August and September</button>
+          <button class="btn" type="button" data-view="dec" aria-pressed="false">December 1914</button>
+        </div>
+        <div class="split" style="grid-template-columns:1.4fr 0.6fr">
+          <div class="mapbox"><!--MAP:west--></div>
+          <div id="westOut" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="split" style="margin-top:28px">
+        <figure>
+          <img src="/storyhub/ush9/thirty-seven-days/assets/troop-train-1914.webp" alt="German soldiers waving from a rail car in 1914. Chalk on the car reads Ausflug nach Paris and Auf Wiedersehn auf dem Boulevard" width="1200" height="841" loading="lazy">
+          <figcaption>German soldiers heading west in August 1914. The chalk says "Trip to Paris" and "See you on the Boulevard." Colorized. Original photograph public domain.</figcaption>
+        </figure>
+        <div>
+          <div class="video" data-yt="sbOdF-5dk_E" data-title="Taxi To The Front, The First Battle of the Marne, The Great War Week 7"></div>
+          <div class="vmeta"><span>Taxi to the Front, the Battle of the Marne · The Great War</span><a href="https://www.youtube.com/watch?v=sbOdF-5dk_E" target="_blank" rel="noopener">Open on YouTube</a></div>
+        </div>
+      </div>
+    </div>
+  </section>

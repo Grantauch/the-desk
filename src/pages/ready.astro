@@ -36,7 +36,7 @@ import PageHeader from '../components/PageHeader.astro';
       <p class="ready-step">01</p>
       <h2 id="ready-load-heading">load a preflight.</h2>
       <p>
-        V1 reads a sanitized JSON snapshot in this browser tab. The page does not upload the file or send student data anywhere.
+        Ready reads a sanitized JSON snapshot in this browser tab. You can try the sample before you have a snapshot. This page has no live classroom connection.
       </p>
     </div>
     <div class="ready-control-actions">
@@ -554,6 +554,11 @@ import PageHeader from '../components/PageHeader.astro';
       display: none !important;
     }
 
+    #ready-message,
+    #ready-results {
+      overflow-wrap: anywhere;
+    }
+
     @media (max-width: 720px) {
       .ready-hero,
       .ready-controls {
@@ -602,6 +607,7 @@ import PageHeader from '../components/PageHeader.astro';
     const countBlock = document.querySelector<HTMLElement>('#count-block')!;
     const countWarning = document.querySelector<HTMLElement>('#count-warning')!;
     const countPass = document.querySelector<HTMLElement>('#count-pass')!;
+    let importRevision = 0;
 
     const make = <K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string) => {
       const element = document.createElement(tag);
@@ -719,10 +725,12 @@ import PageHeader from '../components/PageHeader.astro';
     };
 
     const reset = () => {
+      importRevision += 1;
       fileInput.value = '';
       results.classList.add('ready-hidden');
       exceptionList.replaceChildren();
       courseList.replaceChildren();
+      snapshotMeta.textContent = '';
       clearButton.disabled = true;
       message.dataset.error = 'false';
       message.textContent = 'No classroom data loaded.';
@@ -730,6 +738,7 @@ import PageHeader from '../components/PageHeader.astro';
     };
 
     sampleButton.addEventListener('click', () => {
+      reset();
       try {
         render(structuredClone(sampleReadySnapshot), 'Sample snapshot');
         message.textContent = 'Sample preview loaded — this is demonstration data, not a live classroom scan.';
@@ -744,19 +753,23 @@ import PageHeader from '../components/PageHeader.astro';
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files?.[0];
       if (!file) return;
+      reset();
+      const revision = importRevision;
       if (file.size > 2_000_000) {
         message.dataset.error = 'true';
         message.textContent = 'That snapshot is larger than 2 MB. Ready stopped before reading it.';
-        fileInput.value = '';
         return;
       }
 
+      clearButton.disabled = false;
+      message.textContent = 'Reading snapshot…';
       try {
         const raw = JSON.parse(await file.text());
+        if (revision !== importRevision) return;
         render(raw, file.name);
       } catch (error) {
-        results.classList.add('ready-hidden');
-        clearButton.disabled = true;
+        if (revision !== importRevision) return;
+        reset();
         setStatus('IDLE', 'The snapshot did not pass validation. Nothing was changed.');
         message.dataset.error = 'true';
         message.textContent = error instanceof Error ? error.message : 'That file is not a valid Ready Snapshot JSON file.';

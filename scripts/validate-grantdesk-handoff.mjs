@@ -23,6 +23,9 @@ const requiredPaths = [
   'apps-script/hall-pass/DEPLOY.md',
   'scripts/test-hall-pass-app.cjs',
   'scripts/test-hall-pass-runtime.cjs',
+  'scripts/test-hall-pass-school-directory.cjs',
+  'scripts/test-hall-pass-teacher-kit.cjs',
+  'scripts/test-hall-pass-kiosk-browser.mjs',
   'scripts/lib/gas-harness.cjs',
   'scripts/lib/hall-pass-fixtures.cjs',
   'src/pages/pass.astro',
@@ -48,6 +51,10 @@ const criticalFunctions = [
   'identifyCheckInWithPin',
   'identifyPin_',
   'verifyStudentPin_',
+  'teacherImportSchoolDirectory',
+  'teacherConnectSchoolDirectory',
+  'teacherEnrollSchoolStudent',
+  'readSchoolDirectory_',
   'authorizeStudentAction',
   'putStudentActionProof_',
   'consumeStudentActionProof_',
@@ -96,8 +103,8 @@ for (const fn of criticalFunctions) {
 }
 
 ok(
-  /const\s+GD_SCHEMA_VERSION\s*=\s*['"]2026-09-05-session-a['"]/.test(code),
-  'tracked workbook schema is 2026-09-05-session-a'
+  /const\s+GD_SCHEMA_VERSION\s*=\s*['"]2026-09-21-backend-b['"]/.test(code),
+  'tracked workbook schema is 2026-09-21-backend-b'
 );
 
 let packageJson = null;
@@ -123,8 +130,8 @@ if (packageJson) {
   );
   ok(
     packageJson.scripts?.['hall-pass:verify']
-      === 'npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime',
-    'hall-pass:verify runs handoff validation, structural regressions and the behavioral suite'
+      === 'npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime && node scripts/test-hall-pass-school-directory.cjs && node scripts/test-hall-pass-setup.cjs && node scripts/test-hall-pass-teacher-kit.cjs',
+    'hall-pass:verify runs handoff validation, structural, behavioral, directory, setup recovery and packaged-release checks'
   );
 }
 

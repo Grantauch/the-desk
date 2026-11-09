@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MOONHOAX",
+  "title": "bat people on the moon",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "Victorian newspaper spectacle and lunar satire"
+    ],
+    "paletteIntent": "newsprint, black ink and cobalt",
+    "typographyIntent": "Georgia newspaper headlines with narrow ruled columns",
+    "textureLanguage": [
+      "Letterpress press, telescope and obviously fantastical lunar creatures in a lithographic collage."
+    ],
+    "shapeLanguage": "Newspaper columns and circular telescope views",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Remove borrowed authority from a newspaper story; trace whether reprints are independent confirmation."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "The newspaper is authentic. The Moon story is invented."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "newsprint, black ink and cobalt",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Remove borrowed authority from a newspaper story; trace whether reprints are independent confirmation.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

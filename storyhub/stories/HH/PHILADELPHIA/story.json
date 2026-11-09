@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-PHILADELPHIA",
+  "course": "HH",
+  "lessonCode": "PHILADELPHIA",
+  "title": "the ship that never vanished",
+  "audience": "students",
+  "narrativeQuestion": "Did the Navy make a ship disappear, or did a real technology acquire an impossible story?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "Start with the claim, not the fog",
+      "claim": "The Philadelphia Experiment legend says the Navy made a warship invisible and teleported it between Philadelphia and Norfolk in 1943. Later retellings make that claim dramatic. Start by writing down what would have to be established: the named ship, its location, the equipment, witnesses and the extraordinary result. A real Navy and a real warship would establish the setting. They would not establish the disappearance. The Navy’s archival searches report no supporting documents for the alleged event. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "The ship had a normal job",
+      "claim": "USS Eldridge was a Cannon-class destroyer escort commissioned in August 1943. Its documented work included escorting Atlantic convoys. The Navy’s later summary of its war diary places it around Bermuda during training, then back in New York from October 18 to November 1. That location record is a specific way to test versions set in Philadelphia during that interval. We are reading a published summary of the diary here, rather than pretending to have reproduced the original pages. [S1, S4]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "Invisible needs an object",
+      "claim": "Degaussing was a real way to reduce a steel ship’s magnetic signature, helping protect it from magnetic mines. That does not remove the ship from human sight or radar. Use the detector board above: the same hull can matter differently to different sensing systems. This is a qualitative explanation, not a model of the equipment’s actual effectiveness. Before accepting “the ship became invisible,” ask what kind of detection the speaker means. [S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "The letter arrived years later",
+      "claim": "The Office of Naval Research traces the story to correspondence received after Morris K. Jessup’s 1955 book about UFOs. A writer calling himself Carlos Miquel Allende described a supposed wartime experiment. This is a claim made years after the alleged event, not a ship’s contemporary experiment report. The age, access and independence of a source matter even when its details are vivid. A person reporting an extraordinary experience still leaves the task of checking it. [S2]",
+      "namedPeople": [
+        {
+          "name": "Morris K. Jessup",
+          "role": "Recipient and author named to trace correspondence; the lesson is about source provenance rather than a biographical profile.",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Carlos Miquel Allende",
+          "role": "Name used by the letter writer; no generated or unverified likeness is substituted.",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "A government copy is not government confirmation",
+      "claim": "An annotated copy of Jessup’s book reached the Office of Naval Research. Two officers took a personal interest and arranged a small reprint. That episode can sound impressive when retold as “the Navy printed the book.” But copying a document does not verify its claims. The office itself was established in 1946, after the supposed experiment. Distinguish official custody, individual interest and an institution’s demonstrated conclusion; they are three different things. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "A denial is not the whole test",
+      "claim": "The Navy has an institutional perspective, and its denial should not be accepted merely because it is official. Ask what can be checked: the ship’s chronology, the later origin of the correspondence, the actual meaning of degaussing and the absence of corroborating experiment records after repeated searches. Secrecy by itself cannot repair those gaps. The conclusion supported here is that the teleportation claim lacks evidence. The real magnetic technology deserves an accurate explanation of its own. [S1, S3, S4]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "The ship existed. The invisibility and teleportation story lacks supporting documentary evidence.",
+    "A change in magnetic signature is not a disappearing ship.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-philadelphia-experiment.html"
+  }
+}

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Writing Replay</title>
+<style>
+  :root {
+    --bg: #0b0b0a; --panel: #141412; --ink: #f2d38a; --dim: #a8925e; --line: #3a3324;
+    --typed: #f2d38a; --paste: #ffb000; --sudden: #ff6b5a; --load: #8fa3b8; --away: #2b2a24;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--mono); }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { font-size: 1.35rem; letter-spacing: .04em; margin: 0 0 4px; text-transform: uppercase; }
+  h2 { font-size: 1rem; margin: 0; letter-spacing: .03em; }
+  p { margin: 6px 0; }
+  .dim { color: var(--dim); }
+  textarea { width: 100%; min-height: 110px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 10px; font: 13px/1.4 var(--mono); }
+  button, select { background: transparent; color: var(--ink); border: 1px solid var(--ink); border-radius: 4px; padding: 8px 14px; font: 600 13px var(--mono); cursor: pointer; min-height: 40px; }
+  button:hover { background: var(--ink); color: var(--bg); }
+  button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--paste); outline-offset: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+  .card { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 16px; margin: 18px 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+  .stat b { display: block; font-size: 1.2rem; }
+  .stat span { color: var(--dim); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+  .text { white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 12px; min-height: 90px; max-height: 360px; overflow: auto; }
+  .text mark { color: var(--bg); padding: 0 1px; border-radius: 2px; }
+  mark.k-p { background: var(--paste); } mark.k-b, mark.k-x { background: var(--sudden); } mark.k-l, mark.k-r, mark.k-i { background: var(--load); } mark.k-t, mark.k-u { background: var(--typed); }
+  .strip { position: relative; height: 34px; border: 1px solid var(--line); border-radius: 4px; margin: 12px 0 4px; background: var(--bg); overflow: hidden; }
+  .strip i { position: absolute; top: 0; bottom: 0; }
+  .strip .away { background: var(--away); }
+  .strip .tick { width: 3px; }
+  .strip .k-t, .strip .k-u { background: var(--typed); top: 22px; }
+  .strip .k-p { background: var(--paste); }
+  .strip .k-b, .strip .k-x { background: var(--sudden); }
+  .strip .k-l, .strip .k-r, .strip .k-i { background: var(--load); top: 12px; }
+  .strip .now { width: 2px; background: #fff; }
+  input[type=range] { width: 100%; accent-color: var(--paste); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .8rem; color: var(--dim); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; }
+  ul { margin: 6px 0; padding-left: 20px; }
+  .err { color: var(--sudden); }
+  footer { color: var(--dim); font-size: .85rem; border-top: 1px solid var(--line); margin-top: 32px; padding-top: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Writing Replay</h1>
+  <p class="dim">Copy a cell from the Replay Data column of the Writing Timeline sheet and paste it here. Everything stays in this browser tab. Nothing is uploaded or saved.</p>
+  <label for="input" class="dim">Replay Data</label>
+  <textarea id="input" spellcheck="false" placeholder='{"v":1,"hub":"..."}'></textarea>
+  <div class="row">
+    <button id="load" type="button">Show replay</button>
+    <button id="clear" type="button">Clear</button>
+    <span id="msg" role="status" aria-live="polite"></span>
+  </div>
+  <div class="legend" aria-hidden="true">
+    <span><i style="background:var(--typed)"></i>typed</span>
+    <span><i style="background:var(--paste)"></i>pasted</span>
+    <span><i style="background:var(--sudden)"></i>appeared at once without typing or pasting</span>
+    <span><i style="background:var(--load)"></i>loaded from the account, a backup or a refresh</span>
+    <span><i style="background:var(--away)"></i>away from the page</span>
+  </div>
+  <div id="out"></div>
+  <footer>
+    <p>A replay shows how text reached the answer box in one browser tab. It cannot see other devices, other people, or what happened before the page opened. Typed text can still be copied by hand from another screen, and dictation or autocomplete can add text at once. Treat anything here as a reason to ask the student about the work, never as proof by itself.</p>
+  </footer>
+</main>
+<script>
+(function () {
+  'use strict';
+  var KIND = { t: 'typed', p: 'pasted', b: 'appeared at once', x: 'changed without typing', u: 'undo or redo', l: 'loaded from account', r: 'restored', i: 'starting text' };
+  var input = document.getElementById('input'), out = document.getElementById('out'), msg = document.getElementById('msg');
+  var timers = [];
+
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function clock(sec) {
+    sec = Math.max(0, Math.round(sec));
+    var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s).padStart(2, '0');
+  }
+  function parse(raw) {
+    var a = raw.indexOf('{'), b = raw.lastIndexOf('}');
+    if (a < 0 || b < a) throw new Error('No replay data found. Copy the Replay Data cell, not the whole row.');
+    var text = raw.slice(a, b + 1).replace(/""/g, '"');
+    var data;
+    try { data = JSON.parse(text); } catch (e) { data = JSON.parse(raw.slice(a, b + 1)); }
+    if (!data || data.v !== 1 || !data.fields) throw new Error('This does not look like Writing Timeline replay data.');
+    return data;
+  }
+  function states(ops) {
+    var text = '', list = [];
+    ops.forEach(function (op) {
+      var pos = Math.min(op[1], text.length);
+      text = text.slice(0, pos) + op[3] + text.slice(pos + op[2]);
+      list.push({ text: text, at: op[0], kind: op[4], pos: pos, len: op[3].length });
+    });
+    return list;
+  }
+  function render(data) {
+    timers.forEach(clearInterval); timers = [];
+    out.textContent = '';
+    var head = el('div', { class: 'card' });
+    head.appendChild(el('h2', {}, data.hub || 'StoryHub'));
+    head.appendChild(el('p', { class: 'dim' }, 'Submission ' + (data.submissionId || 'unknown') + (data.startedAt ? ' · page opened ' + new Date(data.startedAt).toLocaleString() : '') + (data.sentAt ? ' · turned in ' + new Date(data.sentAt).toLocaleString() : '')));
+    var away = data.away || [];
+    var awayLong = away.filter(function (a) { return a[1] >= 10; });
+    head.appendChild(el('p', {}, 'Time away from the page: ' + awayLong.length + ' times of 10 seconds or more' + (awayLong.length ? ', longest ' + clock(Math.max.apply(null, awayLong.map(function (a) { return a[1]; }))) : '') + '.'));
+    var marks = (data.marks || []).map(function (m) {
+      var label = { 'paste-on': 'turned on Allow full paste', 'paste-off': 'turned off Allow full paste', 'paste-blocked': 'tried a long paste that was blocked' }[m[1]] || m[1];
+      return clock(m[0]) + '  ' + label;
+    });
+    if (marks.length) { var ul = el('ul'); marks.forEach(function (t) { ul.appendChild(el('li', {}, t)); }); head.appendChild(el('p', {}, 'Page events:')); head.appendChild(ul); }
+    if (data.truncated) head.appendChild(el('p', { class: 'err' }, 'This timeline was long, so some step by step detail was not kept.'));
+    out.appendChild(head);
+
+    var end = 1;
+    Object.keys(data.fields).forEach(function (k) { (data.fields[k].ops || []).forEach(function (op) { end = Math.max(end, op[0]); }); });
+    away.forEach(function (a) { end = Math.max(end, a[0] + a[1]); });
+
+    Object.keys(data.fields).forEach(function (key) {
+      var f = data.fields[key], ops = f.ops || [], list = states(ops);
+      var card = el('section', { class: 'card', 'aria-label': (data.labels && data.labels[key]) || key });
+      card.appendChild(el('h2', {}, (data.labels && data.labels[key]) || key));
+      var stats = el('div', { class: 'stats' });
+      [[Math.round((f.ms || 0) / 6000) / 10, 'writing minutes'], [f.typed || 0, 'typed characters'], [f.pasted || 0, 'pasted characters'], [f.del || 0, 'deleted characters'],
+       [ops.filter(function (o) { return /[pbx]/.test(o[4]); }).reduce(function (m, o) { return Math.max(m, o[3].length); }, 0), 'largest single add']].forEach(function (s) {
+        var d = el('div', { class: 'stat' }); d.appendChild(el('b', {}, String(s[0]))); d.appendChild(el('span', {}, s[1])); stats.appendChild(d);
+      });
+      card.appendChild(stats);
+      var pauses = f.hist ? (f.hist[5] || 0) + (f.hist[6] || 0) : 0;
+      if (f.hist) card.appendChild(el('p', { class: 'dim' }, 'Typing rhythm: ' + pauses + ' pauses of five seconds or more between keys. Real composing usually has many pauses and corrections.'));
+      if (f.notable && f.notable.length) {
+        card.appendChild(el('p', {}, 'Large events kept: ' + f.notable.map(function (n) { return clock(n[0]) + ' ' + KIND[n[1]] + ' ' + n[2] + ' characters'; }).join(', ')));
+      }
+      if (!list.length) { card.appendChild(el('p', { class: 'dim' }, 'No step by step replay for this answer.')); out.appendChild(card); return; }
+
+      var strip = el('div', { class: 'strip', 'aria-hidden': 'true' });
+      away.forEach(function (a) { var s = el('i', { class: 'away' }); s.style.left = (a[0] / end * 100) + '%'; s.style.width = Math.max(0.3, a[1] / end * 100) + '%'; strip.appendChild(s); });
+      list.forEach(function (st) { var t = el('i', { class: 'tick k-' + st.kind }); t.style.left = 'calc(' + (st.at / end * 100) + '% - 1px)'; t.title = clock(st.at) + ' ' + KIND[st.kind]; strip.appendChild(t); });
+      var now = el('i', { class: 'now' }); strip.appendChild(now);
+      card.appendChild(strip);
+
+      var range = el('input', { type: 'range', min: '0', max: String(list.length - 1), value: String(list.length - 1), 'aria-label': 'Replay position' });
+      var info = el('p', { role: 'status', 'aria-live': 'off' });
+      var text = el('div', { class: 'text', tabindex: '0', 'aria-label': 'Answer text at this point' });
+      var controls = el('div', { class: 'row' });
+      var play = el('button', { type: 'button' }, 'Play from start');
+      var speed = el('select', { 'aria-label': 'Replay speed' });
+      [['1', 'one step a second'], ['3', 'three steps a second'], ['8', 'eight steps a second']].forEach(function (o) { var op = el('option', { value: o[0] }, o[1]); speed.appendChild(op); });
+      speed.value = '3';
+      controls.appendChild(play); controls.appendChild(speed);
+      card.appendChild(controls); card.appendChild(range); card.appendChild(info); card.appendChild(text);
+
+      function show(i) {
+        var st = list[i];
+        text.textContent = '';
+        text.appendChild(document.createTextNode(st.text.slice(0, st.pos)));
+        if (st.len) text.appendChild(el('mark', { class: 'k-' + st.kind }, st.text.slice(st.pos, st.pos + st.len)));
+        text.appendChild(document.createTextNode(st.text.slice(st.pos + st.len)));
+        info.textContent = 'Step ' + (i + 1) + ' of ' + list.length + ' · ' + clock(st.at) + ' after the page opened · ' + KIND[st.kind] + (st.len ? ' · ' + st.len + ' characters' : '');
+        now.style.left = (st.at / end * 100) + '%';
+        var m = text.querySelector('mark'); if (m && m.scrollIntoView) m.scrollIntoView({ block: 'nearest' });
+      }
+      range.addEventListener('input', function () { show(Number(range.value)); });
+      var timer = null;
+      play.addEventListener('click', function () {
+        if (timer) { clearInterval(timer); timer = null; play.textContent = 'Play from start'; return; }
+        var i = 0; show(0); range.value = '0';
+        play.textContent = 'Stop';
+        timer = setInterval(function () {
+          i++;
+          if (i >= list.length) { clearInterval(timer); timer = null; play.textContent = 'Play from start'; return; }
+          range.value = String(i); show(i);
+        }, 1000 / Number(speed.value));
+        timers.push(timer);
+      });
+      show(list.length - 1);
+      out.appendChild(card);
+    });
+  }
+  document.getElementById('load').addEventListener('click', function () {
+    msg.textContent = ''; msg.className = '';
+    try { render(parse(input.value)); msg.textContent = 'Replay ready.'; }
+    catch (e) { out.textContent = ''; msg.textContent = e.message; msg.className = 'err'; }
+  });
+  document.getElementById('clear').addEventListener('click', function () {
+    timers.forEach(clearInterval); timers = [];
+    input.value = ''; out.textContent = ''; msg.textContent = '';
+  });
+})();
+</script>
+</body>
+</html>

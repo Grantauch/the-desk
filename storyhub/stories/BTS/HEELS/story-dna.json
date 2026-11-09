@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELS",
+  "title": "America's Most Hated",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "arena broadcast",
+      "dry",
+      "evidence led",
+      "a little dangerous"
+    ],
+    "paletteIntent": "Arena black with poster bone, blood red for kayfabe, ring light gold for labels and steel blue reserved for the real record, so the two channels never blur.",
+    "typographyIntent": "Heavy slab wood type headlines from old fight posters, condensed card labels and plain sans body text; the real record is set in a newspaper serif italic.",
+    "textureLanguage": [
+      "unaltered archival photography",
+      "fight card print",
+      "newspaper front page"
+    ],
+    "shapeLanguage": "Square posters with hard offset shadows, three line ring rope dividers, numbered bouts and stroked chapter numbers.",
+    "motionGrammar": [
+      "headline to ring reveal",
+      "role switching on demand",
+      "sequence placement"
+    ],
+    "interactionSignature": [
+      "headline picker with a reaction time chart",
+      "heel and face year switcher",
+      "poster versus record toggle",
+      "fear filter with a live tally",
+      "click to order timeline proof"
+    ],
+    "densityRhythm": "Cinematic hero, compact watch prompt, four dense interactive chapters, a paper colored mission break, then a quiet closing question.",
+    "archivalBehavior": "Library of Congress and Wikimedia Commons photographs are shown uncolored and credited. Video comes only from official channels and loads only on press. No invented archival imagery.",
+    "endingLanguage": "Return to whether wrestlers were villains or were taught to the crowd as villains, and hand off to the finished exemplar."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The black arena and hot ring lights of the 1949 Library of Congress frames, plus the red and bone of a printed fight card.",
+    "edgeTreatment": "Hard rectangular frames and offset poster shadows; no rounded consumer cards.",
+    "controlLanguage": "Headlines look like front pages, filters look like card chips, and the year switcher marks heel red and face steel.",
+    "spacingLanguage": "Wide two column story rows alternate with full width instruments and a sticky tally beside the card.",
+    "transitionLanguage": "Natural scrolling with short fade reveals; reduced motion shows everything immediately."
+  }
+}

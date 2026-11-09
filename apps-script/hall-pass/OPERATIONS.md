@@ -1,15 +1,95 @@
 # GrantDesk Hall Pass — steady-state operations
 
-Issue #14 is closed. Version 24 is deployed. The tracked source, in-place deployment and synthetic runtime suite are verified; the separate Version 24 protected post-deployment `?mode=releasecheck` result is not yet recorded here. This file is the current operating checklist; GitHub Issue #16 is a separate historical operations record. Classroom observation remains FIELD_PENDING.
+Current release authority: [permanent release-control issue #28](https://github.com/Grantauch/the-desk/issues/28). It records the actual deployed Apps Script version and guarded readback. Connected Pixel Camp source/combined checks are tracked in [PR #255](https://github.com/Grantauch/the-desk/pull/255). Authenticated synthetic live smoke and classroom use are separate field evidence.
 
-Production fingerprint as of 2026-09-09 (Version 24):
+## Historical September 22 operating record
+
+Issue #14 is closed. **Version 30 is deployed.** The production Apps Script source, canonical release gate, production preflight, in-place Apps Script deployment, and matching Netlify application deploy are recorded below. Protected `main` may contain later documentation-only commits without changing the deployed Apps Script version. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
+
+Production fingerprint as of 2026-09-22 (Version 30):
 
 | Fact | Value |
 | --- | --- |
-| Deployed application source | `afde2972782bcd1626efc1ee1de7bc5dede42c7c`, merged through PR #73; duplicate-action race guard included |
-| Apps Script version | 24, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
-| Workbook schema | `2026-09-05-session-a`; unchanged by Versions 23–24 |
-| Release evidence | GitHub Actions run `34385311732`; canonical gate, five-file replacement/read-back and 314 runtime behavior checks passed |
+| Deployed application source | `baa8ad44416d5023796f112501de8461233e918c` |
+| Apps Script version | 30, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
+| Workbook schema | `2026-09-21-backend-b` (unchanged) |
+| Teacher client contract | `2026-09-22-all-teacher-rpcs` |
+| GoClassroom read contract | `2026-09-22-roster-sync-v1` |
+| GoClassroom write contract | `2026-09-22-roster-write-v1`; teacher-approved add/reactivate and exact-membership name correction only |
+| Release evidence | preflight run `35777981230`; deploy run `35778256624`; canonical gate, bridge self-test and in-place deployment passed |
+| Netlify production | deploy `6ab2df797957c4000848c386`, status `ready`, commit `baa8ad44416d5023796f112501de8461233e918c`; enhanced secret scan reported no matches |
+| Runtime evidence | GoClassroom roster bridge 8/8; Hall Pass runtime 355/355 checks across 25 areas |
+| Data/schema impact | no workbook schema migration; automatic removal/deactivation/delete remains unsupported; roster sync never sends PIN email |
+
+## September 22 Version 30 GoClassroom approved roster writes
+
+Version 30 preserves all Version 29 Hall Pass/Check-In behavior and adds the first deliberately narrow write-capable GoClassroom roster contract.
+
+- Teacher authorization, exact write-contract match and explicit `APPLY SAFE ROSTER CHANGES` confirmation are required.
+- Each approved batch is bound to the exact live-roster revision GoClassroom compared. Any intervening roster change rejects the whole batch before mutation.
+- A unique request ID and stored payload digest make uncertain retries replay-safe and reject request-ID reuse with different data.
+- One batch is capped at 200 approved additions/name corrections.
+- Only additions/reactivations and exact-membership name corrections are supported. Removal, deactivation and delete requests are rejected server-side.
+- Name corrections touch only the class membership explicitly approved; another membership for the same student is not silently renamed.
+- Student domain, duplicate/conflicting operations and stale prior names are validated before writes begin.
+- New students may receive a private PIN/PIN Card record, but roster sync does not send PIN email.
+- Every applied roster change writes Teacher Actions audit evidence tied to the GoClassroom request ID.
+- PR #125 passed the protected full release gate, including 8/8 roster-bridge checks and 355/355 Hall Pass behavioral checks.
+- Production preflight `35777981230` passed against Version 29; deploy `35778256624` updated the existing deployment in place to Version 30.
+- Netlify application deploy `6ab2df797957c4000848c386` is ready on the matching source commit with no enhanced secret-scan matches.
+
+The authenticated `?mode=releasecheck` synthetic protected-action smoke remains separate FIELD_PENDING evidence; Version 30 does not claim that smoke complete.
+
+## September 22 Version 29 GoClassroom read-only roster bridge
+
+Version 29 was the prior single-classroom production release. It preserves all Version 28 Hall Pass/Check-In behavior and adds one narrowly scoped integration surface for GoClassroom.
+
+- `getRosterSyncSnapshot` requires an authorized teacher and the exact roster bridge contract `2026-09-22-roster-sync-v1`.
+- The bridge returns only active membership identity fields: student email, student name, class/period and active status.
+- The bridge does not return PIN material, pass history, Check-In history, pass-access overrides or workbook row numbers.
+- The bridge does not run workbook setup/repair, background-trigger maintenance or a transaction lock and contains no roster write path.
+- PR #122 passed the protected full release gate before merge.
+- Production preflight run `35772765535` passed against Version 28, then deploy run `35772904099` updated the existing deployment in place to Version 29.
+- Netlify production deploy `6ab2d417f8e303000839704b` is `ready` on the matching source commit and reported no secret-scan matches.
+
+The authenticated `?mode=releasecheck` synthetic protected-action smoke remains separate FIELD_PENDING evidence; Version 29 does not claim that smoke complete.
+
+## September 22 Version 28 production catch-up release
+
+Version 28 was the prior single-classroom production release. It preserved the stable Apps Script URL, private workbook, school-domain access and deploying-teacher execution identity while bringing production fully up to the Hall Pass/Check-In source then on protected `main`.
+
+- The teacher browser contract now exactly matches the server contract, fixing the Version 27 stale-client mismatch that blocked teacher bootstrap/RPCs.
+- The private `?mode=releasecheck` client now uses that same contract, so the required synthetic protected-action smoke can execute instead of being rejected before the test begins.
+- Regression coverage now compares the server, teacher browser and release-check contract values so a future contract bump cannot silently ship only one side.
+- Teacher bootstrap audits and repairs both background trigger classes. Routine dashboard polling throttles that trigger audit to once per hour.
+- Owned background trigger IDs are cached in Script Properties, avoiding repeated project-trigger enumeration during normal trigger execution.
+- Empty Check-In refreshes and idle minute-trigger ticks avoid the shared transaction lock.
+- The one-minute durability trigger can resume waiting-line settlement if a return committed before normal queue advancement completed.
+- The deployed source also includes the post-Version-27 safeguards that serialize workbook setup against live classroom/PIN-email writes and fall back to the authoritative attendance ledger when tail rows are out of chronological order.
+- PR #118 passed the full release gate and browser acceptance after being brought to zero commits behind `main`.
+- Production preflight run `35754508635` passed against Version 27, then deploy run `35754589935` updated the existing deployment in place to Version 28.
+- Netlify production is `ready` on deploy `6ab2acfb9d374c000715447c` from the same source commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`; its enhanced secret scan reported no matches.
+
+The authenticated `?mode=releasecheck` synthetic smoke is still required and has not been claimed complete. It must be run as the teacher; do not substitute a real student PIN or record.
+
+## September 22 Version 27 commercial-hardening release
+
+Version 27 was the prior single-classroom production release. It preserves the existing Apps Script deployment URL and private workbook while closing the backend/recovery issues found during the September 21–22 commercial-readiness audit.
+
+- Daily Check-ins grows automatically beyond the former 1,000-row grid ceiling.
+- Check-In partial-commit recovery repairs secondary streak/late-review state before durable inbox evidence is cleared.
+- Live Check-In summaries are limited to active memberships and rebuild when roster/calendar inputs change.
+- Student self-check-in closes at class end; unresolved late reviews persist until teacher action.
+- Late self-check-in clears a prior active absence while preserving the original attendance fact as a CLEARED audit row.
+- Prior-period unresolved passes remain visible but do not consume current-period capacity.
+- PIN rotation revokes outstanding signed student sessions/proofs; obsolete cache-only sessions are rejected.
+- Independent submissions converge on a canonical logical Check-In ID.
+- Workbook header drift and duplicate Settings/calendar/active-roster keys fail closed.
+- Polling is jittered and stale live-state failures are visible to teacher/student screens.
+- Teacher browser RPCs require the current client contract, preventing stale open dashboard tabs from mutating a newer server.
+- The live workbook no longer carries the inert `SCHOOL_CALENDAR_FILE_ID` or `SCHOOL_CALENDAR_FALLBACK_URL` settings.
+
+Release run `35730498425` verified Version 27 deployment on the existing deployment ID with `DOMAIN` access and `USER_DEPLOYING` execution. No new Apps Script deployment URL was created.
 
 ## September 9 Version 24 duplicate-action release
 
@@ -33,7 +113,7 @@ Version 23 removed Daily Check-In from the shared workbook lock without changing
 - Pass requests and returns retain the shared lock because `MAX_ACTIVE_PASSES`, queue order, and return settlement require a serialized room decision.
 - Version 23 local evidence reached 311 behavioral checks, including a refused workbook lock, a thirty-student burst visible before flush, an interrupted-response replay, duplicate flush recovery, trigger authorization, late review, absences and Hall Pass regressions.
 
-The dependency-complete canonical gate, protected PR, in-place deploy bridge and five-file source read-back have passed for Version 24. Real-class observation and the Version 24 protected post-deployment releasecheck remain pending evidence. Do not create a new deployment or URL.
+The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 30. Real-class observation and the authenticated synthetic release smoke remain pending evidence. Do not create a new deployment or URL.
 
 ## Session and teacher policy
 
@@ -60,17 +140,14 @@ The dependency-complete canonical gate, protected PR, in-place deploy bridge and
    or email correction made after a delivery batch assembled its recipients cannot send a credential to
    a stale address, and that the recorded delivery status matches the address actually used. Never
    exercise this against the live roster or by sending real mail.
-3. **Version 24 release evidence — partial until protected smoke is recorded.** GitHub Actions run `34385311732` deployed Version 24 in place after the canonical gate and 314 runtime checks passed, including the Issue #73 duplicate-action guard. The last protected post-deployment `?mode=releasecheck` result recorded in the prior operating state belongs to Version 23. Rerun and record the protected smoke for Version 24 before marking this item fully passed. No real student PIN or email should be used.
+3. **Version 30 protected release smoke.** Preflight run `35777981230` passed and deploy run `35778256624` deployed Version 30 in place from source `baa8ad44416d5023796f112501de8461233e918c`. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. The separate authenticated `?mode=releasecheck` synthetic smoke is still pending; run it as the teacher with only the isolated synthetic credential and record the result separately.
 4. **`NEEDS_RESEND` credential records.** Ten PIN-card records were repointed to corrected addresses
    during the identity migration, and their delivery status was set to `NEEDS_RESEND` because a prior
    `SENT` marker could not prove delivery to the corrected address. All ten students had already used
    their PINs successfully, so this is not a reason for a roster-wide reset. Review each record, decide
    whether that student actually needs another delivery, and keep any real send a separate,
    teacher-confirmed action.
-5. **Netlify deploy fingerprint.** Read the successful Netlify deployment record and tie its deploy ID,
-   timestamp and production URL to the relevant release commit, so the public-release proof is as
-   recoverable as the Apps Script and workbook fingerprints.
-6. **Recovery rehearsal.** Use preserved Version 18 source and its additive schema on a synthetic copy. Never roll bathroom service back to Versions 14, 15 or 16: all carry the AUTO_PASS defect. Version 17 remains a historical safe authorization baseline, not an automatic rollback for the newer session policy.
+5. **Recovery rehearsal.** Use preserved Version 18 source and its additive schema on a synthetic copy. Never roll bathroom service back to Versions 14, 15 or 16: all carry the AUTO_PASS defect. Version 17 remains a historical safe authorization baseline, not an automatic rollback for the newer session policy.
 
 ## Release gate
 

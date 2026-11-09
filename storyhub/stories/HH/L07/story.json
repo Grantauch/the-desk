@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L07",
+  "course": "HH",
+  "lessonCode": "L07",
+  "title": "The Hangman of Nuremberg",
+  "audience": "students",
+  "narrativeQuestion": "What can the records prove about John C. Woods and the Nuremberg executions, and does lawful justice require humane punishment?",
+  "chapters": [
+    {
+      "id": "01-choice",
+      "title": "The Choice",
+      "claim": "A public trial created an evidentiary record where immediate punishment would not.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A00"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "02-verdict",
+      "title": "The Verdict",
+      "claim": "Of twelve death sentences, ten were carried out; Göring died by suicide and Bormann was absent.",
+      "namedPeople": [
+        {
+          "name": "Hermann Göring",
+          "role": "convicted Nazi leader who died by suicide before his execution",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A00"
+      ],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "03-resume",
+      "title": "The Résumé",
+      "claim": "Military historian MacLean's record-based estimate diverges from Woods's self-promoted credentials.",
+      "namedPeople": [
+        {
+          "name": "John C. Woods",
+          "role": "U.S. Army hangman at Nuremberg",
+          "anchorStatus": "planned"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "04-witness",
+      "title": "The Witness",
+      "claim": "The correspondent heard sounds from behind the screen but could not observe their cause.",
+      "namedPeople": [
+        {
+          "name": "Joseph Kingsbury-Smith",
+          "role": "contemporary American correspondent",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Julius Streicher",
+          "role": "Nazi propagandist executed at Nuremberg",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "05-claims",
+      "title": "The Claims",
+      "claim": "Some claims are documented, others attributed or not established; those categories are different.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "06-ending",
+      "title": "The Ending",
+      "claim": "Woods died in an electrical accident in 1950, not a proven murder conspiracy.",
+      "namedPeople": [
+        {
+          "name": "John C. Woods",
+          "role": "executed Nazi leaders and died on Eniwetok",
+          "anchorStatus": "planned"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "07-verdict",
+      "title": "Your Verdict",
+      "claim": "The evidence for possible mishandling does not automatically establish deliberate suffering.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I06"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Never conflate Nazi defendants' guilt with disputed conduct during punishment.",
+    "Classify Woods's claim of 347 as attributed, not his verified count.",
+    "French L. MacLean's 60–100 estimate is not a formal execution count.",
+    "Witness reported sounds but could not directly identify cause or length of conscious suffering behind the screen.",
+    "Do not present 18–28-minute claims as proven.",
+    "The electrical death of Woods is documented; conspiratorial murder theories are unsubstantiated.",
+    "Local SVGs are openly identified as modern interpretations; original historical images are linked from source notes."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-nuremberg.html",
+    "manifest": "storyhub/releases/HH-L07.json"
+  }
+}

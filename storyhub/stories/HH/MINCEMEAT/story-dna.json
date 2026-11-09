@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MINCEMEAT",
+  "title": "the man who never was",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "quiet maritime espionage with a human ending"
+    ],
+    "paletteIntent": "Atlantic blue, paper ivory and burgundy",
+    "typographyIntent": "Large editorial serif headlines, readable system sans narrative, monospace records",
+    "textureLanguage": [
+      "A briefcase, personal letters and a beach; no corpse or invented portrait."
+    ],
+    "shapeLanguage": "Scene-specific evidence surfaces, with open narrative space between them",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Choose pocket evidence to build a believable identity; distinguish evidence of deception from a claim that it alone won Sicily."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "Recover the real person behind the invented officer."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Atlantic blue, paper ivory and burgundy",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Choose pocket evidence to build a believable identity; distinguish evidence of deception from a claim that it alone won Sicily.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

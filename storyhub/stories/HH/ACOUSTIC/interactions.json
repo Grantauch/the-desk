@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ACOUSTIC",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "cat",
+      "teaches": "A working microphone is not a controllable spy.",
+      "studentAction": "Illustrative mission exercise, not a reconstruction of a specific test. Try all three positions. Each fixes one problem and exposes another.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Choose a listening position; compare a 1967 memo with the agency’s 2024 account.",
+      "status": "implemented"
+    }
+  ]
+}

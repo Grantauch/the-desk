@@ -17,7 +17,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Keep all gates, including 600 balance games and the five-real-minute town
+    # observation. The full suite exceeded 30 minutes in run 39816669934.
+    # Resident-home travel and persistent-world browser journeys add real play time.
+    timeout-minutes: 45
     steps:
       - name: Check out the site
         uses: actions/checkout@v7
@@ -61,6 +64,9 @@ jobs:
           echo "Lane: ${{ steps.lane.outputs.mode }}"
           echo "Reason: ${{ steps.lane.outputs.reason }}"
           echo "Routes: ${{ steps.lane.outputs.routes }}"
+
+      - name: Check Dry County businesses, progression and saves
+        run: npm run dry-county:test
 
       - name: Verify StoryHub-only release
         if: steps.lane.outputs.mode == 'storyhub'
@@ -117,9 +123,29 @@ jobs:
           STORYHUB_TEST_ROUTES: ${{ steps.lane.outputs.routes }}
         run: npm run storyhub:browser:test
 
+      - name: Check Checkaverse rules and living world in a real browser
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: |
+          npm --prefix apps/checkaverse ci --no-audit --no-fund
+          npm --prefix apps/checkaverse test
+          npm --prefix apps/checkaverse run test:browser
+
       - name: Check key site pages in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: npm run browser:test
+
+      - name: Check WWI trench models and independent fallbacks
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: |
+          node scripts/test-wwi-trench-observation.mjs
+          node scripts/test-wwi-trench-supply.mjs
+
+      - name: Check Dry County businesses in a real browser
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: |
+          node scripts/test-dry-county-browser.mjs
+          node scripts/test-dry-county-art-browser.mjs
+          node scripts/test-dry-county-town-browser.mjs
 
       - name: Save browser screenshots and accessibility reports
         if: always()

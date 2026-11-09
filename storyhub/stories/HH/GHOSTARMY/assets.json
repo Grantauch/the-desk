@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GHOSTARMY",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "illustration",
+      "role": "Hero atmosphere and catalog cover",
+      "sourceMode": "original-generated-illustration",
+      "subject": "A rubber tank being lifted by soldiers, distant reconnaissance viewpoint and a sound truck.",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/ghost-army/assets/cover.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "video",
+      "role": "28-second silent captioned explanation",
+      "sourceMode": "original-authored-explainer",
+      "subject": "How do you make the enemy discover an army that does not exist?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/ghost-army/assets/recap.mp4"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "captions",
+      "role": "Accessible exact caption track",
+      "sourceMode": "original-authored-explainer",
+      "subject": "How do you make the enemy discover an army that does not exist?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/ghost-army/assets/recap.vtt"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "text",
+      "role": "Complete media transcript",
+      "sourceMode": "original-authored-explainer",
+      "subject": "How do you make the enemy discover an army that does not exist?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/ghost-army/assets/transcript.txt"
+    },
+    {
+      "id": "A05",
+      "status": "shipped",
+      "type": "archival-image",
+      "role": "Primary visual evidence beside the evidence activity",
+      "sourceMode": "archival-source-first",
+      "subject": "Actual period photograph of soldiers moving an inflatable tank. Published by the U.S. Army, credited to the National Archives. Unlike the cover, this is historical photographic evidence.",
+      "sourceUrl": "https://api.army.mil/e2/c/images/2021/06/09/ba1734bc/original.jpg",
+      "rightsStatus": "U.S. Army/National Archives government photograph; public domain.",
+      "provenance": "Faithful optimized WebP derivative. No content generation, invented text or restoration. ",
+      "htmlSafeZone": "Caption and analysis remain in HTML below the uncropped image.",
+      "responsiveCrop": "Full uncropped image at every width; open image at intrinsic size.",
+      "deployPath": "/storyhub/hh/ghost-army/assets/record.webp"
+    }
+  ]
+}

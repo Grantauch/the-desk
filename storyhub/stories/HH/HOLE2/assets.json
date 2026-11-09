@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HOLE2",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "engraving",
+      "role": "Level one plate",
+      "sourceMode": "source-first-archival",
+      "subject": "Hendrik Hondius, 1642, after Pieter Bruegel, 1564, pilgrims with the dancing sickness",
+      "rightsStatus": "Public domain",
+      "provenance": "Wikimedia Commons scan, resized WebP.",
+      "htmlSafeZone": "HTML text sits beside the image, never on it.",
+      "responsiveCrop": "Shown uncropped at its own aspect ratio.",
+      "deployPath": "/storyhub/hh/they-couldnt-stop/assets/dancing-mania-1642.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "engraving",
+      "role": "Hero background",
+      "sourceMode": "source-first-archival",
+      "subject": "John Tenniel, the Mad Tea Party, 1865",
+      "rightsStatus": "Public domain",
+      "provenance": "Wikimedia Commons scan, inverted to pale ink on black, WebP. New to this lesson.",
+      "htmlSafeZone": "HTML text sits beside the image, never on it.",
+      "responsiveCrop": "Shown uncropped at its own aspect ratio.",
+      "deployPath": "/storyhub/hh/they-couldnt-stop/assets/tea-party-ink.webp"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "engraving",
+      "role": "Theory board guide",
+      "sourceMode": "source-first-archival",
+      "subject": "John Tenniel, the Lobster, 1865, from the 1869 German edition",
+      "rightsStatus": "Public domain",
+      "provenance": "Wikimedia Commons scan, inverted to pale ink on black, WebP. New to this lesson.",
+      "htmlSafeZone": "HTML text sits beside the image, never on it.",
+      "responsiveCrop": "Shown uncropped at its own aspect ratio.",
+      "deployPath": "/storyhub/hh/they-couldnt-stop/assets/lobster-quadrille-ink.webp"
+    },
+    {
+      "id": "A04",
+      "status": "embedded",
+      "type": "video",
+      "role": "Level five evidence",
+      "sourceMode": "embedded-third-party",
+      "subject": "Associated Press recording of the Havana sound, October 2017",
+      "rightsStatus": "Third party, played through the YouTube embed player",
+      "provenance": "Not downloaded or rehosted.",
+      "htmlSafeZone": "Video sits in its own 16:9 frame.",
+      "responsiveCrop": "16:9 frame at every width.",
+      "deploymentStatus": "embedded-not-hosted",
+      "deploymentNote": "Played from YouTube through a click to load embed."
+    }
+  ]
+}

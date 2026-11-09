@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELS",
+  "title": "America's Most Hated",
+  "route": "/hubs/bts-americas-most-hated.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/HEELS/story.json",
+    "note": "Built from the approved America's Most Hated student packet, assignment deck and teacher guide; exploratory hub with no answer boxes."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-americas-most-hated.html",
+      "bytes": 81456,
+      "sha256": "653f3dd2394bb3970a52e1668e21f08dd7e1d2603fc7983e906af80277bff6a7"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/alfa-slab-one.woff2",
+      "bytes": 19052,
+      "sha256": "48a110c7fda81f9921a6437e1a813dcea56df5a9f52f778c7b2f2151e36e4f2c"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/barlow-condensed-600.woff2",
+      "bytes": 22308,
+      "sha256": "215a93c696f442034a46fbb382958f753fda60e30490683aeea6b235fcbb2b66"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/barlow-condensed-800.woff2",
+      "bytes": 22464,
+      "sha256": "2515494e8cc2ca07c86ea78766cfa104b796aa6ed5d66821c01d51dbb0b52bce"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/barlow-400.woff2",
+      "bytes": 22196,
+      "sha256": "b0a8ad37ac45f5fb22ced461576db72e44e295107aad7a9c8a7a4bad728fd03b"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/barlow-600.woff2",
+      "bytes": 22772,
+      "sha256": "4b52ddd4836b592df0e4832b8286956883cdc651b015126bdd18f184b7f90cc3"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/barlow-400-italic.woff2",
+      "bytes": 24484,
+      "sha256": "7a306c56f630df002deeafbd521738e20795d765feea65030def2e80f9a3d62f"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/source-serif-4.woff2",
+      "bytes": 122360,
+      "sha256": "f2ea9c12d2fe9bd3a9589b02ad2c0909da88f30938c91adc838c4f4098f9f9e0"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/source-serif-4-italic.woff2",
+      "bytes": 50544,
+      "sha256": "e940d556347366d68322f128c89b05a1840da4622c9872b5c2352e3a3410fe25"
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/gg-ring.webp",
+      "assetId": "A01",
+      "bytes": 31596,
+      "sha256": "372667cdfbe6895af07b9649937d3b6df69b9081755be49b4e8151beb9e90033",
+      "width": 545,
+      "height": 850
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/gg-crowd.webp",
+      "assetId": "A02",
+      "bytes": 61108,
+      "sha256": "175e3708bfbd0049f98ebe4268d79347b138ec10a0b76ca39478b69b582bed74",
+      "width": 911,
+      "height": 566
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/protest-1979.webp",
+      "assetId": "A04",
+      "bytes": 128382,
+      "sha256": "9286dce58d090b3e33fd023064cda32f4d747dfc7b892d2628a4a0cee079a8a1",
+      "width": 1024,
+      "height": 701
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/hostages-1979.webp",
+      "assetId": "A05",
+      "bytes": 92086,
+      "sha256": "b21934bab06527411f2c0aab20b3d385fdb28e4fcb5544b4bdfe9c59ae13f7e1",
+      "width": 901,
+      "height": 630
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/slaughter-1984.webp",
+      "assetId": "A06",
+      "bytes": 80934,
+      "sha256": "9d3ad6be9d7ce22619cbb364eeee7d1fb3202143faa5a6d18c38feebd4aed1b6",
+      "width": 960,
+      "height": 1203
+    },
+    {
+      "path": "/storyhub/bts/americas-most-hated/assets/sheik-volkoff-1986.webp",
+      "assetId": "A07",
+      "bytes": 12294,
+      "sha256": "29d8afcf25ba3dd8c0c80883ed1bc4d2a6cfe52629a7472d4e937f5c1e928843",
+      "width": 344,
+      "height": 246
+    }
+  ],
+  "totalBytes": 794036,
+  "sealedAt": "2026-10-21"
+}

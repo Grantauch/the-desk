@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-PHILADELPHIA",
+  "title": "the ship that never vanished",
+  "route": "/hubs/hh-bytesize-philadelphia-experiment.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/PHILADELPHIA/story.json",
+    "note": "Original sourced ByteSize lesson. Modern illustrations and silent recaps are labeled; historical records remain with their publishers."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-philadelphia-experiment.html",
+      "bytes": 28906,
+      "sha256": "0e52f2fab339ea9abd9268e220559c665498030e4a1eea1629a2d6ac11f9cf8a"
+    },
+    {
+      "path": "/storyhub/hh/philadelphia-experiment/assets/cover.webp",
+      "assetId": "A01",
+      "bytes": 191140,
+      "sha256": "333bfaef734fd5e047875c4bb56a525e1d57fe264ae62196800e62f2f8ea9205",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/philadelphia-experiment/assets/recap.mp4",
+      "assetId": "A02",
+      "bytes": 250572,
+      "sha256": "39e4c53017845ee79f933c6e9eec2e0fa6afcb607abf9db215ad58b8e0cc594d"
+    },
+    {
+      "path": "/storyhub/hh/philadelphia-experiment/assets/recap.vtt",
+      "assetId": "A03",
+      "bytes": 424,
+      "sha256": "a2a0dfe598981fe16be86d2e821312b179faca60c91aed65b9a56e0a5b033fcb"
+    },
+    {
+      "path": "/storyhub/hh/philadelphia-experiment/assets/transcript.txt",
+      "assetId": "A04",
+      "bytes": 457,
+      "sha256": "816d60997269c1826917b20d60c85ce744ee82395a5b8a08c71093307dc70c00"
+    }
+  ],
+  "totalBytes": 471499,
+  "sealedAt": "2026-10-28"
+}

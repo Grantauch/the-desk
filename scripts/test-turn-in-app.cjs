@@ -1,0 +1,833 @@
+/**
+ * the desk · Turn In web app suite.
+ *
+ * Runs apps-script/turn-in/Code.gs inside the same fake Apps Script runtime the
+ * Hall Pass suite uses. The roster comes from the Hall Pass fixtures, so every
+ * PIN below was generated and hashed by the real Hall Pass code. That makes the
+ * first test a true compatibility check: a PIN that works for a hall pass must
+ * work for Turn In. Every student is invented and nothing contacts Google.
+ */
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { world, PEOPLE, CODE } = require('./lib/turn-in-harness.cjs');
+
+const MANIFEST = path.join(__dirname, '..', 'apps-script', 'turn-in', 'appsscript.json');
+
+let failures = 0;
+let passed = 0;
+function test(name, fn) {
+  try {
+    fn();
+    passed += 1;
+  } catch (error) {
+    failures += 1;
+    console.log(`  ✗ ${name}`);
+    String(error && error.stack || error).split('\n').slice(0, 6).forEach((line) => console.log(`      ${line}`));
+  }
+}
+
+const answers = (...pairs) => pairs.map(([k, q, a]) => ({ k, q, a }));
+const ONE = answers(['id:q1', 'What did Robinson promise Rickey?', 'Three years of silence.'], ['id:q2', 'Who led the abuse?', '']);
+
+/* ------------------------------------------------------------------ tests -- */
+
+test('manifest serves anonymous visitors and runs as the teacher', () => {
+  const manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+  assert.equal(manifest.webapp.access, 'ANYONE_ANONYMOUS');
+  assert.equal(manifest.webapp.executeAs, 'USER_DEPLOYING');
+  assert.equal(manifest.timeZone, 'America/Detroit');
+});
+
+test('setup refuses to run before the roster and salt are filled in', () => {
+  const w = world({ configure: false });
+  assert.throws(() => w.sandbox.setup(), /ROSTER_SPREADSHEET_ID/);
+  w.h.properties.setProperty('ROSTER_SPREADSHEET_ID', 'roster-book');
+  assert.throws(() => w.sandbox.setup(), /PIN_SALT/);
+  const health = JSON.parse(w.sandbox.doGet().text);
+  assert.equal(health.ready, false);
+});
+
+test('setup builds the private workbook, its tabs and the nightly cleanup', () => {
+  const w = world();
+  const names = w.book().getSheets().map((s) => s.getName());
+  assert.deepEqual(names.sort(), ['Classroom Links', 'Drafts', 'Load Test', 'Load Test Progress', 'Progress', 'Review Roster', 'Turn Ins', 'Writing Timeline']);
+  assert.equal(w.book().getSheetByName('Turn Ins').getRange(1, 1, 1, 12).getValues()[0][8], 'Answers');
+  assert.equal(w.h.state.triggers.filter((t) => t.handler === 'pruneDrafts').length, 1);
+  w.sandbox.setup();
+  assert.equal(w.h.state.triggers.filter((t) => t.handler === 'pruneDrafts').length, 1, 'running setup twice keeps one trigger');
+  assert.equal(JSON.parse(w.sandbox.doGet().text).ready, true);
+});
+
+test('a PIN made by Hall Pass signs a student in to Turn In', () => {
+  const w = world();
+  const result = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'bts-the-bargain', course: 'bts', device: 'cb-1' });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.firstName, 'Ada');
+  assert.equal(result.classPeriod, 'Period 1');
+  assert.deepEqual(result.classes, ['Period 1']);
+  assert.equal(result.draft, null);
+  assert.ok(result.token);
+});
+
+test('exact lunch numbers work in Turn In, unassigned numbers fail, and corrections invalidate sessions', () => {
+  const w = world();
+  const old = w.pin(PEOPLE.ada);
+  assert.equal(w.post({ action:'signin', pin:old, hub:'x', device:'old' }).ok,true);
+  const directory = w.sandbox.SpreadsheetApp.create('Synthetic shared directory');
+  const sheet = directory.insertSheet('School Directory');
+  sheet.getRange(1,1,4,4).setValues([
+    ['School Student ID','Student Name','School Email','Status'],
+    ['012345','Byron, Ada',PEOPLE.ada.email,'AVAILABLE'],
+    ['54321','Turing, Alan',PEOPLE.alan.email,'AVAILABLE'],
+    ['98765','Unassigned Student','unassigned@students.mtmorrisschools.org','AVAILABLE'],
+  ]);
+  w.school.harness.call('setSettingValue_','SCHOOL_DIRECTORY_SOURCE_ID',directory.getId());
+  const first = w.post({ action:'signin', pin:'012345', hub:'x', device:'first' });
+  assert.equal(first.ok,true,JSON.stringify(first));
+  assert.equal(w.post({ action:'signin', pin:'54321', hub:'x', device:'second' }).ok,true);
+  // A lunch number typed with or without its leading zero reaches the same student.
+  assert.equal(w.post({ action:'signin', pin:'12345', hub:'x', device:'no-zero' }).ok,true);
+  assert.equal(w.post({ action:'signin', pin:'054321', hub:'x', device:'added-zero' }).ok,true);
+  for (const pin of ['112345','98765',old,'01a2345']) assert.equal(w.post({ action:'signin', pin, hub:'x', device:'invalid-'+pin }).ok,false);
+  sheet.getRange(2,1).setValue('023456');
+  assert.equal(w.post({ action:'signin', pin:'012345', hub:'x', device:'changed' }).ok,false);
+  assert.equal(w.post({ action:'signin', pin:'023456', hub:'x', device:'changed' }).ok,true);
+  assert.throws(() => w.sandbox.readToken_(first.token), /changed|Enter/);
+  sheet.getRange(2,4).setValue('DISABLED');
+  assert.equal(w.post({ action:'signin', pin:'023456', hub:'x', device:'disabled' }).ok,false);
+});
+
+test('a wrong PIN is refused, and repeated misses slow that Chromebook only', () => {
+  const w = world();
+  const real = w.pin(PEOPLE.ada);
+  const wrong = real === '111111' ? '222222' : '111111';
+  const first = w.post({ action: 'signin', pin: wrong, hub: 'x', device: 'cb-9' });
+  assert.equal(first.ok, false);
+  assert.equal(first.code, 'bad_pin');
+  for (let i = 0; i < 7; i += 1) w.post({ action: 'signin', pin: wrong, hub: 'x', device: 'cb-9' });
+  const locked = w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-9' });
+  assert.equal(locked.code, 'slow_down');
+  assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-2' }).ok, true);
+  w.clock.advanceMinutes(11);
+  assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-9' }).ok, true, 'the pause ends');
+});
+
+test('a flood of wrong PINs across devices pauses Turn In for everyone', () => {
+  const w = world();
+  const real = w.pin(PEOPLE.grace);
+  const wrong = real === '333333' ? '444444' : '333333';
+  for (let i = 0; i < 60; i += 1) w.post({ action: 'signin', pin: wrong, hub: 'x', device: `d${i}` });
+  assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'fresh' }).code, 'slow_down');
+});
+
+test('a student marked inactive on the roster cannot turn in', () => {
+  const w = world();
+  const pin = w.pin(PEOPLE.katherine);
+  const roster = w.school.harness.sheet('Roster');
+  const row = roster.getRange(2, 1, roster.getLastRow() - 1, 1).getValues().findIndex((r) => r[0] === PEOPLE.katherine.email) + 2;
+  roster.getRange(row, 5).setValue(false);
+  w.h.state.cache.clear();
+  assert.equal(w.post({ action: 'signin', pin, hub: 'x', device: 'a' }).ok, false);
+  const result = w.post({ action: 'turnin', pin, hub: 'x', submissionId: 'k', answers: ONE, device: 'a' });
+  assert.equal(result.ok, false);
+  assert.equal(w.rows('Turn Ins').length, 0);
+});
+
+test('Turn In writes one complete row the teacher can read', () => {
+  const w = world();
+  const result = w.post({
+    action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'bts-the-bargain', course: 'bts', title: 'The Bargain',
+    page: '/hubs/bts-the-bargain.html', submissionId: 'sub-1', answers: ONE, device: 'a',
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.firstName, 'Ada');
+  assert.equal(result.classPeriod, 'Period 1');
+  assert.equal(result.answered, 1);
+  const [row] = w.rows('Turn Ins');
+  assert.equal(row['Student Name'], 'Byron, Ada');
+  assert.equal(row['Student Email'], PEOPLE.ada.email);
+  assert.equal(row['Class / Period'], 'Period 1');
+  assert.equal(row.Hub, 'bts-the-bargain');
+  assert.equal(row['Hub Title'], 'The Bargain');
+  assert.equal(row.Answered, '1 of 2');
+  assert.equal(row.Words, 4);
+  assert.match(row.Answers, /1\. What did Robinson promise Rickey\?\nThree years of silence\./);
+  assert.match(row.Answers, /2\. Who led the abuse\?\n\(blank\)/);
+  assert.ok(row['Turned In'] instanceof Date);
+});
+
+test('a retried Turn In with the same submission id never makes a second row', () => {
+  const w = world();
+  const body = { action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'same', answers: ONE, device: 'a' };
+  const a = w.post(body);
+  const b = w.post(body);
+  assert.equal(a.ok, true);
+  assert.deepEqual(b, a);
+  assert.equal(w.rows('Turn Ins').length, 1);
+  w.post({ ...body, submissionId: 'new-version' });
+  assert.equal(w.rows('Turn Ins').length, 2, 'a real second turn in is kept');
+});
+
+test('a busy sheet refuses cleanly, writes nothing, and the same press works on retry', () => {
+  const w = world();
+  const body = { action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'busy-1', answers: ONE, device: 'a' };
+  w.h.state.lock.held = true;
+  const busy = w.post(body);
+  w.h.state.lock.held = false;
+  assert.equal(busy.code, 'busy', JSON.stringify(busy));
+  assert.equal(w.rows('Turn Ins').length, 0);
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 1);
+});
+
+test('every sheet write happens under the script lock', () => {
+  const source = fs.readFileSync(CODE, 'utf8');
+  const body = source.slice(source.indexOf('function saveDraft_'), source.indexOf('/* --------------------------------------------------------------- identity'));
+  assert.ok(body.indexOf('tryLock') < body.indexOf('drafts.appendRow'), 'draft write is locked');
+  assert.ok(body.indexOf('tryLock(TI_TURNIN_LOCK_MS)') < body.indexOf('turnInRow_(sheet,'), 'turn in write is locked');
+  assert.match(source, /function turnInRow_[^}]*SpreadsheetApp\.flush\(\)/);
+});
+
+test('a student in two classes is asked which one, then lands in the right one', () => {
+  const w = world();
+  const base = { action: 'turnin', pin: w.pin(PEOPLE.alan), hub: 'h', submissionId: 's', answers: ONE, device: 'a' };
+  const ask = w.post(base);
+  assert.equal(ask.ok, false);
+  assert.equal(ask.code, 'pick_class');
+  assert.deepEqual(ask.classes, ['Period 1', 'Period 5']);
+  assert.equal(w.rows('Turn Ins').length, 0);
+  const done = w.post({ ...base, classPeriod: 'Period 5' });
+  assert.equal(done.ok, true);
+  assert.equal(w.rows('Turn Ins')[0]['Class / Period'], 'Period 5');
+  const forged = w.post({ ...base, submissionId: 's2', classPeriod: 'Period 9' });
+  assert.equal(forged.code, 'pick_class', 'a class the student is not in is ignored');
+});
+
+test('the hub course picks the class when the class names say which course they are', () => {
+  const w = world({ memberships: [[PEOPLE.ada, '2nd Hour US History'], [PEOPLE.ada, '6th Hour Hidden History']] });
+  const r = w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'hh-room-1018a', course: 'hh', submissionId: 's', answers: ONE, device: 'a' });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.equal(r.classPeriod, '6th Hour Hidden History');
+});
+
+test('autosaved work comes back on another Chromebook, from cache and from the sheet', () => {
+  const w = world();
+  const pin = w.pin(PEOPLE.grace);
+  const signin = w.post({ action: 'signin', pin, hub: 'ush9-the-jungle', device: 'cart-a' });
+  const saved = w.post({ action: 'save', token: signin.token, hub: 'ush9-the-jungle', answers: answers(['id:q1', 'Q', 'Draft one']) });
+  assert.equal(saved.ok, true);
+  assert.equal(w.rows('Drafts').length, 1);
+
+  const back = w.post({ action: 'signin', pin, hub: 'ush9-the-jungle', device: 'cart-b' });
+  assert.equal(back.draft.answers[0].a, 'Draft one');
+
+  w.h.state.cache.clear();
+  const tomorrow = w.post({ action: 'signin', pin, hub: 'ush9-the-jungle', device: 'cart-c' });
+  assert.equal(tomorrow.draft.answers[0].a, 'Draft one', 'falls back to the Drafts sheet after the cache expires');
+
+  const other = w.post({ action: 'signin', pin, hub: 'ush9-the-other-half', device: 'cart-c' });
+  assert.equal(other.draft, null, 'drafts are per hub');
+});
+
+test('the newest of draft and turn in is what comes back', () => {
+  const w = world();
+  const pin = w.pin(PEOPLE.ada);
+  const s = w.post({ action: 'signin', pin, hub: 'h', device: 'a' });
+  w.post({ action: 'save', token: s.token, hub: 'h', answers: answers(['k', 'Q', 'older draft']) });
+  w.clock.advanceMinutes(5);
+  w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'z', answers: answers(['k', 'Q', 'final answer']), device: 'a' });
+  w.h.state.cache.clear();
+  const back = w.post({ action: 'signin', pin, hub: 'h', device: 'b' });
+  assert.equal(back.draft.answers[0].a, 'final answer');
+  assert.equal(back.draft.turnedIn, true);
+});
+
+test('a forged or expired token cannot save', () => {
+  const w = world();
+  const s = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'h', device: 'a' });
+  const [body, sig] = s.token.split('.');
+  const forgedBody = Buffer.from(JSON.stringify({ e: PEOPLE.grace.email, t: 0, x: 9999999999 })).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+  assert.equal(w.post({ action: 'save', token: `${forgedBody}.${sig}`, hub: 'h', answers: ONE }).code, 'signed_out');
+  assert.equal(w.post({ action: 'save', token: `${body}.x${sig}`, hub: 'h', answers: ONE }).code, 'signed_out');
+  w.clock.advanceMinutes(4 * 60 + 1);
+  assert.equal(w.post({ action: 'save', token: s.token, hub: 'h', answers: ONE }).code, 'signed_out');
+  assert.equal(w.rows('Drafts').length, 0);
+});
+
+test('oversized or malformed requests get a plain answer, not a crash', () => {
+  const w = world();
+  assert.equal(w.post('{not json').code, 'bad_request');
+  assert.equal(w.post({ action: 'explode' }).code, 'bad_request');
+  assert.equal(w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: '../../etc', device: 'a' }).code, 'bad_request');
+  const many = Array.from({ length: 81 }, (_, i) => ({ k: `k${i}`, q: 'q', a: 'a' }));
+  assert.equal(w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'm', answers: many, device: 'a' }).code, 'too_big');
+  const long = Array.from({ length: 10 }, (_, i) => ({ k: `k${i}`, q: 'q', a: 'x'.repeat(5000) }));
+  assert.equal(w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'l', answers: long, device: 'a' }).code, 'too_big');
+  const fine = Array.from({ length: 8 }, (_, i) => ({ k: `k${i}`, q: 'q', a: 'word '.repeat(150) }));
+  assert.equal(w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'f', answers: fine, device: 'a' }).ok, true, 'eight 150 word answers fit');
+});
+
+test('the load test writes only to its own tab and only while switched on', () => {
+  const w = world();
+  const off = w.post({ action: 'turnin', pin: '900001', test: 'nope', hub: 'h', submissionId: 'a', answers: ONE, device: 'a' });
+  assert.equal(off.ok, false);
+  const key = w.sandbox.startLoadTest();
+  const on = w.post({ action: 'turnin', pin: '900001', test: key, hub: 'h', submissionId: 'b', answers: ONE, device: 'a' });
+  assert.equal(on.ok, true, JSON.stringify(on));
+  assert.equal(w.rows('Load Test').length, 1);
+  assert.equal(w.rows('Turn Ins').length, 0);
+  assert.equal(w.rows('Drafts').length, 0);
+  w.sandbox.stopLoadTest();
+  assert.equal(w.post({ action: 'turnin', pin: '900002', test: key, hub: 'h', submissionId: 'c', answers: ONE, device: 'a' }).ok, false);
+});
+
+test('nightly cleanup drops old drafts and never touches turn ins', () => {
+  const w = world();
+  const pin = w.pin(PEOPLE.ada);
+  const s = w.post({ action: 'signin', pin, hub: 'h', device: 'a' });
+  w.post({ action: 'save', token: s.token, hub: 'h', answers: ONE });
+  w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'q', answers: ONE, device: 'a' });
+  w.clock.advanceDays(31);
+  const s2 = w.post({ action: 'signin', pin, hub: 'h', device: 'a' });
+  w.post({ action: 'save', token: s2.token, hub: 'h', answers: answers(['k', 'Q', 'new']) });
+  w.sandbox.pruneDrafts();
+  assert.equal(w.rows('Drafts').length, 1);
+  assert.equal(w.rows('Turn Ins').length, 1);
+});
+
+function savedDraft(w, person = PEOPLE.ada, text = 'Forgot the button', extra = {}) {
+  const login = w.post({ action: 'signin', pin: w.pin(person), hub: 'h', device: 'test' });
+  const request = { action: 'save', token: login.token, hub: 'h', title: 'Test Hub', page: '/hubs/h.html', answers: answers(['k', 'Question?', text]), ...extra };
+  const result = w.post(request);
+  assert.equal(result.ok, true, JSON.stringify(result));
+  return request;
+}
+
+test('setup removes automatic finishing and preserves saved work across repeated setup', () => {
+  const w = world();
+  w.sandbox.ScriptApp.newTrigger('autoTurnIn').timeBased().everyMinutes(15).create();
+  savedDraft(w);
+  w.sandbox.setup();
+  w.sandbox.setup();
+  assert.equal(w.h.state.triggers.filter(t => t.handler === 'autoTurnIn').length, 0);
+  assert.equal(w.rows('Progress')[0].Status, 'In progress');
+  assert.equal(w.rows('Drafts').length, 1);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+});
+
+test('progress updates one row, survives cache eviction and never declares finished after closing', () => {
+  const w = world();
+  savedDraft(w);
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.ada, 'More work');
+  w.h.state.cache.clear();
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.ada, 'Latest work');
+  assert.equal(w.rows('Progress').length, 1);
+  assert.match(w.rows('Progress')[0].Answers, /Latest work/);
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  assert.equal(w.rows('Turn Ins').length, 0);
+  const back = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'h' });
+  assert.equal(back.draft.turnedIn, false);
+  assert.equal(back.draft.answers[0].a, 'Latest work');
+});
+
+test('finished snapshots survive further progress and a second deliberate submission', () => {
+  const w = world();
+  const request = savedDraft(w);
+  const turn = { action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', classPeriod: 'Period 1', submissionId: 'manual', answers: request.answers };
+  assert.equal(w.post(turn).ok, true);
+  assert.equal(w.rows('Progress')[0].Status, 'Finished');
+  const finishedAt = JSON.parse(w.rows('Progress')[0].Data).finishedAt;
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.ada, 'Revised answer');
+  assert.equal(w.rows('Progress')[0].Status, 'In progress');
+  assert.equal(JSON.parse(w.rows('Progress')[0].Data).finishedAt, finishedAt);
+  assert.match(w.rows('Turn Ins')[0].Answers, /Forgot the button/);
+  assert.equal(w.rows('Turn Ins').length, 1);
+  w.h.state.cache.clear();
+  assert.equal(w.post(turn).ok, true); // delayed retry must not erase newer progress
+  assert.match(w.rows('Progress')[0].Answers, /Revised answer/);
+  assert.equal(w.rows('Progress')[0].Status, 'In progress');
+  assert.equal(w.post({ ...turn, submissionId: 'manual-2', answers: answers(['k', 'Question?', 'Revised answer']) }).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 2);
+  assert.equal(w.rows('Progress').length, 1);
+  assert.equal(w.rows('Progress')[0].Status, 'Finished');
+});
+
+test('unchanged autosave after finishing keeps Finished and records the original finish time', () => {
+  const w = world();
+  const request = savedDraft(w);
+  w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'manual', answers: request.answers });
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.ada, '', { answers: request.answers });
+  assert.equal(w.rows('Progress')[0].Status, 'Finished');
+  assert.equal(w.rows('Turn Ins').length, 1);
+  const back = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'h' });
+  assert.equal(back.draft.turnedIn, true);
+  assert.notEqual(back.draft.savedAt, back.draft.finishedAt);
+});
+
+test('blank and unassigned work stays draft; clearing existing work updates current progress', () => {
+  const w = world();
+  savedDraft(w, PEOPLE.ada, '   ');
+  savedDraft(w, PEOPLE.alan);
+  assert.equal(w.rows('Progress').length, 0);
+  savedDraft(w, PEOPLE.ada, 'Something');
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.ada, '');
+  assert.equal(w.rows('Progress').length, 1);
+  assert.equal(w.rows('Progress')[0].Answered, '0 of 1');
+  assert.equal(w.rows('Progress')[0].Status, 'In progress');
+});
+
+test('only enrolled classes produce progress and each class has its own row', () => {
+  const w = world();
+  savedDraft(w, PEOPLE.alan, 'Work', { classPeriod: 'Period 99' });
+  assert.equal(w.rows('Progress').length, 0);
+  savedDraft(w, PEOPLE.alan, 'Work', { classPeriod: 'Period 5' });
+  savedDraft(w, PEOPLE.alan, 'Other class', { classPeriod: 'Period 1' });
+  assert.equal(w.rows('Progress').length, 2);
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.alan, 'Newest first row', { classPeriod: 'Period 5' });
+  w.h.state.cache.clear();
+  const back = w.post({ action: 'signin', pin: w.pin(PEOPLE.alan), hub: 'h' });
+  assert.equal(back.draft.answers[0].a, 'Newest first row');
+});
+
+test('35 students update current progress without duplicate rows after interrupted writes', () => {
+  const { crowd } = require('./lib/turn-in-harness.cjs');
+  const students = crowd(35);
+  const w = world({ memberships: students });
+  students.forEach(([person]) => savedDraft(w, person));
+  w.clock.advanceMinutes(1);
+  students.forEach(([person]) => savedDraft(w, person, 'Revised'));
+  assert.equal(w.rows('Progress').length, 35);
+  assert.equal(w.rows('Turn Ins').length, 0);
+  assert.equal(new Set(w.rows('Progress').map(row => row['Student Email'])).size, 35);
+  const original = w.sandbox.SpreadsheetApp.flush;
+  w.sandbox.SpreadsheetApp.flush = () => { throw new Error('lost response'); };
+  assert.throws(() => savedDraft(w, students[0][0], 'Interrupted'));
+  w.sandbox.SpreadsheetApp.flush = original;
+  w.h.state.cache.clear();
+  savedDraft(w, students[0][0], 'Interrupted');
+  assert.equal(w.rows('Progress').length, 35);
+});
+
+test('first upgrade migrates latest drafts and manual finishes without changing original history', () => {
+  const w = world();
+  const request = savedDraft(w);
+  w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'manual', answers: request.answers });
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.ada, 'New draft');
+  w.book().getSheetByName('Progress').getRange(2, 1, 1, 14).clearContent();
+  w.h.properties.deleteProperty('PROGRESS_V7_MIGRATED');
+  w.h.state.cache.clear();
+  w.sandbox.setup();
+  const current = w.rows('Progress').filter(row => row.Status);
+  assert.equal(current.length, 1);
+  assert.equal(current[0].Status, 'In progress');
+  assert.match(current[0].Answers, /New draft/);
+  assert.ok(current[0]['Last Finished']);
+  assert.equal(w.rows('Turn Ins').length, 1);
+  assert.equal(w.rows('Drafts').length, 2);
+});
+
+test('large finished answers keep progress metadata below the Sheets cell limit', () => {
+  const w = world();
+  const large = Array.from({ length: 7 }, (_, i) => ({ k: 'q' + i, q: 'Question', a: 'x'.repeat(6000) }));
+  assert.equal(w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'large-finish', answers: large }).ok, true);
+  assert.ok(w.rows('Progress')[0].Data.length < 50000);
+  assert.equal(w.rows('Progress')[0].Status, 'Finished');
+});
+
+test('editor release proof stays isolated from student progress and submissions', () => {
+  const w = world();
+  w.sandbox.verifyProgressRelease();
+  assert.equal(w.rows('Load Test Progress').length, 35);
+  assert.equal(w.rows('Load Test').length, 35);
+  assert.equal(w.rows('Progress').length, 0);
+  assert.equal(w.rows('Turn Ins').length, 0);
+  assert.equal(w.h.properties.getProperty('LOAD_TEST_KEY'), null);
+});
+
+test('student facing messages avoid hyphens and semicolons', () => {
+  const source = fs.readFileSync(CODE, 'utf8');
+  const messages = [...source.matchAll(/refuse_\('[a-z_]+', '([^']+)'\)/g)].map((m) => m[1]);
+  assert.ok(messages.length >= 8);
+  messages.forEach((m) => assert.doesNotMatch(m, /[;—–]| - /, m));
+});
+
+/* --------------------------------------------------- hubs load the saver -- */
+
+test('a busy draft is not reported as saved and never reaches cache', () => {
+  const w = world();
+  const session = w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  w.h.state.lock.held = true;
+  assert.equal(w.post({action:'save',token:session.token,hub:'h',answers:ONE}).code,'busy');
+  w.h.state.lock.held = false;
+  assert.equal(w.rows('Drafts').length,0);
+  assert.equal(w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'}).draft,null);
+  assert.equal(w.post({action:'save',token:session.token,hub:'h',answers:ONE}).ok,true);
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'}).draft.answers[0].a,ONE[0].a);
+});
+
+test('retrying after cache eviction remains durable and authenticates the student', () => {
+  const w = world();
+  const body={action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',submissionId:'durable',answers:ONE};
+  assert.equal(w.post(body).ok,true);
+  assert.equal(w.post({...body,pin:'not-a-pin'}).ok,false);
+  w.h.state.cache.clear();
+  assert.equal(w.post(body).ok,true);
+  assert.equal(w.rows('Turn Ins').length,1);
+  assert.equal(w.post({...body,pin:w.pin(PEOPLE.grace)}).ok,false);
+  assert.equal(w.rows('Turn Ins').length,1);
+});
+
+test('oversized single answers and duplicate field keys cannot be silently truncated', () => {
+  const w = world(),base={action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',submissionId:'big'};
+  assert.equal(w.post({...base,answers:answers(['a','Q','x'.repeat(6001)])}).code,'too_big');
+  assert.equal(w.post({...base,answers:answers(['a','Q','ok'],['a','Q2','also'])}).code,'bad_request');
+  assert.equal(w.rows('Turn Ins').length,0);
+});
+
+test('spreadsheet titles beginning with equals remain literal text', () => {
+  const w=world();
+  assert.equal(w.post({action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',title:'=1+1',submissionId:'formula',answers:ONE}).ok,true);
+  assert.equal(w.rows('Turn Ins')[0]['Hub Title'],"'=1+1");
+});
+
+const HUBS = path.join(__dirname, '..', 'public', 'hubs');
+// Game boards whose text boxes are team names or scores, not student answers.
+const NOT_ANSWER_PAGES = new Set(['classroom-jeopardy.html', 'jeopardy-hidden-history-unit1.html', 'jeopardy-scoreboard-unit1.html', 'ush9-progressive-era-jeopardy-v3.html']);
+
+test('every hub with answer boxes loads desk-save.js', () => {
+  const missing = fs.readdirSync(HUBS)
+    .filter((name) => name.endsWith('.html') && !NOT_ANSWER_PAGES.has(name))
+    .filter((name) => /<textarea\b/i.test(fs.readFileSync(path.join(HUBS, name), 'utf8')))
+    .filter((name) => !/<script src="\/hubs\/desk-save\.js" defer><\/script>/.test(fs.readFileSync(path.join(HUBS, name), 'utf8')));
+  assert.deepEqual(missing, [], 'Add <script src="/hubs/desk-save.js" defer></script> before </body> in these hubs');
+});
+
+test('desk-save.js points at an Apps Script web app or at nothing', () => {
+  const source = fs.readFileSync(path.join(HUBS, 'desk-save.js'), 'utf8');
+  const match = source.match(/var ENDPOINT = '([^']*)';/);
+  assert.ok(match, 'ENDPOINT line is present');
+  assert.match(match[1], /^(|https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec)$/);
+});
+
+test('Classroom handoff uses the exact enrolled class and never writes Classroom status', () => {
+  const w = world();
+  const links = w.book().getSheetByName('Classroom Links');
+  links.appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/COURSE1/a/ASSIGNMENT1/details', 'The Bargain']);
+  links.appendRow(['Period 5', 'bts-the-bargain', 'https://classroom.google.com/c/COURSE5/a/ASSIGNMENT5/details', 'The Bargain']);
+  assert.equal(w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'bts-the-bargain' }).classroomUrl, 'https://classroom.google.com/c/COURSE1/a/ASSIGNMENT1/details');
+  const result = w.post({ action: 'turnin', pin: w.pin(PEOPLE.alan), hub: 'bts-the-bargain', classPeriod: 'Period 5', submissionId: 'classroom-proof-1', answers: ONE });
+  assert.equal(result.ok, true);
+  assert.equal(result.classroomUrl, 'https://classroom.google.com/c/COURSE5/a/ASSIGNMENT5/details');
+  assert.equal(w.rows('Turn Ins')[0]['Class / Period'], 'Period 5');
+  assert.equal(w.post({ action: 'classroom-links', token: result.token }).ok, false, 'student routes cannot edit teacher configuration');
+});
+
+test('ambiguous and unsafe Classroom links are omitted while finished work still lands', () => {
+  const w = world();
+  const links = w.book().getSheetByName('Classroom Links');
+  links.appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/ONE/a/ONE/details']);
+  links.appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/TWO/a/TWO/details']);
+  links.appendRow(['Period 1', 'hh-test', 'https://classroom.google.com.evil.example/c/ONE/a/ONE/details']);
+  assert.equal(w.sandbox.classroomLink_('bts-the-bargain', 'Period 1'), '');
+  assert.equal(w.sandbox.classroomLink_('hh-test', 'Period 1'), '');
+  assert.equal(w.sandbox.classroomLink_('bts-the-bargain', 'Period 2'), '');
+  const result = w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'bts-the-bargain', submissionId: 'classroom-proof-2', answers: ONE });
+  assert.equal(result.ok, true);
+  assert.equal(result.classroomUrl, '');
+  assert.equal(w.rows('Turn Ins').length, 1);
+});
+
+test('review membership refreshes from the active roster without changing source or student work', () => {
+  const w = world();
+  const original = JSON.stringify(w.school.harness.spreadsheet.getSheetByName('Roster').records());
+  assert.equal(w.rows('Review Roster').length, 5);
+  w.book().getSheetByName('Classroom Links').appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/ONE/a/ONE/details']);
+  w.sandbox.setup();
+  w.sandbox.refreshTeacherReview();
+  assert.equal(w.rows('Review Roster').length, 5, 'refresh does not append duplicate memberships');
+  assert.equal(JSON.stringify(w.school.harness.spreadsheet.getSheetByName('Roster').records()), original);
+  assert.equal(w.rows('Classroom Links').length, 1, 'setup preserves teacher links');
+  assert.equal(w.h.state.triggers.filter((t) => t.handler === 'refreshTeacherReview').length, 1);
+});
+
+
+test('checked writes reject older tabs even when both writes share the same server millisecond', () => {
+  const w = world();
+  const login = w.post({ action:'signin', pin:w.pin(PEOPLE.ada), hub:'h' });
+  const base = {action:'save', token:login.token, hub:'h', classPeriod:'Period 1', writeProtocol:1};
+  const first = w.post({...base, baseRevision:'', answers:ONE});
+  assert.equal(first.ok, true);
+  const newer = answers(['id:q1','Question','Newer version']);
+  const second = w.post({...base, baseRevision:first.revision, answers:newer});
+  assert.equal(second.ok, true);
+  assert.notEqual(first.revision, second.revision);
+  const stale = w.post({...base, baseRevision:first.revision, answers:ONE});
+  assert.equal(stale.code, 'conflict');
+  assert.equal(w.rows('Drafts').length, 2);
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin', pin:w.pin(PEOPLE.ada), hub:'h'}).draft.answers[0].a, 'Newer version');
+});
+
+test('a lost checked-save acknowledgement can be retried without creating another draft', () => {
+  const w = world();
+  const login=w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  const request={action:'save',token:login.token,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:'',answers:ONE};
+  const a=w.post(request); w.h.state.cache.clear(); const b=w.post(request);
+  assert.equal(b.ok,true); assert.equal(a.revision,b.revision); assert.equal(w.rows('Drafts').length,1);
+});
+
+test('stale checked Turn In preserves newer progress and creates no misleading finish', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada);
+  const login=w.post({action:'signin',pin,hub:'h'});
+  const save=w.post({action:'save',token:login.token,hub:'h',classPeriod:'Period 1',answers:ONE});
+  const result=w.post({action:'turnin',pin,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:'',submissionId:'old-tab',answers:answers(['k','Q','old'])});
+  // The press is never lost, but it cannot replace the newer account version.
+  assert.equal(result.ok,true); assert.equal(w.rows('Turn Ins').length,1);
+  assert.equal(w.rows('Progress')[0].Status,'In progress');
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin,hub:'h'}).draft.answers[0].a, ONE[0].a, 'a stale press never becomes the current draft');
+  const ok=w.post({action:'turnin',pin,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:save.revision,submissionId:'current-tab',answers:ONE});
+  assert.equal(ok.ok,true); assert.equal(ok.submissionId,'current-tab'); assert.ok(ok.revision);
+});
+
+test('a tab whose save landed after it stopped waiting keeps saving instead of hitting a conflict', () => {
+  const w=world();
+  const login=w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  const base={action:'save',token:login.token,hub:'h',classPeriod:'Period 1',writeProtocol:1,device:'chromebook-1',tab:'tab-a'};
+  const first=w.post({...base,baseRevision:'',answers:ONE});
+  // The answer to this save never reached the page, so the page still holds first.revision.
+  w.post({...base,baseRevision:first.revision,answers:answers(['id:q1','Question','Lost acknowledgement'])});
+  const next=w.post({...base,baseRevision:first.revision,answers:answers(['id:q1','Question','Kept typing'])});
+  assert.equal(next.ok,true);
+  const other=w.post({...base,tab:'tab-b',baseRevision:first.revision,answers:ONE});
+  assert.equal(other.code,'conflict','a different tab is still protected');
+  const otherDevice=w.post({...base,device:'chromebook-2',baseRevision:first.revision,answers:ONE});
+  assert.equal(otherDevice.code,'conflict','a different Chromebook is still protected');
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'}).draft.answers[0].a,'Kept typing');
+});
+
+test('cached Turn In IDs cannot acknowledge a different answer payload', () => {
+  const w=world(),request={action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',submissionId:'cache-replay',answers:ONE};
+  assert.equal(w.post(request).ok,true);
+  assert.equal(w.post({...request,answers:answers(['k','Q','Different work'])}).code,'bad_request');
+  assert.equal(w.rows('Turn Ins').length,1);
+});
+
+test('signed-in account and Turn In PIN must identify the same student', () => {
+  const w=world(),login=w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  const result=w.post({action:'turnin',pin:w.pin(PEOPLE.grace),accountToken:login.token,hub:'h',submissionId:'wrong-account',answers:ONE});
+  assert.equal(result.code,'wrong_account'); assert.equal(w.rows('Turn Ins').length,0);
+});
+
+test('a corrupt newest draft row does not hide the previous readable work', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),login=w.post({action:'signin',pin,hub:'h'});
+  w.post({action:'save',token:login.token,hub:'h',answers:ONE});
+  w.book().getSheetByName('Drafts').appendRow([new Date(),PEOPLE.ada.email,'h','{broken']);
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin,hub:'h'}).draft.answers[0].a,ONE[0].a);
+});
+
+test('every catalogue StoryHub has common controls and answer drafts never use localStorage', () => {
+  const catalog=fs.readFileSync(path.join(__dirname,'../src/data/storyhubs.ts'),'utf8');
+  const hrefs=[...catalog.matchAll(/(?:\bhref|["']href["'])\s*:\s*(["'])(\/hubs\/[^"']+)\1/g)].map(m=>m[2]);
+  const panels=JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/storyhub/work-panel-catalog.json'),'utf8'));
+  assert.equal(hrefs.length,panels.catalogueCount);
+  assert.deepEqual(new Set(hrefs.map(href=>path.basename(href))),new Set(panels.hubs.map(item=>item.hub)));
+  for(const href of hrefs) {
+    const text=fs.readFileSync(path.join(__dirname,'../public',href),'utf8');
+    assert.ok(text.includes('/hubs/desk-save.js'),href);
+    if(/<textarea\b/i.test(text)) assert.ok(!/localStorage/.test(text),href+' retains a shared browser draft');
+  }
+});
+
+test('strict activation rejects an older client instead of permitting an unprotected overwrite', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),login=w.post({action:'signin',pin,hub:'h'});
+  w.sandbox.activateWorkProtection();
+  assert.equal(JSON.parse(w.sandbox.doGet().text).checkedWritesRequired,true);
+  assert.equal(w.post({action:'save',token:login.token,hub:'h',answers:ONE}).code,'reload_required');
+  assert.equal(w.post({action:'turnin',pin,hub:'h',answers:ONE,submissionId:'legacy'}).code,'reload_required');
+  assert.equal(w.rows('Turn Ins').length,0);
+  assert.equal(w.post({action:'save',token:login.token,hub:'h',answers:ONE,writeProtocol:1,baseRevision:''}).ok,true);
+});
+
+test('retrying an old receipt after cache eviction cannot regress newer progress in the same clock tick', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),body={action:'turnin',pin,hub:'h',submissionId:'first',answers:ONE};
+  const first=w.post(body);
+  const changed=answers(['id:q1','Q','Later draft']);
+  w.post({action:'save',token:first.token,hub:'h',classPeriod:'Period 1',answers:changed});
+  w.h.state.cache.clear();assert.equal(w.post(body).ok,true);
+  assert.match(w.rows('Progress')[0].Answers,/Later draft/);
+  assert.equal(w.rows('Progress')[0].Status,'In progress');
+});
+
+test('retained drafts older than the most recent 4000 other rows remain recoverable', () => {
+  const w=world(),pin=w.pin(PEOPLE.alan),login=w.post({action:'signin',pin,hub:'h'});
+  assert.equal(w.post({action:'save',token:login.token,hub:'h',answers:ONE}).ok,true);
+  assert.equal(w.rows('Progress').length,0,'multiple classes leave this draft unassigned');
+  const sheet=w.book().getSheetByName('Drafts');
+  sheet.insertRowsAfter(sheet.getMaxRows(),4100);
+  for(let n=0;n<4001;n++) sheet.appendRow([new Date(),'other@example.invalid','other','{}']);
+  w.h.state.cache.clear();assert.equal(w.post({action:'signin',pin,hub:'h'}).draft.answers[0].a,ONE[0].a);
+});
+
+test('optional work-cache failure cannot convert a durable save or Turn In into a failure', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),login=w.post({action:'signin',pin,hub:'h'});
+  const cache=w.sandbox.CacheService.getScriptCache(),put=cache.put;
+  cache.put=(key,...args)=>{if(/^(draft:|sub:|progress-row:)/.test(key))throw Error('Cache quota');return put.call(cache,key,...args);};
+  const save=w.post({action:'save',token:login.token,hub:'h',classPeriod:'Period 1',answers:ONE});
+  assert.equal(save.ok,true);assert.equal(w.rows('Drafts').length,1);
+  assert.equal(w.post({action:'turnin',pin,hub:'h',submissionId:'no-cache',answers:ONE}).ok,true);
+  assert.equal(w.rows('Turn Ins').length,1);
+});
+
+test('blank fields and question wording are part of the exact saved and finished snapshot', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),body={action:'turnin',pin,hub:'h',submissionId:'exact',answers:ONE};
+  const receipt=w.post(body);
+  const expanded=[...ONE,{k:'id:q3',q:'New question',a:''}];
+  assert.equal(w.post({...body,answers:expanded}).code,'bad_request','blank fields cannot be hidden behind an old receipt');
+  const save=w.post({action:'save',token:receipt.token,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:receipt.revision,answers:expanded});
+  assert.equal(save.ok,true);assert.equal(w.rows('Progress')[0].Status,'In progress');
+  assert.equal(JSON.parse(w.rows('Drafts')[0].Data).answers.length,3);
+});
+
+/* ------------------------------------------------------- writing timeline -- */
+
+const ESSAY = 'Robinson agreed to three years without answering back. '.repeat(6).trim();
+const ESSAY_ANSWERS = answers(['id:q1', 'What did Robinson promise Rickey?', ESSAY], ['id:q2', 'Who led the abuse?', '']);
+
+test('a typed answer gets a Writing Timeline row with counts and no flags', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const half = ESSAY.slice(0, 110);
+  const timeline = { v: 1, startedAt: '2026-10-26T14:00:00Z', fields: { 'id:q1': {
+    ops: [[30, 0, 0, half, 't'], [60, 110, 0, ESSAY.slice(110), 't']],
+    typed: ESSAY.length, del: 30, pasted: 0, hist: [5, 40, 60, 50, 30, 8, 2], ms: 300000,
+  } }, away: [[70, 5]], marks: [] };
+  assert.equal(w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'typed', answers: ESSAY_ANSWERS, timeline }).ok, true);
+  const row = w.rows('Writing Timeline')[0];
+  assert.equal(row['Student Email'], PEOPLE.ada.email);
+  assert.equal(row['Submission ID'], 'typed');
+  assert.equal(row['Typed'], ESSAY.length);
+  assert.equal(row['Writing Minutes'], 5);
+  assert.equal(row['Flags'], 'None');
+  assert.equal(JSON.parse(row['Replay Data']).fields['id:q1'].ops.length, 2);
+});
+
+test('large pastes, sudden inserts, away bursts and blocked pastes are flagged in plain language', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const timeline = { v: 1, fields: { 'id:q1': {
+    ops: [[10, 0, 0, ESSAY.slice(0, 40), 't'], [200, 40, 0, ESSAY.slice(40, 160), 'x'], [205, 160, 0, ESSAY.slice(160), 'p']],
+    typed: 40, del: 0, pasted: ESSAY.length - 160, hist: [0, 10, 20, 9, 0, 0, 0], ms: 20000,
+  } }, away: [[100, 95]], marks: [[5, 'paste-blocked'], [190, 'paste-on']] };
+  w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'flags', answers: ESSAY_ANSWERS, timeline });
+  const flags = w.rows('Writing Timeline')[0]['Flags'];
+  assert.match(flags, /120 characters appeared at once in "What did Robinson promise Rickey\?" without typing or pasting/);
+  assert.match(flags, /Left the page for 95 seconds, then added \d+ characters within 90 seconds/);
+  assert.match(flags, /Pasted \d+ characters into "What did Robinson promise Rickey\?"/);
+  assert.match(flags, /Allow full paste was turned on/);
+  assert.match(flags, /Tried a long paste that was blocked/);
+  assert.equal(w.rows('Writing Timeline')[0]['Largest Single Add'], ESSAY.length - 160);
+});
+
+test('straight through fast typing and answers with no recorded writing are flagged', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const long = 'x'.repeat(500);
+  const both = answers(['id:q1', 'Q one', long], ['id:q2', 'Q two', ESSAY]);
+  const timeline = { v: 1, fields: { 'id:q1': {
+    ops: [[60, 0, 0, long, 't']], typed: 500, del: 2, pasted: 0, hist: [0, 300, 199, 0, 0, 0, 0], ms: 60000,
+  } }, away: [], marks: [] };
+  w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'fast', answers: both, timeline });
+  const flags = w.rows('Writing Timeline')[0]['Flags'];
+  assert.match(flags, /Typed straight through with almost no corrections or pauses in "Q one"/);
+  assert.match(flags, /Typed at about 100 words a minute in "Q one"/);
+  assert.match(flags, /"Q two" has no recorded writing in this tab/);
+});
+
+test('a missing, malformed or oversized timeline never blocks a Turn In', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const body = { action: 'turnin', pin, hub: 'h', answers: ESSAY_ANSWERS };
+  assert.equal(w.post({ ...body, submissionId: 'none' }).ok, true);
+  assert.equal(w.post({ ...body, submissionId: 'junk', answers: answers(['id:q1', 'Q', 'Second version']), timeline: 'nonsense' }).ok, true);
+  const huge = { v: 1, fields: { 'id:q1': { ops: Array.from({ length: 900 }, (_, i) => [i, 0, 0, 'y'.repeat(80), 't']), typed: 10 } } };
+  assert.equal(w.post({ ...body, submissionId: 'huge', answers: answers(['id:q1', 'Q', 'Third version']), timeline: huge }).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 3);
+  const rows = w.rows('Writing Timeline');
+  assert.equal(rows.length, 1, 'only the object timeline is recorded');
+  assert.match(rows[0]['Flags'], /Replay was too large to store/);
+  assert.ok(String(rows[0]['Replay Data']).length <= 48000);
+});
+
+test('a retried Turn In does not duplicate its Writing Timeline row and load tests write none', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const timeline = { v: 1, fields: { 'id:q1': { ops: [[1, 0, 0, ESSAY, 't']], typed: ESSAY.length, ms: 400000 } } };
+  const body = { action: 'turnin', pin, hub: 'h', submissionId: 'retry', answers: ESSAY_ANSWERS, timeline };
+  assert.equal(w.post(body).ok, true);
+  w.h.state.cache.clear();
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Writing Timeline').length, 1);
+});
+
+test('cursor bookmarks survive account recovery, cursor-only saves and lost acknowledgements without changing completion', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const login = w.post({ action: 'signin', pin, hub: 'h' });
+  const position = { key: 'id:q1', start: 3, end: 7, direction: 'backward', scrollTop: 20 };
+  const body = { action: 'save', token: login.token, hub: 'h', classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '', answers: ONE, position };
+  const first = w.post(body);
+  assert.equal(first.ok, true);
+  w.h.state.cache.clear();
+  assert.deepEqual(w.post({ action: 'signin', pin, hub: 'h' }).draft.position, position);
+  const secondBody = { ...body, baseRevision: first.revision, position: { ...position, start: 8, end: 8 } };
+  const second = w.post(secondBody);
+  assert.equal(second.ok, true);
+  assert.notEqual(second.revision, first.revision, 'moving the cursor updates the bookmark even when answers stay the same');
+  assert.equal(w.post(secondBody).revision, second.revision, 'an acknowledgement retry is idempotent');
+  assert.equal(w.post(body).code, 'conflict', 'an older device cannot replace the newer bookmark');
+  assert.equal(w.rows('Progress')[0].Status, 'In progress');
+  assert.equal(w.rows('Turn Ins').length, 0);
+  assert.deepEqual(w.post({ action: 'signin', pin, hub: 'h' }).draft.position, secondBody.position);
+});
+
+test('malformed cursor metadata is bounded or ignored without losing answers', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const login = w.post({ action: 'signin', pin, hub: 'h' });
+  const save = position => w.post({ action: 'save', token: login.token, hub: 'h', classPeriod: 'Period 1', answers: ONE, position });
+  for (const position of [{ key: 'unknown', start: 0, end: 0 }, { key: 'id:q1', start: -1, end: 2 }, { key: 'id:q1', start: 2, end: 1 }]) {
+    assert.equal(save(position).ok, true);
+    assert.equal(w.post({ action: 'signin', pin, hub: 'h' }).draft.position, null);
+  }
+  assert.equal(save({ key: 'id:q1', start: 999999, end: 999999, direction: 'invalid', scrollTop: 1e99 }).ok, true);
+  const draft = w.post({ action: 'signin', pin, hub: 'h' }).draft;
+  assert.equal(draft.position.end, ONE[0].a.length);
+  assert.equal(draft.position.scrollTop, 100000);
+  assert.equal(draft.position.direction, 'none');
+  assert.deepEqual(draft.answers, ONE);
+});
+
+test('Turn In accepts the verified account session after refresh and refuses expired, forged or inactive sessions', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const login = w.post({ action: 'signin', pin, hub: 'h' });
+  const body = { action: 'turnin', accountToken: login.token, hub: 'h', classPeriod: 'Period 1', submissionId: 'session-finish', answers: ONE };
+  assert.equal(w.post({ ...body, accountToken: 'forged' }).code, 'signed_out');
+  assert.equal(w.post({ ...body, accountToken: w.sandbox.makeToken_('inactive@example.invalid', false) }).code, 'signed_out');
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 1);
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 1);
+  w.clock.advanceMinutes(241);
+  assert.equal(w.post({ ...body, submissionId: 'expired' }).code, 'signed_out');
+  assert.equal(w.rows('Turn Ins').length, 1);
+});
+
+console.log(`${failures ? 'FAIL' : 'PASS'}  turn in web app  (${passed}/${passed + failures})`);
+if (failures) process.exit(1);

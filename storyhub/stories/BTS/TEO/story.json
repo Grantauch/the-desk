@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-TEO",
+  "course": "BTS",
+  "lessonCode": "TEO",
+  "title": "The Girlfriend Who Never Existed",
+  "audience": "students",
+  "narrativeQuestion": "How did a girlfriend who never existed become one of the biggest sports stories of 2012, and how was the truth found?",
+  "chapters": [
+    {
+      "id": "01-phone",
+      "title": "A Girl on the Phone",
+      "claim": "Te'o began an online and phone relationship with Lennay Kekua in October 2011 and never met her in person.",
+      "namedPeople": [
+        {
+          "name": "Manti Te'o",
+          "role": "Notre Dame linebacker",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A01"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "02-week",
+      "title": "One Week in September",
+      "claim": "His grandmother really died on September 11, 2012. Lennay's reported death the next day and funeral on September 22 were invented.",
+      "namedPeople": [
+        {
+          "name": "Annette Santiago",
+          "role": "Te'o's grandmother",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "03-echo",
+      "title": "Everybody Told the Story",
+      "claim": "Major outlets repeated the story from September 2012 to January 2013 without checking any record.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "04-check",
+      "title": "Run the Background Check",
+      "claim": "Deadspin's January 16, 2013 report found no death, school, obituary or photo record for Lennay Kekua.",
+      "namedPeople": [
+        {
+          "name": "Timothy Burke",
+          "role": "Deadspin reporter",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Jack Dickey",
+          "role": "Deadspin reporter",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "05-other-end",
+      "title": "Who Was Lennay?",
+      "claim": "Naya Tuiasosopo, then known as Ronaiah, created and voiced Lennay. The photos belonged to Diane O'Meara, who never met Te'o.",
+      "namedPeople": [
+        {
+          "name": "Naya Tuiasosopo",
+          "role": "creator of the Lennay Kekua persona",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Diane O'Meara",
+          "role": "woman whose photos were stolen",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A04",
+        "A05"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "06-fallout",
+      "title": "What the Story Was Worth",
+      "claim": "Te'o finished second in the Heisman with 1,706 points, lost the title game 42 to 14, and fell to 38th in the 2013 draft.",
+      "namedPeople": [
+        {
+          "name": "Johnny Manziel",
+          "role": "2012 Heisman winner",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A06"
+      ],
+      "interactionIds": [
+        "I03"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Te'o's 2010 photo is used because no openly licensed 2012 photo was available.",
+    "Photos of Diane O'Meara are not committed. She appears only in her own CNN interview.",
+    "Heisman points are the official 2012 totals reported by the Associated Press."
+  ]
+}

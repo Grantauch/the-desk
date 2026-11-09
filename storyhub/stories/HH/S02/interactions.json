@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-S02",
+  "interactions": [
+    {
+      "id": "I00",
+      "chapterId": "hero",
+      "type": "painting-hotspots",
+      "teaches": "Who held authority over the find, by name",
+      "studentAction": "Taps numbered faces in the 1915 painting",
+      "feedback": "Name and role of each sitter",
+      "staticFallback": "Caption names the sitters and the story introduces each one",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    },
+    {
+      "id": "I01",
+      "chapterId": "d3",
+      "type": "expectation-board",
+      "teaches": "Bias shows only by comparing several finds against one expectation",
+      "studentAction": "Opens four real finds",
+      "feedback": "Fit and acceptance speed for each, then a line once three are open",
+      "staticFallback": "Both panels are text and the closing line states the pattern",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "d6",
+      "type": "site-map",
+      "teaches": "Provenance: only one person was ever shown the second site",
+      "studentAction": "Chooses places on a schematic Sussex map",
+      "feedback": "Who was ever shown each place, with the unrecorded field as a zone",
+      "staticFallback": "Every place is also a button with its text",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "d6",
+      "type": "two-stage-standard",
+      "teaches": "Name what independence requires before seeing the case",
+      "studentAction": "Marks conditions, then reveals the second site",
+      "feedback": "Each condition shows its result",
+      "staticFallback": "Conditions and results stay readable as a table",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "d9",
+      "type": "fluorine-lab",
+      "teaches": "Margin of error hid the answer in 1949 and precision revealed it in 1953",
+      "studentAction": "Predicts, then switches method and element",
+      "feedback": "Bars move from wide error bands to separated values, with a reading line",
+      "staticFallback": "Reading line states each result in words",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "d10",
+      "type": "comparison-wipe",
+      "teaches": "A broken and filed orangutan jaw is hard to tell from Piltdown",
+      "studentAction": "Drags across two plates",
+      "feedback": "The split line moves between the jaws",
+      "staticFallback": "Range input and both images with full alt text",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "d10",
+      "type": "3d-specimen",
+      "teaches": "How the fake was made and why the missing joint mattered",
+      "studentAction": "Switches five views of one model and turns it",
+      "feedback": "Plaster, breaks, file marks, packed grains and drill debris appear with a panel and the real plates",
+      "staticFallback": "Panel text and plates carry every finding without WebGL",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    },
+    {
+      "id": "I07",
+      "chapterId": "d11",
+      "type": "suspect-board",
+      "teaches": "Physical evidence and access to both sites narrow the suspects",
+      "studentAction": "Reads cases, marks suspicion, applies the 2016 test",
+      "feedback": "Each card shows site link and physical evidence, and the lead suspect is marked",
+      "staticFallback": "Cards are text and the test button reveals plain rows",
+      "identityFit": "Built in this hub's specimen drawer language",
+      "status": "implemented"
+    }
+  ]
+}

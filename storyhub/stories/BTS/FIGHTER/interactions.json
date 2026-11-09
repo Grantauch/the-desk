@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FIGHTER",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "ring",
+      "type": "film-scene-decision",
+      "teaches": "Payday pressure can conflict with athlete interests.",
+      "studentAction": "Choose how to respond to a replacement opponent and record a scene detail.",
+      "feedback": "Choice-specific tradeoffs distinguish income, safety and who makes the call.",
+      "staticFallback": "All choices, scene cues and writing prompts remain readable with JavaScript disabled.",
+      "identityFit": "Broadcast-style scene checkpoint with a short analyst response.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "ring",
+      "type": "film-scene-decision",
+      "teaches": "A subject's self-image and an edited public story can differ.",
+      "studentAction": "Choose which part of the documentary reaction to investigate, then record what was seen.",
+      "feedback": "Each choice identifies a different piece of evidence to inspect without asking for personal disclosure.",
+      "staticFallback": "All choices, scene cues and writing prompts remain readable with JavaScript disabled.",
+      "identityFit": "Broadcast-style scene checkpoint with a short analyst response.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "ring",
+      "type": "film-scene-decision",
+      "teaches": "Family loyalty and professional accountability can conflict.",
+      "studentAction": "Choose a condition for Dicky's role and explain it with film evidence.",
+      "feedback": "Each choice names an observable responsibility and its tradeoff, without fictional meters.",
+      "staticFallback": "All choices, scene cues and writing prompts remain readable with JavaScript disabled.",
+      "identityFit": "Broadcast-style scene checkpoint with a short analyst response.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "truth",
+      "type": "native-record-disclosure",
+      "teaches": "Separate film chronology and framing from verified historical records.",
+      "studentAction": "After watching, open the record and compare three film claims to dated evidence.",
+      "feedback": "The real documentary title, the six-bout timeline gap and the exact title-fight result become visible together.",
+      "staticFallback": "Native HTML details works without JavaScript; print opens the contents.",
+      "identityFit": "An editorial fact-check desk follows the viewing feature.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "end",
+      "type": "evidence-writing-and-turn-in",
+      "teaches": "A judgment must be supported by scenes and address another interpretation.",
+      "studentAction": "Write a claim using two film scenes and a counterargument, then use shared Turn In.",
+      "feedback": "A local answered-prompt count tracks notes; the shared runtime handles genuine save and submission acknowledgements.",
+      "staticFallback": "Printable prompts and browser-native text fields, plus a plain-text backup download.",
+      "identityFit": "A final analyst column returns to the opening question.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -6,6 +6,29 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  # The Robber Barons Firebase web key is public by design and belongs in the page.
+  # The database rules in docs/robber-barons-online/ protect the data, not this key.
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
+
+# The original, release-sealed /hubs/bts-americas-most-hated.html remains intact.
+# Route the classroom-friendly URL to its expanded interactive assignment.
+[[redirects]]
+  from = "/hubs/bts-americas-most-hated"
+  to = "/hubs/bts-americas-most-hated-research.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/press"
+  to = "/hubs/ush9-stop-the-presses.html"
+  status = 301
+
+[[redirects]]
+  from = "/buzz"
+  to = "/hubs/jeopardy-buzz.html"
+  status = 301
+
 [[redirects]]
   from = "/cold-openers"
   to = "/detour-shelf/#story-bank"
@@ -33,6 +56,11 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/hubs/checkling/camp/assets/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
 
 [[headers]]
   # hashed build assets never change — cache them forever

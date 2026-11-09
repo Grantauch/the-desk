@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-RABBITHOLE",
+  "title": "Down the Rabbit Hole",
+  "route": "/hubs/hh-down-the-rabbit-hole.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/RABBITHOLE/story.json",
+    "note": "Additive publication integration; original author contributions remain in Git history."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-down-the-rabbit-hole.html",
+      "bytes": 68333,
+      "sha256": "351b4def169c9f1bec58a0cde9e47df5ce091b3a87b35ea611f826f37d3cf1ab"
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-rabbit-light.webp",
+      "assetId": "A01",
+      "bytes": 87670,
+      "sha256": "49d14334812a235925d95e8af921767a4ee98e04263406599f9afc50b7e46f6b",
+      "width": 608,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-cheshire-fade-light.webp",
+      "assetId": "A02",
+      "bytes": 138058,
+      "sha256": "bea83e5fa7e23311d0b4406d2322cc821a5a4fba2b79c6ba60180b0c6c44e7ad",
+      "width": 900,
+      "height": 626
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-queen-dark.webp",
+      "assetId": "A03",
+      "bytes": 207004,
+      "sha256": "28ff0404b2e54614db3b4f74253c12d41ea52dc179daa0d9f46087a9c8c388c4",
+      "width": 777,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-walrus-weeps-light.webp",
+      "assetId": "A04",
+      "bytes": 116602,
+      "sha256": "4bb9b960d0cef3d8b9d51d6c7da95245011b0c595726c38f3f8d8d83b81c7146",
+      "width": 899,
+      "height": 593
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-macgregor-1822.webp",
+      "assetId": "A05",
+      "bytes": 41472,
+      "sha256": "fe596716bbe3d0ee114c5c9490a441eee0f37f0c5d0c8b6653c4620d9b1694b0",
+      "width": 537,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-poyais-guide-1822.webp",
+      "assetId": "A06",
+      "bytes": 32356,
+      "sha256": "15e4834de9cdb53b6df0b8dcd097db26b9332d7094c829cde0ae84795b62a44c",
+      "width": 533,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-poyais-dollar.webp",
+      "assetId": "A07",
+      "bytes": 120396,
+      "sha256": "257284fefd712de662103322319dc891db4d662484f939200773c169782f70a0",
+      "width": 900,
+      "height": 453
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-brooklyn-1885.webp",
+      "assetId": "A08",
+      "bytes": 38792,
+      "sha256": "f1c9b53b40b96c7fbe5a8a7e59ab74ce1de8ad210624b158a049ce016caf5193",
+      "width": 640,
+      "height": 476
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-van-meegeren-1945.webp",
+      "assetId": "A09",
+      "bytes": 37284,
+      "sha256": "32092e31b0fa23980b3a9677a496b52b6bd2f7754f4ad0ca73127cd42a96b52c",
+      "width": 900,
+      "height": 601
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-anastasia-1910s.webp",
+      "assetId": "A10",
+      "bytes": 26958,
+      "sha256": "1856ddc98ded67109e2839f0126fb0f16efe3eb75f19986b61d539536434a157",
+      "width": 468,
+      "height": 640
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-goldwater.webp",
+      "assetId": "A11",
+      "bytes": 21916,
+      "sha256": "d37f487509ece4502a8946f41363519ad6a5caf8ab86784941080a649526b0f6",
+      "width": 476,
+      "height": 640
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-machiavelli.webp",
+      "assetId": "A12",
+      "bytes": 39146,
+      "sha256": "be8d72b7e2846abac928099f4caf32b5f6847a6afdb5e4b100f31f79426aa67d",
+      "width": 960,
+      "height": 1065
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-narcissus.webp",
+      "assetId": "A13",
+      "bytes": 64144,
+      "sha256": "a78d68ecda3b10f7cb5ea62278bfb0031ba68dbf7253abe45fe7da2e447c1ba7",
+      "width": 640,
+      "height": 774
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-van-meegeren-1947.mp4",
+      "assetId": "A14",
+      "bytes": 4524442,
+      "sha256": "6462f990642f0e7bae08fe0e174f74c25faa02a67309a236dd0eee395ecfd0ed"
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-van-meegeren-1947-poster.webp",
+      "bytes": 15270,
+      "sha256": "31182150ee5b1a450f785464f172487602e28031a921a4084b4719209f95524a",
+      "width": 640,
+      "height": 512
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/rh2-van-meegeren-1947.vtt",
+      "bytes": 662,
+      "sha256": "3bdfa6e2370b9c05af14553d5de4e7554009323346dbc38d9b2204093ab116bd"
+    }
+  ],
+  "totalBytes": 5580505,
+  "sealedAt": "2026-11-04"
+}

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "storyId": "USH9-L016",
-  "title": "The One That Passed — Episode One",
+  "title": "The One That Passed \u2014 Episode One",
   "route": "/hubs/ush9-l016-the-one-that-passed.html",
   "files": [
     {
       "path": "/hubs/ush9-l016-the-one-that-passed.html",
-      "bytes": 75942,
-      "sha256": "d4fea51abbd4a58879b18341f6b8a0a8b009d00b88edaf11a4f4716fc3864063"
+      "bytes": 75991,
+      "sha256": "246e8ba46a8e27e9985d2e6d6ae9daaff6b0bbc3c5b34fdbb9e37e4a84b4df99"
     },
     {
       "path": "/storyhub/ush9/l016/assets/sierra.webp",
@@ -34,6 +34,6 @@
       "height": 682
     }
   ],
-  "totalBytes": 527330,
-  "sealedAt": "2026-09-09"
+  "totalBytes": 527379,
+  "sealedAt": "2026-10-26"
 }

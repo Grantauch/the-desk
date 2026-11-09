@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ICEWORM",
+  "course": "HH",
+  "lessonCode": "ICEWORM",
+  "title": "the city that couldn’t hold still",
+  "audience": "students",
+  "narrativeQuestion": "Why did the Army build a city inside Greenland’s ice, and why didn’t its missile plan follow?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "A city below the surface",
+      "claim": "In 1959 the U.S. Army Corps of Engineers built Camp Century within the Greenland Ice Sheet. Workers cut trenches near the surface, covered them and installed a small community of rooms and corridors. A portable nuclear power plant supplied electricity. Greenland was strategically important during the Cold War because the Arctic lay between North America and the Soviet Union. The camp was real, with real people living under the snow. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "The base and the bigger idea",
+      "claim": "Camp Century also helped test the feasibility of a much larger military concept: Project Iceworm. Planners considered a network beneath the ice that could support as many as 600 ballistic missiles. The scale of that proposal is not the scale of the camp that was built. The larger missile network was never realized. Do not turn a plan for 600 missiles into a claim that 600 missiles were secretly installed there. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "The ground was not ground",
+      "claim": "Ice can look still while slowly deforming and moving. Rooms and tunnels that require stable shapes face a continuing maintenance problem in such a setting. Test the assumption on the conceptual board. It does not calculate Greenland’s actual flow rates or reproduce engineering measurements. It makes one dependency visible: a rigid facility needs its surroundings to remain compatible with its structure.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "A film can advertise and document",
+      "claim": "The Army made a film showing Camp Century’s construction and life beneath the ice. A promotional film has a purpose, but that does not make every frame false. Ask what it directly shows: workers, structures and equipment. Ask separately what it emphasizes or leaves out. A functioning camp in a selected scene would not establish that a vast, long-lived missile system was practical. [S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "The camp becomes a buried record",
+      "claim": "Camp Century was abandoned during the 1960s, while its scientific legacy continued through samples and research. In 2024 NASA radar produced a striking new view of structures now buried farther beneath the ice. “A new image of a known base” is a different claim from “a lost civilization discovered.” The age and origin of the site matter more than the dramatic appearance of a radar picture. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "The future is another question",
+      "claim": "The abandoned site has also raised questions about waste and changing ice conditions. Scientific studies have used different observations, models and climate scenarios; those should not be compressed into a guaranteed date when the camp will emerge. For this case, the central historical distinction is secure: Camp Century existed, but the proposed Iceworm missile network did not. Evidence for the base cannot do the work of evidence for the entire plan. [S2, S4]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "Camp Century was built. The much larger Iceworm missile network was not.",
+    "A real base is not proof that its much larger proposed network existed.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-iceworm.html"
+  }
+}

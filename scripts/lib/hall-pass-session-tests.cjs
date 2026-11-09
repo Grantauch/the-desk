@@ -27,7 +27,7 @@ module.exports = function registerSessionTests(test, section) {
         ['at ten minutes', startMs + 600000, true, true, true],
         ['before final ten', endMs - 600000 - 1, true, true, true],
         ['at final ten', endMs - 600000, true, true, false],
-        ['at bell', endMs, true, true, false],
+        ['at bell', endMs, false, false, false],
       ];
       for (const [label, time, checkInAllowed, checkInLate, passRequestAllowed] of cases) {
         test(`${profile} P${index + 1}: ${label}`, () => {
@@ -132,18 +132,27 @@ module.exports = function registerSessionTests(test, section) {
     const key = c.key(PEOPLE.ada, 'Period 1');
     const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'PASS_REQUEST', key, 'boundary');
     c.harness.clock.advanceSeconds(1); c.harness.newRequest();
-    assert.throws(() => c.harness.call('requestBathroomPass', proof.actionProof, key, proof.pinToken), /first and last ten/);
+    assert.throws(() => c.harness.call('requestBathroomPass', proof.actionProof, key, proof.pinToken), /configured pass window/);
     assert.deepEqual(counts(c), [0,0,0]);
   });
-  test('multi-class PIN cannot select an upcoming or ended class', () => {
+  test('multi-class PIN is routed to the one class meeting now', () => {
     const c = classroom({memberships:[[PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 3']]});
+    const initial = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), 'multi');
+    assert.notEqual(initial.requiresClassSelection, true);
+    assert.equal(initial.student.key, c.key(PEOPLE.ada,'Period 1'));
+    assert.equal(c.harness.call('readStudentActionProof_',initial.actionProof).key, c.key(PEOPLE.ada,'Period 1'));
+    assert.throws(() => c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 3'), 'pass', initial.actionProof), /different class/);
+    c.harness.newRequest();
+    c.harness.call('requestBathroomPass', initial.actionProof, c.key(PEOPLE.ada,'Period 1'), initial.pinToken);
+    c.harness.newRequest();
+    assert.throws(() => c.harness.call('requestBathroomPass', initial.actionProof, c.key(PEOPLE.ada,'Period 1'), initial.pinToken), /already used/);
+  });
+  test('multi-class PIN with no class meeting now falls back to the chooser, which refuses a class not in session', () => {
+    const c = classroom({memberships:[[PEOPLE.ada,'Period 2'],[PEOPLE.ada,'Period 3']]});
     const initial = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), 'multi');
     assert.equal(initial.requiresClassSelection, true);
     assert.throws(() => c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 3'), 'pass', initial.actionProof), /selected class/);
-    const selected = c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 1'), 'pass', initial.actionProof);
-    assert.equal(c.harness.call('readStudentActionProof_',selected.actionProof).key, c.key(PEOPLE.ada,'Period 1'));
-    assert.throws(() => c.harness.call('requestBathroomPass', initial.actionProof, c.key(PEOPLE.ada,'Period 1'), initial.pinToken), /already used/);
-    assert.throws(() => c.harness.call('selectStudentClass', selected.pinToken, c.key(PEOPLE.ada,'Period 3'), 'pass', selected.actionProof), /different class/);
+    assert.throws(() => c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 2'), 'pass', initial.actionProof), /selected class/);
   });
   test('bell expires WAITING persistently but leaves OUT until a fresh-PIN return', () => {
     const c = classroom({settings:{QUEUE_MAX_WAIT_MINUTES:120}});
@@ -206,16 +215,18 @@ module.exports = function registerSessionTests(test, section) {
       const c=classroom({memberships:[[PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 3',{active:false}]]});
       teacher(c,'teacherSetStudentPassAccess',PEOPLE.ada.email,mode,'Synthetic policy change');
       c.rosterRows().forEach(row=>assert.equal(row['Pass Access'],mode));
-      c.harness.call('teacherAddStudentClass',PEOPLE.ada.name,PEOPLE.ada.email,'Period 4');
+      c.harness.call('teacherAddStudentClass',PEOPLE.ada.name,PEOPLE.ada.email,'Period 4',TEACHER_CONTRACT);
       c.rosterRows().forEach(row=>assert.equal(row['Pass Access'],mode));
-      assert.equal(c.harness.sheet('Teacher Actions').records().length,2);
+      const actions=c.harness.sheet('Teacher Actions').records();
+      assert.equal(actions.length,3);
+      assert.ok(actions.some(row=>row.Action==='ROSTER_MEMBERSHIP_ADDED'));
     });
   }
   test('unlimited bypasses numeric limits and cooldown, but not timing', () => {
     const c=classroom({memberships:[[PEOPLE.ada,'Period 1',{passAccess:'UNLIMITED'}]],settings:{STUDENT_PASS_LIMIT:1,DAILY_PASS_LIMIT:1,PASS_COOLDOWN_MINUTES:5}});
     c.trip(PEOPLE.ada,'Period 1',60); assert.equal(c.requestPass(PEOPLE.ada,'Period 1').state.actionOutcome.kind,'STARTED');
     c.returnPass(PEOPLE.ada,'Period 1');at(c,'2026-09-10T08:15:00-04:00');
-    assert.throws(()=>c.requestPass(PEOPLE.ada,'Period 1'),/first and last ten/);
+    assert.throws(()=>c.requestPass(PEOPLE.ada,'Period 1'),/configured pass window/);
   });
   test('escort-only blocks self-start and teacher backup records every restriction privately', () => {
     const c=classroom({memberships:[[PEOPLE.ada,'Period 1',{passAccess:'ESCORT_ONLY'}]]});

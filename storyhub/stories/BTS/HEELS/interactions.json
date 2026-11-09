@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELS",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "02-headlines",
+      "type": "headline picker with reaction time chart",
+      "teaches": "Promoters answered the news within days or weeks, and the Iron Sheik is the exception that proves a character can predate its event.",
+      "studentAction": "Chooses one of four front pages.",
+      "feedback": "The matching news and ring entries appear with the day gap, and that bar lights up on a log scale chart.",
+      "staticFallback": "Without JavaScript all four entries and the full chart are visible.",
+      "identityFit": "Front page cards and a broadcast style bar chart.",
+      "status": "shipped"
+    },
+    {
+      "id": "I02",
+      "chapterId": "03-flip",
+      "type": "role switcher",
+      "teaches": "Heel and face are roles assigned by promoters and changed by world events or opponents.",
+      "studentAction": "Chooses a wrestler, then a year.",
+      "feedback": "The role badge flips heel or face and a What changed note explains the cause.",
+      "staticFallback": "Without JavaScript every wrestler and every year panel is visible in sequence.",
+      "identityFit": "Heel red and face steel chips over archival photographs.",
+      "status": "shipped"
+    },
+    {
+      "id": "I03",
+      "chapterId": "04-card",
+      "type": "fear filter with live tally",
+      "teaches": "The card's villains cluster around a few national fears.",
+      "studentAction": "Chooses a fear category.",
+      "feedback": "Only matching bouts remain and the tally highlights that category's count.",
+      "staticFallback": "All fifteen bouts and the full tally are visible.",
+      "identityFit": "Fight card chips and a sticky tally board.",
+      "status": "shipped"
+    },
+    {
+      "id": "I04",
+      "chapterId": "04-card",
+      "type": "poster versus record toggle",
+      "teaches": "Nine of eleven heels sold as outsiders were played by men from somewhere else.",
+      "studentAction": "Switches between The poster and The record.",
+      "feedback": "Every open bout swaps the billed identity for the real one, set in the record's newspaper serif.",
+      "staticFallback": "The poster view is shown with record details available in sources.",
+      "identityFit": "Kayfabe gold versus record steel, the hub's two channels.",
+      "status": "shipped"
+    },
+    {
+      "id": "I05",
+      "chapterId": "05-mission",
+      "type": "points bar",
+      "teaches": "The grade rewards history, with 60 of 100 points on questions 2 through 5.",
+      "studentAction": "Taps a segment of the 100 point bar.",
+      "feedback": "The note names that criterion and what full credit requires.",
+      "staticFallback": "The five questions list their points and full credit in expandable rows.",
+      "identityFit": "A printed scoring strip on the paper colored mission page.",
+      "status": "shipped"
+    },
+    {
+      "id": "I06",
+      "chapterId": "06-prove",
+      "type": "click to order sequence",
+      "teaches": "Proving a historical connection requires dates in order.",
+      "studentAction": "Places four events from earliest to latest.",
+      "feedback": "Each slot is marked right or wrong with its date, and the verdict explains why the Sheik predates the crisis.",
+      "staticFallback": "The correct dated order and the verdict are shown.",
+      "identityFit": "Plain numbered slots in the arena palette.",
+      "status": "shipped"
+    },
+    {
+      "id": "V01",
+      "chapterId": "01-watch",
+      "type": "video",
+      "teaches": "Previews the documentary the class watches.",
+      "studentAction": "Presses play on the Netflix trailer.",
+      "feedback": "The official trailer loads in place from YouTube.",
+      "staticFallback": "The card links to YouTube.",
+      "identityFit": "Broadcast slate with a red play button.",
+      "status": "shipped"
+    },
+    {
+      "id": "V02",
+      "chapterId": "02-headlines",
+      "type": "video pair",
+      "teaches": "Pairs the real crisis with the match that sold it.",
+      "studentAction": "Plays National Archives footage and the 1984 WWE match.",
+      "feedback": "Each video loads in place.",
+      "staticFallback": "Links to YouTube.",
+      "identityFit": "Side by side news and ring slates.",
+      "status": "shipped"
+    },
+    {
+      "id": "V03",
+      "chapterId": "03-flip",
+      "type": "video pair",
+      "teaches": "Lets students hear wrestlers and WWE describe their own turns.",
+      "studentAction": "Plays the WrestleMania VII Playback and the Volkoff tribute.",
+      "feedback": "Each video loads in place.",
+      "staticFallback": "Links to YouTube.",
+      "identityFit": "Same slate system.",
+      "status": "shipped"
+    },
+    {
+      "id": "V04",
+      "chapterId": "04-card",
+      "type": "video set",
+      "teaches": "Gives primary video evidence for four heels on the card.",
+      "studentAction": "Plays a 1948 newsreel or three WWE segments.",
+      "feedback": "Each video loads in place; bout cards link to them.",
+      "staticFallback": "Links to YouTube.",
+      "identityFit": "Same slate system.",
+      "status": "shipped"
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-S02",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Hero portrait",
+      "sourceMode": "source-first-archival",
+      "subject": "Marshall Taylor, about 1906",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/taylor-1906.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "engraving",
+      "role": "Early press image",
+      "sourceMode": "source-first-archival",
+      "subject": "Taylor at 18, 1895",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/taylor-1895.webp"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Scale of the boom",
+      "sourceMode": "source-first-archival",
+      "subject": "H. T. Hearsey bicycle shop, Indianapolis, 1896",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/hearsey-shop.webp"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "The sport",
+      "sourceMode": "source-first-archival",
+      "subject": "Six day race at Madison Square Garden, 1908",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/six-day.webp"
+    },
+    {
+      "id": "A05",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Place of the result",
+      "sourceMode": "source-first-archival",
+      "subject": "Queen's Park track, Montreal, 1899",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/queens-park.webp"
+    },
+    {
+      "id": "A06",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Europe",
+      "sourceMode": "source-first-archival",
+      "subject": "Taylor and Jacquelin, Paris, 1901",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/jacquelin-1901.webp"
+    },
+    {
+      "id": "A07",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Match sprint",
+      "sourceMode": "source-first-archival",
+      "subject": "Taylor and Hourlier, Paris, 1909",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/standstill-1909.webp"
+    },
+    {
+      "id": "A08",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Late life",
+      "sourceMode": "source-first-archival",
+      "subject": "Taylor in 1926",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 1, 2026, resized and converted to WebP. Original file names are recorded in the page credits.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/taylor-1926.webp"
+    },
+    {
+      "id": "A09",
+      "status": "shipped",
+      "type": "3d-model",
+      "role": "Turnable study model",
+      "sourceMode": "original-procedural-model",
+      "subject": "A high wheeler and a safety bicycle beside a six foot pole",
+      "rightsStatus": "Original code. three.js is MIT licensed and already shipped on the site.",
+      "provenance": "Geometry first drafted by orchestra workers, rebuilt and finished by Claude, November 1, 2026. Labeled on the page as a stylized model.",
+      "htmlSafeZone": "Canvas with the explanation in an HTML panel beside it.",
+      "responsiveCrop": "Panel stacks under the canvas on narrow screens.",
+      "deployPath": "/storyhub/bts/the-entry-list/assets/bikes.js"
+    }
+  ]
+}

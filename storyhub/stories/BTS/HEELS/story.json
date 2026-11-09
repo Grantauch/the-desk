@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELS",
+  "course": "BTS",
+  "lessonCode": "HEELS",
+  "title": "America's Most Hated",
+  "audience": "students",
+  "narrativeQuestion": "Who were Americans told to boo, and why then?",
+  "chapters": [
+    {
+      "id": "01-watch",
+      "title": "The Man Who Sold the Villains",
+      "claim": "Episode 1 of Mr. McMahon shows a promoter choosing the Iron Sheik because the hostage crisis made Americans want to see an Iranian lose.",
+      "namedPeople": [
+        {
+          "name": "Vince McMahon",
+          "role": "promoter",
+          "anchorStatus": "not-needed",
+          "note": "Seen in the embedded Netflix trailer; no still reproduced."
+        },
+        {
+          "name": "Gorgeous George",
+          "role": "heel, opening image",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A01"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "V01"
+      ]
+    },
+    {
+      "id": "02-headlines",
+      "title": "How Fast Did Wrestling Answer the News?",
+      "claim": "Three of four major foreign heels arrived within two months of the headline they borrowed; the Iron Sheik shows a character reshaped rather than created.",
+      "namedPeople": [
+        {
+          "name": "The Iron Sheik",
+          "role": "heel",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A07"
+        },
+        {
+          "name": "Hulk Hogan",
+          "role": "face",
+          "anchorStatus": "not-needed",
+          "note": "Appears in the embedded WWE match video."
+        }
+      ],
+      "visualAnchorIds": [
+        "A04",
+        "A05"
+      ],
+      "interactionIds": [
+        "I01",
+        "V02"
+      ]
+    },
+    {
+      "id": "03-flip",
+      "title": "A Heel Is a Role, Not a Person",
+      "claim": "The same men switched between heel and face as the news and their opponents changed.",
+      "namedPeople": [
+        {
+          "name": "Sgt. Slaughter",
+          "role": "heel and face",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A06"
+        },
+        {
+          "name": "Nikolai Volkoff",
+          "role": "heel and face",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A07"
+        },
+        {
+          "name": "Jack Swagger",
+          "role": "heel and face",
+          "anchorStatus": "not-available",
+          "note": "No free period photograph; a typographic We the People panel carries the 2013 catchphrase instead."
+        }
+      ],
+      "visualAnchorIds": [
+        "A06",
+        "A07"
+      ],
+      "interactionIds": [
+        "I02",
+        "V03"
+      ]
+    },
+    {
+      "id": "04-card",
+      "title": "Fifteen Heels, One Each",
+      "claim": "Most villains sold as outsiders were played by men from somewhere else, and the card's fears cluster around Russia and the Middle East.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03",
+        "I04",
+        "V04"
+      ]
+    },
+    {
+      "id": "05-mission",
+      "title": "Pick One Heel. Investigate Two Stories.",
+      "claim": "Sixty of the hundred points come from the history behind the character.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "06-prove",
+      "title": "Prove the Connection With Dates",
+      "claim": "Ordering the hostage crisis and the Iron Sheik's title run shows an event can reshape a character without creating it.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A04",
+        "A05"
+      ],
+      "interactionIds": [
+        "I06"
+      ]
+    },
+    {
+      "id": "07-rules",
+      "title": "What You Turn In",
+      "claim": "The project requires two credible sources, one visual, three slides and no repeated slurs.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "08-bell",
+      "title": "The Question We End On",
+      "claim": "Wrestling companies taught audiences who the villains were supposed to be.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "The Iron Sheik worked as an Iranian heel before November 1979; the hub says the crisis reshaped the character.",
+    "WWE claimed WrestleMania VII moved for security reasons; WWE acknowledged in 2024 the cause was ticket sales.",
+    "Rusev's Putin dedication is dated to a May 14, 2014 Daily Beast report, so the 57 day gap is a measured upper bound.",
+    "The 1979 protest photograph contains an ethnic slur; it is captioned as evidence of prejudice, never quoted."
+  ]
+}

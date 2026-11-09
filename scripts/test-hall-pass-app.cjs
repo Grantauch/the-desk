@@ -28,6 +28,19 @@ assert.ok(scriptBlocks.length, 'Index.html must contain an application script');
 const clientScript = scriptBlocks.at(-1)[1].replace('<?!= JSON.stringify(appMode) ?>', '"student"');
 new vm.Script(clientScript, { filename: htmlPath });
 
+// Version 40's actual HtmlService output truncated the artwork statement to
+// `const images = 'https:`. Raw-HTML fixtures missed that Google-side rewrite.
+// Replay that observed truncation and require every entry mode to still parse.
+for (const mode of ['student', 'kiosk', 'checkin', 'teacher']) {
+  const servedScript = scriptBlocks.at(-1)[1]
+    .replace('<?!= JSON.stringify(appMode) ?>', JSON.stringify(mode))
+    .replace(/https:\/\/[^\r\n]*/g, 'https:');
+  new vm.Script(servedScript, { filename: `HtmlService-${mode}.js` });
+  const imageStatement = servedScript.match(/const images = ([^;]+);/);
+  assert.ok(imageStatement, 'Checkling artwork must survive HtmlService rendering');
+  assert.equal(vm.runInNewContext(imageStatement[1]), 'https://grant-desk.com/hubs/checkling/pets/');
+}
+
 const functionSource = (name) => {
   const start = code.indexOf(`function ${name}(`);
   assert.notEqual(start, -1, `Missing function ${name}`);
@@ -74,7 +87,13 @@ const functionSource = (name) => {
   throw new Error(`Could not isolate function ${name}`);
 };
 
-assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-05-session-a'/);
+assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-21-backend-b'/);
+assert.match(code, /GD_ROSTER_SYNC_CONTRACT\s*=\s*'2026-09-22-roster-sync-v1'/);
+assert.match(code, /GD_ROSTER_SYNC_WRITE_CONTRACT\s*=\s*'2026-09-22-roster-write-v1'/);
+assert.match(code, /GD_ROSTER_SYNC_CONFIRMATION\s*=\s*'APPLY SAFE ROSTER CHANGES'/);
+assert.match(code, /GD_ROSTER_SYNC_MAX_WRITES\s*=\s*200/);
+assert.match(code, /GD_ROSTER_SYNC_REQUEST_TTL_MS\s*=\s*7\s*\*\s*24\s*\*\s*60\s*\*\s*60\s*\*\s*1000/);
+assert.match(code, /GD_ROSTER_SYNC_REQUEST_MAX_RECORDS\s*=\s*100/);
 assert.match(code, /GD_MIN_COUNTABLE_PASS_SECONDS\s*=\s*3/);
 assert.match(code, /GD_ACTION_PROOF_SECONDS\s*=\s*180/);
 assert.match(code, /GD_STUDENT_LOCK_WAIT_MS\s*=\s*5000/);
@@ -85,6 +104,8 @@ assert.match(code, /CALENDAR:\s*'School Calendar'/);
 assert.match(code, /UNMATCHED:\s*'Unmatched Sign-ins'/);
 assert.match(code, /function teacherApplyUnmatchedEmail/);
 assert.match(code, /function teacherAddStudentClass/);
+assert.match(code, /function getRosterSyncSnapshot/);
+assert.match(code, /function applyRosterSyncChanges/);
 assert.match(code, /function teacherRemoveStudentClass/);
 assert.match(code, /function teacherClearUnmatchedSignIns/);
 assert.match(code, /function readPinSession_/);
@@ -96,6 +117,10 @@ assert.match(code, /function teacherClearStudentAbsent/);
 assert.match(code, /function teacherSetPassRules/);
 assert.match(code, /function teacherSetCheckInWindow/);
 assert.match(code, /function teacherReviewLateCheckIn/);
+assert.match(code, /function teacherResetStudentPin/);
+assert.match(code, /GD_CHECKIN_MIN_ROWS\s*=\s*5000/);
+assert.match(code, /function ensureRowCapacity_/);
+assert.match(code, /function readPendingLateReviews_/);
 assert.match(code, /LATE_PENDING/);
 assert.match(code, /LATE_APPROVED/);
 assert.match(code, /LATE_NO_POINT/);
@@ -111,7 +136,92 @@ assert.match(
   /try\s*\{[\s\S]*SpreadsheetApp\.getUi\(\)[\s\S]*\}\s*catch\s*\(error\)/,
   'Project setup must finish cleanly when an editor/API run has no spreadsheet UI'
 );
+assert.match(setupProject, /withLock_\(\(\)\s*=>\s*\{/,
+  'Project setup must serialize workbook migration against live classroom writes');
+assert.match(setupProject, /previousSpreadsheetId/);
+assert.match(setupProject, /deleteProperty\('SPREADSHEET_ID'\)/);
+assert.match(setupProject, /setProperty\('SPREADSHEET_ID',\s*previousSpreadsheetId\)/,
+  'Failed setup must restore the previous workbook target');
 assert.match(setupProject, /return\s*\{\s*ok:\s*true,\s*schemaVersion:\s*GD_SCHEMA_VERSION\s*\}/);
+const setupWorkbook = functionSource('setupWorkbook_');
+assert.ok(
+  setupWorkbook.indexOf('assertPinEmailBatchIdle_') < setupWorkbook.indexOf('ensureSheet_'),
+  'Workbook setup must refuse a live PIN email batch before any sheet mutation'
+);
+assert.match(setupWorkbook, /ensureRowCapacity_\(checkInSheet/);
+assert.match(setupWorkbook, /rebuildCheckInOperationalIndex_\(\)/);
+assert.match(functionSource('ensureSheet_'), /unexpected column/);
+assert.match(functionSource('ensureSheet_'), /Restore the GrantDesk column order/);
+assert.match(functionSource('getSettings_'), /duplicate key/);
+assert.match(functionSource('getSchoolCalendarIndex_'), /duplicate date/);
+assert.match(functionSource('getRoster_'), /duplicate active membership/);
+const rosterSyncSnapshot = functionSource('getRosterSyncSnapshot');
+assert.match(rosterSyncSnapshot, /assertTeacher_/);
+assert.match(rosterSyncSnapshot, /GD_ROSTER_SYNC_CONTRACT/);
+assert.match(rosterSyncSnapshot, /studentEmail/);
+assert.match(rosterSyncSnapshot, /studentName/);
+assert.match(rosterSyncSnapshot, /classPeriod/);
+assert.match(rosterSyncSnapshot, /credentialReady/,
+  'GoClassroom roster bridge must expose only a boolean credential-readiness signal, never PIN material');
+assert.doesNotMatch(rosterSyncSnapshot, /readPassLog_|readCheckIns|studentPassUsage|accessMode|unlimited/i,
+  'GoClassroom roster bridge must not expose pass, check-in, or access-policy data');
+assert.doesNotMatch(rosterSyncSnapshot, /ensureWorkbookReady_|setupWorkbook_|ensureBackgroundTriggers_|withLock_|appendRow|setValue|setValues|deleteRow|deleteProperty|setProperty/,
+  'GoClassroom roster bridge must remain read-only');
+assert.match(rosterSyncSnapshot, /rosterSyncRevision_/);
+assert.match(rosterSyncSnapshot, /GD_ROSTER_SYNC_WRITE_CONTRACT/);
+
+const rosterSyncApply = functionSource('applyRosterSyncChanges');
+assert.match(rosterSyncApply, /assertTeacher_/);
+assert.match(rosterSyncApply, /GD_ROSTER_SYNC_WRITE_CONTRACT/);
+assert.match(rosterSyncApply, /normalizeRosterSyncWriteRequest_/);
+assert.match(rosterSyncApply, /rosterSyncRequestReplay_/);
+assert.match(rosterSyncApply, /withLock_/);
+assert.match(rosterSyncApply, /rosterSyncRevision_/);
+assert.match(rosterSyncApply, /assertPinEmailBatchIdle_/);
+assert.match(rosterSyncApply, /ensureOnePinPerStudent_\(\{[\s\S]*studentEmails:/);
+assert.match(rosterSyncApply, /progress\.action !== 'reactivated'/,
+  'GoClassroom reactivation must explicitly reconcile retained PIN-card identity');
+assert.match(rosterSyncApply, /card\.studentName !== input\.name[\s\S]*pinSheet\.getRange\(card\.row, 2\)\.setValue\(input\.name\)/,
+  'GoClassroom reactivation must update a stale PIN-card name');
+assert.match(rosterSyncApply, /card\.studentName === input\.name/,
+  'GoClassroom completion must verify the PIN-card name matches the approved membership');
+assert.match(rosterSyncApply, /verifiedCredentialMemberships/,
+  'GoClassroom completion must report verified credential membership count');
+assert.match(rosterSyncApply, /rosterSyncPrewriteRecoveryReview_/,
+  'GoClassroom pre-write recovery must stop for explicit reviewed recovery');
+assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED/);
+assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_NAME_UPDATED/);
+assert.doesNotMatch(rosterSyncApply, /teacherRemoveStudentClass|setValue\(false\)|deleteRow/,
+  'GoClassroom roster write bridge must not contain a student-removal path');
+const rosterSyncNormalize = functionSource('normalizeRosterSyncWriteRequest_');
+assert.match(rosterSyncNormalize, /GD_ROSTER_SYNC_CONFIRMATION/);
+assert.match(rosterSyncNormalize, /GD_ROSTER_SYNC_MAX_WRITES/);
+assert.match(rosterSyncNormalize, /does not remove students automatically/);
+assert.match(functionSource('rosterSyncRequestReplay_'), /readRosterSyncRequestState_/);
+assert.match(functionSource('readRosterSyncRequestState_'), /payloadDigest/);
+assert.match(functionSource('readRosterSyncRequestState_'), /payloadDigest/);
+assert.match(functionSource('rosterSyncRequestReplay_'), /PENDING/);
+assert.match(functionSource('rosterSyncRequestReplay_'), /DONE/);
+assert.match(functionSource('rosterSyncPendingRecord_'), /status: 'PENDING'/);
+assert.match(functionSource('rememberRosterSyncRequest_'), /DONE/);
+assert.match(functionSource('auditRosterSyncActionOnce_'), /rosterSyncAuditExists_/);
+assert.match(rosterSyncApply, /beginRosterSyncRequest_/);
+assert.match(rosterSyncApply, /readRosterSyncRequestState_/);
+assert.match(rosterSyncApply, /addActionByKey/);
+assert.match(rosterSyncApply, /nameActionByKey/);
+assert.match(functionSource('rememberRosterSyncRequest_'), /rosterSyncRequestKey_/);
+assert.match(functionSource('rememberRosterSyncRequest_'), /pruneRosterSyncRequests_\(1\)/);
+assert.match(functionSource('pruneRosterSyncRequests_'), /GD_ROSTER_SYNC_REQUEST_TTL_MS/);
+assert.match(functionSource('pruneRosterSyncRequests_'), /GD_ROSTER_SYNC_REQUEST_MAX_RECORDS/);
+assert.match(functionSource('pruneRosterSyncRequests_'), /status === 'PENDING'/);
+assert.match(functionSource('rosterSyncPendingStorageIssue_'), /GD_ROSTER_SYNC_PROPERTY_VALUE_TARGET_BYTES/);
+assert.match(functionSource('updateRosterSyncPendingPlan_'), /status !== 'PENDING'/);
+assert.match(functionSource('rosterSyncRequestKey_'), /GD_ROSTER_SYNC_REQUEST_PREFIX/);
+assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FILE_ID'/);
+assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FALLBACK_URL'/);
+assert.match(functionSource('setupWorkbook_'), /SCHOOL_CALENDAR_FILE_ID/);
+assert.match(functionSource('setupWorkbook_'), /SCHOOL_CALENDAR_FALLBACK_URL/);
+assert.match(setupWorkbook, /'TIME_ZONE'.*'DESTINATIONS'.*'QUEUE_CLAIM_MINUTES'/s, 'Stale fake settings must be removed during migration');
 
 const studentState = functionSource('getStudentState_');
 assert.match(studentState, /passAllowance:\s*studentAllowanceView_\(allowance,\s*Boolean\(detail\.includeEvidence\)\)/);
@@ -134,6 +244,24 @@ const cleanup = functionSource('dailyCleanup');
 assert.match(cleanup, /assertTeacher_/);
 assert.match(cleanup, /withLock_/);
 assert.match(cleanup, /expirePreviousDayPasses_/);
+assert.match(cleanup, /catch\s*\(error\)[\s\S]*expirePreviousDayPasses_/, 'A Check-In sync failure must not abort the rest of daily cleanup');
+const cleanupHandler = functionSource('dailyCleanup');
+assert.match(cleanupHandler, /ownedTriggerEvent_\(event,'dailyCleanup',GD_CLEANUP_TRIGGER_ID_PROPERTY\)/);
+assert.match(code, /GD_BACKGROUND_TRIGGER_AUDIT_MS\s*=\s*60\s*\*\s*60\s*\*\s*1000/);
+const backgroundTriggerAudit = functionSource('ensureBackgroundTriggers_');
+assert.match(backgroundTriggerAudit, /GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY/);
+assert.match(backgroundTriggerAudit, /installCleanupTrigger_/);
+assert.match(backgroundTriggerAudit, /installCheckInFlushTrigger_/);
+assert.match(functionSource('getBootstrap'), /ensureBackgroundTriggers_\(true\)/);
+const cleanupInstaller = functionSource('installCleanupTrigger_');
+assert.match(cleanupInstaller, /matches\.slice\(1\)\.forEach/);
+assert.match(cleanupInstaller, /dailyCleanup/);
+assert.match(cleanupInstaller, /GD_CLEANUP_TRIGGER_ID_PROPERTY/);
+const flushInstaller = functionSource('installCheckInFlushTrigger_');
+assert.match(flushInstaller, /GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY/);
+const ownedTriggerEvent = functionSource('ownedTriggerEvent_');
+assert.match(ownedTriggerEvent, /getProperty\(propertyKey\)/);
+assert.match(ownedTriggerEvent, /getProjectTriggers\(\)/);
 
 const purgeIfDue = functionSource('purgeIfDue_');
 assert.match(purgeIfDue, /withLock_/);
@@ -150,6 +278,8 @@ assert.match(passSnapshot, /capacityActive/);
 assert.match(passSnapshot, /passBlocksCurrentCapacity_/);
 assert.match(functionSource('currentScheduledPeriod_'), /getBellScheduleIndex_/);
 assert.match(functionSource('passBlocksCurrentCapacity_'), /periodNumberFromClass_/);
+assert.match(functionSource('getClassSession_'), /configured pass window/);
+assert.doesNotMatch(functionSource('getClassSession_'), /first and last ten minutes/);
 assert.match(functionSource('expirePreviousDayPasses_'), /'ROLLED_OVER'/);
 assert.match(html, /earlier class · not blocking/);
 assert.match(html, /award all pending points/);
@@ -162,9 +292,15 @@ assert.match(pinVerifier, /assertPinAttemptAllowed_\(activeEmail,\s*attemptNonce
 assert.match(pinVerifier, /recordFailedPinAttempt_\(activeEmail,\s*attemptNonce\)/);
 
 const pinSessionWriter = functionSource('putPinSession_');
+assert.match(pinSessionWriter, /v:\s*2/);
+assert.match(pinSessionWriter, /credentialVersionForEmail_/);
 assert.match(pinSessionWriter, /signTokenPart_/);
 assert.doesNotMatch(pinSessionWriter, /CacheService\.getScriptCache\(\)\.put/);
 assert.match(functionSource('readPinSession_'), /secureEquals_/);
+assert.match(functionSource('readPinSession_'), /assertCredentialVersion_/);
+assert.doesNotMatch(functionSource('readPinSession_'), /CacheService\.getScriptCache\(\)/, 'Legacy cache-only PIN sessions must not remain an authentication path');
+assert.match(functionSource('credentialVersionForEmail_'), /pinHash/);
+assert.match(functionSource('credentialVersionForEmail_'), /computeHmacSha256Signature/);
 
 const queueReader = functionSource('readWaitingQueue_');
 assert.doesNotMatch(queueReader, /getQueueTurnStarted_|setQueueTurnStarted_/);
@@ -175,7 +311,10 @@ const actionProofWriter = functionSource('putStudentActionProof_');
 const actionProofValidator = functionSource('validateStoredStudentActionProof_');
 const actionProofConsumer = functionSource('consumeStudentActionProof_');
 assert.match(actionProofWriter, /student-action:/);
+assert.match(actionProofWriter, /v:\s*3/);
+assert.match(actionProofWriter, /credentialVersionForEmail_/);
 assert.match(actionProofWriter, /signTokenPart_/);
+assert.match(functionSource('readStudentActionProof_'), /assertCredentialVersion_/);
 assert.match(actionProofValidator, /proof\.action\s*!==\s*action/);
 assert.equal((actionProofValidator.match(/deleteProperty/g) || []).length, 1, 'Validation may delete only an already-expired proof');
 assert.ok(actionProofValidator.indexOf('deleteProperty') < actionProofValidator.indexOf('return {'), 'A valid proof must reach the non-consuming return path');
@@ -194,6 +333,10 @@ assert.match(checkInSubmit, /validateCheckInSubmissionProof_/);
 assert.match(checkInSubmissionProof, /validateStoredStudentActionProof_/);
 assert.match(checkInSubmissionProof, /readCheckInsIncludingPending_/);
 assert.match(checkInSubmit, /stageCheckIn_/);
+assert.match(functionSource('stageCheckIn_'), /logicalCheckInId_\(todayKey,\s*student\.key\)/);
+assert.match(functionSource('logicalCheckInId_'), /checkin:/);
+assert.match(checkInSubmissionProof, /logicalCheckInId_/);
+assert.match(checkInSubmit, /canonical/);
 assert.match(checkInSubmit, /deleteProperty\(resolved\.proofPropertyKey\)/);
 assert.match(checkInSubmit, /tryFlushPendingCheckIns_/);
 assert.doesNotMatch(checkInSubmit, /withLock_|recordCheckIn_|appendRow/, 'Daily Check-In must not wait on or append to the shared workbook');
@@ -279,7 +422,7 @@ const contentionContext = {
   },
   Utilities: { formatDate: () => '2026-09-02' },
   Session: { getScriptTimeZone: () => 'America/Detroit' },
-  gdClearMemo_: () => { contentionMemoClears += 1; },
+  gdClearVolatileMemo_: () => { contentionMemoClears += 1; },
 };
 vm.createContext(contentionContext);
 vm.runInContext(`
@@ -324,6 +467,11 @@ assert.match(code, /GD_CHECKIN_TAIL_ROWS\s*=\s*600/);
 assert.match(code, /GD_ROLLOVER_PROPERTY\s*=\s*'LAST_ROLLOVER'/);
 assert.match(code, /function mapCheckInRow_/);
 assert.match(code, /function readCheckInsForDate_/);
+const dateReader = functionSource('readCheckInsForDate_');
+assert.match(dateReader, /outOfOrder/);
+assert.match(dateReader, /currentDateKey\s*<\s*previousDateKey/);
+assert.match(dateReader, /outOfOrder[\s\S]*readCheckIns_\(\)/,
+  'Out-of-order Check-In tails must fall back to the authoritative full ledger');
 assert.match(code, /function expirePreviousDayPassesIfDue_/);
 assert.match(code, /function markRolloverChecked_/);
 
@@ -338,7 +486,38 @@ for (const name of ['requestBathroomPass', 'returnPass']) {
   assert.doesNotMatch(source, /expirePreviousDayPasses_\(\)/, `${name} must call the once-per-day rollover guard`);
 }
 assert.match(functionSource('expirePreviousDayPasses_'), /markRolloverChecked_\(todayKey\)/);
-assert.match(functionSource('getCheckInState_'), /readCheckInsIncludingPending_\(\)/, 'Streaks must include full persisted history plus the durable inbox');
+assert.match(functionSource('getCheckInState_'), /readCheckInsForDateIncludingPending_\(todayKey\)/, 'Student Check-In state must read only today\'s attendance rows');
+assert.match(functionSource('getCheckInState_'), /readCheckInSummaryMap_\(\)/, 'Student streak state must use the compact operational index');
+assert.doesNotMatch(functionSource('getCheckInState_'), /readCheckInsIncludingPending_\(\)/, 'Student state must not scan the full school-year check-in log');
+assert.doesNotMatch(functionSource('getTeacherState_'), /readCheckInsIncludingPending_\(\)/, 'Teacher polling must not scan the full school-year check-in log');
+assert.match(functionSource('getTeacherState_'), /ensureBackgroundTriggers_\(false\)/);
+assert.doesNotMatch(functionSource('getTeacherState_'), /ensureCheckInFlushTrigger_\(\)/, 'Teacher polling must not enumerate project triggers every refresh');
+const opportunisticFlush = functionSource('tryFlushPendingCheckIns_');
+assert.ok(
+  opportunisticFlush.indexOf('readPendingCheckIns_') < opportunisticFlush.indexOf('getScriptLock'),
+  'Empty teacher/student Check-In refreshes must return before acquiring the shared lock'
+);
+const minuteFlush = functionSource('flushPendingCheckIns');
+assert.match(minuteFlush, /hasPending/);
+assert.match(minuteFlush, /hasWaiting/);
+assert.ok(
+  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('withLock_'),
+  'Idle minute trigger must return before the shared lock'
+);
+assert.ok(
+  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('settleWaitingQueue_'),
+  'Idle minute trigger must return before queue settlement or full pass/schedule state'
+);
+assert.match(minuteFlush, /if\(readPassQueue_\(\)\.some[\s\S]*settleWaitingQueue_\(\)/,
+  'A non-idle WAITING queue must use the minute trigger as a settlement recovery path');
+assert.match(code, /function checkInOperationalIndexVersion_/);
+assert.match(functionSource('checkInOperationalIndexVersion_'), /getSchoolCalendarIndex_/);
+assert.match(functionSource('checkInOperationalIndexVersion_'), /getRoster_/);
+assert.match(functionSource('checkInOperationalIndexVersion_'), /computeDigest/);
+assert.match(functionSource('rebuildCheckInOperationalIndex_'), /activeKeys/);
+assert.match(functionSource('rebuildCheckInOperationalIndex_'), /!activeKeys\.has\(entry\.studentKey\)/);
+assert.match(functionSource('rebuildCheckInSummaryForStudent_'), /!getStudentByKey_\(key\)/);
+assert.match(functionSource('teacherRemoveStudentClass'), /deleteProperty\(checkInSummaryPropertyKey_\(student\.key\)\)/);
 
 const buildCheckInSheet = (rows) => {
   let readRows = 0;
@@ -468,8 +647,38 @@ assert.match(html, /sign-in problems\./);
 assert.match(html, /class rosters\./);
 assert.match(html, /data-remove-student/);
 assert.match(html, /teacherAddStudentClass/);
+assert.match(code, /GD_TEACHER_CONTRACT\s*=\s*'2026-09-22-all-teacher-rpcs'/);
+const serverTeacherContract = code.match(/const GD_TEACHER_CONTRACT\s*=\s*'([^']+)'/);
+const browserTeacherContract = html.match(/const TEACHER_CONTRACT\s*=\s*'([^']+)'/);
+const releaseTeacherContract = releaseHtml.match(/releaseRunSyntheticSmoke\('([^']+)'\)/);
+assert.ok(serverTeacherContract && browserTeacherContract && releaseTeacherContract,
+  'Teacher contract literals must exist in server, browser, and private release check');
+assert.equal(browserTeacherContract[1], serverTeacherContract[1],
+  'Teacher browser contract must exactly match the server contract');
+assert.equal(releaseTeacherContract[1], serverTeacherContract[1],
+  'Private release check must exactly match the server contract');
+[
+  'teacherApplyUnmatchedEmail','teacherDismissUnmatched','teacherClearUnmatchedSignIns',
+  'teacherSetPassRules','teacherResetStudentPassCounters','teacherAddStudentClass',
+  'teacherSetPixelCampOpen',
+  'teacherRemoveStudentClass','teacherRemoveFromQueue','teacherVoidPass',
+  'teacherMarkStudentAbsent','teacherClearStudentAbsent','teacherPinEmailStatus',
+  'teacherGetCountablePasses','teacherSetStudentUnlimited','sendStudentPinEmails'
+].forEach((name) => assert.match(functionSource(name), /assertTeacherClient_\(clientContract\)/, `${name} must reject stale teacher clients`));
+assert.match(functionSource('previewStudentPinEmails'), /assertTeacherClient_\(clientContract\)/);
+assert.match(html, /name\.startsWith\('teacher'\)/);
+assert.match(html, /previewStudentPinEmails/);
+assert.match(html, /sendStudentPinEmails/);
 assert.match(html, /teacherRemoveStudentClass/);
 assert.match(html, /TEACHER_STALE_MS/);
+assert.match(html, /Live pass status could not refresh/);
+assert.match(html, /studentRefreshFailures/);
+assert.match(html, /stampTeacher\(\);[\s\S]{0,120}\}, 1000\)/);
+assert.doesNotMatch(html, /setInterval\(refreshStudent/);
+assert.doesNotMatch(html, /setInterval\(refreshTeacher/);
+assert.match(html, /jitteredDelay/);
+assert.match(html, /scheduleStudentPoll/);
+assert.match(html, /scheduleTeacherPoll/);
 assert.match(html, /teacher-stamp/);
 assert.match(html, /roster-student-email/);
 assert.match(html, /data-absent-student/);
@@ -477,7 +686,10 @@ assert.match(html, /data-clear-absence/);
 assert.match(html, /daily-pass-limit/);
 assert.match(html, /pass-cooldown-minutes/);
 assert.match(html, /playIfNewPassStarted/);
-assert.match(html, /authorizeStudentAction/);
+assert.match(html, /call\('authorizeAndActStudent', 'authorize'/);
+assert.match(html, /call\('authorizeAndActStudent', purpose === 'checkin' \? 'identify-checkin' : 'identify-pass'/);
+assert.match(functionSource('authorizeAndActStudent'), /authorizeStudentAction\(pin, requestedAction, studentKey, attemptNonce\)/);
+assert.match(functionSource('completeStudentPinAction_'), /GD_BUSY_LOCK_MESSAGE/);
 assert.match(html, /requestBathroomPass/);
 assert.match(html, /completeAuthorizedAction/);
 assert.match(html, /STUDENT_BUSY_RETRY_DELAYS_MS/);
@@ -491,6 +703,9 @@ assert.match(html, /hall-pass traffic was automatically recovered/);
 assert.match(html, /check-ins are recorded; workbook sync is catching up/);
 assert.match(functionSource('getTeacherState_'), /lockContention:\s*getLockContentionSummary_\(\)/);
 assert.match(functionSource('getTeacherState_'), /checkInInbox:\s*getPendingCheckInSummary_\(\)/);
+assert.match(functionSource('flushPendingCheckInsLocked_'), /clearConflictingAbsenceForCheckIn_/);
+assert.match(functionSource('clearConflictingAbsenceForCheckIn_'), /status === 'ABSENT'/);
+assert.match(functionSource('getTeacherState_'), /entry\.status === 'ABSENT' && !checkedKeys\.has\(entry\.studentKey\)/);
 assert.doesNotMatch(html, /call\('startPass'/);
 assert.doesNotMatch(html, /call\('joinPassQueue'/);
 assert.match(html, /advances automatically/);
@@ -500,7 +715,7 @@ assert.match(html, /show the passes counted/);
 assert.match(html, /timeZone:\s*'America\/Detroit'/);
 assert.match(passPage, /fresh PIN/i);
 assert.match(passPage, /no second PIN/i);
-assert.match(checkInPage, /fresh six-digit PIN/i);
+assert.match(checkInPage, /fresh 5- or 6-digit PIN/i);
 assert.match(checkInPage, /official no-school days/i);
 assert.match(toolsPage, /automatic line/i);
 
@@ -588,6 +803,7 @@ vm.runInContext(`${code}
 proofContext.encodeTokenPart_ = (value) => Buffer.from(String(value), 'utf8').toString('base64url');
 proofContext.decodeTokenPart_ = (value) => Buffer.from(String(value), 'base64url').toString('utf8');
 proofContext.signTokenPart_ = (value) => `signature-${value}`;
+proofContext.credentialVersionForEmail_ = () => 'credential-test-v1';
 proofContext.getStudentByKey_ = (key) => (key === 'student::period-1' ? {
   key,
   email: 'student@students.mtmorrisschools.org',
@@ -759,6 +975,8 @@ behaviorContext.readPassLog_ = () => ([
   { row: 2, passId: 'old-pass', status: 'OUT', outDate: priorDay, studentEmail: 'old@students.mtmorrisschools.org' },
   { row: 3, passId: 'today-pass', status: 'OUT', outDate: snapshotNow, studentEmail: 'today@students.mtmorrisschools.org' },
 ]);
+// Student snapshots read the recent tail of the same log.
+behaviorContext.readRecentPassLog_ = () => behaviorContext.readPassLog_();
 behaviorContext.readWaitingQueue_ = () => ({ live: [], expired: [] });
 // This isolated structural harness intentionally has no workbook services.
 // Stub the room period so the snapshot test stays focused on prior-day rollover.
@@ -898,6 +1116,7 @@ const message = behaviorContext.__gdBehavior.buildPinEmailMessage_(
   },
   {
     CHECKIN_URL: 'https://grant-desk.com/check-in/',
+    PASS_URL: 'https://grant-desk.com/pass/',
     PIN_EMAIL_SUBJECT: 'Your private GrantDesk PIN',
   },
   'teacher@mtmorrisschools.org'
@@ -907,6 +1126,8 @@ assert.match(message.body, /123456/);
 assert.doesNotMatch(message.body, /654321/);
 assert.match(message.body, /one PIN works in all your classes/i);
 assert.match(message.body, /Keep this PIN private/);
+assert.match(message.body, /Daily Check-in: https:\/\/grant-desk\.com\/check-in\//);
+assert.match(message.body, /Hall Pass: https:\/\/grant-desk\.com\/pass\//);
 assert.match(message.body, /^Hello Jordan,/);
 
 behaviorContext.getStudentPassAccess_ = () => 'STANDARD';
@@ -998,8 +1219,11 @@ const attendanceEntries = [{
 behaviorContext.readCheckIns_ = () => attendanceEntries;
 behaviorContext.readCheckInsForDate_ = (dateKey) => attendanceEntries.filter((entry) => entry.dateKey === dateKey);
 behaviorContext.getSettings_ = () => ({ CHECKIN_POINT_VALUE: '1' });
+behaviorContext.ensureRowCapacity_ = () => 5000;
+behaviorContext.updateCheckInOperationalIndex_ = () => {};
 behaviorContext.getSpreadsheet_ = () => ({
   getSheetByName: () => ({
+    getLastRow: () => attendanceEntries.length + 1,
     appendRow(row) {
       attendanceEntries.push({
         row: attendanceEntries.length + 2,
@@ -1116,7 +1340,7 @@ assert.equal(discoveredRepairs[0].oldEmail, 'stale@students.mtmorrisschools.org'
 assert.equal(discoveredRepairs[0].newEmail, 'current@students.mtmorrisschools.org');
 
 const priorRepairSummary = JSON.stringify({
-  schema: '2026-09-05-session-a',
+  schema: '2026-09-21-backend-b',
   reconciledStudents: 10,
   pinRows: 10,
   checkInRows: 18,
@@ -1229,6 +1453,8 @@ for (const required of [
   'CLEAR SIGN-IN PROBLEMS',
   'teacherMarkStudentAbsent',
   'teacherClearStudentAbsent',
+  'teacherResetStudentPin',
+  'pendingLateCheckIns',
   'getPinAttemptNonce',
   'teacher-pass-sound',
   'students not checked in',
@@ -1241,6 +1467,10 @@ const resetFunction = functionSource('teacherResetStudentPassCounters');
 assert.doesNotMatch(resetFunction, /Queue|closePass|deleteRow/, 'Reset must not alter the queue, active passes, or private history');
 assert.match(html, /Reset every student’s marking-period pass count to zero/);
 assert.match(html, /one student · one PIN/);
+assert.match(functionSource('clearPinCards'), /no longer deletes PIN recovery records/);
+assert.doesNotMatch(functionSource('clearPinCards'), /clearContent/);
+assert.match(html, /data-reset-pin-email/);
+assert.match(html, /unresolved across all days/);
 
 const checkInRecorder = functionSource('recordCheckIn_');
 assert.match(checkInRecorder, /absence\s*&&\s*method\s*!==\s*'teacher'/, 'A student check-in must not erase a teacher absence');

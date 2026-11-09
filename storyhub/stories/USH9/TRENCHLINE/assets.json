@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TRENCHLINE",
+  "assets": [
+    {
+      "id": "A01",
+      "type": "illustration",
+      "role": "Original schematic cover",
+      "sourceMode": "original-svg",
+      "subject": "Interpretive trench map",
+      "rightsStatus": "Original project SVG; no archival likeness claim.",
+      "provenance": "Preserved from the author contribution in PR259.",
+      "deployPath": "/storyhub/ush9/the-line-that-wouldnt-move/assets/cover.svg",
+      "status": "shipped",
+      "htmlSafeZone": "Text remains outside the image.",
+      "responsiveCrop": "Responsive image; caption retains place/date context."
+    },
+    {
+      "id": "A02",
+      "type": "photograph",
+      "role": "Trench routine evidence",
+      "sourceMode": "archive",
+      "subject": "Men resting near Contalmaison, September 1916",
+      "rightsStatus": "Public domain: expired UK Crown copyright; Wikimedia Commons rights record checked 2026-10-29.",
+      "provenance": "John Warwick Brooke, IWM Q4135. https://commons.wikimedia.org/wiki/File:The_Battle_of_the_Somme,_July-november_1916_Q4135.jpg",
+      "deployPath": "/storyhub/ush9/the-line-that-wouldnt-move/assets/trench-rest-q4135.jpg",
+      "status": "shipped",
+      "htmlSafeZone": "Text remains outside the image.",
+      "responsiveCrop": "Responsive image; caption retains place/date context."
+    },
+    {
+      "id": "A03",
+      "type": "photograph",
+      "role": "After-attack evidence",
+      "sourceMode": "archive",
+      "subject": "Two British soldiers in a wrecked German trench at Ginchy, September 1916",
+      "rightsStatus": "Public domain: expired UK Crown copyright; Wikimedia Commons rights record checked 2026-10-29.",
+      "provenance": "John Warwick Brooke, IWM Q4338. https://commons.wikimedia.org/wiki/File:British_soldiers_in_wrecked_German_trench_at_Ginchy_1916_IWM_Q_4338.jpg",
+      "deployPath": "/storyhub/ush9/the-line-that-wouldnt-move/assets/ginchy-q4338.jpg",
+      "status": "shipped",
+      "htmlSafeZone": "Text remains outside the image.",
+      "responsiveCrop": "Responsive image; caption retains place/date context."
+    }
+  ]
+}

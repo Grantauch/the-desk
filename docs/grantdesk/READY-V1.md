@@ -88,6 +88,4 @@ Ready does not calculate a score or percentage. The goal is an exception queue, 
 
 ## Next implementation step in GoClassroom
 
-Once the current GoClassroom v0.9.23 source is synced to its repository, add a read-only `ready-scan` helper that reuses the existing teacher browser profile and Classroom discovery utilities, emits Ready Snapshot v1, and exposes it through the GoClassroom UI.
-
-Do not build the scanner against the older v0.9.22 branch and then merge blindly. The current installed v0.9.23 patch is the implementation baseline.
+The viewer at `/ready/` accepts an existing snapshot or opens a labeled sample. The GoClassroom scanner remains a separate integration. Before implementing it, confirm the synchronized GoClassroom source matches the installed version, then reuse its teacher browser profile and Classroom discovery utilities to emit Ready Snapshot v1.

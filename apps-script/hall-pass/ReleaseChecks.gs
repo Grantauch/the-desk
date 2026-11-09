@@ -106,14 +106,56 @@ function releaseRunSyntheticSmoke(clientContract) {
   assertTeacherClient_(clientContract);
   const production = getSpreadsheet_();
   const before = releasePreservedState_(production);
+  const beforeCampSettings = JSON.stringify(releaseSheetValues_(production,GD_SHEETS.SETTINGS,3));
   const book = SpreadsheetApp.create('GrantDesk SYNTHETIC protected release smoke ' + new Date().toISOString());
   try {
     GD_SPREADSHEET = book; gdClearMemo_();
     setupWorkbook_();
-    const email = 'release.synthetic@' + getSettings_().STUDENT_EMAIL_DOMAIN;
+    const email = 'release.synthetic@' + (getSettings_().STUDENT_EMAIL_DOMAIN || 'example.invalid');
     const pin = String(Math.floor(100000 + Math.random() * 900000));
     const period = 'Period 1 — SYNTHETIC RELEASE CHECK';
     book.getSheetByName(GD_SHEETS.ROSTER).appendRow([email,'Synthetic, Release',period,hashPin_(pin),true,false,'STANDARD']);
+    gdClearMemo_();
+    const beforeVisit = releasePreservedState_(book);
+    const visit = identifyChecklingWithPin(pin, 'synthetic-companion-visit');
+    releaseAssert_(visit.checkling && visit.checkling.available && !visit.checkedIn && !visit.actionProof,
+      'companion visit must verify the PIN without an attendance proof');
+    saveCheckling(visit.pinToken,'bolt','Synthetic camp');
+    const camp = getPixelCamp(visit.pinToken);
+    camp.camp.pets.bolt.discoveries = [0];
+    const savedCamp = savePixelCamp(visit.pinToken,camp.revision,'a'.repeat(32),camp.camp);
+    releaseAssert_(savedCamp.revision === camp.revision + 1 && getPixelCamp(visit.pinToken).camp.pets.bolt.discoveries.length === 1,
+      'school camp save/reload failed');
+    releaseAssert_(savePixelCamp(visit.pinToken,camp.revision,'a'.repeat(32),camp.camp).revision === savedCamp.revision,
+      'school camp retry was not idempotent');
+    // Pixel Camp 5 saves version 2: ladder badges, curios and the day's forage record must survive a reload.
+    const five = getPixelCamp(visit.pinToken);
+    releaseAssert_(Array.isArray(five.formats) && five.formats.indexOf(2) >= 0, 'school camp does not offer version 2');
+    const v2 = JSON.parse(JSON.stringify(five.camp));
+    v2.version = 2; v2.pets.bolt.battles = 2; v2.curios = ['frog']; v2.forage = {day:'2026-10-28',taken:[1]};
+    const savedFive = savePixelCamp(visit.pinToken,five.revision,'b'.repeat(32),v2);
+    const reloaded = getPixelCamp(visit.pinToken).camp;
+    releaseAssert_(savedFive.revision === five.revision + 1 && reloaded.version === 2 && reloaded.pets.bolt.battles === 2 &&
+      reloaded.curios.join() === 'frog' && reloaded.forage.taken.join() === '1', 'school camp version 2 save/reload failed');
+    // Journeys/workshop round-trip only within the isolated synthetic membership.
+    const six = getPixelCamp(visit.pinToken), v3 = JSON.parse(JSON.stringify(six.camp));
+    releaseAssert_(six.formats.indexOf(3) >= 0, 'school camp does not offer version 3');
+    v3.version=3;v3.journeys={mochi:0,bolt:3,zee:0,ember:0};v3.materials={wood:6,stone:3,fiber:0};v3.crafted=['toolkit','waterclock'];v3.equippedCraft='waterclock';
+    const savedSix=savePixelCamp(visit.pinToken,six.revision,'c'.repeat(32),v3), roundTrip=getPixelCamp(visit.pinToken).camp;
+    releaseAssert_(savedSix.revision===six.revision+1 && roundTrip.version===3 && roundTrip.journeys.bolt===3 && roundTrip.materials.wood===6 && roundTrip.crafted.join()==='toolkit,waterclock' && roundTrip.equippedCraft==='waterclock','school camp journey/workshop save/reload failed');
+    // The control belongs to this isolated workbook, never a global script property.
+    try {
+      releaseAssert_(!teacherSetPixelCampOpen(false,GD_TEACHER_CONTRACT).open,'camp pause failed');
+      releaseAssert_(!getPixelCampAccess(visit.pinToken).open,'paused camp access was not advertised');
+      let openBlocked=false,saveBlocked=false;
+      try { getPixelCamp(visit.pinToken); } catch(error) { openBlocked=/teacher has paused/.test(error.message); }
+      try { savePixelCamp(visit.pinToken,savedSix.revision,'d'.repeat(32),v3); } catch(error) { saveBlocked=/teacher has paused/.test(error.message); }
+      releaseAssert_(openBlocked && saveBlocked,'paused camp accepted a new open or write');
+      releaseAssert_(savePixelCamp(visit.pinToken,six.revision,'c'.repeat(32),v3).revision===savedSix.revision,'pause broke a committed save retry');
+    } finally { teacherSetPixelCampOpen(true,GD_TEACHER_CONTRACT); }
+    releaseAssert_(getPixelCamp(visit.pinToken).revision===savedSix.revision,'pause changed saved camp');
+    PropertiesService.getScriptProperties().deleteProperty(GD_CHECKLING_PREFIX + visit.student.key);
+    releaseAssertPreserved_(beforeVisit, book);
     const now = new Date();
     const clock = Utilities.formatDate(now, Session.getScriptTimeZone(), 'HH:mm').split(':').map(Number);
     const minute = clock[0]*60+clock[1];
@@ -123,20 +165,21 @@ function releaseRunSyntheticSmoke(clientContract) {
     book.getSheetByName(GD_SHEETS.CALENDAR).appendRow([dateKey_(now),true,'Synthetic smoke only','test','test','SYNTHETIC']);
     gdClearMemo_();
     const student = getStudentsByEmail_(email)[0];
-    const proof = authorizeStudentAction(pin,'AUTO_PASS',student.key,'synthetic-release');
-    const started = requestBathroomPass(proof.actionProof, student.key, proof.pinToken);
-    releaseAssert_(started.actionOutcome.kind === 'STARTED','fresh PIN did not start pass');
+    // The same one-trip entry point the student page calls.
+    const started = authorizeAndActStudent('authorize',pin,'AUTO_PASS',student.key,'synthetic-release');
+    releaseAssert_(started.completedAction === 'PASS_REQUEST' && started.actionOutcome.kind === 'STARTED','fresh PIN did not start pass');
     Utilities.sleep(3100);
-    const returnProof = authorizeStudentAction(pin,'AUTO_PASS',student.key,'synthetic-return');
-    const returned = returnPass(returnProof.actionProof,student.key,returnProof.pinToken);
-    releaseAssert_(returned.actionOutcome.kind === 'RETURNED_COUNTABLE','fresh PIN did not return countable pass');
+    gdClearMemo_();
+    const returned = authorizeAndActStudent('authorize',pin,'AUTO_PASS',student.key,'synthetic-return');
+    releaseAssert_(returned.completedAction === 'RETURN' && returned.actionOutcome.kind === 'RETURNED_COUNTABLE','fresh PIN did not return countable pass');
     const evidence = teacherGetMembershipPasses(student.key,GD_TEACHER_CONTRACT);
     releaseAssert_(evidence.used === 1 && evidence.passes.length === 1,'membership evidence disagrees');
-    teacherVoidPass(evidence.passes[0].passId,'Synthetic release check completed');
+    teacherVoidPass(evidence.passes[0].passId,'Synthetic release check completed',GD_TEACHER_CONTRACT);
     book.getSheetByName(GD_SHEETS.ROSTER).getRange(student.row,5).setValue(false);
     releaseAssertPreserved_(before,production);
+    releaseAssert_(beforeCampSettings===JSON.stringify(releaseSheetValues_(production,GD_SHEETS.SETTINGS,3)),'production camp/settings changed during synthetic smoke');
     const result = { ok: true, schema: GD_SCHEMA_VERSION, clientContract: GD_TEACHER_CONTRACT,
-      syntheticOnly: true, request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
+      syntheticOnly: true, pixelCampAccess: 'PAUSE_RESUME_COMMITTED_RETRY', pixelCamp: 'PIN_SCOPED_SAVE_RELOAD_NO_ATTENDANCE', companionVisit: 'PIN_VERIFIED_NO_ATTENDANCE', request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
       testPassVoided: true, testMembershipDeactivated: true, productionFactsUnchanged: true, workbookUrl: book.getUrl() };
     console.log(JSON.stringify(result)); return result;
   } finally { GD_SPREADSHEET = production; gdClearMemo_(); }

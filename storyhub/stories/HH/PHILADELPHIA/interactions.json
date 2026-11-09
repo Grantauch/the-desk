@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-PHILADELPHIA",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "detector",
+      "teaches": "A change in magnetic signature is not a disappearing ship.",
+      "studentAction": "Conceptual detector comparison. It distinguishes types of observation without estimating mine risk or real equipment performance.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Choose a detector to distinguish reducing a magnetic signature from hiding a ship from sight or radar.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HOLE2",
+  "title": "They Couldn't Stop",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "descent",
+      "uncanny",
+      "careful"
+    ],
+    "paletteIntent": "Void black and bone, with red shoe red as the single accent, and each level adding its own era color: parchment, newsprint, mold green, phone violet, classified paper.",
+    "typographyIntent": "Type descends through time: blackletter for 1518, Playfair for 1944 newsprint, Special Elite for 1962, Inter for 2021, Space Mono for the open case.",
+    "textureLanguage": [
+      "parchment",
+      "newsprint",
+      "lab dish",
+      "redaction bars"
+    ],
+    "shapeLanguage": "Concentric falling rings, playing card trap cards, a red shoe.",
+    "motionGrammar": [
+      "sinking rings in the hero",
+      "accumulation in the crowd and the dish",
+      "reveal of redactions"
+    ],
+    "interactionSignature": [
+      "run the 1518 cure",
+      "read the Mattoon front pages",
+      "start the Tanganyika outbreak",
+      "open the Havana files"
+    ],
+    "densityRhythm": "Five levels, each with one interaction and one trap card, then four written answers.",
+    "archivalBehavior": "Public domain engravings by Hondius and Tenniel, Tenniel inverted to pale ink to match the Mind Games look with new figures. Real 1944 headlines. AP recording embedded.",
+    "endingLanguage": "Climb out with written answers and Turn In."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Red shoes given to dancers at the Saint Vitus shrine and Tenniel ink on black.",
+    "edgeTreatment": "Paper plates with deep shadows; trap cards with offset red.",
+    "controlLanguage": "Ledger buttons, clue cards, newspaper dates, lab knobs, redaction bars.",
+    "spacingLanguage": "Long dark gaps between levels to feel the fall.",
+    "transitionLanguage": "Rings sink and dots spread; all motion stops under reduced motion."
+  }
+}

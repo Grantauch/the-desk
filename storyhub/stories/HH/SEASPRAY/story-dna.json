@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-SEASPRAY",
+  "title": "the fog was a field test",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "coastal calm turning into a consent problem"
+    ],
+    "paletteIntent": "fog white, dark teal and signal coral",
+    "typographyIntent": "Large editorial serif headlines, readable system sans narrative, monospace records",
+    "textureLanguage": [
+      "San Francisco coastline and a distant test ship; visible fog is atmosphere, not a depiction of visible bacteria."
+    ],
+    "shapeLanguage": "Scene-specific evidence surfaces, with open narrative space between them",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Separate exposure, infection, causation and legal immunity; inspect what the appellate judgment actually decided."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "An authorized experiment can still raise a serious ethical question."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "fog white, dark teal and signal coral",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Separate exposure, infection, causation and legal immunity; inspect what the appellate judgment actually decided.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

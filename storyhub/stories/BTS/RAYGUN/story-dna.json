@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-RAYGUN",
+  "title": "Zero Points in Paris",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "bright",
+      "fair minded",
+      "a little absurd"
+    ],
+    "paletteIntent": "Paris 2024 breaking stage violet, judge box red and blue, Australian green and gold for Raygun.",
+    "typographyIntent": "Unbounded for headlines in the rounded geometric spirit of the Paris 2024 look, Figtree for reading, JetBrains Mono for scores and dates.",
+    "textureLanguage": [
+      "judge vote squares",
+      "bracket rows"
+    ],
+    "shapeLanguage": "Rounded pills and squares like the Concorde scoreboard.",
+    "motionGrammar": [
+      "vote squares fill in one round at a time",
+      "no motion with reduced motion settings"
+    ],
+    "interactionSignature": [
+      "reveal every judge's vote round by round",
+      "flip petition claims against the record"
+    ],
+    "densityRhythm": "Short sections alternating story and evidence, video at each turn of the story.",
+    "archivalBehavior": "Real footage arrives through embedded YouTube players. Committed images are openly licensed only, because no openly licensed photo of Raygun exists.",
+    "endingLanguage": "Her own fear from the 2026 documentary: the whole world could laugh at her."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The violet stage and red and blue round boxes of the Paris 2024 breaking broadcast.",
+    "edgeTreatment": "Fully rounded buttons, softly rounded cards.",
+    "controlLanguage": "Controls are scoreboard reveals and claim cards that flip to the record.",
+    "spacingLanguage": "Wide sections, tight vote grids.",
+    "transitionLanguage": "Squares fill on press. No scroll animation."
+  }
+}

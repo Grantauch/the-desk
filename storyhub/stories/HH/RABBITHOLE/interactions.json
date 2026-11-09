@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-RABBITHOLE",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "ch-cases",
+      "type": "flip-verdict-cards",
+      "teaches": "Plausibility is not evidence",
+      "studentAction": "Chooses real or invented for five cards and locks",
+      "feedback": "Cards turn over to archival evidence with a record line and score",
+      "staticFallback": "Record text is in the page and the noscript note names the invented card",
+      "identityFit": "Playing cards and Tenniel ink on black",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "ch-bias",
+      "type": "bias-match",
+      "teaches": "Name the shortcut each con used",
+      "studentAction": "Matches four selects and checks",
+      "feedback": "Outlines and a count, then explanations",
+      "staticFallback": "Explanations button shows all four",
+      "identityFit": "Playing cards and Tenniel ink on black",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "ch-triad",
+      "type": "venn-select",
+      "teaches": "Three traits overlap but differ",
+      "studentAction": "Taps or keys a circle",
+      "feedback": "Trait summary with a link to its guide",
+      "staticFallback": "Guide sections carry all content",
+      "identityFit": "Playing cards and Tenniel ink on black",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "ch-exit",
+      "type": "written-response",
+      "teaches": "Apply the lesson in writing",
+      "studentAction": "Writes three answers",
+      "feedback": "Shared save and Turn In",
+      "staticFallback": "Plain text areas",
+      "identityFit": "Playing cards and Tenniel ink on black",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "ch-evidence",
+      "type": "settler-toll",
+      "teaches": "The human cost behind the brochure",
+      "studentAction": "Switches promise, sailed and toll views",
+      "feedback": "250 dots recolor with a reading line",
+      "staticFallback": "Reading line states every number",
+      "identityFit": "Playing cards and Tenniel ink on black",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "ch-triad",
+      "type": "namesake-plates",
+      "teaches": "Where each trait name comes from",
+      "studentAction": "Reads plates beside each guide",
+      "feedback": "Static",
+      "staticFallback": "Static",
+      "identityFit": "Playing cards and Tenniel ink on black",
+      "status": "implemented"
+    },
+    {
+      "id": "I07",
+      "chapterId": "ch-goldwater",
+      "type": "survey-funnel",
+      "teaches": "A big number can hide a weak method",
+      "studentAction": "Reads the funnel and reveals how many examined him",
+      "feedback": "The zero appears with the libel outcome",
+      "staticFallback": "Funnel and counts are text",
+      "identityFit": "Playing cards and Tenniel ink on black",
+      "status": "implemented"
+    }
+  ]
+}

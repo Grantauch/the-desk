@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-SEASPRAY",
+  "course": "HH",
+  "lessonCode": "SEASPRAY",
+  "title": "the fog was a field test",
+  "audience": "students",
+  "narrativeQuestion": "The military secretly released bacteria near San Francisco. What can we prove about the consequences?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "A test the city did not choose",
+      "claim": "In September 1950, the U.S. military released bacteria from a vessel off the San Francisco coast to investigate vulnerability to biological attack. The test became known as Operation Sea-Spray. Residents did not receive a chance to opt in. This is a documented secret operation, not merely a rumor about ordinary fog. The fog in our illustration is atmosphere; it does not show visible bacteria or the exact test conditions. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "Why use a living tracer?",
+      "claim": "The military used Serratia marcescens, then treated by planners as suitable for a simulation, to trace dispersal. Monitoring could show whether material released offshore reached populated areas. A tracer is something used to follow a pathway. Here the pathway was air movement. A successful dispersal measurement answers “where did it travel?” It does not, by itself, answer whether every exposed person became ill. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "Then came an illness claim",
+      "claim": "A hospital outbreak followed, and Edward Nevin died after an infection. His family later argued that the military release caused his death. Timing and a shared bacterial species made the question serious, but they did not automatically identify the source of a particular infection. Our evidence ladder separates a release, possible exposure, infection and an established causal link. Each step requires additional evidence. Do not treat the death as a proven consequence of the test. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "The appellate court’s actual question",
+      "claim": "In 1983 the Ninth Circuit majority directed dismissal for lack of subject-matter jurisdiction, applying a legal exception protecting discretionary government policy decisions. Put simply, it held that this suit could not proceed under that legal route. That is different from a scientific demonstration that the test was harmless. The dissent disagreed about the immunity issue but would have accepted the trial court’s finding that the Army bacteria did not cause Nevin’s death. Read those positions separately. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "Ask an ethical question that the evidence can carry",
+      "claim": "You do not have to prove a particular death to ask whether people should have been exposed without consent. You also do not get to settle a causal question simply because the secrecy was troubling. Historical judgment can recognize a documented breach of public trust while keeping uncertainty about a specific outcome. The evidence exercise makes you identify which question an item can answer before you use it as proof.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "Do not turn one case into every cloud",
+      "claim": "Sea-Spray establishes a specific operation at a specific place and time. Other military dispersion tests used other materials and have their own records; their findings cannot be pasted into this one. Evidence for a real past release does not establish a claim about any unexplained present-day cloud. A strong historical claim names the event, names the source and stops where the evidence stops. [S2, S3]",
+      "namedPeople": [
+        {
+          "name": "Edward Nevin",
+          "role": "Private person introduced for the causal claim; no unverified likeness is substituted.",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "The secret release is documented. A particular death requires separate causal evidence.",
+    "A real secret does not remove the need to prove causation.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-sea-spray.html"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "power": {
+    "source": "National Archives",
+    "date": "1970",
+    "question": "What did Elvis want from the president?",
+    "clue": "Start with the handshake. What can a posed photograph tell you about access to power?",
+    "context": "Elvis Presley brought a handwritten letter to the White House asking to help with federal drug enforcement. The photograph establishes that he met President Nixon. What evidence would establish whether he got what he wanted?",
+    "image": "/images/curiosity/nixon-elvis.webp",
+    "alt": "Elvis Presley and President Richard Nixon shake hands in the Oval Office.",
+    "record": "https://www.archives.gov/presidential-libraries/events/centennials/nixon/photo-gallery/nixon-wh-years.html",
+    "credit": "Ollie Atkins / Nixon Presidential Library / National Archives 1634221"
+  },
+  "entertainment": {
+    "source": "Library of Congress",
+    "date": "1919",
+    "question": "Why would film stars start a company of their own?",
+    "clue": "The central object is a piece of paper. What does that tell you about the occasion?",
+    "context": "The photograph records the agreement that created United Artists. Mary Pickford, Charlie Chaplin, Douglas Fairbanks, and D.W. Griffith set up a company to distribute their films. Look at the scene again and consider who usually controlled whether a film reached an audience.",
+    "image": "/images/curiosity/united-artists.webp",
+    "alt": "Charlie Chaplin sits at a desk with papers while Mary Pickford, Douglas Fairbanks, and others stand around him.",
+    "record": "https://www.loc.gov/pictures/item/2007678308/",
+    "credit": "Library of Congress / LC-USZ62-137195 / no known restrictions on publication"
+  },
+  "sports": {
+    "source": "Library of Congress",
+    "date": "1951",
+    "question": "What kind of hero did a comic book make out of Jackie Robinson?",
+    "clue": "Study the cover lettering and the way Robinson is posed. Who was this cover meant to reach?",
+    "context": "Fawcett Publications put Robinson at the center of this comic book four years after his Brooklyn Dodgers debut. The cover is evidence of how publishers presented him to readers. What would you look for to find out how readers responded?",
+    "image": "/images/curiosity/jackie-robinson.webp",
+    "alt": "A color comic book cover featuring Jackie Robinson in a Brooklyn Dodgers cap.",
+    "record": "https://www.loc.gov/pictures/item/97519504/",
+    "credit": "Fawcett Publications / Library of Congress / copyright not renewed"
+  },
+  "mysteries": {
+    "source": "Smithsonian National Air and Space Museum",
+    "date": "1932 flights",
+    "question": "What can Earhart’s airplane establish about her story?",
+    "clue": "Identify the plane before you think about the disappearance. Are you looking at the same aircraft?",
+    "context": "Earhart flew this Lockheed Vega solo across the Atlantic and nonstop across the United States in 1932. It is a surviving artifact from those flights. She flew a different aircraft on the 1937 trip during which she disappeared.",
+    "image": "/images/curiosity/earhart-vega.webp",
+    "alt": "Amelia Earhart’s red Lockheed Vega aircraft in a museum gallery.",
+    "record": "https://www.si.edu/object/lockheed-vega-5b-amelia-earhart%3Anasm_A19670093000",
+    "credit": "Smithsonian National Air and Space Museum / A19670093000 / CC0"
+  },
+  "michigan": {
+    "source": "Library of Congress",
+    "date": "1889",
+    "question": "What did the artist want people to notice about Detroit?",
+    "clue": "Find the river and the blocks of buildings. What does the bird’s-eye view make easy to see?",
+    "context": "The print shows central Detroit from an imagined viewpoint. That perspective lets the artist show streets, buildings, and the waterfront together. Compare what fills the foreground with what disappears into the distance.",
+    "image": "/images/curiosity/detroit.webp",
+    "alt": "Bird’s-eye illustration of central Detroit with dense blocks of buildings beside the river.",
+    "record": "https://www.loc.gov/item/76693077/",
+    "credit": "Calvert Lithographing Co. / Library of Congress Geography and Map Division / 76693077"
+  }
+}

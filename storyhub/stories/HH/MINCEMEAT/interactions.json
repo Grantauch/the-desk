@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MINCEMEAT",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "pockets",
+      "teaches": "Authentic-looking identity details can carry false information.",
+      "studentAction": "Simplified evidence exercise using types of planted material. The item descriptions below are explanatory paraphrases, not facsimile transcriptions.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Choose pocket evidence to build a believable identity; distinguish evidence of deception from a claim that it alone won Sicily.",
+      "status": "implemented"
+    }
+  ]
+}

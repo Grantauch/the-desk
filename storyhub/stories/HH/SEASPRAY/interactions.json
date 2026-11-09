@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-SEASPRAY",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "ladder",
+      "teaches": "A real secret does not remove the need to prove causation.",
+      "studentAction": "Four different claims. Select each rung and ask what extra information the next one would require. This is a reasoning tool, not a medical-risk model.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Separate exposure, infection, causation and legal immunity; inspect what the appellate judgment actually decided.",
+      "status": "implemented"
+    }
+  ]
+}

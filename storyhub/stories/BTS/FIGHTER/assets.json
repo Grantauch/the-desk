@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FIGHTER",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Film opening and scene-analysis visual",
+      "sourceMode": "film-publicity-still",
+      "subject": "Mark Wahlberg as Micky and Christian Bale as Dicky in the corner",
+      "sourceUrl": "https://www.sfgate.com/entertainment/article/christian-bale-hits-highs-lows-in-the-fighter-2453576.php",
+      "rightsStatus": "copyrighted-film-still-classroom-commentary",
+      "provenance": "Paramount Pictures publicity still, reproduced at reduced resolution for film criticism and classroom analysis at the user's request. Cropped and WebP compressed. Not a historical photograph or an endorsement.",
+      "htmlSafeZone": "Text outside image; film hero uses an adjacent dark column.",
+      "responsiveCrop": "Keep faces visible; image stacks above copy on phone.",
+      "deployPath": "/storyhub/bts/the-fighter/assets/film-corner.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Lowell industrial setting",
+      "sourceMode": "archival-source-photo",
+      "subject": "Preserved Boott Cotton Mills exterior, modern photograph",
+      "sourceUrl": "https://www.nps.gov/lowe/index.htm",
+      "rightsStatus": "public-domain-us-government",
+      "provenance": "NPS photograph, official Lowell park homepage. Contemporary preserved mills, capture date not given. Resized and WebP compressed.",
+      "htmlSafeZone": "Text outside image; film hero uses an adjacent dark column.",
+      "responsiveCrop": "Keep faces visible; image stacks above copy on phone.",
+      "deployPath": "/storyhub/bts/the-fighter/assets/lowell-mills.webp"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Micky Ward identity anchor",
+      "sourceMode": "licensed-photo",
+      "subject": "Micky Ward in 2011",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Micky_Ward.jpg",
+      "rightsStatus": "CC-BY-2.0",
+      "provenance": "Peter Gordon, March 12, 2011. https://creativecommons.org/licenses/by/2.0/ . Resized, displayed with crop, WebP compressed.",
+      "htmlSafeZone": "Text outside image; film hero uses an adjacent dark column.",
+      "responsiveCrop": "Keep faces visible; image stacks above copy on phone.",
+      "deployPath": "/storyhub/bts/the-fighter/assets/micky.webp"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Dicky Eklund identity anchor",
+      "sourceMode": "licensed-photo",
+      "subject": "Dicky Eklund in 2010",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dicky_Eklund.jpg",
+      "rightsStatus": "CC-BY-2.0",
+      "provenance": "John Wallace, November 19, 2010. https://creativecommons.org/licenses/by/2.0/ . Resized, displayed with crop, WebP compressed.",
+      "htmlSafeZone": "Text outside image; film hero uses an adjacent dark column.",
+      "responsiveCrop": "Keep faces visible; image stacks above copy on phone.",
+      "deployPath": "/storyhub/bts/the-fighter/assets/dicky.webp"
+    }
+  ]
+}

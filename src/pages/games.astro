@@ -10,7 +10,7 @@ interface Hub {
   name: string;
   course: string;
   kind: string;
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab';
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street' | 'press' | 'cartoon';
   previewEyebrow: string;
   href: string;
   blurb: string;
@@ -19,6 +19,164 @@ interface Hub {
 }
 
 const hubs: Hub[] = [
+  {
+    name: 'checklings · pixel camp',
+    course: 'just for fun',
+    kind: 'your school companion',
+    theme: 'lab',
+    previewEyebrow: 'your PIN · your friend · your camp',
+    featured: true,
+    href: '/checklings/',
+    blurb: 'Bring your original Checkling to camp. Care, discoveries, practice and a field journal, saved privately with your school PIN and class. Your official school streak and earned homes come with you.',
+  },
+  {
+    name: 'pond',
+    course: 'just for fun',
+    kind: 'falling-sand sandbox',
+    theme: 'lab',
+    previewEyebrow: 'sand · water · fire · life',
+    href: '/hubs/pond/',
+    blurb: 'Paint a tiny world, grow a garden, freeze a lake, or see what happens when lava meets water. Twenty materials and tools, starter scenes, undo, and worlds you can save. No score. Make a mess.',
+  },
+  {
+    name: 'dry county',
+    course: 'just for fun',
+    kind: 'prohibition crime prototype',
+    theme: 'street',
+    previewEyebrow: 'mt. morris · build 0.3',
+    featured: true,
+    href: '/hubs/dry-county/',
+    blurb: 'A top down bootlegging game on a map traced from Mt. Morris. Run liquor, hijack rival trucks and outrun police roadblocks and federal dry agents. Hit the ramps, race the hot runs, and hunt sixteen hidden moonshine jugs with real Prohibition history inside. Fictional people and events.',
+  },
+  {
+    name: 'over there',
+    course: 'u.s. history 9',
+    kind: 'map hub',
+    theme: 'press',
+    previewEyebrow: '1914 to 1920 · the great war',
+    featured: true,
+    href: '/hubs/ush9-over-there.html',
+    blurb:
+      'Follow World War I across a 3D globe from Sarajevo to Versailles. Watch the alliances pull Europe into war, decode the Zimmermann Telegram, move the Western Front, explore a trench, guess the sentences in the Espionage Act case files, and decide whether the Senate should have signed the treaty.',
+  },
+  {
+    name: 'over the somme',
+    course: 'u.s. history 9',
+    kind: '3d flyover',
+    theme: 'press',
+    previewEyebrow: '7:28 a.m. · 1 july 1916',
+    featured: true,
+    href: '/hubs/ush9-over-the-somme.html',
+    blurb:
+      'Watch zero hour on 1 July 1916 from Cecil Lewis\'s seat above La Boisselle as the Lochnagar mine goes up and the first waves walk into no man\'s land. Then take the controls of his Morane Parasol, fly the field from Albert to Thiepval ridge and log all twenty sites in your field notebook.',
+  },
+  {
+    name: 'the arsenal',
+    course: 'u.s. history 9',
+    kind: '3d weapons gallery',
+    theme: 'press',
+    previewEyebrow: 'ten weapons · 1914 to 1918',
+    href: '/hubs/ush9-the-arsenal.html',
+    blurb:
+      'Walk a 3D museum hall of the weapons that froze the Western Front, from the machine gun to the U-boat. Fire a Vickers for one minute, sort 100 wounded soldiers, watch 49 tanks try to reach the start line, and answer a curator\'s question at every exhibit.',
+  },
+  {
+    name: 'the line',
+    course: 'u.s. history 9',
+    kind: 'map hub',
+    theme: 'press',
+    previewEyebrow: 'the western front · 1914 to 1918',
+    href: '/hubs/ush9-the-line.html',
+    blurb:
+      'Scroll a war room map as the Western Front forms, freezes and finally breaks. Walk the first morning of the Somme minute by minute, drag four years of front lines, and work out what each mile cost.',
+  },
+  {
+    name: 'over the top',
+    course: 'u.s. history 9',
+    kind: '3d trench walk',
+    theme: 'press',
+    previewEyebrow: 'the american fight · 1918',
+    href: '/hubs/ush9-over-the-top.html',
+    blurb:
+      'Walk a front line trench through seven American stories, from the Harlem Hellfighters to the Lost Battalion and Sergeant York. Look through a periscope at no man\'s land, then climb the ladder to 11 a.m. on November 11, 1918.',
+  },
+  {
+    name: 'a splendid little war?',
+    course: 'u.s. history 9',
+    kind: 'map hub',
+    theme: 'press',
+    previewEyebrow: '1898 · spin the globe',
+    featured: true,
+    href: '/hubs/ush9-splendid-little-war.html',
+    blurb:
+      'Follow the Spanish-American War across a 3D globe from Havana to Manila. Build a yellow journalism front page, investigate the Maine explosion, sit in McKinley\'s chair, ride with the Rough Riders, flip one Senate vote, and decide who the war was splendid for.',
+  },
+  {
+    name: 'stop the presses',
+    course: 'u.s. history 9',
+    kind: 'live class game',
+    theme: 'press',
+    previewEyebrow: 'progressive era · everyone plays',
+    featured: true,
+    href: '/hubs/ush9-stop-the-presses.html',
+    blurb:
+      'Every student runs a newspaper in the Progressive Era. The story hits the big screen, editors file from their Chromebooks, and every paper bets on how big to print it. Reforms pass when the room knows them. Solo mode and the Morgue are there for test prep.',
+  },
+  {
+    name: 'the square deal',
+    course: 'u.s. history 9',
+    kind: 'card duel',
+    theme: 'cartoon',
+    previewEyebrow: '1900 to 1918 · reformers vs. the machine',
+    featured: true,
+    href: '/hubs/ush9-square-deal.html',
+    blurb:
+      'A card game of exposés, laws, bosses and court cases. Build outrage, pass laws the Machine cannot undo, or play the bosses and keep the reformers quiet. Against the computer or head to head on one Chromebook. Every card is real history.',
+  },
+  {
+    name: 'progressive era jeopardy',
+    course: 'u.s. history 9',
+    kind: 'classroom review',
+    theme: 'jeopardy',
+    previewEyebrow: 'v3 · buzzers · phone remote',
+    featured: true,
+    href: '/hubs/ush9-progressive-era-jeopardy-v3.html',
+    blurb:
+      'Muckrakers, workers, civil rights, suffrage and presidents. Teams buzz in from Chromebooks at grant-desk.com/buzz, lock Pick a Number guesses and write Final Jeopardy answers, while your phone runs the board with the answer key. Works offline on one screen too, and every clue is editable.',
+  },
+  {
+    name: 'blacktop kings',
+    course: 'just for fun',
+    kind: 'streetball game',
+    theme: 'street',
+    previewEyebrow: '3 on 3 · build your baller',
+    featured: true,
+    href: '/hubs/blacktop-kings.html',
+    blurb:
+      'Build a baller, break ankles, throw it off the glass, and shatter the backboard with a Crown dunk. Run the circuit from the corner lot to Crown Court, recruit the legends you beat, then bring your crew to a friend for head-to-head play.',
+  },
+  {
+    name: 'tale of the tape',
+    course: 'beyond the scoreboard',
+    kind: 'boxing life game',
+    theme: 'ring',
+    previewEyebrow: '1934–1966 · no two careers alike',
+    featured: true,
+    href: '/hubs/tale-of-the-tape.html',
+    blurb:
+      'Live a whole boxing life from the Depression to the TV era. Box every fight yourself, Punch-Out style, survive real history from Pearl Harbor to the mob hearings, and collect discoveries no classmate has found yet.',
+  },
+  {
+    name: 'the league',
+    course: 'beyond the scoreboard',
+    kind: 'sports ownership game',
+    theme: 'scoreboard',
+    previewEyebrow: 'eight eras · one sports empire',
+    featured: true,
+    href: '/hubs/the-league.html',
+    blurb:
+      'Outbid rival owners, build your franchise, and chase a championship. Play against five computer teams or put 2–6 classroom teams in charge on one shared screen. The game handles the money.',
+  },
   {
     name: 'classroom jeopardy',
     course: 'all classes',
@@ -31,6 +189,36 @@ const hubs: Hub[] = [
       'The full board — categories, daily doubles, final jeopardy, team scores. Runs on the projector; the class supplies the arguing.',
   },
   {
+    name: 'the muckrakers review',
+    course: 'u.s. history 9',
+    kind: 'quiz review',
+    theme: 'lab',
+    previewEyebrow: 'riis · tarbell · sinclair',
+    href: '/hubs/ush9-muckrakers-review.html',
+    blurb:
+      'Study guide, flash cards, a timeline builder, who did it matching and a practice quiz for Friday. Riis and the flash, Tarbell and the paper trail, Sinclair and the stomach.',
+  },
+  {
+    name: 'mkultra review',
+    course: 'hidden history',
+    kind: 'quiz review',
+    theme: 'casefile',
+    previewEyebrow: '1953 to 2026 · what the record proves',
+    href: '/hubs/hh-mkultra-review.html',
+    blurb:
+      'Everything on Friday\u2019s quiz in five ways to practice: the funding line, Frank Olson and room 1018A, the burned files, and the difference between six proven and six total.',
+  },
+  {
+    name: 'jackie robinson review',
+    course: 'beyond the scoreboard',
+    kind: 'quiz review',
+    theme: 'scoreboard',
+    previewEyebrow: 'before brooklyn · the bargain · the cost',
+    href: '/hubs/bts-robinson-review.html',
+    blurb:
+      'Flash cards, a timeline builder, who did it matching and a practice quiz covering Camp Hood, the Rickey bargain, 1947, and what integration cost the Negro Leagues.',
+  },
+  {
     name: 'empire exchange',
     course: 'u.s. history 9',
     kind: 'market simulation',
@@ -39,6 +227,16 @@ const hubs: Hub[] = [
     href: '/hubs/empire-exchange.html',
     blurb:
       'Build an industrial empire, negotiate deals, integrate your companies, and chase either the biggest fortune or a monopoly.',
+  },
+  {
+    name: 'robber barons',
+    course: 'u.s. history 9',
+    kind: 'board game',
+    theme: 'finance',
+    previewEyebrow: 'gilded age · join with a code',
+    href: '/hubs/robber-barons.html',
+    blurb:
+      'Two to eight players, on one shared Chromebook or each on their own with a join code, play as Vanderbilt, Rockefeller, Carnegie, Morgan, Gould, Stanford, Hetty Green and Frick. Buy the railroads, then survive the Panic of 1893 when every rent gets cut in half.',
   },
   {
     name: 'jeopardy: hidden history unit 1',

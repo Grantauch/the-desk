@@ -1,0 +1,8 @@
+{
+  "note": "Live battle timing and limits.",
+  "turnSeconds": 30,
+  "maxTurns": 40,
+  "timeoutsToForfeit": 3,
+  "watchDistance": 6,
+  "roll": [0.9, 1.0]
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-JULY1914",
+  "title": "Thirty Seven Days",
+  "route": "/hubs/ush9-bytesize-thirty-seven-days.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/USH9/JULY1914/story.json",
+    "note": "ByteSize no. 7. Preserves the supplied draft and completes its map-room identity. Historical image rights and map GPL source are recorded in sources.md."
+  },
+  "files": [
+    {
+      "path": "/hubs/ush9-bytesize-thirty-seven-days.html",
+      "bytes": 293736,
+      "sha256": "cf72260be9bf44ba1fd555bc7b0efca54d4a883e1fc8c2e17f1c5a5b0b169419"
+    },
+    {
+      "path": "/storyhub/ush9/thirty-seven-days/assets/domenica-sarajevo.webp",
+      "assetId": "A01",
+      "bytes": 304176,
+      "sha256": "5a6b556365dfe6d831e74b0dbda864dba60ce5a81a8f1158122ebb9aab80f166",
+      "width": 820,
+      "height": 1198
+    },
+    {
+      "path": "/storyhub/ush9/thirty-seven-days/assets/princip.webp",
+      "assetId": "A02",
+      "bytes": 36764,
+      "sha256": "405b63459e7d3e6410db29a877b8a90e90d3a5c93063aaf2467579149f620b3d",
+      "width": 560,
+      "height": 814
+    },
+    {
+      "path": "/storyhub/ush9/thirty-seven-days/assets/troop-train-1914.webp",
+      "assetId": "A03",
+      "bytes": 166394,
+      "sha256": "32226843045e47d47df6108d7b7b226974db07ecee8a8c12dcd308fa5c533a1a",
+      "width": 1200,
+      "height": 841
+    }
+  ],
+  "totalBytes": 801070,
+  "sealedAt": "2026-10-27"
+}

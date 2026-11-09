@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-BATBOMBS",
+  "course": "HH",
+  "lessonCode": "BATBOMBS",
+  "title": "the bats that burned the wrong base",
+  "audience": "students",
+  "narrativeQuestion": "The bat project was real. Did a fire at an American test base prove it could work in war?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "A dentist sends a war plan",
+      "claim": "In January 1942, shortly after Pearl Harbor, a Pennsylvania dentist proposed using bats to carry small incendiaries into Japanese buildings. An incendiary starts a fire. The idea depended on an ordinary animal habit: bats find dark places to rest. Military researchers took the proposal seriously. A plan can sound absurd and still receive actual government attention; that is why we check records before deciding whether it happened. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "The building is the target",
+      "claim": "The planners wanted many scattered fires in the wooden structures of Japanese cities. That means this is a story about attacks on inhabited places, not merely a funny animal invention. The proposed delivery system combined aircraft, containers and living animals. Every transition had to work. The Air Force’s history confirms testing, while also stating that the weapon was never used operationally. Testing a plan is not the same as deploying it against an enemy. [S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "The animals do not follow the schedule",
+      "claim": "Researchers had to keep bats inactive during transport and have them wake at the right point after release. Some failed to wake in time; others did not go where the researchers wanted. The basic problem was control across an entire sequence. Our five-stage board below is a simplified way of reasoning about that problem. It gives no engineering instructions or measured probabilities. It asks which assumption breaks the mission. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "The wrong roofs",
+      "claim": "A 1943 test incident in New Mexico turned the plan against American facilities. Armed bats escaped or woke prematurely and roosted in buildings at an auxiliary airfield, starting fires. The National Park Service recounts the incident in its Carlsbad history. Later retellings vary on the extent of the damage; we do not need an inflated destruction claim to recognize the failure. The intended behavior—seeking shelter—also made the animals dangerous at the test site. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "A spectacular test can prove the wrong thing",
+      "claim": "A building fire demonstrated that the combination could ignite structures. It did not show that the military could choose the structures, control the timing, protect its own personnel or use the method reliably in an actual attack. That distinction is an inference from the test, not a quotation from a commander. Make the same distinction when you see a viral demonstration of a new invention: ask what was tested and what was merely promised.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "Real project, unrealized mission",
+      "claim": "Responsibility passed between military services, but the program ended in 1944. It never became the combat weapon its advocates imagined. That ending does not prove the project was fake, and the earlier fire does not prove it was combat-ready. An accurate account can hold both facts at once. It can also ask whether using animals and targeting urban buildings deserved scrutiny before a test began. [S1, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "A real secret weapons test that never became a combat mission.",
+    "Starting a fire and controlling a mission are different achievements.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-bat-bombs.html"
+  }
+}

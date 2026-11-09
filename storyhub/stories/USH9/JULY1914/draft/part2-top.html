@@ -1,0 +1,108 @@
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="hatchE" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="var(--ent-soft)"/><rect width="5" height="12" fill="var(--ent)"/></pattern>
+    <pattern id="hatchC" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="var(--cen-soft)"/><rect width="5" height="12" fill="var(--cen)"/></pattern>
+    <marker id="ahInk" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10z" class="ah"/></marker>
+    <marker id="ahGold" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10z" class="ah-gold"/></marker>
+  </defs>
+</svg>
+<a class="skip" href="#main-content">Skip to the story</a>
+<header class="masthead">
+  <div class="wrap">
+    <a href="https://grant-desk.com/storyhubs/">The Desk / US History 9</a>
+    <span>ByteSize <b>№ 07</b></span>
+  </div>
+</header>
+
+<main id="main-content" tabindex="-1">
+  <section style="border-top:0">
+    <div class="wrap split">
+      <div>
+        <p class="kicker">Sarajevo to London · June 28 to August 4, 1914</p>
+        <h1>Thirty Seven Days</h1>
+        <p class="lede" style="margin-top:18px">On a Sunday morning in Sarajevo, a 19 year old student fired two shots into an open car. Thirty seven days later, Britain declared war on Germany and most of Europe was fighting. The clearest way to see how that happened is on a map.</p>
+        <div class="stats">
+          <div><b>2</b><span>shots in Sarajevo</span></div>
+          <div><b>37</b><span>days to Britain's declaration</span></div>
+          <div><b>5 of 6</b><span>great powers at war by August 12</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="video" data-yt="X5YREY33W24" data-title="Why did WW1 start? Dan Snow explains in 2 minutes"></div>
+        <div class="vmeta"><span>Dan Snow on why the war started · British Pathé · about 2 minutes</span><a href="https://www.youtube.com/watch?v=X5YREY33W24" target="_blank" rel="noopener">Open on YouTube</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="map1">
+    <div class="wrap">
+      <p class="kicker">Map 1 · Europe in June 1914</p>
+      <h2>Two sides already drawn</h2>
+      <p>Germany and Austria Hungary signed an alliance in 1879, and Italy joined them in 1882 to make the Triple Alliance. France and Russia answered with their own alliance in 1894. Britain settled old quarrels with France in 1904 and with Russia in 1907, and those three became the Triple Entente. Pick any country to see who it had promised to stand beside.</p>
+      <div class="board">
+        <div class="row" role="group" aria-label="Map mode" style="margin-bottom:12px">
+          <button class="btn" type="button" id="modeAlly" aria-pressed="true">Alliances</button>
+          <button class="btn" type="button" id="modeDrill" aria-pressed="false">Find the country</button>
+        </div>
+        <div class="split" style="grid-template-columns:1.45fr 0.55fr">
+          <div class="mapbox"><!--MAP:europe--></div>
+          <div class="readout" id="allyOut" aria-live="polite">
+            <p class="kicker">Pick a country</p>
+            <p>Click a country on the map or use the buttons below the map. Lines show its promises.</p>
+          </div>
+        </div>
+        <div class="legend" id="allyLegend">
+          <span><i style="background:var(--ent-soft)"></i>Triple Entente</span>
+          <span><i style="background:var(--cen-soft)"></i>Triple Alliance</span>
+          <span><i style="background:var(--land)"></i>Neutral in 1914</span>
+          <span>Solid line: signed alliance</span><span>Dashed line: friendly agreement</span><span>Gold dots: a promise to protect or back</span>
+        </div>
+        <div class="chips" id="allyChips" role="group" aria-label="Countries"></div>
+        <div id="drillBox" hidden>
+          <p class="kicker" style="margin-top:14px">Map drill</p>
+          <p class="prompt" id="drillPrompt" aria-live="polite">Click Serbia</p>
+          <p id="drillFeedback" aria-live="polite"></p>
+          <div class="row"><button class="btn" type="button" id="drillShow">Show me</button><button class="btn" type="button" id="drillRestart">Start over</button><span class="score" id="drillScore">0 of 8 found</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="map2">
+    <div class="wrap">
+      <p class="kicker">Map 2 · The world in 1914</p>
+      <h2>Small countries, giant empires</h2>
+      <p>The same powers that faced off in Europe ruled much of the rest of the planet. By 1914 Europeans controlled about 90 percent of Africa, and only Ethiopia and Liberia stayed independent. Rivalry over colonies brought Germany and France close to war over Morocco in 1905 and again in 1911. Pick an empire to light up everything it ruled.</p>
+      <div class="board">
+        <div class="empires" role="group" aria-label="Empires">
+          <button class="chip" type="button" data-emp="gbr" aria-pressed="false">British</button>
+          <button class="chip" type="button" data-emp="fra" aria-pressed="false">French</button>
+          <button class="chip" type="button" data-emp="deu" aria-pressed="false">German</button>
+          <button class="chip" type="button" data-emp="rus" aria-pressed="false">Russian</button>
+          <button class="chip" type="button" data-emp="ita" aria-pressed="false">Italian</button>
+          <button class="chip" type="button" data-emp="aut" aria-pressed="false">Austro Hungarian</button>
+          <button class="chip" type="button" data-emp="ott" aria-pressed="false">Ottoman</button>
+          <button class="chip" type="button" data-emp="" aria-pressed="true">Show all</button>
+        </div>
+        <div class="mapbox"><!--MAP:world--></div>
+        <div class="wkey" aria-hidden="true">
+          <span><i style="background:#B5473A"></i>British</span><span><i style="background:#3E6FA8"></i>French</span><span><i style="background:#3B3B3B"></i>German</span><span><i style="background:#6E8B4E"></i>Russian</span><span><i style="background:#4E9A8A"></i>Italian</span><span><i style="background:#C69A3A"></i>Austro Hungarian</span><span><i style="background:#9C6BA8"></i>Ottoman</span><span><i style="background:#A89E86"></i>Other empires</span>
+        </div>
+        <div id="empOut" aria-live="polite" style="margin-top:14px">
+          <p class="muted">Pick an empire above. Borders are simplified from a 1914 historical map.</p>
+        </div>
+      </div>
+      <div class="split" style="margin-top:28px">
+        <div>
+          <h3>Colonies compared with the home country</h3>
+          <p class="muted">Each bar shows how many times bigger a country's colonies were than the country itself. The red sliver at the left edge is the home country. Areas are measured from the same 1914 map data.</p>
+          <div class="bars" id="bars"></div>
+        </div>
+        <div>
+          <blockquote>"We do not want to put anyone in the shade, but we too demand our place in the sun."<cite>Bernhard von Bülow, German foreign secretary, speaking to the Reichstag on December 6, 1897</cite></blockquote>
+          <p>Germany only became one country in 1871, after the best land had been claimed. Its leaders wanted an empire to match Britain's, and they started building a navy to protect one.</p>
+        </div>
+      </div>
+    </div>
+  </section>

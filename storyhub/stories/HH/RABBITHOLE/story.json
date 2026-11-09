@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-RABBITHOLE",
+  "course": "HH",
+  "lessonCode": "RABBITHOLE",
+  "title": "Down the Rabbit Hole",
+  "audience": "students",
+  "narrativeQuestion": "How does an impossible story start to feel true?",
+  "chapters": [
+    {
+      "id": "ch-cases",
+      "title": "Five stories, one fake",
+      "claim": "Four historical cons and one invented story. Students commit verdicts, then the cards turn over to show real evidence.",
+      "namedPeople": [
+        {
+          "name": "Gregor MacGregor",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A05"
+        },
+        {
+          "name": "Han van Meegeren",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A09"
+        }
+      ],
+      "visualAnchorIds": [
+        "A05",
+        "A08",
+        "A09",
+        "A10"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "ch-evidence",
+      "title": "The evidence room",
+      "claim": "The Poyais guidebook and banknote, the settler toll, and the 1947 trial newsreel.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A06",
+        "A07",
+        "A14"
+      ],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "ch-bias",
+      "title": "The traps in our thinking",
+      "claim": "Herd mentality, overconfidence, confirmation bias and sunk cost matched to the cases.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "ch-triad",
+      "title": "Your guides in Wonderland",
+      "claim": "The Dark Triad with Tenniel guides and the real namesakes.",
+      "namedPeople": [
+        {
+          "name": "Niccol\u00f2 Machiavelli",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A12"
+        }
+      ],
+      "visualAnchorIds": [
+        "A02",
+        "A03",
+        "A04",
+        "A12",
+        "A13"
+      ],
+      "interactionIds": [
+        "I03",
+        "I06"
+      ]
+    },
+    {
+      "id": "ch-fourth",
+      "title": "The fourth trait",
+      "claim": "The 2013 everyday sadism study, one sample of 71.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "ch-goldwater",
+      "title": "The Goldwater Rule",
+      "claim": "The 1964 Fact survey funnel and the 1973 ethics rule.",
+      "namedPeople": [
+        {
+          "name": "Barry Goldwater",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A11"
+        }
+      ],
+      "visualAnchorIds": [
+        "A11"
+      ],
+      "interactionIds": [
+        "I07"
+      ]
+    },
+    {
+      "id": "ch-exit",
+      "title": "Climb out",
+      "claim": "Three written responses with Turn In.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Preserves the source PowerPoint's narrative and exact A/B/C/D bias answers; E is fictional.",
+    "The deck's visuals are classroom-designed illustrations, not archival portraits or documentary photography.",
+    "Do not infer a psychiatric diagnosis from historical conduct or from an interactive answer.",
+    "The study's 26.8% is from one sample (N=71) and does not estimate prevalence in the population.",
+    "Historical claims in the teacher presentation (including specific victim counts) can vary between accounts and warrant verification."
+  ],
+  "release": {
+    "route": "/hubs/hh-down-the-rabbit-hole.html"
+  }
+}

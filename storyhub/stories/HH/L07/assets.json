@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L07",
+  "assets": [
+    {
+      "id": "A00",
+      "status": "shipped",
+      "type": "editorial-cover",
+      "role": "Nuremberg courtroom thematic cover and catalog identity",
+      "sourceMode": "authored-svg",
+      "subject": "Interpretive courtroom visualization labeled documentary illustration",
+      "sourceUrl": null,
+      "rightsStatus": "authored-public-use",
+      "provenance": "Original SVG produced for this StoryHub; schematic visual inspired by descriptions of the IMT courtroom, not an archival photograph, facsimile or direct likeness.",
+      "htmlSafeZone": "Main cover and card crop left of text.",
+      "responsiveCrop": "Preserve courtroom benches and 'NUREMBERG / 1946' footer.",
+      "deployPath": "/storyhub/hh/nuremberg/cover.svg"
+    },
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "identity-anchor",
+      "role": "John C. Woods non-photographic biographical dossier",
+      "sourceMode": "authored-svg",
+      "subject": "Interpretive generic silhouette and historically grounded name, service and dates",
+      "sourceUrl": null,
+      "rightsStatus": "authored-public-use",
+      "provenance": "Original vector dossier clearly marked NOT an archival photo nor Woods's likeness. It prevents unsupported synthetic likeness and can be replaced with a verified, redistribution-cleared photo.",
+      "htmlSafeZone": "Portrait frame.",
+      "responsiveCrop": "Preserve name and illustration disclaimer.",
+      "deployPath": "/storyhub/hh/nuremberg/woods-dossier.svg"
+    },
+    {
+      "id": "A02",
+      "status": "shipped-native-html",
+      "type": "source-inspection-instrument",
+      "role": "Eyewitness limits and what a screened-off witness cannot see",
+      "sourceMode": "native-html",
+      "subject": "Stylized soundwave and annotated eyewitness observations",
+      "sourceUrl": null,
+      "rightsStatus": "not-applicable-native-html",
+      "provenance": "Abstract soundwave is an explanatory diagram, not an actual recording of 1946 executions.",
+      "htmlSafeZone": "Full panel.",
+      "responsiveCrop": "Semantic content reflows.",
+      "deployPath": null,
+      "deploymentStatus": "native-html",
+      "deploymentNote": "Meaning is available as text; graphic is decorative."
+    },
+    {
+      "id": "A03",
+      "status": "shipped-native-html",
+      "type": "evidence-lab",
+      "role": "Six documented, attributed, and unestablished assertions",
+      "sourceMode": "native-html",
+      "subject": "Six source classifications",
+      "sourceUrl": null,
+      "rightsStatus": "not-applicable-native-html",
+      "provenance": "Original HTML evidence cards, not archival records.",
+      "htmlSafeZone": "Full cards.",
+      "responsiveCrop": "Controls wrap and remain accessible.",
+      "deployPath": null,
+      "deploymentStatus": "native-html",
+      "deploymentNote": "Source classifications stay visible without animation."
+    }
+  ]
+}

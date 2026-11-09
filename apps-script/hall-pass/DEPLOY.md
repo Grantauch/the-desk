@@ -1,19 +1,78 @@
 # GrantDesk Classroom Log — one-time Google setup
 
-## Current release — Version 23, September 9, 2026
+## Current school-camp release audit — October 28, 2026
 
-Source commit: `47ce8b0ae085528ba7c6cef36a1d2c4c7ccfaa42`, merged through [PR #71](https://github.com/Grantauch/the-desk/pull/71). The existing deployment was updated in place at 12:14 PM America/Detroit. Schema: `2026-09-05-session-a`. The stable `/exec`, deployment ID, owner execution, school-only access and five-file manifest were preserved. The dependency-complete canonical gate, 311 Hall Pass behavioral checks, source replacement/read-back, and deployment verification passed in [GitHub Actions](https://github.com/Grantauch/the-desk/actions/runs/34375381483).
+[Permanent release-control issue #28](https://github.com/Grantauch/the-desk/issues/28) is authoritative for the actual Apps Script deployment version. A source commit or merged website change alone does not deploy the school app. [PR #255](https://github.com/Grantauch/the-desk/pull/255) tracks the connected school Pixel Camp and its final combined-source checks. The existing deployment ID, URL, DOMAIN access, USER_DEPLOYING identity and five-file source set remain the release contract.
 
-The deployed protected-action smoke passed after release: STARTED, RETURNED_COUNTABLE, class `evidenceUsed` 1, synthetic pass voided, synthetic membership deactivated, production facts unchanged, and `ok: true`. Student, kiosk, check-in, and teacher modes then fully initialized without error on the preserved URL. The teacher dashboard showed the current attendance total with no legacy 202-count card and no delayed inbox warning. No real student PIN or student email was used. Field verification remains FIELD_PENDING.
+[Preflight 40701012960](https://github.com/Grantauch/the-desk/actions/runs/40701012960) verified live Version 42 on October 28. Pixel Camp assets must be verified on the website before the guarded Apps Script update. The deployed `?mode=releasecheck` now verifies synthetic camp save/reload/idempotency as well as pass request/return and unchanged production facts. Authenticated live smoke and classroom use remain distinct from source/bridge evidence.
 
-Version 23 keeps schema `2026-09-05-session-a` and the existing five-file deployment contract while changing the check-in write path:
+The dated preparation and older version records below are historical.
 
-- `submitDailyCheckIn` validates the fresh one-use proof, writes one durable idempotent inbox event, then consumes the proof. It does not wait on `LockService` or append directly to the workbook.
-- Opportunistic, teacher-poll, one-minute-trigger, and daily-cleanup paths flush queued arrivals with one Sheet batch. The batch is explicitly flushed before its private inbox records are removed.
-- Student and teacher state merge pending and persisted arrivals. A workbook delay therefore cannot turn a recorded check-in into a student resubmission or an empty teacher total.
-- The old shared-log counter is replaced with a fresh Hall Pass-only contention counter. Pass/return retries remain because capacity and queue transitions still require serialization.
+## Historical Checkling production release — Version 40, October 22, 2026
 
-Local release evidence passed 73 handoff checks, the structural suite, and 311 behavioral checks. The dependency-complete GitHub gate then passed release-lane, Hall Pass, classroom-tool, classroom-state, public-resource/publishing, StoryHub, Astro/TypeScript, build, static validation, and browser stages. The source at the merged commit is now live as Version 23. Versions 14, 15 and 16 remain unsafe to redeploy.
+[Release workflow 39825119574](https://github.com/Grantauch/the-desk/actions/runs/39825119574) deployed Version 40 on the existing deployment at 17:55 UTC, from merged PR #218 commit `716d1666dd099d85ddea99cd3e2e14961c186240`. Protected workflow `39820930189` passed every release and browser gate before merge; the guarded deployment repeated the canonical gate and bridge self-test. All five normalized source hashes read back from Google match the exact tested repository files. The prior live Version 39 sources match both reviewed preflight receipts, and no unpublished draft was overwritten.
+
+Daily Check-In now includes the optional Checkling companion, with four original species, private names, personalities, five milestone habitats and keepsakes, and three untimed local activities. The existing PIN, attendance, calendar, late-review and point rules remain authoritative. Pet play awards no classroom points or attendance. Private preferences remain schema v1, adding only a bounded habitat ID; the workbook schema and five-file deployment contract are unchanged. No migration or broad setup was run. See `docs/checkling-pond/README.md`.
+
+The existing deployment ID, stable URL, DOMAIN access and USER_DEPLOYING execution are preserved. The public pet-art prerequisite was separately verified before release. Netlify production 6ada4b18137a124e6a72299b is ready on the same merge commit (published 2026-10-22T17:52:12.423Z); all 17 public Pond/art files match source SHA-256, totaling 1370757 bytes. The teacher subsequently ran the authenticated `?mode=releasecheck` in their school-account browser and supplied a successful result. Teacher-reported authenticated production release check passed on October 22, 2026: ok=true; request=STARTED; return=RETURNED_COUNTABLE; evidenceUsed=1; testPassVoided=true; testMembershipDeactivated=true; productionFactsUnchanged=true; syntheticOnly=true. Schema 2026-09-21-backend-b and client contract 2026-09-22-all-teacher-rpcs match the release. This is the teacher-supplied result, not an agent-observed browser execution. Live mode visual review and an actual classroom cycle remain pending. The private test workbook URL is omitted from this public record. The agent did not repeat the test or access real student credentials.
+
+## Historical production preflight baseline — Version 39, October 21–22, 2026
+
+[Preflight run 39715268796](https://github.com/Grantauch/the-desk/actions/runs/39715268796) verified Version 39 on the existing deployment. All five production file hashes exactly match site main `3e71b3dc67e9d394d5c7ed634090814dd979c34c`, with no unpublished editor draft. The stable URL, DOMAIN access and USER_DEPLOYING execution are unchanged. This is read-only production evidence; it does not deploy Checkling or replace the required protected synthetic smoke.
+
+Refreshed preflight `39721202948` passed on October 22; its live Version 39 source/configuration exactly matches the earlier receipt. The deployment rechecked and preserved that baseline before replacing it with Version 40.
+
+## Earlier release record — Version 35, September 24, 2026
+
+Source commit: `c4572883272ab46632826b2ee293ed83a424a791` ([PR #147](https://github.com/Grantauch/the-desk/pull/147)). The existing deployment was updated in place by [GitHub Actions run 36006694588](https://github.com/Grantauch/the-desk/actions/runs/36006694588) ("DEPLOYED — Apps Script version 35; existing deployment ID and URL preserved; access=DOMAIN; executeAs=USER_DEPLOYING"). No workbook schema change; schema remains `2026-09-21-backend-b` and the teacher contract remains `2026-09-22-all-teacher-rpcs`.
+
+Version 35 makes student sign-out one server round trip after page load (`authorizeAndActStudent`), routes a multi-class student to the one class the bell schedule proves is meeting now (chooser otherwise; returns still follow the original pass), and removes repeated roster/settings/calendar/bell reads within a request.
+
+The teacher ran the authenticated `?mode=releasecheck` synthetic smoke after deployment at about 9:40 AM: `ok: true`, `request: STARTED`, `return: RETURNED_COUNTABLE`, `evidenceUsed: 1`, `testPassVoided: true`, `testMembershipDeactivated: true`, `productionFactsUnchanged: true`. Real-class field evidence is pending.
+
+## Previous release — Version 28, September 22, 2026
+
+Source commit: `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`. The existing Apps Script web-app deployment was updated **in place** through the guarded release bridge in [GitHub Actions run 35754589935](https://github.com/Grantauch/the-desk/actions/runs/35754589935), after production preflight run `35754508635` passed. The stable `/exec` URL, deployment identity, execute-as-deploying-user behavior, school-domain access, and five-file Apps Script contract were preserved.
+
+Current workbook schema: `2026-09-21-backend-b`. Current teacher browser/server/release-check contract: `2026-09-22-all-teacher-rpcs`.
+
+The exact merged commit passed the canonical GrantDesk release gate and real-browser acceptance, then passed the production preflight bridge before deployment. Netlify production deploy `6ab2acfb9d374c000715447c` is also `ready` on the same commit, so the public GrantDesk site and Apps Script source record are aligned.
+
+Version 28 adds the final production catch-up hardening:
+
+- teacher browser and private release-check contract values are aligned with the server contract;
+- regression tests compare all three contract surfaces so version skew fails CI;
+- teacher bootstrap self-heals both background trigger classes while routine polling audits them at most hourly;
+- owned trigger IDs are retained in Script Properties to avoid repeated project-trigger enumeration;
+- empty Check-In refreshes and idle minute ticks avoid the shared transaction lock;
+- the minute durability trigger can recover waiting-line settlement after a committed return;
+- workbook setup is serialized against live classroom/PIN-email writes;
+- out-of-order recent Check-In rows fall back to the authoritative full attendance ledger.
+
+Version 28 retains the accumulated Version 27 September 21–22 backend hardening:
+
+- Daily Check-ins automatically expands and no longer has the former 1,000-row hard ceiling.
+- durable Check-In recovery repairs secondary streak/late-review state after a partial commit before inbox recovery state is cleared;
+- active Check-In summary properties are limited to active roster memberships and rebuild when roster/calendar inputs change;
+- unresolved late reviews persist across school days instead of disappearing from the normal teacher workflow;
+- student self-check-in closes at the selected class end;
+- late self-check-in clears an earlier active absence while preserving the original attendance audit row;
+- prior-period forgotten passes remain visible/auditable but do not consume the current period's capacity;
+- PIN rotation invalidates outstanding signed student sessions and one-use action proofs;
+- obsolete cache-only PIN sessions are rejected;
+- independent Check-In submissions converge on one canonical student/class/date event ID;
+- fixed-position workbook header drift fails closed instead of silently reading shifted columns;
+- duplicate Settings keys, School Calendar dates, and active roster memberships fail closed instead of using an arbitrary row;
+- student polling is jittered to reduce synchronized Chromebook bursts, and teacher/student screens surface stale refresh state;
+- daily-cleanup trigger authorization is bound to the actual cleanup trigger and duplicate cleanup triggers are collapsed;
+- every browser-exposed teacher mutation/read-control RPC validates the current teacher client contract, so stale open dashboard tabs cannot mutate a newer server contract;
+- inert `SCHOOL_CALENDAR_FILE_ID` and `SCHOOL_CALENDAR_FALLBACK_URL` settings were removed from source because they never controlled runtime.
+
+No workbook schema migration was required for Version 28. The Version 27 workbook reconciliation remains in effect: only the two inert calendar-source Settings rows were removed, and existing roster, PIN, pass, queue, attendance, calendar, audit, and teacher-policy facts were preserved. A post-deploy workbook read confirmed the established policy values remained intact, the obsolete calendar-source settings remained absent, and there was no active stuck pass or waiting queue.
+
+The production release remains the single-classroom Apps Script/workbook system. The isolated `schoolwide/**` PostgreSQL application remains non-authoritative and must not be treated as production until its separate staging/cutover gates are completed.
+
+The authenticated post-deployment `?mode=releasecheck` synthetic protected-action smoke remains required for Version 28 and is not recorded as complete in this release record.
 
 ## Release safety
 

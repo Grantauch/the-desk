@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HABBAKUK",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "carrier",
+      "teaches": "A real test model does not put a giant carrier into service.",
+      "studentAction": "Qualitative planning board, not a strength or heat-flow simulation. Each step adds a different requirement; it gives no measured historical performance.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Test the material, then inspect the cooling and strategic requirements that a material test cannot settle.",
+      "status": "implemented"
+    }
+  ]
+}

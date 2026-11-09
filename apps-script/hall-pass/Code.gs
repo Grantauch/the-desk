@@ -12,8 +12,18 @@
  *  4. Student screens receive only their own data.
  */
 
-const GD_SCHEMA_VERSION = '2026-09-05-session-a';
-const GD_TEACHER_CONTRACT = '2026-09-05-memberships';
+const GD_SCHEMA_VERSION = '2026-09-21-backend-b';
+const GD_TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
+const GD_ROSTER_SYNC_CONTRACT = '2026-09-22-roster-sync-v1';
+const GD_ROSTER_SYNC_WRITE_CONTRACT = '2026-09-22-roster-write-v1';
+const GD_ROSTER_SYNC_CONFIRMATION = 'APPLY SAFE ROSTER CHANGES';
+const GD_ROSTER_SYNC_MAX_WRITES = 200;
+const GD_ROSTER_SYNC_REQUEST_PREFIX = 'roster-sync-request:';
+const GD_ROSTER_SYNC_REQUEST_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const GD_ROSTER_SYNC_REQUEST_MAX_RECORDS = 100;
+const GD_ROSTER_SYNC_PROPERTY_VALUE_MAX_BYTES = 9 * 1024;
+const GD_ROSTER_SYNC_PROPERTY_VALUE_TARGET_BYTES = 8 * 1024;
+const GD_ROSTER_SYNC_REQUEST_MAX_TOTAL_BYTES = 300 * 1024;
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
 const GD_STUDENT_LOCK_WAIT_MS = 5000;
@@ -21,9 +31,28 @@ const GD_BUSY_LOCK_MESSAGE = 'The classroom system is handling other students ri
 const GD_LOCK_CONTENTION_PROPERTY = 'LOCK_CONTENTION_SUMMARY_V2';
 const GD_ROLLOVER_PROPERTY = 'LAST_ROLLOVER';
 const GD_CHECKIN_TAIL_ROWS = 600;
+const GD_PASS_TAIL_ROWS = 300;
 const GD_PENDING_CHECKIN_PREFIX = 'pending-checkin:';
 const GD_CHECKIN_INBOX_STALE_MS = 120000;
 const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
+const GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_ID';
+const GD_CLEANUP_TRIGGER_ID_PROPERTY = 'DAILY_CLEANUP_TRIGGER_ID';
+const GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY = 'BACKGROUND_TRIGGER_AUDIT_AT';
+const GD_BACKGROUND_TRIGGER_AUDIT_MS = 60 * 60 * 1000;
+const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
+const GD_CHECKLING_PREFIX = 'checkling-v1:';
+const GD_CHECKLING_STAGES = [
+  {label:'Hatchling', min:0, scale:0.82, habitat:'meadow', home:'Morning meadow', keepsake:'First hello', symbol:'✦'},
+  {label:'Sprout', min:3, scale:0.92, habitat:'grove', home:'Mossy grove', keepsake:'Lucky leaf', symbol:'❧'},
+  {label:'Buddy', min:7, scale:1, habitat:'cove', home:'Tidepool cove', keepsake:'Pocket pearl', symbol:'◈'},
+  {label:'Ace', min:14, scale:1.08, habitat:'sky', home:'Cloud island', keepsake:'Sky feather', symbol:'⌁'},
+  {label:'Legend', min:30, scale:1.16, habitat:'cosmos', home:'Little cosmos', keepsake:'Your own star', symbol:'★'},
+];
+const GD_LATE_REVIEW_PREFIX = 'late-review:';
+const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
+const GD_CHECKIN_FLUSH_ERROR_PROPERTY = 'CHECKIN_FLUSH_LAST_ERROR';
+const GD_CHECKIN_MIN_ROWS = 5000;
+const GD_CHECKIN_ROW_GROWTH = 2000;
 const GD_INFERRED_PASS_ACTION_STABILITY_SECONDS = 8;
 
 const GD_STUDENT_ACTIONS = {
@@ -160,15 +189,89 @@ const GD_DEFAULT_SETTINGS = [
   ['RETENTION_DAYS', '180', 'Completed passes older than this move from the hot Pass Log into permanent Pass Audit'],
   ['DESTINATION', 'Restroom', 'Student-facing destination label'],
   ['APP_TITLE', 'Hall Pass', 'Name shown at the top of the pass app'],
+  ['PIXEL_CAMP_OPEN', 'TRUE', 'Teacher-controlled school Pixel Camp access; attendance and passes stay available'],
   ['CHECKIN_POINT_VALUE', '1', 'Extra-credit points recorded for one daily check-in'],
   ['STUDENT_EMAIL_DOMAIN', 'students.mtmorrisschools.org', 'Only roster addresses at this domain receive PIN emails'],
   ['PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN', 'Subject line for student PIN emails'],
-  ['CHECKIN_URL', 'https://grant-desk.com/check-in/', 'Student link included in PIN emails'],
+  ['CHECKIN_URL', 'https://grant-desk.com/check-in/', 'Daily Check-in link included in PIN emails'],
+  ['PASS_URL', 'https://grant-desk.com/pass/', 'Hall Pass link included in PIN emails'],
   ['SCHOOL_YEAR_START', '2026-08-25', 'First student day from the official 2026-27 district calendar'],
   ['SCHOOL_YEAR_END', '2027-06-08', 'Last student day from the official 2026-27 district calendar'],
-  ['SCHOOL_CALENDAR_FILE_ID', '1Gd3ZENe41b1AWRLdbpQ2kdsZj0mEsgoz', 'Official student-calendar file in connected My Drive'],
-  ['SCHOOL_CALENDAR_FALLBACK_URL', 'https://www.mtmorrisschools.org/', 'Official district website fallback when the needed Drive calendar is unavailable'],
 ];
+
+const GD_HOME_DISTRICT_DOMAIN = 'mtmorrisschools.org';
+
+/**
+ * The account that owns this copy of Hall Pass: the deploying teacher for the
+ * web app, the editor running a menu item in the spreadsheet.
+ */
+function workbookOwnerEmail_() {
+  try {
+    return normalizeEmail_(Session.getEffectiveUser().getEmail());
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
+ * Mt. Morris copies keep the verified district calendar and E.A. Johnson bell
+ * seed. Any other school starts blank and enters its own bells at setup, so a
+ * pass is never timed against someone else's schedule.
+ */
+function isHomeDistrictOwner_() {
+  const owner = workbookOwnerEmail_();
+  return !owner || owner.split('@').pop() === GD_HOME_DISTRICT_DOMAIN;
+}
+
+/** Default Settings rows for this copy. Only ever used to fill missing rows. */
+function defaultSettingsRows_() {
+  const owner = workbookOwnerEmail_();
+  // grant-desk.com links and the desk PIN subject belong to Mr. Auch's copy
+  // only; another Mt. Morris teacher's students must be sent to their own pass.
+  const homeTeacher = hallPassSiteBranded_()
+    ? {}
+    : { PIN_EMAIL_SUBJECT: 'Your private Hall Pass PIN', CHECKIN_URL: '', PASS_URL: '' };
+  const overrides = isHomeDistrictOwner_()
+    ? (owner ? { TEACHER_EMAILS: owner, ...homeTeacher } : {})
+    : {
+      TEACHER_EMAILS: owner,
+      SCHOOL_DOMAIN: owner.split('@').pop(),
+      STUDENT_EMAIL_DOMAIN: '',
+      PIN_EMAIL_SUBJECT: 'Your private Hall Pass PIN',
+      CHECKIN_URL: '',
+      PASS_URL: '',
+      SCHOOL_YEAR_START: '',
+      SCHOOL_YEAR_END: '',
+    };
+  return GD_DEFAULT_SETTINGS.map(([key, value, description]) => [
+    key,
+    Object.prototype.hasOwnProperty.call(overrides, key) ? overrides[key] : value,
+    description,
+  ]);
+}
+
+/** Only Mr. Auch's own copy wears the desk branding; every other copy is plain Hall Pass. */
+const GD_BRANDED_OWNER = 'gauch@mtmorrisschools.org';
+
+function hallPassSiteBranded_() {
+  const owner = workbookOwnerEmail_();
+  return !owner || owner === GD_BRANDED_OWNER;
+}
+
+const GD_WEB_APP_URL_PROPERTY = 'WEB_APP_URL';
+
+/** This deployment's own student link, for PIN emails in copies with no site. */
+function webAppUrl_(mode) {
+  try {
+    // The link the teacher confirmed at setup wins: Google can report a
+    // test (/dev) address here that students are not allowed to open.
+    const url = PropertiesService.getScriptProperties().getProperty(GD_WEB_APP_URL_PROPERTY) || ScriptApp.getService().getUrl();
+    if (!url) return '';
+    return mode ? `${url}${url.includes('?') ? '&' : '?'}mode=${mode}` : url;
+  } catch (error) {
+    return '';
+  }
+}
 
 /** Session token lifetime for PIN sign-in, in seconds. One class period plus slack. */
 const GD_PIN_SESSION_SECONDS = 3600;
@@ -188,12 +291,26 @@ function gdMemo_(key, producer) {
 
 function gdForget_(key) {
   delete GD_MEMO[key];
+  // Indexes derived from the raw roster rows must never outlive them.
+  if (key === 'roster') GD_ROSTER_DERIVED_MEMOS.forEach((derived) => { delete GD_MEMO[derived]; });
+  if (key === 'passlog') delete GD_MEMO['passlog-recent'];
+}
+
+const GD_ROSTER_DERIVED_MEMOS = ['roster-rows', 'pass-access', 'credential-versions'];
+
+/**
+ * One roster read per request for the student hot path. Code that must see
+ * its own roster write (roster sync, teacher edits) keeps calling
+ * readRosterRows_() directly, and every roster write forgets 'roster'.
+ */
+function readRosterRowsCached_() {
+  return gdMemo_('roster-rows', readRosterRows_);
 }
 
 /* ----------------------------------------------- shared class sessions ---- */
 
 function periodNumberFromClass_(classPeriod) {
-  const match = /^Period\s+([1-6])(?:\b|\s|$)/i.exec(String(classPeriod || '').trim());
+  const match = /^Period\s+([1-8])(?:\b|\s|$)/i.exec(String(classPeriod || '').trim());
   return match ? Number(match[1]) : null;
 }
 
@@ -247,7 +364,7 @@ function getBellScheduleIndex_() {
       const key = String(row[0] || '').trim().toUpperCase();
       if (!key) return;
       const profile = profiles[key] || (profiles[key] = { periods: {}, valid: true });
-      const period = /^[1-6]$/.test(String(row[1]).trim()) ? Number(row[1]) : null;
+      const period = /^[1-8]$/.test(String(row[1]).trim()) ? Number(row[1]) : null;
       const start = bellMinutes_(row[2]);
       const end = bellMinutes_(row[3]);
       if (!period || start === null || end === null || start >= end || profile.periods[period]) {
@@ -279,61 +396,29 @@ function getClassSession_(student, nowValue) {
   const now = toDateOrNull_(nowValue) || new Date();
   const day = getSchoolDaySchedule_(now);
   const selectedPeriod = periodNumberFromClass_(student && student.classPeriod);
-  const result = {
-    ...day,
-    selectedPeriod,
-    currentPeriod: null,
-    classStart: '',
-    classEnd: '',
-    checkInAllowed: false,
-    checkInLate: false,
-    checkInCutoff: '',
-    checkInWindowMinutes: 0,
-    passRequestAllowed: false,
-    blockReason: '',
-    checkInMessage: '',
-    passMessage: '',
-  };
-  if (!day.schoolDay) {
-    result.blockReason = 'NO_SCHOOL';
-    result.checkInMessage = result.passMessage = 'There is no student session today. Ask your teacher if you need help.';
-    return result;
+  const result = {...day,selectedPeriod,currentPeriod:null,classStart:'',classEnd:'',checkInAllowed:false,checkInLate:false,
+    checkInCutoff:'',checkInWindowMinutes:0,passRequestAllowed:false,blockReason:'',checkInMessage:'',passMessage:''};
+  if(!day.schoolDay){ result.blockReason='NO_SCHOOL'; result.checkInMessage=result.passMessage='There is no student session today. Ask your teacher if you need help.'; return result; }
+  const profile=getBellScheduleIndex_()[day.scheduleKey]; const period=profile&&profile.valid&&profile.periods[selectedPeriod]; const settings=getSettings_();
+  const timingKeys=['PASS_PROTECT_FIRST_MINUTES','PASS_PROTECT_LAST_MINUTES','CHECKIN_WINDOW_MINUTES'];
+  const values=timingKeys.map((key)=>String(settings[key]==null?'':settings[key]).trim()); const timing=values.map(Number);
+  if(!period||values.some((value)=>value==='')||timing.some((value)=>!Number.isFinite(value)||value<0)||timing[2]<=0){
+    result.blockReason='SCHEDULE_UNKNOWN'; result.checkInMessage=result.passMessage='The class schedule needs a teacher update. Ask your teacher.'; return result;
   }
-  const profile = getBellScheduleIndex_()[day.scheduleKey];
-  const period = profile && profile.valid && profile.periods[selectedPeriod];
-  const settings = getSettings_();
-  const timingKeys = ['PASS_PROTECT_FIRST_MINUTES', 'PASS_PROTECT_LAST_MINUTES', 'CHECKIN_WINDOW_MINUTES'];
-  const values = timingKeys.map((key) => String(settings[key] == null ? '' : settings[key]).trim());
-  const timing = values.map(Number);
-  if (!period || values.some((value) => value === '') || timing.some((value) => !Number.isFinite(value) || value < 0) || timing[2] <= 0) {
-    result.blockReason = 'SCHEDULE_UNKNOWN';
-    result.checkInMessage = result.passMessage = 'The class schedule needs a teacher update. Ask your teacher.';
-    return result;
-  }
-  const clock = Utilities.formatDate(now, Session.getScriptTimeZone() || 'America/Detroit', 'HH:mm:ss').split(':').map(Number);
-  const seconds = clock[0] * 3600 + clock[1] * 60 + clock[2] + now.getMilliseconds() / 1000;
-  const dayOrigin = now.getTime() - seconds * 1000;
-  const classStart = dayOrigin + period.start * 60000;
-  const classEnd = dayOrigin + period.end * 60000;
-  const checkInCutoff = classStart + timing[2] * 60000;
-  const current = Object.values(profile.periods).find((entry) => seconds >= entry.start * 60 && seconds < entry.end * 60);
-  result.currentPeriod = current ? current.period : null;
-  result.classStart = new Date(classStart).toISOString();
-  result.classEnd = new Date(classEnd).toISOString();
-  result.checkInCutoff = new Date(checkInCutoff).toISOString();
-  result.checkInWindowMinutes = timing[2];
-  // The window is now a grading boundary, not a lockout. Once this class begins,
-  // a student may still record today's arrival; anything after the cutoff is late.
-  result.checkInAllowed = now.getTime() >= classStart;
-  result.checkInLate = result.checkInAllowed && now.getTime() >= checkInCutoff;
-  result.passRequestAllowed = now.getTime() >= classStart + timing[0] * 60000 && now.getTime() < classEnd - timing[1] * 60000;
-  result.blockReason = now.getTime() < classStart ? 'CLASS_NOT_STARTED' : now.getTime() >= classEnd ? 'CLASS_ENDED' : 'PROTECTED_WINDOW';
-  result.checkInMessage = !result.checkInAllowed
-    ? 'Check-in opens when your selected class begins.'
-    : result.checkInLate
-      ? `The ${timing[2]}-minute on-time window has ended. You can still sign in; it will be recorded as late for your teacher to review.`
-      : '';
-  result.passMessage = result.passRequestAllowed ? '' : 'New bathroom requests are closed outside your selected class or during its first and last ten minutes. Ask your teacher if you need to leave.';
+  const clock=Utilities.formatDate(now,Session.getScriptTimeZone()||'America/Detroit','HH:mm:ss').split(':').map(Number);
+  const seconds=clock[0]*3600+clock[1]*60+clock[2]+now.getMilliseconds()/1000; const dayOrigin=now.getTime()-seconds*1000;
+  const classStart=dayOrigin+period.start*60000; const classEnd=dayOrigin+period.end*60000; const checkInCutoff=classStart+timing[2]*60000;
+  const current=Object.values(profile.periods).find((entry)=>seconds>=entry.start*60&&seconds<entry.end*60);
+  result.currentPeriod=current?current.period:null; result.classStart=new Date(classStart).toISOString(); result.classEnd=new Date(classEnd).toISOString();
+  result.checkInCutoff=new Date(checkInCutoff).toISOString(); result.checkInWindowMinutes=timing[2];
+  result.checkInAllowed=now.getTime()>=classStart&&now.getTime()<classEnd;
+  result.checkInLate=result.checkInAllowed&&now.getTime()>=checkInCutoff;
+  result.passRequestAllowed=now.getTime()>=classStart+timing[0]*60000&&now.getTime()<classEnd-timing[1]*60000;
+  result.blockReason=now.getTime()<classStart?'CLASS_NOT_STARTED':now.getTime()>=classEnd?'CLASS_ENDED':'PROTECTED_WINDOW';
+  result.checkInMessage=now.getTime()<classStart?'Check-in opens when your selected class begins.':
+    now.getTime()>=classEnd?'This class has ended. Ask your teacher if today’s attendance needs to be corrected.':
+    result.checkInLate?`The ${timing[2]}-minute on-time window has ended. You can still sign in while class is meeting; it will be recorded as late for your teacher to review.`:'';
+  result.passMessage=result.passRequestAllowed?'':`New bathroom requests are closed outside your selected class or outside its configured pass window (${timing[0]} minute${timing[0]===1?'':'s'} after class starts through ${timing[1]} minute${timing[1]===1?'':'s'} before class ends). Ask your teacher if you need to leave.`;
   return result;
 }
 
@@ -363,7 +448,7 @@ function assertStudentActionEligible_(student, action) {
 function getStudentPassAccess_(emailValue) {
   const index = gdMemo_('pass-access', () => {
     const modes = {};
-    readRosterRows_().forEach((student) => {
+    readRosterRowsCached_().forEach((student) => {
       const raw = String(student.passAccess || '').trim().toUpperCase();
       const mode = raw || (student.unlimited ? 'UNLIMITED' : 'STANDARD');
       const safeMode = ['STANDARD', 'UNLIMITED', 'ESCORT_ONLY'].includes(mode) ? mode : 'ESCORT_ONLY';
@@ -393,7 +478,7 @@ function migrateSessionPolicy_() {
   const bells = spreadsheet.getSheetByName(GD_SHEETS.BELLS);
   const existing = new Set(bells.getLastRow() > 1 ? bells.getRange(2, 1, bells.getLastRow() - 1, 1).getValues().map((row) => String(row[0]).trim().toUpperCase()) : []);
   const seed = [];
-  Object.entries(GD_BELL_SEED).forEach(([key, periods]) => periods.forEach(([start, end], index) => {
+  if (isHomeDistrictOwner_()) Object.entries(GD_BELL_SEED).forEach(([key, periods]) => periods.forEach(([start, end], index) => {
     if (!existing.has(key)) seed.push([key, index + 1, start, end, 'EAJ 2026-27 Bell Schedule; Period 4 B Lunch', 'Verified 2026-09-05']);
   }));
   if (seed.length) {
@@ -422,23 +507,33 @@ function migrateSessionPolicy_() {
 /* ---------------------------------------------------------------- menu ---- */
 
 function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('GrantDesk Pass')
+  const menu = SpreadsheetApp.getUi().createMenu('Hall Pass');
+  // The classroom template carries a guided first-run setup (Setup.gs).
+  if (typeof hallPassStartSetup === 'function') {
+    menu.addItem('▶ Start setup / show my links', 'hallPassStartSetup').addSeparator();
+  }
+  menu
     .addItem('1. Set up / repair workbook', 'setupProject')
     .addItem('2. Generate missing student PINs', 'generateMissingPins')
     .addItem('Preview PIN email distribution', 'previewPinEmailDistribution')
     .addItem('Email unsent PINs…', 'emailStudentPinsFromSheet')
-    .addItem('Clear printed PIN cards', 'clearPinCards')
     .addSeparator()
     .addItem('Open today’s check-in log', 'openTodayCheckIns')
     .addItem('Archive old operational rows now', 'purgeOldPasses')
     .addToUi();
+  if (typeof hallPassShowStartHere_ === 'function') {
+    try {
+      hallPassShowStartHere_();
+    } catch (error) {
+      // A welcome note is never worth an error on open.
+    }
+  }
 }
 
-function setupProject() {
+function setupProject(options) {
   const active = SpreadsheetApp.getActiveSpreadsheet();
-  if (!active) throw new Error('Open this script from the GrantDesk Hall Pass spreadsheet.');
-  const authSettings = GD_DEFAULT_SETTINGS.reduce((settings, row) => {
+  if (!active) throw new Error('Open this script from the Hall Pass spreadsheet.');
+  const authSettings = defaultSettingsRows_().reduce((settings, row) => {
     settings[row[0]] = row[1];
     return settings;
   }, {});
@@ -450,26 +545,40 @@ function setupProject() {
     });
   }
   assertTeacher_(getActiveEmail_(), authSettings);
-  PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', active.getId());
-  ensureSalt_();
-  setupWorkbook_();
-  installCleanupTrigger_();
-  installCheckInFlushTrigger_();
-  PropertiesService.getScriptProperties().setProperty('WORKBOOK_SCHEMA', GD_SCHEMA_VERSION);
+
+  const result = withLock_(() => {
+    const properties = PropertiesService.getScriptProperties();
+    const previousSpreadsheetId = properties.getProperty('SPREADSHEET_ID');
+    try {
+      properties.setProperty('SPREADSHEET_ID', active.getId());
+      ensureSalt_();
+      setupWorkbook_();
+      installCleanupTrigger_();
+      installCheckInFlushTrigger_();
+      properties.setProperty('WORKBOOK_SCHEMA', GD_SCHEMA_VERSION);
+      return { ok: true, schemaVersion: GD_SCHEMA_VERSION };
+    } catch (error) {
+      if (previousSpreadsheetId) properties.setProperty('SPREADSHEET_ID', previousSpreadsheetId);
+      else properties.deleteProperty('SPREADSHEET_ID');
+      throw error;
+    }
+  }, 30000, 'workbook setup');
+  if (options && options.quiet === true) return result;
+
   try {
     const ui = SpreadsheetApp.getUi();
     ui.alert(
-      'GrantDesk Pass is ready',
-      'Paste students into the Roster tab, then use GrantDesk Pass → Generate missing student PINs.',
+      'Hall Pass is ready',
+      'Paste students into the Roster tab, then use Hall Pass → Generate missing student PINs.',
       ui.ButtonSet.OK
     );
   } catch (error) {
     // Editor/API executions do not have a spreadsheet UI. The migration is
     // already complete at this point, so leave a truthful success signal
     // instead of making the controlled release run appear to have failed.
-    console.log(`GrantDesk Pass is ready · workbook schema ${GD_SCHEMA_VERSION}`);
+    console.log(`Hall Pass is ready · workbook schema ${GD_SCHEMA_VERSION}`);
   }
-  return { ok: true, schemaVersion: GD_SCHEMA_VERSION };
+  return result;
 }
 
 /* ------------------------------------------------------------ web entry ---- */
@@ -477,6 +586,9 @@ function setupProject() {
 function doGet(e) {
   ensureWorkbookReady_();
   const requestedMode = String((e && e.parameter && e.parameter.mode) || 'student').toLowerCase();
+  if (requestedMode === 'setup-link' && typeof setupVerifyPublishedApp_ === 'function') {
+    return setupVerifyPublishedApp_();
+  }
   if (requestedMode === 'releasecheck') {
     assertTeacher_(getActiveEmail_(), getSettings_());
     return HtmlService.createHtmlOutputFromFile('ReleaseCheck').setTitle('GrantDesk private release check');
@@ -484,8 +596,12 @@ function doGet(e) {
   const mode = ['student', 'kiosk', 'teacher', 'checkin'].includes(requestedMode) ? requestedMode : 'student';
   const template = HtmlService.createTemplateFromFile('Index');
   template.appMode = mode;
+  const branded = hallPassSiteBranded_();
+  template.siteBrand = branded ? 'desk' : '';
   return template.evaluate()
-    .setTitle(mode === 'checkin' ? 'GrantDesk Daily Check-in' : 'GrantDesk Hall Pass')
+    .setTitle(mode === 'checkin'
+      ? (branded ? 'GrantDesk Daily Check-in' : 'Daily Check-in')
+      : (branded ? 'GrantDesk Hall Pass' : 'Hall Pass'))
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -498,6 +614,7 @@ function getBootstrap(mode, clientContract) {
   if (mode === 'teacher') {
     assertTeacher_(activeEmail, settings);
     assertTeacherClient_(clientContract);
+    ensureBackgroundTriggers_(true);
     purgeIfDue_();
     return getTeacherState_({ includePinStatus: true });
   }
@@ -514,7 +631,7 @@ function getBootstrap(mode, clientContract) {
   }
 
   const purpose = mode === 'checkin' ? 'checkin' : 'pass';
-  if (!activeEmail) return unrecognizedState_(settings, purpose, 'Enter your six-digit PIN to continue.');
+  if (!activeEmail) return unrecognizedState_(settings, purpose, 'Enter your 5- or 6-digit PIN to continue.');
 
   const students = getStudentsByEmail_(activeEmail);
   if (!students.length) {
@@ -525,8 +642,9 @@ function getBootstrap(mode, clientContract) {
       'Your school account is signed in, but it is not on this class roster. Try your PIN or ask your teacher.'
     );
   }
-  if (students.length > 1) return createClassSelectionState_(students, 'google', purpose);
-  return getStudentPinPromptState_(students[0], '', 'google', purpose);
+  const current = students.length > 1 ? membershipMeetingNow_(students) : students[0];
+  if (!current) return createClassSelectionState_(students, 'google', purpose);
+  return getStudentPinPromptState_(current, '', 'google', purpose);
 }
 
 function unrecognizedState_(settings, purpose, message) {
@@ -551,6 +669,19 @@ function identifyCheckInWithPin(pin, attemptNonce) {
   return identifyPin_(pin, 'checkin', attemptNonce);
 }
 
+/** A verified companion visit issues no attendance/pass action proof. */
+function identifyChecklingWithPin(pin, attemptNonce) {
+  ensureWorkbookReady_();
+  const activeEmail = getActiveEmail_();
+  assertSchoolAccount_(activeEmail, getSettings_());
+  const students = verifyStudentPin_(pin, activeEmail, attemptNonce);
+  const chosen = students.length > 1 ? membershipMeetingNow_(students) : students[0];
+  const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), students[0].email,
+    chosen ? chosen.key : '', 'pin', true);
+  return chosen ? getCheckInState_(chosen, token, 'pin')
+    : buildClassSelectionState_(students, token, 'pin', 'checkling');
+}
+
 function identifyPin_(pin, purpose, attemptNonce) {
   ensureWorkbookReady_();
   const settings = getSettings_();
@@ -562,18 +693,79 @@ function identifyPin_(pin, purpose, attemptNonce) {
     ? GD_STUDENT_ACTIONS.CHECKIN
     : stabilizeInferredPassAction_(email, attemptNonce, inferPassAction_(email));
 
-  if (students.length > 1) {
+  const chosen = students.length > 1
+    ? (action === GD_STUDENT_ACTIONS.RETURN ? studentForReturn_(students, email) : membershipMeetingNow_(students))
+    : students[0];
+  if (!chosen) {
     const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, '', 'pin', true);
     const actionProof = putStudentActionProof_(email, '', action, 'pin');
     return buildClassSelectionState_(students, token, 'pin', purpose, actionProof, action);
   }
-  assertStudentActionEligible_(students[0], action);
-  const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, students[0].key, 'pin', true);
-  const actionProof = putStudentActionProof_(email, students[0].key, action, 'pin');
+  assertStudentActionEligible_(chosen, action);
+  const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, chosen.key, 'pin', true);
+  const actionProof = putStudentActionProof_(email, chosen.key, action, 'pin');
   const next = purpose === 'checkin'
-    ? getCheckInState_(students[0], token, 'pin')
-    : getStudentState_(students[0], token, 'pin');
+    ? getCheckInState_(chosen, token, 'pin')
+    : getStudentState_(chosen, token, 'pin');
   return attachStudentAction_(next, actionProof, action);
+}
+
+/**
+ * The class a multi-class student is sitting in right now, proven only when
+ * the bell schedule names a current period and exactly one of the student's
+ * active memberships meets in it. Anything else returns null, and the
+ * student chooses their class exactly as before.
+ */
+function membershipMeetingNow_(students) {
+  let period = null;
+  try {
+    period = currentScheduledPeriod_();
+  } catch (error) {
+    return null;
+  }
+  if (!period) return null;
+  const matches = (students || []).filter((student) => periodNumberFromClass_(student.classPeriod) === period);
+  return matches.length === 1 ? matches[0] : null;
+}
+
+/**
+ * One round trip for the common case. The PIN is verified and a one-use
+ * proof issued exactly as before; when the class is known, that proof is
+ * consumed in this same request instead of in a second browser call.
+ *
+ * entry: 'authorize' (fresh PIN on an identified screen), 'identify-pass'
+ * or 'identify-checkin' (first PIN on a blank screen).
+ */
+function authorizeAndActStudent(entry, pin, requestedAction, studentKey, attemptNonce) {
+  let authorized;
+  if (entry === 'identify-pass') authorized = identifyWithPin(pin, attemptNonce);
+  else if (entry === 'identify-checkin') authorized = identifyCheckInWithPin(pin, attemptNonce);
+  else if (entry === 'authorize') authorized = authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce);
+  else throw new Error('Refresh this page before trying that student action.');
+  return completeStudentPinAction_(authorized);
+}
+
+function completeStudentPinAction_(authorized) {
+  if (!authorized || authorized.requiresClassSelection || !authorized.actionProof || !authorized.student) return authorized;
+  const action = authorized.authorizedAction;
+  const proof = authorized.actionProof;
+  const key = authorized.student.key;
+  const token = authorized.pinToken || '';
+  let completed = null;
+  try {
+    if (action === GD_STUDENT_ACTIONS.PASS_REQUEST) completed = requestBathroomPass(proof, key, token);
+    else if (action === GD_STUDENT_ACTIONS.RETURN) completed = returnPass(proof, key, token);
+    else if (action === GD_STUDENT_ACTIONS.CHECKIN) completed = submitDailyCheckIn(proof, key, token);
+    else return authorized;
+  } catch (error) {
+    // A busy lock refuses before the proof is consumed. Hand the unused proof
+    // back so the browser's existing retry loop finishes the same request.
+    if (String(error && error.message ? error.message : error) !== GD_BUSY_LOCK_MESSAGE) throw error;
+    authorized.actionDeferred = true;
+    return authorized;
+  }
+  completed.completedAction = action;
+  return completed;
 }
 
 /**
@@ -602,7 +794,10 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
   }
   if (studentKey && !selected) throw new Error('That class selection is no longer active.');
 
-  if (!selected && students.length > 1 && action !== GD_STUDENT_ACTIONS.RETURN) {
+  const meetingNow = !selected && students.length > 1 && action !== GD_STUDENT_ACTIONS.RETURN
+    ? membershipMeetingNow_(students)
+    : null;
+  if (!selected && !meetingNow && students.length > 1 && action !== GD_STUDENT_ACTIONS.RETURN) {
     const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, '', 'pin', true);
     const actionProof = putStudentActionProof_(email, '', action, 'pin');
     return buildClassSelectionState_(
@@ -615,7 +810,9 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
     );
   }
 
-  const student = selected || studentForReturn_(students, email) || students[0];
+  const student = selected || meetingNow
+    || (action === GD_STUDENT_ACTIONS.RETURN ? studentForReturn_(students, email) : null)
+    || students[0];
   assertStudentActionEligible_(student, action);
   const identityMethod = activeEmail && normalizeEmail_(activeEmail) === email ? 'google' : 'pin';
   const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, student.key, identityMethod, true);
@@ -627,10 +824,19 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
 }
 
 function verifyStudentPin_(pin, activeEmail, attemptNonce) {
+  if (schoolDirectorySourceId_()) readSchoolDirectory_(schoolDirectorySourceId_());
   assertPinAttemptAllowed_(activeEmail, attemptNonce);
-  const cleaned = String(pin || '').replace(/\D/g, '');
-  if (!/^\d{6}$/.test(cleaned)) throw new Error('Enter your six-digit PIN.');
-  const students = getStudentsByPinHash_(hashPin_(cleaned));
+  reserveServerPinAttempt_(activeEmail);
+  const cleaned = String(pin || '').trim();
+  if (!/^\d{5,6}$/.test(cleaned)) {
+    recordFailedPinAttempt_(activeEmail, attemptNonce);
+    throw new Error('Enter your 5- or 6-digit PIN.');
+  }
+  let students = getStudentsByPinHash_(hashPin_(cleaned));
+  // Lunch numbers lose a leading zero in some school exports (020772 vs 20772).
+  // Accept either spelling of the same number before calling it a wrong PIN.
+  const zeroTwin = leadingZeroTwin_(cleaned);
+  if (!students.length && zeroTwin) students = getStudentsByPinHash_(hashPin_(zeroTwin));
   if (!students.length) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
     throw new Error('That PIN did not match an active student. Try again or ask your teacher.');
@@ -638,7 +844,40 @@ function verifyStudentPin_(pin, activeEmail, attemptNonce) {
   const emails = [...new Set(students.map((student) => student.email))];
   if (emails.length !== 1) throw new Error('That PIN is not unique. Ask your teacher to repair the PIN list.');
   clearPinAttempts_(activeEmail, attemptNonce);
+  clearServerPinAttempt_(activeEmail);
   return students;
+}
+
+/** A client cannot reset this budget by rotating its browser-supplied nonce. */
+function serverPinAttemptKey_(email) {
+  let temporaryKey = '';
+  try { temporaryKey = Session.getTemporaryActiveUserKey() || ''; } catch (error) { /* supported fallback below */ }
+  const identity = email ? normalizeEmail_(email) : temporaryKey || 'unidentified-school-kiosk';
+  return 'pin-budget:' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256, identity, Utilities.Charset.UTF_8)).slice(0, 32);
+}
+
+function withPinBudgetLock_(action) {
+  const lock = LockService.getUserLock();
+  lock.waitLock(GD_STUDENT_LOCK_WAIT_MS);
+  try { return action(); } finally { lock.releaseLock(); }
+}
+
+function reserveServerPinAttempt_(email) {
+  withPinBudgetLock_(() => {
+    const properties = PropertiesService.getScriptProperties(), key = serverPinAttemptKey_(email);
+    let budget;
+    try { budget = JSON.parse(properties.getProperty(key) || 'null'); } catch (error) { budget = null; }
+    const now = Date.now();
+    if (!budget || now - budget.start >= 900000) budget = { start: now, count: 0 };
+    if (budget.count >= (email ? 10 : 60)) throw new Error('Too many incorrect PIN attempts. Wait fifteen minutes or ask your teacher.');
+    budget.count += 1;
+    properties.setProperty(key, JSON.stringify(budget));
+  });
+}
+
+function clearServerPinAttempt_(email) {
+  withPinBudgetLock_(() => PropertiesService.getScriptProperties().deleteProperty(serverPinAttemptKey_(email)));
 }
 
 function normalizeStudentAction_(value) {
@@ -652,7 +891,7 @@ function normalizeStudentAction_(value) {
 function inferPassAction_(email) {
   const normalized = normalizeEmail_(email);
   const todayKey = dateKey_(new Date());
-  return readPassLog_().some((pass) => (
+  return readRecentPassLog_(passLogRecentCutoff_()).some((pass) => (
     pass.studentEmail === normalized && pass.status === 'OUT' && safeDateKey_(pass.outDate) === todayKey
   )) ? GD_STUDENT_ACTIONS.RETURN : GD_STUDENT_ACTIONS.PASS_REQUEST;
 }
@@ -692,7 +931,7 @@ function stabilizeInferredPassAction_(email, attemptNonce, inferredAction) {
 }
 
 function studentForReturn_(students, email) {
-  const active = readPassLog_()
+  const active = readRecentPassLog_(passLogRecentCutoff_())
     .filter((pass) => pass.studentEmail === normalizeEmail_(email) && pass.status === 'OUT')
     .sort((a, b) => (b.outDate ? b.outDate.getTime() : 0) - (a.outDate ? a.outDate.getTime() : 0))[0];
   if (!active) return null;
@@ -705,15 +944,51 @@ function attachStudentAction_(state, actionProof, action) {
   return state;
 }
 
+function credentialVersionForEmail_(emailValue) {
+  const email = normalizeEmail_(emailValue);
+  if (!email) return '';
+  const versions = gdMemo_('credential-versions', () => {
+    const byEmail = {};
+    readRosterRowsCached_().forEach((student) => {
+      if (!student.email || !student.pinHash) return;
+      if (!byEmail[student.email]) byEmail[student.email] = new Set();
+      byEmail[student.email].add(student.pinHash);
+    });
+    const resolved = {};
+    Object.entries(byEmail).forEach(([studentEmail, hashes]) => {
+      if (hashes.size !== 1) return;
+      const [pinHash] = [...hashes];
+      const bytes = Utilities.computeHmacSha256Signature(
+        `credential:${pinHash}`,
+        ensureSalt_(),
+        Utilities.Charset.UTF_8
+      );
+      resolved[studentEmail] = Utilities.base64EncodeWebSafe(bytes).replace(/=+$/g, '').slice(0, 24);
+    });
+    return resolved;
+  });
+  return versions[email] || '';
+}
+
+function assertCredentialVersion_(emailValue, tokenVersion) {
+  const current = credentialVersionForEmail_(emailValue);
+  const supplied = String(tokenVersion || '');
+  if (!current || !supplied || !secureEquals_(current, supplied)) {
+    throw new Error('Student credentials changed. Enter the current PIN again.');
+  }
+}
+
 function putPinSession_(token, email, key, method, pinVerified) {
   const issuedAt = Date.now();
+  const normalizedEmail = normalizeEmail_(email);
   const body = encodeTokenPart_(JSON.stringify({
-    v: 1,
+    v: 2,
     nonce: String(token || '').slice(0, 80),
-    email: normalizeEmail_(email),
+    email: normalizedEmail,
     key: key || '',
     method: method === 'google' ? 'google' : 'pin',
     pinVerified: Boolean(pinVerified),
+    credentialVersion: credentialVersionForEmail_(normalizedEmail),
     iat: issuedAt,
     exp: issuedAt + GD_PIN_SESSION_SECONDS * 1000,
   }));
@@ -727,21 +1002,22 @@ function readPinSession_(pinToken) {
     try {
       if (!secureEquals_(signTokenPart_(parts[0]), parts[1])) throw new Error('Bad signature');
       const session = JSON.parse(decodeTokenPart_(parts[0]));
+      if (Number(session.v) !== 2) throw new Error('Legacy credential');
       if (!session.exp || Number(session.exp) < Date.now()) throw new Error('Expired token');
+      const email = normalizeEmail_(session.email);
+      assertCredentialVersion_(email, session.credentialVersion);
       return {
-        email: normalizeEmail_(session.email),
+        email,
         key: String(session.key || ''),
         method: session.method === 'google' ? 'google' : 'pin',
         pinVerified: Boolean(session.pinVerified),
       };
     } catch (error) {
-      throw new Error('That PIN session expired. Enter your PIN again.');
+      throw new Error('That PIN session expired or the student PIN changed. Enter the current PIN again.');
     }
   }
 
-  const cached = CacheService.getScriptCache().get(`pin:${token}`);
-  if (!cached) throw new Error('That PIN session expired. Enter your PIN again.');
-  return JSON.parse(cached);
+  throw new Error('That PIN session expired. Enter your current PIN again.');
 }
 
 function encodeTokenPart_(value) {
@@ -780,12 +1056,13 @@ function createClassSelectionState_(students, method, purpose) {
 
 function buildClassSelectionState_(students, token, method, purpose, actionProof, authorizedAction) {
   const settings = getSettings_();
+  const checkInView = purpose === 'checkin' || purpose === 'checkling';
   const state = {
     ok: true,
-    mode: purpose === 'checkin' ? 'checkin' : 'student',
+    mode: checkInView ? 'checkin' : 'student',
     recognized: true,
     requiresClassSelection: true,
-    appTitle: purpose === 'checkin' ? 'Daily Check-in' : settings.APP_TITLE,
+    appTitle: checkInView ? 'Daily Check-in' : settings.APP_TITLE,
     purpose,
     method,
     pinToken: token,
@@ -822,6 +1099,10 @@ function selectStudentClass(pinToken, studentKey, purpose, actionProof) {
     }
   }
   const nextToken = putPinSession_(pinToken, student.email, student.key, method, session.pinVerified);
+  if (purpose === 'checkling') {
+    if (!session.pinVerified || method !== 'pin') throw new Error('Enter your PIN to visit your Checkling.');
+    return getCheckInState_(student, nextToken, method);
+  }
   const next = actionSession
     ? (purpose === 'checkin'
       ? getCheckInState_(student, nextToken, method)
@@ -833,13 +1114,15 @@ function selectStudentClass(pinToken, studentKey, purpose, actionProof) {
 function putStudentActionProof_(email, key, action, identityMethod) {
   const issuedAt = Date.now();
   const nonce = Utilities.getUuid().replace(/-/g, '');
+  const normalizedEmail = normalizeEmail_(email);
   const body = encodeTokenPart_(JSON.stringify({
-    v: 2,
+    v: 3,
     nonce,
-    email: normalizeEmail_(email),
+    email: normalizedEmail,
     key: String(key || ''),
     action: normalizeStudentAction_(action),
     identityMethod: identityMethod === 'google' ? 'google' : 'pin',
+    credentialVersion: credentialVersionForEmail_(normalizedEmail),
     iat: issuedAt,
     exp: issuedAt + GD_ACTION_PROOF_SECONDS * 1000,
   }));
@@ -856,11 +1139,13 @@ function readStudentActionProof_(actionProof) {
   try {
     if (!secureEquals_(signTokenPart_(parts[0]), parts[1])) throw new Error('Bad signature');
     const proof = JSON.parse(decodeTokenPart_(parts[0]));
-    if (Number(proof.v) !== 2 || !proof.nonce) throw new Error('Legacy proof');
+    if (Number(proof.v) !== 3 || !proof.nonce) throw new Error('Legacy proof');
     if (!proof.exp || Number(proof.exp) < Date.now()) throw new Error('Expired proof');
+    const email = normalizeEmail_(proof.email);
+    assertCredentialVersion_(email, proof.credentialVersion);
     return {
       nonce: String(proof.nonce),
-      email: normalizeEmail_(proof.email),
+      email,
       key: String(proof.key || ''),
       action: normalizeStudentAction_(proof.action),
       identityMethod: proof.identityMethod === 'google' ? 'google' : 'pin',
@@ -868,7 +1153,7 @@ function readStudentActionProof_(actionProof) {
       expiresAt: new Date(Number(proof.exp || 0)),
     };
   } catch (error) {
-    throw new Error('That one-time PIN proof expired. Enter your PIN again.');
+    throw new Error('That one-time PIN proof expired or the student PIN changed. Enter the current PIN again.');
   }
 }
 
@@ -947,11 +1232,11 @@ function resolveStudent_(pinToken, requireFreshPinIdentity) {
   const settings = getSettings_();
   const email = getActiveEmail_();
   assertSchoolAccount_(email, settings);
-  if (!email) throw new Error('Enter your six-digit PIN to continue.');
+  if (!email) throw new Error('Enter your 5- or 6-digit PIN to continue.');
   const students = getStudentsByEmail_(email);
   if (students.length !== 1) {
     throw new Error(students.length > 1
-      ? 'Use the six-digit PIN for this class.'
+      ? 'Use the 5- or 6-digit PIN for this class.'
       : 'Your school account is not on the active roster. Use your PIN or ask your teacher.');
   }
   return { student: students[0], method: 'google' };
@@ -1002,8 +1287,12 @@ function validateCheckInSubmissionProof_(actionProof, studentKey) {
     if (proof.action !== GD_STUDENT_ACTIONS.CHECKIN) throw originalError;
     const student = getStudentByKey_(studentKey || proof.key);
     if (!student || student.email !== proof.email || (proof.key && proof.key !== student.key)) throw originalError;
+    const todayKey = dateKey_(new Date());
+    const logicalId = logicalCheckInId_(todayKey, student.key);
     const recorded = readCheckInsIncludingPending_().find((entry) => (
-      entry.checkInId === proof.nonce && entry.studentKey === student.key
+      entry.studentKey === student.key &&
+      entry.dateKey === todayKey &&
+      (entry.checkInId === proof.nonce || entry.checkInId === logicalId)
     ));
     if (!recorded) throw originalError;
     return {
@@ -1011,7 +1300,7 @@ function validateCheckInSubmissionProof_(actionProof, studentKey) {
       method: proof.identityMethod,
       authorizationMethod: 'PIN',
       authorizedAt: proof.issuedAt,
-      requestId: proof.nonce,
+      requestId: recorded.checkInId,
       alreadyRecorded: recorded,
     };
   }
@@ -1028,63 +1317,305 @@ function submitDailyCheckIn(actionProof, studentKey, identityToken) {
       resolved.requestId
     );
   if (!resolved.alreadyRecorded) {
-    // The arrival is durable before its proof becomes unusable. A request that
-    // is interrupted before staging can still be retried; an interrupted reply
-    // is handled by validateCheckInSubmissionProof_ above.
     PropertiesService.getScriptProperties().deleteProperty(resolved.proofPropertyKey);
   }
   tryFlushPendingCheckIns_();
   const token = identityTokenForStudent_(identityToken, resolved.student);
   const state = getCheckInState_(resolved.student, token, resolved.method);
+  const canonical = state.checkIn || (recorded ? clientCheckIn_(recorded) : null);
   state.actionOutcome = {
-    id: resolved.requestId,
-    kind: recorded && checkInStatusIsLate_(recorded.status) ? 'LATE_CHECK_IN_RECORDED' : 'CHECKED_IN',
+    id: canonical && canonical.checkInId ? canonical.checkInId : resolved.requestId,
+    kind: canonical && checkInStatusIsLate_(canonical.status) ? 'LATE_CHECK_IN_RECORDED' : 'CHECKED_IN',
   };
   return state;
 }
 
-function getCheckInState_(student, pinToken, method) {
-  const settings = getSettings_();
-  const todayKey = dateKey_(new Date());
-  const allCheckIns = readCheckInsIncludingPending_();
-  const checkIn = allCheckIns.find((entry) => (
-    entry.dateKey === todayKey &&
-    entry.studentKey === student.key &&
-    checkInStatusIsRecorded_(entry.status)
-  ));
-  const absence = allCheckIns.find((entry) => (
-    entry.dateKey === todayKey &&
-    entry.studentKey === student.key &&
-    entry.status === 'ABSENT'
-  ));
-  const sessionEligibility = studentActionEligibility_(student, GD_STUDENT_ACTIONS.CHECKIN);
-  return {
-    ok: true,
-    mode: 'checkin',
-    recognized: true,
-    appTitle: 'Daily Check-in',
-    student: { key: student.key, name: student.name, classPeriod: student.classPeriod },
-    pinToken: pinToken || '',
-    method,
-    dateKey: todayKey,
-    pointValue: numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1),
-    checkedIn: Boolean(checkIn),
-    lateCheckIn: Boolean(checkIn && checkInStatusIsLate_(checkIn.status)),
-    lateReviewStatus: checkIn && checkInStatusIsLate_(checkIn.status) ? checkIn.status : '',
-    // A teacher-entered absence stays authoritative while the student is still
-    // inside the on-time window. After the cutoff, a separate late-arrival record
-    // may be added without silently clearing the teacher's attendance decision.
-    attendanceLocked: Boolean(absence && !checkIn && !sessionEligibility.late),
-    priorAbsence: Boolean(absence && !checkIn),
-    sessionEligibility,
-    checkIn: checkIn ? clientCheckIn_(checkIn) : null,
-    streak: buildStreakIndex_(allCheckIns).streakFor(student.key, todayKey),
-    serverNow: new Date().toISOString(),
+function getCheckInState_(student,pinToken,method) {
+  const settings=getSettings_(); const todayKey=dateKey_(new Date()); const todayCheckIns=readCheckInsForDateIncludingPending_(todayKey);
+  const checkIn=todayCheckIns.find((entry)=>entry.studentKey===student.key&&checkInStatusIsRecorded_(entry.status));
+  const absence=todayCheckIns.find((entry)=>entry.studentKey===student.key&&entry.status==='ABSENT');
+  const sessionEligibility=studentActionEligibility_(student,GD_STUDENT_ACTIONS.CHECKIN);
+  const summary=readCheckInSummaryMap_().get(student.key)||emptyCheckInSummary_(student.key);
+  return {ok:true,mode:'checkin',recognized:true,appTitle:'Daily Check-in',student:{key:student.key,name:student.name,classPeriod:student.classPeriod},
+    pinToken:pinToken||'',method,dateKey:todayKey,pointValue:numberSetting_(settings,'CHECKIN_POINT_VALUE',1),checkedIn:Boolean(checkIn),
+    lateCheckIn:Boolean(checkIn&&checkInStatusIsLate_(checkIn.status)),lateReviewStatus:checkIn&&checkInStatusIsLate_(checkIn.status)?checkIn.status:'',
+    attendanceLocked:Boolean(absence&&!checkIn&&!sessionEligibility.late),priorAbsence:Boolean(absence&&!checkIn),sessionEligibility,
+    checkIn:checkIn?clientCheckIn_(checkIn):null,streak:streakFromCheckInSummary_(summary,todayKey),
+    checkling:getChecklingState_(student,summary,checkIn,todayKey),serverNow:new Date().toISOString()};
+}
+
+/** Optional companion preferences only. Attendance remains the sole authority
+ * for points, dates and streaks; the pet never writes an attendance event.
+ * No new workbook columns or migration, no browser-local student profile.
+ */
+function getChecklingState_(student, summary, checkIn, todayKey) {
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty(GD_CHECKLING_PREFIX + student.key);
+    let saved = null;
+    try { saved = raw ? JSON.parse(raw) : null; } catch (error) { /* allow the student to choose again */ }
+    const species = ['mochi', 'bolt', 'zee', 'ember'];
+    const streak = streakFromCheckInSummary_(summary, todayKey);
+    const best = Math.max(0, Number(streak.best) || 0);
+    const stages = GD_CHECKLING_STAGES;
+    const stage = stages.filter((entry) => best >= entry.min).pop();
+    const next = stages.find((entry) => entry.min > best);
+    const home = stages.find((entry) => saved && entry.habitat === saved.habitat && best >= entry.min) || stages[0];
+    const pet = saved && saved.v === 1 && species.includes(saved.species) && typeof saved.name === 'string'
+      ? {species:saved.species, name:saved.name.slice(0,18), habitat:home.habitat} : null;
+    return {available:true, pet, stage:stage.label, scale:stage.scale, bestStreak:best,
+      nextMilestone:next ? next.min : null, visitedToday:Boolean(checkIn),
+      countedToday:Boolean(streak.checkedInToday), protectedDay:Boolean(streak.nonSchoolDayProtected),
+      journey:stages.map((entry) => ({label:entry.label, min:entry.min, habitat:entry.habitat,
+        home:entry.home, keepsake:entry.keepsake, symbol:entry.symbol, unlocked:best >= entry.min}))};
+  } catch (error) {
+    // A damaged preference or a property outage must never hide a recorded check-in.
+    return {available:false};
+  }
+}
+
+function saveCheckling(pinToken, species, petName, habitat) {
+  return withLock_(() => saveChecklingUnlocked_(pinToken,species,petName,habitat),1000,'checkling-save');
+}
+
+function saveChecklingUnlocked_(pinToken, species, petName, habitat) {
+  const resolved = resolveStudent_(pinToken, true);
+  if (!['mochi', 'bolt', 'zee', 'ember'].includes(species)) throw new Error('Choose one of the four Checklings.');
+  if (typeof petName !== 'string') throw new Error('Give your Checkling a name.');
+  const name = petName.replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 18);
+  if (!name) throw new Error('Give your Checkling a name.');
+  const current = getCheckInState_(resolved.student, pinToken || '', resolved.method);
+  if (!current.checkling.available) throw new Error('Your friend cannot save right now. Your check-in is unaffected.');
+  const chosenHome = habitat === undefined ? (current.checkling.pet && current.checkling.pet.habitat) || 'meadow' : habitat;
+  const home = current.checkling.journey.find((entry) => entry.habitat === chosenHome);
+  if (!home) throw new Error('Choose one of the five Checkling habitats.');
+  if (!home.unlocked) throw new Error('That habitat opens at its official school-day streak milestone.');
+  const campFounder = pixelCampRow_(resolved.student.key,false);
+  if (campFounder.values && campFounder.values[2] !== species) throw new Error('Keep your original camp companion. Choose party friends inside Pixel Camp.');
+  PropertiesService.getScriptProperties().setProperty(GD_CHECKLING_PREFIX + resolved.student.key,
+    JSON.stringify({v:1, species, name, habitat:home.habitat}));
+  return getCheckInState_(resolved.student, pinToken || '', resolved.method);
+}
+
+/* Checkaverse bus tickets. Riding the bus prints a short signed ticket the game server checks with the
+ * same key. The ticket names no student: an anonymous player ID, the class hour, today's check-in, how many
+ * official check-ins the student has, and the Checkling they hatched. No name, PIN or email leaves Check-In.
+ * Read only: a ticket never writes attendance and never takes the shared lock except to store the key once.
+ */
+const GD_CHECKAVERSE_KEY_PROPERTY = 'CHECKAVERSE_TICKET_KEY';
+const GD_CHECKAVERSE_TICKET_MS = 2 * 60 * 60 * 1000;
+const GD_CHECKAVERSE_URL = 'https://game.grant-desk.com/';
+const GD_CHECKAVERSE_KEY_PATTERN = /^[A-Za-z0-9_-]{32,128}$/;
+
+/** The key arrives once through the private Settings tab, moves into script properties, and leaves the sheet. */
+function checkaverseTicketKey_() {
+  const properties = PropertiesService.getScriptProperties();
+  const pasted = String(getSettings_().CHECKAVERSE_TICKET_KEY || '').trim();
+  if (GD_CHECKAVERSE_KEY_PATTERN.test(pasted)) {
+    withLock_(() => {
+      gdForget_('settings');
+      const again = String(getSettings_().CHECKAVERSE_TICKET_KEY || '').trim();
+      if (!GD_CHECKAVERSE_KEY_PATTERN.test(again)) return;
+      properties.setProperty(GD_CHECKAVERSE_KEY_PROPERTY, again);
+      setSettingValue_('CHECKAVERSE_TICKET_KEY', 'Stored privately');
+      SpreadsheetApp.flush();
+    }, 5000, 'checkaverse-key');
+  }
+  const key = String(properties.getProperty(GD_CHECKAVERSE_KEY_PROPERTY) || '');
+  if (!GD_CHECKAVERSE_KEY_PATTERN.test(key)) throw new Error('The bus to the Checkaverse is not running yet. Your teacher needs to connect it.');
+  return key;
+}
+
+/** The same student in the same class always gets the same anonymous ID, and nothing in it leads back to them. */
+function checkaversePlayerId_(studentKey) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature('checkaverse-player:' + studentKey, ensureSalt_(), Utilities.Charset.UTF_8))
+    .replace(/=+$/g, '').slice(0, 22);
+}
+
+function getCheckaverseTicket(pinToken) {
+  const resolved = resolveStudent_(pinToken, true);
+  const student = resolved.student;
+  const state = getCheckInState_(student, pinToken || '', resolved.method);
+  if (!state.checkling.available) throw new Error('Your Checkling could not load. Try again in a moment.');
+  const pet = state.checkling.pet;
+  if (!pet) throw new Error('Hatch your Checkling first. Then the bus can take you both.');
+  const key = checkaverseTicketKey_();
+  const days = {};
+  readCheckInsIncludingPending_().forEach((entry) => {
+    if (entry.studentKey === student.key && checkInStatusIsRecorded_(entry.status)) days[entry.dateKey] = true;
+  });
+  const now = Date.now();
+  const payload = {
+    v: 1, p: checkaversePlayerId_(student.key), h: String(student.classPeriod || '').slice(0, 40), d: state.dateKey,
+    c: Boolean(state.checkedIn), n: Object.keys(days).length,
+    s: Number(state.streak && state.streak.current) || 0, b: Number(state.streak && state.streak.best) || 0,
+    k: {s: pet.species, n: pet.name}, iat: now, exp: now + GD_CHECKAVERSE_TICKET_MS,
+    j: Utilities.getUuid().replace(/-/g, '').slice(0, 16),
   };
+  const body = encodeTokenPart_(JSON.stringify(payload));
+  const signature = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(body, key, Utilities.Charset.UTF_8)).replace(/=+$/g, '');
+  const ticket = body + '.' + signature;
+  return {ok: true, url: GD_CHECKAVERSE_URL + '#t=' + ticket, expiresAt: new Date(payload.exp).toISOString()};
+}
+
+/* Pixel Camp: private, membership-scoped game saves. No attendance writes. */
+const GD_CAMP_HEADERS = ['Membership Key','Revision','Founder','Camp JSON','Previous Camp JSON','Mutation ID','Updated At'];
+function pixelCampRow_(studentKey, create) {
+  const book = getSpreadsheet_();
+  let sheet = book.getSheetByName('Checkling Camps');
+  if (!sheet && create) {
+    sheet = book.insertSheet('Checkling Camps');
+    sheet.getRange(1,1,1,GD_CAMP_HEADERS.length).setValues([GD_CAMP_HEADERS]);
+    sheet.setFrozenRows(1);
+  }
+  if (!sheet) return {sheet:null,row:0,values:null};
+  const headers = sheet.getRange(1,1,1,GD_CAMP_HEADERS.length).getValues()[0];
+  if (headers.some((value,index) => value !== GD_CAMP_HEADERS[index])) throw new Error('Camp storage needs teacher review. Your saved camp has not been replaced.');
+  const keys = sheet.getLastRow() > 1 ? sheet.getRange(2,1,sheet.getLastRow()-1,1).getValues() : [];
+  const matches = keys.map((values,index) => ({key:values[0],row:index+2})).filter(entry => entry.key === studentKey);
+  if (matches.length > 1) throw new Error('Camp storage needs teacher review. Your saved camp has not been replaced.');
+  return {sheet,row:matches.length ? matches[0].row : 0,values:matches.length ? sheet.getRange(matches[0].row,1,1,GD_CAMP_HEADERS.length).getValues()[0] : null};
+}
+function pixelCampSnapshot_(student, token, found) {
+  const official = getCheckInState_(student,token,'pin');
+  if (!official.checkling.available) throw new Error('Your companion could not load. Try again before opening camp.');
+  const pet = official.checkling.pet;
+  if (!pet) throw new Error('Hatch your Checkling on the Check-In screen before opening camp.');
+  const raw = found.values ? JSON.parse(found.values[3]) : null;
+  const camp = raw ? sanitizePixelCamp_(raw) : initialPixelCamp_();
+  const founder = found.values ? found.values[2] : pet ? pet.species : camp.selected;
+  if (!['mochi','bolt','zee','ember'].includes(founder)) throw new Error('Camp founder needs teacher review.');
+  if (pet && pet.species !== founder) throw new Error('Your companion and camp need teacher review. Neither has been replaced.');
+  if (pet) camp.pets[founder].nickname = pet.name;
+  if (!found.values) camp.selected = founder;
+  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,formats:[1,2,3],access:pixelCampAccess_(),
+    school:{companion:official.checkling,streak:official.streak,checkedIn:official.checkedIn}};
+}
+function pixelCampAccess_() {
+  // Missing in older workbooks means open. Any explicit FALSE pauses this workbook only.
+  return {open: String(getSettings_().PIXEL_CAMP_OPEN || '').toUpperCase() !== 'FALSE'};
+}
+function assertPixelCampOpen_() {
+  if (!pixelCampAccess_().open) throw new Error('Your teacher has paused Pixel Camp. Save a file of any unconfirmed progress, then return to Check-In.');
+}
+function getPixelCampAccess(pinToken) {
+  resolveStudent_(pinToken,true);
+  return pixelCampAccess_();
+}
+function teacherSetPixelCampOpen(open, clientContract) {
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher,getSettings_()); assertTeacherClient_(clientContract);
+  if (typeof open !== 'boolean') throw new Error('Choose pause or resume for Pixel Camp.');
+  return withLock_(() => {
+    gdForget_('settings');
+    assertTeacher_(getActiveEmail_(),getSettings_()); assertTeacherClient_(clientContract);
+    const before = pixelCampAccess_();
+    if (before.open === open) return before;
+    try {
+      setSettingValue_('PIXEL_CAMP_OPEN',open ? 'TRUE' : 'FALSE');
+      auditTeacherAction_(teacher,{email:'',name:'Pixel Camp',classPeriod:'All classes'},'PIXEL_CAMP_ACCESS_CHANGED',[],open ? 'School camp resumed' : 'School camp paused','');
+      SpreadsheetApp.flush();
+    } catch (error) {
+      setSettingValue_('PIXEL_CAMP_OPEN',before.open ? 'TRUE' : 'FALSE');
+      SpreadsheetApp.flush();
+      throw new Error('Camp access could not be confirmed. The previous setting was restored. Refresh before trying again.');
+    }
+    return pixelCampAccess_();
+  },1000,'pixel-camp-access');
+}
+function getPixelCamp(pinToken) {
+  const resolved = resolveStudent_(pinToken,true);
+  assertPixelCampOpen_();
+  return pixelCampSnapshot_(resolved.student,pinToken,pixelCampRow_(resolved.student.key,false));
+}
+function savePixelCamp(pinToken, expectedRevision, mutationId, rawCamp) {
+  // Bound input before taking the shared lock. All identity decisions repeat inside it.
+  const camp = sanitizePixelCamp_(rawCamp);
+  if (!Number.isInteger(expectedRevision) || expectedRevision < 0 || !/^[a-f0-9]{32}$/.test(mutationId || '')) throw new Error('Refresh camp before saving.');
+  resolveStudent_(pinToken,true);
+  return withLock_(() => {
+    const resolved = resolveStudent_(pinToken,true);
+    const found = pixelCampRow_(resolved.student.key,false);
+    if (found.values && found.values[5] === mutationId) return pixelCampSnapshot_(resolved.student,pinToken,found);
+    // A committed retry above must still be acknowledged after the teacher pauses.
+    gdForget_('settings');
+    assertPixelCampOpen_();
+    const revision = found.values ? Number(found.values[1]) : 0;
+    if (revision !== expectedRevision) throw new Error('This camp changed on another screen. Save your file, then reopen camp to load the latest school save.');
+    const snapshot = pixelCampSnapshot_(resolved.student,pinToken,found);
+    const founder = snapshot.founder;
+    const previousPet = snapshot.school.companion.pet;
+    // Keep the existing Checkling's exact name and earned habitat authoritative.
+    // The game names its other party members; the original is edited in Check-In.
+    if (previousPet) camp.pets[founder].nickname = previousPet.name;
+    const target = found.sheet ? found : pixelCampRow_(resolved.student.key,true);
+    const row = target.row || target.sheet.getLastRow()+1;
+    if (row > target.sheet.getMaxRows()) target.sheet.insertRowsAfter(target.sheet.getMaxRows(),Math.max(100,row-target.sheet.getMaxRows()));
+    const values = [resolved.student.key,revision+1,founder,JSON.stringify(camp),found.values ? found.values[3] : '',mutationId,new Date().toISOString()];
+    target.sheet.getRange(row,1,1,GD_CAMP_HEADERS.length).setValues([values]);
+    SpreadsheetApp.flush();
+    return {revision:revision+1,camp,founder,access:pixelCampAccess_(),school:snapshot.school};
+  },1000,'pixel-camp-save');
+}
+function initialPixelCamp_() {
+  const pets = {};
+  ['mochi','bolt','zee','ember'].forEach(id => { pets[id] = {nickname:'',food:70,energy:80,clean:75,joy:65,bond:0,discoveries:[],memories:[],care:[],battles:0}; });
+  return {format:'checklings-first-trail',version:1,selected:'mochi',stop:0,weather:'sun',quiet:false,decor:[],equipped:'',pets,revision:0};
+}
+/* Pixel Camp 5 uses version 2; Pixel Camp 6 adds bounded journeys and workshop fields in version 3.
+   Preserve the submitted version. The current website gates newer controls on advertised formats. */
+const GD_CAMP_CURIOS = ['acorn','pinecone','fern','mushroom','nest','clover','holeystone','frog','gear','quill','key','dragonfly','snailshell','firefly','geode','starbottle'];
+function sanitizePixelCamp_(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || JSON.stringify(raw).length > 40000 || raw.format !== 'checklings-first-trail' || (raw.version !== 1 && raw.version !== 2 && raw.version !== 3)) throw new Error('Choose a valid Pixel Camp save.');
+  const v2 = raw.version >= 2;
+  const s = initialPixelCamp_(), ids = ['mochi','bolt','zee','ember'];
+  s.version = raw.version;
+  const clean = (value,max) => typeof value === 'string' ? value.replace(/[\u0000-\u001f\u007f]/g,'').slice(0,max) : '';
+  const num = (v,def,min,max) => Number.isFinite(v) ? Math.max(min,Math.min(max,Math.round(v))) : def;
+  s.selected = ids.includes(raw.selected) ? raw.selected : 'mochi';
+  s.stop = num(raw.stop,0,0,2); s.weather = ['sun','rain','dusk'].includes(raw.weather) ? raw.weather : 'sun';
+  s.quiet = raw.quiet === true; s.revision = num(raw.revision,0,0,1000000);
+  ids.forEach(id => {
+    const p = raw.pets && raw.pets[id], q = s.pets[id];
+    if (!p || typeof p !== 'object' || Array.isArray(p)) throw new Error('The camp save is missing a founder.');
+    q.nickname = clean(p.nickname,24);
+    ['food','energy','clean','joy','bond'].forEach(key => { q[key] = num(p[key],q[key],0,100); });
+    q.battles = num(p.battles,0,0,v2 ? 3 : 1);
+    q.discoveries = Array.isArray(p.discoveries) ? [...new Set(p.discoveries.filter(x => Number.isInteger(x) && x >= 0 && x < 3))] : [];
+    q.care = Array.isArray(p.care) ? [...new Set(p.care.filter(x => ['feed','play','rest','clean','observe'].includes(x)))] : [];
+    q.memories = Array.isArray(p.memories) ? p.memories.filter(x => x && typeof x.id === 'string' && typeof x.text === 'string').slice(-24).map(x => ({id:clean(x.id,60),text:clean(x.text,200)})) : [];
+  });
+  const stamps = ids.reduce((n,id) => n+s.pets[id].discoveries.length+s.pets[id].battles,0);
+  const costs = v2 ? {planter:3,lantern:6,pennants:9,shelf:12,campfire:16,chimes:20} : {planter:3,lantern:6,pennants:9};
+  s.decor = Array.isArray(raw.decor) ? [...new Set(raw.decor.filter(id => Object.prototype.hasOwnProperty.call(costs,id) && stamps >= costs[id]))] : [];
+  s.equipped = s.decor.includes(raw.equipped) ? raw.equipped : '';
+  if (v2) {
+    const day = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+    s.curios = Array.isArray(raw.curios) ? [...new Set(raw.curios.filter(id => GD_CAMP_CURIOS.includes(id)))] : [];
+    const f = raw.forage && typeof raw.forage === 'object' && !Array.isArray(raw.forage) ? raw.forage : {};
+    s.forage = {day:day(f.day) ? f.day : '',taken:day(f.day) && Array.isArray(f.taken) ? [...new Set(f.taken.filter(x => Number.isInteger(x) && x >= 0 && x < 3))] : []};
+  }
+  if (raw.version === 3) {
+    s.journeys = {}; s.materials = {};
+    ids.forEach(id => { s.journeys[id] = num(raw.journeys && raw.journeys[id],0,0,3); });
+    ['wood','stone','fiber'].forEach(id => { s.materials[id] = num(raw.materials && raw.materials[id],0,0,99); });
+    const recipes = {seedbox:'',toolkit:'',starchart:'',hearth:'',gardenbench:'mochi',waterclock:'bolt',observatory:'zee',teatable:'ember'};
+    s.crafted = Array.isArray(raw.crafted) ? [...new Set(raw.crafted.filter(id => Object.prototype.hasOwnProperty.call(recipes,id) && (!recipes[id] || s.journeys[recipes[id]] === 3)))] : [];
+    s.equippedCraft = s.crafted.includes(raw.equippedCraft) ? raw.equippedCraft : '';
+  }
+  return s;
 }
 
 function checkInLogicalKey_(checkIn) {
   return `${String(checkIn && checkIn.dateKey || '')}::${String(checkIn && checkIn.studentKey || '')}`;
+}
+
+function logicalCheckInId_(dateKey, studentKey) {
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    `checkin:${String(dateKey || '')}:${String(studentKey || '')}`,
+    Utilities.Charset.UTF_8
+  );
+  return `CI-${String(dateKey || '').replace(/-/g, '')}-${Utilities.base64EncodeWebSafe(bytes).replace(/=+$/g, '').slice(0, 22)}`;
 }
 
 function pendingCheckInPropertyKey_(dateKey, studentKey) {
@@ -1184,7 +1715,7 @@ function stageCheckIn_(student, method, note, lateOverride, requestId) {
     : '';
   const entry = {
     row: 0,
-    checkInId: String(requestId || Utilities.getUuid()),
+    checkInId: logicalCheckInId_(todayKey, student.key),
     dateKey: todayKey,
     checkInTime: now,
     studentEmail: student.email,
@@ -1215,6 +1746,7 @@ function stageCheckIn_(student, method, note, lateOverride, requestId) {
   }));
   entry.pendingPropertyKey = propertyKey;
   gdForget_('pending-checkins');
+  updateCheckInOperationalIndex_(entry);
   return entry;
 }
 
@@ -1234,43 +1766,83 @@ function checkInEntryRow_(entry) {
 }
 
 /** Must be called while the shared script lock is held. */
-function flushPendingCheckInsLocked_() {
-  const pending = readPendingCheckIns_()
-    .slice()
-    .sort((a, b) => a.dateKey.localeCompare(b.dateKey) || a.checkInTime - b.checkInTime);
-  if (!pending.length) return { written: 0, deduplicated: 0 };
-
-  const existing = [];
-  [...new Set(pending.map((entry) => entry.dateKey))].forEach((dateKey) => {
-    existing.push(...readCheckInsForDate_(dateKey));
-  });
-  const recorded = new Set(
-    existing.filter((entry) => checkInStatusIsRecorded_(entry.status)).map(checkInLogicalKey_)
+function clearConflictingAbsenceForCheckIn_(checkIn, existingEntries) {
+  if (!checkIn || !checkIn.studentKey || !checkIn.dateKey) return false;
+  const absence = (existingEntries || []).find((entry) => (
+    entry.status === 'ABSENT'
+    && entry.dateKey === checkIn.dateKey
+    && entry.studentKey === checkIn.studentKey
+  ));
+  if (!absence) return false;
+  clearAbsentEntry_(
+    absence,
+    checkInStatusIsLate_(checkIn.status)
+      ? 'Cleared when late student check-in was recorded'
+      : 'Cleared when student check-in was recorded'
   );
-  const toWrite = [];
-  pending.forEach((entry) => {
-    const key = checkInLogicalKey_(entry);
-    if (recorded.has(key)) return;
+  absence.status = 'CLEARED';
+  return true;
+}
+
+function flushPendingCheckInsLocked_() {
+  const pending=readPendingCheckIns_().slice().sort((a,b)=>a.dateKey.localeCompare(b.dateKey)||a.checkInTime-b.checkInTime);
+  if(!pending.length){ PropertiesService.getScriptProperties().deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY); return {written:0,deduplicated:0}; }
+
+  const existing=[];
+  [...new Set(pending.map((entry)=>entry.dateKey))].forEach((dateKey)=>existing.push(...readCheckInsForDate_(dateKey)));
+  const existingByLogicalKey=new Map(
+    existing
+      .filter((entry)=>checkInStatusIsRecorded_(entry.status))
+      .map((entry)=>[checkInLogicalKey_(entry),entry])
+  );
+  const recorded=new Set(existingByLogicalKey.keys());
+  const toWrite=[];
+  const deduplicatedCanonical=[];
+
+  pending.forEach((entry)=>{
+    const key=checkInLogicalKey_(entry);
+    if(recorded.has(key)){
+      const canonical=existingByLogicalKey.get(key);
+      if(canonical) deduplicatedCanonical.push(canonical);
+      return;
+    }
     toWrite.push(entry);
     recorded.add(key);
   });
 
-  if (toWrite.length) {
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS);
-    sheet.getRange(sheet.getLastRow() + 1, 1, toWrite.length, GD_HEADERS.CHECKINS.length)
-      .setValues(toWrite.map(checkInEntryRow_));
+  if(toWrite.length){
+    const sheet=getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS); const startRow=sheet.getLastRow()+1;
+    ensureRowCapacity_(sheet,startRow+toWrite.length-1);
+    sheet.getRange(startRow,1,toWrite.length,GD_HEADERS.CHECKINS.length).setValues(toWrite.map(checkInEntryRow_));
     SpreadsheetApp.flush();
+    toWrite.forEach((entry) => {
+      clearConflictingAbsenceForCheckIn_(entry, existing);
+      updateCheckInOperationalIndex_(entry);
+    });
   }
 
-  const properties = PropertiesService.getScriptProperties();
-  pending.forEach((entry) => properties.deleteProperty(entry.pendingPropertyKey));
+  // A prior attempt can commit the authoritative Sheet row and then fail while
+  // updating the secondary streak/late-review index. Do not discard the
+  // durable inbox entry until the canonical persisted row has repaired that
+  // secondary index too.
+  deduplicatedCanonical.forEach((entry) => {
+    clearConflictingAbsenceForCheckIn_(entry, existing);
+    updateCheckInOperationalIndex_(entry);
+  });
+
+  const properties=PropertiesService.getScriptProperties();
+  pending.forEach((entry)=>properties.deleteProperty(entry.pendingPropertyKey));
+  properties.deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY);
   gdForget_('pending-checkins');
   gdForget_('checkins');
-  return { written: toWrite.length, deduplicated: pending.length - toWrite.length };
+  return {written:toWrite.length,deduplicated:pending.length-toWrite.length};
 }
 
 /** Try once without waiting. A busy pass transaction leaves the inbox intact. */
 function tryFlushPendingCheckIns_() {
+  // Teacher/student refreshes should not touch the shared transaction lock
+  // unless the durable Check-In inbox actually contains work.
+  if (!readPendingCheckIns_().length) return { written: 0, deduplicated: 0, idle: true };
   const lock = LockService.getScriptLock();
   try {
     if (!lock.tryLock(1)) return { written: 0, deferred: true };
@@ -1288,109 +1860,42 @@ function tryFlushPendingCheckIns_() {
   }
 }
 
-function getPendingCheckInSummary_() {
-  const pending = readPendingCheckIns_();
-  const oldest = pending
-    .map((entry) => entry.checkInTime)
-    .filter(Boolean)
-    .sort((a, b) => a - b)[0] || null;
-  return {
-    pendingCount: pending.length,
-    oldestAt: isoOrEmpty_(oldest),
-    delayed: Boolean(oldest && Date.now() - oldest.getTime() >= GD_CHECKIN_INBOX_STALE_MS),
-  };
+function getPendingCheckInSummary_(){
+  const pending=readPendingCheckIns_(); const oldest=pending.map((entry)=>entry.checkInTime).filter(Boolean).sort((a,b)=>a-b)[0]||null;
+  let lastError=null; try{lastError=JSON.parse(PropertiesService.getScriptProperties().getProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY)||'null');}catch(error){lastError=null;}
+  return {pendingCount:pending.length,oldestAt:isoOrEmpty_(oldest),
+    delayed:Boolean(oldest&&Date.now()-oldest.getTime()>=GD_CHECKIN_INBOX_STALE_MS),lastError};
 }
 
-function recordCheckIn_(student, method, note, lateOverride) {
-  const todayKey = dateKey_(new Date());
-  const todayEntries = readCheckInsForDate_(todayKey).filter((entry) => (
-    entry.studentKey === student.key
-  ));
-  const existing = todayEntries.find((entry) => checkInStatusIsRecorded_(entry.status));
-  const absence = todayEntries.find((entry) => entry.status === 'ABSENT');
-  if (existing) return existing;
-
-  const settings = getSettings_();
-  const session = method === 'teacher' ? null : getClassSession_(student);
-  const late = method !== 'teacher' && Boolean(lateOverride);
-  if (absence && method !== 'teacher' && !late) {
-    throw new Error('Your attendance needs a teacher update today. Ask your teacher to mark you here.');
-  }
-  if (absence && method === 'teacher') {
-    clearAbsentEntry_(absence, `Cleared when ${method} check-in was recorded`);
-  }
-  const point = late ? 0 : numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1);
-  const status = late ? 'LATE_PENDING' : 'CHECKED_IN';
-  const lateDetail = late
-    ? `Late sign-in after the ${session.checkInWindowMinutes}-minute on-time window; teacher point review pending`
-    : '';
-  const row = [
-    Utilities.getUuid(),
-    todayKey,
-    new Date(),
-    student.email,
-    student.name,
-    student.classPeriod,
-    method,
-    point,
-    status,
-    [String(note || '').trim(), lateDetail].filter(Boolean).join(' · ').slice(0, 300),
-  ];
-  getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS).appendRow(row);
-  gdForget_('checkins');
-  return {
-    checkInId: row[0],
-    dateKey: row[1],
-    checkInTime: row[2],
-    studentEmail: row[3],
-    studentName: row[4],
-    classPeriod: row[5],
-    studentKey: rosterKey_(row[3], row[5]),
-    method: row[6],
-    point: row[7],
-    status: row[8],
-    note: row[9],
-  };
+function recordCheckIn_(student,method,note,lateOverride){
+  const todayKey=dateKey_(new Date());
+  const todayEntries=readCheckInsForDate_(todayKey).filter((entry)=>entry.studentKey===student.key);
+  const existing=todayEntries.find((entry)=>checkInStatusIsRecorded_(entry.status));
+  const absence=todayEntries.find((entry)=>entry.status==='ABSENT');
+  if(existing)return existing;
+  const settings=getSettings_(); const session=method==='teacher'?null:getClassSession_(student); const late=method!=='teacher'&&Boolean(lateOverride);
+  if(absence&&method!=='teacher'&&!late) throw new Error('Your attendance needs a teacher update today. Ask your teacher to mark you here.');
+  if(absence&&method==='teacher') clearAbsentEntry_(absence,`Cleared when ${method} check-in was recorded`);
+  const point=late?0:numberSetting_(settings,'CHECKIN_POINT_VALUE',1); const status=late?'LATE_PENDING':'CHECKED_IN';
+  const lateDetail=late?`Late sign-in after the ${session.checkInWindowMinutes}-minute on-time window; teacher point review pending`:'';
+  const row=[Utilities.getUuid(),todayKey,new Date(),student.email,student.name,student.classPeriod,method,point,status,
+    [String(note||'').trim(),lateDetail].filter(Boolean).join(' · ').slice(0,300)];
+  const sheet=getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS); ensureRowCapacity_(sheet,sheet.getLastRow()+1); sheet.appendRow(row); gdForget_('checkins');
+  const entry={checkInId:row[0],dateKey:row[1],checkInTime:row[2],studentEmail:row[3],studentName:row[4],classPeriod:row[5],
+    studentKey:rosterKey_(row[3],row[5]),method:row[6],point:row[7],status:row[8],note:row[9]};
+  updateCheckInOperationalIndex_(entry); return entry;
 }
 
-function recordAbsence_(student, teacher) {
-  const todayKey = dateKey_(new Date());
-  const todayEntries = readCheckInsForDate_(todayKey).filter((entry) => (
-    entry.studentKey === student.key
-  ));
-  if (todayEntries.some((entry) => checkInStatusIsRecorded_(entry.status))) {
-    throw new Error(`${student.name} already has a check-in recorded today.`);
-  }
-  const existing = todayEntries.find((entry) => entry.status === 'ABSENT');
-  if (existing) return existing;
-
-  const row = [
-    Utilities.getUuid(),
-    todayKey,
-    new Date(),
-    student.email,
-    student.name,
-    student.classPeriod,
-    'teacher',
-    0,
-    'ABSENT',
-    `Marked absent by ${teacher}`.slice(0, 300),
-  ];
-  getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS).appendRow(row);
-  gdForget_('checkins');
-  return {
-    checkInId: row[0],
-    dateKey: row[1],
-    checkInTime: row[2],
-    studentEmail: row[3],
-    studentName: row[4],
-    classPeriod: row[5],
-    studentKey: rosterKey_(row[3], row[5]),
-    method: row[6],
-    point: row[7],
-    status: row[8],
-    note: row[9],
-  };
+function recordAbsence_(student,teacher){
+  const todayKey=dateKey_(new Date()); const todayEntries=readCheckInsForDate_(todayKey).filter((entry)=>entry.studentKey===student.key);
+  if(todayEntries.some((entry)=>checkInStatusIsRecorded_(entry.status))) throw new Error(`${student.name} already has a check-in recorded today.`);
+  const existing=todayEntries.find((entry)=>entry.status==='ABSENT'); if(existing)return existing;
+  const row=[Utilities.getUuid(),todayKey,new Date(),student.email,student.name,student.classPeriod,'teacher',0,'ABSENT',
+    `Marked absent by ${teacher}`.slice(0,300)];
+  const sheet=getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS); ensureRowCapacity_(sheet,sheet.getLastRow()+1); sheet.appendRow(row); gdForget_('checkins');
+  const entry={checkInId:row[0],dateKey:row[1],checkInTime:row[2],studentEmail:row[3],studentName:row[4],classPeriod:row[5],
+    studentKey:rosterKey_(row[3],row[5]),method:row[6],point:row[7],status:row[8],note:row[9]};
+  updateCheckInOperationalIndex_(entry); return entry;
 }
 
 function clearAbsentEntry_(entry, detail) {
@@ -1624,9 +2129,9 @@ function getStudentState_(student, pinToken, method, options) {
   return state;
 }
 
-function getPassSnapshot_() {
+function getPassSnapshot_(options) {
   const settings = getSettings_();
-  const log = readPassLog_();
+  const log = options && options.fullLog ? readPassLog_() : readRecentPassLog_(passLogRecentCutoff_(settings));
   const todayKey = dateKey_(new Date());
   // A missed return from a prior school day must never consume today's only
   // pass slot. Daily cleanup converts these rows to ROLLED_OVER for the audit
@@ -1704,7 +2209,7 @@ function studentPassView_(pass) {
 function closePassForStudent_(studentEmail, endedBy, note) {
   const email = normalizeEmail_(studentEmail);
   const todayKey = dateKey_(new Date());
-  const pass = readPassLog_()
+  const pass = readRecentPassLog_(passLogRecentCutoff_())
     .filter((item) => (
       item.status === 'OUT' && item.studentEmail === email && safeDateKey_(item.outDate) === todayKey
     ))
@@ -2108,9 +2613,10 @@ function suggestRosterMatch_(email) {
  * card, check-in history and pass history are all keyed to the old address.
  * This moves every one of them together.
  */
-function teacherApplyUnmatchedEmail(rosterEmail, realEmail) {
+function teacherApplyUnmatchedEmail(rosterEmail, realEmail, clientContract) {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
+  assertTeacherClient_(clientContract);
   const oldEmail = normalizeEmail_(rosterEmail);
   const newEmail = normalizeEmail_(realEmail);
   if (!oldEmail || !newEmail || oldEmail === newEmail) throw new Error('Choose a different address.');
@@ -2188,6 +2694,7 @@ function moveStudentIdentity_(oldEmailValue, newEmailValue, options) {
       .setValues([['APPLIED', String((options && options.unmatchedNote) || 'Matched to retained student identity').slice(0, 300)]]);
   }
   gdClearMemo_();
+  rebuildCheckInOperationalIndex_();
   return result;
 }
 
@@ -2213,7 +2720,7 @@ function discoverIdentityReconciliations_() {
   const activeEmails = new Set(activeRoster.map((student) => student.email));
   const cardsByOldEmail = new Map();
   readPinCards_().forEach((card) => {
-    if (!/^\d{6}$/.test(card.pin) || activeEmails.has(card.studentEmail)) return;
+    if (!/^\d{5,6}$/.test(card.pin) || activeEmails.has(card.studentEmail)) return;
     if (!cardsByOldEmail.has(card.studentEmail)) cardsByOldEmail.set(card.studentEmail, []);
     cardsByOldEmail.get(card.studentEmail).push(card);
   });
@@ -2282,8 +2789,9 @@ function reconcileKnownIdentityDrift_() {
   return summary;
 }
 
-function teacherDismissUnmatched(email) {
+function teacherDismissUnmatched(email, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   const address = normalizeEmail_(email);
   withLock_(() => {
     const entry = readUnmatched_().find((item) => item.email === address);
@@ -2294,8 +2802,9 @@ function teacherDismissUnmatched(email) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherClearUnmatchedSignIns(confirmText) {
+function teacherClearUnmatchedSignIns(confirmText, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   if (String(confirmText || '') !== 'CLEAR SIGN-IN PROBLEMS') {
     throw new Error('No sign-in problems were cleared. Confirm the action from the teacher dashboard.');
   }
@@ -2320,6 +2829,1092 @@ function teacherClearUnmatchedSignIns(confirmText) {
 
 /* --------------------------------------------------------------- teacher ---- */
 
+/**
+ * Read-only roster bridge for the installed GoClassroom agent.
+ *
+ * This intentionally returns only active class membership identity fields.
+ * It never returns PIN material, pass/check-in history, access overrides, or
+ * any workbook row number. It also avoids setup/repair and background trigger
+ * work so a roster comparison cannot mutate operational state.
+ */
+function rosterSyncRevision_(rosterValue) {
+  const rows = (Array.isArray(rosterValue) ? rosterValue : getRoster_()).map((student) => ([
+    normalizeEmail_(student.email || student.studentEmail),
+    String(student.name || student.studentName || '').trim().replace(/\s+/g, ' '),
+    String(student.classPeriod || '').trim(),
+  ])).filter((row) => row[0] && row[1] && row[2])
+    .sort((a, b) => a[0].localeCompare(b[0]) || a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    JSON.stringify(rows),
+    Utilities.Charset.UTF_8
+  );
+  return Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 43);
+}
+
+function rosterSyncRequestKey_(requestId) {
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    String(requestId || ''),
+    Utilities.Charset.UTF_8
+  );
+  return GD_ROSTER_SYNC_REQUEST_PREFIX + Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 43);
+}
+
+function rosterSyncPayloadDigest_(value) {
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    JSON.stringify(value),
+    Utilities.Charset.UTF_8
+  );
+  return Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 43);
+}
+
+function cleanRosterSyncName_(value, label) {
+  const text = String(value || '').trim().replace(/\s+/g, ' ');
+  if (!text) throw new Error(`${label} is required.`);
+  if (text.length > 120) throw new Error(`${label} is too long.`);
+  assertPlainSheetText_(text, label);
+  return text;
+}
+
+function normalizeRosterSyncWriteRequest_(request, settings) {
+  if (!request || typeof request !== 'object' || Array.isArray(request)) {
+    throw new Error('The GoClassroom roster change request is invalid. Compare rosters again.');
+  }
+  if (String(request.confirmation || '') !== GD_ROSTER_SYNC_CONFIRMATION) {
+    throw new Error('No roster changes were applied. Confirm the safe roster changes in GoClassroom first.');
+  }
+  const requestId = String(request.requestId || '').trim();
+  if (!/^[A-Za-z0-9._:-]{8,120}$/.test(requestId)) {
+    throw new Error('The GoClassroom roster request ID is invalid. Compare rosters again.');
+  }
+  const baseRevision = String(request.baseRevision || '').trim();
+  if (!/^[A-Za-z0-9_-]{20,80}$/.test(baseRevision)) {
+    throw new Error('The GoClassroom roster comparison is missing its roster revision. Compare rosters again.');
+  }
+  if ((Array.isArray(request.deactivate) && request.deactivate.length) ||
+      (Array.isArray(request.remove) && request.remove.length) ||
+      (Array.isArray(request.delete) && request.delete.length)) {
+    throw new Error('GoClassroom roster sync does not remove students automatically. Review removals separately.');
+  }
+
+  const addRows = Array.isArray(request.add) ? request.add : [];
+  const updateRows = Array.isArray(request.updateName) ? request.updateName : [];
+  if (addRows.length + updateRows.length > GD_ROSTER_SYNC_MAX_WRITES) {
+    throw new Error(`GoClassroom requested too many roster changes at once. Limit one approved batch to ${GD_ROSTER_SYNC_MAX_WRITES} changes.`);
+  }
+
+  const add = [];
+  const updateName = [];
+  const addKeys = new Set();
+  const updateKeys = new Set();
+  const desiredNameByEmail = new Map();
+
+  addRows.forEach((raw) => {
+    const input = normalizeRosterInput_(raw && raw.studentName, raw && raw.studentEmail, raw && raw.classPeriod, settings);
+    if (addKeys.has(input.key)) throw new Error(`The GoClassroom roster request contains duplicate additions for ${input.email} / ${input.classPeriod}.`);
+    addKeys.add(input.key);
+    const priorDesired = desiredNameByEmail.get(input.email);
+    if (priorDesired && priorDesired !== input.name) throw new Error(`GoClassroom reported conflicting names for ${input.email}. Compare rosters again.`);
+    desiredNameByEmail.set(input.email, input.name);
+    add.push(input);
+  });
+
+  updateRows.forEach((raw) => {
+    const input = normalizeRosterInput_(raw && (raw.studentName || raw.afterName), raw && raw.studentEmail, raw && raw.classPeriod, settings);
+    const beforeName = cleanRosterSyncName_(raw && (raw.beforeName || (raw.before && raw.before.studentName)), 'Previous student name');
+    if (updateKeys.has(input.key)) throw new Error(`The GoClassroom roster request contains duplicate name updates for ${input.email} / ${input.classPeriod}.`);
+    updateKeys.add(input.key);
+    const priorDesired = desiredNameByEmail.get(input.email);
+    if (priorDesired && priorDesired !== input.name) throw new Error(`GoClassroom reported conflicting names for ${input.email}. Compare rosters again.`);
+    desiredNameByEmail.set(input.email, input.name);
+    updateName.push({ ...input, beforeName });
+  });
+
+  return { requestId, baseRevision, add, updateName };
+}
+
+function readRosterSyncRequestState_(normalizedRequest) {
+  const properties = PropertiesService.getScriptProperties();
+  const key = rosterSyncRequestKey_(normalizedRequest.requestId);
+  const raw = properties.getProperty(key);
+  if (!raw) return null;
+  let stored;
+  try { stored = JSON.parse(raw); } catch (error) { stored = null; }
+  const digest = rosterSyncPayloadDigest_(normalizedRequest);
+  if (!stored || stored.payloadDigest !== digest) {
+    throw new Error('That GoClassroom roster request ID was already used for different data. Compare rosters again.');
+  }
+  return stored;
+}
+
+function rosterSyncRequestReplay_(normalizedRequest) {
+  const stored = readRosterSyncRequestState_(normalizedRequest);
+  if (!stored) return null;
+  if (stored.status === 'DONE' && stored.result) return stored.result;
+  if (stored.status === 'PENDING' && stored.plan) return null;
+  throw new Error('That GoClassroom roster request could not be recovered safely. Compare rosters again.');
+}
+
+function utf8ByteLength_(value) {
+  const text = String(value || '');
+  let bytes = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const code = text.charCodeAt(i);
+    if (code < 0x80) bytes += 1;
+    else if (code < 0x800) bytes += 2;
+    else if (code >= 0xD800 && code <= 0xDBFF && i + 1 < text.length) {
+      const low = text.charCodeAt(i + 1);
+      if (low >= 0xDC00 && low <= 0xDFFF) {
+        bytes += 4;
+        i += 1;
+      } else bytes += 3;
+    } else bytes += 3;
+  }
+  return bytes;
+}
+
+function rosterSyncPendingRecord_(normalizedRequest, plan, at) {
+  return {
+    v: 3,
+    status: 'PENDING',
+    at: at || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    payloadDigest: rosterSyncPayloadDigest_(normalizedRequest),
+    plan,
+  };
+}
+
+function rosterSyncNoEffectsRejection_(normalizedRequest, code, message) {
+  return {
+    ok: false,
+    schemaVersion: 1,
+    status: 'REJECTED_NO_ROSTER_EFFECTS',
+    requestId: String(normalizedRequest && normalizedRequest.requestId || ''),
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    code: String(code || 'ROSTER_PRECONDITION_FAILED'),
+    message: String(message || 'The roster changed before anything was applied. Compare rosters again.'),
+  };
+}
+
+function normalizeRosterSyncRecoveryDecision_(value) {
+  if (!value) return null;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('The GoClassroom roster recovery decision is invalid. Stop and review this pending batch.');
+  }
+  if (String(value.confirmation || '') !== 'REAPPLY REVIEWED PREWRITE CHANGES') {
+    throw new Error('The GoClassroom roster recovery decision is missing explicit teacher confirmation. Nothing uncertain was written.');
+  }
+  const token = String(value.token || '').trim();
+  if (!/^[A-Za-z0-9_-]{20,80}$/.test(token)) {
+    throw new Error('The GoClassroom roster recovery review token is invalid. Review the pending batch again.');
+  }
+  return { confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token };
+}
+
+function rosterSyncPrewriteRecoveryReview_(normalizedRequest, plan, rows, pendingAt) {
+  const allRows = Array.isArray(rows) ? rows : readRosterRows_();
+  const byKey = new Map(allRows.map((student) => [student.key, student]));
+  const addActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), entry]));
+  const nameActionByKey = new Map((plan.nameActions || []).map((entry) => [String(entry.key || ''), entry]));
+  const items = [];
+  const started = [...(plan.addActions || []), ...(plan.nameActions || [])]
+    .some((entry) => entry.stage === 'STARTED');
+  if (started) {
+    const since = new Date(pendingAt).getTime();
+    if (!Number.isFinite(since)) throw new Error('The saved roster recovery time is invalid. Stop and review this transaction.');
+    const emails = new Set([...normalizedRequest.add, ...normalizedRequest.updateName].map((entry) => entry.email));
+    const audit = getSpreadsheet_().getSheetByName(GD_SHEETS.TEACHER_AUDIT);
+    if (audit.getLastRow() > 1) {
+      const actions = audit.getRange(2, 1, audit.getLastRow() - 1, GD_HEADERS.TEACHER_AUDIT.length).getValues();
+      if (actions.some((row) => {
+        if (!emails.has(normalizeEmail_(row[3])) || !String(row[6] || '').startsWith('ROSTER_MEMBERSHIP_')) return false;
+        const at = new Date(row[1]).getTime();
+        return !Number.isFinite(at) || at >= since;
+      })) {
+        throw new Error('A teacher changed this student\'s roster after the approved batch started. Recovery stopped to preserve the newer teacher decision.');
+      }
+    }
+  }
+
+  for (const input of normalizedRequest.updateName) {
+    const progress = nameActionByKey.get(input.key);
+    if (!progress || progress.stage !== 'STARTED') continue;
+    const current = byKey.get(input.key) || null;
+    if (current && current.active && current.name === input.name) continue;
+    if (current && current.active && current.name === input.beforeName) {
+      items.push({ kind: 'name', key: input.key, state: 'BEFORE_NAME' });
+      continue;
+    }
+    throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+  }
+
+  for (const input of normalizedRequest.add) {
+    const progress = addActionByKey.get(input.key);
+    if (!progress || progress.stage !== 'STARTED') continue;
+    const current = byKey.get(input.key) || null;
+    if (current && current.active && current.name === input.name) continue;
+    if (progress.action === 'added' && !current) {
+      items.push({ kind: 'membership', key: input.key, action: 'added', state: 'ABSENT' });
+      continue;
+    }
+    if (progress.action === 'reactivated' && current && !current.active && current.name === progress.beforeName) {
+      items.push({ kind: 'membership', key: input.key, action: 'reactivated', state: 'INACTIVE_BEFORE' });
+      continue;
+    }
+    throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+  }
+
+  if (!items.length) return null;
+  const counts = {
+    additions: items.filter((item) => item.kind === 'membership' && item.action === 'added').length,
+    reactivations: items.filter((item) => item.kind === 'membership' && item.action === 'reactivated').length,
+    nameUpdates: items.filter((item) => item.kind === 'name').length,
+  };
+  return {
+    token: rosterSyncPayloadDigest_({ requestId: normalizedRequest.requestId, items }),
+    items,
+    counts,
+  };
+}
+
+function rosterSyncRecoveryReviewResult_(normalizedRequest, review) {
+  return {
+    ok: false,
+    schemaVersion: 1,
+    status: 'RECOVERY_REVIEW_REQUIRED',
+    requestId: String(normalizedRequest.requestId || ''),
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    recoveryToken: String(review && review.token || ''),
+    reviewCounts: { ...(review && review.counts || {}) },
+    message: 'The earlier roster attempt stopped at an uncertain write boundary. Review the exact pending changes before authorizing them again.',
+  };
+}
+
+function pruneRosterSyncRequests_(reserveSlots) {
+  const properties = PropertiesService.getScriptProperties();
+  const all = properties.getProperties();
+  const now = Date.now();
+  const unresolved = [];
+  const completed = [];
+  Object.entries(all).forEach(([key, raw]) => {
+    if (!key.startsWith(GD_ROSTER_SYNC_REQUEST_PREFIX)) return;
+    let parsed = null;
+    try { parsed = JSON.parse(String(raw || '')); } catch (error) { parsed = null; }
+    const bytes = utf8ByteLength_(key) + utf8ByteLength_(raw);
+    if (!parsed || parsed.status === 'PENDING') {
+      unresolved.push({ key, bytes });
+      return;
+    }
+    const at = toDateOrNull_(parsed.at);
+    if (parsed.status !== 'DONE' || !at) {
+      unresolved.push({ key, bytes });
+      return;
+    }
+    if (now - at.getTime() > GD_ROSTER_SYNC_REQUEST_TTL_MS) {
+      properties.deleteProperty(key);
+      return;
+    }
+    completed.push({ key, at: at.getTime(), bytes });
+  });
+
+  const keepCount = Math.max(0, GD_ROSTER_SYNC_REQUEST_MAX_RECORDS - Math.max(0, Number(reserveSlots || 0)) - unresolved.length);
+  completed.sort((a, b) => b.at - a.at);
+  completed.slice(keepCount).forEach((entry) => properties.deleteProperty(entry.key));
+
+  const refreshed = properties.getProperties();
+  let totalBytes = Object.entries(refreshed)
+    .filter(([key]) => key.startsWith(GD_ROSTER_SYNC_REQUEST_PREFIX))
+    .reduce((sum, [key, raw]) => sum + utf8ByteLength_(key) + utf8ByteLength_(raw), 0);
+  const removable = completed.slice(0, keepCount).sort((a, b) => a.at - b.at);
+  for (const entry of removable) {
+    if (totalBytes <= GD_ROSTER_SYNC_REQUEST_MAX_TOTAL_BYTES) break;
+    if (properties.getProperty(entry.key) === null) continue;
+    properties.deleteProperty(entry.key);
+    totalBytes -= entry.bytes;
+  }
+}
+
+function rosterSyncPendingStorageIssue_(normalizedRequest, plan) {
+  const properties = PropertiesService.getScriptProperties();
+  const key = rosterSyncRequestKey_(normalizedRequest.requestId);
+  const record = rosterSyncPendingRecord_(normalizedRequest, plan);
+  const raw = JSON.stringify(record);
+  const valueBytes = utf8ByteLength_(raw);
+  if (valueBytes > GD_ROSTER_SYNC_PROPERTY_VALUE_TARGET_BYTES || valueBytes > GD_ROSTER_SYNC_PROPERTY_VALUE_MAX_BYTES) {
+    return 'This approved roster batch is too large to store safely as one recoverable transaction. Apply a smaller batch.';
+  }
+  const all = properties.getProperties();
+  const current = properties.getProperty(key);
+  const total = Object.entries(all)
+    .filter(([propertyKey]) => propertyKey.startsWith(GD_ROSTER_SYNC_REQUEST_PREFIX))
+    .reduce((sum, [propertyKey, value]) => sum + utf8ByteLength_(propertyKey) + utf8ByteLength_(value), 0);
+  const nextTotal = total - (current === null ? 0 : utf8ByteLength_(key) + utf8ByteLength_(current))
+    + utf8ByteLength_(key) + valueBytes;
+  if (nextTotal > GD_ROSTER_SYNC_REQUEST_MAX_TOTAL_BYTES) {
+    return 'GoClassroom recovery storage is full because unresolved or recent roster transactions must be preserved. Resolve those transactions before starting another batch.';
+  }
+  return '';
+}
+
+function beginRosterSyncRequest_(normalizedRequest, plan) {
+  pruneRosterSyncRequests_(1);
+  const issue = rosterSyncPendingStorageIssue_(normalizedRequest, plan);
+  if (issue) throw new Error(issue);
+  const record = rosterSyncPendingRecord_(normalizedRequest, plan);
+  PropertiesService.getScriptProperties().setProperty(
+    rosterSyncRequestKey_(normalizedRequest.requestId),
+    JSON.stringify(record)
+  );
+  return record;
+}
+
+function updateRosterSyncPendingPlan_(normalizedRequest, plan) {
+  const properties = PropertiesService.getScriptProperties();
+  const key = rosterSyncRequestKey_(normalizedRequest.requestId);
+  const stored = readRosterSyncRequestState_(normalizedRequest);
+  if (!stored || stored.status !== 'PENDING') {
+    throw new Error('The saved GoClassroom recovery transaction is missing. Stop and review this batch before retrying.');
+  }
+  const record = {
+    ...stored,
+    v: 3,
+    status: 'PENDING',
+    updatedAt: new Date().toISOString(),
+    plan,
+  };
+  const raw = JSON.stringify(record);
+  if (utf8ByteLength_(raw) > GD_ROSTER_SYNC_PROPERTY_VALUE_TARGET_BYTES) {
+    throw new Error('The saved GoClassroom recovery transaction exceeded its safe storage limit. Stop and review this batch before retrying.');
+  }
+  properties.setProperty(key, raw);
+  return record;
+}
+
+function rememberRosterSyncRequest_(normalizedRequest, result) {
+  pruneRosterSyncRequests_(1);
+  const record = {
+    v: 3,
+    status: 'DONE',
+    at: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    payloadDigest: rosterSyncPayloadDigest_(normalizedRequest),
+    result,
+  };
+  const raw = JSON.stringify(record);
+  if (utf8ByteLength_(raw) > GD_ROSTER_SYNC_PROPERTY_VALUE_TARGET_BYTES) {
+    throw new Error('The completed GoClassroom roster receipt could not be stored safely.');
+  }
+  PropertiesService.getScriptProperties().setProperty(
+    rosterSyncRequestKey_(normalizedRequest.requestId),
+    raw
+  );
+}
+
+function rosterSyncAuditExists_(requestId, action, student) {
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.TEACHER_AUDIT);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return false;
+  const rows = sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.TEACHER_AUDIT.length).getValues();
+  const email = normalizeEmail_(student && student.email);
+  const classPeriod = String(student && student.classPeriod || '').trim();
+  return rows.some((row) => (
+    String(row[6] || '') === String(action || '') &&
+    normalizeEmail_(row[3]) === email &&
+    String(row[5] || '').trim() === classPeriod &&
+    String(row[9] || '') === String(requestId || '')
+  ));
+}
+
+function auditRosterSyncActionOnce_(teacher, student, action, reason, requestId) {
+  if (rosterSyncAuditExists_(requestId, action, student)) return;
+  auditTeacherAction_(teacher, student, action, [], reason, requestId);
+}
+
+function getRosterSyncSnapshot(bridgeContract) {
+  const settings = getSettings_();
+  assertTeacher_(getActiveEmail_(), settings);
+  if (bridgeContract !== GD_ROSTER_SYNC_CONTRACT) {
+    throw new Error('Update GoClassroom before reading this roster. The roster sync contract has changed.');
+  }
+  const activeRoster = getRoster_();
+  const pinCards = readPinCards_();
+  const pinCardByKey = new Map(pinCards.map((card) => [card.studentKey, card]));
+  const roster = activeRoster.map((student) => {
+    const card = pinCardByKey.get(student.key) || null;
+    const credentialReady = Boolean(
+      student.pinHash && card && /^\d{5,6}$/.test(card.pin) && hashPin_(card.pin) === student.pinHash
+    );
+    return {
+      studentEmail: student.email,
+      studentName: student.name,
+      classPeriod: student.classPeriod,
+      active: true,
+      credentialReady,
+    };
+  });
+  return {
+    ok: true,
+    schemaVersion: 1,
+    bridgeContract: GD_ROSTER_SYNC_CONTRACT,
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    revision: rosterSyncRevision_(activeRoster),
+    serverNow: new Date().toISOString(),
+    roster,
+  };
+}
+
+function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
+  const settings = getSettings_();
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings);
+  if (writeContract !== GD_ROSTER_SYNC_WRITE_CONTRACT) {
+    throw new Error('Update GoClassroom before applying roster changes. The roster write contract has changed.');
+  }
+
+  const normalized = normalizeRosterSyncWriteRequest_(request, settings);
+  const recovery = normalizeRosterSyncRecoveryDecision_(recoveryDecision);
+  const replay = rosterSyncRequestReplay_(normalized);
+  if (replay) return replay;
+
+  let result = null;
+  withLock_(() => {
+    const replayInsideLock = rosterSyncRequestReplay_(normalized);
+    if (replayInsideLock) {
+      result = replayInsideLock;
+      return;
+    }
+
+    flushPendingCheckInsLocked_();
+    assertPinEmailBatchIdle_();
+
+    let requestState = readRosterSyncRequestState_(normalized);
+    let plan = requestState && requestState.status === 'PENDING' ? requestState.plan : null;
+
+    if (!plan) {
+      const allRows = readRosterRows_();
+      const activeRows = allRows.filter((student) => student.active);
+      const currentRevision = rosterSyncRevision_(activeRows);
+      if (currentRevision !== normalized.baseRevision) {
+        result = rosterSyncNoEffectsRejection_(
+          normalized,
+          'STALE_ROSTER_REVISION',
+          'The roster changed after GoClassroom compared it. Compare rosters again before applying anything.'
+        );
+        return;
+      }
+
+      const byKey = new Map(allRows.map((student) => [student.key, student]));
+      let preconditionMessage = '';
+      for (const input of normalized.add) {
+        const current = byKey.get(input.key);
+        if (current && current.active) {
+          preconditionMessage = `${input.name} is already active in ${input.classPeriod}. Compare rosters again.`;
+          break;
+        }
+      }
+      if (!preconditionMessage) {
+        for (const input of normalized.updateName) {
+          const current = byKey.get(input.key);
+          if (!current || !current.active) {
+            preconditionMessage = `The ${input.classPeriod} membership for ${input.email} changed after comparison. Compare rosters again.`;
+            break;
+          }
+          if (current.name !== input.beforeName) {
+            preconditionMessage = `The name for ${input.email} changed after comparison. Compare rosters again.`;
+            break;
+          }
+        }
+      }
+      if (preconditionMessage) {
+        result = rosterSyncNoEffectsRejection_(normalized, 'ROSTER_PRECONDITION_CHANGED', preconditionMessage);
+        return;
+      }
+
+      const pinCards = readPinCards_();
+      plan = {
+        v: 2,
+        addActions: normalized.add.map((input) => {
+          const current = byKey.get(input.key);
+          return {
+            key: input.key,
+            action: current ? 'reactivated' : 'added',
+            beforeName: current ? current.name : '',
+            stage: 'PLANNED',
+          };
+        }),
+        nameActions: normalized.updateName.map((input) => ({ key: input.key, stage: 'PLANNED' })),
+        missingPinEmails: [...new Set(normalized.add.map((input) => input.email))]
+          .filter((email) => !pinCards.some((card) => card.studentEmail === email && /^\d{5,6}$/.test(card.pin))),
+        missingPinCardKeys: normalized.add.map((input) => input.key)
+          .filter((key) => !pinCards.some((card) => card.studentKey === key)),
+      };
+      pruneRosterSyncRequests_(1);
+      const storageIssue = rosterSyncPendingStorageIssue_(normalized, plan);
+      if (storageIssue) {
+        result = rosterSyncNoEffectsRejection_(normalized, 'ROSTER_BATCH_TOO_LARGE', storageIssue);
+        return;
+      }
+      requestState = beginRosterSyncRequest_(normalized, plan);
+    }
+
+    if (!plan || Number(plan.v || 0) !== 2) {
+      throw new Error('The saved GoClassroom roster recovery plan predates the current safety model. Stop and review this transaction before retrying.');
+    }
+
+    const addActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), entry]));
+    const nameActionByKey = new Map((plan.nameActions || []).map((entry) => [String(entry.key || ''), entry]));
+    const recoveryReview = rosterSyncPrewriteRecoveryReview_(normalized, plan, readRosterRows_(), requestState.at);
+    const recoveryApproved = Boolean(recoveryReview && recovery && recovery.token === recoveryReview.token);
+    if (recoveryReview && !recoveryApproved) {
+      result = rosterSyncRecoveryReviewResult_(normalized, recoveryReview);
+      return;
+    }
+    const recoveryApprovedKeys = new Set(recoveryApproved
+      ? recoveryReview.items.map((item) => `${item.kind}:${item.key}`)
+      : []);
+    const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+
+    for (const input of normalized.updateName) {
+      const progress = nameActionByKey.get(input.key);
+      if (!progress || !['PLANNED', 'STARTED', 'DONE'].includes(String(progress.stage || ''))) {
+        throw new Error('The saved GoClassroom name-recovery plan is invalid. Stop and review this transaction.');
+      }
+      let current = readRosterRows_().find((student) => student.key === input.key) || null;
+
+      if (progress.stage === 'DONE') {
+        if (!current || !current.active || current.name !== input.name) {
+          throw new Error(`The ${input.classPeriod} membership for ${input.email} changed after this approved batch was applied. Recovery stopped to preserve the newer teacher decision.`);
+        }
+        continue;
+      }
+
+      let writeName = false;
+      if (progress.stage === 'STARTED') {
+        if (current && current.active && current.name === input.name) {
+          // The earlier write is already provable; continue recovery without rewriting it.
+        } else if (recoveryApprovedKeys.has(`name:${input.key}`) && current && current.active && current.name === input.beforeName) {
+          writeName = true;
+        } else {
+          throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+        }
+      } else {
+        if (!current || !current.active || current.name !== input.beforeName) {
+          throw new Error(`The name or membership for ${input.email} changed before this approved correction could start. Recovery stopped for teacher review.`);
+        }
+        progress.stage = 'STARTED';
+        updateRosterSyncPendingPlan_(normalized, plan);
+        writeName = true;
+      }
+      if (writeName) {
+        rosterSheet.getRange(current.row, 2).setValue(input.name);
+        gdForget_('roster');
+        current = readRosterRows_().find((student) => student.key === input.key) || null;
+        if (!current || !current.active || current.name !== input.name) {
+          throw new Error(`GoClassroom could not verify the approved name update for ${input.email} after writing it.`);
+        }
+      }
+
+      const card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      if (card && card.studentName !== input.name) {
+        pinSheet.getRange(card.row, 2).setValue(input.name);
+        gdForget_('pincards');
+      }
+      progress.stage = 'DONE';
+      updateRosterSyncPendingPlan_(normalized, plan);
+    }
+
+    for (const input of normalized.add) {
+      const progress = addActionByKey.get(input.key);
+      if (!progress || !['added', 'reactivated'].includes(String(progress.action || '')) ||
+          !['PLANNED', 'STARTED', 'DONE'].includes(String(progress.stage || ''))) {
+        throw new Error('The saved GoClassroom membership-recovery plan is invalid. Stop and review this transaction.');
+      }
+
+      let refreshedRows = readRosterRows_();
+      let sameStudentRows = refreshedRows.filter((student) => student.email === input.email);
+      let sameMembership = sameStudentRows.find((student) => student.key === input.key) || null;
+
+      if (progress.stage === 'DONE') {
+        if (!sameMembership || !sameMembership.active || sameMembership.name !== input.name) {
+          throw new Error(`The ${input.classPeriod} membership for ${input.email} changed after this approved batch was applied. Recovery stopped to preserve the newer teacher decision.`);
+        }
+        continue;
+      }
+
+      let writeMembership = false;
+      if (progress.stage === 'STARTED') {
+        if (sameMembership && sameMembership.active && sameMembership.name === input.name) {
+          // The earlier write is already provable; continue recovery without rewriting it.
+        } else if (recoveryApprovedKeys.has(`membership:${input.key}`)) {
+          const exactPrewriteState = progress.action === 'added'
+            ? !sameMembership
+            : Boolean(sameMembership && !sameMembership.active && sameMembership.name === progress.beforeName);
+          if (!exactPrewriteState) {
+            throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+          }
+          writeMembership = true;
+        } else {
+          throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+        }
+      } else {
+        if (progress.action === 'added') {
+          if (sameMembership) {
+            throw new Error(`The ${input.classPeriod} membership for ${input.email} appeared before the approved addition could start. Recovery stopped for teacher review.`);
+          }
+        } else {
+          if (!sameMembership || sameMembership.active || sameMembership.name !== progress.beforeName) {
+            throw new Error(`The retained ${input.classPeriod} membership for ${input.email} changed before reactivation could start. Recovery stopped for teacher review.`);
+          }
+        }
+
+        progress.stage = 'STARTED';
+        updateRosterSyncPendingPlan_(normalized, plan);
+        writeMembership = true;
+      }
+
+      if (writeMembership) {
+        const accessMode = getStudentPassAccess_(input.email);
+        const unlimited = accessMode === 'UNLIMITED';
+        const existingPinHash = (sameStudentRows.find((student) => student.pinHash) || {}).pinHash || '';
+        let rosterRow;
+        if (sameMembership) {
+          rosterRow = sameMembership.row;
+          rosterSheet.getRange(rosterRow, 1, 1, GD_HEADERS.ROSTER.length).setValues([[
+            input.email, input.name, input.classPeriod, sameMembership.pinHash || existingPinHash,
+            true, unlimited, accessMode,
+          ]]);
+        } else {
+          rosterSheet.appendRow([
+            input.email, input.name, input.classPeriod, existingPinHash,
+            true, unlimited, accessMode,
+          ]);
+          rosterRow = rosterSheet.getLastRow();
+        }
+        rosterSheet.getRange(rosterRow, 6).insertCheckboxes().setValue(unlimited);
+        gdForget_('roster');
+        gdForget_('unlimited');
+
+        refreshedRows = readRosterRows_();
+        sameStudentRows = refreshedRows.filter((student) => student.email === input.email);
+        sameMembership = sameStudentRows.find((student) => student.key === input.key) || null;
+        if (!sameMembership || !sameMembership.active || sameMembership.name !== input.name) {
+          throw new Error(`GoClassroom could not verify the approved membership change for ${input.email} after writing it.`);
+        }
+      }
+
+      const accessMode = getStudentPassAccess_(input.email);
+      const unlimited = accessMode === 'UNLIMITED';
+      rosterSheet.getRange(sameMembership.row, 6).insertCheckboxes().setValue(unlimited);
+      gdForget_('roster');
+      gdForget_('unlimited');
+      progress.stage = 'DONE';
+      updateRosterSyncPendingPlan_(normalized, plan);
+    }
+
+    ensureOnePinPerStudent_({
+      createMissing: true,
+      studentEmails: [...new Set(normalized.add.map((input) => input.email))],
+    });
+
+    // Reactivation may intentionally correct a retained membership name. A PIN
+    // card can predate that correction, so repair and then re-read the card
+    // before this approved batch is allowed to complete.
+    for (const input of normalized.add) {
+      const progress = addActionByKey.get(input.key);
+      if (!progress || progress.action !== 'reactivated') continue;
+      let card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      if (!card) {
+        throw new Error(`GoClassroom could not verify the PIN card for the reactivated membership for ${input.email}. Recovery remains pending; retry this same batch.`);
+      }
+      if (card.studentName !== input.name) {
+        pinSheet.getRange(card.row, 2).setValue(input.name);
+        gdForget_('pincards');
+        card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      }
+      if (!card || card.studentName !== input.name) {
+        throw new Error(`GoClassroom could not verify the corrected PIN-card name for the reactivated membership for ${input.email}. Recovery remains pending; retry this same batch.`);
+      }
+    }
+
+    const finalRosterRows = readRosterRows_();
+    const finalCards = readPinCards_();
+    const verifiedCredentialMemberships = normalized.add.filter((input) => {
+      const membership = finalRosterRows.find((student) => student.key === input.key && student.active) || null;
+      const card = finalCards.find((entry) => entry.studentKey === input.key && /^\d{5,6}$/.test(entry.pin)) || null;
+      return Boolean(membership && membership.name === input.name && card && card.studentName === input.name &&
+        membership.pinHash && membership.pinHash === hashPin_(card.pin));
+    }).length;
+    if (verifiedCredentialMemberships !== normalized.add.length) {
+      throw new Error('GoClassroom could not verify usable PIN credentials for every approved membership. Recovery remains pending; retry this same batch.');
+    }
+
+    const affectedKeys = new Set([
+      ...normalized.add.map((input) => input.key),
+      ...normalized.updateName.map((input) => input.key),
+    ]);
+    affectedKeys.forEach((studentKey) => rebuildCheckInSummaryForStudent_(studentKey));
+
+    normalized.add.forEach((input) => {
+      const progress = addActionByKey.get(input.key);
+      const auditAction = progress && progress.action === 'reactivated'
+        ? 'GOCLASSROOM_ROSTER_MEMBERSHIP_REACTIVATED'
+        : 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED';
+      auditRosterSyncActionOnce_(teacher, {
+        email: input.email, name: input.name, classPeriod: input.classPeriod,
+      }, auditAction, 'Approved in GoClassroom roster sync', normalized.requestId);
+    });
+    normalized.updateName.forEach((input) => auditRosterSyncActionOnce_(teacher, {
+      email: input.email, name: input.name, classPeriod: input.classPeriod,
+    }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', 'Approved GoClassroom name correction', normalized.requestId));
+
+    const addedCount = (plan.addActions || []).filter((entry) => entry.action === 'added').length;
+    const reactivatedCount = (plan.addActions || []).filter((entry) => entry.action === 'reactivated').length;
+    const createdPins = (plan.missingPinEmails || []).filter((email) => (
+      finalCards.some((card) => card.studentEmail === email && /^\d{5,6}$/.test(card.pin))
+    )).length;
+    const createdPinCards = (plan.missingPinCardKeys || []).filter((key) => (
+      finalCards.some((card) => card.studentKey === key && /^\d{5,6}$/.test(card.pin))
+    )).length;
+
+    const newRevision = rosterSyncRevision_(getRoster_());
+    result = {
+      ok: true,
+      schemaVersion: 1,
+      requestId: normalized.requestId,
+      appliedAt: new Date().toISOString(),
+      writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+      previousRevision: normalized.baseRevision,
+      revision: newRevision,
+      counts: {
+        added: addedCount,
+        reactivated: reactivatedCount,
+        nameRowsUpdated: normalized.updateName.length,
+        requestedNameUpdates: normalized.updateName.length,
+        createdPins,
+        createdPinCards,
+        verifiedCredentialMemberships,
+      },
+    };
+    rememberRosterSyncRequest_(normalized, result);
+  }, 30000, 'GoClassroom roster sync');
+
+  return result;
+}
+
+/* ------------------------------------------------------ classroom setup ---- */
+
+const GD_MAX_PERIOD = 8;
+const GD_SETUP_SOURCE = 'Teacher setup';
+
+function clockFromMinutes_(minutes) {
+  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+}
+
+const GD_REDUCED_LABEL = 'Reduced day';
+
+/** Periods 1–8 of one bell profile, blank where the profile has no bell. */
+function bellProfileRows_(key) {
+  const profile = (getBellScheduleIndex_()[key] || { periods: {} }).periods;
+  const rows = [];
+  for (let period = 1; period <= GD_MAX_PERIOD; period += 1) {
+    const entry = profile[period];
+    rows.push({
+      period,
+      start: entry ? clockFromMinutes_(entry.start) : '',
+      end: entry ? clockFromMinutes_(entry.end) : '',
+    });
+  }
+  return rows;
+}
+
+/** What a teacher needs to see to finish or adjust their classroom setup. */
+function classroomSetupView_(settings) {
+  const normal = (getBellScheduleIndex_().NORMAL || { periods: {} }).periods;
+  const periods = bellProfileRows_('NORMAL');
+  const calendar = getSchoolCalendarIndex_();
+  return {
+    periods,
+    reducedPeriods: bellProfileRows_('REDUCED'),
+    reducedDates: Object.keys(calendar.schedules || {})
+      .filter((key) => calendar.schedules[key] === 'REDUCED' && calendar.overrides[key] !== false)
+      .sort(),
+    bellsReady: Object.keys(normal).length > 0,
+    studentEmailDomain: String(settings.STUDENT_EMAIL_DOMAIN || ''),
+    yearStart: String(settings.SCHOOL_YEAR_START || ''),
+    yearEnd: String(settings.SCHOOL_YEAR_END || ''),
+    noSchoolDates: Object.keys(calendar.overrides || {}).filter((key) => calendar.overrides[key] === false).sort(),
+    studentCount: new Set(getRoster_().map((student) => student.email)).size,
+    membershipCount: getRoster_().length,
+    studentLink: webAppUrl_(''),
+    kioskLink: webAppUrl_('kiosk'),
+  };
+}
+
+function teacherGetClassroomSetup(clientContract) {
+  const settings = getSettings_();
+  assertTeacher_(getActiveEmail_(), settings);
+  assertTeacherClient_(clientContract);
+  return classroomSetupView_(settings);
+}
+
+/** Checked bell times for one profile. `label` prefixes messages, e.g. "Reduced day, ". */
+function normalizeBellPeriods_(list, label) {
+  const periods = [];
+  (Array.isArray(list) ? list : []).forEach((row) => {
+    const period = Number(row && row.period);
+    const startText = String(row && row.start || '').trim();
+    const endText = String(row && row.end || '').trim();
+    if (!startText && !endText) return;
+    if (!Number.isInteger(period) || period < 1 || period > GD_MAX_PERIOD) throw new Error('Only Periods 1 through 8 can be scheduled.');
+    const start = bellMinutes_(startText);
+    const end = bellMinutes_(endText);
+    if (start === null || end === null) throw new Error(`${label}Period ${period}: enter both a start and an end time.`);
+    if (start >= end) throw new Error(`${label}Period ${period}: the end time must be after the start time.`);
+    periods.push({ period, start, end });
+  });
+  const ordered = periods.slice().sort((a, b) => a.start - b.start);
+  ordered.forEach((entry, index) => {
+    if (index && entry.start < ordered[index - 1].end) {
+      throw new Error(`${label}Period ${ordered[index - 1].period} and Period ${entry.period} overlap. Check those times.`);
+    }
+  });
+  return periods;
+}
+
+/** A list of YYYY-MM-DD dates from an array or a pasted block of text. */
+function normalizeSetupDates_(value, what) {
+  const dates = [...new Set((Array.isArray(value) ? value : String(value || '').split(/[\s,]+/))
+    .map((entry) => String(entry || '').trim())
+    .filter(Boolean))];
+  const bad = dates.find((entry) => !/^\d{4}-\d{2}-\d{2}$/.test(entry));
+  if (bad) throw new Error(`"${bad}" is not a date. Use the calendar picker for ${what}.`);
+  if (dates.length > 200) throw new Error(`Enter at most 200 ${what}.`);
+  return dates.sort();
+}
+
+function normalizeClassroomSetup_(setup) {
+  if (!setup || typeof setup !== 'object') throw new Error('Nothing was saved. Fill in the setup form and try again.');
+  const periods = normalizeBellPeriods_(setup.periods, '');
+  if (!periods.length) throw new Error('Enter the start and end time for at least one class period.');
+  // Reduced-day fields are optional: a caller that leaves them out changes nothing about reduced days.
+  const reducedPeriods = Array.isArray(setup.reducedPeriods) ? normalizeBellPeriods_(setup.reducedPeriods, 'Reduced day, ') : null;
+  const reducedDates = setup.reducedDates === undefined || setup.reducedDates === null
+    ? null
+    : normalizeSetupDates_(setup.reducedDates, 'reduced days');
+  if (reducedDates && reducedDates.length && reducedPeriods && !reducedPeriods.length) {
+    throw new Error('Enter the reduced-day bell times, or remove the reduced-day dates.');
+  }
+
+  const studentEmailDomain = String(setup.studentEmailDomain || '').trim().toLowerCase().replace(/^@/, '');
+  if (studentEmailDomain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(studentEmailDomain)) {
+    throw new Error('The student email ending should look like students.yourschool.org.');
+  }
+  const dateOk = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const yearStart = String(setup.yearStart || '').trim();
+  const yearEnd = String(setup.yearEnd || '').trim();
+  if ((yearStart && !dateOk(yearStart)) || (yearEnd && !dateOk(yearEnd))) throw new Error('Enter the first and last day of school as dates.');
+  if (yearStart && yearEnd && yearStart > yearEnd) throw new Error('The first day of school must come before the last day.');
+  const noSchoolDates = normalizeSetupDates_(setup.noSchoolDates, 'no-school days');
+  const both = reducedDates ? reducedDates.find((key) => noSchoolDates.includes(key)) : null;
+  if (both) throw new Error(`${both} is listed as both a no-school day and a reduced day. Keep it in one list.`);
+  return { periods, reducedPeriods, reducedDates, studentEmailDomain, yearStart, yearEnd, noSchoolDates };
+}
+
+/**
+ * Save the teacher's regular bell times, school-year dates, student email
+ * ending, and no-school days. Only the NORMAL bell profile and calendar rows
+ * this screen created are replaced; reduced/half-day profiles and official
+ * calendar rows are left exactly as they were.
+ */
+function teacherSaveClassroomSetup(setup, clientContract) {
+  const teacher = getActiveEmail_();
+  const settings = getSettings_();
+  assertTeacher_(teacher, settings);
+  assertTeacherClient_(clientContract);
+  saveClassroomSetup_(teacher, normalizeClassroomSetup_(setup));
+  const state = getTeacherState_({ includePinStatus: true });
+  state.noticeMessage = 'Classroom setup saved. Your bell times are now in effect.';
+  return state;
+}
+
+/** Writes an already-normalized classroom setup. Callers check the teacher first. */
+function saveClassroomSetup_(teacher, clean) {
+  withLock_(() => {
+    const spreadsheet = getSpreadsheet_();
+    const bells = spreadsheet.getSheetByName(GD_SHEETS.BELLS);
+    if (bells.getLastRow() > 1) {
+      const keys = bells.getRange(2, 1, bells.getLastRow() - 1, 1).getValues();
+      for (let index = keys.length - 1; index >= 0; index -= 1) {
+        if (String(keys[index][0] || '').trim().toUpperCase() === 'NORMAL') bells.deleteRow(index + 2);
+      }
+    }
+    if (clean.reducedPeriods) {
+      const keys = bells.getLastRow() > 1 ? bells.getRange(2, 1, bells.getLastRow() - 1, 1).getValues() : [];
+      for (let index = keys.length - 1; index >= 0; index -= 1) {
+        if (String(keys[index][0] || '').trim().toUpperCase() === 'REDUCED') bells.deleteRow(index + 2);
+      }
+    }
+    const profileRows = (key, list) => list
+      .slice()
+      .sort((a, b) => a.period - b.period)
+      .map((entry) => [key, entry.period, clockFromMinutes_(entry.start), clockFromMinutes_(entry.end), GD_SETUP_SOURCE, new Date().toISOString()]);
+    const bellRows = profileRows('NORMAL', clean.periods).concat(clean.reducedPeriods ? profileRows('REDUCED', clean.reducedPeriods) : []);
+    const firstRow = bells.getLastRow() + 1;
+    bells.getRange(firstRow, 3, bellRows.length, 2).setNumberFormat('@');
+    bells.getRange(firstRow, 1, bellRows.length, GD_HEADERS.BELLS.length).setValues(bellRows);
+    gdForget_('bell-schedules');
+
+    const calendar = spreadsheet.getSheetByName(GD_SHEETS.CALENDAR);
+    const wanted = new Set(clean.noSchoolDates);
+    const wantedReduced = new Set(clean.reducedDates || []);
+    const present = new Set();
+    const rows = calendar.getLastRow() > 1 ? calendar.getRange(2, 1, calendar.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues() : [];
+    // Nothing is written if a reduced day falls on a closure that this screen does not manage.
+    rows.forEach((row) => {
+      const key = normalizeDateKey_(row[0]);
+      const teacherMade = String(row[3] || '') === GD_SETUP_SOURCE;
+      if (wantedReduced.has(key) && !isTruthyCell_(row[1], false) && !(teacherMade && !wanted.has(key))) {
+        throw new Error(`${key} is a no-school day on your school calendar, so it cannot be a reduced day.`);
+      }
+    });
+    for (let index = rows.length - 1; index >= 0; index -= 1) {
+      const row = rows[index];
+      const key = normalizeDateKey_(row[0]);
+      const teacherMade = String(row[3] || '') === GD_SETUP_SOURCE;
+      const schoolDay = isTruthyCell_(row[1], false);
+      const scheduleKey = String(row[5] || '').trim().toUpperCase();
+      present.add(key);
+      const staleNoSchool = teacherMade && !schoolDay && !wanted.has(key);
+      const staleReduced = clean.reducedDates && teacherMade && schoolDay && scheduleKey === 'REDUCED' && !wantedReduced.has(key);
+      if (staleNoSchool || staleReduced) {
+        calendar.deleteRow(index + 2);
+        present.delete(key);
+        continue;
+      }
+      if (clean.reducedDates && schoolDay) {
+        // Official calendar rows stay; only which bell schedule they use changes.
+        if (wantedReduced.has(key) && scheduleKey !== 'REDUCED') calendar.getRange(index + 2, 6).setValue('REDUCED');
+        if (!wantedReduced.has(key) && scheduleKey === 'REDUCED') calendar.getRange(index + 2, 6).setValue('NORMAL');
+      }
+    }
+    const added = clean.noSchoolDates
+      .filter((key) => !present.has(key))
+      .map((key) => [key, false, 'No school', GD_SETUP_SOURCE, new Date().toISOString(), ''])
+      .concat((clean.reducedDates || [])
+        .filter((key) => !present.has(key))
+        .map((key) => [key, true, GD_REDUCED_LABEL, GD_SETUP_SOURCE, new Date().toISOString(), 'REDUCED']));
+    if (added.length) {
+      const start = calendar.getLastRow() + 1;
+      calendar.getRange(start, 1, added.length, 1).setNumberFormat('@');
+      calendar.getRange(start, 1, added.length, GD_HEADERS.CALENDAR.length).setValues(added);
+    }
+    gdForget_('school-calendar');
+
+    setSettingValue_('STUDENT_EMAIL_DOMAIN', clean.studentEmailDomain);
+    setSettingValue_('SCHOOL_YEAR_START', clean.yearStart);
+    setSettingValue_('SCHOOL_YEAR_END', clean.yearEnd);
+    // Students on a different Google domain than their teacher would be
+    // turned away by the school-account check; their PIN still guards them.
+    const schoolDomain = String(getSettings_().SCHOOL_DOMAIN || '').toLowerCase();
+    if (schoolDomain && clean.studentEmailDomain &&
+        clean.studentEmailDomain !== schoolDomain && !clean.studentEmailDomain.endsWith(`.${schoolDomain}`)) {
+      setSettingValue_('SCHOOL_DOMAIN', '');
+    }
+    auditTeacherAction_(teacher, { email: '', name: 'Classroom setup', classPeriod: 'All classes' }, 'CLASSROOM_SETUP_SAVED', [],
+      `${clean.periods.length} periods; ${clean.noSchoolDates.length} no-school days; ${clean.reducedDates ? `${clean.reducedDates.length} reduced days; ` : ''}students @${clean.studentEmailDomain || 'any'}`, '');
+  }, 30000, 'classroom setup');
+}
+
+/**
+ * Turn pasted spreadsheet rows into roster additions for one class. Accepts
+ * "First<TAB>Last<TAB>email", "Name<TAB>email", or comma-separated versions,
+ * with or without a header row. Nothing is written if any row is unreadable.
+ */
+function parsePastedStudents_(text, classPeriod, settings) {
+  const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (!lines.length) throw new Error('Paste at least one student: a name and a school email on each line.');
+  if (lines.length > GD_ROSTER_SYNC_MAX_WRITES) throw new Error(`Paste at most ${GD_ROSTER_SYNC_MAX_WRITES} students at a time.`);
+  const rows = [];
+  const problems = [];
+  lines.forEach((line, index) => {
+    const cells = (line.includes('\t') ? line.split('\t') : line.split(','))
+      .map((cell) => cell.trim().replace(/^"|"$/g, '').trim())
+      .filter(Boolean);
+    const emailIndex = cells.findIndex((cell) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cell));
+    if (emailIndex < 0) {
+      if (index === 0 && /mail/i.test(line)) return; // header row
+      problems.push(`line ${index + 1}: no email address`);
+      return;
+    }
+    const names = cells.filter((_, cellIndex) => cellIndex !== emailIndex && !/@/.test(cells[cellIndex]));
+    let name = '';
+    if (names.length === 1) name = names[0];
+    else if (names.length >= 2) name = `${names[1]}, ${names[0]}`;
+    if (!name) {
+      problems.push(`line ${index + 1}: no student name`);
+      return;
+    }
+    try {
+      rows.push(normalizeRosterInput_(name, cells[emailIndex], classPeriod, settings));
+    } catch (error) {
+      problems.push(`line ${index + 1}: ${error.message}`);
+    }
+  });
+  if (problems.length) {
+    throw new Error(`Nothing was added. Fix ${problems.length === 1 ? 'this line' : 'these lines'} and paste again — ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? '; …' : ''}`);
+  }
+  if (!rows.length) throw new Error('Paste at least one student: a name and a school email on each line.');
+  return rows;
+}
+
+/**
+ * Bulk add from a paste box. Uses the same revision-checked, idempotent,
+ * PIN-verifying batch writer as GoClassroom roster sync, so pasted students
+ * get exactly the same safety as synced ones. Already-active memberships are
+ * skipped, never duplicated.
+ */
+function teacherPasteStudents(text, classPeriod, clientContract) {
+  const teacher = getActiveEmail_();
+  const settings = getSettings_();
+  assertTeacher_(teacher, settings);
+  assertTeacherClient_(clientContract);
+  const rows = parsePastedStudents_(text, classPeriod, settings);
+  const snapshot = getRosterSyncSnapshot(GD_ROSTER_SYNC_CONTRACT);
+  const activeKeys = new Set(getRoster_().map((student) => student.key));
+  const seen = new Set();
+  const add = rows.filter((row) => {
+    if (activeKeys.has(row.key) || seen.has(row.key)) return false;
+    seen.add(row.key);
+    return true;
+  }).map((row) => ({ studentName: row.name, studentEmail: row.email, classPeriod: row.classPeriod }));
+  const skipped = rows.length - add.length;
+  let result = { ok: true, counts: { added: 0, reactivated: 0, createdPins: 0 } };
+  if (add.length) {
+    result = applyRosterSyncChanges({
+      confirmation: GD_ROSTER_SYNC_CONFIRMATION,
+      requestId: `paste-${Utilities.getUuid().replace(/-/g, '')}`,
+      baseRevision: snapshot.revision,
+      add,
+      updateName: [],
+    }, GD_ROSTER_SYNC_WRITE_CONTRACT, null);
+    if (!result || result.ok !== true) {
+      throw new Error((result && result.message) || 'Nothing was added. Refresh the page and paste again.');
+    }
+  }
+  gdClearMemo_();
+  const state = getTeacherState_({ includePinStatus: true });
+  const counts = result.counts || {};
+  const joined = Number(counts.added || 0) + Number(counts.reactivated || 0);
+  state.noticeMessage = `${joined} student${joined === 1 ? '' : 's'} added to ${rows[0].classPeriod}`
+    + (skipped ? `; ${skipped} already on the roster` : '')
+    + (Number(counts.createdPins || 0) ? `; ${counts.createdPins} new PIN${Number(counts.createdPins) === 1 ? '' : 's'} created` : '')
+    + '. New PINs are on the PIN Cards tab and in PIN delivery.';
+  return state;
+}
+
 function refreshTeacherState(clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
   assertTeacherClient_(clientContract);
@@ -2327,7 +3922,7 @@ function refreshTeacherState(clientContract) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherSetPassLimits(maxActivePasses, studentPassLimit) {
+function teacherSetPassLimits(maxActivePasses, studentPassLimit, clientContract) {
   const settings = getSettings_();
   return teacherSetPassRules(
     maxActivePasses,
@@ -2335,73 +3930,64 @@ function teacherSetPassLimits(maxActivePasses, studentPassLimit) {
     numberSetting_(settings, 'DAILY_PASS_LIMIT', 0),
     numberSetting_(settings, 'PASS_COOLDOWN_MINUTES', 5),
     numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
-    numberSetting_(settings, 'STALE_PASS_MINUTES', 20)
+    numberSetting_(settings, 'STALE_PASS_MINUTES', 20),
+    clientContract
   );
 }
 
-function teacherSetPassRules(maxActivePasses, studentPassLimit, dailyPassLimit, cooldownMinutes, lateMinutes, staleMinutes) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  const maxActive = Number(maxActivePasses);
-  const perStudentLimit = Number(studentPassLimit);
-  const perDayLimit = Number(dailyPassLimit);
-  const cooldown = Number(cooldownMinutes);
-  const late = Number(lateMinutes);
-  const stale = Number(staleMinutes);
-  if (!Number.isInteger(maxActive) || maxActive < 1 || maxActive > 10) {
-    throw new Error('Concurrent passes must be a whole number from 1 through 10.');
-  }
-  if (!Number.isInteger(perStudentLimit) || perStudentLimit < 0 || perStudentLimit > 500) {
-    throw new Error('The per-student marking-period limit must be a whole number from 0 through 500. Use 0 for unlimited.');
-  }
-  if (!Number.isInteger(perDayLimit) || perDayLimit < 0 || perDayLimit > 25) {
-    throw new Error('The daily pass limit must be a whole number from 0 through 25. Use 0 for unlimited.');
-  }
-  if (!Number.isInteger(cooldown) || cooldown < 0 || cooldown > 180) {
-    throw new Error('The return cooldown must be a whole number from 0 through 180 minutes.');
-  }
-  if (!Number.isInteger(late) || late < 1 || late > 120) {
-    throw new Error('The late-pass warning must be a whole number from 1 through 120 minutes.');
-  }
-  if (!Number.isInteger(stale) || stale < late || stale > 240) {
-    throw new Error('The forgotten-pass warning must be a whole number at least as large as the late warning and no more than 240 minutes.');
-  }
-  withLock_(() => {
-    setSettingValue_('MAX_ACTIVE_PASSES', String(maxActive));
-    setSettingValue_('STUDENT_PASS_LIMIT', String(perStudentLimit));
-    setSettingValue_('DAILY_PASS_LIMIT', String(perDayLimit));
-    setSettingValue_('PASS_COOLDOWN_MINUTES', String(cooldown));
-    setSettingValue_('LATE_AFTER_MINUTES', String(late));
-    setSettingValue_('STALE_PASS_MINUTES', String(stale));
-    settleWaitingQueue_();
+function teacherSetPassRules(maxActivePasses,studentPassLimit,dailyPassLimit,cooldownMinutes,lateMinutes,staleMinutes, clientContract){
+  const teacher=getActiveEmail_(); const before=getSettings_(); assertTeacher_(teacher,before);
+  assertTeacherClient_(clientContract);
+  const maxActive=Number(maxActivePasses),perStudentLimit=Number(studentPassLimit),perDayLimit=Number(dailyPassLimit),
+    cooldown=Number(cooldownMinutes),late=Number(lateMinutes),stale=Number(staleMinutes);
+  if(!Number.isInteger(maxActive)||maxActive<1||maxActive>10) throw new Error('Concurrent passes must be a whole number from 1 through 10.');
+  if(!Number.isInteger(perStudentLimit)||perStudentLimit<0||perStudentLimit>500) throw new Error('The per-student marking-period limit must be a whole number from 0 through 500. Use 0 for unlimited.');
+  if(!Number.isInteger(perDayLimit)||perDayLimit<0||perDayLimit>25) throw new Error('The daily pass limit must be a whole number from 0 through 25. Use 0 for unlimited.');
+  if(!Number.isInteger(cooldown)||cooldown<0||cooldown>180) throw new Error('The return cooldown must be a whole number from 0 through 180 minutes.');
+  if(!Number.isInteger(late)||late<1||late>120) throw new Error('The late-pass warning must be a whole number from 1 through 120 minutes.');
+  if(!Number.isInteger(stale)||stale<late||stale>240) throw new Error('The forgotten-pass warning must be a whole number at least as large as the late warning and no more than 240 minutes.');
+  withLock_(()=>{
+    setSettingValue_('MAX_ACTIVE_PASSES',String(maxActive)); setSettingValue_('STUDENT_PASS_LIMIT',String(perStudentLimit));
+    setSettingValue_('DAILY_PASS_LIMIT',String(perDayLimit)); setSettingValue_('PASS_COOLDOWN_MINUTES',String(cooldown));
+    setSettingValue_('LATE_AFTER_MINUTES',String(late)); setSettingValue_('STALE_PASS_MINUTES',String(stale)); settleWaitingQueue_();
+    const detail=[`capacity ${before.MAX_ACTIVE_PASSES||''}->${maxActive}`,`class limit ${before.STUDENT_PASS_LIMIT||''}->${perStudentLimit}`,
+      `daily limit ${before.DAILY_PASS_LIMIT||''}->${perDayLimit}`,`cooldown ${before.PASS_COOLDOWN_MINUTES||''}->${cooldown}`,
+      `late ${before.LATE_AFTER_MINUTES||''}->${late}`,`stale ${before.STALE_PASS_MINUTES||''}->${stale}`].join('; ');
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'PASS_RULES_CHANGED',[],detail,'');
   });
-  return getTeacherState_({ includePinStatus: false });
+  return getTeacherState_({includePinStatus:false});
 }
 
-function teacherSetCheckInWindow(checkInWindowMinutes, clientContract) {
-  const teacher = getActiveEmail_();
-  assertTeacher_(teacher, getSettings_());
-  assertTeacherClient_(clientContract);
-  const minutes = Number(checkInWindowMinutes);
-  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 240) {
-    throw new Error('The on-time check-in window must be a whole number from 1 through 240 minutes.');
-  }
-  withLock_(() => setSettingValue_('CHECKIN_WINDOW_MINUTES', String(minutes)));
-  const state = getTeacherState_({ includePinStatus: false });
-  state.noticeMessage = `On-time check-ins now run for ${minutes} minute${minutes === 1 ? '' : 's'} after each class begins. Later student sign-ins will still be recorded for your point review.`;
+function teacherSetCheckInWindow(checkInWindowMinutes,clientContract){
+  const teacher=getActiveEmail_(); const before=getSettings_(); assertTeacher_(teacher,before); assertTeacherClient_(clientContract);
+  const minutes=Number(checkInWindowMinutes);
+  if(!Number.isInteger(minutes)||minutes<1||minutes>240) throw new Error('The on-time check-in window must be a whole number from 1 through 240 minutes.');
+  withLock_(()=>{
+    setSettingValue_('CHECKIN_WINDOW_MINUTES',String(minutes));
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'CHECKIN_WINDOW_CHANGED',[],
+      `${before.CHECKIN_WINDOW_MINUTES||''} -> ${minutes} minutes`,'');
+  });
+  const state=getTeacherState_({includePinStatus:false});
+  state.noticeMessage=`On-time check-ins now run for ${minutes} minute${minutes===1?'':'s'} after each class begins. Later student sign-ins are accepted only until that class ends.`;
   return state;
 }
 
-function teacherResetStudentPassCounters(confirmText) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  if (String(confirmText || '') !== 'RESET ALL STUDENTS') {
-    throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
-  }
-  withLock_(() => setSettingValue_('STUDENT_PASS_RESET_AT', new Date().toISOString()));
-  return getTeacherState_({ includePinStatus: false });
+function teacherResetStudentPassCounters(confirmText, clientContract){
+  const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings);
+  assertTeacherClient_(clientContract);
+  if(String(confirmText||'')!=='RESET ALL STUDENTS') throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
+  const resetAt=new Date().toISOString();
+  withLock_(()=>{
+    setSettingValue_('STUDENT_PASS_RESET_AT',resetAt);
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'PASS_MARKING_PERIOD_RESET',[],
+      `Previous reset ${settings.STUDENT_PASS_RESET_AT||'none'}; new reset ${resetAt}`,'');
+  });
+  return getTeacherState_({includePinStatus:false});
 }
 
-function teacherSetStudentUnlimited(studentEmail, unlimited) {
+function teacherSetStudentUnlimited(studentEmail, unlimited, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   throw new Error('Refresh the teacher dashboard to change pass access.');
 }
 
@@ -2427,9 +4013,10 @@ function teacherSetStudentPassAccess(studentEmail, accessMode, reason, clientCon
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
+function teacherAddStudentClass(studentName, studentEmail, classPeriod, clientContract) {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
+  assertTeacherClient_(clientContract);
   const input = normalizeRosterInput_(studentName, studentEmail, classPeriod, settings);
   let result = null;
 
@@ -2486,6 +4073,9 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
     gdForget_('unlimited');
 
     const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
+    rebuildCheckInSummaryForStudent_(input.key);
+    auditTeacherAction_(getActiveEmail_(), { email: input.email, name: input.name, classPeriod: input.classPeriod },
+      sameMembership ? 'ROSTER_MEMBERSHIP_REACTIVATED' : 'ROSTER_MEMBERSHIP_ADDED', [], '', input.key);
     result = {
       action,
       name: input.name,
@@ -2499,8 +4089,9 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
   return state;
 }
 
-function teacherRemoveStudentClass(studentKey) {
+function teacherRemoveStudentClass(studentKey, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   const key = String(studentKey || '');
   if (!key) throw new Error('Choose a class membership to remove.');
   let result = null;
@@ -2524,6 +4115,8 @@ function teacherRemoveStudentClass(studentKey) {
     }
 
     getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER).getRange(student.row, 5).setValue(false);
+    auditTeacherAction_(getActiveEmail_(), student, 'ROSTER_MEMBERSHIP_REMOVED', [], '', student.key);
+    PropertiesService.getScriptProperties().deleteProperty(checkInSummaryPropertyKey_(student.key));
     gdForget_('roster');
     gdForget_('unlimited');
     result = { action: 'removed', name: student.name, classPeriod: student.classPeriod };
@@ -2547,6 +4140,9 @@ function normalizeRosterInput_(studentName, studentEmail, classPeriod, settings)
   assertPlainSheetText_(emailText, 'Student email');
   const email = normalizeEmail_(emailText);
   const className = cleanText(classPeriod, 'Class / period', 120);
+  if (!periodNumberFromClass_(className)) {
+    throw new Error('Class / period must begin with Period 1 through Period 8 so GrantDesk can apply the bell schedule.');
+  }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error('Enter the student’s full school email address.');
   }
@@ -2563,9 +4159,10 @@ function assertPlainSheetText_(value, label) {
   }
 }
 
-function teacherRemoveFromQueue(queueId) {
+function teacherRemoveFromQueue(queueId, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   withLock_(() => {
     const entry = readPassQueue_().find((item) => (
       item.status === 'WAITING' && item.queueId === String(queueId || '')
@@ -2637,8 +4234,9 @@ function teacherEndPass(passId, note, clientContract) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherGetCountablePasses(studentEmail) {
+function teacherGetCountablePasses(studentEmail, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   throw new Error('Refresh the teacher dashboard and choose a class membership to review its pass count.');
 }
 
@@ -2676,9 +4274,10 @@ function teacherGetMembershipPasses(studentKey, clientContract) {
   };
 }
 
-function teacherVoidPass(passId, reason) {
+function teacherVoidPass(passId, reason, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   const cleanReason = String(reason || '').trim().replace(/\s+/g, ' ');
   if (!cleanReason) throw new Error('Enter a short reason for this correction.');
   if (cleanReason.length > 300) throw new Error('Keep the correction reason to 300 characters or fewer.');
@@ -2770,6 +4369,10 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
       .getRange(entry.row, 8, 1, 3)
       .setValues([[point, status, note]]);
     gdForget_('checkins');
+    entry.point = point;
+    entry.status = status;
+    entry.note = note;
+    updateCheckInOperationalIndex_(entry);
     auditTeacherAction_(
       teacher,
       student,
@@ -2784,9 +4387,10 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
   return state;
 }
 
-function teacherMarkStudentAbsent(studentKey) {
+function teacherMarkStudentAbsent(studentKey, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   const student = getStudentByKey_(studentKey);
   if (!student) throw new Error('That student is not active on the roster.');
   withLock_(() => {
@@ -2798,9 +4402,10 @@ function teacherMarkStudentAbsent(studentKey) {
   return state;
 }
 
-function teacherClearStudentAbsent(studentKey) {
+function teacherClearStudentAbsent(studentKey, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   const student = getStudentByKey_(studentKey);
   if (!student) throw new Error('That student is not active on the roster.');
   let cleared = false;
@@ -2824,7 +4429,7 @@ function teacherClearStudentAbsent(studentKey) {
 function getTeacherState_(options) {
   // The dashboard is already polling. Let an idle lock turn the durable inbox
   // into one workbook batch, while a live hall-pass transaction simply defers.
-  ensureCheckInFlushTrigger_();
+  ensureBackgroundTriggers_(false);
   tryFlushPendingCheckIns_();
   const includePinStatus = Boolean(options && options.includePinStatus);
   const settings = getSettings_();
@@ -2837,24 +4442,17 @@ function getTeacherState_(options) {
     unlimited: getStudentPassAccess_(student.email) === 'UNLIMITED',
     accessMode: getStudentPassAccess_(student.email),
   }));
-  const snapshot = getPassSnapshot_();
+  const snapshot = getPassSnapshot_({ fullLog: true });
   const log = snapshot.log;
   const todayKey = dateKey_(new Date());
-  const allCheckIns = readCheckInsIncludingPending_();
-  const streaks = buildStreakIndex_(allCheckIns);
-  // An address Google has actually handed us is proven; the rest are guesses.
-  const googleVerified = new Set();
-  allCheckIns.forEach((entry) => {
-    if (entry.method === 'google') googleVerified.add(entry.studentEmail);
-  });
-  const checkInsToday = allCheckIns
-    .filter((checkIn) => checkIn.dateKey === todayKey && checkInStatusIsRecorded_(checkIn.status))
-    .sort((a, b) => a.checkInTime - b.checkInTime);
+  const todayEntries = readCheckInsForDateIncludingPending_(todayKey);
+  const summaryMap = readCheckInSummaryMap_();
+  const googleVerified = new Set([...summaryMap.values()].filter((summary) => summary.googleVerified).map((summary) => summary.studentEmail));
+  const checkInsToday = todayEntries.filter((checkIn) => checkInStatusIsRecorded_(checkIn.status)).sort((a, b) => a.checkInTime - b.checkInTime);
   const lateCheckInsToday = checkInsToday.filter((checkIn) => checkInStatusIsLate_(checkIn.status));
+  const pendingLateCheckIns = readPendingLateReviews_();
   const checkedKeys = new Set(checkInsToday.map((checkIn) => checkIn.studentKey));
-  const absencesToday = allCheckIns
-    .filter((entry) => entry.dateKey === todayKey && entry.status === 'ABSENT')
-    .sort((a, b) => a.studentName.localeCompare(b.studentName));
+  const absencesToday = todayEntries.filter((entry) => entry.status === 'ABSENT' && !checkedKeys.has(entry.studentKey)).sort((a, b) => a.studentName.localeCompare(b.studentName));
   const absentKeys = new Set(absencesToday.map((entry) => entry.studentKey));
   const classNames = [...new Set(roster.map((student) => student.classPeriod || 'class'))]
     .sort((a, b) => a.localeCompare(b));
@@ -2882,6 +4480,7 @@ function getTeacherState_(options) {
     ok: true,
     mode: 'teacher',
     clientContract: GD_TEACHER_CONTRACT,
+    pixelCampAccess: pixelCampAccess_(),
     appTitle: settings.APP_TITLE,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     stalePassMinutes: numberSetting_(settings, 'STALE_PASS_MINUTES', 20),
@@ -2889,6 +4488,7 @@ function getTeacherState_(options) {
     maxActivePasses: snapshot.maxActive,
     passPolicy: getStudentPassPolicy_(settings),
     studentPassUsage,
+    classroomSetup: classroomSetupView_(settings),
     repeatPassesToday: studentPassUsage
       .filter((student, index, rows) => rows.findIndex((entry) => entry.email === student.email) === index)
       .filter((student) => student.todayUsed >= 2)
@@ -2917,12 +4517,13 @@ function getTeacherState_(options) {
     classNames,
     checkInsToday: checkInsToday.map((checkIn) => ({
       ...clientCheckIn_(checkIn),
-      streak: streaks.streakFor(checkIn.studentKey, todayKey),
+      streak: streakFromCheckInSummary_(summaryMap.get(checkIn.studentKey), todayKey),
     })),
     lateCheckInsToday: lateCheckInsToday.map((checkIn) => ({
       ...clientCheckIn_(checkIn),
-      streak: streaks.streakFor(checkIn.studentKey, todayKey),
+      streak: streakFromCheckInSummary_(summaryMap.get(checkIn.studentKey), todayKey),
     })),
+    pendingLateCheckIns: pendingLateCheckIns.map(clientCheckIn_),
     absentToday: absencesToday.map(clientCheckIn_),
     checkInSummary,
     notCheckedIn: roster.filter((student) => !checkedKeys.has(student.key) && !absentKeys.has(student.key)),
@@ -2934,8 +4535,9 @@ function getTeacherState_(options) {
   return state;
 }
 
-function teacherPinEmailStatus() {
+function teacherPinEmailStatus(clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   return getPinEmailStatus_();
 }
 
@@ -3005,14 +4607,19 @@ function getSchoolCalendarIndex_() {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CALENDAR);
     const overrides = {};
     const schedules = {};
+    const seenRows = new Map();
     if (sheet && sheet.getLastRow() > 1) {
       sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues()
-        .forEach((row) => {
+        .forEach((row, index) => {
           const key = normalizeDateKey_(row[0]);
-          if (key) {
-            overrides[key] = isTruthyCell_(row[1], false);
-            schedules[key] = String(row[5] || '').trim().toUpperCase();
+          if (!key) return;
+          const rowNumber = index + 2;
+          if (seenRows.has(key)) {
+            throw new Error(`School Calendar contains duplicate date ${key} on rows ${seenRows.get(key)} and ${rowNumber}. Keep one row for each date before continuing.`);
           }
+          seenRows.set(key, rowNumber);
+          overrides[key] = isTruthyCell_(row[1], false);
+          schedules[key] = String(row[5] || '').trim().toUpperCase();
         });
     }
     return {
@@ -3094,7 +4701,7 @@ function readRosterRows_() {
         email,
         name: String(row[1] || '').trim(),
         classPeriod,
-        pinHash: String(row[3] || '').trim(),
+        pinHash: schoolDirectoryPinHash_(email, String(row[3] || '').trim()),
         active: isTruthyCell_(row[4], true),
         unlimited: isTruthyCell_(row[5], false),
         passAccess: String(row[6] || '').trim().toUpperCase(),
@@ -3104,7 +4711,17 @@ function readRosterRows_() {
 }
 
 function getRoster_() {
-  return gdMemo_('roster', () => readRosterRows_().filter((student) => student.active));
+  return gdMemo_('roster', () => {
+    const active = readRosterRowsCached_().filter((student) => student.active);
+    const seen = new Map();
+    active.forEach((student) => {
+      if (seen.has(student.key)) {
+        throw new Error(`Roster contains duplicate active membership for ${student.email} / ${student.classPeriod} on rows ${seen.get(student.key)} and ${student.row}. Keep one active row for that class membership.`);
+      }
+      seen.set(student.key, student.row);
+    });
+    return active;
+  });
 }
 
 function getStudentsByEmail_(email) {
@@ -3121,37 +4738,98 @@ function getStudentsByPinHash_(pinHash) {
   return getRoster_().filter((student) => student.pinHash && student.pinHash === pinHash);
 }
 
+function passFromRow_(row, rowNumber) {
+  return {
+    row: rowNumber,
+    passId: String(row[0] || ''),
+    studentEmail: normalizeEmail_(row[1]),
+    studentName: String(row[2] || ''),
+    classPeriod: String(row[3] || ''),
+    studentKey: rosterKey_(row[1], row[3]),
+    destination: String(row[4] || ''),
+    outDate: toDateOrNull_(row[5]),
+    returnDate: toDateOrNull_(row[6]),
+    minutesOut: row[7] === '' ? null : Number(row[7]),
+    method: String(row[8] || ''),
+    status: String(row[9] || ''),
+    endedBy: String(row[10] || ''),
+    note: String(row[11] || ''),
+    countability: String(row[12] || '').trim().toUpperCase(),
+    countabilityReason: String(row[13] || ''),
+    classifiedAt: toDateOrNull_(row[14]),
+    authorizationMethod: String(row[15] || ''),
+    authorizedAt: toDateOrNull_(row[16]),
+    requestId: String(row[17] || ''),
+    voidedAt: toDateOrNull_(row[18]),
+    voidedBy: String(row[19] || ''),
+    voidReason: String(row[20] || ''),
+  };
+}
+
 function readPassLog_() {
   return gdMemo_('passlog', () => {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.LOG);
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) return [];
-    return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.LOG.length).getValues().map((row, index) => ({
-      row: index + 2,
-      passId: String(row[0] || ''),
-      studentEmail: normalizeEmail_(row[1]),
-      studentName: String(row[2] || ''),
-      classPeriod: String(row[3] || ''),
-      studentKey: rosterKey_(row[1], row[3]),
-      destination: String(row[4] || ''),
-      outDate: toDateOrNull_(row[5]),
-      returnDate: toDateOrNull_(row[6]),
-      minutesOut: row[7] === '' ? null : Number(row[7]),
-      method: String(row[8] || ''),
-      status: String(row[9] || ''),
-      endedBy: String(row[10] || ''),
-      note: String(row[11] || ''),
-      countability: String(row[12] || '').trim().toUpperCase(),
-      countabilityReason: String(row[13] || ''),
-      classifiedAt: toDateOrNull_(row[14]),
-      authorizationMethod: String(row[15] || ''),
-      authorizedAt: toDateOrNull_(row[16]),
-      requestId: String(row[17] || ''),
-      voidedAt: toDateOrNull_(row[18]),
-      voidedBy: String(row[19] || ''),
-      voidReason: String(row[20] || ''),
-    })).filter((pass) => pass.passId);
+    return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.LOG.length).getValues()
+      .map((row, index) => passFromRow_(row, index + 2))
+      .filter((pass) => pass.passId);
   });
+}
+
+/**
+ * The earliest moment a student decision can depend on: today's passes and
+ * cooldown, plus the marking period when a per-class limit is on. Anything
+ * older only matters to teacher history, which keeps reading the full log.
+ */
+function passLogRecentCutoff_(settings) {
+  const policy = getStudentPassPolicy_(settings || getSettings_());
+  let cutoff = Date.now() - 36 * 3600000 - policy.cooldownMinutes * 60000;
+  if (policy.limit) {
+    const resetAt = new Date(policy.resetAt).getTime();
+    cutoff = Math.min(cutoff, Number.isFinite(resetAt) ? resetAt : 0);
+  }
+  return cutoff;
+}
+
+/**
+ * Student taps read only the tail of Pass Log. Rows are appended in time
+ * order, so the window widens until it holds a pass older than the cutoff,
+ * which proves nothing the rules need is above it. Rows out of time order,
+ * or a window that reaches the top without that proof, fall back to the full
+ * read, so the answer is never narrower than the whole-sheet scan.
+ */
+function readRecentPassLog_(cutoffValue) {
+  const cutoff = Number(cutoffValue);
+  if (Object.prototype.hasOwnProperty.call(GD_MEMO, 'passlog')) return GD_MEMO.passlog;
+  const cached = GD_MEMO['passlog-recent'];
+  if (cached && cached.cutoff <= cutoff) return cached.rows;
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.LOG);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  const totalRows = lastRow - 1;
+  let windowRows = GD_PASS_TAIL_ROWS;
+  while (Number.isFinite(cutoff) && windowRows < totalRows) {
+    const startRow = lastRow - windowRows + 1;
+    const scanned = sheet.getRange(startRow, 1, windowRows, GD_HEADERS.LOG.length).getValues()
+      .map((row, index) => passFromRow_(row, startRow + index))
+      .filter((pass) => pass.passId);
+    let previous = 0;
+    const outOfOrder = scanned.some((pass) => {
+      if (!pass.outDate || isNaN(pass.outDate)) return false;
+      const time = pass.outDate.getTime();
+      const reversed = previous && time < previous;
+      previous = time;
+      return reversed;
+    });
+    if (outOfOrder) break;
+    if (scanned.some((pass) => pass.outDate && !isNaN(pass.outDate) && pass.outDate.getTime() < cutoff)) {
+      GD_MEMO['passlog-recent'] = { cutoff, rows: scanned };
+      return scanned;
+    }
+    windowRows = Math.min(totalRows, windowRows * 4);
+  }
+  return readPassLog_();
 }
 
 function readPassQueue_() {
@@ -3195,6 +4873,212 @@ function mapCheckInRow_(row, rowNumber) {
   };
 }
 
+function ensureRowCapacity_(sheet, requiredLastRow) {
+  const needed = Math.max(1, Number(requiredLastRow || 1));
+  const current = sheet.getMaxRows();
+  if (current >= needed) return current;
+  const target = Math.max(needed, current + GD_CHECKIN_ROW_GROWTH, GD_CHECKIN_MIN_ROWS);
+  sheet.insertRowsAfter(current, target - current);
+  return target;
+}
+
+function checkInSummaryPropertyKey_(studentKey) { return GD_CHECKIN_SUMMARY_PREFIX + String(studentKey || ''); }
+
+function lateReviewPropertyKey_(checkInId) { return GD_LATE_REVIEW_PREFIX + String(checkInId || ''); }
+
+function emptyCheckInSummary_(studentKey) {
+  return { v:1, studentKey:String(studentKey||''), studentEmail:'', studentName:'', classPeriod:'',
+    current:0, best:0, lastCountedDate:'', googleVerified:false };
+}
+
+function parseCheckInSummary_(studentKey, raw) {
+  try {
+    const parsed=JSON.parse(String(raw||''));
+    if(!parsed || parsed.v!==1 || String(parsed.studentKey||'')!==String(studentKey||'')) return null;
+    return {...emptyCheckInSummary_(studentKey),...parsed,current:Math.max(0,Number(parsed.current||0)),
+      best:Math.max(0,Number(parsed.best||0)),googleVerified:Boolean(parsed.googleVerified)};
+  } catch(error){ return null; }
+}
+
+function writeCheckInSummary_(summary) {
+  if(!summary || !summary.studentKey) return;
+  PropertiesService.getScriptProperties().setProperty(checkInSummaryPropertyKey_(summary.studentKey),JSON.stringify(summary));
+}
+
+function checkInEntryForProperty_(entry) {
+  return {v:1,checkInId:entry.checkInId,dateKey:entry.dateKey,checkInTime:isoOrEmpty_(entry.checkInTime),
+    studentEmail:entry.studentEmail,studentName:entry.studentName,classPeriod:entry.classPeriod,
+    studentKey:entry.studentKey,method:entry.method,point:Number(entry.point||0),status:entry.status};
+}
+
+function setLateReviewIndex_(entry) {
+  const properties=PropertiesService.getScriptProperties();
+  const key=lateReviewPropertyKey_(entry.checkInId);
+  if(String(entry.status||'').toUpperCase()==='LATE_PENDING') properties.setProperty(key,JSON.stringify(checkInEntryForProperty_(entry)));
+  else properties.deleteProperty(key);
+}
+
+function buildCheckInSummaryForEntries_(studentKey, entries, calendarValue) {
+  const calendar=calendarValue||getSchoolCalendarIndex_();
+  const summary=emptyCheckInSummary_(studentKey);
+  const ordered=(entries||[]).filter((entry)=>entry&&entry.studentKey===studentKey).slice()
+    .sort((a,b)=>String(a.dateKey||'').localeCompare(String(b.dateKey||''))||a.checkInTime-b.checkInTime);
+  if(ordered.length){
+    const latest=ordered[ordered.length-1];
+    summary.studentEmail=latest.studentEmail||''; summary.studentName=latest.studentName||''; summary.classPeriod=latest.classPeriod||'';
+    summary.googleVerified=ordered.some((entry)=>String(entry.method||'').toLowerCase()==='google');
+  }
+  const days=[...new Set(ordered.filter((entry)=>checkInStatusCountsForStreak_(entry.status)&&isSchoolDayKey_(entry.dateKey,calendar))
+    .map((entry)=>entry.dateKey))].sort();
+  let previous='',run=0;
+  days.forEach((key)=>{ run=previous&&nextSchoolDayKey_(previous,calendar)===key?run+1:1; summary.best=Math.max(summary.best,run); previous=key; });
+  if(days.length){
+    summary.lastCountedDate=days[days.length-1];
+    let cursor=summary.lastCountedDate,current=0; const daySet=new Set(days);
+    while(daySet.has(cursor)){ current+=1; cursor=previousSchoolDayKey_(cursor,calendar); }
+    summary.current=current; summary.best=Math.max(summary.best,current);
+  }
+  return summary;
+}
+
+function checkInOperationalIndexVersion_() {
+  const calendar = getSchoolCalendarIndex_();
+  const activeKeys = getRoster_().map((student) => student.key).sort();
+  const calendarRows = Object.keys(calendar.overrides || {}).sort().map((key) => [
+    key,
+    Boolean(calendar.overrides[key]),
+    String((calendar.schedules || {})[key] || ''),
+  ]);
+  const payload = JSON.stringify([
+    GD_SCHEMA_VERSION,
+    String(calendar.startKey || ''),
+    String(calendar.endKey || ''),
+    activeKeys,
+    calendarRows,
+  ]);
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    payload,
+    Utilities.Charset.UTF_8
+  );
+  return `${GD_SCHEMA_VERSION}:index:${Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 24)}`;
+}
+
+function rebuildCheckInOperationalIndex_() {
+  const properties=PropertiesService.getScriptProperties();
+  const allProperties=properties.getProperties();
+  Object.keys(allProperties).forEach((key)=>{
+    if(key.startsWith(GD_CHECKIN_SUMMARY_PREFIX)||key.startsWith(GD_LATE_REVIEW_PREFIX)) properties.deleteProperty(key);
+  });
+
+  const activeKeys=new Set(getRoster_().map((student)=>student.key));
+  const entries=readCheckInsIncludingPending_();
+  const byStudent=new Map();
+  entries.forEach((entry)=>{
+    if(!entry.studentKey) return;
+    if(String(entry.status||'').toUpperCase()==='LATE_PENDING') setLateReviewIndex_(entry);
+    if(!activeKeys.has(entry.studentKey)) return;
+    if(!byStudent.has(entry.studentKey)) byStudent.set(entry.studentKey,[]);
+    byStudent.get(entry.studentKey).push(entry);
+  });
+
+  const calendar=getSchoolCalendarIndex_();
+  byStudent.forEach((studentEntries,studentKey)=>writeCheckInSummary_(buildCheckInSummaryForEntries_(studentKey,studentEntries,calendar)));
+  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,checkInOperationalIndexVersion_());
+  return {students:byStudent.size,entries:entries.length};
+}
+
+function ensureCheckInOperationalIndex_() {
+  const properties=PropertiesService.getScriptProperties();
+  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===checkInOperationalIndexVersion_()) return;
+  rebuildCheckInOperationalIndex_();
+}
+
+function rebuildCheckInSummaryForStudent_(studentKey) {
+  const key = String(studentKey || '');
+  if (!key) return emptyCheckInSummary_('');
+  const properties = PropertiesService.getScriptProperties();
+  const propertyKey = checkInSummaryPropertyKey_(key);
+  if (!getStudentByKey_(key)) {
+    properties.deleteProperty(propertyKey);
+    return emptyCheckInSummary_(key);
+  }
+  const historical = readCheckIns_().filter((item) => item.studentKey === key);
+  const pending = readPendingCheckIns_().filter((item) => item.studentKey === key);
+  const entries = historical.concat(pending);
+  if (!entries.length) {
+    properties.deleteProperty(propertyKey);
+    return emptyCheckInSummary_(key);
+  }
+  const summary = buildCheckInSummaryForEntries_(key, entries);
+  writeCheckInSummary_(summary);
+  return summary;
+}
+
+function updateCheckInOperationalIndex_(entry) {
+  if(!entry||!entry.studentKey) return;
+  ensureCheckInOperationalIndex_();
+  const properties=PropertiesService.getScriptProperties();
+  const summary=parseCheckInSummary_(entry.studentKey,properties.getProperty(checkInSummaryPropertyKey_(entry.studentKey)))||emptyCheckInSummary_(entry.studentKey);
+  summary.studentEmail=entry.studentEmail||summary.studentEmail; summary.studentName=entry.studentName||summary.studentName;
+  summary.classPeriod=entry.classPeriod||summary.classPeriod;
+  if(String(entry.method||'').toLowerCase()==='google') summary.googleVerified=true;
+  const normalizedStatus = String(entry.status || '').toUpperCase();
+  if (normalizedStatus === 'LATE_APPROVED' || normalizedStatus === 'LATE_NO_POINT') {
+    rebuildCheckInSummaryForStudent_(entry.studentKey);
+    setLateReviewIndex_(entry);
+    return;
+  }
+  if(checkInStatusCountsForStreak_(entry.status)&&isSchoolDayKey_(entry.dateKey)){
+    if(!summary.lastCountedDate||entry.dateKey>summary.lastCountedDate){
+      const consecutive=summary.lastCountedDate&&nextSchoolDayKey_(summary.lastCountedDate)===entry.dateKey;
+      summary.current=consecutive?summary.current+1:1; summary.lastCountedDate=entry.dateKey; summary.best=Math.max(summary.best,summary.current);
+    } else if(entry.dateKey<summary.lastCountedDate){
+      rebuildCheckInSummaryForStudent_(entry.studentKey);
+      setLateReviewIndex_(entry); return;
+    }
+  }
+  writeCheckInSummary_(summary); setLateReviewIndex_(entry);
+}
+
+function readCheckInSummaryMap_() {
+  ensureCheckInOperationalIndex_();
+  const map=new Map(); const properties=PropertiesService.getScriptProperties().getProperties();
+  Object.entries(properties).forEach(([key,raw])=>{
+    if(!key.startsWith(GD_CHECKIN_SUMMARY_PREFIX)) return;
+    const studentKey=key.slice(GD_CHECKIN_SUMMARY_PREFIX.length); const parsed=parseCheckInSummary_(studentKey,raw);
+    if(parsed) map.set(studentKey,parsed);
+  }); return map;
+}
+
+function streakFromCheckInSummary_(summaryValue,todayKey,calendarValue) {
+  const calendar=calendarValue||getSchoolCalendarIndex_(); const summary=summaryValue||emptyCheckInSummary_('');
+  const todayIsSchoolDay=isSchoolDayKey_(todayKey,calendar); const checkedInToday=Boolean(summary.lastCountedDate===todayKey);
+  let current=Number(summary.current||0);
+  if(todayIsSchoolDay&&!checkedInToday&&summary.lastCountedDate){
+    const expected=previousSchoolDayKey_(todayKey,calendar); if(summary.lastCountedDate!==expected) current=0;
+  }
+  return {current,best:Math.max(Number(summary.best||0),current),checkedInToday,weekendProtected:!todayIsSchoolDay,
+    nonSchoolDayProtected:!todayIsSchoolDay,atRiskToday:todayIsSchoolDay&&!checkedInToday&&current>0};
+}
+
+function readPendingLateReviews_() {
+  ensureCheckInOperationalIndex_();
+  const properties=PropertiesService.getScriptProperties().getProperties();
+  return Object.entries(properties).filter(([key])=>key.startsWith(GD_LATE_REVIEW_PREFIX)).map(([,raw])=>{
+    try { const value=JSON.parse(String(raw||'')); return {...value,checkInTime:toDateOrNull_(value.checkInTime),point:Number(value.point||0)}; }
+    catch(error){ return null; }
+  }).filter((entry)=>entry&&entry.checkInId&&entry.status==='LATE_PENDING').sort((a,b)=>a.checkInTime-b.checkInTime);
+}
+
+function readCheckInsForDateIncludingPending_(targetDateKey) {
+  const dateKey=String(targetDateKey||'').trim(); const combined=readCheckInsForDate_(dateKey).slice();
+  const recorded=new Set(combined.filter((entry)=>checkInStatusIsRecorded_(entry.status)).map(checkInLogicalKey_));
+  readPendingCheckIns_().filter((entry)=>entry.dateKey===dateKey).sort((a,b)=>a.checkInTime-b.checkInTime).forEach((entry)=>{
+    const key=checkInLogicalKey_(entry); if(recorded.has(key)) return; combined.push(entry); recorded.add(key);
+  }); return combined;
+}
+
 function readCheckIns_() {
   return gdMemo_('checkins', () => {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS);
@@ -3231,6 +5115,19 @@ function readCheckInsForDate_(targetDateKey) {
     const scanned = sheet.getRange(startRow, 1, windowRows, GD_HEADERS.CHECKINS.length).getValues()
       .map((row, index) => mapCheckInRow_(row, startRow + index))
       .filter((entry) => entry.checkInId);
+
+    let previousDateKey = '';
+    const outOfOrder = scanned.some((entry) => {
+      const currentDateKey = String(entry.dateKey || '');
+      if (!currentDateKey) return false;
+      const reversed = Boolean(previousDateKey && currentDateKey < previousDateKey);
+      previousDateKey = currentDateKey;
+      return reversed;
+    });
+    if (outOfOrder) {
+      return readCheckIns_().filter((entry) => entry.dateKey === dateKey);
+    }
+
     if (scanned.some((entry) => entry.dateKey && entry.dateKey < dateKey)) {
       return scanned.filter((entry) => entry.dateKey === dateKey);
     }
@@ -3250,7 +5147,7 @@ function readPinCards_() {
       studentName: String(row[1] || ''),
       classPeriod: String(row[2] || ''),
       studentKey: rosterKey_(row[0], row[2]),
-      pin: String(row[3] || '').replace(/\D/g, ''),
+      pin: schoolDirectoryRecoveryPin_(normalizeEmail_(row[0]), String(row[3] || '').replace(/\D/g, '')),
       generatedAt: toDateOrNull_(row[4]),
       emailStatus: String(row[5] || '').trim().toUpperCase(),
       emailedAt: toDateOrNull_(row[6]),
@@ -3341,9 +5238,18 @@ function generateMissingPins() {
 function ensureOnePinPerStudent_(options) {
   assertPinEmailBatchIdle_();
   const createMissing = Boolean(options && options.createMissing);
+  // A connected classroom never generates or repairs a second credential.
+  // The authoritative directory is read on each request, including session checks.
+  if (schoolDirectorySourceId_()) return synchronizeDirectoryPins_();
+  const requestedEmails = Array.isArray(options && options.studentEmails)
+    ? new Set(options.studentEmails.map((email) => normalizeEmail_(email)).filter(Boolean))
+    : null;
   const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
   const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
-  const roster = getRoster_();
+  const allRoster = getRoster_();
+  const roster = requestedEmails === null
+    ? allRoster
+    : allRoster.filter((student) => requestedEmails.has(student.email));
   if (!roster.length) return { createdPins: 0, normalizedMemberships: 0, createdCards: 0 };
 
   const cards = readPinCards_();
@@ -3366,12 +5272,24 @@ function ensureOnePinPerStudent_(options) {
   const activeWrites = [];
 
   const usedHashes = new Map();
+  if (requestedEmails !== null) {
+    allRoster.forEach((student) => {
+      if (!requestedEmails.has(student.email) && student.pinHash && !usedHashes.has(student.pinHash)) {
+        usedHashes.set(student.pinHash, student.email);
+      }
+    });
+    cards.forEach((card) => {
+      if (requestedEmails.has(card.studentEmail) || !/^\d{5,6}$/.test(card.pin)) return;
+      const hash = hashPin_(card.pin);
+      if (!usedHashes.has(hash)) usedHashes.set(hash, card.studentEmail);
+    });
+  }
   let createdPins = 0;
   let normalizedMemberships = 0;
   let createdCards = 0;
 
   [...rosterByEmail.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([email, memberships]) => {
-    const emailCards = (cardsByEmail.get(email) || []).filter((card) => /^\d{6}$/.test(card.pin));
+    const emailCards = (cardsByEmail.get(email) || []).filter((card) => /^\d{5,6}$/.test(card.pin));
     const existingHashes = [...new Set(memberships.map((student) => student.pinHash).filter(Boolean))];
     const sentCard = emailCards.find((card) => card.emailStatus === 'SENT');
     const hashMatchedCard = emailCards.find((card) => memberships.some((student) => student.pinHash === hashPin_(card.pin)));
@@ -3381,7 +5299,7 @@ function ensureOnePinPerStudent_(options) {
       canonicalPin = '';
       canonicalHash = '';
     }
-    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0])) {
+    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0]) && !createMissing) {
       usedHashes.set(existingHashes[0], email);
       memberships.forEach((student) => {
         if (student.pinHash !== existingHashes[0]) {
@@ -3410,6 +5328,10 @@ function ensureOnePinPerStudent_(options) {
       if (activeCell && String(activeCell[0]).trim() === '') activeWrites.push(student.row);
       const card = (cardsByEmail.get(email) || []).find((item) => item.studentKey === student.key);
       if (card) {
+        if (card.studentName !== student.name) {
+          pinSheet.getRange(card.row, 2).setValue(student.name);
+          normalizedMemberships += 1;
+        }
         if (card.pin !== canonicalPin) {
           pinSheet.getRange(card.row, 4).setValue(canonicalPin);
           pinSheet.getRange(card.row, 6, 1, 3).clearContent();
@@ -3432,7 +5354,13 @@ function ensureOnePinPerStudent_(options) {
 
 /* --------------------------------------------------------- PIN delivery ---- */
 
-function previewStudentPinEmails() {
+function previewStudentPinEmails(clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  return previewStudentPinEmails_();
+}
+
+function previewStudentPinEmails_() {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
   const status = getPinEmailStatus_();
@@ -3443,10 +5371,12 @@ function previewStudentPinEmails() {
     example: [
       'Hello Jordan,',
       '',
-      'Here is your private GrantDesk PIN:',
+      `Here is your private ${hallPassSiteBranded_() ? 'GrantDesk' : 'Hall Pass'} PIN:`,
       '123456',
       '',
-      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. This one PIN works in all your classes. Keep it private.`,
+      `Daily Check-in: ${settings.CHECKIN_URL || webAppUrl_('checkin')}`,
+      `Hall Pass: ${settings.PASS_URL || webAppUrl_('')}`,
+      'This one PIN works in all your classes. Keep it private.',
       '',
       '— Your teacher',
     ].join('\n'),
@@ -3454,7 +5384,7 @@ function previewStudentPinEmails() {
 }
 
 function previewPinEmailDistribution() {
-  const preview = previewStudentPinEmails();
+  const preview = previewStudentPinEmails_();
   SpreadsheetApp.getUi().alert(
     'GrantDesk PIN email preview',
     [
@@ -3486,7 +5416,9 @@ function emailStudentPinsFromSheet() {
   );
 }
 
-function sendStudentPinEmails(confirmText) {
+function sendStudentPinEmails(confirmText, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   const result = runPinEmailBatch_(confirmText);
   const state = getTeacherState_({ includePinStatus: true });
   state.emailResult = result;
@@ -3592,7 +5524,7 @@ function buildPinEmailGroups_() {
     const student = record.student;
     const memberships = (cardsByEmail.get(email) || [])
       .filter((card) => record.activeKeys.has(card.studentKey));
-    const pins = [...new Set(memberships.map((card) => card.pin).filter((pin) => /^\d{6}$/.test(pin)))];
+    const pins = [...new Set(memberships.map((card) => card.pin).filter((pin) => /^\d{5,6}$/.test(pin)))];
     if (pins.length !== 1) {
       missingRecipients += 1;
       return;
@@ -3616,37 +5548,20 @@ function buildPinEmailGroups_() {
   };
 }
 
-function buildPinEmailMessage_(group, settings, teacherEmail) {
-  const firstName = firstNameFromStudentName_(group.name);
-  const body = [
-    `Hello ${firstName},`,
-    '',
-    'Here is your private GrantDesk PIN:',
-    group.pin,
-    '',
-    `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass.`,
+function buildPinEmailMessage_(group,settings,teacherEmail){
+  const firstName=firstNameFromStudentName_(group.name),checkInUrl=settings.CHECKIN_URL||webAppUrl_('checkin')||'https://grant-desk.com/check-in/',
+    passUrl=settings.PASS_URL||webAppUrl_('')||'https://grant-desk.com/pass/';
+  const pinName=hallPassSiteBranded_()?'GrantDesk':'Hall Pass';
+  const body=[`Hello ${firstName},`,'',`Here is your private ${pinName} PIN:`,group.pin,'',
+    `Daily Check-in: ${checkInUrl}`,`Hall Pass: ${passUrl}`,
     'This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.',
-    'Keep this PIN private.',
-    '',
-    '— Your teacher',
-  ].join('\n');
-  const htmlBody = [
-    `<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,
-    '<p>Here is your private GrantDesk PIN:</p>',
+    'Keep this PIN private.','','— Your teacher'].join('\n');
+  const htmlBody=[`<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,`<p>Here is your private ${pinName} PIN:</p>`,
     `<p style="font-family:monospace;font-size:24px;font-weight:bold;letter-spacing:.12em">${escapeHtmlForEmail_(group.pin)}</p>`,
-    `<p>Open <a href="${escapeHtmlForEmail_(settings.CHECKIN_URL)}">GrantDesk Daily Check-in</a> for Daily Check-in and Hall Pass.</p>`,
+    `<p><a href="${escapeHtmlForEmail_(checkInUrl)}">Daily Check-in</a><br><a href="${escapeHtmlForEmail_(passUrl)}">Hall Pass</a></p>`,
     '<p>This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.</p>',
-    '<p>Keep this PIN private.</p>',
-    '<p>— Your teacher</p>',
-  ].join('');
-  return {
-    to: group.email,
-    subject: settings.PIN_EMAIL_SUBJECT,
-    body,
-    htmlBody,
-    name: settings.APP_TITLE || 'Hall Pass',
-    replyTo: teacherEmail,
-  };
+    '<p>Keep this PIN private.</p>','<p>— Your teacher</p>'].join('');
+  return {to:group.email,subject:settings.PIN_EMAIL_SUBJECT,body,htmlBody,name:settings.APP_TITLE||'Hall Pass',replyTo:teacherEmail};
 }
 
 function firstNameFromStudentName_(value) {
@@ -3671,15 +5586,396 @@ function escapeHtmlForEmail_(value) {
   }[character]));
 }
 
-function clearPinCards() {
-  assertTeacher_(getActiveEmail_(), getSettings_());
+function teacherResetStudentPin(studentEmail,reason,clientContract){
+  const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings); assertTeacherClient_(clientContract);
+  if (schoolDirectorySourceId_()) throw new Error('This classroom uses the school lunch number. Correct the school directory instead of generating a different PIN.');
+  const email=normalizeEmail_(studentEmail),cleanReason=String(reason||'').trim().slice(0,300);
+  if(!email) throw new Error('Choose a student whose PIN needs to be reset.');
+  if(!cleanReason) throw new Error('Enter a short private reason for resetting this PIN.');
+  assertPlainSheetText_(cleanReason,'PIN reset reason');
+  let studentName='';
+  withLock_(()=>{
+    assertPinEmailBatchIdle_();
+    const rosterRows=readRosterRows_().filter((student)=>student.email===email);
+    if(!rosterRows.some((student)=>student.active)) throw new Error('That student is not active on the roster.');
+    studentName=rosterRows[0].name;
+    const usedHashes=new Set(readRosterRows_().filter((student)=>student.email!==email).map((student)=>student.pinHash).filter(Boolean));
+    rosterRows.map((student)=>student.pinHash).filter(Boolean).forEach((hash)=>usedHashes.add(hash));
+    let newPin='',newHash='';
+    do{newPin=String(Math.floor(100000+Math.random()*900000));newHash=hashPin_(newPin);}while(usedHashes.has(newHash));
+    const rosterSheet=getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    rosterRows.forEach((student)=>rosterSheet.getRange(student.row,4).setValue(newHash));
+    const pinSheet=getSpreadsheet_().getSheetByName(GD_SHEETS.PINS),cards=readPinCards_().filter((card)=>card.studentEmail===email);
+    const byKey=new Map(cards.map((card)=>[card.studentKey,card]));
+    rosterRows.forEach((student)=>{
+      const card=byKey.get(student.key),detail='PIN reset by teacher; delivery of the new PIN is not yet confirmed';
+      if(card) pinSheet.getRange(card.row,4,1,5).setValues([[newPin,new Date(),'NEEDS_RESEND','',detail]]);
+      else pinSheet.appendRow([student.email,student.name,student.classPeriod,newPin,new Date(),'NEEDS_RESEND','',detail]);
+    });
+    gdClearMemo_();
+    auditTeacherAction_(teacher,rosterRows[0],'STUDENT_PIN_RESET',[],cleanReason,'');
+  });
+  const state=getTeacherState_({includePinStatus:true});
+  state.noticeMessage=`${studentName}'s PIN was reset. The new PIN is ready for private delivery and the old PIN no longer works.`;
+  return state;
+}
+
+/* --------------------------------------- shared school identity directory ---- */
+
+const GD_HALL_PASS_VERSION = '1.0.0-rc.1';
+const GD_DIRECTORY_SHEET = 'School Directory';
+const GD_DIRECTORY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status'];
+const GD_DIRECTORY_SOURCE = 'SCHOOL_DIRECTORY_SOURCE_ID';
+const GD_DIRECTORY_OWNED = 'SCHOOL_DIRECTORY_OWNED_ID';
+
+function schoolDirectorySourceId_() {
+  // Called once per roster row. Read the property store once per request; a
+  // connection change clears every request memo before it is used again.
+  return gdMemo_('directory-source', () => {
+    const properties = PropertiesService.getScriptProperties();
+    // Protected release checks temporarily use an isolated synthetic workbook.
+    // They must never inherit the production directory or change its properties.
+    const pinned = properties.getProperty('SPREADSHEET_ID');
+    if (GD_SPREADSHEET && pinned && GD_SPREADSHEET.getId() !== pinned) return '';
+    return properties.getProperty(GD_DIRECTORY_SOURCE) || '';
+  });
+}
+
+function schoolDirectoryId_(value) {
+  const text = String(value || '').trim();
+  const match = /^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]{20,120})(?:\/[^?#]*)?(?:[?#].*)?$/.exec(text);
+  const id = match ? match[1] : text;
+  if (!/^[A-Za-z0-9_-]{20,120}$/.test(id)) throw new Error('Paste the private school directory spreadsheet link.');
+  return id;
+}
+
+/** No cross-request cache: corrections and revocations apply in every connected room. */
+function readSchoolDirectory_(id) {
+  if (!id) return [];
+  return gdMemo_(`directory:${id}`, () => {
+    let sheet;
+    try { sheet = SpreadsheetApp.openById(id).getSheetByName(GD_DIRECTORY_SHEET); }
+    catch (error) { throw new Error('The school directory is unavailable. Ask the directory owner to check this teacher’s access.'); }
+    if (!sheet || sheet.getLastRow() < 1) throw new Error('That spreadsheet does not contain a school directory.');
+    const header = sheet.getRange(1, 1, 1, 4).getValues()[0];
+    if (header.some((value, index) => value !== GD_DIRECTORY_HEADERS[index])) throw new Error('The school directory headings have changed. Ask its owner to repair them.');
+    if (sheet.getLastRow() > 5001) throw new Error('The school directory exceeds 5,000 students.');
+    const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues() : [];
+    const ids = new Set(), emails = new Set();
+    return rows.filter((row) => row.some((cell) => cell !== '')).map((row, index) => {
+      // Numeric cells may already have lost zeros. Require the original text.
+      if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0])) throw new Error(`School directory row ${index + 2}: student number must be five or six digits stored as text.`);
+      const id = row[0], name = String(row[1] || '').trim(), email = normalizeEmail_(row[2]);
+      const status = String(row[3] || '').trim().toUpperCase();
+      if (!name || name.length > 120 || !['AVAILABLE', 'DISABLED'].includes(status)) throw new Error(`School directory row ${index + 2}: check the name and status.`);
+      assertPlainSheetText_(name, 'Student name');
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(`School directory row ${index + 2}: invalid school email.`);
+      if (ids.has(id) || (email && emails.has(email))) throw new Error(`School directory row ${index + 2}: duplicate student number or email.`);
+      ids.add(id); if (email) emails.add(email);
+      return { id, name, email, status };
+    });
+  });
+}
+
+function schoolDirectoryPin_(email, fallback) {
+  const source = schoolDirectorySourceId_();
+  if (!source) return fallback;
+  const entries = gdMemo_('directory-by-email', () => new Map(readSchoolDirectory_(source).filter((row) => row.email).map((row) => [row.email, row])));
+  const entry = entries.get(email);
+  return entry && entry.status === 'AVAILABLE' ? entry.id : '';
+}
+
+function schoolDirectoryRecoveryPin_(email, fallback) {
+  try { return schoolDirectoryPin_(email, fallback); } catch (error) { return ''; }
+}
+
+function schoolDirectoryPinHash_(email, fallback) {
+  if (!schoolDirectorySourceId_()) return fallback;
+  // A directory outage must never restore an old generated PIN. Teacher backup
+  // still has the roster; student authorization fails closed with an empty hash.
+  try {
+    const pin = schoolDirectoryPin_(email, '');
+    return pin ? gdMemo_(`directory-hash:${pin}`, () => hashPin_(pin)) : '';
+  } catch (error) { return ''; }
+}
+
+function synchronizeDirectoryPins_() {
+  const roster = readRosterRows_(), sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+  const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+  const cards = readPinCards_(), byKey = new Map(cards.map((card) => [card.studentKey, card]));
+  let normalizedMemberships = 0, createdCards = 0;
+  roster.forEach((student) => {
+    const pin = schoolDirectoryPin_(student.email, '');
+    if (!pin) return;
+    if (sheet.getRange(student.row, 4).getValue() !== student.pinHash) {
+      sheet.getRange(student.row, 4).setValue(student.pinHash); normalizedMemberships += 1;
+    }
+    if (!student.active) return;
+    const card = byKey.get(student.key);
+    const data = [pin, new Date(), 'SENT', '', 'Uses the existing school lunch number'];
+    if (card) pinSheet.getRange(card.row, 4, 1, 5).setNumberFormat('@').setValues([data]);
+    else { pinSheet.getRange(pinSheet.getLastRow() + 1, 1, 1, 8).setNumberFormat('@').setValues([[student.email, student.name, student.classPeriod, ...data]]); createdCards += 1; }
+  });
+  gdForget_('roster'); gdForget_('pincards');
+  return { createdPins: 0, normalizedMemberships, createdCards };
+}
+
+function schoolDirectoryRevision_(rows) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,
+    JSON.stringify(rows), Utilities.Charset.UTF_8));
+}
+
+/** Accept the exact alternating number/name list or tab-separated number/name/email. */
+function parseSchoolDirectoryInput_(text, mapping, settings) {
+  if (String(text || '').length > 750000 || String(mapping || '').length > 750000) throw new Error('Use a list of at most 5,000 students.');
+  const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const rows = [], ids = new Set(), emails = new Set();
+  for (let i = 0; i < lines.length; i += 1) {
+    if (i === 0 && /^School Student ID\t/i.test(lines[i])) continue;
+    let cells = lines[i].split('\t').map((cell) => cell.trim());
+    if (cells.length === 1 && /^\d{5,6}$/.test(cells[0])) cells = [cells[0], lines[++i] || ''];
+    if (cells.length < 2 || cells.length > 4 || !/^\d{5,6}$/.test(cells[0]) || !cells[1] || /^\d+$/.test(cells[1])) throw new Error(`Entry ${rows.length + 1}: use a student number followed by a name.`);
+    const row = { id: cells[0], name: cells[1], email: normalizeEmail_(cells[2]), status: cells[3] || 'AVAILABLE' };
+    if (row.name.length > 120 || !['AVAILABLE', 'DISABLED'].includes(row.status)) throw new Error(`Entry ${rows.length + 1}: check the name and status.`);
+    assertPlainSheetText_(row.name, 'Student name');
+    if (ids.has(row.id)) throw new Error(`Entry ${rows.length + 1}: duplicate student number.`);
+    ids.add(row.id); rows.push(row);
+  }
+  if (rows.length > 5000) throw new Error('Use a list of at most 5,000 students.');
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const mappings = String(mapping || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const mappedIds = new Set();
+  mappings.forEach((line, index) => {
+    if (index === 0 && /^(?:cafeteria_number|School Student ID)[,\t]/i.test(line)) return;
+    const cells = line.split(/[,\t]/).map((cell) => cell.trim());
+    if (cells.length !== 2 || !/^\d{5,6}$/.test(cells[0])) throw new Error(`Email mapping row ${index + 1}: use exact student number, then school email.`);
+    const row = byId.get(cells[0]);
+    if (!row || mappedIds.has(cells[0])) throw new Error(`Email mapping row ${index + 1}: unknown or repeated student number.`);
+    const email = normalizeEmail_(cells[1]);
+    if (row.email && row.email !== email) throw new Error(`Email mapping row ${index + 1}: conflicting email.`);
+    row.email = email; mappedIds.add(cells[0]);
+  });
+  rows.forEach((row, index) => {
+    if (!row.email) return;
+    const domain = String(settings.STUDENT_EMAIL_DOMAIN || '').toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email) || (domain && row.email.split('@').pop() !== domain)) throw new Error(`Entry ${index + 1}: use the verified school email domain.`);
+    if (emails.has(row.email)) throw new Error(`Entry ${index + 1}: the same email is assigned to two numbers.`);
+    emails.add(row.email);
+  });
+  return rows;
+}
+
+function teacherGetSchoolDirectoryState(clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
+  const properties = PropertiesService.getScriptProperties();
+  const ownedId = properties.getProperty(GD_DIRECTORY_OWNED) || '';
+  const sourceId = schoolDirectorySourceId_();
+  const rows = ownedId ? readSchoolDirectory_(ownedId) : [];
+  return { ok: true, version: GD_HALL_PASS_VERSION, ownedId, sourceId,
+    directoryUrl: ownedId ? `https://docs.google.com/spreadsheets/d/${ownedId}/edit` : '',
+    students: rows.length, withoutEmail: rows.filter((row) => !row.email).length };
+}
+
+/** Import is additive. It creates no class memberships and activates no credentials. */
+function teacherImportSchoolDirectory(text, mapping, confirmation, revision, clientContract) {
+  const settings = getSettings_(), teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings); assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const properties = PropertiesService.getScriptProperties();
+    const ownedId = properties.getProperty(GD_DIRECTORY_OWNED) || '';
+    const existing = ownedId ? readSchoolDirectory_(ownedId) : [];
+    const importText = String(text || '').trim() || existing.map((row) => [row.id, row.name, row.email, row.status].join('\t')).join('\n');
+    const incoming = parseSchoolDirectoryInput_(importText, mapping, settings);
+    if (!incoming.length) throw new Error('Paste the school list first.');
+    const byId = new Map(existing.map((row) => [row.id, row]));
+    incoming.forEach((row) => {
+      const prior = byId.get(row.id);
+      byId.set(row.id, { ...row, status: prior && prior.status === 'DISABLED' ? 'DISABLED' : row.status, email: row.email || (prior && prior.email) || '' });
+    });
+    const merged = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
+    const seen = new Set();
+    merged.forEach((row) => { if (row.email && seen.has(row.email)) throw new Error('The merged directory would assign one email to two numbers. Correct the source first.'); if (row.email) seen.add(row.email); });
+    if (merged.length > 5000) throw new Error('The merged directory exceeds 5,000 students.');
+    const currentRevision = schoolDirectoryRevision_([existing, merged]);
+    const preview = { total: merged.length, added: merged.length - existing.length,
+      withoutEmail: merged.filter((row) => !row.email).length, membershipsCreated: 0, revision: currentRevision };
+    if (confirmation !== 'IMPORT SCHOOL DIRECTORY') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory changed. Preview the import again before applying.');
+    let book = ownedId ? SpreadsheetApp.openById(ownedId) : SpreadsheetApp.create('Hall Pass — Private School Directory');
+    let sheet = book.getSheetByName(GD_DIRECTORY_SHEET);
+    if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_SHEET);
+    if (sheet.getMaxRows() < merged.length + 1) sheet.insertRowsAfter(sheet.getMaxRows(), merged.length + 1 - sheet.getMaxRows());
+    // Text formatting precedes the write. Neither IDs nor names are evaluated as formulas.
+    sheet.getRange(1, 1, merged.length + 1, 4).setNumberFormat('@').setValues([
+      GD_DIRECTORY_HEADERS, ...merged.map((row) => [row.id, row.name, row.email, row.status]),
+    ]);
+    sheet.setFrozenRows(1);
+    properties.setProperty(GD_DIRECTORY_OWNED, book.getId());
+    gdClearMemo_();
+    auditTeacherAction_(teacher, { email: '', name: 'School directory', classPeriod: 'Unassigned' },
+      'SCHOOL_DIRECTORY_IMPORTED', [], `${merged.length} directory entries; no memberships created`, '');
+    return { ok: true, applied: true, preview, directoryUrl: `https://docs.google.com/spreadsheets/d/${book.getId()}/edit` };
+  }, 30000, 'school directory import');
+}
+
+/** Connection is explicit, previewed, and refused if it would strand any active student. */
+function teacherConnectSchoolDirectory(value, confirmation, revision, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const id = schoolDirectoryId_(value), rows = readSchoolDirectory_(id);
+    const byEmail = new Map(rows.filter((row) => row.email && row.status === 'AVAILABLE').map((row) => [row.email, row]));
+    const activeEmails = [...new Set(readRosterRows_().filter((row) => row.active).map((row) => row.email))];
+    const unmatched = activeEmails.filter((email) => !byEmail.has(email));
+    const currentRevision = schoolDirectoryRevision_([id, rows, activeEmails]);
+    const preview = { total: rows.length, matched: activeEmails.length - unmatched.length,
+      unmatched, revision: currentRevision, membershipsCreated: 0 };
+    if (confirmation !== 'USE SCHOOL DIRECTORY') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory or class roster changed. Preview the connection again.');
+    if (unmatched.length) throw new Error('Some active students have no verified school number. Complete their email mappings before connecting.');
+    assertPinEmailBatchIdle_();
+    PropertiesService.getScriptProperties().setProperty(GD_DIRECTORY_SOURCE, id);
+    setSettingValue_('SCHOOL_DIRECTORY_SOURCE_ID', id);
+    gdClearMemo_();
+    synchronizeDirectoryPins_();
+    auditTeacherAction_(getActiveEmail_(), { email: '', name: 'School directory', classPeriod: 'All classes' },
+      'SCHOOL_DIRECTORY_CONNECTED', [], `${activeEmails.length} students use their exact school lunch number`, '');
+    return { ok: true, applied: true, preview };
+  }, 30000, 'school directory connection');
+}
+
+function teacherEnrollSchoolStudent(studentId, classPeriod, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
+  const source = schoolDirectorySourceId_();
+  if (!source) throw new Error('Connect this classroom to the school directory first.');
+  const row = readSchoolDirectory_(source).find((entry) => entry.id === String(studentId || '').trim());
+  if (!row || !row.email || row.status !== 'AVAILABLE') throw new Error('That school number needs an available, verified school email before enrollment.');
+  return teacherAddStudentClass(row.name, row.email, classPeriod, clientContract);
+}
+
+/* --------------------------------------------- lunch-number PIN switch ---- */
+
+const GD_LUNCH_PIN_CONFIRMATION = 'USE LUNCH NUMBERS';
+
+/**
+ * Read a pasted "school email + 5- or 6-digit lunch number" list against the active
+ * roster. Students on the list who are not in this teacher's classes are
+ * counted and ignored, so a schoolwide list can be pasted as-is. Anything
+ * ambiguous is a problem and nothing is written.
+ */
+function planLunchNumberPins_(text) {
+  const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (!lines.length) throw new Error('Paste the list first: a school email and a 5- or 6-digit lunch number on each line.');
+  if (lines.length > 5000) throw new Error('Paste at most 5,000 lines at a time.');
+  const problems = [];
+  const numberByEmail = new Map();
+  lines.forEach((line, index) => {
+    // Only the email and the 5- or 6-digit number matter, so split on any separator.
+    const cells = line.split(/[\t,;\s]+/).map((cell) => cell.trim().replace(/^"|"$/g, '')).filter(Boolean);
+    const email = normalizeEmail_(cells.find((cell) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cell)) || '');
+    const numbers = cells.filter((cell) => /^\d{5,6}$/.test(cell));
+    if (!email) {
+      if (index === 0 && /mail|number|id/i.test(line)) return; // header row
+      problems.push(`line ${index + 1}: no email address`);
+      return;
+    }
+    if (numbers.length !== 1) {
+      problems.push(`line ${index + 1}: needs exactly one 5- or 6-digit number`);
+      return;
+    }
+    const prior = numberByEmail.get(email);
+    if (prior && prior !== numbers[0]) problems.push(`line ${index + 1}: ${email} is listed twice with different numbers`);
+    numberByEmail.set(email, numbers[0]);
+  });
+
+  const rosterRows = readRosterRows_();
+  const activeEmails = new Set(rosterRows.filter((student) => student.active).map((student) => student.email));
+  const assignments = [...numberByEmail.entries()].filter(([email]) => activeEmails.has(email));
+  const notInClasses = numberByEmail.size - assignments.length;
+
+  const ownerOfNumber = new Map();
+  assignments.forEach(([email, number]) => {
+    const other = ownerOfNumber.get(number);
+    if (other && other !== email) problems.push(`${email} and ${other} have the same number`);
+    ownerOfNumber.set(number, email);
+  });
+  // A student who keeps an old PIN must not share it with someone's new lunch number.
+  const changing = new Set(assignments.map(([email]) => email));
+  const keptHashes = new Map();
+  rosterRows.filter((student) => student.active && !changing.has(student.email) && student.pinHash)
+    .forEach((student) => keptHashes.set(student.pinHash, student.email));
+  assignments.forEach(([email, number]) => {
+    const keeper = keptHashes.get(hashPin_(number));
+    if (keeper) problems.push(`${email}'s number matches the current PIN of ${keeper}, who is not on the list`);
+  });
+
+  return {
+    lines: lines.length,
+    assignments,
+    matched: assignments.length,
+    notInClasses,
+    keepOldPin: [...activeEmails].filter((email) => !changing.has(email)).length,
+    problems,
+  };
+}
+
+/**
+ * Switch students' PINs to their lunch numbers. Call once without the
+ * confirmation phrase to preview the counts; call again with the phrase to
+ * apply. Old PINs and open sessions stop working for every switched student.
+ */
+function teacherSetLunchNumberPins(text, confirmation, clientContract) {
+  const teacher = getActiveEmail_();
+  const settings = getSettings_();
+  assertTeacher_(teacher, settings);
+  assertTeacherClient_(clientContract);
+  if (schoolDirectorySourceId_()) throw new Error('This classroom reads lunch numbers from the shared school directory. Update that directory so every classroom stays consistent.');
+  const preview = planLunchNumberPins_(text);
+  const summary = (plan) => ({
+    lines: plan.lines, matched: plan.matched, notInClasses: plan.notInClasses,
+    keepOldPin: plan.keepOldPin, problems: plan.problems.slice(0, 8), problemCount: plan.problems.length,
+  });
+  if (String(confirmation || '') !== GD_LUNCH_PIN_CONFIRMATION) {
+    return { ok: true, applied: false, preview: summary(preview) };
+  }
+  if (preview.problems.length) throw new Error(`Nothing was changed. Fix the list first — ${preview.problems.slice(0, 3).join('; ')}`);
+  if (!preview.matched) throw new Error('Nothing was changed. None of the students on the list are in your classes.');
+
+  let applied = null;
   withLock_(() => {
     assertPinEmailBatchIdle_();
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
-    if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.PINS.length).clearContent();
-    sheet.hideSheet();
-    gdForget_('pincards');
-  });
+    const plan = planLunchNumberPins_(text);
+    if (plan.problems.length) throw new Error(`Nothing was changed. ${plan.problems[0]}`);
+    const numberByEmail = new Map(plan.assignments);
+    const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+    const rows = readRosterRows_().filter((student) => numberByEmail.has(student.email));
+    rows.forEach((student) => rosterSheet.getRange(student.row, 4).setValue(hashPin_(numberByEmail.get(student.email))));
+    const cardsByKey = new Map(readPinCards_().map((card) => [card.studentKey, card]));
+    const detail = 'PIN is the student lunch number; the student already knows it';
+    const appended = [];
+    rows.filter((student) => student.active).forEach((student) => {
+      const number = numberByEmail.get(student.email);
+      const card = cardsByKey.get(student.key);
+      if (card) pinSheet.getRange(card.row, 4, 1, 5).setValues([[number, new Date(), 'SENT', '', detail]]);
+      else appended.push([student.email, student.name, student.classPeriod, number, new Date(), 'SENT', '', detail]);
+    });
+    if (appended.length) {
+      pinSheet.getRange(pinSheet.getLastRow() + 1, 1, appended.length, appended[0].length).setValues(appended);
+    }
+    gdClearMemo_();
+    auditTeacherAction_(teacher, { email: '', name: 'Student PINs', classPeriod: 'All classes' }, 'PINS_SET_TO_LUNCH_NUMBERS', [],
+      `${plan.matched} students switched; ${plan.notInClasses} list rows not in these classes`, '');
+    applied = summary(plan);
+  }, 30000, 'lunch-number PINs');
+  const state = getTeacherState_({ includePinStatus: true });
+  state.noticeMessage = `${applied.matched} student${applied.matched === 1 ? '' : 's'} now use their lunch number as their PIN. Their old PINs no longer work.`
+    + (applied.keepOldPin ? ` ${applied.keepOldPin} student${applied.keepOldPin === 1 ? ' was' : 's were'} not on the list and kept their current PIN.` : '');
+  return state;
+}
+
+function clearPinCards(){
+  assertTeacher_(getActiveEmail_(),getSettings_());
+  throw new Error('GrantDesk no longer deletes PIN recovery records. Reset an individual student PIN from the teacher dashboard instead.');
 }
 
 function assertPinEmailBatchIdle_() {
@@ -3699,6 +5995,14 @@ function openTodayCheckIns() {
 
 /* ---------------------------------------------------------------- auth ---- */
 
+/** The same lunch number written with or without its leading zero, or '' if none. */
+function leadingZeroTwin_(pin) {
+  const text = String(pin || '');
+  if (/^0\d{5}$/.test(text)) return text.slice(1);
+  if (/^\d{5}$/.test(text)) return `0${text}`;
+  return '';
+}
+
 function hashPin_(pin) {
   const bytes = Utilities.computeDigest(
     Utilities.DigestAlgorithm.SHA_256,
@@ -3709,13 +6013,16 @@ function hashPin_(pin) {
 }
 
 function ensureSalt_() {
-  const properties = PropertiesService.getScriptProperties();
-  let salt = properties.getProperty('PIN_SALT');
-  if (!salt) {
-    salt = `${Utilities.getUuid()}${Utilities.getUuid()}`;
-    properties.setProperty('PIN_SALT', salt);
-  }
-  return salt;
+  // Hashing runs once per roster row; one property read per request is enough.
+  return gdMemo_('pin-salt', () => {
+    const properties = PropertiesService.getScriptProperties();
+    let salt = properties.getProperty('PIN_SALT');
+    if (!salt) {
+      salt = `${Utilities.getUuid()}${Utilities.getUuid()}`;
+      properties.setProperty('PIN_SALT', salt);
+    }
+    return salt;
+  });
 }
 
 function assertPinAttemptAllowed_(email, attemptNonce) {
@@ -3788,7 +6095,7 @@ function settingsForAuth_() {
   try {
     return getSettings_();
   } catch (error) {
-    return GD_DEFAULT_SETTINGS.reduce((settings, row) => {
+    return defaultSettingsRows_().reduce((settings, row) => {
       settings[row[0]] = row[1];
       return settings;
     }, {});
@@ -3808,13 +6115,20 @@ function getSettings_() {
   return gdMemo_('settings', () => {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.SETTINGS);
     const values = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues() : [];
-    return values.reduce((settings, row) => {
+    const settings = {};
+    const seen = new Map();
+    values.forEach((row, index) => {
       const key = String(row[0] || '').trim();
-      if (!key) return settings;
+      if (!key) return;
+      const rowNumber = index + 2;
+      if (seen.has(key)) {
+        throw new Error(`Settings contains duplicate key "${key}" on rows ${seen.get(key)} and ${rowNumber}. Keep one row for each setting before continuing.`);
+      }
+      seen.set(key, rowNumber);
       const value = row[1];
       settings[key] = value instanceof Date ? value.toISOString() : String(value == null ? '' : value).trim();
-      return settings;
-    }, {});
+    });
+    return settings;
   });
 }
 
@@ -3885,12 +6199,28 @@ function withLock_(action, waitMs, operationLabel) {
     throw new Error(GD_BUSY_LOCK_MESSAGE);
   }
   try {
-    gdClearMemo_();
+    gdClearVolatileMemo_();
     return action();
   } finally {
-    gdClearMemo_();
+    gdClearVolatileMemo_();
     lock.releaseLock();
   }
+}
+
+/**
+ * Settings, the School Calendar and bell schedules change only through
+ * setup or setSettingValue_, both of which forget their memo. Everything
+ * else (roster, credentials, passes, queue, check-ins) is re-read under the
+ * lock so each decision still sees the committed workbook.
+ */
+const GD_STABLE_MEMOS = ['settings', 'school-calendar', 'bell-schedules'];
+
+function gdClearVolatileMemo_() {
+  const kept = {};
+  GD_STABLE_MEMOS.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(GD_MEMO, key)) kept[key] = GD_MEMO[key];
+  });
+  GD_MEMO = kept;
 }
 
 /**
@@ -3999,20 +6329,17 @@ function normalizeDateKey_(value) {
  * already in flight.
  */
 function dailyCleanup(event) {
-  // A time-driven trigger hands the handler its own triggerUid. A page calling
-  // this over google.script.run does not, and a student cannot read the UID of
-  // a trigger they do not own, so anything without one has to be the teacher.
-  const triggerUid = event && event.triggerUid ? String(event.triggerUid) : '';
-  const fromTrigger = Boolean(triggerUid) && ScriptApp.getProjectTriggers()
-    .some((trigger) => trigger.getUniqueId() === triggerUid);
-  if (!fromTrigger) assertTeacher_(getActiveEmail_(), getSettings_());
-  withLock_(() => {
-    flushPendingCheckInsLocked_();
+  const fromTrigger=ownedTriggerEvent_(event,'dailyCleanup',GD_CLEANUP_TRIGGER_ID_PROPERTY);
+  if(!fromTrigger) assertTeacher_(getActiveEmail_(),getSettings_());
+  withLock_(()=>{
+    try{flushPendingCheckInsLocked_();}catch(error){
+      PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY,JSON.stringify({
+        at:new Date().toISOString(),message:String(error&&error.message?error.message:error).slice(0,500)}));
+    }
     expirePreviousDayPasses_();
-    purgeOldPasses_();
-    purgeOldQueue_();
-    purgeExpiredActionProofs_();
-    PropertiesService.getScriptProperties().setProperty('LAST_PURGE', dateKey_(new Date()));
+    const snapshot=getPassSnapshot_(); reapExpiredQueue_(snapshot.expiredQueue);
+    purgeOldPasses_(); purgeOldQueue_(); purgeExpiredActionProofs_();
+    PropertiesService.getScriptProperties().setProperty('LAST_PURGE',dateKey_(new Date()));
   });
 }
 
@@ -4031,19 +6358,17 @@ function purgeOldPasses() {
   SpreadsheetApp.getUi().alert(`${removed.rolledOver} prior-day OUT pass${removed.rolledOver === 1 ? '' : 'es'} rolled over, ${removedPasses} old completed pass${removedPasses === 1 ? '' : 'es'} moved into permanent Pass Audit, and ${removedQueueRows} resolved queue entr${removedQueueRows === 1 ? 'y' : 'ies'} removed.`);
 }
 
-function purgeIfDue_() {
-  const properties = PropertiesService.getScriptProperties();
-  const today = dateKey_(new Date());
-  if (properties.getProperty('LAST_PURGE') === today) return;
-  withLock_(() => {
-    const lockedProperties = PropertiesService.getScriptProperties();
-    if (lockedProperties.getProperty('LAST_PURGE') === today) return;
-    flushPendingCheckInsLocked_();
-    expirePreviousDayPasses_();
-    purgeOldPasses_();
-    purgeOldQueue_();
-    purgeExpiredActionProofs_();
-    lockedProperties.setProperty('LAST_PURGE', today);
+function purgeIfDue_(){
+  const properties=PropertiesService.getScriptProperties(); const today=dateKey_(new Date());
+  if(properties.getProperty('LAST_PURGE')===today)return;
+  withLock_(()=>{
+    const lockedProperties=PropertiesService.getScriptProperties(); if(lockedProperties.getProperty('LAST_PURGE')===today)return;
+    try{flushPendingCheckInsLocked_();}catch(error){
+      lockedProperties.setProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY,JSON.stringify({
+        at:new Date().toISOString(),message:String(error&&error.message?error.message:error).slice(0,500)}));
+    }
+    expirePreviousDayPasses_(); const snapshot=getPassSnapshot_(); reapExpiredQueue_(snapshot.expiredQueue);
+    purgeOldPasses_(); purgeOldQueue_(); purgeExpiredActionProofs_(); lockedProperties.setProperty('LAST_PURGE',today);
   });
 }
 
@@ -4176,38 +6501,102 @@ function purgeExpiredActionProofs_() {
  * Minute trigger target. A direct web call must be the teacher; a real trigger
  * is accepted only when its private trigger ID still belongs to this project.
  */
-function flushPendingCheckIns(event) {
+function ownedTriggerEvent_(event, handlerName, propertyKey) {
   const triggerUid = event && event.triggerUid ? String(event.triggerUid) : '';
-  const fromTrigger = Boolean(triggerUid) && ScriptApp.getProjectTriggers()
-    .some((trigger) => trigger.getUniqueId() === triggerUid && trigger.getHandlerFunction() === 'flushPendingCheckIns');
-  if (!fromTrigger) assertTeacher_(getActiveEmail_(), getSettings_());
-  return withLock_(() => flushPendingCheckInsLocked_());
+  if (!triggerUid) return false;
+  const properties = PropertiesService.getScriptProperties();
+  const expected = String(properties.getProperty(propertyKey) || '');
+  if (expected && expected === triggerUid) return true;
+
+  const match = ScriptApp.getProjectTriggers().find((trigger) => (
+    trigger.getUniqueId() === triggerUid && trigger.getHandlerFunction() === handlerName
+  ));
+  if (!match) return false;
+  properties.setProperty(propertyKey, triggerUid);
+  return true;
+}
+
+function flushPendingCheckIns(event){
+  const fromTrigger=ownedTriggerEvent_(event,'flushPendingCheckIns',GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY);
+  if(!fromTrigger) assertTeacher_(getActiveEmail_(),getSettings_());
+
+  // The fallback trigger fires once per minute for durability. Most minutes
+  // have no inbox work and no live queue, so avoid Pass Log/settings/schedule
+  // reads and the shared lock entirely on the common idle path.
+  gdClearMemo_();
+  const hasPending=readPendingCheckIns_().length>0;
+  const hasWaiting=readPassQueue_().some((entry)=>entry.status==='WAITING');
+  if(!hasPending&&!hasWaiting) return {written:0,deduplicated:0,idle:true};
+
+  return withLock_(()=>{
+    gdClearMemo_();
+    if(readPassQueue_().some((entry)=>entry.status==='WAITING')){
+      // The timer is also the recovery path for a return that committed before
+      // queue settlement finished. Under the shared lock, settling is safe and
+      // promotes the oldest still-eligible verified request into an open slot.
+      settleWaitingQueue_();
+    }
+    if(!readPendingCheckIns_().length) return {written:0,deduplicated:0,idle:true};
+    try{return flushPendingCheckInsLocked_();}
+    catch(error){
+      PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY,JSON.stringify({
+        at:new Date().toISOString(),message:String(error&&error.message?error.message:error).slice(0,500)}));
+      throw error;
+    }
+  });
 }
 
 function installCheckInFlushTrigger_() {
   const triggers = ScriptApp.getProjectTriggers();
   const matches = triggers.filter((trigger) => trigger.getHandlerFunction() === 'flushPendingCheckIns');
   matches.slice(1).forEach((trigger) => ScriptApp.deleteTrigger(trigger));
-  if (!matches.length) ScriptApp.newTrigger('flushPendingCheckIns').timeBased().everyMinutes(1).create();
-  PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY, '1');
+  const retained = matches[0] || ScriptApp.newTrigger('flushPendingCheckIns').timeBased().everyMinutes(1).create();
+  const properties = PropertiesService.getScriptProperties();
+  properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY, '1');
+  properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY, retained.getUniqueId());
 }
 
-function ensureCheckInFlushTrigger_() {
+function ensureCheckInFlushTrigger_(){
+  const properties=PropertiesService.getScriptProperties();
+  const matches=ScriptApp.getProjectTriggers().filter((trigger)=>trigger.getHandlerFunction()==='flushPendingCheckIns');
+  if(matches.length===1){
+    properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY,'1');
+    properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY,matches[0].getUniqueId());
+    return;
+  }
+  try{installCheckInFlushTrigger_();}
+  catch(error){
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY);
+  }
+}
+
+function ensureBackgroundTriggers_(force) {
   const properties = PropertiesService.getScriptProperties();
-  if (properties.getProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY) === '1') return;
+  const now = Date.now();
+  const lastAudit = Number(properties.getProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY) || 0);
+  if (!force && lastAudit && now - lastAudit < GD_BACKGROUND_TRIGGER_AUDIT_MS) return;
+
   try {
+    installCleanupTrigger_();
     installCheckInFlushTrigger_();
+    properties.setProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY, String(now));
   } catch (error) {
-    // Opportunistic student and teacher flushing still preserves every event.
+    properties.deleteProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY);
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY);
+    properties.deleteProperty(GD_CLEANUP_TRIGGER_ID_PROPERTY);
   }
 }
 
 function installCleanupTrigger_() {
-  ScriptApp.getProjectTriggers().forEach((trigger) => {
-    if (trigger.getHandlerFunction() === 'purgeIfDue_') ScriptApp.deleteTrigger(trigger);
-  });
-  const exists = ScriptApp.getProjectTriggers().some((trigger) => trigger.getHandlerFunction() === 'dailyCleanup');
-  if (!exists) ScriptApp.newTrigger('dailyCleanup').timeBased().everyDays(1).atHour(3).create();
+  const triggers = ScriptApp.getProjectTriggers();
+  const legacy = triggers.filter((trigger) => trigger.getHandlerFunction() === 'purgeIfDue_');
+  legacy.forEach((trigger) => ScriptApp.deleteTrigger(trigger));
+  const matches = triggers.filter((trigger) => trigger.getHandlerFunction() === 'dailyCleanup');
+  matches.slice(1).forEach((trigger) => ScriptApp.deleteTrigger(trigger));
+  const retained = matches[0] || ScriptApp.newTrigger('dailyCleanup').timeBased().everyDays(1).atHour(3).create();
+  PropertiesService.getScriptProperties().setProperty(GD_CLEANUP_TRIGGER_ID_PROPERTY, retained.getUniqueId());
 }
 
 /* -------------------------------------------------------------- workbook ---- */
@@ -4255,6 +6644,7 @@ function ensureWorkbookReady_() {
 }
 
 function setupWorkbook_() {
+  assertPinEmailBatchIdle_();
   const spreadsheet = getSpreadsheet_();
   ensureSheet_(spreadsheet, GD_SHEETS.ROSTER, GD_HEADERS.ROSTER);
   ensureSheet_(spreadsheet, GD_SHEETS.LOG, GD_HEADERS.LOG);
@@ -4273,26 +6663,26 @@ function setupWorkbook_() {
   const existing = settingsSheet.getLastRow() > 1
     ? new Set(settingsSheet.getRange(2, 1, settingsSheet.getLastRow() - 1, 1).getValues().flat().map(String))
     : new Set();
-  const missing = GD_DEFAULT_SETTINGS.filter((row) => !existing.has(row[0]));
+  const missing = defaultSettingsRows_().filter((row) => !existing.has(row[0]));
   if (missing.length) {
     settingsSheet.getRange(settingsSheet.getLastRow() + 1, 1, missing.length, 3).setValues(missing);
   }
-  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT']);
-  setSettingDescription_(
-    settingsSheet,
-    'QUEUE_CLAIM_MINUTES',
-    'Legacy inert setting retained for audit; verified requests now advance automatically'
-  );
+  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT', 'TIME_ZONE', 'DESTINATIONS', 'QUEUE_CLAIM_MINUTES', 'SCHOOL_CALENDAR_FILE_ID', 'SCHOOL_CALENDAR_FALLBACK_URL']);
   setSettingDescription_(
     settingsSheet,
     'RETENTION_DAYS',
     'Completed passes older than this move from the hot Pass Log into permanent Pass Audit'
   );
+  setSettingDescription_(
+    settingsSheet,
+    'CHECKIN_WINDOW_MINUTES',
+    'Minutes after class starts that count as on-time; late self-check-in remains open only until that class ends'
+  );
   gdForget_('settings');
   if (getSettings_().PIN_EMAIL_SUBJECT === 'Your private GrantDesk class PIN') {
     setSettingValue_('PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN');
   }
-  seedOfficialSchoolCalendar_();
+  if (isHomeDistrictOwner_()) seedOfficialSchoolCalendar_();
   migrateSessionPolicy_();
   refreshWorkbookInstructions_();
 
@@ -4310,6 +6700,7 @@ function setupWorkbook_() {
   auditSheet.getRange('S:S').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   auditSheet.getRange('V:V').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   const checkInSheet = spreadsheet.getSheetByName(GD_SHEETS.CHECKINS);
+  ensureRowCapacity_(checkInSheet, Math.max(GD_CHECKIN_MIN_ROWS, checkInSheet.getLastRow() + GD_CHECKIN_ROW_GROWTH));
   checkInSheet.getRange('B:B').setNumberFormat('@');
   checkInSheet.getRange('C:C').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   checkInSheet.getRange('H:H').setNumberFormat('0');
@@ -4317,6 +6708,8 @@ function setupWorkbook_() {
   queueSheet.getRange('E:G').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   queueSheet.getRange('K:K').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   const pinSheet = spreadsheet.getSheetByName(GD_SHEETS.PINS);
+  // Cafeteria IDs can have five digits or a leading zero; treat every PIN as text.
+  pinSheet.getRange('D:D').setNumberFormat('@');
   pinSheet.getRange('E:E').setNumberFormat('m/d/yyyy h:mm am/pm');
   pinSheet.getRange('G:G').setNumberFormat('m/d/yyyy h:mm am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.UNMATCHED).getRange('B:C').setNumberFormat('m/d/yyyy h:mm am/pm');
@@ -4325,6 +6718,7 @@ function setupWorkbook_() {
   ensureUnlimitedCheckboxes_(spreadsheet.getSheetByName(GD_SHEETS.ROSTER));
   reconcileKnownIdentityDrift_();
   ensureOnePinPerStudent_({ createMissing: false });
+  rebuildCheckInOperationalIndex_();
 }
 
 function refreshWorkbookInstructions_() {
@@ -4340,11 +6734,11 @@ function refreshWorkbookInstructions_() {
     ['5', 'Completed trips under 3.0 seconds remain in the private audit but do not count toward the student limit. Teacher corrections require a reason and preserve the original row.'],
     ['6', 'Pass Log is the recent operational window. Older completed rows move into permanent Pass Audit before leaving Pass Log.'],
     ['7', 'School Calendar is seeded from the official 2026-27 Drive calendar. Reduced and half days are school days; listed closures are not. Record official amendments on that tab.'],
-    ['8', 'PIN Cards are private credential and delivery records. Preserve existing credentials; a reconciled address stays NEEDS_RESEND until delivery is confirmed.'],
+    ['8', 'PIN Cards are private credential recovery and delivery records. Never clear the whole table; reset only the affected student PIN and privately deliver the replacement.'],
     ['9', 'Update the existing Apps Script deployment in place. Preserve the current /exec URL, domain-only access, and execute-as-deploying-user setting.'],
-    ['10', 'Student screens show only that student\'s current state and decision evidence. Names, full logs, corrections, and delivery details stay in teacher-only surfaces.'],
+    ['10', 'Daily Check-ins expands automatically. Unresolved late sign-ins stay in teacher review across school days until you decide them; student screens still show only that student\'s own state.'],
   ];
-  sheet.getRange(1, 1).setValue('GrantDesk Hall Pass — private teacher log');
+  sheet.getRange(1, 1).setValue(hallPassSiteBranded_() ? 'GrantDesk Hall Pass — private teacher log' : 'Hall Pass — private teacher log');
   sheet.getRange(2, 1).setValue(`Operational instructions · schema ${GD_SCHEMA_VERSION}`);
   sheet.getRange(3, 1, rows.length, 2).setValues(rows).setWrap(true).setVerticalAlignment('top');
 }
@@ -4414,12 +6808,17 @@ function ensureSheet_(spreadsheet, name, headers) {
   }
   const existing = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
   headers.forEach((header, index) => {
-    if (!String(existing[index] || '').trim()) {
+    const actual = String(existing[index] || '').trim();
+    if (!actual) {
       sheet.getRange(1, index + 1)
         .setValue(header)
         .setBackground('#eeeeee')
         .setFontWeight('bold')
         .setFontColor('#202127');
+      return;
+    }
+    if (actual !== header) {
+      throw new Error(`${name} has an unexpected column ${index + 1} header ("${actual}" instead of "${header}"). Restore the GrantDesk column order before continuing; no data was moved automatically.`);
     }
   });
   return sheet;

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#101b1c">
+<title>DRY COUNTY · Flight Test Hangar</title>
+<style>
+:root{color-scheme:dark;--ink:#0c181a;--cream:#eedcb0;--gold:#cfaa65;--muted:#a8b3ad}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--ink);font-family:Arial,Helvetica,sans-serif;color:var(--cream)}button{font:inherit;cursor:pointer;touch-action:none}
+#sky{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none}
+#shade{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 30%,#04090a70 100%)}
+#top{position:fixed;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:20px 26px;pointer-events:none}
+.brand{background:#102023e8;border:1px solid #b79a5966;box-shadow:0 10px 30px #0005;padding:13px 19px;max-width:420px}
+.brand b{font-size:clamp(21px,3vw,33px);letter-spacing:.16em;display:block}.brand small{color:var(--gold);letter-spacing:.18em;font-size:10px;display:block;margin-bottom:7px}.brand p{font-size:12px;line-height:1.55;color:var(--muted);margin:7px 0 0}
+#stats{background:#102023dc;border:1px solid #b79a5966;padding:13px 17px;min-width:205px;text-align:right;font-size:12px;box-shadow:0 10px 30px #0005}#stats b{color:#f6db9a;font-size:17px}#stats div{padding:4px 0}#stats small{color:#9faba3;letter-spacing:.07em}
+#bottom{position:fixed;bottom:0;left:0;right:0;display:flex;gap:14px;justify-content:space-between;align-items:end;padding:20px 26px;pointer-events:none}
+#fleet{display:flex;flex-wrap:wrap;gap:7px;pointer-events:auto;max-width:520px}
+.craft{background:#13272be8;color:#d8c49c;border:1px solid #a7946c78;padding:12px 13px;text-align:left;min-width:135px;box-shadow:0 7px 20px #0006}
+.craft span{display:block;letter-spacing:.1em;font-size:10px}.craft strong{display:block;font-size:14px;margin-top:4px}
+.craft[aria-pressed=true]{background:#6d5838;color:#fff1c7;border-color:#f5d899}
+#brief{background:#13272be8;border:1px solid #a7946c78;max-width:370px;padding:12px 16px;text-align:right;font-size:12px;line-height:1.65}
+#brief strong{color:var(--gold);letter-spacing:.08em}#brief p{margin:3px 0 0;color:#cad0bf}
+#controlpad{position:fixed;bottom:116px;right:24px;display:none;grid-template-columns:repeat(3,52px);gap:5px;pointer-events:auto}
+#controlpad button{height:51px;background:#142629eb;border:1px solid #b4a076aa;border-radius:5px;color:#ffe4a3;font-size:21px;font-weight:bold;user-select:none}
+#controlpad button:active{background:#896638}
+#status{position:fixed;top:121px;left:26px;max-width:330px;background:#13272bcf;padding:8px 13px;font-size:12px;color:#e5d09e;border-left:3px solid #ca9f51}
+#police{position:fixed;top:121px;right:26px;background:#13272bec;border:1px solid #a7946c78;color:#f2c5a1;padding:11px 15px;font-size:11px;letter-spacing:.08em}
+#police[aria-pressed=true]{border-color:#e28366;background:#562c23ea}
+@media(max-width:720px){
+ #top{padding:10px;gap:8px}.brand{padding:9px 11px;max-width:240px}.brand b{font-size:17px}.brand small{font-size:8px}.brand p{font-size:10px}#stats{min-width:114px;padding:7px;font-size:9px}#stats b{font-size:12px}
+ #status{top:117px;left:10px;font-size:10px;max-width:220px}#police{top:117px;right:10px;padding:8px;font-size:9px}
+ #bottom{padding:10px;bottom:0}#fleet{gap:4px}.craft{padding:8px;min-width:104px}.craft strong{font-size:11px}.craft span{font-size:8px}#brief{display:none}
+ #controlpad{display:grid;right:10px;bottom:115px;grid-template-columns:repeat(3,50px)}#controlpad button{height:50px}
+}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-label="Interactive top-down flight testing field"></canvas><div id="shade"></div>
+<header id="top"><div class="brand"><small>1926 · MT. MORRIS AVIATION EXPERIMENT</small><b>DRY COUNTY</b><p>FLIGHT TEST HANGAR · Batch 1 engineering range. This is not yet part of the main game.</p></div>
+<div id="stats" aria-live="polite"><div><small>ALTITUDE</small> <b id="alt">0 FT</b></div><div><small>AIRSPEED</small> <b id="speed">0</b></div><div><small>FUEL</small> <b id="fuel">100%</b></div><div><small>FLIGHT STATE</small> <b id="state">GROUNDED</b></div></div></header>
+<div id="status" role="status">W / S throttle · A / D steer · SHIFT climb · C descend · P police</div>
+<button id="police" aria-pressed="true">POLICE AIR PATROL: ON</button>
+<footer id="bottom"><div id="fleet">
+<button class="craft" data-type="rotorcraft" aria-pressed="true"><span>01 · EXPERIMENTAL</span><strong>ROTORCRAFT</strong></button>
+<button class="craft" data-type="biplane" aria-pressed="false"><span>02 · PERIOD AIRCRAFT</span><strong>JENNY BIPLANE</strong></button>
+<button class="craft" data-type="balloon" aria-pressed="false"><span>03 · PERIOD AIRCRAFT</span><strong>OBSERVATION BALLOON</strong></button>
+</div><aside id="brief"><strong id="model">COUNTY AIR PATROL</strong><p id="detail">Experimental police rotorcraft. The design is deliberately alternate history; operational helicopters were not a normal part of 1926 policing.</p></aside></footer>
+<div id="controlpad" aria-label="Touch flying controls">
+<button data-k="KeyA">↶</button><button data-k="KeyW">↑</button><button data-k="KeyD">↷</button>
+<button data-k="ShiftLeft">+</button><button data-k="KeyS">↓</button><button data-k="KeyC">−</button></div>
+<script src="scenery.js"></script><script src="world.js"></script><script src="flight.js"></script>
+<script>
+'use strict';
+(function(){
+ const canvas=document.getElementById('sky'),ctx=canvas.getContext('2d',{alpha:false});
+ const W=window.DryWorld,F=window.DryFlight;
+ const input=Object.create(null),wind={windX:7,windY:-3,width:W.width,height:W.height};
+ const spawn={x:W.P(490,360).x,y:W.P(490,360).y};
+ let player=F.create('rotorcraft',spawn.x,spawn.y);
+ let police=F.create('rotorcraft',spawn.x+350,spawn.y-220,{z:110,landed:false,a:2.5});
+ let showPolice=true,last=0,acc=0,clock=0,w=innerWidth,h=innerHeight,dpr=1,level=2,slow=0;
+ const $=id=>document.getElementById(id);
+ function resize(){w=innerWidth;h=innerHeight;dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr)}
+ addEventListener('resize',resize);resize();
+ function choose(type){player=F.create(type,spawn.x,spawn.y,{a:-Math.PI/2});for(const b of document.querySelectorAll('.craft'))b.setAttribute('aria-pressed',String(b.dataset.type===type));
+ const d=F.TYPES[type];$('model').textContent=d.name.toUpperCase();$('detail').textContent=d.period+(type==='biplane'?' · Gain speed on the ground before holding SHIFT to lift off.':type==='balloon'?' · Heat controls ascent; wind carries the envelope.':' · Lift straight up, move, then hold C to land.');
+ $('status').textContent=type==='biplane'?'Hold W to reach takeoff speed, then SHIFT to climb.':type==='balloon'?'SHIFT warms gas / ascends; C cools / descends. W adds a little thrust.':'SHIFT climb · C descend · W throttle · A/D steer';
+ }
+ document.querySelectorAll('.craft').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.type)));
+ $('police').addEventListener('click',()=>{showPolice=!showPolice;$('police').setAttribute('aria-pressed',String(showPolice));$('police').textContent='POLICE AIR PATROL: '+(showPolice?'ON':'OFF')});
+ const codes=new Set(['KeyW','KeyS','KeyA','KeyD','KeyC','ShiftLeft','ShiftRight','KeyP','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space']);
+ addEventListener('keydown',e=>{if(codes.has(e.code))e.preventDefault();input[e.code]=true;if(e.code==='KeyP'&&!e.repeat)$('police').click()});
+ addEventListener('keyup',e=>{input[e.code]=false});
+ addEventListener('blur',()=>{for(const k of Object.keys(input))input[k]=false});
+ for(const b of document.querySelectorAll('[data-k]')){
+  const k=b.dataset.k;const stop=e=>{e.preventDefault();input[k]=false};
+  b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);input[k]=true});
+  b.addEventListener('pointerup',stop);b.addEventListener('pointercancel',stop);b.addEventListener('lostpointercapture',stop);
+ }
+ // The ground is cached separately: animated rotor blades do not force regeneration.
+ const ground=document.createElement('canvas');ground.width=1700;ground.height=825;const g=ground.getContext('2d');
+ g.setTransform(.25,0,0,.25,0,0);g.fillStyle='#34463d';g.fillRect(0,0,W.width,W.height);
+ g.fillStyle='#43553f';g.fillRect(0,0,W.width,400);
+ for(const a of window.DryScenery.land){g.beginPath();const ps=a.points.map(p=>W.P(p[0],p[1]));ps.forEach((p,i)=>i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();g.fillStyle=a.color;g.fill();}
+ for(const road of W.roads){
+  g.lineCap='round';g.lineJoin='round';g.beginPath();road.points.forEach((p,i)=>i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));
+  g.strokeStyle='#202c2c';g.lineWidth=road.width+9;g.stroke();g.strokeStyle=road.surface==='gravel'?'#887e69':'#777a70';g.lineWidth=road.width;g.stroke();
+  if(road.major){g.setLineDash([17,29]);g.strokeStyle='#dbcb9a88';g.lineWidth=1.8;g.stroke();g.setLineDash([])}
+ }
+ g.beginPath();W.railway.forEach((p,i)=>i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.strokeStyle='#342f29';g.lineWidth=16;g.stroke();
+ g.setLineDash([7,13]);g.strokeStyle='#c0ac87';g.lineWidth=4;g.stroke();g.setLineDash([]);
+ // Simple proportional rooftops support altitude/scale testing without touching 0.6 art.
+ for(let i=0;i<260;i++){
+  const x=500+((i*1373)%5150),y=150+((i*643)%2930),n=W.nearest({x,y});
+  if(n.d<58||n.d>235)continue;
+  const wid=27+(i%4)*11,hei=32+(i%3)*16;
+  g.fillStyle='#18252275';g.fillRect(x+6,y+8,wid,hei);
+  g.fillStyle=['#676558','#827158','#62564e','#766b5a'][i%4];g.fillRect(x,y,wid,hei);
+  g.strokeStyle='#c7b48788';g.lineWidth=1;g.strokeRect(x+3,y+3,wid-6,hei-6);
+ }
+ function tick(dt){
+  clock+=dt;
+  const forward=(input.KeyW||input.ArrowUp?1:0)-(input.KeyS||input.ArrowDown?1:0),
+    turn=(input.KeyD||input.ArrowRight?1:0)-(input.KeyA||input.ArrowLeft?1:0),
+    lift=(input.ShiftLeft||input.ShiftRight?1:0)-(input.KeyC||input.Space?1:0);
+  F.step(player,{forward,turn,lift},dt,wind);
+  if(showPolice)F.updatePolice(police,{x:player.x,y:player.y,visible:player.z<165},dt,wind);
+  if(!showPolice){police.searchAge=36}
+  if((clock*5|0)%2===0){$('alt').textContent=Math.round(player.z)+' FT';$('speed').textContent=Math.round(Math.hypot(player.vx,player.vy)/3.2)+' MPH';
+   $('fuel').textContent=Math.round(100*player.fuel/F.TYPES[player.type].fuel)+'%';$('state').textContent=player.landed?'GROUNDED':'AIRBORNE';}
+ }
+ function draw(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle='#152527';ctx.fillRect(0,0,w,h);
+  const z=Math.min(w/1250,h/810)*(.85-Math.min(player.z/1000,.15)),cx=player.x,cy=player.y;
+  ctx.save();ctx.translate(w/2,h/2);ctx.scale(z,z);ctx.translate(-cx,-cy);
+  ctx.drawImage(ground,0,0,W.width,W.height);
+  if(level===2){ctx.strokeStyle='#f3e0b517';ctx.lineWidth=6;
+   for(let i=0;i<7;i++){const x=cx-500+(i*179+clock*13)%950,y=cy-400+(i*127)%850;ctx.beginPath();ctx.ellipse(x,y,62,19,-.4,0,Math.PI*2);ctx.stroke();}}
+  if(showPolice)F.render(ctx,police,clock,{lowDetail:level<2,beamTarget:police.searchAge<35?police.search:null});
+  F.render(ctx,player,clock,{lowDetail:level<2});
+  if(player.z>0){ctx.strokeStyle='#e7d4a85a';ctx.lineWidth=1.4;ctx.setLineDash([5,8]);ctx.beginPath();
+   ctx.moveTo(player.x,player.y);ctx.lineTo(player.x+player.z*.26,player.y+player.z*.31);ctx.stroke();ctx.setLineDash([]);}
+  ctx.restore();
+  ctx.fillStyle='#ded4ae88';ctx.font='11px Arial';ctx.fillText('PROTOTYPE RANGE · NO BUILDING COLLISIONS YET',22,h-145);
+ }
+ function frame(t){if(!last)last=t;const dt=Math.min(.08,(t-last)/1000);last=t;acc+=dt;let steps=0;while(acc>=1/60&&steps++<5){tick(1/60);acc-=1/60}if(steps>=5)acc=0;
+  draw();if(dt>1/28)slow++;else slow=Math.max(0,slow-1);if(slow>30){level=1;slow=0}
+  requestAnimationFrame(frame);
+ }
+ choose('rotorcraft');requestAnimationFrame(frame);
+})();
+</script>
+</body></html>

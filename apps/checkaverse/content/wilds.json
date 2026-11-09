@@ -1,0 +1,264 @@
+{
+  "id": "wilds",
+  "name": "The wilds",
+  "rows": [
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "TT....................................................TT",
+    "TT..........................................RR....T...TT",
+    "TT...T.CCCCCCCC.............P..........RRRRRRRRRRR....TT",
+    "TT....CCCCCCCCCCC...........P....T....RRRRRRRRRHRRR...TT",
+    "TT...CCCCCCCCCCCCCC..T......P.....T...RRHRRRRRRRRRR...TT",
+    "TT..CCCCCCCCCCCCCCC...T.....P....T...RRRRRRRRRRRRRRRR.TT",
+    "TT.CCCCCCCCCCCCCCCC..T......P........RRRRRRRRRRRRRRRR.TT",
+    "TT..CCCCCCCCCCCCHCC.........P........RHRRRRRRRRRRRHR..TT",
+    "TT..CCCCCCCCCCCCCC..........P........RRRRRRRRRRRRRRR..TT",
+    "TT...CCCCCCCCCCCCC..........P.........RRRRRHRRRRRRR...TT",
+    "TT....CCCCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPRH.....TT",
+    "TT.........CC...............P..............RRRR.......TT",
+    "TT...T......................P......................T..TT",
+    "TT..T..............T........P.......T.............T...TT",
+    "TT................WWWWWWWWWWPW....................WWWWTT",
+    "TTW...........WWWWWWWWWWWWWWPWWWWW...........WWWWWWWWWTT",
+    "TTWWWWWWWWWWWWWWWW..........P.WWWWWWWWWWWWWWWWWWWW....TT",
+    "TT.WWWWWWWWWWW..............P.....WWWWWWWWWWW.........TT",
+    "TT............T.............P.............T...........TT",
+    "TT......GG..................P.................A.......TT",
+    "TT.....GGGGGG...........T...P....T.........AAAAAAA....TT",
+    "TT...GGGGGGGG............T..P...T.........AAHAAAAAA...TT",
+    "TT....GGGGGGGG.......G......P............AAAAAAAAAA...TT",
+    "TT....GGGGGGG....GGGGGGG....P............AAAAAAAAAAA..TT",
+    "TT.....GGGGG....GGGGGGGGG...P.H.........AAAAAAAAAAAA..TT",
+    "TT........G....GGGGGGGGGGG..P.........PPPPAAAAAAAAAA..TT",
+    "TT..............GGGGGGGGG...P............AAAAAAAAAAA..TT",
+    "TT.T.......G....GGGGGGGHH...P....HH......AAAAAAAAAAA..TT",
+    "TT....HGGGGGGGGGG.PPPPPPPPPPPPPPPPPPPPP..AAAAAAAAAAA..TT",
+    "TT....GGGGGGGGGGGG..........P.............AAAAAAAH....TT",
+    "TT..GGGGGGGGGGGGGGG.........P..............AAAAAA.....TT",
+    "TT..GGGGGGGGGGGGGGG.........P....T.............A....T.TT",
+    "TT.GGGGGGGGGGGGGGGGG........P.......................T.TT",
+    "TT..GGGGGGGGGGGGGGG..T......P....GGGGGGGGG............TT",
+    "TT..GGGGGGGGGGGGGG....T.....P.HHGGGGGGGGGGG.T.........TT",
+    "TT...GGGGGGGGGGGG....T......P..GGGGGGGGGGGG..T........TT",
+    "TT....G.GGGGGGGG............P...GGGGGGGGGGG...........TT",
+    "TT........GG............T...P..T.GGGGGGGGG............TT",
+    "TT..............T...........PH........................TT",
+    "TT..........................P...........T.............TT",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTPTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTETTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "props": [
+    {
+      "s": "prop-bridge",
+      "x": 26.5,
+      "b": 19.3,
+      "w": 3,
+      "flat": true
+    },
+    {
+      "s": "prop-route-sign",
+      "x": 28.9,
+      "b": 41,
+      "w": 1.6,
+      "f": [
+        29,
+        40,
+        1,
+        1
+      ],
+      "sign": "route-sign"
+    },
+    {
+      "s": "prop-rock",
+      "x": 40,
+      "b": 7,
+      "w": 1,
+      "f": [
+        40,
+        6,
+        1,
+        1
+      ],
+      "sign": "rock-wild"
+    },
+    {
+      "s": "prop-rock",
+      "x": 47,
+      "b": 6,
+      "w": 1,
+      "f": [
+        47,
+        5,
+        1,
+        1
+      ],
+      "sign": "rock-wild"
+    },
+    {
+      "s": "prop-rock",
+      "x": 50,
+      "b": 10,
+      "w": 1,
+      "f": [
+        50,
+        9,
+        1,
+        1
+      ],
+      "sign": "rock-wild"
+    },
+    {
+      "s": "prop-rock",
+      "x": 43,
+      "b": 12,
+      "w": 1,
+      "f": [
+        43,
+        11,
+        1,
+        1
+      ],
+      "sign": "rock-wild"
+    },
+    {
+      "s": "prop-rock",
+      "x": 38,
+      "b": 10,
+      "w": 1,
+      "f": [
+        38,
+        9,
+        1,
+        1
+      ],
+      "sign": "rock-wild"
+    },
+    {
+      "s": "prop-rock",
+      "x": 48,
+      "b": 13,
+      "w": 1,
+      "f": [
+        48,
+        12,
+        1,
+        1
+      ],
+      "sign": "rock-wild"
+    },
+    {
+      "s": "prop-fence",
+      "x": 23,
+      "b": 30,
+      "w": 2,
+      "f": [
+        23,
+        29,
+        2,
+        1
+      ]
+    },
+    {
+      "s": "prop-fence",
+      "x": 33,
+      "b": 30,
+      "w": 2,
+      "f": [
+        33,
+        29,
+        2,
+        1
+      ]
+    },
+    {
+      "s": "prop-lantern",
+      "x": 44.14,
+      "b": 24,
+      "w": 0.73,
+      "f": [
+        44,
+        23,
+        1,
+        1
+      ],
+      "sign": "lantern-heath"
+    },
+    {
+      "s": "prop-lantern",
+      "x": 49.14,
+      "b": 32,
+      "w": 0.73,
+      "f": [
+        49,
+        31,
+        1,
+        1
+      ],
+      "sign": "lantern-heath"
+    },
+    {
+      "s": "prop-bush",
+      "x": 6,
+      "b": 31,
+      "w": 1,
+      "f": [
+        6,
+        30,
+        1,
+        1
+      ],
+      "sign": "bush"
+    },
+    {
+      "s": "prop-bush",
+      "x": 16,
+      "b": 10,
+      "w": 1,
+      "f": [
+        16,
+        9,
+        1,
+        1
+      ],
+      "sign": "bush"
+    },
+    {
+      "s": "prop-bush",
+      "x": 30,
+      "b": 27,
+      "w": 1,
+      "f": [
+        30,
+        26,
+        1,
+        1
+      ],
+      "sign": "bush"
+    },
+    {
+      "s": "prop-bench",
+      "x": 30,
+      "b": 37,
+      "w": 2,
+      "f": [
+        30,
+        36,
+        2,
+        1
+      ],
+      "sign": "bench"
+    }
+  ],
+  "exits": [
+    {
+      "x": 28,
+      "y": 43,
+      "to": "town",
+      "at": [
+        12,
+        1
+      ],
+      "f": "d"
+    }
+  ]
+}

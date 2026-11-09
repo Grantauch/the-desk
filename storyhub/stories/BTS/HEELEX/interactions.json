@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELEX",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "s1",
+      "type": "grading marks toggle",
+      "teaches": "Shows exactly which slide content earns each rubric point.",
+      "studentAction": "Presses Show the grading marks.",
+      "feedback": "Red pencil notes appear under each slide with points earned, and the graded evidence is outlined.",
+      "staticFallback": "Scorecard lists every criterion and its points beside the slides.",
+      "identityFit": "A grader's red pencil on a paper desk.",
+      "status": "shipped"
+    },
+    {
+      "id": "I02",
+      "chapterId": "s1",
+      "type": "unit chart",
+      "teaches": "Makes 405,000 war deaths concrete as the reason 1953 crowds hated a German.",
+      "studentAction": "Reads the chart.",
+      "feedback": "Forty and a half squares at 10,000 each.",
+      "staticFallback": "The caption states the number.",
+      "identityFit": "Ink blue squares on paper.",
+      "status": "shipped"
+    },
+    {
+      "id": "I03",
+      "chapterId": "s3",
+      "type": "timeline",
+      "teaches": "Shows the act began 8 years and ended 21 years after the war.",
+      "studentAction": "Reads the timeline.",
+      "feedback": "The 13 heel years are drawn in red pencil.",
+      "staticFallback": "The sentence above states both numbers.",
+      "identityFit": "Red pencil line on paper.",
+      "status": "shipped"
+    },
+    {
+      "id": "I04",
+      "chapterId": "time",
+      "type": "speaking time calculator",
+      "teaches": "How to check a script against the two to three minute window.",
+      "studentAction": "Reads the computed time.",
+      "feedback": "The word count of the actual script and its time fill a bar against the shaded window.",
+      "staticFallback": "The text states the word count method.",
+      "identityFit": "A plain stopwatch bar.",
+      "status": "shipped"
+    },
+    {
+      "id": "V01",
+      "chapterId": "s1",
+      "type": "video",
+      "teaches": "Shows the war Fritz's first crowds had just lived through.",
+      "studentAction": "Plays the National Archives newsreel.",
+      "feedback": "Loads in place.",
+      "staticFallback": "Links to YouTube.",
+      "identityFit": "Simple slate with a red play button.",
+      "status": "shipped"
+    },
+    {
+      "id": "V02",
+      "chapterId": "s3",
+      "type": "video",
+      "teaches": "Connects the twist to the 2023 film about his sons.",
+      "studentAction": "Plays the A24 trailer.",
+      "feedback": "Loads in place.",
+      "staticFallback": "Links to YouTube.",
+      "identityFit": "Same slate.",
+      "status": "shipped"
+    }
+  ]
+}

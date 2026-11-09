@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-RABBITHOLE",
+  "title": "Down the Rabbit Hole",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "cinematic psychological mystery",
+      "dark curiosity",
+      "wonderland unease with a bright yellow interruption at the false card reveal"
+    ],
+    "paletteIntent": "near-black #120f13, parchment cream #eee5d5, rabbit-hole red #e44e63, card reveal yellow #f6c630; sampled from the teacher-supplied PowerPoint",
+    "typographyIntent": "Huge condensed editorial display faces with readable system narrative and Georgia editorial ledes",
+    "textureLanguage": [
+      "original concentric red eye",
+      "tilting card illustrations",
+      "black-and-white perspective checkerboard",
+      "Wonderland character silhouettes",
+      "layered paper evidence"
+    ],
+    "shapeLanguage": "spirals, layered playing cards, hard-edged exhibit panels, elongated checkerboard vanishing points, photographic-paper evidence borders",
+    "motionGrammar": [
+      "subtle hero-eye rotation suggests fixation",
+      "card hover/click suggests choosing but does not affect evidence",
+      "reveal and progress are user-triggered; disabled with reduced motion"
+    ],
+    "interactionSignature": [
+      "Five historical or invented card verdicts locked together",
+      "evidence-linked cognitive bias matching",
+      "three non-diagnostic scenario checks",
+      "three written exit responses saved by shared site runtime"
+    ],
+    "densityRhythm": "Atmospheric cover, card sequence, celebratory rupture, investigative bias lab, three character encounters, ethical ending, concise exit ticket.",
+    "archivalBehavior": "The four historical stories follow the uploaded teacher deck; invented Detroit Card E is expressly identified only after the student's reveal. Original presentation illustrations are interpretive art, never archival proof. Links to source research at the end.",
+    "endingLanguage": "When a story feels true, check evidence before trusting the feeling."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Source PowerPoint, Hidden History: Mind Games Lesson 1",
+    "edgeTreatment": "Cream card edges and red outlines carry into all choice, evidence and written-response controls",
+    "controlLanguage": "Make a bet, lock your verdict, follow the bias, do not diagnose",
+    "spacingLanguage": "Wide eye-centered moments alternate with narrow reading panels and card racks",
+    "transitionLanguage": "Natural no-scrolljack scrolling; progress line and optional low-motion reveal."
+  }
+}

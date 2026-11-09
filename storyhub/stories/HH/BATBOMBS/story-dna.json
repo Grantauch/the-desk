@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-BATBOMBS",
+  "title": "the bats that burned the wrong base",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "desert testing-ground absurdity with consequences"
+    ],
+    "paletteIntent": "sun-bleached sand, rust and midnight",
+    "typographyIntent": "Large editorial serif headlines, readable system sans narrative, monospace records",
+    "textureLanguage": [
+      "Desert airfield, wooden test structures, sleeping bats and unintended fire; no weapon construction details."
+    ],
+    "shapeLanguage": "Scene-specific evidence surfaces, with open narrative space between them",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Trace which link in a five-stage mission fails; separate a test outcome from a combat claim."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "Proof that something can start a fire is not proof that a military plan is ready."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "sun-bleached sand, rust and midnight",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Trace which link in a five-stage mission fails; separate a test outcome from a combat claim.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HOLE2",
+  "title": "They Couldn't Stop",
+  "route": "/hubs/hh-they-couldnt-stop.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/HOLE2/story.json",
+    "note": "Mind Games, down the rabbit hole no. 2."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-they-couldnt-stop.html",
+      "bytes": 54850,
+      "sha256": "b1734dec08df421014b5556b1c95fbdf41992d69ab51dae586ec7bb6d9600039"
+    },
+    {
+      "path": "/storyhub/hh/they-couldnt-stop/assets/dancing-mania-1642.webp",
+      "assetId": "A01",
+      "bytes": 187376,
+      "sha256": "c9fb25018641fba2ff33bc47b023095afd9b1ffd837fd221638aca93e9178fc6",
+      "width": 900,
+      "height": 1148
+    },
+    {
+      "path": "/storyhub/hh/they-couldnt-stop/assets/tea-party-ink.webp",
+      "assetId": "A02",
+      "bytes": 135850,
+      "sha256": "1319c22d7c98399622edf34376b68e453aa9a85d98718316957430d4aae3963b",
+      "width": 760,
+      "height": 580
+    },
+    {
+      "path": "/storyhub/hh/they-couldnt-stop/assets/lobster-quadrille-ink.webp",
+      "assetId": "A03",
+      "bytes": 101958,
+      "sha256": "f1abd1442bc62e61d9523b10b701b3d6f03ea58892e9fe42343853e2651182bf",
+      "width": 520,
+      "height": 814
+    }
+  ],
+  "totalBytes": 480034,
+  "sealedAt": "2026-11-09"
+}

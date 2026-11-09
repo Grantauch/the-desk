@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L07",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "01-choice",
+      "type": "counterfactual-trial-choice",
+      "teaches": "Public trials make evidence and defense part of lawful punishment.",
+      "studentAction": "Choose trial or immediate execution, then defend a trade-off.",
+      "feedback": "Immediate historical and ethical consequences appear for each choice.",
+      "staticFallback": "Both options and trade-offs are written in the page.",
+      "identityFit": "Two competing docket dispositions; neither offers arcade points.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "02-verdict",
+      "type": "reveal-two-exceptions",
+      "teaches": "Death sentences are not the same number as completed executions.",
+      "studentAction": "Reveal Göring and Bormann's separate outcomes.",
+      "feedback": "Two historical explanations fill the gap between twelve and ten.",
+      "staticFallback": "Full explanation available in the narrative.",
+      "identityFit": "Sealed disposition card opens.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "03-resume",
+      "type": "press-versus-record-tabs",
+      "teaches": "A reported quotation is not proof of the factual claim quoted.",
+      "studentAction": "Switch between the 347-execution claim and archival estimate.",
+      "feedback": "Claims and historians' findings appear in contrasted evidence fields.",
+      "staticFallback": "Both numbers are explained in narrative text.",
+      "identityFit": "Personnel file comparison tabs.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "04-witness",
+      "type": "limits-of-eyewitness-test",
+      "teaches": "Direct observation differs from inference about what was hidden.",
+      "studentAction": "Identify the claim a witness could not directly establish.",
+      "feedback": "Explains why seeing or hearing does not determine intent or duration.",
+      "staticFallback": "Witness limits are described immediately above the control.",
+      "identityFit": "Evidence statement selection.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "05-claims",
+      "type": "six-claim-evidence-categorization",
+      "teaches": "Historical claims must be classified as verified, attributed, or not established.",
+      "studentAction": "Categorize six dated claims and read source-specific feedback.",
+      "feedback": "Correctness and contextual source note appear for each claim.",
+      "staticFallback": "Definitions and surrounding narrative convey the distinctions.",
+      "identityFit": "Evidence desk classification cards.",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "07-verdict",
+      "type": "justified-verdict-and-reflection",
+      "teaches": "Separate likely mishandling from independently proving intention.",
+      "studentAction": "Choose a cautious conclusion and write a two-source argument and ethical reflection.",
+      "feedback": "Student answers persist via shared Turn In and may be copied as a backup.",
+      "staticFallback": "All questions are ordinary labeled form fields.",
+      "identityFit": "Closing case report.",
+      "status": "implemented"
+    }
+  ]
+}

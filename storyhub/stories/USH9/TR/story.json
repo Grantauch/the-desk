@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TR",
+  "course": "USH9",
+  "lessonCode": "TR",
+  "title": "Theodore Roosevelt",
+  "audience": "students",
+  "narrativeQuestion": "How did a childhood fear of physical helplessness help drive Roosevelt’s pursuit of strength and power, and what did that pursuit cost?",
+  "chapters": [
+    {
+      "id": "opening",
+      "title": "Theodore Roosevelt",
+      "claim": "The 1912 film and childhood memoir frame a life shaped partly by remembered physical vulnerability.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "opening-film"
+        }
+      ],
+      "visualAnchorIds": [
+        "opening-film"
+      ],
+      "interactionIds": [
+        "film"
+      ]
+    },
+    {
+      "id": "chapter-01",
+      "title": "The Boy Who Could Not Breathe",
+      "claim": "Theodore Roosevelt had severe asthma. Some nights, he sat up gasping while his parents tried to help him. He grew up in a wealthy family, with support many sick children did not have. He later described feeling nervous, timid, and physically helpless.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "age-eight"
+        }
+      ],
+      "visualAnchorIds": [
+        "age-eight"
+      ],
+      "interactionIds": [
+        "source-inspection"
+      ]
+    },
+    {
+      "id": "chapter-02",
+      "title": "He Trained Himself To Be Strong",
+      "claim": "After two boys bullied him, Roosevelt decided to learn boxing. He wanted to be able to defend himself. Improvement took years. His own account suggests that fear of helplessness helped drive his training. Later, he kept choosing hard physical challenges. That connection is an interpretation of his words.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "ranchman"
+        }
+      ],
+      "visualAnchorIds": [
+        "ranchman"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-03",
+      "title": "He Went West",
+      "claim": "Roosevelt went to the Dakota Badlands to hunt and ranch. Outdoor work gave him another way to test himself. His ranch business lost money, but the experience helped shape his public image and his concern for wildlife. The wealthy New Yorker wanted to prove he could handle a demanding life.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "ranchman"
+        }
+      ],
+      "visualAnchorIds": [
+        "ranchman"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-04",
+      "title": "Who Were The Rough Riders?",
+      "claim": "When the United States went to war with Spain, Roosevelt helped organize the 1st U.S. Volunteer Cavalry. The Rough Riders were a regiment, a military unit within a larger force. Cowboys and college athletes served alongside Native American volunteers. Leonard Wood first commanded them. Roosevelt became their commander after Wood was promoted.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "rough-riders"
+        }
+      ],
+      "visualAnchorIds": [
+        "rough-riders"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-05",
+      "title": "Cavalry Without Its Horses",
+      "claim": "Cavalry usually fought or traveled on horseback. Transport ships had limited space, so most of the Rough Riders' horses stayed in Florida. The men fought in Cuba on foot. Some officers brought horses. Roosevelt rode his horse Texas during part of the famous charge, then dismounted.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "not-needed",
+          "anchorNote": "The transport schematic explains the regiment; Roosevelt is visually established in the preceding scene."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-06",
+      "title": "The Charge And Its Cost",
+      "claim": "Roosevelt's best-known charge first went up Kettle Hill, part of the San Juan Heights. The Rough Riders fought alongside regular Army units, including Black soldiers of the 9th and 10th Cavalry. The victory belonged to a larger force.<br/><br/>Roosevelt later reported 89 men killed or wounded from a regiment of 490 in the fighting. Charging exposed men to danger. Men were also hit while waiting under fire. Those losses matter, but they do not prove that his charge caused avoidable deaths.<br/><br/>What evidence would help us decide whether the attack was necessary or reckless?",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "rough-riders"
+        }
+      ],
+      "visualAnchorIds": [
+        "rough-riders"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-07",
+      "title": "The President",
+      "claim": "War helped make Roosevelt a national celebrity. In 1901, President William McKinley was assassinated, and Vice President Roosevelt took office. Roosevelt was 42. He used presidential power to challenge a major railroad trust and regulate food and drugs. His drive now shaped decisions affecting millions of people.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "president"
+        }
+      ],
+      "visualAnchorIds": [
+        "president"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-08",
+      "title": "The Teddy Bear Story",
+      "claim": "On a hunting trip led by Holt Collier, a Black guide who had been born enslaved, Roosevelt refused to shoot a bear that had been captured and tied up. He considered that unsporting. A cartoon turned the episode into a famous image. Morris and Rose Michtom made a toy called Teddy's Bear.<br/><br/>The bear in the hunt was an adult, not the cute cub of the popular story. Roosevelt also said the injured animal should be killed to end its suffering.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "teddy-bear-cartoon"
+        }
+      ],
+      "visualAnchorIds": [
+        "teddy-bear-cartoon"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-09",
+      "title": "The River Of Doubt",
+      "claim": "Years after leaving the White House, Roosevelt joined a scientific expedition in Brazil with his son Kermit. Brazilian explorer Candido Rondon co-led the expedition. Their team would map the River of Doubt, a river in the Amazon basin. It was poorly mapped by outsiders, in a region inhabited by Indigenous peoples. Rapids damaged boats. Moving supplies around them took exhausting work.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "rondon"
+        },
+        {
+          "name": "Cândido Rondon",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "rondon"
+        }
+      ],
+      "visualAnchorIds": [
+        "rondon"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-10",
+      "title": "Too Sick To Keep Going",
+      "claim": "Roosevelt hurt his leg while helping with a canoe. The injury became infected, and he suffered fever. He could barely walk. The expedition nearly killed him. He survived with the help of the doctor, Kermit, Rondon, and the rest of the team. Personal determination had reached its limit.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "expedition-boat"
+        }
+      ],
+      "visualAnchorIds": [
+        "expedition-boat"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "chapter-11",
+      "title": "What He Protected",
+      "claim": "During his presidency, Roosevelt helped protect about 230 million acres of public land. His administration added five national parks and protected forests, wildlife reserves, and national monuments. Different protections served different purposes: national forests could allow managed use of resources.<br/><br/>In 1908, he protected the Grand Canyon as a national monument. It became a national park in 1919. National parks already existed before Roosevelt, and the National Park Service was created in 1916, under Woodrow Wilson.<br/><br/>These places were also Indigenous homelands. Conservation belongs in a history that includes the people who already lived there.",
+      "namedPeople": [
+        {
+          "name": "Theodore Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "muir"
+        },
+        {
+          "name": "John Muir",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "muir"
+        }
+      ],
+      "visualAnchorIds": [
+        "muir"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "Childhood vulnerability helping drive adult training is an interpretation of Roosevelt’s retrospective memoir, not a complete psychological explanation.",
+    "The Rough Riders were the 1st U.S. Volunteer Cavalry regiment. Most horses remained in Florida; some officers brought horses.",
+    "Kettle Hill and San Juan Hill were separate heights. Regular Army units, including Black soldiers, shared the victory.",
+    "Roosevelt’s 89 killed or wounded does not mean 89 killed. An Archives account gives 15 killed and 73 wounded; neither proves all losses were avoidable.",
+    "Holt Collier tied an adult bear. Roosevelt refused an unsporting shot; the injured bear was subsequently killed. The toy story differs from the hunt.",
+    "The River of Doubt lies in the Amazon basin; it was not the entire Amazon and Indigenous people lived in the region.",
+    "Conservation is an explicitly dated epilogue returning to 1901–1909 after the 1914 climax. About 230 million acres includes multiple land categories; five national parks is the park count.",
+    "Grand Canyon became a monument in 1908 and a park in 1919. The NPS was created in 1916 under Wilson. Protected land included Indigenous homelands."
+  ],
+  "release": {
+    "route": "/hubs/ush9-theodore-roosevelt.html",
+    "manifest": "storyhub/releases/USH9-TR.json",
+    "referenceImplementation": false
+  }
+}

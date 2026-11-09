@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-PIGEON",
+  "course": "HH",
+  "lessonCode": "PIGEON",
+  "title": "the pigeon in the nose cone",
+  "audience": "students",
+  "narrativeQuestion": "Could a pigeon learn to guide a weapon—and what would a successful demonstration actually prove?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "A very small pilot",
+      "claim": "During World War II, researchers were trying to improve how weapons reached moving targets. Psychologist B. F. Skinner proposed an unusual guidance system: trained pigeons inside a nose cone. His work used a basic learning principle. A behavior followed by a reward may become more likely. The bird did not need to understand war, geography or a flight plan. It needed to perform a trained response to a visible image. [S1, S2]",
+      "namedPeople": [
+        {
+          "name": "B. F. Skinner",
+          "role": "Psychologist named as the experiment’s author. The surviving apparatus and his original film anchor the account rather than an invented portrait.",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "Peck the picture",
+      "claim": "The experimental system presented a target image to a pigeon. Training encouraged pecks at the target, and those responses could be used in a guidance concept. A surviving Smithsonian nose cone has compartments for three birds. This is not a story about pigeons carrying messages or homing to a loft. Those are different uses of the same species. Here the proposed contribution was visual tracking inside an experimental apparatus. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "Reward is not understanding",
+      "claim": "Use the invented training board. Choosing the target produces a reward; choosing the background does not. This is a conceptual demonstration, not an animal-learning experiment or a historical performance record. The point is that a reliable-looking behavior can be shaped without the subject understanding the whole system. You can distinguish “the bird pecked the image” from “the bird understood the mission.”",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "The cereal company enters the story",
+      "claim": "General Mills provided technical support, and the project received wartime government attention. The work was more substantial than an amusing sketch on a napkin. Later, the Navy revived the idea under the name Orcon, short for organic control. But a funded program and a convincing demonstration still leave questions about reliability, integration and the alternatives available to a military service. [S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "Watch what the camera really shows",
+      "claim": "The Skinner Foundation preserves a silent film showing target training. Look for the response the film actually records. A bird pecking at a display establishes that behavior under those conditions. It does not show a missile reaching an enemy ship. A film can be authentic while an exciting caption asks it to prove more than it contains. Open the original film link beside the recap and make that distinction yourself. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "The demonstration did not become a mission",
+      "claim": "The birds were never used in combat, and the later program ended as electronic guidance became a more practical option. The remaining apparatus helps document a serious, strange engineering approach. It does not establish that pigeon-guided weapons fought a secret war. A useful ending gives the research its due while keeping the laboratory, the proposed system and operational service separate. [S1, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "A real laboratory guidance project. The pigeons were never combat pilots.",
+    "A bird can learn the task without understanding the mission.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-project-pigeon.html"
+  }
+}

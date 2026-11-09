@@ -111,6 +111,7 @@ class FakeRange {
   setNumberFormat() { return this; }
   setNumberFormats() { return this; }
   setFontWeight() { return this; }
+  setFontSize() { return this; }
   setFontColor() { return this; }
   setBackground() { return this; }
   setWrap() { return this; }
@@ -120,20 +121,23 @@ class FakeRange {
 }
 
 class FakeSheet {
-  constructor(name, maxColumns = 26) {
+  constructor(name, maxColumns = 26, maxRows = 1000) {
     this.name = name;
     this.rows = [];
     this.maxColumns = maxColumns;
+    this.maxRows = maxRows;
     this.hidden = false;
     this.frozenRows = 0;
+    this.images = [];
   }
 
   getName() { return this.name; }
   setName(name) { this.name = name; return this; }
   getMaxColumns() { return this.maxColumns; }
-  getMaxRows() { return Math.max(this.rows.length, 1000); }
+  getMaxRows() { return this.maxRows; }
 
   ensureRow(row) {
+    if (row > this.maxRows) throw new Error(`${this.name}: row ${row} exceeds grid limit ${this.maxRows}`);
     while (this.rows.length < row) this.rows.push(new Array(this.maxColumns).fill(''));
     return this.rows[row - 1];
   }
@@ -208,6 +212,13 @@ class FakeSheet {
     return this;
   }
 
+  insertRowsAfter(afterPosition, count) {
+    if (!Number.isInteger(count) || count < 0) throw new Error('insertRowsAfter requires a nonnegative row count');
+    if (afterPosition < 0 || afterPosition > this.maxRows) throw new Error(`${this.name}: invalid insert position ${afterPosition}`);
+    this.maxRows += count;
+    return this;
+  }
+
   insertColumnsAfter(_column, count) {
     this.maxColumns += count;
     this.rows.forEach((row) => {
@@ -223,6 +234,18 @@ class FakeSheet {
   autoResizeColumn() { return this; }
   autoResizeColumns() { return this; }
   setColumnWidth() { return this; }
+  setHiddenGridlines() { return this; }
+  setRowHeight() { return this; }
+  getImages() { return this.images; }
+  insertImage(blob, column, row) {
+    const image = {blob, column, row, title: '', script: '',
+      setAltTextTitle(value) { this.title = value; return this; },
+      getAltTextTitle() { return this.title; },
+      setAltTextDescription(value) { this.description = value; return this; },
+      assignScript(value) { this.script = value; return this; }};
+    this.images.push(image);
+    return image;
+  }
 
   /** Test-side convenience: every data row as an array, header excluded. */
   dataRows() {
@@ -260,6 +283,7 @@ class FakeSpreadsheet {
       const target = copy.insertSheet(sheet.getName());
       target.rows = sheet.rows.map(row => row.slice());
       target.maxColumns = sheet.maxColumns;
+      target.maxRows = sheet.maxRows;
     });
     return copy;
   }
@@ -337,6 +361,8 @@ function createHarness(options = {}) {
     now = new Date('2026-09-04T13:00:00Z'),
     mailQuota = 1500,
     spreadsheetId = 'test-workbook-id',
+    // Load the classroom template's first-run setup file too.
+    template = false,
   } = options;
 
   const state = {
@@ -347,6 +373,7 @@ function createHarness(options = {}) {
     properties: new Map(),
     cache: new Map(),
     triggers: [],
+    triggerReads: 0,
     sentMail: [],
     mailQuota,
     lock: {
@@ -357,6 +384,9 @@ function createHarness(options = {}) {
       acquisitions: 0,
     },
     uiAlerts: [],
+    dialogs: [],
+    // What ScriptApp.getService().getUrl() reports; '' until a deployment exists.
+    serviceUrl: '',
   };
 
   const spreadsheet = new FakeSpreadsheet(spreadsheetId);
@@ -449,9 +479,9 @@ function createHarness(options = {}) {
     Date: HarnessDate,
 
     SpreadsheetApp: {
-      create: (name) => new FakeSpreadsheet(name),
+      create: (name) => { const book = new FakeSpreadsheet('synthetic-directory-' + String(++state.uuidCounter).padStart(12, '0')); if (options.workbooks) options.workbooks.set(book.getId(), book); return book; },
       getActiveSpreadsheet: () => spreadsheet,
-      openById: () => spreadsheet,
+      openById: (id) => { if (!options.workbooks) return spreadsheet; const book = id === spreadsheetId ? spreadsheet : options.workbooks.get(id); if (!book) throw new Error('Workbook unavailable'); return book; },
       getUi: () => {
         const ui = {
           ButtonSet: { OK: 'OK', OK_CANCEL: 'OK_CANCEL', YES_NO: 'YES_NO' },
@@ -463,7 +493,7 @@ function createHarness(options = {}) {
             return menu;
           },
           showSidebar: () => {},
-          showModalDialog: () => {},
+          showModalDialog: (html, title) => { state.dialogs.push(title); },
         };
         return ui;
       },
@@ -484,7 +514,7 @@ function createHarness(options = {}) {
 
     LockService: {
       getScriptLock: () => scriptLock,
-      getUserLock: () => scriptLock,
+      getUserLock: () => ({ waitLock() {}, releaseLock() {} }),
       getDocumentLock: () => scriptLock,
     },
 
@@ -553,6 +583,10 @@ function createHarness(options = {}) {
     },
 
     HtmlService: {
+      createHtmlOutput: (content) => {
+        const output = { content, setTitle: () => output };
+        return output;
+      },
       createTemplateFromFile: () => ({
         evaluate: () => ({
           setTitle: function setTitle() { return this; },
@@ -561,14 +595,25 @@ function createHarness(options = {}) {
           setFaviconUrl: function setFavicon() { return this; },
         }),
       }),
+      createHtmlOutputFromFile: (name) => {
+        const output = {
+          file: name,
+          setTitle: () => output,
+          setWidth: () => output,
+          setHeight: () => output,
+        };
+        return output;
+      },
       XFrameOptionsMode: { ALLOWALL: 'ALLOWALL', DEFAULT: 'DEFAULT' },
     },
 
     ScriptApp: {
-      getProjectTriggers: () => state.triggers.map((trigger) => ({
+      getScriptId: () => 'synthetic-script-id',
+      getService: () => ({ getUrl: () => state.serviceUrl }),
+      getProjectTriggers: () => { state.triggerReads += 1; return state.triggers.map((trigger) => ({
         getHandlerFunction: () => trigger.handler,
         getUniqueId: () => trigger.id,
-      })),
+      })); },
       deleteTrigger: (trigger) => {
         const id = trigger.getUniqueId();
         state.triggers = state.triggers.filter((entry) => entry.id !== id);
@@ -598,6 +643,10 @@ function createHarness(options = {}) {
   vm.runInContext(source, sandbox, { filename: CODE_PATH });
   const releasePath = path.join(path.dirname(CODE_PATH), 'ReleaseChecks.gs');
   vm.runInContext(fs.readFileSync(releasePath, 'utf8'), sandbox, { filename: releasePath });
+  if (template) {
+    const setupPath = path.join(path.dirname(CODE_PATH), '..', 'hall-pass-template', 'Setup.gs');
+    vm.runInContext(fs.readFileSync(setupPath, 'utf8'), sandbox, { filename: setupPath });
+  }
 
   /** Call any top-level function in Code.gs by name. */
   const call = (name, ...args) => {

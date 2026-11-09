@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>the entry list | Beyond the Scoreboard | the desk</title>
+<meta name="description" content="In 1894 the body that ran American bicycle racing voted to admit white members only. Five years later Marshall Taylor was champion of the world. Read the season and find out who kept him off the card.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-s02-the-entry-list.html">
+<meta property="og:title" content="The Entry List">
+<meta property="og:description" content="Marshall Taylor and the 1890s bicycle boom. No rule said he could not race.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/the-entry-list/assets/taylor-1906.webp">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+:root{
+  --ochre:#D9A12B; --ochre-deep:#C28A1C; --ink:#16130E; --rose:#C98B83; --rose-deep:#9E5E57; --chalk:#F6F0E1; --teal:#0F7F7B;
+  --paper:#F3E7C9; --rule:rgba(22,19,14,.22); --focus:#0B4FB3;
+  --display:"Archivo Black","Arial Black",Impact,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:3.5rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ochre);color:var(--ink);font-family:var(--serif);font-size:1.0625rem;line-height:1.6}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.18;
+  background-image:radial-gradient(rgba(22,19,14,.35) .6px,transparent .8px),radial-gradient(rgba(255,255,255,.4) .6px,transparent .8px);
+  background-size:5px 5px,7px 7px;background-position:0 0,2px 3px}
+main,header,footer,nav{position:relative;z-index:1}
+a{color:inherit;text-underline-offset:.2em}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+img{display:block;max-width:100%;height:auto}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.wrap{width:min(1120px,100% - 2.5rem);margin-inline:auto}
+
+/* program bar */
+.bar{position:sticky;top:0;z-index:20;background:var(--ink);color:var(--chalk);font-family:var(--mono);font-size:.8rem;letter-spacing:.06em}
+.bar .wrap{display:flex;gap:1rem;align-items:center;min-height:3rem;overflow-x:auto;scrollbar-width:thin}
+.bar a{text-decoration:none;white-space:nowrap;padding:.35rem .5rem;border:1px solid transparent}
+.bar a:hover,.bar a[aria-current="true"]{border-color:var(--chalk)}
+.bar .home{font-family:var(--display);letter-spacing:0;font-size:.95rem}
+
+/* hero: a race bill */
+.hero{padding:clamp(2rem,6vw,4.5rem) 0 2.5rem}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(1.5rem,4vw,3.5rem);align-items:end}
+.kicker{font-family:var(--mono);font-size:.82rem;letter-spacing:.14em;text-transform:uppercase}
+.hero h1{font-family:var(--display);font-size:clamp(3.4rem,11vw,8.4rem);line-height:.86;text-transform:uppercase;letter-spacing:-.01em;margin:.6rem 0 1rem;
+  text-shadow:.045em .035em 0 var(--rose)}
+.hero .dek{font-size:clamp(1.2rem,2.4vw,1.55rem);line-height:1.35;max-width:32ch}
+.hero .q{margin-top:1.4rem;padding:1rem 1.1rem;background:var(--ink);color:var(--chalk);font-family:var(--mono);font-size:.95rem;line-height:1.5;max-width:44ch}
+.portrait{position:relative;background:var(--paper);padding:.7rem .7rem 0;border:3px solid var(--ink);box-shadow:10px 10px 0 var(--ink)}
+.portrait img{filter:grayscale(1) contrast(1.08);mix-blend-mode:multiply;width:100%}
+.portrait figcaption,.plate figcaption{font-family:var(--mono);font-size:.74rem;line-height:1.45;padding:.55rem 0 .7rem}
+.time-note{margin-top:1.2rem;font-family:var(--mono);font-size:.82rem}
+
+/* heats */
+.heat{padding:clamp(2.5rem,7vw,5rem) 0;border-top:3px solid var(--ink)}
+.heat:nth-of-type(even){background:var(--paper)}
+.heat-no{display:flex;gap:.9rem;align-items:baseline;font-family:var(--mono);font-size:.82rem;letter-spacing:.12em;text-transform:uppercase}
+.heat-no b{font-family:var(--display);font-size:2.2rem;letter-spacing:0;line-height:1}
+.heat h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2rem,5.4vw,3.6rem);line-height:.95;margin:.5rem 0 1.4rem;max-width:20ch;text-shadow:.04em .03em 0 var(--rose)}
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:start}
+.lines p{font-size:clamp(1.15rem,2vw,1.38rem);line-height:1.45;margin-bottom:.9rem;max-width:38ch}
+.lines p.hit{font-family:var(--display);text-transform:uppercase;font-size:clamp(1.3rem,2.6vw,1.8rem);line-height:1.1}
+.plate{background:var(--chalk);border:3px solid var(--ink);padding:.6rem .6rem 0;box-shadow:8px 8px 0 var(--ink)}
+.plate img{width:100%;filter:grayscale(1) contrast(1.05) sepia(.15)}
+details.more{margin-top:1.4rem;border:2px solid var(--ink);background:rgba(246,240,225,.55);max-width:62ch}
+details.more summary{font-family:var(--mono);font-weight:600;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase;padding:.7rem .9rem;cursor:pointer;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"+ ";}
+details.more[open] summary::before{content:"\2212  ";}
+details.more .body{padding:0 1rem 1rem}
+details.more .body p{margin:.75rem 0 0}
+
+/* instruments */
+.instrument{margin-top:2rem;background:var(--chalk);border:3px solid var(--ink);padding:clamp(1rem,3vw,1.6rem);box-shadow:10px 10px 0 var(--ink)}
+.instrument h3{font-family:var(--display);text-transform:uppercase;font-size:1.5rem;line-height:1}
+.instrument .sub{font-family:var(--mono);font-size:.88rem;margin:.4rem 0 1rem}
+.ctrls{display:flex;flex-wrap:wrap;gap:.6rem;margin:0 0 1rem}
+.btn{border:2px solid var(--ink);background:var(--chalk);padding:.55rem .9rem;font-family:var(--mono);font-weight:600;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--chalk)}
+.btn:hover{background:var(--rose)}
+.btn[aria-pressed="true"]:hover{background:var(--ink)}
+.always{font-family:var(--mono);font-size:.88rem;margin-top:1rem;padding-top:.8rem;border-top:2px solid var(--ink)}
+.flash{font-family:var(--display);text-transform:uppercase;font-size:1.15rem;margin-top:.8rem}
+.composite{font-family:var(--mono);font-size:.78rem;background:var(--ink);color:var(--chalk);padding:.45rem .65rem;display:inline-block;margin-bottom:1rem}
+
+/* entry list table */
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:.86rem;line-height:1.4}
+th{text-align:left;font-weight:600;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;border-bottom:3px solid var(--ink);padding:.45rem .5rem;vertical-align:bottom}
+td{border-bottom:1px solid var(--rule);padding:.55rem .5rem;vertical-align:top}
+tr.refused td{background:rgba(15,127,123,.12)}
+tr.refused td:first-child{box-shadow:inset 6px 0 0 var(--teal)}
+.group-h td{background:var(--ink);color:var(--chalk);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:.78rem}
+.tag-teal{color:var(--teal);font-weight:600}
+
+/* 3d stage */
+.bike-box{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:1.2rem;align-items:stretch}
+#bike-stage{position:relative;min-height:340px;background:linear-gradient(#e9dcc0,#d8c39a);border:2px solid var(--ink);overflow:hidden}
+#bike-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#bike-canvas:active{cursor:grabbing}
+.drag-hint{position:absolute;left:.6rem;bottom:.5rem;font-family:var(--mono);font-size:.72rem;background:var(--ink);color:var(--chalk);padding:.25rem .45rem}
+#bike-stage.no-3d{display:flex;align-items:center;justify-content:center;padding:1rem;font-family:var(--mono);font-size:.85rem;text-align:center}
+#bike-stage.no-3d::after{content:"The 3D model needs WebGL. The comparison at right has everything the model shows."}
+#bike-stage.no-3d .drag-hint{display:none}
+.readout{font-family:var(--mono);font-size:.86rem}
+.readout .rd-title{font-family:var(--display);font-size:1.2rem;text-transform:uppercase;margin-bottom:.6rem}
+.readout dl{margin:0}
+.readout dt{font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.08em;margin-top:.6rem}
+.readout dd{margin:0}
+.legend-line{display:inline-block;width:1.6rem;height:3px;background:var(--teal);vertical-align:middle;margin-right:.35rem}
+
+/* hard block */
+.hard{background:var(--ink)!important;color:var(--chalk)}
+.hard h2{text-shadow:none}
+.hard .lines p{max-width:44ch}
+.hard .fine{font-family:var(--display);font-size:clamp(3rem,10vw,6.5rem);line-height:1;margin:1.5rem 0 .4rem}
+
+/* standings */
+.standings td.num,.standings th.num{text-align:right}
+.standings tr.taylor td{font-weight:600}
+.toggles{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1rem}
+.toggle{display:flex;gap:.6rem;align-items:flex-start;border:2px solid var(--ink);padding:.7rem .8rem;background:var(--paper);font-family:var(--mono);font-size:.8rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;line-height:1.35;cursor:pointer}
+.toggle input{width:1.25rem;height:1.25rem;margin:0;accent-color:var(--ink);flex:none}
+.model-note{font-family:var(--mono);font-size:.78rem;margin-top:.8rem}
+
+/* dates ending */
+.dates{display:flex;flex-wrap:wrap;gap:1rem 3rem;margin-top:2rem;font-family:var(--display);font-size:clamp(3rem,10vw,6rem);line-height:1}
+.dates span{display:block;font-family:var(--mono);font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem}
+
+/* terms + repair */
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;margin-top:1.4rem}
+.term{background:var(--chalk);border:2px solid var(--ink);padding:1rem;box-shadow:5px 5px 0 var(--ink)}
+.term b{font-family:var(--display);text-transform:uppercase;font-size:1.05rem;display:block;margin-bottom:.35rem}
+.term .met{font-family:var(--mono);font-size:.78rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--rule)}
+.repair{display:grid;gap:.8rem;margin-top:1.4rem}
+.rep{border:2px solid var(--ink);background:var(--chalk)}
+.rep button{width:100%;text-align:left;background:none;border:0;padding:.9rem 1rem;display:flex;justify-content:space-between;gap:1rem;font-family:var(--serif);font-size:1.05rem}
+.rep button span.w{text-decoration:line-through;text-decoration-color:var(--rose-deep);text-decoration-thickness:2px}
+.rep button[aria-expanded="false"] span.w{text-decoration:none}
+.rep .fix{padding:0 1rem 1rem;font-size:1rem}
+.rep .fix small{display:block;font-family:var(--mono);font-size:.75rem;margin-top:.4rem}
+.rep .lbl{font-family:var(--mono);font-size:.74rem;white-space:nowrap;text-transform:uppercase}
+
+/* response */
+.response{background:var(--ink);color:var(--chalk);padding:clamp(2.5rem,7vw,5rem) 0;border-top:3px solid var(--ink)}
+.response h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2rem,5vw,3.2rem);line-height:.95;margin:.5rem 0 1rem}
+.qblock{margin-top:1.4rem;max-width:760px}
+.qblock label{display:block;font-weight:600;margin-bottom:.5rem;line-height:1.45}
+.qblock textarea{width:100%;min-height:8.5rem;font:inherit;font-size:1rem;line-height:1.5;padding:.8rem;border:2px solid var(--chalk);background:#221d16;color:var(--chalk);resize:vertical}
+.response .hint{font-family:var(--mono);font-size:.8rem;opacity:.85}
+
+/* sources */
+.sources{padding:3rem 0 4rem;background:var(--paper);border-top:3px solid var(--ink);font-size:.95rem}
+.sources h2{font-family:var(--display);text-transform:uppercase;font-size:1.8rem}
+.sources ol{padding-left:1.2rem}
+.sources li{margin:.45rem 0}
+.sources .credits{font-family:var(--mono);font-size:.78rem;margin-top:1.2rem}
+
+@media (max-width:820px){
+  .hero .wrap,.split,.bike-box{grid-template-columns:1fr}
+  .toggles{grid-template-columns:1fr}
+  .portrait{max-width:420px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<nav class="bar" aria-label="Race program">
+  <div class="wrap">
+    <a class="home" href="/beyond-the-scoreboard/">the desk</a>
+    <a href="#h1">01 boom</a><a href="#h2">02 sport</a><a href="#h3">03 1894</a><a href="#h4">04 track</a><a href="#h5">05 montreal</a><a href="#h6">06 sunday</a><a href="#h7">07 europe</a><a href="#h8">08 bust</a><a href="#h9">09 1948</a><a href="#terms">terms</a><a href="#repair">notes</a><a href="#your-turn">your turn</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <p class="kicker">Beyond the Scoreboard · 1890s to 1948</p>
+      <h1>The Entry List</h1>
+      <p class="dek">Marshall "Major" Taylor and the biggest sports boom America had before baseball took over.</p>
+      <p class="q">The fastest sprinter in the world was kept out of races for years. No rule ever said he could not race. So who kept him out?</p>
+      <p class="time-note">About 40 minutes. Nine heats, two instruments, a bicycle you can turn in your hands, and three questions at the end.</p>
+    </div>
+    <figure class="portrait">
+      <img src="/storyhub/bts/the-entry-list/assets/taylor-1906.webp" width="800" height="1048" alt="Portrait of Marshall Taylor around 1906 in a racing jersey with a dark band across the chest, arms folded, looking at the camera.">
+      <figcaption>Marshall Taylor, about 1906. Photograph, public domain.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+<!-- HEAT 1 -->
+<section class="heat" id="h1" aria-labelledby="h1-t">
+  <div class="wrap">
+    <p class="heat-no"><b>01</b> The 1890s</p>
+    <h2 id="h1-t">The boom</h2>
+    <div class="split">
+      <div class="lines">
+        <p>The safety bicycle arrived with two equal wheels, a chain drive, and air in the tires, and America bought them by the million.</p>
+        <p>Hundreds of American factories were making them.</p>
+        <p>Bicycle clubs lobbied state governments to pave the roads, years before anyone owned a car.</p>
+        <p class="hit">Then the boom ended almost as fast as it started.</p>
+      </div>
+      <figure class="plate">
+        <img src="/storyhub/bts/the-entry-list/assets/hearsey-shop.webp" width="960" height="663" loading="lazy" decoding="async" alt="A row of bicycles in front of H. T. Hearsey's bicycle shop in downtown Indianapolis, 1896.">
+        <figcaption>H. T. Hearsey's bicycle shop, Indianapolis, 1896. A teenage Taylor worked in shops like this one. Public domain.</figcaption>
+      </figure>
+    </div>
+
+    <div class="instrument" id="bikes">
+      <h3>Two machines</h3>
+      <p class="sub">Switch between them. Drag or use the arrow keys to turn the model. The teal line marks the saddle height next to a six foot pole.</p>
+      <div class="ctrls" role="group" aria-label="Choose a bicycle">
+        <button type="button" class="btn" data-bike="high" aria-pressed="false">High wheeler, 1880s</button>
+        <button type="button" class="btn" data-bike="safety" aria-pressed="true">Safety bicycle, 1890s</button>
+      </div>
+      <div class="bike-box">
+        <div id="bike-stage">
+          <canvas id="bike-canvas" tabindex="0" aria-label="3D model of the selected bicycle beside a six foot measuring pole. Use the arrow keys to turn it."></canvas>
+          <span class="drag-hint">drag to turn</span>
+        </div>
+        <div class="readout" id="bike-readout" aria-live="polite"></div>
+      </div>
+      <p class="always"><span class="legend-line" aria-hidden="true"></span>The high wheeler went fast because its wheel was huge. The safety went fast because of the chain. That one change is why millions of people could ride.</p>
+    </div>
+
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>The machine that did it was the safety bicycle. Two wheels of the same size, a chain to the rear wheel, and after 1888 a pneumatic tire. It replaced the high wheeler, which had been dangerous and had required athleticism to mount, and it could be ridden by anyone.</p>
+      <p>What followed was a genuine mania. Hundreds of American firms went into bicycle manufacturing, output ran into the millions of machines across the decade, and prices fell as production scaled. Figures from the period vary widely by source and by year. The honest summary is that this was one of the largest consumer manufacturing booms of the century.</p>
+      <p>The social effects were immediate and were discussed constantly at the time. Young people could travel without a chaperone and without a horse. Women's clothing changed to make riding possible, and that change was argued about in newspapers across the country.</p>
+      <p>The League of American Wheelmen, founded in 1880, became the organizing body. It sanctioned racing, published a magazine, and from the early 1890s ran the Good Roads movement, lobbying state legislatures to pave roads for cyclists. The federal government created an Office of Road Inquiry in 1893 in response to that pressure. The roads the automobile would later inherit were argued for by people on bicycles.</p>
+      <p>The boom broke around the turn of the century. The market filled up, the industry merged, and the automobile arrived to take both the road and the attention.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 2 -->
+<section class="heat" id="h2" aria-labelledby="h2-t">
+  <div class="wrap">
+    <p class="heat-no"><b>02</b> Board tracks and six day races</p>
+    <h2 id="h2-t">The sport</h2>
+    <div class="split">
+      <div class="lines">
+        <p>Racing happened on banked wooden ovals, indoors, at night, in front of very large crowds.</p>
+        <p>The six day race at Madison Square Garden ran around the clock, and men rode until they hallucinated.</p>
+        <p>Sprinters were the stars and the purses were serious money.</p>
+        <p class="hit">This was one of the biggest spectator sports in the country before baseball took its place.</p>
+      </div>
+      <div>
+        <figure class="plate">
+          <img src="/storyhub/bts/the-entry-list/assets/six-day.webp" width="960" height="697" loading="lazy" decoding="async" alt="Riders on the banked board track of a six day race inside Madison Square Garden, with crowds packed in the stands, 1908.">
+          <figcaption>A six day race at Madison Square Garden, 1908. Library of Congress, public domain.</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="split" style="margin-top:2rem">
+      <figure class="plate">
+        <img src="/storyhub/bts/the-entry-list/assets/standstill-1909.webp" width="960" height="720" loading="lazy" decoding="async" alt="Two sprinters side by side on their bicycles on the board track at Vélodrome Buffalo in Paris, 1909.">
+        <figcaption>Taylor and the French sprinter Léon Hourlier, Paris, 1909. Public domain.</figcaption>
+      </figure>
+      <div class="lines">
+        <p>Two of the fastest men alive, side by side, neither one wanting to go first.</p>
+        <p>In a match sprint nobody wants to lead into the last lap, because the rider in front breaks the wind for the rider behind. So sprinters crept, balanced, and waited for the other man to blink.</p>
+        <p>That tactic matters later. A rider who can be trapped against the rail while the others wait has nowhere to go.</p>
+      </div>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Track racing in the 1890s ran on banked board ovals, many of them indoors, lit at night, with capacity crowds. Madison Square Garden held the biggest events in the country.</p>
+      <p>The six day race was the marquee event and it was exactly what it sounds like. Riders circled the track for six days, sleeping in short snatches or not at all, and the winner was whoever covered the most distance. Riders finished these races in states of collapse and hallucination. Public alarm about that eventually forced rule changes that limited daily hours and introduced two man teams.</p>
+      <p>Sprinting was the glamour event. A match sprint is short, tactical, and violent, and the sprinters were the names the public knew and the riders who commanded appearance money.</p>
+      <p>Money in the sport was real. Top sprinters earned purses and appearance fees that compared well with any professional athlete in America at the time. Manufacturers paid riders to appear on their machines, because a win on Saturday sold bicycles on Monday. Racing was advertising, which is why the manufacturers cared who was allowed to race.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 3 -->
+<section class="heat" id="h3" aria-labelledby="h3-t">
+  <div class="wrap">
+    <p class="heat-no"><b>03</b> 1894</p>
+    <h2 id="h3-t">The membership clause</h2>
+    <div class="lines">
+      <p>The League of American Wheelmen governed the sport, sanctioned the races, and lobbied for the roads.</p>
+      <p>At its 1894 assembly it voted to admit white members only.</p>
+      <p class="hit">The clause said nothing about who could race. It did not have to.</p>
+    </div>
+
+    <div class="instrument" id="entry-list">
+      <h3>One season</h3>
+      <p class="sub">Read down the calendar. Then group it by who decided.</p>
+      <p class="composite">A composite season, built from the kinds of decisions documented across Taylor's American career. It is not a copy of one year's calendar.</p>
+      <div class="ctrls">
+        <button type="button" class="btn" id="el-group" aria-pressed="false">Group by who decided</button>
+        <button type="button" class="btn" id="el-reset">Back to the calendar</button>
+      </div>
+      <div class="table-wrap"><table id="el-table" aria-describedby="el-status">
+        <thead><tr><th scope="col">Date and place</th><th scope="col" class="who-col">Who controlled the entry</th><th scope="col">Did he start</th><th scope="col">What was given as the reason</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p id="el-status" class="model-note" aria-live="polite"></p>
+      <p class="always">The 1894 membership clause governed who could join the League. No rule ever stated that he could not race.</p>
+      <p class="flash" id="el-flash" hidden>No single row here bars him from the sport. Every row narrows it.</p>
+    </div>
+
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>The League of American Wheelmen was the governing body. It issued racing licenses, sanctioned meets, kept records, and ran the sport's calendar. At its national assembly in 1894 the League adopted a clause restricting membership to white riders, a change pushed hardest by southern delegates.</p>
+      <p>The clause governed membership. It did not, on its face, forbid a Black rider from entering a race.</p>
+      <p>What it did was hand every other actor in the sport a reason. A promoter could decline an entry and point at the sanctioning body. A regional association could decline to sanction a meet that admitted him. A group of riders could agree privately not to start against him, and no rule addressed private agreements. A southern track could refuse him outright and face no consequence, because the League had already said what it thought.</p>
+      <p>Taylor raced anyway, because promoters in the North wanted him. He drew crowds. A meet with the fastest sprinter in the country on the card sold more tickets than a meet without him, and money argued on his side in exactly the places where the League's clause had the least local support.</p>
+      <p>The result was a career in which the question of whether he could start was answered separately, race by race, by whoever happened to be deciding.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 4 -->
+<section class="heat hard" id="h4" aria-labelledby="h4-t">
+  <div class="wrap">
+    <p class="heat-no"><b>04</b> On the track</p>
+    <h2 id="h4-t">What was done to him while he rode</h2>
+    <div class="lines">
+      <p>Riders boxed him against the rail so he could not get out.</p>
+      <p>Riders threw water and ice in front of his wheel.</p>
+      <p>At Taunton, Massachusetts, in 1897, a rider named W. E. Becker pulled him off his machine after the finish and choked him unconscious on the track, in front of the crowd.</p>
+      <p>Becker was fined</p>
+      <p class="fine">$50</p>
+      <p>Taylor kept racing.</p>
+    </div>
+    <details class="more" style="background:transparent;border-color:var(--chalk)"><summary>Full story</summary><div class="body">
+      <p>Match sprinting is a contact sport at speed on a banked wooden surface, and the tactics available to riders who wanted to stop one particular rider were many and mostly impossible to police. Boxing a rider in against the rail so that he cannot find a line through is legal riding. Doing it by prior agreement among several riders is not, and it is also not provable.</p>
+      <p>The documented incidents in Taylor's career run past that into assault. Riders crowded him deliberately. Objects were thrown onto the track in front of him. He received threats.</p>
+      <p>The incident at Taunton, Massachusetts in 1897 is the one that is fully documented. After a race, the rider W. E. Becker pulled Taylor from his bicycle and choked him until he lost consciousness, in front of spectators. Becker was fined fifty dollars.</p>
+      <p>Taylor raced for another thirteen years.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 5 -->
+<section class="heat" id="h5" aria-labelledby="h5-t">
+  <div class="wrap">
+    <p class="heat-no"><b>05</b> Montreal, August 1899</p>
+    <h2 id="h5-t">World champion</h2>
+    <div class="split">
+      <div class="lines">
+        <p>He won the world one mile sprint championship at Montreal in August 1899.</p>
+        <p>He was twenty years old.</p>
+        <p>He was the first African American to win a cycling world championship, and one of the first Black world champions in any sport.</p>
+        <p class="hit">Five years after the League voted that he could not be a member of it.</p>
+      </div>
+      <figure class="plate">
+        <img src="/storyhub/bts/the-entry-list/assets/queens-park.webp" width="960" height="788" loading="lazy" decoding="async" alt="The empty cycling track at Queen's Park in Montreal, photographed in 1899, looking north along the straight.">
+        <figcaption>The track at Queen's Park, Montreal, 1899, where Taylor became world champion. Public domain.</figcaption>
+      </figure>
+    </div>
+    <div class="split" style="margin-top:2rem">
+      <figure class="plate">
+        <img src="/storyhub/bts/the-entry-list/assets/taylor-1895.webp" width="700" height="700" loading="lazy" decoding="async" alt="Newspaper engraving of a teenage Marshall Taylor riding a bicycle, labeled Marshall Taylor, from an Indianapolis paper in 1895.">
+        <figcaption>The earliest press image of Taylor, Indianapolis, 1895. He was sixteen. Public domain.</figcaption>
+      </figure>
+      <div class="lines">
+        <p>The nickname came from a bicycle shop in Indianapolis. As a boy he did riding tricks out front in a soldier's uniform to pull in customers. The name Major stuck for life.</p>
+        <p>Louis Munger, a white former racer and bicycle maker, hired him, coached him, and moved him to Worcester, Massachusetts, because racing in Indiana had closed to him.</p>
+      </div>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>The world championships of 1899 were held at Queen's Park in Montreal. Taylor won the one mile sprint title and became world champion.</p>
+      <p>He was twenty years old. He had turned professional in December 1896, at a six day race at Madison Square Garden, and had come up under Louis Munger, a former racer and bicycle manufacturer who had employed him in Indianapolis and then moved him to Worcester, Massachusetts, in part because the racing climate in Indiana had become impossible.</p>
+      <p>In 1900 he won the American sprint championship.</p>
+      <p>He set records at several distances during these years, and by the plain measure of results he was the fastest sprinter in the world.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 6 -->
+<section class="heat" id="h6" aria-labelledby="h6-t">
+  <div class="wrap">
+    <p class="heat-no"><b>06</b> The Sunday problem</p>
+    <h2 id="h6-t">The races he would not enter</h2>
+    <div class="lines">
+      <p>He was a devout Baptist and he did not race on Sundays.</p>
+      <p>A great deal of the sport's money and a great many of its championship points were on Sunday cards.</p>
+      <p class="hit">That cost him titles.</p>
+    </div>
+
+    <div class="instrument" id="points">
+      <h3>A championship season</h3>
+      <p class="sub">Two controls. They do the same arithmetic and they do not mean the same thing.</p>
+      <p class="composite">A model season built to show the arithmetic. The riders and numbers are illustrative, not one year's real standings. A missing meet is counted at the rider's own average from the meets he did ride.</p>
+      <div class="toggles">
+        <label class="toggle"><input type="checkbox" id="pt-sunday" data-desk-skip> Count the Sunday meets he chose not to enter</label>
+        <label class="toggle"><input type="checkbox" id="pt-refused" data-desk-skip> Count the meets he was refused entry to</label>
+      </div>
+      <div class="table-wrap"><table class="standings" id="pt-table" aria-describedby="pt-status">
+        <thead><tr><th scope="col">Place</th><th scope="col">Rider</th><th scope="col" class="num">Meets entered</th><th scope="col" class="num">Meets available</th><th scope="col" class="num">Points</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p id="pt-status" class="model-note" aria-live="polite"></p>
+      <div class="ctrls" style="margin-top:.8rem"><button type="button" class="btn" id="pt-reset">Back to the standings as scored</button></div>
+      <p class="always">He did not ride on Sundays. Some meets did not admit him. Only one of those was his decision.</p>
+      <p class="flash" id="pt-flash" hidden>Same arithmetic. Two different facts. The table cannot tell them apart and you can.</p>
+    </div>
+
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Taylor was a serious Baptist and he refused to compete on Sundays throughout his career. He held to it in the United States and he held to it in Europe, where Sunday racing was the norm and where promoters lost money on it.</p>
+      <p>The cost was measurable. American championship series awarded points across a calendar of meets, and Sunday cards were part of that calendar. A rider who sat out every Sunday started every season behind.</p>
+      <p>In 1900 he won the American sprint championship anyway.</p>
+      <p>In other seasons the arithmetic went against him, and accounts of the standings from the time often note that he had ridden fewer scoring events than his rivals.</p>
+      <p>He held to it and he paid for it, and he wrote about it later as a choice rather than as a grievance.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 7 -->
+<section class="heat" id="h7" aria-labelledby="h7-t">
+  <div class="wrap">
+    <p class="heat-no"><b>07</b> 1901 to 1904</p>
+    <h2 id="h7-t">Europe</h2>
+    <div class="split">
+      <div class="lines">
+        <p>He crossed to Europe and raced the national champions of France, Germany, Belgium, Denmark, and Italy.</p>
+        <p>He beat most of them.</p>
+        <p>Crowds turned out in numbers that surprised him, and he wrote afterward about being received differently than at home.</p>
+        <p class="hit">He still would not ride on Sundays. Promoters lost money on it and accepted it, because he sold out the other days.</p>
+      </div>
+      <figure class="plate">
+        <img src="/storyhub/bts/the-entry-list/assets/jacquelin-1901.webp" width="960" height="708" loading="lazy" decoding="async" alt="Taylor and the French champion Edmond Jacquelin held at the start line by handlers at the Parc des Princes in Paris, 1901, with a packed grandstand behind them.">
+        <figcaption>Taylor against the French champion Edmond Jacquelin, Parc des Princes, Paris, 1901. Public domain.</figcaption>
+      </figure>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Taylor toured Europe repeatedly in the first years of the century, racing in France, Germany, Belgium, Denmark, Italy, and elsewhere, and meeting the reigning champions of those countries in match sprints. He won the large majority of them. He also raced in Australia across several seasons.</p>
+      <p>Promoters advertised him heavily and crowds were large. His own account of these years, written long afterward in his autobiography, describes public treatment noticeably different from what he met on American tracks.</p>
+      <p>Europe was not a place without racism. The point is narrower. The rider was the same and the result was different, which tells you the American result came from American decisions rather than from anything about him.</p>
+      <p>Sunday was the main race day in Europe, so his refusal cost promoters more there than at home. They worked around it, because a full house on Saturday was worth more than an empty argument about Sunday.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 8 -->
+<section class="heat" id="h8" aria-labelledby="h8-t">
+  <div class="wrap">
+    <p class="heat-no"><b>08</b> What happened to the sport</p>
+    <h2 id="h8-t">The boom broke</h2>
+    <div class="lines">
+      <p>The bicycle market filled up and prices collapsed. Manufacturers merged or failed.</p>
+      <p>The automobile took the roads the cyclists had lobbied for and took the newspaper coverage with them.</p>
+      <p>Board tracks closed. Six day racing shrank to a novelty and then to almost nothing.</p>
+      <p class="hit">The League dropped its whites only clause eventually, long after it had stopped mattering to the sport.</p>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>The American bicycle industry consolidated sharply at the end of the 1890s. A large combination formed in 1899 absorbed a great many independent manufacturers. Overproduction, falling prices, and a full market did the rest.</p>
+      <p>Public attention moved to the automobile, which used the paved roads the cycling lobby had spent a decade demanding, and which gave newspapers a better story.</p>
+      <p>Professional track racing did not vanish overnight. Six day racing survived into the middle of the twentieth century as a shrinking spectacle, and board tracks ran in some American cities for years. But the sport's place in American life in the 1890s, as a mass spectator sport tied to a mass consumer industry, did not return.</p>
+      <p>Taylor retired in 1910, at thirty two, after a career of roughly fourteen years.</p>
+      <p>The League's membership restriction was eventually removed. By then the League no longer governed American racing and the removal changed nothing about anyone's career.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- HEAT 9 -->
+<section class="heat" id="h9" aria-labelledby="h9-t">
+  <div class="wrap">
+    <p class="heat-no"><b>09</b> 1932 and 1948</p>
+    <h2 id="h9-t">How it ended</h2>
+    <div class="split">
+      <div class="lines">
+        <p>He lost his money in bad investments and in publishing his own book.</p>
+        <p>He died in Chicago on June 21, 1932, at fifty three, and was buried in an unmarked grave in a welfare plot.</p>
+        <p>In 1948 a group of former professional riders raised the money to move him, with a contribution from the bicycle maker Frank Schwinn.</p>
+        <p class="hit">They put a marker on him sixteen years after he died.</p>
+      </div>
+      <figure class="plate">
+        <img src="/storyhub/bts/the-entry-list/assets/taylor-1926.webp" width="259" height="359" loading="lazy" decoding="async" alt="Marshall Taylor in 1926, an older man in an overcoat and hat.">
+        <figcaption>Taylor in 1926. Public domain.</figcaption>
+      </figure>
+    </div>
+    <div class="dates" aria-label="Two dates">
+      <div>1932<span>unmarked</span></div>
+      <div>1948<span>marked</span></div>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Taylor published his autobiography in 1928 at his own expense, under the title The Fastest Bicycle Rider in the World, and sold it himself. It did not earn back what it cost.</p>
+      <p>He lost the rest of his money in investments during the same years. His marriage ended. He moved to Chicago and lived at a YMCA.</p>
+      <p>He died on June 21, 1932, at the age of fifty three, and was buried in an unmarked grave in the welfare section of Mount Glenwood Cemetery outside Chicago.</p>
+      <p>In 1948 a group of former professional riders, with money from Frank Schwinn of the Schwinn Bicycle Company, had his remains moved to a marked grave in a more prominent part of the same cemetery, with a plaque.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- TERMS -->
+<section class="heat" id="terms" aria-labelledby="terms-t">
+  <div class="wrap">
+    <p class="heat-no"><b>10</b> Terms</p>
+    <h2 id="terms-t">Nine words you already met</h2>
+    <p class="lines"><span style="font-size:1.15rem">Every term below appeared in something you just read. Each one names a thing you already watched happen.</span></p>
+    <div class="terms">
+      <div class="term"><b>sanctioning body</b>The organization that authorizes races, issues licenses, and keeps the records.<p class="met">Where you met it: the League of American Wheelmen</p></div>
+      <div class="term"><b>membership clause</b>A rule about who may belong to an organization, which is not the same as a rule about who may compete.<p class="met">Where you met it: adopted in 1894</p></div>
+      <div class="term"><b>eligibility</b>Who is permitted to take part. It is decided by whoever controls entry, and that can be several different people.<p class="met">Where you met it: the decision makers in the entry list</p></div>
+      <div class="term"><b>boxing in</b>Riding tactics that trap a rider against the rail with no line through. Legal alone, and unprovable when arranged.<p class="met">Where you met it: heat 4</p></div>
+      <div class="term"><b>purse</b>The prize money in a race.<p class="met">Where you met it: why northern promoters wanted him on the card</p></div>
+      <div class="term"><b>appearance money</b>Money paid to a competitor simply for showing up, because they sell tickets.<p class="met">Where you met it: the force that opened tracks to him</p></div>
+      <div class="term"><b>Good Roads movement</b>The cycling lobby of the 1890s that pushed state and federal governments to pave roads.<p class="met">Where you met it: it built the roads the automobile inherited</p></div>
+      <div class="term"><b>consolidation</b>Many companies merging into few, usually after a boom.<p class="met">Where you met it: the bicycle industry at the end of the 1890s</p></div>
+      <div class="term"><b>points calendar</b>The schedule of meets where championship points are available, which decides who can win a title.<p class="met">Where you met it: heat 6, and why Sundays mattered</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REPAIR -->
+<section class="heat" id="repair" aria-labelledby="repair-t">
+  <div class="wrap">
+    <p class="heat-no"><b>11</b> Note repair</p>
+    <h2 id="repair-t">Check what you wrote down</h2>
+    <p style="font-size:1.15rem;max-width:60ch">Six statements. Each one is the version people usually leave with. Each one is wrong. Open each one and compare it with the record.</p>
+    <div class="repair" id="repair-list"></div>
+  </div>
+</section>
+</main>
+
+<section class="response" id="your-turn" aria-labelledby="yt-t">
+  <div class="wrap">
+    <p class="kicker">your turn</p>
+    <h2 id="yt-t">Read the record back</h2>
+    <p class="hint">Answer in your own words. Use names, dates, and numbers from the page. Your work saves as you type.</p>
+    <div class="qblock"><label for="answer-1">1. No rule ever said Taylor could not race. Using the entry list, explain how he was kept out of races anyway. Name at least two different decision makers.</label><textarea id="answer-1" name="answer-1" data-desk-label="No rule ever said Taylor could not race. Using the entry list, explain how he was kept out of races anyway. Name at least two different decision makers." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-2">2. Taylor missed points because some meets refused him and because he would not race on Sundays. Should those two count the same way when we judge his career? Explain.</label><textarea id="answer-2" name="answer-2" data-desk-label="Taylor missed points because some meets refused him and because he would not race on Sundays. Should those two count the same way when we judge his career? Explain." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-3">3. Becker was fined $50. Taylor was buried without a marker for sixteen years. Pick one number or date from this page and explain what it says about how the sport valued him.</label><textarea id="answer-3" name="answer-3" data-desk-label="Becker was fined $50. Taylor was buried without a marker for sixteen years. Pick one number or date from this page and explain what it says about how the sport valued him." rows="5"></textarea></div>
+    <div data-desk-turnin></div>
+  </div>
+</section>
+
+<footer class="sources" id="sources" aria-labelledby="src-t">
+  <div class="wrap">
+    <h2 id="src-t">Sources and limits</h2>
+    <ol>
+      <li>Marshall W. Taylor, <i>The Fastest Bicycle Rider in the World</i>, self published, 1928. His own account, written about twenty five years later. It is cited as what he said, not as an independent record.</li>
+      <li>League of American Wheelmen proceedings, 1894, for the membership clause.</li>
+      <li>Newspaper coverage of the 1897 Taunton incident and of the 1899 world championships at Montreal.</li>
+      <li>Andrew Ritchie, <i>Major Taylor: The Extraordinary Career of a Championship Bicycle Racer</i>, and Peter Nye's histories of American track racing.</li>
+      <li>Histories of the 1890s American bicycle industry and of the Good Roads movement.</li>
+    </ol>
+    <p><b>Limits.</b> Bicycle production figures from the 1890s disagree from source to source, so this page gives no single number. The entry list and the standings are labeled composites built to show how decisions worked, not copies of one season. Accounts differ on the date the League removed its clause and on Taylor's exact record against each European champion.</p>
+    <p class="credits">Photographs: Marshall Taylor portraits 1895, about 1906, and 1926. H. T. Hearsey's shop, 1896. Six day race at Madison Square Garden, 1908, Library of Congress. Queen's Park track, Montreal, 1899. Taylor and Jacquelin, Paris, 1901, Bibliothèque nationale de France. Taylor and Hourlier, Paris, 1909. All public domain, via Wikimedia Commons. The 3D bicycles are modern models for comparison, not reconstructions of a particular machine.</p>
+  </div>
+</footer>
+
+<script src="/hubs/ush9-splendid-little-war/lib/three.min.js" defer></script>
+<script src="/storyhub/bts/the-entry-list/assets/bikes.js" defer></script>
+<script>
+(function(){
+  'use strict';
+  /* ---------- THE ENTRY LIST ---------- */
+  var SEASON=[
+    {d:'Opening night, a northern indoor meet',w:'The promoter',s:'Yes',r:'He sold tickets'},
+    {d:'Spring, a championship meet in the South',w:'The local track management',s:'No',r:'A stated refusal to admit a Black rider',x:1},
+    {d:'Late spring, a sanctioned regional meet',w:'The regional racing association',s:'No',r:'The sanctioning body\'s membership rule was cited',x:1},
+    {d:'Early summer, a northern outdoor meet',w:'The promoter',s:'Yes',r:'He sold tickets'},
+    {d:'Midsummer, a meet where several riders had agreed in advance',w:'The other riders, informally',s:'He started and was boxed in',r:'No reason was given because no rule was involved'},
+    {d:'Midsummer, a Sunday card',w:'Taylor',s:'No',r:'He would not race on Sunday'},
+    {d:'All season, a national championship series',w:'The sanctioning body\'s points calendar',s:'Partly',r:'Points were available at meets he was not admitted to and at meets he would not ride'}
+  ];
+  var ORDER=['The promoter','The local track management','The regional racing association','The other riders, informally','Taylor','The sanctioning body\'s points calendar'];
+  var elBody=document.querySelector('#el-table tbody'),elGroup=document.getElementById('el-group'),elReset=document.getElementById('el-reset'),
+      elStatus=document.getElementById('el-status'),elFlash=document.getElementById('el-flash'),whoCol=document.querySelector('#el-table .who-col');
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function row(e,hideWho){return '<tr'+(e.x?' class="refused"':'')+'><td>'+esc(e.d)+(e.x?' <span class="tag-teal">refused entry</span>':'')+'</td>'+(hideWho?'':'<td>'+esc(e.w)+'</td>')+'<td>'+esc(e.s)+'</td><td>'+esc(e.r)+'</td></tr>';}
+  function calendar(){
+    whoCol.hidden=false;
+    elBody.innerHTML=SEASON.map(function(e){return row(e,false);}).join('');
+    elGroup.setAttribute('aria-pressed','false');elFlash.hidden=true;
+    elStatus.textContent='Showing the season in calendar order. '+SEASON.length+' entries.';
+  }
+  function grouped(){
+    whoCol.hidden=true;
+    var html='',parts=[];
+    ORDER.forEach(function(k){
+      var rows=SEASON.filter(function(e){return e.w===k;});
+      if(!rows.length)return;
+      parts.push(k+', '+rows.length);
+      html+='<tr class="group-h"><td colspan="3">'+esc(k)+' · '+rows.length+(rows.length===1?' entry':' entries')+'</td></tr>'+rows.map(function(e){return row(e,true);}).join('');
+    });
+    elBody.innerHTML=html;elGroup.setAttribute('aria-pressed','true');elFlash.hidden=false;
+    elStatus.textContent='Grouped by who decided. '+parts.join('. ')+'.';
+  }
+  elGroup.addEventListener('click',function(){elGroup.getAttribute('aria-pressed')==='true'?calendar():grouped();});
+  elReset.addEventListener('click',calendar);
+  calendar();
+
+  /* ---------- THE POINTS HE DID NOT TAKE ---------- */
+  var MEETS=20,SUNDAYS=6,REFUSED=3;
+  var RIDERS=[
+    {n:'Taylor',entered:11,pts:42,taylor:1},
+    {n:'Rider A',entered:19,pts:47},
+    {n:'Rider B',entered:18,pts:44},
+    {n:'Rider C',entered:17,pts:31}
+  ];
+  var cS=document.getElementById('pt-sunday'),cR=document.getElementById('pt-refused'),ptBody=document.querySelector('#pt-table tbody'),
+      ptStatus=document.getElementById('pt-status'),ptFlash=document.getElementById('pt-flash'),used={s:false,r:false};
+  function standings(){
+    var rows=RIDERS.map(function(r){
+      var entered=r.entered,pts=r.pts,avg=r.pts/r.entered,add=0;
+      if(r.taylor){ if(cS.checked)add+=SUNDAYS; if(cR.checked)add+=REFUSED; }
+      return {n:r.n,taylor:r.taylor,entered:entered+add,pts:Math.round(pts+avg*add),avail:MEETS};
+    }).sort(function(a,b){return b.pts-a.pts;});
+    ptBody.innerHTML=rows.map(function(r,i){return '<tr'+(r.taylor?' class="taylor"':'')+'><td>'+(i+1)+'</td><td>'+r.n+'</td><td class="num">'+r.entered+'</td><td class="num">'+r.avail+'</td><td class="num">'+r.pts+'</td></tr>';}).join('');
+    var t=rows.filter(function(r){return r.taylor;})[0],place=rows.indexOf(t)+1;
+    var what=cS.checked&&cR.checked?'With both kinds of missing meets counted':cS.checked?'With the Sunday meets he chose not to enter counted':cR.checked?'With the meets he was refused entry to counted':'As scored';
+    ptStatus.textContent=what+', Taylor finishes '+['first','second','third','fourth'][place-1]+' with '+t.pts+' points from '+t.entered+' meets.';
+    ptFlash.hidden=!(used.s&&used.r);
+  }
+  cS.addEventListener('change',function(){used.s=true;standings();});
+  cR.addEventListener('change',function(){used.r=true;standings();});
+  document.getElementById('pt-reset').addEventListener('click',function(){cS.checked=false;cR.checked=false;standings();});
+  standings();
+
+  /* ---------- NOTE REPAIR ---------- */
+  var REPAIR=[
+    ['Bicycles were a minor hobby before cars.','The 1890s bicycle boom was one of the largest consumer manufacturing booms of the century, and the cycling lobby is why American roads got paved.','Heat 1'],
+    ['A rule banned Black riders from racing.','The 1894 clause governed League membership. No rule stated he could not race. The exclusion was assembled from separate decisions by promoters, regional associations, southern tracks, and other riders.','Heat 3'],
+    ['He was kept out of the sport.','He turned professional in 1896, won the world sprint title at Montreal in 1899, and won the American sprint championship in 1900.','Heats 3 and 5'],
+    ['Everyone in the sport was against him.','Louis Munger hired him, coached him, and moved him to Massachusetts so he could race. Northern promoters wanted him because he filled seats.','Heats 3 and 5'],
+    ['Missing races was something done to him.','Some meets refused him. He also refused every Sunday meet for religious reasons, on two continents, for his whole career. The standings cannot tell those apart, and neither can a reader who does not look.','Heat 6'],
+    ['He was celebrated at the end of his life.','He died in Chicago in 1932 in an unmarked welfare grave. Former riders moved him to a marked one in 1948.','Heat 9']
+  ];
+  var rl=document.getElementById('repair-list');
+  rl.innerHTML=REPAIR.map(function(r,i){return '<div class="rep"><button type="button" aria-expanded="false" aria-controls="fix-'+i+'"><span class="w">'+r[0]+'</span><span class="lbl">check it</span></button><div class="fix" id="fix-'+i+'" hidden>'+r[1]+'<small>Check: '+r[2]+'</small></div></div>';}).join('');
+  rl.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var open=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',String(!open));document.getElementById(b.getAttribute('aria-controls')).hidden=open;b.querySelector('.lbl').textContent=open?'check it':'the record';});
+
+  /* ---------- program bar ---------- */
+  var links=[].slice.call(document.querySelectorAll('.bar a[href^="#"]'));
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)links.forEach(function(a){a.toggleAttribute('aria-current',a.hash==='#'+e.target.id);if(a.hash==='#'+e.target.id)a.setAttribute('aria-current','true');});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('main section[id],#your-turn').forEach(function(s){io.observe(s);});}
+})();
+</script>
+<script src="/hubs/desk-save.js" defer></script>
+</body></html>

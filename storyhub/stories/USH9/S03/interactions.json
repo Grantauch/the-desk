@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-S03",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "s2",
+      "type": "3d-scene",
+      "teaches": "Who sat where, what was signed, and that the same car returned in 1940",
+      "studentAction": "Picks five views and moves the clock",
+      "feedback": "Camera moves, seats highlight, the light changes with the time",
+      "staticFallback": "The panel text carries every fact when WebGL is missing",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "s3",
+      "type": "count-grid",
+      "teaches": "The scale of what Germany gave up",
+      "studentAction": "Picks an item to count out in squares of 1,000",
+      "feedback": "Square grids and totals",
+      "staticFallback": "Every grid has a text label with its number",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "s5",
+      "type": "clock-scrubber",
+      "teaches": "Most losses came after everyone knew the end time",
+      "studentAction": "Drags a clock from 5:00 to 11:00",
+      "feedback": "Events unblur in order, the red wedge shrinks, totals appear at 11:00",
+      "staticFallback": "All events remain in an ordered list and the status line announces each one",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "s6",
+      "type": "portrait-cards",
+      "teaches": "Four last deaths at four times",
+      "studentAction": "Opens each soldier",
+      "feedback": "A short record of each man",
+      "staticFallback": "Plain buttons with text detail",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "s8",
+      "type": "judge-then-reveal",
+      "teaches": "Judge each stated reason before reading the record",
+      "studentAction": "Marks a reason as holding up or not",
+      "feedback": "The record for that reason appears",
+      "staticFallback": "Reasons and records are text, nothing is scored",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    }
+  ]
+}

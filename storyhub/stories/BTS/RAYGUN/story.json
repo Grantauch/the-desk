@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-RAYGUN",
+  "course": "BTS",
+  "lessonCode": "RAYGUN",
+  "title": "Zero Points in Paris",
+  "audience": "students",
+  "narrativeQuestion": "How did an athlete who received zero votes become the most famous competitor of Paris 2024, and what was true about the outrage?",
+  "chapters": [
+    {
+      "id": "01-stage",
+      "title": "Zero Points in Paris",
+      "claim": "Raygun lost three battles on August 9, 2024 and received 0 of 54 judge votes.",
+      "namedPeople": [
+        {
+          "name": "Rachael Gunn",
+          "role": "Australian b-girl known as Raygun",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "02-sport",
+      "title": "From a Bronx Rec Room to the Olympics",
+      "claim": "Breaking traces to a 1973 Bronx party, reached the Youth Olympics in 2018 and Paris 2024, and was left off LA 2028 in October 2023.",
+      "namedPeople": [
+        {
+          "name": "DJ Kool Herc",
+          "role": "hip hop pioneer",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "03-rules",
+      "title": "Nine Judges, Two Rounds",
+      "claim": "Nine judges vote each round on five criteria, so a group battle is decided out of 18 votes.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "04-athlete",
+      "title": "How a Lecturer Got to Paris",
+      "claim": "Gunn qualified legitimately by winning the October 2023 Oceania championship under the continental quota system.",
+      "namedPeople": [
+        {
+          "name": "Martin Gilian",
+          "role": "head judge",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A04"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "05-rumor",
+      "title": "Rumor or Record?",
+      "claim": "The petition's claims about rigged selection were false according to the Australian Olympic Committee.",
+      "namedPeople": [
+        {
+          "name": "Matt Carroll",
+          "role": "AOC chief executive",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Anna Meares",
+          "role": "Australian chef de mission",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "06-after",
+      "title": "Number One, Then Gone",
+      "claim": "She was ranked first in September 2024, retired in November 2024 and told her story in a 2026 Netflix documentary.",
+      "namedPeople": [
+        {
+          "name": "Ami Yuasa",
+          "role": "Paris 2024 gold medalist",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A05",
+        "A06",
+        "A02"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "The first battle clip is a fan upload of the broadcast and may disappear from YouTube.",
+    "Petition claims are paraphrased from the AOC's published list of facts."
+  ]
+}
