@@ -260,6 +260,20 @@ for (const p of kprops) {
   for (let y = top; y < p.f[1]; y++) for (let x = p.f[0]; x < p.f[0] + p.f[2]; x++) if ('.GF'.includes(k[y][x])) kset(x, y, 'H');
 }
 
+
+ // Forage is only map data at this stage; actual item claims require server-side authority.
+const forage = [];
+for (const [id, art, x, y] of [
+  ['berry-patch', 'prop-bush', 4, 7],
+  ['creek-bank', 'prop-rock', 34, 15],
+  ['herb-garden', 'prop-bush', 15, 18],
+  ['old-stump', 'prop-rock', 14, 6],
+]) {
+  if (k[y]?.[x] !== '.') throw new Error(`Kettle forage ${id} needs open ground at ${x},${y}`);
+  kprop(art, x, y, 1, 1, x, y + 1, 1, `forage-${id}`);
+  forage.push({ id, x, y });
+}
+
 const kettle = {
   id: 'kettle',
   rows: k.map((r) => r.join('')),
@@ -269,6 +283,7 @@ const kettle = {
   gates,
   doors,
   graves,
+  forage,
   exits: [],
 };
 
@@ -296,6 +311,9 @@ const checkKettle = (occupiedGraves) => {
   for (const [x, y] of kettle.arrive) if (!reachable(x, y)) throw new Error(`Kettle unreachable arrival ${x},${y}`);
   for (const [x, y] of graves) {
     if (k[y][x] !== '.' || !neighbours(x, y).some(([nx, ny]) => reachable(nx, ny))) throw new Error(`Kettle inaccessible grave ${x},${y}`);
+  }
+  for (const { id, x, y } of forage) {
+    if (k[y][x] !== 'H' || !neighbours(x, y).some(([nx, ny]) => reachable(nx, ny))) throw new Error(`Kettle inaccessible forage ${id}`);
   }
 };
 checkKettle(false);
