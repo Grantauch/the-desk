@@ -2,7 +2,7 @@
 
 ## Course illustrations
 
-These are AI-assisted woodcut and gouache interpretations of historical
+These are AI-assisted woodcut-style interpretations of historical
 photographs, not unaltered primary-source photographs. The originals remain
 available at their holding institutions. The illustrations are navigation art;
 they should not be used to infer details absent from an original.
@@ -21,10 +21,10 @@ they should not be used to infer details absent from an original.
   [Original and public-domain declaration](https://www.metmuseum.org/art/collection/search/397316).
   Tobacco advertising is excluded from the navigation artwork.
 
-The current review assets are small extracts of the user-approved illustrated
-design. Dedicated high-resolution illustration masters are a later art pass.
-Original/reference files and the source register remain outside this public
-repository; only these optimized public derivatives are shipped here.
+Each illustration was produced with its archival photograph as a visual
+reference and uses a distinct palette of simulated block-print inks. The
+840 × 560 and 480 × 320 WebPs are optimized copies of the illustration masters.
+The original photographs are available from the institutions linked above.
 
 ## Earth and clouds
 
@@ -38,8 +38,14 @@ repository; only these optimized public derivatives are shipped here.
 - **cloud-mask.jpg:** NASA Goddard Space Flight Center, Reto Stöckli; enhancements
   by Robert Simmon. [NASA Blue Marble description and credits](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/).
   Brightness-to-alpha conversion from the NASA Blue Marble cloud composite,
-  delivered as a grayscale JPEG alpha mask from that same documented mirror. This is an artistic
-  cloud layer, not current weather.
+  delivered as a grayscale JPEG alpha mask from that same documented mirror.
+  Two cloud decks use the same geographic mask at different heights and
+  densities. Their drift and shadows are artistic.
+- **earth-relief.bin:** vertex heights sampled from the Blender terrain
+  model, derived from the [NASA Blue Marble global topography map](https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/).
+  Heights are exaggerated for the carved globe look.
+- **globe-portrait.webp:** still rendered in Blender from the same geography,
+  with bronze terrain, blue oceans, two cloud decks and atmospheric light.
 
 NASA permits educational/informational reuse under its
 [media guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/),

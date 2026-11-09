@@ -1,4 +1,5 @@
 import { HISTORY, newsFromPayload, pointFromLatLon } from './story-data.mjs';
+import { atlasAir, atlasCloud, atlasSurface, atlasVertex } from './atlas-light.mjs';
 
 const root = document.querySelector('[data-atlas]');
 if (root) initAtlas(root);
@@ -17,6 +18,9 @@ function initAtlas(atlas) {
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
   const home = document.createComment('atlas home position');
   atlas.before(home);
+  const placeholder = document.createElement('div');
+  placeholder.hidden = true;
+  home.after(placeholder);
   let originScroll = 0, restoreFocus = null, map = null;
   let year = Number($('[data-atlas-year]').max), filter = 'history', selected = null;
   let news = [], newsState = 'idle', unplaced = 0, newsLoadedAt = 0;
@@ -127,26 +131,32 @@ function initAtlas(atlas) {
     rebuildStories();
   }
 
-  function expand() {
+  function expand(invoker = document.activeElement) {
     if (dialog.open) return;
+    const framing = map?.framing();
     originScroll = scrollY;
-    restoreFocus = document.activeElement;
+    restoreFocus = invoker;
+    // Preserve the desk's layout and scroll anchor while its globe is in the dialog.
+    placeholder.style.height = `${atlas.offsetHeight}px`;
+    placeholder.hidden = false;
     host.append(atlas);
     atlas.classList.add('is-expanded');
     dialog.showModal();
     document.documentElement.classList.add('atlas-open');
-    requestAnimationFrame(() => map?.resize());
+    map?.reframe(framing);
   }
   function restore() {
+    const framing = map?.framing();
     home.after(atlas);
+    placeholder.hidden = true;
     atlas.classList.remove('is-expanded');
     document.documentElement.classList.remove('atlas-open');
     scrollTo({ top: originScroll, behavior: 'instant' });
     (restoreFocus instanceof HTMLElement ? restoreFocus : explore).focus({ preventScroll: true });
-    requestAnimationFrame(() => map?.resize());
+    map?.reframe(framing);
   }
   explore.hidden = false;
-  explore.addEventListener('click', expand);
+  explore.addEventListener('click', () => expand(explore));
   dialog.addEventListener('close', restore);
   document.querySelector('[data-atlas-return]').addEventListener('click', () => dialog.close());
   document.querySelector('[data-atlas-courses]').addEventListener('click', () => {
@@ -214,67 +224,59 @@ function initAtlas(atlas) {
     const camera = new T.PerspectiveCamera(34, 1, 0.1, 30);
     const tilt = new T.Group(), earth = new T.Group(); tilt.add(earth); scene.add(tilt);
     const loader = new T.TextureLoader();
-    let surface, cloudMap, normalMap;
+    let surface, cloudMap, normalMap, depth;
+    const columns = 144, rows = 96, reliefScale = .021;
     try {
-      [surface, cloudMap, normalMap] = await Promise.all([
-        loader.loadAsync('/atlas/earth-color.jpg'), loader.loadAsync('/atlas/cloud-mask.jpg'), loader.loadAsync('/atlas/earth-normal.webp'),
+      [surface, cloudMap, normalMap, depth] = await Promise.all([
+        loader.loadAsync('/atlas/earth-color.jpg'), loader.loadAsync('/atlas/cloud-mask.jpg'),
+        loader.loadAsync('/atlas/earth-normal.webp'),
+        fetch('/atlas/earth-relief.bin').then(async response => {
+          if (!response.ok) throw new Error('Terrain relief unavailable');
+          return new Uint8Array(await response.arrayBuffer());
+        }),
       ]);
+      if (depth.length !== (columns + 1) * (rows + 1)) throw new Error('Invalid terrain mesh');
     } catch (error) { renderer.dispose(); renderer.forceContextLoss(); throw error; }
     surface.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     cloudMap.wrapS = T.RepeatWrapping;
+    const sun = { value: new T.Vector3(-.86, .51, .42).normalize() };
     const uniforms = {
       surface: { value: surface }, clouds: { value: cloudMap }, relief: { value: normalMap },
-      cloudOffset: { value: 0 }, sun: { value: new T.Vector3(-4, 2.4, 1.8).normalize() },
+      cloudOffset: { value: new T.Vector2() }, sun,
     };
-    const geometry = new T.SphereGeometry(1, 144, 96);
-    const globe = new T.Mesh(geometry, new T.ShaderMaterial({
-      uniforms,
-      vertexShader: `varying vec2 uvMap; varying vec3 worldN; varying vec3 worldP; varying vec3 worldT;
-        void main(){ uvMap=uv; worldN=normalize(mat3(modelMatrix)*normal);
-          worldT=mat3(modelMatrix)*vec3(normal.z,0.,-normal.x);
-          worldP=(modelMatrix*vec4(position,1.)).xyz;
-          gl_Position=projectionMatrix*viewMatrix*vec4(worldP,1.); }`,
-      fragmentShader: `uniform sampler2D surface; uniform sampler2D clouds; uniform sampler2D relief; uniform float cloudOffset; uniform vec3 sun;
-        varying vec2 uvMap; varying vec3 worldN; varying vec3 worldP; varying vec3 worldT;
-        void main(){
-          vec3 photo=texture2D(surface,uvMap).rgb;
-          float land=smoothstep(-.012,.026,photo.r+photo.g*.24-photo.b*.92);
-          float detail=dot(photo,vec3(.299,.587,.114));
-          vec3 bronze=mix(vec3(.14,.058,.012),vec3(.72,.40,.10),clamp(detail*1.6,.0,1.));
-          vec3 ocean=vec3(.004,.022,.038)+photo.b*vec3(.012,.032,.055);
-          vec3 base=mix(ocean,bronze,land);
-          vec3 localN=texture2D(relief,uvMap).rgb*2.-1.;
-          localN.xy*=2.3*land;
-          vec3 tangent=normalize(worldT+vec3(.00001,0.,0.));
-          vec3 bitangent=normalize(cross(worldN,tangent));
-          vec3 N=normalize(tangent*localN.x+bitangent*localN.y+worldN*max(.12,localN.z));
-          float shade=.13+1.05*max(dot(N,sun),0.);
-          float cloudShadow=texture2D(clouds,vec2(uvMap.x+cloudOffset-.004,uvMap.y+.003)).r;
-          base*=shade*(1.-cloudShadow*.20);
-          vec3 V=normalize(cameraPosition-worldP);
-          float shine=pow(max(dot(reflect(-sun,N),V),0.),42.);
-          base+=shine*mix(vec3(.26,.31,.28),vec3(.09,.055,.02),land);
-          float gridX=1.-smoothstep(.0,.028,abs(sin(uvMap.x*75.398)));
-          float gridY=1.-smoothstep(.0,.024,abs(sin(uvMap.y*37.699)));
-          base=mix(base,vec3(.56,.43,.22),max(gridX,gridY)*.16);
-          gl_FragColor=vec4(base,1.);
-          #include <tonemapping_fragment>
-          #include <encodings_fragment>
-        }`,
-    }));
-    earth.add(globe);
-    scene.add(new T.AmbientLight(0x94a7be, .28));
-    const sunlight = new T.DirectionalLight(0xffd49a, 1.25); sunlight.position.set(-4, 2.4, 1.8); scene.add(sunlight);
-    const cloud = new T.Mesh(new T.SphereGeometry(1.017, 112, 64), new T.MeshLambertMaterial({ alphaMap: cloudMap, transparent: true, opacity: .68, depthWrite: false, color: 0xffdeb4 }));
-    earth.add(cloud);
-    const atmosphere = new T.Mesh(new T.SphereGeometry(1.06, 80, 48), new T.ShaderMaterial({
+    const geometry = new T.SphereGeometry(1, columns, rows);
+    const positions = geometry.attributes.position;
+    const vertex = new T.Vector3();
+    for (let i = 0; i < positions.count; i++) {
+      vertex.fromBufferAttribute(positions, i).multiplyScalar(1 + reliefScale * depth[i] / 255);
+      positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
+    }
+    earth.add(new T.Mesh(geometry, new T.ShaderMaterial({
+      uniforms, vertexShader: atlasVertex, fragmentShader: atlasSurface,
+    })));
+    const clouds = new T.SphereGeometry(1, 112, 64);
+    function cloudShell(radius, upper) {
+      const shell = new T.Mesh(clouds, new T.ShaderMaterial({
+        uniforms: { clouds: { value: cloudMap }, sun, upper: { value: upper } },
+        vertexShader: atlasVertex, fragmentShader: atlasCloud, transparent: true, depthWrite: false,
+      }));
+      shell.scale.setScalar(radius);
+      shell.renderOrder = upper + 1;
+      earth.add(shell);
+      return shell;
+    }
+    const weather = cloudShell(1.022, 0);
+    const cirrus = cloudShell(1.037, 1);
+    const atmosphere = new T.Mesh(new T.SphereGeometry(1.056, 80, 48), new T.ShaderMaterial({
+      uniforms: { sun }, vertexShader: atlasVertex, fragmentShader: atlasAir,
       transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
-      vertexShader: `varying vec3 n; void main(){n=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-      fragmentShader: `varying vec3 n;void main(){float rim=pow(max(0.,.68-dot(n,vec3(0.,0.,1.))),3.8);gl_FragColor=vec4(vec3(.55,.32,.12)*rim,rim*.52);}`,
     }));
     tilt.add(atmosphere);
-    let longitude = -30, latitude = 26, distance = 3.1, drag = null;
+    const homeDistance = 3.37;
+    let longitude = -30, latitude = 26, distance = homeDistance, drag = null;
     let frame = 0, last = 0, cloudPhase = 0, isInView = true;
+    let currentFraming = null, transition = null;
+    const focalScale = 2 * Math.tan(camera.fov * Math.PI / 360);
     const vector = new T.Vector3(), normal = new T.Vector3(), view = new T.Vector3();
 
     function positionPins() {
@@ -312,16 +314,36 @@ function initAtlas(atlas) {
       if (!paused) cloudPhase += dt * .0016;
       earth.rotation.y = -(longitude + 90) * Math.PI / 180;
       tilt.rotation.x = latitude * Math.PI / 180;
-      tilt.position.x = atlas.classList.contains('is-expanded') || stage.clientWidth < 700 ? 0 : .62;
-      tilt.position.y = !atlas.classList.contains('is-expanded') && stage.clientWidth < 700 ? -.28 : 0;
+      const box = stage.getBoundingClientRect();
+      const expanded = atlas.classList.contains('is-expanded'), narrow = box.width < 700;
+      let x = expanded || narrow ? 0 : .69;
+      let y = !expanded && narrow ? -.50 : 0;
       // Preserve a usable globe on tall phone canvases instead of cropping
       // both continental coasts (and every marker) outside the narrow view.
-      const portraitScale = Math.max(1, stage.clientHeight / (stage.clientWidth * 1.15));
-      camera.position.z = distance * portraitScale;
-      cloud.rotation.y = cloudPhase;
-      uniforms.cloudOffset.value = cloudPhase / (2*Math.PI);
+      const portraitScale = Math.max(1, box.height / (box.width * .99));
+      const targetZ = (distance + (expanded ? .24 : 0)) * portraitScale;
+      let scale = box.height / (focalScale * targetZ);
+      let screenX = box.left + box.width / 2 + x * scale;
+      let screenY = box.top + box.height / 2 - y * scale;
+      if (transition && !motionQuery.matches) {
+        const progress = Math.min(1, Math.max(0, (t - transition.started) / 510));
+        const eased = 1 - (1 - progress) ** 3;
+        screenX = T.MathUtils.lerp(transition.x, screenX, eased);
+        screenY = T.MathUtils.lerp(transition.y, screenY, eased);
+        scale = T.MathUtils.lerp(transition.scale, scale, eased);
+        x = (screenX - box.left - box.width / 2) / scale;
+        y = -(screenY - box.top - box.height / 2) / scale;
+        if (progress === 1) transition = null;
+      } else transition = null;
+      tilt.position.set(x, y, 0);
+      camera.position.z = box.height / (focalScale * scale);
+      camera.updateMatrixWorld();
+      currentFraming = { x: screenX, y: screenY, scale };
+      weather.rotation.y = cloudPhase;
+      cirrus.rotation.y = .025 + cloudPhase * 1.55;
+      uniforms.cloudOffset.value.set(-weather.rotation.y / (2 * Math.PI), -cirrus.rotation.y / (2 * Math.PI));
       positionPins(); renderer.render(scene, camera);
-      if (!paused) frame = requestAnimationFrame(draw);
+      if (!paused || transition) frame = requestAnimationFrame(draw);
     }
     function render() { if (!frame && rendererVisible && !document.hidden && isInView) frame = requestAnimationFrame(draw); }
     function resize() {
@@ -329,22 +351,40 @@ function initAtlas(atlas) {
       if (!w || !h) return;
       renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); render();
     }
+    function reframe(from) {
+      transition = from && !motionQuery.matches ? { ...from, started: performance.now() } : null;
+      resize();
+    }
     function center(lat, lon) { latitude = lat; longitude = lon; render(); }
     function zoom(direction) { distance = Math.max(2.65,Math.min(5.3,distance+direction*.24)); render(); }
     canvas.addEventListener('pointerdown', event => {
-      if (event.button !== 0) return;
-      if (!dialog.open) expand();
-      drag = { x:event.clientX,y:event.clientY,lat:latitude,lon:longitude };
+      if (event.button !== 0 || !event.isPrimary) return;
+      const pendingTouch = !dialog.open && event.pointerType === 'touch';
+      if (!pendingTouch) expand(canvas);
+      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, lat: latitude, lon: longitude, pendingTouch };
       canvas.setPointerCapture(event.pointerId);
     });
     canvas.addEventListener('pointermove', event => {
-      if (!drag) return;
-      longitude = drag.lon-(event.clientX-drag.x)*.24;
-      latitude = Math.max(-78,Math.min(78,drag.lat+(event.clientY-drag.y)*.20));
+      if (event.pointerId !== drag?.id) return;
+      const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+      if (drag.pendingTouch) {
+        if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { drag = null; return; }
+        if (Math.abs(dx) < 8) return;
+        drag.pendingTouch = false;
+        expand(canvas);
+        canvas.setPointerCapture(event.pointerId);
+      }
+      longitude = drag.lon - dx * .24;
+      latitude = Math.max(-78, Math.min(78, drag.lat + dy * .20));
       render();
     });
-    const release = () => { drag=null; };
-    canvas.addEventListener('pointerup',release); canvas.addEventListener('pointercancel',release); canvas.addEventListener('lostpointercapture',release);
+    const release = event => { if (event.pointerId === drag?.id) drag = null; };
+    canvas.addEventListener('pointerup', event => {
+      if (event.pointerId === drag?.id && drag.pendingTouch) expand(canvas);
+      release(event);
+    });
+    canvas.addEventListener('pointercancel', release);
+    canvas.addEventListener('lostpointercapture', release);
     canvas.addEventListener('wheel', event => { if (!dialog.open) return; event.preventDefault(); zoom(Math.sign(event.deltaY)); },{passive:false});
     canvas.addEventListener('keydown', event => {
       if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(event.key)) return;
@@ -359,7 +399,7 @@ function initAtlas(atlas) {
     });
     atlas.querySelectorAll('[data-atlas-turn]').forEach(button=>button.addEventListener('click',()=>{longitude+=Number(button.dataset.atlasTurn)*15;render();}));
     atlas.querySelectorAll('[data-atlas-zoom]').forEach(button=>button.addEventListener('click',()=>zoom(Number(button.dataset.atlasZoom))));
-    $('[data-atlas-reset]').addEventListener('click',()=>{longitude=-30;latitude=26;distance=3.1;render();});
+    $('[data-atlas-reset]').addEventListener('click',()=>{longitude=-30;latitude=26;distance=homeDistance;render();});
     new ResizeObserver(resize).observe(stage);
     new IntersectionObserver(entries=>{isInView=entries.some(entry=>entry.isIntersecting);last=0;if(!isInView&&frame){cancelAnimationFrame(frame);frame=0;}render();},{rootMargin:'50px'}).observe(stage);
     document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}render();});
@@ -379,7 +419,7 @@ function initAtlas(atlas) {
     });
     // Diagnostics are intentionally only local, with no telemetry or student data.
     atlas.addEventListener('atlas:inspect',()=>{atlas.dataset.rendering=String(rendererVisible);});
-    return { render, resize, center };
+    return { render, resize, center, reframe, framing: () => currentFraming };
   }
 
   // The page and source links are usable before the optional renderer arrives.

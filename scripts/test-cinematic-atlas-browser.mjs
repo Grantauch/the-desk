@@ -5,11 +5,11 @@ import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import { preview } from 'astro';
 
-const origin='http://127.0.0.1:4396';
 const results=[];
 const artifacts=new URL('../browser-results/atlas/',import.meta.url);
 await mkdir(artifacts,{recursive:true});
 const server=await preview({server:{host:'127.0.0.1',port:4396}});
+const origin=`http://127.0.0.1:${server.port}`;
 const browser=await chromium.launch({
   ...(process.env.ATLAS_CHROMIUM?{executablePath:process.env.ATLAS_CHROMIUM}:{}),
   headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'],
@@ -20,8 +20,8 @@ const fixture={updatedAt:now,groups:[
   {name:'CNN',stories:[{title:'Detroit opens an exhibition',href:'https://www.cnn.com/atlas-fixture',published:now}]},
 ]};
 
-async function run(name,viewport,check,{motion='reduce',fallback=false,textureFailure=false,javascript=true,newsFailure=false}={}){
-  const context=await browser.newContext({viewport,reducedMotion:motion,javaScriptEnabled:javascript});
+async function run(name,viewport,check,{motion='reduce',fallback=false,textureFailure=false,javascript=true,newsFailure=false,touch=false}={}){
+  const context=await browser.newContext({viewport,reducedMotion:motion,javaScriptEnabled:javascript,hasTouch:touch});
   const requests=[];let newsRequests=0;
   await context.route('**/*',route=>{
     const url=new URL(route.request().url());requests.push(url.href);
@@ -144,7 +144,37 @@ try{
     assert.equal(await page.locator('[data-atlas-motion]').textContent(),'pause clouds');
     await page.emulateMedia({reducedMotion:'reduce'});
     await page.locator('[data-atlas-motion]').filter({hasText:'animate clouds'}).waitFor();
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(()=>document.activeElement.matches('[data-atlas-canvas]'));
   },{motion:'no-preference'});
+  await run('touch-scroll-and-drag',{width:390,height:844},async(page)=>{
+    const canvas=page.locator('[data-atlas-canvas]');
+    const dialog=page.locator('[data-atlas-dialog]');
+    const marker=page.locator('[data-story-id=new-york]');
+    const touch=await page.context().newCDPSession(page);
+    const send=(type,x,y)=>touch.send('Input.dispatchTouchEvent',{
+      type,touchPoints:type==='touchEnd'?[]:[{x,y,id:0}],
+    });
+    const box=await canvas.boundingBox();
+    const x=Math.round(box.x+box.width*.47), y=Math.round(box.y+box.height*.63);
+    await send('touchStart',x,y);
+    for(const step of [20,55,105,155]) await send('touchMove',x,y-step);
+    await send('touchEnd');
+    await page.waitForFunction(()=>scrollY>25);
+    assert.equal(await dialog.evaluate(el=>el.open),false,'A vertical swipe still scrolls the desk');
+    await page.evaluate(()=>scrollTo({top:85,behavior:'instant'}));
+    const gestureY=y-85;
+    await send('touchStart',x,gestureY);
+    assert.equal(await dialog.evaluate(el=>el.open),false,'Touch can become a scroll before opening');
+    await send('touchMove',x+25,gestureY);
+    await dialog.waitFor({state:'visible'});
+    const before=await marker.getAttribute('style');
+    await send('touchMove',x+65,gestureY);
+    await send('touchEnd');
+    await page.waitForFunction(previous=>document.querySelector('[data-story-id=new-york]').getAttribute('style')!==previous,before);
+    await page.locator('[data-atlas-return]').click();
+    await page.waitForFunction(()=>scrollY===85);
+  },{touch:true});
   await run('graphics-recovery',{width:1366,height:768},async(page)=>{
     await page.locator('[data-atlas-explore]').click();
     const available=await page.locator('[data-atlas-canvas]').evaluate(canvas=>{

@@ -85,7 +85,7 @@ const moreLinks = [
     <div class="course-grid">
       {courses.map((course, index) => (
         <a href={course.href} class="course-card" data-course={course.theme}>
-          <img class="course-card__art" src={course.art} alt={course.artAlt} width="512" height="135" loading="lazy" decoding="async" />
+          <img class="course-card__art" src={course.art} srcset={`${course.art.replace('.webp', '-480.webp')} 480w, ${course.art} 840w`} sizes="(max-width: 700px) calc(100vw - 2rem), (max-width: 1440px) 31vw, 450px" alt={course.artAlt} width="840" height="560" loading="lazy" decoding="async" />
           <span class="course-card__index">0{index + 1}</span>
           <span class="course-card__identity">{course.identity}</span>
           <h3>{course.name}<span>.</span></h3>
@@ -94,7 +94,7 @@ const moreLinks = [
         </a>
       ))}
     </div>
-    <p class="atlas-art-note">Original illustrations adapted from archival photographs. <a href="/atlas/SOURCES.md">View originals and image credits ↗</a></p>
+    <p class="atlas-art-note">Woodcut-style illustrations adapted from archival photographs. <a href="/atlas/SOURCES.md">View originals and image credits ↗</a></p>
   </section>
 
   <section class="home-section" aria-labelledby="live-desks-title">

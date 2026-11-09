@@ -11,8 +11,8 @@ test('the atlas pins point to existing public lessons and real coordinate ranges
   assert.equal(new Set(HISTORY.map(story => story.id)).size, HISTORY.length);
   for (const story of HISTORY) {
     assert.ok(story.lat >= -90 && story.lat <= 90 && story.lon >= -180 && story.lon <= 180);
-    const path = new URL(`../public${story.href}`, import.meta.url);
-    assert.ok(existsSync(path) || existsSync(`${path.pathname}.html`) || existsSync(`${path.pathname}/index.html`), story.href);
+    assert.ok(['', '.html', '/index.html'].some(suffix =>
+      existsSync(new URL(`../public${story.href}${suffix}`, import.meta.url))), story.href);
     if (story.art) assert.ok(existsSync(new URL(`../public${story.art}`, import.meta.url)));
   }
 });
@@ -56,8 +56,9 @@ test('deduplication and payload caps keep repeated feeds bounded', () => {
   for(const value of [null,{},[],{groups:[null]},payload([null,{}])])assert.deepEqual(newsFromPayload(value,now),{stories:[],unplaced:0});
 });
 
-test('local texture and illustration delivery stays below the initial asset budget',()=>{
-  const files=['earth-color.jpg','cloud-mask.jpg','earth-normal.webp','us-history.webp','hidden-history.webp','beyond-the-scoreboard.webp'];
+test('the Blender portrait, live textures and largest course illustrations fit the asset budget',()=>{
+  const files=['earth-color.jpg','cloud-mask.jpg','earth-normal.webp','earth-relief.bin','globe-portrait.webp','us-history.webp','hidden-history.webp','beyond-the-scoreboard.webp'];
   const bytes=files.reduce((n,name)=>n+statSync(new URL(`../public/atlas/${name}`,import.meta.url)).size,0);
   assert.ok(bytes < 2_000_000,`${bytes} asset bytes exceeds the 2 MB budget`);
+  assert.equal(statSync(new URL('../public/atlas/earth-relief.bin',import.meta.url)).size,145*97);
 });
