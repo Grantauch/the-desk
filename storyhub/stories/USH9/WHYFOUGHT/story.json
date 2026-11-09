@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-WHYFOUGHT",
+  "course": "USH9",
+  "lessonCode": "WHYFOUGHT",
+  "title": "Why They Fought",
+  "audience": "students",
+  "narrativeQuestion": "Nine countries went to war between 1914 and 1917. What did each one fear and what did each one want?",
+  "chapters": [
+    {
+      "id": "01-files",
+      "title": "Open the files",
+      "claim": "Each of nine countries entered the war with its own fear and its own goal, decided by named leaders on specific dates.",
+      "namedPeople": [
+        {
+          "name": "Nikola Pašić",
+          "role": "Serbian prime minister",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A02"
+        },
+        {
+          "name": "Franz Joseph",
+          "role": "Emperor of Austria-Hungary",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A03"
+        },
+        {
+          "name": "Wilhelm II",
+          "role": "German Kaiser",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A04"
+        },
+        {
+          "name": "Nicholas II",
+          "role": "Russian Tsar",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A05"
+        },
+        {
+          "name": "Raymond Poincaré",
+          "role": "French president",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A06"
+        },
+        {
+          "name": "Edward Grey",
+          "role": "British foreign secretary",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A07"
+        },
+        {
+          "name": "Enver Pasha",
+          "role": "Ottoman war minister",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A08"
+        },
+        {
+          "name": "Antonio Salandra",
+          "role": "Italian prime minister",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A09"
+        },
+        {
+          "name": "Woodrow Wilson",
+          "role": "US president",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A10"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05",
+        "A06",
+        "A07",
+        "A08",
+        "A09",
+        "A10"
+      ],
+      "interactionIds": [
+        "I01",
+        "I05"
+      ]
+    },
+    {
+      "id": "02-dominoes",
+      "title": "Predict the next domino",
+      "claim": "From June 28 to November 1914 every escalation was a decision driven by a motive, not an automatic result of alliances.",
+      "namedPeople": [
+        {
+          "name": "Gavrilo Princip",
+          "role": "Assassin",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02",
+        "I05"
+      ]
+    },
+    {
+      "id": "03-size",
+      "title": "Size them up",
+      "claim": "Population, steel output, soldiers mobilized and soldiers killed show why each power feared its rivals.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03",
+        "I05"
+      ]
+    },
+    {
+      "id": "04-america",
+      "title": "Why America waited",
+      "claim": "The United States stayed neutral until submarine warfare and the Zimmermann Telegram led Congress to declare war in April 1917.",
+      "namedPeople": [
+        {
+          "name": "Woodrow Wilson",
+          "role": "US president",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A10"
+        }
+      ],
+      "visualAnchorIds": [
+        "A11"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "05-watch",
+      "title": "Watch the whole chain",
+      "claim": "Imperial War Museums historians explain the crisis as a series of choices.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Population and steel figures from Paul Kennedy for 1913. Mobilized and killed totals from the Encyclopaedia Britannica casualty table; Russian and Ottoman figures are estimates.",
+    "Dreadnought counts of about 29 to 17 include battlecruisers."
+  ]
+}

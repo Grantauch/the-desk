@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-WHYFOUGHT",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "01-files",
+      "type": "country-files",
+      "teaches": "Each country's fear, goal, ties and entry date.",
+      "studentAction": "Choose any of nine seats at the table.",
+      "feedback": "A dossier with portrait, side stamp, quote and number replaces the last one; a counter tracks files opened.",
+      "staticFallback": "All nine files are reachable as buttons; the first file is open on load.",
+      "identityFit": "Dossier cards on a Kriegsspiel table.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "02-dominoes",
+      "type": "prediction-chain",
+      "teaches": "Escalation came from motivated choices.",
+      "studentAction": "Predict each of seven moves from three options.",
+      "feedback": "Correct and chosen options color, a reveal names the motive and a domino tile tips; a running score.",
+      "staticFallback": "Each reveal is plain text and works without motion.",
+      "identityFit": "Domino tiles beside the table.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "03-size",
+      "type": "metric-bars",
+      "teaches": "Comparing the powers by people, steel and soldiers.",
+      "studentAction": "Switch among four metrics with radio buttons.",
+      "feedback": "Bars resort and resize, with a source line and a takeaway sentence.",
+      "staticFallback": "Values are printed beside every bar.",
+      "identityFit": "Brass and ivory chart card.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "05-watch",
+      "type": "video",
+      "teaches": "Recap of the crisis by a museum.",
+      "studentAction": "Press play.",
+      "feedback": "The YouTube player loads in place.",
+      "staticFallback": "Open on YouTube link.",
+      "identityFit": "Poster uses the hero illustration.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "03-size",
+      "type": "written-response",
+      "teaches": "Explain motives with evidence.",
+      "studentAction": "Write four short answers.",
+      "feedback": "Shared save and Turn In.",
+      "staticFallback": "Plain textareas.",
+      "identityFit": "Ivory answer cards.",
+      "status": "implemented"
+    }
+  ]
+}
