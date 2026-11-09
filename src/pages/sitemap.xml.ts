@@ -37,6 +37,7 @@ const paths = [
   '/glossary/',
   '/detour-shelf/',
   '/tools/',
+  '/ready/',
   ...(passConfig.enabled ? ['/pass/', '/pass-setup/'] : []),
   '/calendar/',
   '/fact-check-friday/',
