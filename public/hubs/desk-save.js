@@ -1150,7 +1150,7 @@
     var gateActions = make('form', { class: 'actions', method: 'post', autocomplete: 'off' });
     var gatePinLabel = make('label', {}, 'Hall pass PIN');
     // Shared classroom devices must not offer to retain another student's PIN.
-    var gatePin = make('input', { name: 'pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', required: '', maxlength: '6', minlength: '6', pattern: '[0-9]{6}', enterkeyhint: 'go' });
+    var gatePin = make('input', { name: 'pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', required: '', maxlength: '6', minlength: '5', pattern: '[0-9]{5,6}', enterkeyhint: 'go' });
     gatePinLabel.appendChild(gatePin);
     var gateStart = make('button', { class: 'primary', type: 'submit' }, 'Start');
     gateActions.appendChild(gatePinLabel);
