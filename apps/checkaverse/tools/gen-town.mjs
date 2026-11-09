@@ -266,7 +266,7 @@ const forage = [];
 for (const [id, art, x, y] of [
   ['berry-patch', 'prop-bush', 4, 7],
   ['creek-bank', 'prop-rock', 34, 15],
-  ['herb-garden', 'prop-bush', 15, 18],
+  ['herb-garden', 'prop-bush', 13, 18],
   ['old-stump', 'prop-rock', 14, 6],
 ]) {
   if (k[y]?.[x] !== '.') throw new Error(`Kettle forage ${id} needs open ground at ${x},${y}`);
