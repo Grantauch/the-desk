@@ -1,7 +1,22 @@
 {
   "checkedAt": "2026-10-29",
-  "catalogueCount": 69,
+  "catalogueCount": 72,
   "hubs": [
+    {
+      "hub": "hh-they-couldnt-stop.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-bytesize-number-81.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-bytesize-why-they-fought.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
     {
       "hub": "hh-down-the-rabbit-hole.html",
       "mode": "assignment",

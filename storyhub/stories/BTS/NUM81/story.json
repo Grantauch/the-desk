@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-NUM81",
+  "course": "BTS",
+  "lessonCode": "NUM81",
+  "title": "Number 81",
+  "audience": "students",
+  "narrativeQuestion": "Who saw Aaron Hernandez coming, and does what doctors found in his brain change the story?",
+  "chapters": [
+    {
+      "id": "01-player",
+      "title": "The player",
+      "claim": "From Bristol to Florida to pick 113 to a $40 million extension to a 2015 murder conviction.",
+      "namedPeople": [
+        {
+          "name": "Aaron Hernandez",
+          "role": "Tight end",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A01"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "02-draft",
+      "title": "You are in the draft room",
+      "claim": "Teams in 2010 had documented red flags and the Patriots took him in round four after his letter offering drug tests.",
+      "namedPeople": [
+        {
+          "name": "Floyd Reese",
+          "role": "Patriots adviser",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Robert Kraft",
+          "role": "Patriots owner",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I01",
+        "I06"
+      ]
+    },
+    {
+      "id": "03-lloyd",
+      "title": "Odin Lloyd",
+      "claim": "Odin Lloyd, 27, a semi-pro linebacker and landscaper, was killed June 17, 2013. Hernandez was convicted April 15, 2015.",
+      "namedPeople": [
+        {
+          "name": "Odin Lloyd",
+          "role": "Victim",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Ursula Ward",
+          "role": "His mother",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I06"
+      ]
+    },
+    {
+      "id": "04-jerseys",
+      "title": "Erasing number 81",
+      "claim": "About 2,500 jerseys were exchanged on July 6 and 7, 2013, about 30 percent youth sizes, at a cost of about $250,000.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02",
+        "I06"
+      ]
+    },
+    {
+      "id": "05-record",
+      "title": "Guilty, erased, guilty again",
+      "claim": "The conviction was vacated under abatement ab initio in May 2017 and reinstated by the Supreme Judicial Court on March 13, 2019.",
+      "namedPeople": [
+        {
+          "name": "Susan Garsh",
+          "role": "Judge",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "06-brain",
+      "title": "The brain",
+      "claim": "Boston University found Stage 3 CTE at age 27; the next youngest Stage 3 case they had seen was 46. McKee would not connect the disease to his crimes.",
+      "namedPeople": [
+        {
+          "name": "Ann McKee",
+          "role": "Neuropathologist",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A03"
+        }
+      ],
+      "visualAnchorIds": [
+        "A02",
+        "A03"
+      ],
+      "interactionIds": [
+        "I04",
+        "I05",
+        "I06"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "The death is stated as suicide without method, with a 988 support line.",
+    "The 2007 Gainesville incident is described as a police complaint with no formal charge."
+  ]
+}
