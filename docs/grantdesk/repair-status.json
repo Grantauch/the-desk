@@ -195,6 +195,19 @@
       "verified_at": "2026-11-02T06:22:53.118Z"
     }
   },
+  "learning-hub-contrast-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Improve Learning Hub contrast across course themes and interactive states.",
+    "verification_status": "28_CHROMIUM_CONTRAST_CASES_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "ASSISTIVE_TECHNOLOGY_AND_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production axe reported contrast failures in all six Beyond the Scoreboard and all six Hidden History learning units. Interactive testing also found insufficient contrast on the backs of flipped vocabulary cards.",
+      "Darkened the Beyond the Scoreboard theme green and gave secondary text on solid action, completion and vocabulary surfaces the foreground color of the parent.",
+      "All 22 unit launch pages pass the Chromium contrast rule at 390 pixels. Six additional cases check flipped cards, selected decisions and the completion panel at 320 and 1440 pixels."
+    ]
+  },
   "heel-personal-report-2026-10-30": {
     "status": "IMPLEMENTED_BROWSER_VERIFIED",
     "owner": "Codex",
