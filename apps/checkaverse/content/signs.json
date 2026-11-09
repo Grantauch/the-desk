@@ -23,5 +23,9 @@
   "apothecary": "The apothecary. Herbs and a cauldron for your next potion.",
   "clinic": "The clinic. Checkups and treatment for ailing Checklings.",
   "daycare": "Day Care. A place for your Checklings to stay while you are away.",
-  "practice-stump": "A practice stump with a painted target. Plenty of Checklings have tested their moves on it."
+  "practice-stump": "A practice stump with a painted target. Plenty of Checklings have tested their moves on it.",
+  "forage-berry-patch": "A bush heavy with berries. Something useful might be tucked inside.",
+  "forage-creek-bank": "Smooth stones rest beside the creek. Something useful might wash ashore.",
+  "forage-herb-garden": "Fragrant herbs grow beside the clinic. A few leaves might come in handy.",
+  "forage-old-stump": "An old stump beside Route 1. Something useful might be hiding underneath."
 }
