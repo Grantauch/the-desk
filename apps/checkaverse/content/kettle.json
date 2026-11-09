@@ -19,7 +19,7 @@
     "T....PP...H.P...HHHHH..HHHHHF.....HWW..T",
     "T.......FF..P...HHHHH..HHHHH.......WW..T",
     "T...........P...HHHHH..HHHHH.HH...WW...T",
-    "T..HHHHHHHH.P..HHHHHH..HHHHH......WW.H.T",
+    "T..HHHHHHHH.PH..HHHHH..HHHHH......WW.H.T",
     "T..H..H...H.P....P......P......F..WW...T",
     "T..HH...H.H.PH...P....H.P.........WW...T",
     "T..H..P...H.PPPPPPPPPPPPPPPP..H...WW...T",
@@ -435,11 +435,11 @@
     },
     {
       "s": "prop-bush",
-      "x": 15,
+      "x": 13,
       "b": 19,
       "w": 1,
       "f": [
-        15,
+        13,
         18,
         1,
         1
@@ -811,7 +811,7 @@
     },
     {
       "id": "herb-garden",
-      "x": 15,
+      "x": 13,
       "y": 18
     },
     {
