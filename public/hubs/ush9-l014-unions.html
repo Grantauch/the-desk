@@ -105,6 +105,15 @@ html{scroll-behavior:auto}
 .hallstage:after{display:none}
 .hallcopy{position:relative;left:auto;top:auto;width:min(700px,calc(100vw - 40px));padding:34px 0 50px}
 }
+/* Keep the display type readable when a condensed system font is unavailable. */
+main h2.cond{overflow-wrap:anywhere}
+.factory h2{font-size:clamp(2rem,4.2vw,4.4rem)}
+.chapter .num{color:#64778a}
+footer{color:#81909c}
+@media(max-width:700px){
+  .section h2.cond,.chapter h2.cond{font-size:clamp(2rem,9.5vw,3.35rem);line-height:.88}
+  .surge .n1,.surge .n2{font-size:clamp(3.25rem,18vw,8rem)}
+}
 </style>
 </head><body>
 <a class="skip" href="#main-content">Skip to the story</a>

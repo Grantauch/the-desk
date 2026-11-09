@@ -1605,6 +1605,19 @@
       "Authenticated Version 41 synthetic smoke passed: ok=true, request=STARTED, return=RETURNED_COUNTABLE, evidenceUsed=1, testPassVoided=true, testMembershipDeactivated=true, productionFactsUnchanged=true and syntheticOnly=true. Schema/client contract match the release. Private test workbook URL and real student details are omitted. Actual classroom use remains FIELD_PENDING."
     ]
   },
+  "ush9-l014-readable-type-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Fit the sealed Unions and Collective Bargaining StoryHub headings and statistic across viewports.",
+    "verification_status": "STORYHUB_BUILD_AND_FOUR_BROWSER_CASES_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production overflow persisted after removing the off-canvas drawer. Chromium text ranges isolated oversized headings and the membership statistic.",
+      "Bounded responsive type, allowed a fallback wrap on headings and improved contrast for chapter numbers and footer labels. Resealed only USH9-L014; the original source fingerprint and imagery remain in the manifest.",
+      "Focused StoryHub verification and four Chromium checks passed at 320, 390 and 1440 pixels, including reduced motion and automated WCAG A/AA."
+    ]
+  },
   "storyhub_work_controls_20261026": {
     "status": "SOURCE_REPAIRED_FOCUSED_VERIFIED_PROTECTED_PENDING",
     "owner": "Codex",
