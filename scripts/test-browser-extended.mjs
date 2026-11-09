@@ -31,6 +31,17 @@ const viewports = [
   { name: 'phone-390', width: 390, height: 844 },
   { name: 'desktop', width: 1440, height: 1000 },
 ];
+const reflowRoutes = [
+  'bts-robinson-review',
+  'constitution-day-2026-09-18',
+  'hh-dont-worry-about-it',
+  'hh-follow-the-money',
+  'hh-mkultra-review',
+  'reconstruction-case-file',
+  'ush9-muckrakers-review',
+  'ush9-square-deal',
+  'ush9-the-jungle',
+];
 
 await mkdir(artifacts, { recursive: true });
 const results = [];
@@ -103,6 +114,64 @@ try {
       } finally {
         await page.close();
       }
+    }
+    for (const slug of reflowRoutes) {
+      const route = `/hubs/${slug}.html`;
+      const page = await context.newPage();
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      try {
+        const response = await page.goto(`${origin}${route}`, { waitUntil: 'load' });
+        assert.equal(response?.status(), 200);
+        await page.evaluate(() => document.fonts.ready);
+        if (slug === 'hh-dont-worry-about-it' && viewport.width === 320) {
+          // Reproduce wider input font metrics while the browser fixture blocks external fonts.
+          await page.addStyleTag({ content: '.idbar input { font-size: 1.25rem; }' });
+          const formFits = await page.locator('.idbar').evaluate(form => {
+            const right = form.getBoundingClientRect().right;
+            return [...form.querySelectorAll('label, input')].every(field => field.getBoundingClientRect().right <= right);
+          });
+          assert.ok(formFits, 'All three labeled fields fit inside the student header');
+          const mapScroll = await page.locator('.mapscroll').evaluate(map => {
+            map.scrollLeft = 60;
+            return map.scrollLeft;
+          });
+          assert.ok(mapScroll > 0, 'The Pacific map still scrolls within its own region');
+        }
+        const fits = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
+        assert.ok(fits, `${route} fits the viewport without horizontal page scrolling`);
+        assert.deepEqual(errors, [], `${route} has no uncaught browser errors`);
+        results.push({ route, viewport: viewport.name, status: 'passed' });
+        console.log(`PASS ${viewport.name}: ${route} reflow`);
+      } catch (error) {
+        results.push({ route, viewport: viewport.name, status: 'failed', error: error.stack });
+        console.error(`FAIL ${viewport.name}: ${route}\n${error.message}`);
+      } finally {
+        await page.close();
+      }
+    }
+    const navPage = await context.newPage();
+    try {
+      await navPage.goto(origin, { waitUntil: 'load' });
+      const summary = navPage.locator('nav details summary:visible');
+      await summary.focus();
+      await navPage.keyboard.press('Enter');
+      const menu = navPage.locator('nav details[open] .nav-menu:visible');
+      await menu.evaluate(element => { element.scrollTop = element.scrollHeight; });
+      const about = menu.getByRole('link', { name: 'about', exact: true });
+      assert.ok(await about.evaluate(element => {
+        const bounds = element.getBoundingClientRect();
+        return bounds.top >= 0 && bounds.bottom <= innerHeight;
+      }), 'The last Explore link fits entirely in the viewport');
+      await about.click();
+      await navPage.waitForURL('**/about/');
+      results.push({ route: 'Explore menu', viewport: viewport.name, status: 'passed' });
+      console.log(`PASS ${viewport.name}: Explore menu reaches its last link`);
+    } catch (error) {
+      results.push({ route: 'Explore menu', viewport: viewport.name, status: 'failed', error: error.stack });
+      console.error(`FAIL ${viewport.name}: Explore menu\n${error.message}`);
+    } finally {
+      await navPage.close();
     }
     await context.close();
   }

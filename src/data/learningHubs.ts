@@ -501,7 +501,7 @@ export const learningCourses: LearningCourse[] = [
     title: 'Beyond the Scoreboard',
     shortTitle: 'Scoreboard',
     label: 'the sports history arena',
-    color: '#00895c',
+    color: '#00754e',
     softColor: '#e8f8f1',
     description: 'Six seasons where sports reveal the business, media, law, and access fights shaping America.',
     units: [

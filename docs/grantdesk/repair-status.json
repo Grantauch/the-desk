@@ -1,4 +1,73 @@
 {
+  "resource-access-2026-11-06": {
+    "status": "REPAIRED_READBACK_VERIFIED",
+    "owner": "Codex",
+    "scope": "School-domain viewer access repaired for 23 linked lessons; held station-sheet draft truthfully marked coming-soon.",
+    "verification_status": "128_IDS_RESOLVED_23_PERMISSION_READBACKS_CONFIRMED_CATALOG_BUILD_STATIC_AND_FULL_CANONICAL_PASSED",
+    "deployment_status": "DRIVE_PERMISSIONS_SAVED_CATALOG_PROTECTED_PROMOTION_PENDING",
+    "field_status": "GROUP_SHARED_RESOURCE_INTENDED_STUDENT_ACCOUNT_ACCEPTANCE_PENDING",
+    "evidence": [
+      "Existing named grants preserved; link discovery disabled and no broad public sharing.",
+      "Catalog: 136 records, 127 links and nine coming-soon entries. Explicitly unreviewed draft stays private.",
+      "Private student and permission-recipient identifiers excluded from git."
+    ]
+  },
+  "publication-completion-2026-11-06": {
+    "status": "INTEGRATED_LOCAL_VERIFIED_PROTECTED_CI_PENDING",
+    "owner": "Codex",
+    "scope": "Remaining WWI trench models, Kettle Creek graphics within the Design Bible, current assistant navigation and unpublished-work inventory.",
+    "verification_status": "FULL_CANONICAL_PASSED_PROTECTED_SUPPLY_FADE_POLL_TIMEOUT_RECHECK_PENDING",
+    "deployment_status": "REVIEW_BRANCH_ONLY_NETLIFY_AND_SEPARATE_GAME_RUNTIME_PENDING",
+    "field_status": "SCHOOL_NETWORK_AND_PHYSICAL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production baseline 0987512a2715aa36bf5bcbb6edbdaeeaf3604771 independently matched main before this release; older skipped builds were superseded.",
+      "Museum supply and fallback journeys passed at 1366 and390 pixels. Visual review exposed the delayed return fade; its fix has a direct visibility assertion.",
+      "Protected run 42330229902 passed full verification and earlier browser stages, then timed out polling the supply-tour return fade. Both museum tests now assert the cleared finale state and at-most-one-second configured return transition separately from settling to zero opacity; product behavior is unchanged.",
+      "The living-world browser suite now compares visible wilds residents against received authoritative snapshots, since residents commute through homes and maps.",
+      "TheAtlas is offline in Desktop Commander. No live game files/processes/private storage or Hall Pass Apps Script, PINs or directory were changed. See docs/publication-readiness-2026-11-06.md."
+    ]
+  },
+  "wwi-trench-supply-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Replace three trench rifle sticks with M1903/M1905 Blender reconstructions and four plain cases with timber supply props; stack the overlapping entry cases.",
+    "verification_status": "CHROME_1366_AND_390_SIX_OPTIONAL_UPGRADES_ALL_STOPS_SCOPE_LADDER_AND_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Original editable Blender sources and repeatable generator; two no-texture GLBs total165148 bytes, with5 material batches each and5086 triangles across the two source models. Geometry/materials are shared across placed copies.",
+      "Both viewport journeys load all six optional asset classes with no uncaught errors/model warnings, traverse seven stops, use periscope/Escape, climb and return. Separate rifle/case HTTP404 cases preserve their own original fallback while all other replacements load.",
+      "Two previously coincident cases now stack; no collision, reading-text, save, camera or interaction code changes. The intro and asset record identify display reconstructions and period/source limitations."
+    ]
+  },
+  "wwi-trench-observation-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "M1917 and Adrian helmets plus wooden WWI trench periscope in Over the Top, with editable Blender sources and independent load-failure fallbacks.",
+    "verification_status": "CHROME_1366_AND_390_ALL_STOPS_PERISCOPE_LADDER_AND_THREE_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Blender 5.2.3 exports total 6192 triangles across three assets: M1917 2280, Adrian 2076 and periscope 1836; GLBs total 177684 bytes with no textures.",
+      "Both viewport journeys loaded all four optional upgrades, traversed every stop, entered/exited the periscope, climbed the ladder and returned to the trench with no page errors or model warnings.",
+      "Each new model was separately forced to HTTP404. Its original prop remained while the other replacements loaded, and navigation still reached stop7.",
+      "Five placed helmets clone shared geometry/materials. Existing scene, stop text, camera and sandbag instancing are retained. Museum reference and reconstruction-scale limitations are recorded in assets/wwi-blender/README.md."
+    ]
+  },
+  "website-credit-recovery-2026-11-04": {
+    "status": "LIVE_CONTENT_VERIFIED_MAIN_REDEPLOY_PENDING",
+    "owner": "Codex",
+    "scope": "Audit skipped website releases after Netlify credits were restored; preserve the museum and Michael Vick releases on protected main.",
+    "verification_status": "PRODUCTION_ROUTES_AND_RELEASE_ANCESTRY_VERIFIED",
+    "deployment_status": "PUBLISHED_PREVIEW_TREE_EQUALS_MAIN_PRODUCTION_REBUILD_PENDING",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Published deploy 6aeaa05ad8b5c5a8828b82b6 serves commit 692e657ea5d182dfb61ebda8a06b982164c2a2df. Its Git tree e6a785806234d28112e1f7d1af620a2b9ae209be exactly equals main merge 029a951c28097eb1cb828bf655fce013521c515b after PR311.",
+      "Main includes all 19 commits since the previous November 2 production baseline 3a3d0114a9655e485ea588df30fef1875fd86449 with no divergence. Superseded skipped builds do not need to be replayed.",
+      "Production GET checks returned HTTP200 for home, StoryHubs, US History, both Michael Vick pages, The Arsenal, Over the Top and Over the Somme. Prior production browser verification loaded all ten Arsenal GLBs and the Blender trench sandbags without page errors or model warnings.",
+      "The separate Checkaverse public health endpoint reports healthy version 0.15.0. This website release does not deploy that server, Apps Script or unfinished experimental pull requests."
+    ]
+  },
   "hall-pass-published-link-recovery-2026-11-05": {
     "status": "FIXED_LOCALLY_PROTECTED_REVIEW_PENDING",
     "owner": "Codex",
@@ -125,6 +194,19 @@
       "public_origin": "https://game.grant-desk.com",
       "verified_at": "2026-11-02T06:22:53.118Z"
     }
+  },
+  "learning-hub-contrast-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Improve Learning Hub contrast across course themes and interactive states.",
+    "verification_status": "28_CHROMIUM_CONTRAST_CASES_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "ASSISTIVE_TECHNOLOGY_AND_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production axe reported contrast failures in all six Beyond the Scoreboard and all six Hidden History learning units. Interactive testing also found insufficient contrast on the backs of flipped vocabulary cards.",
+      "Darkened the Beyond the Scoreboard theme green and gave secondary text on solid action, completion and vocabulary surfaces the foreground color of the parent.",
+      "All 22 unit launch pages pass the Chromium contrast rule at 390 pixels. Six additional cases check flipped cards, selected decisions and the completion panel at 320 and 1440 pixels."
+    ]
   },
   "heel-personal-report-2026-10-30": {
     "status": "IMPLEMENTED_BROWSER_VERIFIED",
@@ -1283,6 +1365,32 @@
       "Real classroom field cycle"
     ]
   },
+  "mobile-lesson-reflow-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Remove horizontal page scrolling on eight classroom launch pages and keep the mobile Explore menu inside the viewport.",
+    "verification_status": "LAYOUT_REGRESSIONS_ADDED_PROTECTED_REVIEW_PENDING",
+    "deployment_status": "NETLIFY_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production Chromium checks showed overflow at 320 or 390 pixels across the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and three review guides.",
+      "Changes cover the sticky progress bar, heading, stamp effect, game artwork, evidence-chain layout and guide-card track sizing. Browser coverage checks all eight routes at 320, 390 and 1440 pixels.",
+      "On production at 320 and 390 pixels, the last Explore menu link remained partly beyond the bottom edge even after scrolling the menu to its limit. The height now leaves room for the sticky header. The browser regression opens Explore by keyboard, scrolls to the last link and follows it.",
+      "The sealed USH9 L014 drawer finding is tracked separately from this layout batch."
+    ]
+  },
+  "hh-dont-worry-about-it-reflow-2026-11-08": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Keep the Don’t Worry About It student header within a narrow viewport.",
+    "verification_status": "NARROW_FONT_METRICS_REGRESSION_ADDED",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production Chromium measured a 326-pixel document at a 320-pixel viewport after the web fonts finished loading. The Name and Hour flex items extended outside the header.",
+      "Allow the label flex items to shrink, using the existing input sizing. The regression enlarges the input font in an offline browser fixture and checks the field bounds and separate map scrolling."
+    ]
+  },
   "website_design_20260907": {
     "base": "d18e7c126e53b187713dc9bb83e31c2eaea5f424",
     "scope": "Public website presentation and navigation only",
@@ -1509,6 +1617,19 @@
       "Authenticated Version 41 synthetic smoke passed: ok=true, request=STARTED, return=RETURNED_COUNTABLE, evidenceUsed=1, testPassVoided=true, testMembershipDeactivated=true, productionFactsUnchanged=true and syntheticOnly=true. Schema/client contract match the release. Private test workbook URL and real student details are omitted. Actual classroom use remains FIELD_PENDING."
     ]
   },
+  "ush9-l014-readable-type-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Fit the sealed Unions and Collective Bargaining StoryHub headings and statistic across viewports.",
+    "verification_status": "STORYHUB_BUILD_AND_FOUR_BROWSER_CASES_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production overflow persisted after removing the off-canvas drawer. Chromium text ranges isolated oversized headings and the membership statistic.",
+      "Bounded responsive type, allowed a fallback wrap on headings and improved contrast for chapter numbers and footer labels. Resealed only USH9-L014; the original source fingerprint and imagery remain in the manifest.",
+      "Focused StoryHub verification and four Chromium checks passed at 320, 390 and 1440 pixels, including reduced motion and automated WCAG A/AA."
+    ]
+  },
   "storyhub_work_controls_20261026": {
     "status": "SOURCE_REPAIRED_FOCUSED_VERIFIED_PROTECTED_PENDING",
     "owner": "Codex",
@@ -1569,6 +1690,19 @@
       "Over the Top sandbag model is 1924 bytes / 44 triangles / one batch; geometry replaces the existing two InstancedMeshes and retains all instance transforms and original load-failure geometry. Trench model browser checks pending.",
       "All ten Arsenal GLBs passed success/failure desktop and Chromebook-viewport scenarios with no uncaught errors before final ship winding correction; final corrected-ship rerun pending.",
       "Trench model initial four scenarios passed all seven stops, trench-parts controls and original fallback. Software-renderer timing prompted reducing per-bag geometry from 252 to 44 triangles; final repeat pending."
+    ]
+  },
+  "curiosity-archive-outage-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Keep the five Curiosity Desk collections usable during a live catalog outage.",
+    "verification_status": "LOCAL_CHROMIUM_OUTAGE_AND_RECOVERY_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "SCHOOL_NETWORK_AND_EXTERNAL_CATALOG_ACCESS_PENDING",
+    "evidence": [
+      "Scheduled production health run 42278965733 failed on HTTP 502. Anonymous requests independently returned 502 and no records for power, entertainment, sports, mysteries, and Michigan.",
+      "Each collection has a selected archive artifact with a local optimized image, distinct source and status labels, an evidence prompt, and a link to the holding institution. Live records still load on demand.",
+      "Six Chromium cases at 320, 390 and 1440 pixels cover an outage, keyboard reveal, responsive layout, automated WCAG A/AA, and a delayed response that preserves open context. The production feed health check still reports upstream failures."
     ]
   }
 }
