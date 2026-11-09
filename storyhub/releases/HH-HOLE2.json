@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-they-couldnt-stop.html",
-      "bytes": 54768,
-      "sha256": "e430976e1c3be2dc952a1200093d26d65c072e471384e3c9b3a6ea967b0a7dd8"
+      "bytes": 54850,
+      "sha256": "b1734dec08df421014b5556b1c95fbdf41992d69ab51dae586ec7bb6d9600039"
     },
     {
       "path": "/storyhub/hh/they-couldnt-stop/assets/dancing-mania-1642.webp",
@@ -38,6 +38,6 @@
       "height": 814
     }
   ],
-  "totalBytes": 479952,
+  "totalBytes": 480034,
   "sealedAt": "2026-11-09"
 }
