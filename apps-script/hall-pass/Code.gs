@@ -5625,11 +5625,16 @@ const GD_DIRECTORY_SOURCE = 'SCHOOL_DIRECTORY_SOURCE_ID';
 const GD_DIRECTORY_OWNED = 'SCHOOL_DIRECTORY_OWNED_ID';
 
 function schoolDirectorySourceId_() {
-  const properties = PropertiesService.getScriptProperties();
-  // Protected release checks temporarily use an isolated synthetic workbook.
-  // They must never inherit the production directory or change its properties.
-  if (GD_SPREADSHEET && properties.getProperty('SPREADSHEET_ID') && GD_SPREADSHEET.getId() !== properties.getProperty('SPREADSHEET_ID')) return '';
-  return properties.getProperty(GD_DIRECTORY_SOURCE) || '';
+  // Called once per roster row. Read the property store once per request; a
+  // connection change clears every request memo before it is used again.
+  return gdMemo_('directory-source', () => {
+    const properties = PropertiesService.getScriptProperties();
+    // Protected release checks temporarily use an isolated synthetic workbook.
+    // They must never inherit the production directory or change its properties.
+    const pinned = properties.getProperty('SPREADSHEET_ID');
+    if (GD_SPREADSHEET && pinned && GD_SPREADSHEET.getId() !== pinned) return '';
+    return properties.getProperty(GD_DIRECTORY_SOURCE) || '';
+  });
 }
 
 function schoolDirectoryId_(value) {
@@ -5684,8 +5689,10 @@ function schoolDirectoryPinHash_(email, fallback) {
   if (!schoolDirectorySourceId_()) return fallback;
   // A directory outage must never restore an old generated PIN. Teacher backup
   // still has the roster; student authorization fails closed with an empty hash.
-  try { const pin = schoolDirectoryPin_(email, ''); return pin ? hashPin_(pin) : ''; }
-  catch (error) { return ''; }
+  try {
+    const pin = schoolDirectoryPin_(email, '');
+    return pin ? gdMemo_(`directory-hash:${pin}`, () => hashPin_(pin)) : '';
+  } catch (error) { return ''; }
 }
 
 function synchronizeDirectoryPins_() {
@@ -5994,13 +6001,16 @@ function hashPin_(pin) {
 }
 
 function ensureSalt_() {
-  const properties = PropertiesService.getScriptProperties();
-  let salt = properties.getProperty('PIN_SALT');
-  if (!salt) {
-    salt = `${Utilities.getUuid()}${Utilities.getUuid()}`;
-    properties.setProperty('PIN_SALT', salt);
-  }
-  return salt;
+  // Hashing runs once per roster row; one property read per request is enough.
+  return gdMemo_('pin-salt', () => {
+    const properties = PropertiesService.getScriptProperties();
+    let salt = properties.getProperty('PIN_SALT');
+    if (!salt) {
+      salt = `${Utilities.getUuid()}${Utilities.getUuid()}`;
+      properties.setProperty('PIN_SALT', salt);
+    }
+    return salt;
+  });
 }
 
 function assertPinAttemptAllowed_(email, attemptNonce) {
