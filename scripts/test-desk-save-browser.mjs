@@ -641,6 +641,19 @@ await test('the gate covers an answer page until a PIN is entered, confirms the 
   await cb.context.close();
 });
 
+await test('the gate box accepts five digit lunch number PINs as well as six', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const page = await cb.open('bts-the-bargain.html');
+  const box = gate(page).locator('input[type="password"]');
+  const valid = async (v) => { await box.fill(v); return box.evaluate((el) => el.checkValidity()); };
+  assert.equal(await valid('12345'), true, 'five digits pass the browser format check');
+  assert.equal(await valid('123456'), true, 'six digits pass the browser format check');
+  assert.equal(await valid('1234'), false, 'four digits do not');
+  assert.equal(await valid('12a45'), false, 'letters do not');
+  await cb.context.close();
+});
+
 await test('Not me signs the account out and the gate asks again', async () => {
   const s = world();
   const cb = await chromebook(s, { hooks: { gate: true } });
