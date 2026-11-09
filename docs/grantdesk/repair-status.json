@@ -1,4 +1,15 @@
 {
+  "ready-v1-2026-11-09": {
+    "status": "FORWARD_PORTED",
+    "owner": "Codex",
+    "scope": "Browser-local Ready Snapshot viewer and labeled sample at /ready/.",
+    "verification_status": "SNAPSHOT_UNIT_CHECKS_AND_SYNTHETIC_BROWSER_JOURNEY_IN_RELEASE_SUITES",
+    "deployment_status": "PROTECTED_BUILD_AND_PRODUCTION_READBACK_REQUIRED",
+    "field_status": "GOCLASSROOM_SCANNER_SEPARATE",
+    "evidence": [
+      "PR #86 viewer only. Invalid imports clear stale results, and late file reads cannot undo a clear or newer selection."
+    ]
+  },
   "resource-access-2026-11-06": {
     "status": "REPAIRED_READBACK_VERIFIED",
     "owner": "Codex",

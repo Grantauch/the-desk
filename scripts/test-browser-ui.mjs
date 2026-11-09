@@ -10,7 +10,7 @@ const artifacts = new URL('../browser-results/', import.meta.url);
 const artifact = name => fileURLToPath(new URL(name, artifacts));
 const routes = [
   '/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/',
-  '/resources/', '/tools/', '/check-in/', '/pass/',
+  '/resources/', '/tools/', '/ready/', '/check-in/', '/pass/',
   '/hubs/ush9-l014-unions.html',
   '/hubs/ush9-l015-who-showed-up.html',
   '/hubs/bts-l03-not-in-the-room.html',
@@ -202,6 +202,48 @@ try {
         assert.ok(titles.some(title => title.trim().toLowerCase() === current), `${course} calendar matches course`);
         assert.ok(await page.locator('[data-calendar-event]:visible').evaluateAll((events, course) => events.every(event => ['all', course].includes(event.dataset.course)), course), 'Unrelated milestones hidden');
       }
+    });
+    await runCase('Ready imports, rejects and clears local snapshots', viewport, async page => {
+      await visit(page, '/ready/');
+      const input = page.locator('#ready-file');
+      const message = page.locator('#ready-message');
+      const status = page.locator('#overall-status .ready-status__label');
+      await page.locator('#load-sample').click();
+      assert.equal(await status.textContent(), 'blocked');
+      assert.equal(await page.locator('#exception-list article').count(), 2);
+      assert.match(await message.textContent(), /Sample preview/);
+
+      const snapshot = {
+        schemaVersion: 1, generatedAt: '2026-11-09T12:00:00Z',
+        source: 'Synthetic fixture', sourceVersion: '1',
+        courses: [{ courseName: 'Synthetic class', checks: [{
+          id: 'fixture', label: 'Attachment checked', status: 'pass', detail: '<em>Text only</em>',
+        }] }],
+      };
+      const file = (name, data) => ({ name, mimeType: 'application/json', buffer: Buffer.from(data) });
+      await input.setInputFiles(file('valid.json', JSON.stringify(snapshot)));
+      await message.filter({ hasText: 'valid.json loaded.' }).waitFor();
+      assert.equal(await status.textContent(), 'ready');
+      assert.equal(await page.locator('#course-list em').count(), 0);
+      assert.match(await page.locator('#course-list').textContent(), /<em>Text only<\/em>/);
+
+      await input.setInputFiles(file('invalid.json', '{'));
+      await page.locator('#ready-message[data-error="true"]').waitFor();
+      assert.ok(await page.locator('#ready-results').isHidden());
+      assert.equal(await page.locator('#course-list details').count(), 0);
+
+      await page.evaluate(() => {
+        File.prototype.text = () => new Promise(resolve => { window.releaseReadyRead = resolve; });
+      });
+      await input.setInputFiles(file('slow.json', JSON.stringify(snapshot)));
+      await message.filter({ hasText: 'Reading snapshot' }).waitFor();
+      await page.locator('#clear-ready').click();
+      await page.evaluate(async json => {
+        window.releaseReadyRead(json);
+        await new Promise(resolve => requestAnimationFrame(resolve));
+      }, JSON.stringify(snapshot));
+      assert.equal(await status.textContent(), 'waiting for a scan');
+      assert.ok(await page.locator('#ready-results').isHidden());
     });
     await runCase('course materials open the guided heel project', viewport, async page => {
       await visit(page, '/beyond-the-scoreboard/');
