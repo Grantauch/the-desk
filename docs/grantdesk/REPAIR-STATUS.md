@@ -426,6 +426,10 @@ The new integration checks use temporary local repositories and a local editor H
 
 Implementation `adb14b472bf7d57eed1d1218558eda5e732acf5b` was pushed to main and the remote SHA matched. [Canonical GitHub Actions verification passed](https://github.com/Grantauch/the-desk/actions/runs/34054617391). The homepage, resources, editor, pass and check-in routes returned HTTP 200 after the push; availability does not prove the deployed source version. Netlify dashboard sign-in is required for the exact deployment fingerprint and production gate verification. Apps Script Version 18 and the private workbook are unchanged.
 
+## November 6 mobile lesson reflow
+
+Owner: Codex. The production viewport sweep found horizontal scrolling in the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and the Robinson, MKUltra and Muckrakers review guides. The phone Explore menu also extended beyond the bottom of the screen, cutting off the last link even when scrolled as far as it could go. The batch adjusts layout sizing and keeps the lesson and game interactions. The extended Chromium suite measures reflow on all eight routes and follows the last Explore link at 320, 390 and 1440 pixels. The sealed USH9 L014 drawer needs a separate release review. Protected review, publication and managed Chromebook acceptance remain pending.
+
 ## September 7 website design edition
 
 Built on main d18e7c1 in a separate checkout. Adds dimensional field notes, course-cover styling, a keyboard-accessible page finder, tool jump links, and fullscreen timer presentation. Hall Pass and Daily Check-In shortcuts remain green. Browser checks passed on six representative routes at 390, 768, and 1440 pixels; search, timer countdown, and fullscreen entry/exit passed without browser errors. Existing StoryHub asset bytes were normalized locally to their committed LF form for Windows verification; no StoryHub content changes. Production push and live confirmation are recorded in the release task after verification. No Apps Script or private-data changes.

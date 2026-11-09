@@ -1365,6 +1365,20 @@
       "Real classroom field cycle"
     ]
   },
+  "mobile-lesson-reflow-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Remove horizontal page scrolling on eight classroom launch pages and keep the mobile Explore menu inside the viewport.",
+    "verification_status": "LAYOUT_REGRESSIONS_ADDED_PROTECTED_REVIEW_PENDING",
+    "deployment_status": "NETLIFY_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production Chromium checks showed overflow at 320 or 390 pixels across the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and three review guides.",
+      "Changes cover the sticky progress bar, heading, stamp effect, game artwork, evidence-chain layout and guide-card track sizing. Browser coverage checks all eight routes at 320, 390 and 1440 pixels.",
+      "On production at 320 and 390 pixels, the last Explore menu link remained partly beyond the bottom edge even after scrolling the menu to its limit. The height now leaves room for the sticky header. The browser regression opens Explore by keyboard, scrolls to the last link and follows it.",
+      "The sealed USH9 L014 drawer finding is tracked separately from this layout batch."
+    ]
+  },
   "website_design_20260907": {
     "base": "d18e7c126e53b187713dc9bb83e31c2eaea5f424",
     "scope": "Public website presentation and navigation only",
