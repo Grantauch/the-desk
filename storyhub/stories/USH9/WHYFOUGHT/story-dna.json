@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-WHYFOUGHT",
+  "title": "Why They Fought",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "war room",
+      "dossier",
+      "decisive"
+    ],
+    "paletteIntent": "Dark baize green of a Kriegsspiel table with ivory files, brass accents, and blue and red for the two alliances.",
+    "typographyIntent": "Bodoni Moda for imperial headlines, Source Serif 4 for reading, IBM Plex Mono for dates and stamps.",
+    "textureLanguage": [
+      "felt weave",
+      "dossier paper",
+      "rubber side stamps"
+    ],
+    "shapeLanguage": "Rectangular files on a table, color chips for each country, domino tiles.",
+    "motionGrammar": [
+      "replacement: country files swap in place",
+      "tipping: domino tiles rotate as each move resolves",
+      "growth: bars resize when the metric changes"
+    ],
+    "interactionSignature": [
+      "open nine country files",
+      "predict seven dominoes",
+      "size up the powers on four metrics"
+    ],
+    "densityRhythm": "Five short bytes, each ending in a written move or a video.",
+    "archivalBehavior": "Public domain portraits in grayscale, a 1914 color newspaper illustration and the National Archives telegram scan, each credited.",
+    "endingLanguage": "A museum video and Turn In."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Green table felt and ivory paper from period war games and diplomatic files.",
+    "edgeTreatment": "Soft shadows under ivory files, plate frames rotated slightly.",
+    "controlLanguage": "Seat buttons with flag chips, option cards, metric pills.",
+    "spacingLanguage": "Generous table margins, dense dossier interiors.",
+    "transitionLanguage": "Bars ease, tiles rotate, all disabled under reduced motion."
+  }
+}

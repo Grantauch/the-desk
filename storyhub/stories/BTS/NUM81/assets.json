@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-NUM81",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Hero",
+      "sourceMode": "source-first-archival",
+      "subject": "Aaron Hernandez in Denver, December 18, 2011",
+      "rightsStatus": "CC BY 3.0, Jeffrey Beall",
+      "provenance": "Wikimedia Commons, resized WebP, credited in caption.",
+      "htmlSafeZone": "HTML text sits beside the image, never on it.",
+      "responsiveCrop": "Shown uncropped at its own aspect ratio.",
+      "deployPath": "/storyhub/bts/hernandez/assets/hernandez-2011.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "diagram",
+      "role": "The brain",
+      "sourceMode": "source-first-archival",
+      "subject": "Normal brain beside advanced CTE, Boston University CTE Center",
+      "rightsStatus": "CC BY-SA 4.0",
+      "provenance": "Wikimedia Commons, WebP. Not Hernandez's brain, stated in caption.",
+      "htmlSafeZone": "HTML text sits beside the image, never on it.",
+      "responsiveCrop": "Shown uncropped at its own aspect ratio.",
+      "deployPath": "/storyhub/bts/hernandez/assets/cte-brain.webp"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Dr. Ann McKee",
+      "sourceMode": "source-first-archival",
+      "subject": "Ann McKee portrait",
+      "rightsStatus": "CC BY-SA 4.0, Bob Young",
+      "provenance": "Wikimedia Commons, WebP, grayscale in CSS.",
+      "htmlSafeZone": "HTML text sits beside the image, never on it.",
+      "responsiveCrop": "Shown uncropped at its own aspect ratio.",
+      "deployPath": "/storyhub/bts/hernandez/assets/mckee.webp"
+    }
+  ]
+}
