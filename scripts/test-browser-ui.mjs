@@ -8,7 +8,14 @@ import { chromium } from 'playwright';
 const origin = 'http://127.0.0.1:4391';
 const artifacts = new URL('../browser-results/', import.meta.url);
 const artifact = name => fileURLToPath(new URL(name, artifacts));
-const routes = ['/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/', '/resources/', '/tools/', '/check-in/', '/pass/', '/hubs/ush9-l015-who-showed-up.html', '/hubs/bts-l03-not-in-the-room.html', '/hubs/hh-l06-two-sources.html'];
+const routes = [
+  '/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/',
+  '/resources/', '/tools/', '/check-in/', '/pass/',
+  '/hubs/ush9-l014-unions.html',
+  '/hubs/ush9-l015-who-showed-up.html',
+  '/hubs/bts-l03-not-in-the-room.html',
+  '/hubs/hh-l06-two-sources.html',
+];
 const viewports = [
   { name: 'phone-320', width: 320, height: 740 },
   { name: 'phone-390', width: 390, height: 844 },
