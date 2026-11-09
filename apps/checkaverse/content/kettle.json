@@ -7,8 +7,8 @@
     "T...GGGGGGGGGGGG......HHHHHH.........H.T",
     "T..GGGGGGGGGGGG.......HHHHHH.........H.T",
     "T..GGGGGGGGGGGG.HHHHH.HHHHHH.........H.T",
-    "T..GGGGGGGGGG...HHHHH.HHHHHH.........H.T",
-    "T....GGGGGGG....HHHHH.HHHHHH.........H.T",
+    "T..GGGGGGGGGG.H.HHHHH.HHHHHH.........H.T",
+    "T...HGGGGGGG....HHHHH.HHHHHH.........H.T",
     "T..........HP...HHHHH.HHHHHHHHHHPHHHHH.T",
     "T.H.HHHHH...P..F...P...P......H.P......T",
     "T...HHHHH...P......P.F.P........P......T",
@@ -16,10 +16,10 @@
     "T...HHHHH..HP..............PH...P..WW..T",
     "T..F.PPPPPPPPPPPPPPPPPPPPPPPPPPPP..WW..T",
     "T..H.PP.....P...HHHHH..............WW..T",
-    "T....PP...H.P...HHHHH..HHHHHF......WW..T",
+    "T....PP...H.P...HHHHH..HHHHHF.....HWW..T",
     "T.......FF..P...HHHHH..HHHHH.......WW..T",
     "T...........P...HHHHH..HHHHH.HH...WW...T",
-    "T..HHHHHHHH.P...HHHHH..HHHHH......WW.H.T",
+    "T..HHHHHHHH.P..HHHHHH..HHHHH......WW.H.T",
     "T..H..H...H.P....P......P......F..WW...T",
     "T..HH...H.H.PH...P....H.P.........WW...T",
     "T..H..P...H.PPPPPPPPPPPPPPPP..H...WW...T",
@@ -406,6 +406,58 @@
         1,
         1
       ]
+    },
+    {
+      "s": "prop-bush",
+      "x": 4,
+      "b": 8,
+      "w": 1,
+      "f": [
+        4,
+        7,
+        1,
+        1
+      ],
+      "sign": "forage-berry-patch"
+    },
+    {
+      "s": "prop-rock",
+      "x": 34,
+      "b": 16,
+      "w": 1,
+      "f": [
+        34,
+        15,
+        1,
+        1
+      ],
+      "sign": "forage-creek-bank"
+    },
+    {
+      "s": "prop-bush",
+      "x": 15,
+      "b": 19,
+      "w": 1,
+      "f": [
+        15,
+        18,
+        1,
+        1
+      ],
+      "sign": "forage-herb-garden"
+    },
+    {
+      "s": "prop-rock",
+      "x": 14,
+      "b": 7,
+      "w": 1,
+      "f": [
+        14,
+        6,
+        1,
+        1
+      ],
+      "sign": "forage-old-stump"
     }
   ],
   "fences": [
@@ -745,6 +797,28 @@
       36,
       7
     ]
+  ],
+  "forage": [
+    {
+      "id": "berry-patch",
+      "x": 4,
+      "y": 7
+    },
+    {
+      "id": "creek-bank",
+      "x": 34,
+      "y": 15
+    },
+    {
+      "id": "herb-garden",
+      "x": 15,
+      "y": 18
+    },
+    {
+      "id": "old-stump",
+      "x": 14,
+      "y": 6
+    }
   ],
   "exits": []
 }
