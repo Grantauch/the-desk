@@ -34,6 +34,7 @@ const viewports = [
 const reflowRoutes = [
   'bts-robinson-review',
   'constitution-day-2026-09-18',
+  'hh-dont-worry-about-it',
   'hh-follow-the-money',
   'hh-mkultra-review',
   'reconstruction-case-file',
@@ -123,6 +124,20 @@ try {
         const response = await page.goto(`${origin}${route}`, { waitUntil: 'load' });
         assert.equal(response?.status(), 200);
         await page.evaluate(() => document.fonts.ready);
+        if (slug === 'hh-dont-worry-about-it' && viewport.width === 320) {
+          // Reproduce wider input font metrics while the browser fixture blocks external fonts.
+          await page.addStyleTag({ content: '.idbar input { font-size: 1.25rem; }' });
+          const formFits = await page.locator('.idbar').evaluate(form => {
+            const right = form.getBoundingClientRect().right;
+            return [...form.querySelectorAll('label, input')].every(field => field.getBoundingClientRect().right <= right);
+          });
+          assert.ok(formFits, 'All three labeled fields fit inside the student header');
+          const mapScroll = await page.locator('.mapscroll').evaluate(map => {
+            map.scrollLeft = 60;
+            return map.scrollLeft;
+          });
+          assert.ok(mapScroll > 0, 'The Pacific map still scrolls within its own region');
+        }
         const fits = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
         assert.ok(fits, `${route} fits the viewport without horizontal page scrolling`);
         assert.deepEqual(errors, [], `${route} has no uncaught browser errors`);

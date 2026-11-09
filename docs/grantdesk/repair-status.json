@@ -1379,6 +1379,18 @@
       "The sealed USH9 L014 drawer finding is tracked separately from this layout batch."
     ]
   },
+  "hh-dont-worry-about-it-reflow-2026-11-08": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Keep the Don’t Worry About It student header within a narrow viewport.",
+    "verification_status": "NARROW_FONT_METRICS_REGRESSION_ADDED",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production Chromium measured a 326-pixel document at a 320-pixel viewport after the web fonts finished loading. The Name and Hour flex items extended outside the header.",
+      "Allow the label flex items to shrink, using the existing input sizing. The regression enlarges the input font in an offline browser fixture and checks the field bounds and separate map scrolling."
+    ]
+  },
   "website_design_20260907": {
     "base": "d18e7c126e53b187713dc9bb83e31c2eaea5f424",
     "scope": "Public website presentation and navigation only",

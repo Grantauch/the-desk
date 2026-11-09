@@ -430,6 +430,10 @@ Implementation `adb14b472bf7d57eed1d1218558eda5e732acf5b` was pushed to main and
 
 Owner: Codex. The production viewport sweep found horizontal scrolling in the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and the Robinson, MKUltra and Muckrakers review guides. The phone Explore menu also extended beyond the bottom of the screen, cutting off the last link even when scrolled as far as it could go. The batch adjusts layout sizing and keeps the lesson and game interactions. The extended Chromium suite measures reflow on all eight routes and follows the last Explore link at 320, 390 and 1440 pixels. The sealed USH9 L014 drawer needs a separate release review. Protected review, publication and managed Chromebook acceptance remain pending.
 
+## November 8 Don’t Worry About It mobile form
+
+Owner: Codex. At 320 pixels the production page grew to 326 pixels after loading its web fonts. The student header's Name and Hour labels kept the automatic minimum width of their inputs. Letting the labels shrink keeps the fields inside the form and keeps the Pacific map independently scrollable. The browser regression uses wider input font metrics with external fonts blocked, so it can reproduce the failure offline. Protected review and publication are separate.
+
 ## September 7 website design edition
 
 Built on main d18e7c1 in a separate checkout. Adds dimensional field notes, course-cover styling, a keyboard-accessible page finder, tool jump links, and fullscreen timer presentation. Hall Pass and Daily Check-In shortcuts remain green. Browser checks passed on six representative routes at 390, 768, and 1440 pixels; search, timer countdown, and fullscreen entry/exit passed without browser errors. Existing StoryHub asset bytes were normalized locally to their committed LF form for Windows verification; no StoryHub content changes. Production push and live confirmation are recorded in the release task after verification. No Apps Script or private-data changes.
