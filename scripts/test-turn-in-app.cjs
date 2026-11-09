@@ -87,7 +87,10 @@ test('exact lunch numbers work in Turn In, unassigned numbers fail, and correcti
   const first = w.post({ action:'signin', pin:'012345', hub:'x', device:'first' });
   assert.equal(first.ok,true,JSON.stringify(first));
   assert.equal(w.post({ action:'signin', pin:'54321', hub:'x', device:'second' }).ok,true);
-  for (const pin of ['12345','98765',old,'01a2345']) assert.equal(w.post({ action:'signin', pin, hub:'x', device:'invalid-'+pin }).ok,false);
+  // A lunch number typed with or without its leading zero reaches the same student.
+  assert.equal(w.post({ action:'signin', pin:'12345', hub:'x', device:'no-zero' }).ok,true);
+  assert.equal(w.post({ action:'signin', pin:'054321', hub:'x', device:'added-zero' }).ok,true);
+  for (const pin of ['112345','98765',old,'01a2345']) assert.equal(w.post({ action:'signin', pin, hub:'x', device:'invalid-'+pin }).ok,false);
   sheet.getRange(2,1).setValue('023456');
   assert.equal(w.post({ action:'signin', pin:'012345', hub:'x', device:'changed' }).ok,false);
   assert.equal(w.post({ action:'signin', pin:'023456', hub:'x', device:'changed' }).ok,true);

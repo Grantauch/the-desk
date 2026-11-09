@@ -832,7 +832,11 @@ function verifyStudentPin_(pin, activeEmail, attemptNonce) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
     throw new Error('Enter your 5- or 6-digit PIN.');
   }
-  const students = getStudentsByPinHash_(hashPin_(cleaned));
+  let students = getStudentsByPinHash_(hashPin_(cleaned));
+  // Lunch numbers lose a leading zero in some school exports (020772 vs 20772).
+  // Accept either spelling of the same number before calling it a wrong PIN.
+  const zeroTwin = leadingZeroTwin_(cleaned);
+  if (!students.length && zeroTwin) students = getStudentsByPinHash_(hashPin_(zeroTwin));
   if (!students.length) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
     throw new Error('That PIN did not match an active student. Try again or ask your teacher.');
@@ -5990,6 +5994,14 @@ function openTodayCheckIns() {
 }
 
 /* ---------------------------------------------------------------- auth ---- */
+
+/** The same lunch number written with or without its leading zero, or '' if none. */
+function leadingZeroTwin_(pin) {
+  const text = String(pin || '');
+  if (/^0\d{5}$/.test(text)) return text.slice(1);
+  if (/^\d{5}$/.test(text)) return `0${text}`;
+  return '';
+}
 
 function hashPin_(pin) {
   const bytes = Utilities.computeDigest(
