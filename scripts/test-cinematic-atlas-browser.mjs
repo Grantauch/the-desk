@@ -72,12 +72,17 @@ try{
       const trigger=page.locator('[data-atlas-explore]');await trigger.focus();await page.keyboard.press('Enter');
       const dialog=page.locator('[data-atlas-dialog]');assert.equal(await dialog.evaluate(d=>d.open),true);
       assert.ok(await page.locator('.atlas-copy').isHidden());
+      assert.ok(await page.locator('[data-atlas-return]').evaluate(button=>{
+        const box=button.getBoundingClientRect();
+        return button.contains(document.elementFromPoint(box.right-5,box.top+box.height/2));
+      }),'Return control reaches its visible right edge');
       for(let i=0;i<12;i++){
         await page.keyboard.press('Tab');
         assert.ok(await page.evaluate(()=>document.querySelector('[data-atlas-dialog]').contains(document.activeElement)),'Modal keeps keyboard focus inside');
       }
       await page.locator('[data-atlas-year]').focus();await page.keyboard.press('Home');
       assert.equal(await page.locator('[data-atlas-year-output]').textContent(),'1865');
+      assert.equal(await page.locator('[data-atlas-year]').evaluate(el=>el.style.getPropertyValue('--year-fill')),'0%');
       assert.equal(await page.locator('.atlas-choice').count(),0);
       await page.keyboard.press('End');assert.equal(await page.locator('.atlas-choice').count(),6);
       await page.locator('[data-atlas-index] summary').click();
@@ -122,6 +127,7 @@ try{
     await page.mouse.up();
     await page.waitForFunction(previous=>document.querySelector('[data-story-id=new-york]').getAttribute('style')!==previous,expanded);
     await page.locator('[data-atlas-reset]').click();
+    await page.locator('[data-atlas-coordinates]').filter({hasText:'26° N · 030° W'}).waitFor();
     const cluster=page.locator('.atlas-pin:visible').filter({hasText:'4'}).first();
     await cluster.click();
     assert.equal(await page.locator('[data-story-cluster] button').count(),4,'Overlapping pins offer the individual stories');
@@ -130,6 +136,7 @@ try{
     await page.keyboard.press('End');
     const beforeTurn=await marker.getAttribute('style');
     await page.locator('[data-atlas-turn="1"]').click();
+    await page.locator('[data-atlas-coordinates]').filter({hasText:'26° N · 015° W'}).waitFor();
     await page.waitForFunction(previous=>document.querySelector('[data-story-id=new-york]').getAttribute('style')!==previous,beforeTurn);
     const beforeZoom=await marker.getAttribute('style');
     await page.locator('[data-atlas-zoom="-1"]').click();
@@ -150,7 +157,7 @@ try{
   await run('touch-scroll-and-drag',{width:390,height:844},async(page)=>{
     const canvas=page.locator('[data-atlas-canvas]');
     const dialog=page.locator('[data-atlas-dialog]');
-    const marker=page.locator('[data-story-id=new-york]');
+    const coordinates=page.locator('[data-atlas-coordinates]');
     const touch=await page.context().newCDPSession(page);
     const send=(type,x,y)=>touch.send('Input.dispatchTouchEvent',{
       type,touchPoints:type==='touchEnd'?[]:[{x,y,id:0}],
@@ -162,18 +169,25 @@ try{
     await send('touchEnd');
     await page.waitForFunction(()=>scrollY>25);
     assert.equal(await dialog.evaluate(el=>el.open),false,'A vertical swipe still scrolls the desk');
+
+    // Start the second gesture with no native scroll momentum from the first.
+    await page.reload();
+    await page.locator('[data-atlas][data-graphics=ready]').waitFor();
     await page.evaluate(()=>scrollTo({top:85,behavior:'instant'}));
-    const gestureY=y-85;
-    await send('touchStart',x,gestureY);
+    const startScroll=await page.evaluate(()=>scrollY);
+    assert.ok(startScroll>0,'The horizontal drag starts below the top of the desk');
+    const dragBox=await canvas.boundingBox();
+    const dragX=Math.round(dragBox.x+dragBox.width*.47), dragY=Math.round(dragBox.y+dragBox.height*.63);
+    await send('touchStart',dragX,dragY);
     assert.equal(await dialog.evaluate(el=>el.open),false,'Touch can become a scroll before opening');
-    await send('touchMove',x+25,gestureY);
+    await send('touchMove',dragX+25,dragY);
     await dialog.waitFor({state:'visible'});
-    const before=await marker.getAttribute('style');
-    await send('touchMove',x+65,gestureY);
+    await coordinates.filter({hasText:'26° N · 036° W'}).waitFor();
+    await send('touchMove',dragX+65,dragY);
     await send('touchEnd');
-    await page.waitForFunction(previous=>document.querySelector('[data-story-id=new-york]').getAttribute('style')!==previous,before);
+    await coordinates.filter({hasText:'26° N · 046° W'}).waitFor();
     await page.locator('[data-atlas-return]').click();
-    await page.waitForFunction(()=>scrollY===85);
+    await page.waitForFunction(start=>scrollY===start,startScroll);
   },{touch:true});
   await run('graphics-recovery',{width:1366,height:768},async(page)=>{
     await page.locator('[data-atlas-explore]').click();

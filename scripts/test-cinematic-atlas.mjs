@@ -57,7 +57,7 @@ test('deduplication and payload caps keep repeated feeds bounded', () => {
 });
 
 test('the Blender portrait, live textures and largest course illustrations fit the asset budget',()=>{
-  const files=['earth-color.jpg','cloud-mask.jpg','earth-normal.webp','earth-relief.bin','globe-portrait.webp','us-history.webp','hidden-history.webp','beyond-the-scoreboard.webp'];
+  const files=['earth-color.jpg','cloud-mask.jpg','earth-normal.webp','earth-relief.bin','globe-portrait.webp','sky-grain.svg','us-history.webp','hidden-history.webp','beyond-the-scoreboard.webp'];
   const bytes=files.reduce((n,name)=>n+statSync(new URL(`../public/atlas/${name}`,import.meta.url)).size,0);
   assert.ok(bytes < 2_000_000,`${bytes} asset bytes exceeds the 2 MB budget`);
   assert.equal(statSync(new URL('../public/atlas/earth-relief.bin',import.meta.url)).size,145*97);

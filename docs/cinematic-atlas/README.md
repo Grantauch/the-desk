@@ -16,6 +16,8 @@ physical school-device acceptance are separate gates.
 - Escape and “return to desk” move the same atlas back, restore scroll position
   and return focus to the initiating control. The classes control returns to
   the course section. Classroom shortcuts remain in the focus view.
+- The focus view groups story layers, the timeline and the camera controls in
+  one tray. A live coordinate readout tracks the camera as the globe turns.
 - Drag, arrow keys, rotate buttons and bounded zoom controls all work. The
   mouse wheel zooms only in Explore mode, preserving ordinary page scrolling.
   Vertical touch scrolling remains available on the homepage. Explore

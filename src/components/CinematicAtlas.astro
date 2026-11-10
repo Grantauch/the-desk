@@ -6,11 +6,19 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
 
 <section class="atlas" data-atlas aria-label="Explore stories on the atlas">
   <div class="atlas-stage">
+    <svg class="atlas-dial" data-atlas-dial viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+      <circle cx="300" cy="300" r="288" stroke-dasharray="1 5" />
+      <path d="M300 2v16m0 564v16M2 300h16m564 0h16M89 89l8 8m406 406 8 8M89 511l8-8M503 97l8-8" />
+    </svg>
     <div class="atlas-fallback" data-atlas-fallback>
       <img src="/atlas/globe-portrait.webp" alt="A bronze and blue Earth with cloud bands over the Atlantic. Story locations are available in the list below." width="840" height="840" fetchpriority="high" />
     </div>
     <canvas data-atlas-canvas tabindex="0" role="img" aria-label="Interactive globe. Arrow keys rotate; plus and minus zoom. Story locations are available as buttons below."></canvas>
     <div class="atlas-pins" data-atlas-pins></div>
+    <div class="atlas-coordinates">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7" /><path d="M12 1v6m0 10v6M1 12h6m10 0h6M12 10v4m-2-2h4" /></svg>
+      <p>view center <span data-atlas-coordinates>26° N · 030° W</span></p>
+    </div>
     <div class="atlas-copy">
       <p class="atlas-eyebrow">a classroom field atlas / 2026—27</p>
       <h1 id="home-title">{homeTitle}<span>.</span></h1>
@@ -36,6 +44,10 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <button type="button" data-atlas-filter="news" aria-pressed="false">▧ news</button>
       <button type="button" data-atlas-filter="both" aria-pressed="false">both</button>
     </div>
+    <label class="atlas-year">history through <output data-atlas-year-output>today</output>
+      <input data-atlas-year type="range" min="1865" max={new Date().getFullYear()} value={new Date().getFullYear()} aria-label="Show historical stories through year" />
+      <span class="atlas-year-ticks" aria-hidden="true"><span>1865</span><span>1914</span><span>1947</span><span>1989</span><span>today</span></span>
+    </label>
     <div class="atlas-camera" role="group" aria-label="Globe controls">
       <button type="button" data-atlas-turn="-1" aria-label="Rotate globe west">←</button>
       <button type="button" data-atlas-turn="1" aria-label="Rotate globe east">→</button>
@@ -44,10 +56,6 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <button type="button" data-atlas-reset>reset</button>
       <button type="button" data-atlas-motion aria-pressed="false">pause clouds</button>
     </div>
-    <label class="atlas-year">history through <output data-atlas-year-output>today</output>
-      <input data-atlas-year type="range" min="1865" max={new Date().getFullYear()} value={new Date().getFullYear()} aria-label="Show historical stories through year" />
-      <span class="atlas-year-ticks" aria-hidden="true"><span>1865</span><span>1914</span><span>1947</span><span>1989</span><span>today</span></span>
-    </label>
     <p class="atlas-status" data-atlas-status role="status">Drag to rotate. Select a marker or choose a story below.</p>
     <a class="atlas-news-index" data-atlas-news-link href="/news/" hidden>open all newsrooms ↗</a>
   </div>

@@ -11,18 +11,22 @@ function initAtlas(atlas) {
   const explore = $('[data-atlas-explore]');
   const canvas = $('[data-atlas-canvas]');
   const stage = $('.atlas-stage');
+  const dial = $('[data-atlas-dial]');
+  const coordinates = $('[data-atlas-coordinates]');
+  const timeline = $('[data-atlas-year]');
   const pins = $('[data-atlas-pins]');
   const choices = $('[data-atlas-choices]');
   const panel = $('[data-atlas-story]');
   const status = $('[data-atlas-status]');
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  const compactQuery = matchMedia('(max-width: 699px)');
   const home = document.createComment('atlas home position');
   atlas.before(home);
   const placeholder = document.createElement('div');
   placeholder.hidden = true;
   home.after(placeholder);
   let originScroll = 0, restoreFocus = null, map = null;
-  let year = Number($('[data-atlas-year]').max), filter = 'history', selected = null;
+  let year = Number(timeline.max), filter = 'history', selected = null;
   let news = [], newsState = 'idle', unplaced = 0, newsLoadedAt = 0;
   let paused = motionQuery.matches, busy = false;
   const allHistory = HISTORY.map(story => ({ ...story, kind: 'history' }));
@@ -89,7 +93,12 @@ function initAtlas(atlas) {
       button.setAttribute('aria-label', `${story.kind}: ${story.title} — ${story.place}`);
       button.setAttribute('aria-expanded', String(selected?.id === story.id));
       button.dataset.storyId = story.id;
-      button.textContent = story.kind === 'news' ? '▧' : '▤';
+      const glyph = document.createElement('span');
+      glyph.className = 'atlas-pin__glyph';
+      glyph.setAttribute('aria-hidden', 'true');
+      const badge = document.createElement('span');
+      badge.setAttribute('aria-hidden', 'true');
+      button.append(glyph, badge);
       button.hidden = true;
       button.addEventListener('click', () => {
         const cluster = markerNodes.find(node => node.button === button)?.cluster ?? [story];
@@ -107,7 +116,7 @@ function initAtlas(atlas) {
         panel.querySelector('a').focus({ preventScroll: true });
       });
       choices.append(choice);
-      return { story, button };
+      return { story, button, badge };
     });
     map?.render();
     if (filter === 'history') setStatus(`${visibleStories.length} historical stories through ${year}. Choose a marker or a story below.`);
@@ -168,9 +177,11 @@ function initAtlas(atlas) {
     });
   });
   $('[data-atlas-dismiss]').addEventListener('click', closeStory);
-  $('[data-atlas-year]').addEventListener('input', event => {
-    year = Number(event.target.value);
-    $('[data-atlas-year-output]').textContent = year === Number(event.target.max) ? 'today' : String(year);
+  timeline.addEventListener('input', () => {
+    year = Number(timeline.value);
+    const minimum = Number(timeline.min), maximum = Number(timeline.max);
+    timeline.style.setProperty('--year-fill', `${100 * (year - minimum) / (maximum - minimum)}%`);
+    $('[data-atlas-year-output]').textContent = year === maximum ? 'today' : String(year);
     rebuildStories();
   });
   atlas.querySelectorAll('[data-atlas-filter]').forEach(button => button.addEventListener('click', () => {
@@ -272,10 +283,11 @@ function initAtlas(atlas) {
       transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
     }));
     tilt.add(atmosphere);
-    const homeDistance = 3.37;
+    const homeDistance = 3.62;
     let longitude = -30, latitude = 26, distance = homeDistance, drag = null;
     let frame = 0, last = 0, cloudPhase = 0, isInView = true;
     let currentFraming = null, transition = null;
+    let dialTransform = '';
     const focalScale = 2 * Math.tan(camera.fov * Math.PI / 360);
     const vector = new T.Vector3(), normal = new T.Vector3(), view = new T.Vector3();
 
@@ -302,7 +314,8 @@ function initAtlas(atlas) {
       }
       for (const {node} of occupied) {
         const count=node.cluster.length;
-        node.button.textContent=(node.story.kind==='news'?'▧':'▤')+(count>1?` ${count}`:'');
+        node.badge.textContent = count > 1 ? String(count) : '';
+        node.badge.hidden = count === 1;
         node.button.setAttribute('aria-label',count>1?`${count} nearby stories. Choose a story.`:`${node.story.kind}: ${node.story.title} — ${node.story.place}`);
         node.button.dataset.clusterSize=String(count);
       }
@@ -315,13 +328,13 @@ function initAtlas(atlas) {
       earth.rotation.y = -(longitude + 90) * Math.PI / 180;
       tilt.rotation.x = latitude * Math.PI / 180;
       const box = stage.getBoundingClientRect();
-      const expanded = atlas.classList.contains('is-expanded'), narrow = box.width < 700;
+      const expanded = atlas.classList.contains('is-expanded'), narrow = compactQuery.matches;
       let x = expanded || narrow ? 0 : .69;
       let y = !expanded && narrow ? -.50 : 0;
       // Preserve a usable globe on tall phone canvases instead of cropping
       // both continental coasts (and every marker) outside the narrow view.
       const portraitScale = Math.max(1, box.height / (box.width * .99));
-      const targetZ = (distance + (expanded ? .24 : 0)) * portraitScale;
+      const targetZ = (distance + (expanded ? .17 : 0)) * portraitScale;
       let scale = box.height / (focalScale * targetZ);
       let screenX = box.left + box.width / 2 + x * scale;
       let screenY = box.top + box.height / 2 - y * scale;
@@ -339,6 +352,12 @@ function initAtlas(atlas) {
       camera.position.z = box.height / (focalScale * scale);
       camera.updateMatrixWorld();
       currentFraming = { x: screenX, y: screenY, scale };
+      const centeredLongitude = ((longitude + 180) % 360 + 360) % 360 - 180;
+      const lat = Math.round(latitude), lon = Math.round(centeredLongitude);
+      const label = `${Math.abs(lat).toString().padStart(2, '0')}° ${lat < 0 ? 'S' : 'N'} · ${Math.abs(lon).toString().padStart(3, '0')}° ${lon > 0 ? 'E' : 'W'}`;
+      if (coordinates.textContent !== label) coordinates.textContent = label;
+      const framing = `translate(${(screenX - box.left).toFixed(2)}px, ${(screenY - box.top).toFixed(2)}px) translate(-50%, -50%) scale(${(scale * 2.30 / 600).toFixed(4)})`;
+      if (dialTransform !== framing) { dial.style.transform = framing; dialTransform = framing; }
       weather.rotation.y = cloudPhase;
       cirrus.rotation.y = .025 + cloudPhase * 1.55;
       uniforms.cloudOffset.value.set(-weather.rotation.y / (2 * Math.PI), -cirrus.rotation.y / (2 * Math.PI));
