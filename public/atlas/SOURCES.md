@@ -24,6 +24,7 @@ they should not be used to infer details absent from an original.
 Each illustration was produced with its archival photograph as a visual
 reference and uses a distinct palette of simulated block-print inks. The
 840 × 560 and 480 × 320 WebPs are optimized copies of the illustration masters.
+Large, high-density screens can use the 1440 × 960 AVIF versions.
 The original photographs are available from the institutions linked above.
 
 ## Earth and clouds
@@ -35,6 +36,8 @@ The original photographs are available from the institutions linked above.
   This local 4096 × 2048 copy is a downsampled delivery of the NASA image,
   obtained from the documented NASA-derived texture mirror in
   [physics-lab](https://github.com/MaxwellLee/physics-lab/blob/main/assets/textures/SOURCES.md).
+  **earth-detail.webp** is the full 5400 × 2700 NASA image in WebP format.
+  It loads when zoomed in on supported graphics hardware.
 - **cloud-mask.jpg:** NASA Goddard Space Flight Center, Reto Stöckli; enhancements
   by Robert Simmon. [NASA Blue Marble description and credits](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/).
   Brightness-to-alpha conversion from the NASA Blue Marble cloud composite,
@@ -46,6 +49,11 @@ The original photographs are available from the institutions linked above.
   Heights are exaggerated for the carved globe look.
 - **globe-portrait.webp:** still rendered in Blender from the same geography,
   with bronze terrain, blue oceans, two cloud decks and atmospheric light.
+- **Satellite clouds:** Contains modified EUMETSAT data. The optional global
+  JPEG mosaic comes from [Matt Easón's Live Cloud Maps](https://github.com/matteason/live-cloud-maps).
+  The source generally updates every three hours. Coverage can have gaps,
+  and the provider fills polar gaps with mirrored imagery. The atlas adds
+  artistic lighting while keeping the mosaic fixed to its geographic position.
 
 NASA permits educational/informational reuse under its
 [media guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/),
@@ -73,4 +81,4 @@ publisher attribution, publication date and a link to the original reporting.
 Publisher photographs are not requested or displayed by the atlas. Headlines
 with missing dates, stale dates, unknown places, or conflicting place matches
 are left off the globe. “Location matched from the headline” is an approximate
-navigation aid, not a verified event coordinate.
+navigation aid. Broad region names use a labeled approximate reference point.

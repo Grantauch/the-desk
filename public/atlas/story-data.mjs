@@ -23,7 +23,39 @@ export const PLACES = [
   ['Tokyo', 35.676, 139.65, /\btokyo\b/i],
   ['Beijing', 39.904, 116.407, /\bbeijing\b/i],
   ['Los Angeles', 34.052, -118.244, /\blos angeles\b/i],
+  ['Los Angeles International Airport', 33.942, -118.408, /\b(?:lax airport|at lax)\b/i],
   ['Miami', 25.762, -80.192, /\bmiami\b/i],
+  ['New Delhi', 28.614, 77.209, /\bnew delhi\b/i],
+  ['Chicago', 41.878, -87.630, /\bchicago\b/i],
+  ['Boston', 42.360, -71.059, /\bboston\b/i],
+  ['Seattle', 47.606, -122.332, /\bseattle\b/i],
+  ['Toronto', 43.653, -79.383, /\btoronto\b/i],
+  ['Mexico City', 19.433, -99.133, /\bmexico city\b/i],
+  ['Madrid', 40.417, -3.704, /\bmadrid\b/i],
+  ['Rome', 41.903, 12.496, /\brome,? italy\b/i],
+  ['Moscow', 55.756, 37.617, /\bmoscow\b/i],
+  ['Seoul', 37.566, 126.978, /\bseoul\b/i],
+];
+
+// Region pins represent a named area in the headline. They use approximate
+// reference points, and never imply a street-level event location.
+const REGIONS = [
+  ['California', 37.25, -119.54, /\bcalifornia\b/i],
+  ['Texas', 31.45, -99.33, /\btexas\b/i],
+  ['Florida', 27.85, -81.66, /\bflorida\b/i],
+  ['Michigan', 44.18, -84.50, /\bmichigan\b/i],
+  ['South Carolina', 33.86, -80.97, /\bsouth carolina\b/i],
+  ['North Carolina', 35.52, -79.38, /\bnorth carolina\b/i],
+  ['Pennsylvania', 40.93, -77.77, /\bpennsylvania\b/i],
+  ['Ohio', 40.29, -82.79, /\bohio\b/i],
+  ['United Kingdom', 54.7, -2.7, /(?:\bunited kingdom\b|\bu\.k\.(?!\w))/i],
+  ['France', 46.60, 2.45, /\bfrance\b/i],
+  ['Germany', 51.16, 10.45, /\bgermany\b/i],
+  ['Ukraine', 48.38, 31.16, /\bukraine\b/i],
+  ['Iran', 32.43, 53.69, /\biran\b/i],
+  ['India', 22.70, 79.56, /\bindia\b/i],
+  ['Japan', 36.20, 138.25, /\bjapan\b/i],
+  ['Australia', -25.73, 134.49, /\baustralia\b/i],
 ];
 
 export function newsFromPayload(payload, now = Date.now()) {
@@ -42,10 +74,15 @@ export function newsFromPayload(payload, now = Date.now()) {
       if (url.protocol !== 'https:' || url.username || url.password || !(url.hostname === publisher || url.hostname.endsWith(`.${publisher}`)) || !Number.isFinite(published) || published > now + 3600000 || now - published > 72 * 3600000 || seen.has(url.href)) continue;
       seen.add(url.href);
       const ambiguous = /\b(?:paris,? texas|london,? ontario|new york mills)\b/i.test(entry.title);
-      const matches = ambiguous ? [] : PLACES.filter(place => place[3].test(entry.title));
-      if (matches.length !== 1) { unplaced++; continue; }
-      const [place, lat, lon] = matches[0];
-      stories.push({ id: `news-${stories.length}`, kind: 'news', title: entry.title.slice(0, 240), href: url.href, source: group.name.slice(0, 60), published: new Date(published).toISOString(), place, lat, lon, date: new Date(published).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric' }), summary: 'Location matched from the headline. Open the publisher’s article for the reporting and context.' });
+      const cities = ambiguous ? [] : PLACES.filter(place => place[3].test(entry.title));
+      const regions = ambiguous ? [] : REGIONS.filter(region => region[3].test(entry.title));
+      if (cities.length + regions.length !== 1) { unplaced++; continue; }
+      const [place, lat, lon] = cities[0] ?? regions[0];
+      const approximate = regions.length === 1;
+      const summary = approximate
+        ? 'This pin marks the approximate center of the region named in the headline. Open the source for the reporting and exact context.'
+        : 'Location matched from the headline. Open the publisher’s article for the reporting and context.';
+      stories.push({ id: `news-${stories.length}`, kind: 'news', title: entry.title.slice(0, 240), href: url.href, source: group.name.slice(0, 60), published: new Date(published).toISOString(), place: approximate ? `${place} · approximate region` : place, lat, lon, date: new Date(published).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric' }), summary });
       if (stories.length === 18) return { stories, unplaced };
     }
   }

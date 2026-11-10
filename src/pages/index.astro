@@ -85,9 +85,10 @@ const moreLinks = [
     <div class="course-grid">
       {courses.map((course, index) => (
         <a href={course.href} class="course-card" data-course={course.theme}>
-          <span class="course-card__plate">
+          <picture class="course-card__plate">
+            <source type="image/avif" media="(min-width: 1200px) and (min-resolution: 2dppx)" srcset={course.art.replace('.webp', '-1440.avif')} />
             <img class="course-card__art" src={course.art} srcset={`${course.art.replace('.webp', '-480.webp')} 480w, ${course.art} 840w`} sizes="(max-width: 700px) calc(100vw - 2rem), (max-width: 1440px) 31vw, 450px" alt={course.artAlt} width="840" height="560" loading="lazy" decoding="async" />
-          </span>
+          </picture>
           <span class="course-card__identity">{course.identity}<span aria-hidden="true">plate 0{index + 1}</span></span>
           <h3>{course.name}<span>.</span></h3>
           <p>{course.blurb}</p>

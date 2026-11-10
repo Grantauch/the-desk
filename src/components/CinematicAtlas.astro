@@ -56,8 +56,20 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <button type="button" data-atlas-reset>reset</button>
       <button type="button" data-atlas-motion aria-pressed="false">pause clouds</button>
     </div>
-    <p class="atlas-status" data-atlas-status role="status">Drag to rotate. Select a marker or choose a story below.</p>
-    <a class="atlas-news-index" data-atlas-news-link href="/news/" hidden>open all newsrooms ↗</a>
+    <div class="atlas-instrument-status">
+      <p class="atlas-status" data-atlas-status role="status">Drag to rotate. Select a marker or choose a story below.</p>
+      <div class="atlas-weather" role="group" aria-label="Cloud layer">
+        <button type="button" data-atlas-weather aria-pressed="false" disabled>satellite clouds</button>
+        <span data-atlas-weather-status role="status"></span>
+      </div>
+    </div>
+    <div class="atlas-news-meta" data-atlas-news-link hidden>
+      <div class="atlas-news-key" aria-label="News pin colors">
+        <span data-publisher="NPR">NPR</span><span data-publisher="CNN">CNN</span>
+        <span data-publisher="Fox News">Fox News</span><span data-publisher="MLive">MLive</span>
+      </div>
+      <a class="atlas-news-index" href="/news/">open all newsrooms ↗</a>
+    </div>
   </div>
 
   <details class="atlas-index" data-atlas-index>
@@ -68,7 +80,7 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
     </div>
     <a class="atlas-all" href="/storyhubs/">browse every storyhub →</a>
   </details>
-  <div class="atlas-credits"><span>Earth: NASA / Blue Marble · relief: NASA &amp; Solar System Scope / CC BY 4.0 · artistic clouds</span><a href="/atlas/SOURCES.md">image sources ↗</a></div>
+  <div class="atlas-credits"><span>Earth: NASA / Blue Marble · relief: NASA &amp; Solar System Scope / CC BY 4.0 <span data-atlas-weather-credit hidden>· Contains modified EUMETSAT data</span></span><a href="/atlas/SOURCES.md">image sources ↗</a></div>
 </section>
 
 <dialog class="atlas-dialog" data-atlas-dialog aria-labelledby="atlas-focus-title">

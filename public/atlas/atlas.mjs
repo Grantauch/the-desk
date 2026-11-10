@@ -14,6 +14,9 @@ function initAtlas(atlas) {
   const dial = $('[data-atlas-dial]');
   const coordinates = $('[data-atlas-coordinates]');
   const timeline = $('[data-atlas-year]');
+  const weatherButton = $('[data-atlas-weather]');
+  const weatherStatus = $('[data-atlas-weather-status]');
+  const weatherCredit = $('[data-atlas-weather-credit]');
   const pins = $('[data-atlas-pins]');
   const choices = $('[data-atlas-choices]');
   const panel = $('[data-atlas-story]');
@@ -28,7 +31,7 @@ function initAtlas(atlas) {
   let originScroll = 0, restoreFocus = null, map = null;
   let year = Number(timeline.max), filter = 'history', selected = null;
   let news = [], newsState = 'idle', unplaced = 0, newsLoadedAt = 0;
-  let paused = motionQuery.matches, busy = false;
+  let paused = motionQuery.matches, busy = false, satellite = false, weatherLoading = false;
   const allHistory = HISTORY.map(story => ({ ...story, kind: 'history' }));
   let visibleStories = allHistory;
   let markerNodes = [];
@@ -41,6 +44,7 @@ function initAtlas(atlas) {
     panel.hidden = true;
     markerNodes.forEach(({ button }) => button.setAttribute('aria-expanded', 'false'));
     if (panel.contains(document.activeElement)) (markerNodes.find(node => node.story.id === returnId && !node.button.hidden)?.button ?? $('[data-atlas-index] summary')).focus();
+    map?.render();
   };
 
   function selectStory(story, center = false) {
@@ -93,6 +97,7 @@ function initAtlas(atlas) {
       button.setAttribute('aria-label', `${story.kind}: ${story.title} — ${story.place}`);
       button.setAttribute('aria-expanded', String(selected?.id === story.id));
       button.dataset.storyId = story.id;
+      if (story.kind === 'news') button.dataset.publisher = story.source;
       const glyph = document.createElement('span');
       glyph.className = 'atlas-pin__glyph';
       glyph.setAttribute('aria-hidden', 'true');
@@ -139,6 +144,33 @@ function initAtlas(atlas) {
     } catch { newsState = 'error'; news = []; }
     rebuildStories();
   }
+
+  weatherButton.addEventListener('click', async () => {
+    if (!rendererVisible || weatherLoading) return;
+    const enable = !satellite;
+    weatherLoading = true;
+    weatherButton.setAttribute('aria-busy', 'true');
+    weatherStatus.textContent = enable ? 'Loading satellite clouds…' : '';
+    try {
+      let image = null;
+      if (enable) {
+        const response = await fetch('/.netlify/functions/atlas-clouds', { signal: AbortSignal.timeout(7000) });
+        if (!response.ok || !response.headers.get('content-type')?.startsWith('image/jpeg')) throw new Error('Cloud map unavailable');
+        image = await response.blob();
+      }
+      await map.useSatellite(image);
+      satellite = enable;
+      weatherButton.setAttribute('aria-pressed', String(satellite));
+      weatherCredit.hidden = !satellite || !rendererVisible;
+      weatherStatus.textContent = satellite ? 'Satellite mosaic · Contains modified EUMETSAT data' : 'Illustrated clouds';
+    } catch {
+      weatherStatus.textContent = 'Satellite clouds unavailable. Showing illustrated clouds.';
+    } finally {
+      weatherLoading = false;
+      weatherButton.removeAttribute('aria-busy');
+      weatherButton.disabled = !rendererVisible;
+    }
+  });
 
   function expand(invoker = document.activeElement) {
     if (dialog.open) return;
@@ -213,6 +245,7 @@ function initAtlas(atlas) {
       });
       map = await createGlobe(window.THREE);
       rendererVisible = true;
+      weatherButton.disabled = false;
       atlas.dataset.graphics = 'ready';
       $('[data-atlas-fallback]').hidden = true;
       map.resize();
@@ -250,10 +283,13 @@ function initAtlas(atlas) {
     } catch (error) { renderer.dispose(); renderer.forceContextLoss(); throw error; }
     surface.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     cloudMap.wrapS = T.RepeatWrapping;
-    const sun = { value: new T.Vector3(-.86, .51, .42).normalize() };
+    const sun = { value: new T.Vector3(-.85, .52, .33).normalize() };
+    const cloudTexture = { value: cloudMap };
+    const cloudVeil = { value: new T.Vector2(.009, .006) };
+    const observedClouds = { value: 0 };
     const uniforms = {
-      surface: { value: surface }, clouds: { value: cloudMap }, relief: { value: normalMap },
-      cloudOffset: { value: new T.Vector2() }, sun,
+      surface: { value: surface }, clouds: cloudTexture, relief: { value: normalMap },
+      cloudOffset: { value: new T.Vector2() }, cloudVeil, sun,
     };
     const geometry = new T.SphereGeometry(1, columns, rows);
     const positions = geometry.attributes.position;
@@ -268,7 +304,7 @@ function initAtlas(atlas) {
     const clouds = new T.SphereGeometry(1, 112, 64);
     function cloudShell(radius, upper) {
       const shell = new T.Mesh(clouds, new T.ShaderMaterial({
-        uniforms: { clouds: { value: cloudMap }, sun, upper: { value: upper } },
+        uniforms: { clouds: cloudTexture, cloudVeil, observed: observedClouds, sun, upper: { value: upper } },
         vertexShader: atlasVertex, fragmentShader: atlasCloud, transparent: true, depthWrite: false,
       }));
       shell.scale.setScalar(radius);
@@ -276,20 +312,55 @@ function initAtlas(atlas) {
       earth.add(shell);
       return shell;
     }
-    const weather = cloudShell(1.022, 0);
-    const cirrus = cloudShell(1.037, 1);
-    const atmosphere = new T.Mesh(new T.SphereGeometry(1.056, 80, 48), new T.ShaderMaterial({
-      uniforms: { sun }, vertexShader: atlasVertex, fragmentShader: atlasAir,
+    const weather = cloudShell(1.026, 0);
+    const cirrus = cloudShell(1.050, 1);
+    const airRadius = 1.14;
+    const atmosphere = new T.Mesh(new T.SphereGeometry(airRadius, 80, 48), new T.ShaderMaterial({
+      uniforms: { sun, radius: { value: airRadius } }, vertexShader: atlasVertex, fragmentShader: atlasAir,
       transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
     }));
     tilt.add(atmosphere);
     const homeDistance = 3.62;
-    let longitude = -30, latitude = 26, distance = homeDistance, drag = null;
-    let frame = 0, last = 0, cloudPhase = 0, isInView = true;
+    let longitude = -30, latitude = 26, distance = homeDistance, zoomTarget = homeDistance, drag = null;
+    const touches = new Map();
+    let pinch = null, detailRequested = false;
+    let pointerOnGlobe = false;
+    let frame = 0, last = 0, cloudPhase = 0, floatPhase = 0, floatOffset = 0, isInView = true;
     let currentFraming = null, transition = null;
-    let dialTransform = '';
+    let dialTransform = '', lastProjection = '', pinsDirty = true;
     const focalScale = 2 * Math.tan(camera.fov * Math.PI / 360);
     const vector = new T.Vector3(), normal = new T.Vector3(), view = new T.Vector3();
+
+    async function useSatellite(image) {
+      let texture = cloudMap;
+      if (image) {
+        const url = URL.createObjectURL(image);
+        try { texture = await loader.loadAsync(url); }
+        finally { URL.revokeObjectURL(url); }
+        texture.wrapS = T.RepeatWrapping;
+      }
+      const previous = cloudTexture.value;
+      cloudTexture.value = texture;
+      cloudVeil.value.set(image ? 0 : .009, image ? 0 : .006);
+      observedClouds.value = Number(Boolean(image));
+      if (previous !== cloudMap) previous.dispose();
+      render();
+    }
+
+    function setZoom(next) {
+      zoomTarget = T.MathUtils.clamp(next, 1.62, 5.75);
+      if (!detailRequested && zoomTarget < 2.85 && renderer.capabilities.isWebGL2
+        && renderer.capabilities.maxTextureSize >= 5400) {
+        detailRequested = true;
+        loader.loadAsync('/atlas/earth-detail.webp').then(detail => {
+          detail.anisotropy = surface.anisotropy;
+          uniforms.surface.value = detail;
+          surface.dispose();
+          render();
+        }).catch(() => {});
+      }
+      render();
+    }
 
     function positionPins() {
       const w = stage.clientWidth, h = stage.clientHeight, occupied = [];
@@ -314,6 +385,7 @@ function initAtlas(atlas) {
       }
       for (const {node} of occupied) {
         const count=node.cluster.length;
+        node.button.classList.toggle('atlas-pin--mixed', node.cluster.some(story => story.kind !== node.story.kind));
         node.badge.textContent = count > 1 ? String(count) : '';
         node.badge.hidden = count === 1;
         node.button.setAttribute('aria-label',count>1?`${count} nearby stories. Choose a story.`:`${node.story.kind}: ${node.story.title} — ${node.story.place}`);
@@ -324,13 +396,22 @@ function initAtlas(atlas) {
       frame = 0;
       if (!rendererVisible || document.hidden || !isInView) return;
       const dt = Math.min(.05, last ? (t-last)/1000 : 0); last = t;
-      if (!paused) cloudPhase += dt * .0016;
+      if (!paused) cloudPhase += dt * .007;
+      const stillCamera = paused || motionQuery.matches;
+      if (!stillCamera) floatPhase += dt * 1.15;
+      const interacting = pointerOnGlobe || stage.contains(document.activeElement) || drag || pinch || transition;
+      const nextFloat = stillCamera || interacting ? 0 : Math.sin(floatPhase) * .026;
+      floatOffset = stillCamera || Math.abs(nextFloat - floatOffset) < .0004
+        ? nextFloat : T.MathUtils.lerp(floatOffset, nextFloat, 1 - Math.exp(-dt * 8));
+      const zoomGap = zoomTarget - distance;
+      distance = motionQuery.matches || Math.abs(zoomGap) < .003
+        ? zoomTarget : distance + zoomGap * (1 - Math.exp(-dt * 16));
       earth.rotation.y = -(longitude + 90) * Math.PI / 180;
       tilt.rotation.x = latitude * Math.PI / 180;
       const box = stage.getBoundingClientRect();
       const expanded = atlas.classList.contains('is-expanded'), narrow = compactQuery.matches;
       let x = expanded || narrow ? 0 : .69;
-      let y = !expanded && narrow ? -.50 : 0;
+      let y = (!expanded && narrow ? -.50 : 0) + floatOffset;
       // Preserve a usable globe on tall phone canvases instead of cropping
       // both continental coasts (and every marker) outside the narrow view.
       const portraitScale = Math.max(1, box.height / (box.width * .99));
@@ -358,32 +439,61 @@ function initAtlas(atlas) {
       if (coordinates.textContent !== label) coordinates.textContent = label;
       const framing = `translate(${(screenX - box.left).toFixed(2)}px, ${(screenY - box.top).toFixed(2)}px) translate(-50%, -50%) scale(${(scale * 2.30 / 600).toFixed(4)})`;
       if (dialTransform !== framing) { dial.style.transform = framing; dialTransform = framing; }
-      weather.rotation.y = cloudPhase;
-      cirrus.rotation.y = .025 + cloudPhase * 1.55;
+      const observed = cloudTexture.value !== cloudMap;
+      weather.rotation.y = observed ? 0 : cloudPhase;
+      cirrus.rotation.y = observed ? 0 : .027 + cloudPhase * 1.63;
       uniforms.cloudOffset.value.set(-weather.rotation.y / (2 * Math.PI), -cirrus.rotation.y / (2 * Math.PI));
-      positionPins(); renderer.render(scene, camera);
-      if (!paused || transition) frame = requestAnimationFrame(draw);
+      const projection = `${longitude}/${latitude}/${box.width}/${box.height}/${framing}`;
+      if (pinsDirty || lastProjection !== projection) {
+        positionPins();
+        lastProjection = projection;
+        pinsDirty = false;
+      }
+      renderer.render(scene, camera);
+      if (!paused || transition || distance !== zoomTarget) frame = requestAnimationFrame(draw);
     }
-    function render() { if (!frame && rendererVisible && !document.hidden && isInView) frame = requestAnimationFrame(draw); }
+    function render() {
+      pinsDirty = true;
+      if (!frame && rendererVisible && !document.hidden && isInView) frame = requestAnimationFrame(draw);
+    }
     function resize() {
       const w=stage.clientWidth,h=stage.clientHeight;
       if (!w || !h) return;
       renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); render();
     }
     function reframe(from) {
+      if (!dialog.open) { drag = null; pinch = null; touches.clear(); }
       transition = from && !motionQuery.matches ? { ...from, started: performance.now() } : null;
       resize();
     }
     function center(lat, lon) { latitude = lat; longitude = lon; render(); }
-    function zoom(direction) { distance = Math.max(2.65,Math.min(5.3,distance+direction*.24)); render(); }
+    function zoom(direction) { setZoom(zoomTarget * Math.exp(direction * .19)); }
+    function beginDrag(id, x, y, pendingTouch = false) {
+      drag = { id, x, y, lat: latitude, lon: longitude, pendingTouch };
+    }
+    function touchSpan() {
+      const [first, second] = touches.values();
+      return Math.max(12, Math.hypot(first.x - second.x, first.y - second.y));
+    }
+    stage.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') pointerOnGlobe = true; });
+    stage.addEventListener('pointerleave', () => { pointerOnGlobe = false; });
     canvas.addEventListener('pointerdown', event => {
-      if (event.button !== 0 || !event.isPrimary) return;
-      const pendingTouch = !dialog.open && event.pointerType === 'touch';
+      const touch = event.pointerType === 'touch';
+      if (event.button !== 0 || (!event.isPrimary && (!touch || !dialog.open)) || (touch && touches.size >= 2)) return;
+      const pendingTouch = !dialog.open && touch;
       if (!pendingTouch) expand(canvas);
-      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, lat: latitude, lon: longitude, pendingTouch };
       canvas.setPointerCapture(event.pointerId);
+      if (touch) touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (touches.size === 2) {
+        pinch = { span: touchSpan(), distance: zoomTarget };
+        drag = null;
+      } else beginDrag(event.pointerId, event.clientX, event.clientY, pendingTouch);
     });
     canvas.addEventListener('pointermove', event => {
+      if (touches.has(event.pointerId)) {
+        touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (pinch) { setZoom(pinch.distance * pinch.span / touchSpan()); return; }
+      }
       if (event.pointerId !== drag?.id) return;
       const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
       if (drag.pendingTouch) {
@@ -397,14 +507,25 @@ function initAtlas(atlas) {
       latitude = Math.max(-78, Math.min(78, drag.lat + dy * .20));
       render();
     });
-    const release = event => { if (event.pointerId === drag?.id) drag = null; };
+    const release = event => {
+      if (touches.delete(event.pointerId) && pinch) {
+        pinch = null;
+        const [remaining] = touches.entries();
+        if (remaining) beginDrag(remaining[0], remaining[1].x, remaining[1].y);
+      } else if (event.pointerId === drag?.id) drag = null;
+    };
     canvas.addEventListener('pointerup', event => {
       if (event.pointerId === drag?.id && drag.pendingTouch) expand(canvas);
       release(event);
     });
     canvas.addEventListener('pointercancel', release);
     canvas.addEventListener('lostpointercapture', release);
-    canvas.addEventListener('wheel', event => { if (!dialog.open) return; event.preventDefault(); zoom(Math.sign(event.deltaY)); },{passive:false});
+    canvas.addEventListener('wheel', event => {
+      if (!dialog.open) return;
+      event.preventDefault();
+      const units = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1;
+      setZoom(zoomTarget * Math.exp(T.MathUtils.clamp(event.deltaY * units, -240, 240) * .0023));
+    }, { passive: false });
     canvas.addEventListener('keydown', event => {
       if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(event.key)) return;
       event.preventDefault();
@@ -418,12 +539,13 @@ function initAtlas(atlas) {
     });
     atlas.querySelectorAll('[data-atlas-turn]').forEach(button=>button.addEventListener('click',()=>{longitude+=Number(button.dataset.atlasTurn)*15;render();}));
     atlas.querySelectorAll('[data-atlas-zoom]').forEach(button=>button.addEventListener('click',()=>zoom(Number(button.dataset.atlasZoom))));
-    $('[data-atlas-reset]').addEventListener('click',()=>{longitude=-30;latitude=26;distance=homeDistance;render();});
+    $('[data-atlas-reset]').addEventListener('click',()=>{longitude=-30;latitude=26;distance=zoomTarget=homeDistance;render();});
     new ResizeObserver(resize).observe(stage);
     new IntersectionObserver(entries=>{isInView=entries.some(entry=>entry.isIntersecting);last=0;if(!isInView&&frame){cancelAnimationFrame(frame);frame=0;}render();},{rootMargin:'50px'}).observe(stage);
     document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}render();});
     canvas.addEventListener('webglcontextlost',event=>{
       event.preventDefault(); rendererVisible=false; if(frame)cancelAnimationFrame(frame);frame=0;
+      weatherButton.disabled=true; weatherCredit.hidden=true;
       canvas.hidden=true;pins.hidden=true;$('[data-atlas-fallback]').hidden=false;
       atlas.dataset.graphics='fallback';
       atlas.querySelectorAll('[data-atlas-turn],[data-atlas-zoom],[data-atlas-reset],[data-atlas-motion]').forEach(button=>{button.disabled=true;});
@@ -432,13 +554,14 @@ function initAtlas(atlas) {
     });
     canvas.addEventListener('webglcontextrestored',()=>{
       rendererVisible=true;canvas.hidden=false;pins.hidden=false;$('[data-atlas-fallback]').hidden=true;
+      weatherButton.disabled=false; weatherCredit.hidden=!satellite;
       atlas.dataset.graphics='ready';
       atlas.querySelectorAll('[data-atlas-turn],[data-atlas-zoom],[data-atlas-reset],[data-atlas-motion]').forEach(button=>{button.disabled=false;});
       rebuildStories();render();
     });
     // Diagnostics are intentionally only local, with no telemetry or student data.
     atlas.addEventListener('atlas:inspect',()=>{atlas.dataset.rendering=String(rendererVisible);});
-    return { render, resize, center, reframe, framing: () => currentFraming };
+    return { render, resize, center, reframe, useSatellite, framing: () => currentFraming };
   }
 
   // The page and source links are usable before the optional renderer arrives.

@@ -22,13 +22,21 @@ const fixture={updatedAt:now,groups:[
 
 async function run(name,viewport,check,{motion='reduce',fallback=false,textureFailure=false,javascript=true,newsFailure=false,touch=false}={}){
   const context=await browser.newContext({viewport,reducedMotion:motion,javaScriptEnabled:javascript,hasTouch:touch});
-  const requests=[];let newsRequests=0;
+  const requests=[];let newsRequests=0, weatherRequests=0;
   await context.route('**/*',route=>{
     const url=new URL(route.request().url());requests.push(url.href);
     if(url.origin!==origin)return route.fulfill({status:503,body:'Offline fixture'});
     if(url.pathname==='/.netlify/functions/headlines'){
       newsRequests++;
       return newsFailure?route.fulfill({status:503,body:'No news'}):route.fulfill({json:fixture});
+    }
+    if(url.pathname==='/.netlify/functions/atlas-clouds'){
+      weatherRequests++;
+      if(weatherRequests===1)return route.fulfill({status:503,body:'Cloud mosaic unavailable'});
+      return route.fulfill({
+        path:fileURLToPath(new URL('../public/atlas/cloud-mask.jpg',import.meta.url)),
+        contentType:'image/jpeg',
+      });
     }
     if(fallback&&url.pathname.endsWith('/three.min.js'))return route.fulfill({status:404,body:'Optional renderer unavailable'});
     if(textureFailure&&url.pathname==='/atlas/cloud-mask.jpg')return route.fulfill({status:404,body:'Optional texture unavailable'});
@@ -40,7 +48,7 @@ async function run(name,viewport,check,{motion='reduce',fallback=false,textureFa
   try{
     assert.equal((await page.goto(origin+'/')).status(),200);
     if(javascript)await page.locator(`[data-atlas][data-graphics='${fallback||textureFailure?'fallback':'ready'}']`).waitFor();
-    await check(page,{get newsRequests(){return newsRequests;},requests});
+    await check(page,{get newsRequests(){return newsRequests;},get weatherRequests(){return weatherRequests;},requests});
     assert.deepEqual(errors,[],'No uncaught or shader errors');
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'No horizontal overflow');
     if(javascript){
@@ -94,6 +102,8 @@ try{
       await page.locator('[data-atlas-status]').filter({hasText:'2 recent news stories'}).waitFor();
       assert.equal(network.newsRequests,1);
       assert.equal(await page.locator('.atlas-choice').count(),2);
+      const colors=await page.locator('.atlas-pin--news').evaluateAll(pins=>pins.map(pin=>getComputedStyle(pin).color));
+      assert.equal(new Set(colors).size,2,'Different newsrooms use different pin colors');
       await page.locator('.atlas-choice').filter({hasText:'Berlin'}).click();
       assert.match(await page.locator('[data-story-kind]').textContent(),/NPR/);
       assert.equal(await page.locator('[data-story-link]').getAttribute('href'),'https://www.npr.org/atlas-fixture');
@@ -128,6 +138,7 @@ try{
     await page.waitForFunction(previous=>document.querySelector('[data-story-id=new-york]').getAttribute('style')!==previous,expanded);
     await page.locator('[data-atlas-reset]').click();
     await page.locator('[data-atlas-coordinates]').filter({hasText:'26° N · 030° W'}).waitFor();
+    await canvas.hover();
     const cluster=page.locator('.atlas-pin:visible').filter({hasText:'4'}).first();
     await cluster.click();
     assert.equal(await page.locator('[data-story-cluster] button').count(),4,'Overlapping pins offer the individual stories');
@@ -186,9 +197,40 @@ try{
     await send('touchMove',dragX+65,dragY);
     await send('touchEnd');
     await coordinates.filter({hasText:'26° N · 046° W'}).waitFor();
+    const exploreBox=await canvas.boundingBox();
+    const dial=page.locator('[data-atlas-dial]');
+    const before=await dial.evaluate(svg=>svg.getBoundingClientRect().width);
+    const detail=page.waitForResponse(response=>new URL(response.url()).pathname==='/atlas/earth-detail.webp');
+    const pinchY=Math.round(exploreBox.y+exploreBox.height*.66);
+    const spread=(left,right)=>[
+      {x:Math.round(exploreBox.x+exploreBox.width*left),y:pinchY,id:0},
+      {x:Math.round(exploreBox.x+exploreBox.width*right),y:pinchY,id:1},
+    ];
+    await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:spread(.44,.56)});
+    await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:spread(.37,.63)});
+    await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await page.waitForFunction(width=>document.querySelector('[data-atlas-dial]').getBoundingClientRect().width>width*1.25,before);
+    await coordinates.filter({hasText:'26° N · 046° W'}).waitFor();
+    assert.ok((await detail).ok(),'Deep zoom loads the higher-resolution surface');
     await page.locator('[data-atlas-return]').click();
     await page.waitForFunction(start=>scrollY===start,startScroll);
   },{touch:true});
+  await run('satellite-clouds',{width:1366,height:768},async(page,network)=>{
+    await page.locator('[data-atlas-explore]').click();
+    assert.equal(network.weatherRequests,0,'Satellite imagery loads on request');
+    const toggle=page.locator('[data-atlas-weather]');
+    const status=page.locator('[data-atlas-weather-status]');
+    await toggle.click();
+    await status.filter({hasText:'Showing illustrated clouds'}).waitFor();
+    assert.equal(await toggle.getAttribute('aria-pressed'),'false');
+    await toggle.click();
+    await status.filter({hasText:'Satellite mosaic'}).waitFor();
+    assert.equal(await toggle.getAttribute('aria-pressed'),'true');
+    assert.ok(await page.locator('[data-atlas-weather-credit]').isVisible());
+    await toggle.click();
+    await status.filter({hasText:'Illustrated clouds',hasNotText:'unavailable'}).waitFor();
+    assert.ok(await page.locator('[data-atlas-weather-credit]').isHidden());
+  });
   await run('graphics-recovery',{width:1366,height:768},async(page)=>{
     await page.locator('[data-atlas-explore]').click();
     const available=await page.locator('[data-atlas-canvas]').evaluate(canvas=>{

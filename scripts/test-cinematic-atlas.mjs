@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { existsSync, statSync } from 'node:fs';
 import { HISTORY, newsFromPayload, pointFromLatLon } from '../public/atlas/story-data.mjs';
+import atlasClouds from '../netlify/functions/atlas-clouds.mjs';
 
 const now = Date.parse('2026-11-09T17:00:00Z');
 const article = (overrides = {}) => ({ title: 'Berlin opens a new exhibition', href: 'https://www.npr.org/fixture', published: '2026-11-09T12:00:00Z', ...overrides });
@@ -39,6 +40,18 @@ test('unknown, conflicting and known ambiguous place names are left unplaced', (
   assert.equal(result.stories.length,0);assert.equal(result.unplaced,4);
 });
 
+test('named airports map locally and broad regional headlines carry an approximate pin label', () => {
+  const result=newsFromPayload(payload([
+    article({title:'Close call at LAX airport',href:'https://www.npr.org/airport'}),
+    article({title:'California voters weigh a ballot measure',href:'https://www.npr.org/california'}),
+    article({title:'France accuses Iran in new report',href:'https://www.npr.org/multiple'}),
+  ]),now);
+  assert.equal(result.stories[0].place,'Los Angeles International Airport');
+  assert.equal(result.stories[1].place,'California · approximate region');
+  assert.match(result.stories[1].summary,/approximate center/);
+  assert.equal(result.unplaced,1);
+});
+
 test('unsafe and spoofed sources, missing dates, stale dates and future dates produce no pins', () => {
   for(const overrides of [
     {href:'javascript:alert(1)'},{href:'http://www.npr.org/fixture'},
@@ -61,4 +74,26 @@ test('the Blender portrait, live textures and largest course illustrations fit t
   const bytes=files.reduce((n,name)=>n+statSync(new URL(`../public/atlas/${name}`,import.meta.url)).size,0);
   assert.ok(bytes < 2_000_000,`${bytes} asset bytes exceeds the 2 MB budget`);
   assert.equal(statSync(new URL('../public/atlas/earth-relief.bin',import.meta.url)).size,145*97);
+  const detail=['earth-detail.webp','us-history-1440.avif','hidden-history-1440.avif','beyond-the-scoreboard-1440.avif'];
+  const extra=detail.reduce((n,name)=>n+statSync(new URL(`../public/atlas/${name}`,import.meta.url)).size,0);
+  assert.ok(extra < 2_100_000,`${extra} optional detail bytes exceeds the 2.1 MB budget`);
+});
+
+test('satellite relay serves a bounded image and rejects upstream errors', async t=>{
+  const url='https://example.test/.netlify/functions/atlas-clouds';
+  let contentType='image/jpeg';
+  const fetch=t.mock.method(globalThis,'fetch',async endpoint=>{
+    assert.equal(endpoint,'https://clouds.matteason.co.uk/images/2048x1024/clouds.jpg');
+    return new Response(Uint8Array.from([255,216,255,217]),{headers:{'Content-Type':contentType}});
+  });
+  assert.equal((await atlasClouds(new Request(url,{method:'POST'}))).status,405);
+  assert.equal(fetch.mock.callCount(),0);
+  const image=await atlasClouds(new Request(url));
+  assert.equal(image.status,200);
+  assert.equal(image.headers.get('content-type'),'image/jpeg');
+  assert.match(image.headers.get('netlify-cdn-cache-control'),/s-maxage=900/);
+  contentType='text/html';
+  const unavailable=await atlasClouds(new Request(url));
+  assert.equal(unavailable.status,503);
+  assert.equal(unavailable.headers.get('cache-control'),'no-store');
 });
