@@ -18,8 +18,8 @@ async function fits(ui,label){assert.equal(await ui.locator('html').evaluate(e=>
 async function saved(page){const promise=page.waitForEvent('download');await page.locator('#journal-export').click();return JSON.parse(await readFile(await(await promise).path(),'utf8'));}
 const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{})});
 let checks=0;
-async function demo(width,seed=E.initial()){
- const ctx=await browser.newContext({viewport:{width,height:950},reducedMotion:'reduce'}),page=await ctx.newPage(),errors=[];
+async function demo(width,seed=E.initial(),reducedMotion='reduce'){
+ const ctx=await browser.newContext({viewport:{width,height:950},reducedMotion}),page=await ctx.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));await ctx.route('https://grant-desk.com/**',assets);
  await page.addInitScript(value=>{if(!localStorage.getItem('checklings.first-trail.v1'))localStorage.setItem('checklings.first-trail.v1',JSON.stringify(value));},seed);
  await page.goto('https://grant-desk.com/hubs/checkling/camp/');await page.locator('#open-workshop').waitFor();return {ctx,page,errors};
@@ -80,6 +80,29 @@ try{
   const {ctx,page,errors}=await demo(390);await page.locator('[data-view=practice]').click();await page.locator('#start-practice').click();await page.locator('[data-move=strike]').click();const spar=await page.locator('#combat-scene').innerText();
   await workshop(page);await plan(page,'seedbox').click();assert.equal(await page.locator('#combat-scene').innerText(),spar,'build plan cannot heal, swap or reset an unfinished spar');assert.equal(await page.locator('#leave-practice').evaluate(e=>e===document.activeElement),true);
   assert.deepEqual(errors,[]);await ctx.close();checks++;
+ }
+ {
+  const {ctx,page,errors}=await demo(390,E.initial(),'no-preference');
+  const enterPractice=async()=>{
+   await page.locator('[data-view=practice]').click();
+   await page.locator('#start-practice').click();
+  };
+  const waitForPracticeArt=file=>page.waitForFunction(name=>{
+   const image=document.querySelector('#battle-friend-art');
+   return image.complete&&image.naturalWidth>0&&image.src.endsWith('/assets/'+name);
+  },file);
+  await enterPractice();
+  await waitForPracticeArt('mochi-back-idle.png');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await waitForPracticeArt('mochi-back.png');
+  await ctx.route('**/assets/mochi-back.png',route=>route.abort());
+  await page.reload();
+  await enterPractice();
+  await waitForPracticeArt('mochi.png');
+  await page.locator('[data-move=guard]').click();
+  await waitForPracticeArt('mochi.png');
+  assert.deepEqual(errors,[]);
+  await ctx.close();checks++;
  }
  for(const format of [1,2,3]){
   const c=classroom({now:new Date('2026-09-10T11:30:00Z')});c.harness.signInAs(PEOPLE.ada.email);const identity=c.harness.call('identifyChecklingWithPin',c.pin(PEOPLE.ada),'workshop-seed');c.harness.call('saveCheckling',identity.pinToken,'bolt','Sprocket');
