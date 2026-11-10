@@ -9,12 +9,30 @@ export default async function atlasClouds(request) {
       redirect: 'error',
       signal: AbortSignal.timeout(4500),
     });
-    if (!upstream.ok || !upstream.headers.get('content-type')?.startsWith('image/jpeg')
+    if (!upstream.ok || !upstream.body || !upstream.headers.get('content-type')?.startsWith('image/jpeg')
       || Number(upstream.headers.get('content-length')) > maximumBytes) {
       throw new Error('Satellite image unavailable');
     }
-    const image = new Uint8Array(await upstream.arrayBuffer());
-    if (image.length < 4 || image.length > maximumBytes || image[0] !== 0xff || image[1] !== 0xd8) {
+    const reader = upstream.body.getReader();
+    const chunks = [];
+    let size = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > maximumBytes) {
+        await reader.cancel();
+        throw new Error('Satellite image exceeds size limit');
+      }
+      chunks.push(value);
+    }
+    const image = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) {
+      image.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    if (image.length < 4 || image[0] !== 0xff || image[1] !== 0xd8) {
       throw new Error('Invalid satellite image');
     }
     return new Response(image, {

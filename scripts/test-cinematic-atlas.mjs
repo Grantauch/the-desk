@@ -97,3 +97,24 @@ test('satellite relay serves a bounded image and rejects upstream errors', async
   assert.equal(unavailable.status,503);
   assert.equal(unavailable.headers.get('cache-control'),'no-store');
 });
+
+test('satellite relay cancels an oversized stream without a content length', async t=>{
+  const chunks = [Uint8Array.of(255, 216), new Uint8Array(1_000_000), Uint8Array.of(255, 217)];
+  let pulled = 0;
+  let cancelled = false;
+  const body = new ReadableStream({
+    pull(controller) {
+      if (pulled === chunks.length) controller.close();
+      else controller.enqueue(chunks[pulled++]);
+    },
+    cancel() { cancelled = true; },
+  }, { highWaterMark: 0 });
+  t.mock.method(globalThis, 'fetch', async () =>
+    new Response(body, { headers: { 'Content-Type': 'image/jpeg' } }));
+
+  const result = await atlasClouds(new Request('https://example.test/.netlify/functions/atlas-clouds'));
+  assert.equal(result.status, 503);
+  assert.equal(result.headers.get('cache-control'), 'no-store');
+  assert.equal(cancelled, true);
+  assert.equal(pulled, 2);
+});
