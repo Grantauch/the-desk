@@ -1,0 +1,96 @@
+---
+import siteContent from '../data/site-content.json';
+import { HISTORY } from '../../public/atlas/story-data.mjs';
+const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
+---
+
+<section class="atlas" data-atlas aria-label="Explore stories on the atlas">
+  <div class="atlas-stage">
+    <svg class="atlas-dial" data-atlas-dial viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+      <circle cx="300" cy="300" r="288" stroke-dasharray="1 5" />
+      <path d="M300 2v16m0 564v16M2 300h16m564 0h16M89 89l8 8m406 406 8 8M89 511l8-8M503 97l8-8" />
+    </svg>
+    <div class="atlas-fallback" data-atlas-fallback>
+      <img src="/atlas/globe-portrait.webp" alt="A bronze and blue Earth with cloud bands over the Atlantic. Story locations are available in the list below." width="840" height="840" fetchpriority="high" />
+    </div>
+    <canvas data-atlas-canvas tabindex="0" role="img" aria-label="Interactive globe. Arrow keys rotate; plus and minus zoom. Story locations are available as buttons below."></canvas>
+    <div class="atlas-pins" data-atlas-pins></div>
+    <div class="atlas-coordinates">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7" /><path d="M12 1v6m0 10v6M1 12h6m10 0h6M12 10v4m-2-2h4" /></svg>
+      <p>view center <span data-atlas-coordinates>26° N · 030° W</span></p>
+    </div>
+    <div class="atlas-copy">
+      <p class="atlas-eyebrow">a classroom field atlas / 2026—27</p>
+      <h1 id="home-title">{homeTitle}<span>.</span></h1>
+      <p class="atlas-promise">{siteContent.home.promise}</p>
+      <a class="atlas-primary" href="#courses">{siteContent.home.startLabel} <span aria-hidden="true">↘</span></a>
+    </div>
+    <button type="button" class="atlas-explore" data-atlas-explore hidden>drag to explore <span aria-hidden="true">↗</span></button>
+    <aside class="atlas-story" data-atlas-story hidden aria-label="Selected story">
+      <button class="atlas-story-close" type="button" data-atlas-dismiss aria-label="Close story preview">×</button>
+      <p class="atlas-eyebrow" data-story-kind>from the archive</p>
+      <h2 data-story-title></h2>
+      <p class="atlas-story-place" data-story-place></p>
+      <p data-story-date></p>
+      <p data-story-summary></p>
+      <div class="atlas-cluster" data-story-cluster hidden></div>
+      <a data-story-link href="/storyhubs/">open the story ↗</a>
+    </aside>
+  </div>
+
+  <div class="atlas-instruments" data-atlas-instruments hidden>
+    <div class="atlas-filter" role="group" aria-label="Story layer">
+      <button type="button" data-atlas-filter="history" aria-pressed="true">▤ history</button>
+      <button type="button" data-atlas-filter="news" aria-pressed="false">▧ news</button>
+      <button type="button" data-atlas-filter="both" aria-pressed="false">both</button>
+    </div>
+    <label class="atlas-year">history through <output data-atlas-year-output>today</output>
+      <input data-atlas-year type="range" min="1865" max={new Date().getFullYear()} value={new Date().getFullYear()} aria-label="Show historical stories through year" />
+      <span class="atlas-year-ticks" aria-hidden="true"><span>1865</span><span>1914</span><span>1947</span><span>1989</span><span>today</span></span>
+    </label>
+    <div class="atlas-camera" role="group" aria-label="Globe controls">
+      <button type="button" data-atlas-turn="-1" aria-label="Rotate globe west">←</button>
+      <button type="button" data-atlas-turn="1" aria-label="Rotate globe east">→</button>
+      <button type="button" data-atlas-zoom="-1" aria-label="Zoom in">+</button>
+      <button type="button" data-atlas-zoom="1" aria-label="Zoom out">−</button>
+      <button type="button" data-atlas-reset>reset</button>
+      <button type="button" data-atlas-motion aria-pressed="false">pause clouds</button>
+    </div>
+    <div class="atlas-instrument-status">
+      <p class="atlas-status" data-atlas-status role="status">Drag to rotate. Select a marker or choose a story below.</p>
+      <div class="atlas-weather" role="group" aria-label="Cloud layer">
+        <button type="button" data-atlas-weather aria-pressed="false" disabled>satellite clouds</button>
+        <span data-atlas-weather-status role="status"></span>
+      </div>
+    </div>
+    <div class="atlas-news-meta" data-atlas-news-link hidden>
+      <div class="atlas-news-key" aria-label="News pin colors">
+        <span data-publisher="NPR">NPR</span><span data-publisher="CNN">CNN</span>
+        <span data-publisher="Fox News">Fox News</span><span data-publisher="MLive">MLive</span>
+      </div>
+      <a class="atlas-news-index" href="/news/">open all newsrooms ↗</a>
+    </div>
+  </div>
+
+  <details class="atlas-index" data-atlas-index>
+    <summary>choose a story <span aria-hidden="true">↗</span></summary>
+    <p>Locations identify the setting of each story. The globe uses present-day geography.</p>
+    <div class="atlas-choices" data-atlas-choices>
+      {HISTORY.map(story => <a href={story.href} data-atlas-choice={story.id}><strong>{story.title}</strong><span>{story.place} · {story.date}</span></a>)}
+    </div>
+    <a class="atlas-all" href="/storyhubs/">browse every storyhub →</a>
+  </details>
+  <div class="atlas-credits"><span>Earth: NASA / Blue Marble · relief: NASA &amp; Solar System Scope / CC BY 4.0 <span data-atlas-weather-credit hidden>· Contains modified EUMETSAT data</span></span><a href="/atlas/SOURCES.md">image sources ↗</a></div>
+</section>
+
+<dialog class="atlas-dialog" data-atlas-dialog aria-labelledby="atlas-focus-title">
+  <header class="atlas-dialog-bar">
+    <h2 id="atlas-focus-title">the atlas<span>.</span></h2>
+    <nav aria-label="Classroom shortcuts"><a href="/check-in/">daily check-in</a><a href="/pass/">hall pass</a></nav>
+    <button type="button" data-atlas-return autofocus>return to desk <span aria-hidden="true">↙</span></button>
+  </header>
+  <div data-atlas-host></div>
+  <footer class="atlas-dialog-foot"><button type="button" data-atlas-courses>classes & storyhubs ↑</button><span>Esc to return</span></footer>
+</dialog>
+
+<script is:inline type="module" src="/atlas/atlas.mjs"></script>
