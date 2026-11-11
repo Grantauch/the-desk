@@ -25,7 +25,7 @@ html:root body[data-atlas-home] #desk-search-input::placeholder { color: #c3bbaa
 html:root body[data-atlas-home] .site-header .nav-menu { background: #172026; border-color: #445056; }
 html:root body[data-atlas-home] .site-header .nav-menu a { color: var(--atlas-paper); }
 html:root body[data-atlas-home] .class-entry { margin-bottom: 1rem; }
-html:root body[data-atlas-home] .class-entry a { padding: .8rem 1.2rem; border: 1px solid #5b5037; background: #151d20; color: var(--atlas-paper); box-shadow: none; }
+html:root body[data-atlas-home] .class-entry a { padding: .8rem 1.2rem; border: 1px solid #5b5037; background: linear-gradient(130deg, #2b393d, #151d20 72%); color: var(--atlas-paper); box-shadow: inset 0 1px #ead5ab24; }
 html:root body[data-atlas-home] .class-entry strong { font: 700 clamp(1rem, 2vw, 1.4rem)/1.2 Georgia, serif; color: var(--atlas-gold); }
 html:root body[data-atlas-home] .class-entry small { color: var(--atlas-muted); }
 html:root body[data-atlas-home] .class-entry__icon { color: var(--atlas-gold); border-color: #74603d; }
@@ -42,7 +42,9 @@ html:root body[data-atlas-home] a:focus-visible,
 .atlas-stage::before {
   z-index: -1;
   background: url('/atlas/sky-grain.svg') center / 800px 480px repeat,
-    radial-gradient(ellipse at 61% 20%, #65513b55, transparent 36%),
+    radial-gradient(ellipse at 61% 20%, #8c623c55, transparent 39%),
+    radial-gradient(ellipse 44% 17% at 83% 62%, #8d9d9b32, transparent 100%),
+    radial-gradient(ellipse 38% 11% at 72% 73%, #527f9438, transparent 100%),
     radial-gradient(ellipse at 66% 42%, #263e4b 0, #13232e 38%, #0a131a 75%);
 }
 .atlas-stage::after { z-index: 1; background: linear-gradient(90deg, #0b141b 0, #0b141bee 19%, transparent 54%); }
@@ -280,3 +282,24 @@ html:root body[data-atlas-home] .feature-card__stamp { color: #f4bd5c; border-co
 html:root body[data-atlas-home] .feature-card.feature-card .feature-card__stamp { color: #f4bd5c; border-color: #aa8c57; }
 html:root body[data-atlas-home] .feature-card.feature-card .feature-card__action { color: #ffcd7d; }
 html:root body[data-atlas-home] .feature-card.feature-card .feature-card__label { color: #d2c5b0; }
+
+/* Frost the controls that overlap the globe. Keep dense text on darker glass. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .atlas-explore, .atlas-story {
+    -webkit-backdrop-filter: blur(12px) saturate(135%);
+    backdrop-filter: blur(12px) saturate(135%);
+    background: linear-gradient(145deg, #43535778, #101b23e8 72%);
+  }
+  .atlas-story {
+    background: linear-gradient(145deg, #263740eb, #101b23f5 72%);
+    box-shadow: inset 0 1px #f9dfa530, 0 15px 40px #0007;
+  }
+  .atlas-explore:hover, .atlas-explore:focus-visible {
+    background: linear-gradient(145deg, #465856e6, #1e2b32eb 72%);
+  }
+}
+
+.atlas-instruments, .atlas-quick-links {
+  background: linear-gradient(125deg, #2b3a42, #17252d 43%, #1e2a31 77%, #2e3535);
+  box-shadow: inset 0 1px #ead5ab24;
+}
