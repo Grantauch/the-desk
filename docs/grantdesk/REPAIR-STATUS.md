@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 30131)
-Total output lines: 616
-
 ## November 11 Cinematic Atlas atmosphere and homepage glass
 
 Owner Codex. The Earth shader deepens the illustrated cloud banks and adds a broader blue and amber atmospheric halo. The homepage adds soft haze behind the globe, frosted Explore and story controls, and glass-inspired surfaces on the daily links and instrument strip. The effects reuse the existing globe meshes and textures. Protected CI, production readback and school Chromebook performance are tracked separately.
@@ -278,7 +275,9 @@ Local browser checks decoded all 23 images, inspected desktop and 390-pixel menu
 
 ## Current checkpoint — October 3 Blacktop Kings generated artwork
 
-Added 13 original generated image assets on top of PR #169's cel-shaded broadcast presentation: eight location-specific backdr…131 tokens truncated…nd floor textures were rendered and visually inspected. Local browser checks passed actual quick-game start, pause, resume and quit, 390-pixel menu layout, trophy decoding and reduced-effect behavior. Blocking all generated image requests retained original artwork, working menu buttons and no persistent career changes. Image-loader regressions, existing court/audio checks and the full canonical verification gate passed. PR #169 and #170 merged through the protected release path. Netlify production deploy `6ac0b8d01e41fe0008306c39` reported exact commit `4cb16ea31dd1c8802c125d58645c2636caddd6dc` ready on October 3. Ordinary player feedback remains pending; the source and v1 review package are preserved.
+Added 13 original generated image assets on top of PR #169's cel-shaded broadcast presentation: eight location-specific backdrops with murals and props, three court surface textures, a transparent impact burst and a crown trophy. Public WebP derivatives total 2,934,224 bytes. Court geometry, scoring, animated players, customization, saves and soundtrack logic retain the existing behavior. Images load lazily with deduplicated requests; completed images repaint static scenery and previews, while pending or failed images use the original canvas art. The new impact sprite is omitted in reduced effects and attract mode.
+
+All eight court scenes and floor textures were rendered and visually inspected. Local browser checks passed actual quick-game start, pause, resume and quit, 390-pixel menu layout, trophy decoding and reduced-effect behavior. Blocking all generated image requests retained original artwork, working menu buttons and no persistent career changes. Image-loader regressions, existing court/audio checks and the full canonical verification gate passed. PR #169 and #170 merged through the protected release path. Netlify production deploy `6ac0b8d01e41fe0008306c39` reported exact commit `4cb16ea31dd1c8802c125d58645c2636caddd6dc` ready on October 3. Ordinary player feedback remains pending; the source and v1 review package are preserved.
 
 ## Current checkpoint — October 3 Blacktop Kings soundtrack
 

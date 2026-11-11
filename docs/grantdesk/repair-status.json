@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 36058)
-Total output lines: 1731
-
 {
   "atlas-atmosphere-2026-11-11": {
     "status": "IMPLEMENTED",
@@ -598,7 +595,535 @@ Total output lines: 1731
       "Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223"
     ],
     "batch": "1",
-    "commit": "e5297d2fe4a116ef…6058 tokens truncated… "Added a separate original Progressive Era classroom Jeopardy edition; earlier games remain unchanged.",
+    "commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57"
+  },
+  "15": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Policy settled in specification: live-data:check remains a separate health check, excluded from deterministic verification."
+    ]
+  },
+  "16": {
+    "status": "VERIFIED",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [
+      "Resource sync uses the shared eligibility helper, preserves linked and null/empty/absent-href coming-soon resources and assignments, validates both outputs before writes, exports only public fields, and preserves private source files.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
+    "batch": "1"
+  },
+  "17": {
+    "status": "VERIFIED",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [
+      "Local editor listing and assignment validation use shared eligibility. Coming-soon status is visible; an actual HTTP save/publish fixture preserves placeholders and private-only assignment history while rejecting concurrent mutations.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
+    "batch": "1"
+  },
+  "18": {
+    "status": "VERIFIED",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [
+      "Ordinary local/editor publishing never runs resources:sync. The full gate and synthetic editor publication pass without private inventories; public catalog and private source bytes are preserved.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
+    "batch": "1"
+  },
+  "19": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Read-only catalog/assignment validator and shared eligibility helper implemented, without private inventories. Archived unapproved resource removed only from public JSON; baseline history and Drive source preserved. 136 resources, 128 links, 8 placeholders.",
+      "Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums.",
+      "Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223"
+    ],
+    "batch": "1",
+    "commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57"
+  },
+  "20": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; site:validate negative-tested; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "First-day instructional dates and no-school rows"
+  },
+  "21": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; site:validate; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "US History 9 scope reaches the present"
+  },
+  "22": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "BTS September milestone: inventing american sport"
+  },
+  "23": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "Grant must decide the claim-specific mapping from Supported and complicated labels to the fixed verdict vocabulary before implementation."
+    ],
+    "batch": "4"
+  },
+  "24": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "25": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Syllabus-aligned periods and BTS unit names"
+  },
+  "26": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Civil Rights & the Soundtrack of a Movement"
+  },
+  "27": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "28": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "29": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "30": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "31": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
+  },
+  "32": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
+  },
+  "33": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
+  },
+  "34": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
+  },
+  "35": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Version 17 source snapshot and fingerprint"
+  },
+  "36": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Versions 14-16 unsafe rollback warnings"
+  },
+  "37": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "OPERATIONS.md updated for Version 18, canonical verify, private access controls, release evidence and explicit pending classroom verification; unsafe rollback advice removed."
+    ],
+    "batch": "3"
+  },
+  "38": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "3"
+  },
+  "39": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "September 6: GitHub commit statuses expose no Netlify status and the deployments API returns no records. The available browser requires Netlify/GitHub sign-in. Exact deployment identity remains unverified; no live deployment inferred.",
+      "September 7 authenticated Netlify check: production main f2d4daff1cc7d7c5bd731d4989a4fe75688f58dd is ready, published 2026-09-07T19:49:17.296Z, deploy 6a9f151117ec3f000812b557. This closes the earlier dashboard/fingerprint blocker for the recovered Sol batch. The acceptance correction batch has local checks only until its separate PR/production fingerprint is recorded."
+    ],
+    "batch": "3"
+  },
+  "40": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Windows Git push to main succeeded at e5297d2fe4a116ef78559faf1dfffbaade6abe57 and git ls-remote confirmed the same SHA. Current GitHub API reports admin and push permission. Write authority tested once; do not re-diagnose historical setup."
+    ],
+    "batch": "3",
+    "commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57"
+  },
+  "41": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+    ]
+  },
+  "42": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Group sizes use Math.ceil"
+  },
+  "43": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Cold call identifies roster slots"
+  },
+  "44": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Timer uses wall clock"
+  },
+  "45": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "46": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "47": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "GD1 packed-text and private-note copy"
+  },
+  "48": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; site:validate; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "2026 head-of-household tax bound"
+  },
+  "49": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "50": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "51": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "52": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "README courses and commands"
+  },
+  "53": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "CLAUDE stack and maintenance rules"
+  },
+  "54": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "EDITING conventions corrected"
+  },
+  "55": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "START-HERE publishing routes",
+    "follow_up": "Complete: START-HERE documents the checked publisher and the separate Netlify deployment confirmation."
+  },
+  "56": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Curriculum eligibility and documented href-only gap",
+    "follow_up": "Complete: removed the resolved href-only and publish-time-sync gaps; shared eligibility and explicit authoring are documented."
+  },
+  "57": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Stale root jeopardy copies removed; canonical hubs retained"
+  },
+  "58": {
+    "status": "VERIFIED",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [
+      "Both legacy batch scripts delegate to publish.bat and the shared publisher. No automatic all-files staging or index-lock deletion. Intended batches, failure stops, source stability, upload retry and remote SHA confirmation are covered with synthetic repositories.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes.",
+      "September 7 acceptance correction: all local publishing entry points upload the verified SHA to a deterministic review branch, leave local HEAD/work intact and print a review link. 21 synthetic integration checks include rejected main writes, retries and edits/new commits during upload. Full canonical verify passed locally: 298 Hall Pass behavior checks, 11 tools checks, 3 classroom-state checks, 48 resource/gate fixtures, 52 routes, 68 HTML files/3851 links, Astro 0 errors/0 warnings/2 existing hints. Browser acceptance: 42 cases across 320/390/1440 widths plus 5 separate source regressions. PR, CI and exact correction deployment are recorded separately after release."
+    ],
+    "batch": "1"
+  },
+  "59": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "60": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "61": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "62": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "63": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "64": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "65": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "66": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "67": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "68": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "69": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "70": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "71": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "72": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "73": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "progressive-jeopardy-showtime-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "0ef4f2d0a2b60a4c40e10f0ef025a7053df83d14",
+    "scope": "Progressive Era Jeopardy Showtime visual edition v2.1.0",
+    "evidence": [
+      "Original interpretive city illustration, local licensed display font, brass-framed clue board, original category symbols, team podiums and dedicated wager styling.",
+      "Optional clue entrances, answer reveals, point celebrations and existing finish confetti respect teacher effects settings and system reduced motion.",
+      "83 focused browser checks pass, including the complete 60-clue game, scoring, save transfer, accessibility, asset failure fallback, effects controls and 720px projector fit.",
+      "All 70 original regular clues and all final questions match the approved baseline exactly. Saved-game format remains compatible. The predecessor is retained privately.",
+      "Self-contained offline copy embeds artwork and font; disconnected play, scoring and refresh/resume passed."
+    ],
+    "verification_status": "CANONICAL_FULL_GATE_PASSED_53_PAGES_122_HTML_4521_REFS_81_SEALS",
+    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
+    "field_status": "FIELD_PENDING"
+  },
+  "progressive-jeopardy-v2-unanswered-wagers-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "6bcf5719c7610f1ca953afc54aa582bed8436ff6",
+    "evidence": [
+      "No correct response and ending an unanswered locked Daily Double now each forfeit the wager through the same single miss ruling.",
+      "74 focused browser checks pass, including both unanswered-wager paths and Undo. The original 70-clue bank and saved-game format remain compatible.",
+      "Build and static validation pass: 122 HTML files, 4519 local references and 81 sealed files."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
+  "progressive-jeopardy-v2-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "eae2cab44a77b38f8dc2cd477f2a1524f6bbb88d",
+    "evidence": [
+      "Added a separate original Progressive Era classroom Jeopardy edition; earlier games remain unchanged.",
       "70 original clues with answers, explanations and hints; 60 clues per full match, 10 optional empire clues and three possible finals.",
       "70 browser acceptance checks passed, including a complete 60-clue match, score totals, wagers, steal lockout, hints, hot streaks, undo, saved-file transfer and malformed-save handling.",
       "Accessibility checks passed for setup, board, clue answer, results and phone board; layouts checked at 320, 390, 768 and 1280 pixels, with a compact 720-pixel projector view.",
