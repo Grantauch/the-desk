@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { HISTORY, newsFromPayload, pointFromLatLon } from '../public/atlas/story-data.mjs';
-import { countryAt } from '../public/atlas/atlas-countries.mjs';
+import { countryAt, countryLabelAnchors } from '../public/atlas/atlas-countries.mjs';
 import { ORBITAL_EVENTS, createOrbitalPlayback, eligibleEvents } from '../public/atlas/orbital-events.mjs';
 import atlasClouds from '../netlify/functions/atlas-clouds.mjs';
 
@@ -161,4 +161,29 @@ test('orbital playback shuffles without repeats and offers a static reduced-moti
   assert.equal(still.scene.id, 'eclipse');
   assert.equal(still.progress, .62);
   assert.equal(tick({ still: true, blocked: true }).scene, null);
+});
+
+test('country label anchors remain inside the mapped land and outside polygon holes', () => {
+  const outline = [[0,0],[10,0],[10,10],[0,10],[0,0]];
+  const hole = [[3,3],[7,3],[7,7],[3,7],[3,3]];
+  const country = ['Example', [[outline, hole]]];
+  const [anchor] = countryLabelAnchors([country]);
+  assert.equal(countryAt([country], anchor.lon, anchor.lat), country);
+
+  for (const path of ['countries.json', 'history/1914.json']) {
+    const data = JSON.parse(readFileSync(new URL(`../public/atlas/${path}`, import.meta.url)));
+    const anchors = countryLabelAnchors(data);
+    assert.ok(anchors.length > 70);
+    for (const { country, lon, lat } of anchors) assert.equal(countryAt([country], lon, lat), country);
+  }
+});
+
+test('country facts distinguish diplomatic relations from archival representation', () => {
+  const data = JSON.parse(readFileSync(new URL('../public/atlas/countries.json', import.meta.url)));
+  for (const code of ['ir', 'kn']) {
+    assert.match(data.find(country => country[3] === code)[2][3], /^No formal U\.S\. diplomatic relations/);
+  }
+  const historical = JSON.parse(readFileSync(new URL('../public/atlas/history/1914.json', import.meta.url)));
+  assert.ok(historical.some(([name]) => name === 'Republic of China'));
+  assert.ok(!historical.some(([name]) => name === 'Manchu Empire'));
 });

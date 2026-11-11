@@ -1,4 +1,16 @@
 {
+  "atlas-visual-polish-2026-11-11": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Atlas cloud, country labels and facts, teaching controls and measurement polish.",
+    "verification_status": "PROTECTED_BROWSER_CHECK_PENDING",
+    "deployment_status": "PRODUCTION_READBACK_PENDING",
+    "field_status": "SCHOOL_CHROMEBOOK_PERFORMANCE_PENDING",
+    "evidence": [
+      "The browser uses one moving cloud mask and one surface shadow. Country labels use interior points in the active border snapshot.",
+      "The distance tool shows two labeled pins, a great-circle arc and explicit clear and exit controls."
+    ]
+  },
   "atlas-orbital-events-2026-11-11": {
     "status": "IMPLEMENTED",
     "owner": "Codex",

@@ -42,8 +42,7 @@ The original photographs are available from the institutions linked above.
   by Robert Simmon. [NASA Blue Marble description and credits](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/).
   Brightness-to-alpha conversion from the NASA Blue Marble cloud composite,
   delivered as a grayscale JPEG alpha mask from that same documented mirror.
-  Two cloud decks use the same geographic mask at different heights and
-  densities. Their drift and shadows are artistic.
+  The live globe shades wisps, cloud banks and bright cores from one geographic mask.
 - **earth-relief.bin:** vertex heights sampled from the Blender terrain
   model, derived from the [NASA Blue Marble global topography map](https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/).
   Heights are exaggerated for the carved globe look.
@@ -87,9 +86,9 @@ navigation aid. Broad region names use a labeled approximate reference point.
 
 Country outlines use Natural Earth Admin 0 Countries at 1:110m, rounded to two decimal places. The outlines are generalized and show de facto boundaries. Smaller jurisdictions may be absent. https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/
 
-Country profiles use a snapshot of the public-domain CIA World Factbook mirrored at https://github.com/factbook/factbook.json/tree/144d6977b2b01ac1cbd220de754c0a005616760b . Figures carry their source years. Population falls back to the Natural Earth estimate when available. GDP is purchasing power parity. The leading export is the first reported commodity by value. The U.S. relations field reports archived diplomatic representation when available, with a link to State Department profiles for current context.
+Country profiles use a snapshot of the public-domain CIA World Factbook mirrored at https://github.com/factbook/factbook.json/tree/144d6977b2b01ac1cbd220de754c0a005616760b . Figures carry their source years. Population falls back to the Natural Earth estimate when available. GDP is purchasing power parity. The leading export is the first reported commodity by value. The U.S. relations field reports archived diplomatic representation where available. The cards for Iran, North Korea and South Korea link to State Department sources for their relationship summaries.
 
-The six historical snapshots are simplified from [Historical Basemaps](https://github.com/aourednik/historical-basemaps/tree/4b5039e50d8d2464b065bd76ad6086cd4597108d/geojson) by Aurèle Ourednik and contributors. The outlines and names are source interpretations. The snapshot data in `history/` is distributed under the [GNU GPL v3](./history/LICENSE.txt). Processing retains NAME, SUBJECTO, and polygon geometry, simplifies geometry by 0.20 degrees with GDAL, rounds coordinates to two decimal places, and converts features to [name, polygons, subject] JSON entries.
+The six historical snapshots are simplified from [Historical Basemaps](https://github.com/aourednik/historical-basemaps/tree/4b5039e50d8d2464b065bd76ad6086cd4597108d/geojson) by Aurèle Ourednik and contributors. The outlines and names are source interpretations. The snapshot data in `history/` is distributed under the [GNU GPL v3](./history/LICENSE.txt). Processing retains NAME, SUBJECTO, and polygon geometry, simplifies geometry by 0.20 degrees with GDAL, rounds coordinates to two decimal places, and converts features to [name, polygons, subject] JSON entries. The 1914 map uses Republic of China following the [U.S. Office of the Historian](https://history.state.gov/milestones/1899-1913/chinese-rev). Its boundary geometry comes from Historical Basemaps.
 
 ### Orbital scenes
 

@@ -14,7 +14,12 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <img src="/atlas/globe-portrait.webp" alt="A bronze and blue Earth with cloud bands over the Atlantic. Story locations are available in the list below." width="840" height="840" fetchpriority="high" />
     </div>
     <canvas data-atlas-canvas tabindex="0" role="img" aria-label="Interactive globe. Arrow keys rotate; plus and minus zoom. Story locations are available as buttons below."></canvas>
+    <div class="atlas-country-labels" data-atlas-country-labels aria-hidden="true"></div>
     <div class="atlas-pins" data-atlas-pins></div>
+    <div class="atlas-quick-tools" role="group" aria-label="Teaching tools">
+      <button type="button" data-atlas-air aria-pressed="true" disabled>clouds &amp; haze</button>
+      <button type="button" data-atlas-measure aria-pressed="false" disabled>measure</button>
+    </div>
     <div class="atlas-coordinates">
       <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7" /><path d="M12 1v6m0 10v6M1 12h6m10 0h6M12 10v4m-2-2h4" /></svg>
       <p>view center <span data-atlas-coordinates>26° N · 030° W</span></p>
@@ -47,7 +52,15 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <div class="atlas-cluster" data-story-cluster hidden></div>
       <a data-story-link href="/storyhubs/">open the story ↗</a>
     </aside>
-    <output class="atlas-measure-readout" data-measure-readout role="status" hidden></output>
+    <div class="atlas-measure-target" aria-hidden="true"></div>
+    <div class="atlas-measure-readout" data-measure-panel hidden>
+      <p>Approximate surface distance</p>
+      <output data-measure-readout role="status"></output>
+      <div class="atlas-measure-actions">
+        <button type="button" data-measure-clear disabled>Clear pins</button>
+        <button type="button" data-measure-exit>Done</button>
+      </div>
+    </div>
     <aside class="atlas-story atlas-country" data-atlas-country hidden aria-labelledby="atlas-country-title">
       <button class="atlas-story-close" type="button" data-country-close aria-label="Close country facts">×</button>
       <h2 id="atlas-country-title" data-country-title></h2>
@@ -62,7 +75,8 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       </dl>
       <p data-country-modern>Archived estimates · GDP in international dollars</p>
       <a data-country-source href="https://github.com/factbook/factbook.json">Factbook archive ↗</a>
-      <a data-country-modern href="https://www.state.gov/countries-areas/">U.S. country profiles ↗</a>
+      <a data-country-name-source href="https://history.state.gov/milestones/1899-1913/chinese-rev" hidden>1912 name change ↗</a>
+      <a data-country-modern data-country-relations href="https://www.state.gov/countries-areas/">U.S. country profiles ↗</a>
     </aside>
   </div>
 
@@ -85,7 +99,6 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <button type="button" data-atlas-zoom="-1" aria-label="Zoom in">+</button>
       <button type="button" data-atlas-zoom="1" aria-label="Zoom out">−</button>
       <button type="button" data-atlas-reset>reset</button>
-      <button type="button" data-atlas-measure aria-pressed="false" disabled>measure</button>
       <button type="button" data-atlas-motion aria-pressed="false">pause clouds</button>
     </div>
     <div class="atlas-instrument-status">
@@ -102,7 +115,6 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <p class="atlas-status" data-atlas-borders-status></p>
       <p class="atlas-status" data-atlas-status role="status">Drag to rotate. Select a marker or choose a story below.</p>
       <div class="atlas-weather" role="group" aria-label="Cloud layer">
-        <button type="button" data-atlas-air aria-pressed="true" disabled>clouds &amp; haze</button>
         <button type="button" data-atlas-weather aria-pressed="false" disabled>satellite clouds</button>
         <span data-atlas-weather-status role="status"></span>
       </div>
@@ -118,7 +130,7 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
 
   <details class="atlas-index" data-atlas-index>
     <summary>choose a story <span aria-hidden="true">↗</span></summary>
-    <p>Locations identify the setting of each story. The globe uses present-day geography.</p>
+    <p>Locations identify the setting of each story.</p>
     <div class="atlas-choices" data-atlas-choices>
       {HISTORY.map(story => <a href={story.href} data-atlas-choice={story.id}><strong>{story.title}</strong><span>{story.place} · {story.date}</span></a>)}
     </div>

@@ -3,7 +3,13 @@ import { atlasAir, atlasCloud, atlasSurface, atlasVertex } from './atlas-light.m
 
 import { createOrbitalPlayback, eligibleEvents } from './orbital-events.mjs';
 import { createOrbitalEffects } from './orbital-effects.mjs';
-import { countryAt, drawCountryLines } from './atlas-countries.mjs';
+import { countryAt, countryLabelAnchors, drawCountryLines } from './atlas-countries.mjs';
+
+const RELATIONS_SOURCES = {
+  ir: 'https://2021-2025.state.gov/u-s-relations-with-iran/',
+  kn: 'https://travel.state.gov/en/international-travel/travel-advisories/north-korea.html',
+  ks: 'https://2021-2025.state.gov/u-s-security-cooperation-with-korea/',
+};
 
 const root = document.querySelector('[data-atlas]');
 if (root) initAtlas(root);
@@ -77,7 +83,10 @@ function initAtlas(atlas) {
   const timeline = $('[data-atlas-year]');
   const airButton = $('[data-atlas-air]');
   const measureButton = $('[data-atlas-measure]');
+  const measurePanel = $('[data-measure-panel]');
   const measureOutput = $('[data-measure-readout]');
+  const clearMeasurement = $('[data-measure-clear]');
+  const firstPinPrompt = 'Place pin A on the globe. Use Enter to pin the view center.';
   let atmosphereOn = true, measuring = false;
   function setMeasuring(enabled) {
     if (enabled) stopOrbital();
@@ -85,8 +94,9 @@ function initAtlas(atlas) {
     measureButton.setAttribute('aria-pressed', String(enabled));
     atlas.classList.toggle('is-measuring', enabled);
     pins.inert = enabled;
-    measureOutput.hidden = !enabled;
-    measureOutput.textContent = 'Place pin A · click the globe or press Enter on it';
+    measurePanel.hidden = !enabled;
+    measureOutput.textContent = firstPinPrompt;
+    clearMeasurement.disabled = true;
     map?.clearMeasure();
     if (enabled) {
       closeCountry();
@@ -95,6 +105,16 @@ function initAtlas(atlas) {
     }
   }
   measureButton.addEventListener('click', () => setMeasuring(!measuring));
+  clearMeasurement.addEventListener('click', () => {
+    map?.clearMeasure();
+    measureOutput.textContent = firstPinPrompt;
+    canvas.focus({ preventScroll: true });
+    clearMeasurement.disabled = true;
+  });
+  $('[data-measure-exit]').addEventListener('click', () => {
+    measureButton.focus({ preventScroll: true });
+    setMeasuring(false);
+  });
   airButton.addEventListener('click', () => {
     atmosphereOn = !atmosphereOn;
     airButton.setAttribute('aria-pressed', String(atmosphereOn));
@@ -106,6 +126,7 @@ function initAtlas(atlas) {
   const weatherStatus = $('[data-atlas-weather-status]');
   const weatherCredit = $('[data-atlas-weather-credit]');
   const pins = $('[data-atlas-pins]');
+  const countryLabels = $('[data-atlas-country-labels]');
   const choices = $('[data-atlas-choices]');
   const panel = $('[data-atlas-story]');
   const countryPanel = $('[data-atlas-country]');
@@ -116,16 +137,18 @@ function initAtlas(atlas) {
   const borderRequests = new Map();
   let borderData = [];
   const countryFields = countryPanel.querySelectorAll('[data-country-fact]');
+  let countryInvoker = null;
   const closeCountry = () => {
-    if (countryPanel.contains(document.activeElement)) countryPicker.focus({ preventScroll: true });
+    if (countryPanel.contains(document.activeElement)) countryInvoker?.focus({ preventScroll: true });
     countryPanel.hidden = true;
     countryPicker.value = '';
   };
   $('[data-country-close]').addEventListener('click', closeCountry);
-  function showCountry(country) {
+  function showCountry(country, invoker) {
     if (!country) { closeCountry(); return; }
     stopOrbital();
     closeStory();
+    countryInvoker = invoker;
     const [name, , facts, code] = country;
     const historical = year !== Number(timeline.max);
     $('[data-country-title]').textContent = name;
@@ -142,11 +165,21 @@ function initAtlas(atlas) {
     source.hidden = !historical && !code;
     source.href = historical ? 'https://github.com/aourednik/historical-basemaps' : 'https://github.com/factbook/factbook.json';
     source.textContent = historical ? 'Historical Basemaps ↗' : 'Factbook archive ↗';
+    const relations = $('[data-country-relations]');
+    relations.href = RELATIONS_SOURCES[code] ?? 'https://www.state.gov/countries-areas/';
+    relations.textContent = RELATIONS_SOURCES[code] ? 'U.S. relations source ↗' : 'U.S. country profiles ↗';
+    const nameSource = $('[data-country-name-source]');
+    nameSource.hidden = !historical || name !== 'Republic of China' || year !== 1914;
     countryPicker.value = String(borderData.indexOf(country));
     countryPanel.hidden = false;
     $('[data-country-close]').focus({ preventScroll: true });
   }
-  countryPicker.addEventListener('change', () => showCountry(borderData[countryPicker.value]));
+  countryPicker.addEventListener('change', () => {
+    const country = borderData[countryPicker.value];
+    showCountry(country, countryPicker);
+    const anchor = country && map?.countryAnchor(country);
+    if (anchor) map.center(anchor.lat, anchor.lon);
+  });
   borderPicker.addEventListener('change', () => {
     if (!borderPicker.value) return;
     timeline.value = borderPicker.value;
@@ -178,7 +211,7 @@ function initAtlas(atlas) {
       options.sort((a, b) => a.text.localeCompare(b.text));
       countryPicker.replaceChildren(new Option('Choose a country', ''), ...options);
       countryPicker.closest('label').hidden = false;
-      borderStatus.textContent = modern ? 'Present-day borders' : `${requestedYear} borders · Historical Basemaps`;
+      borderStatus.textContent = modern ? 'Present-day borders · Natural Earth' : `${requestedYear} · Approximate borders · Historical Basemaps`;
       map?.showBorders(data);
     } catch {
       borderRequests.delete(requestedYear);
@@ -472,11 +505,10 @@ function initAtlas(atlas) {
     cloudMap.wrapS = T.RepeatWrapping;
     const sun = { value: new T.Vector3(-.85, .52, .33).normalize() };
     const cloudTexture = { value: cloudMap };
-    const cloudVeil = { value: new T.Vector2(.009, .006) };
     const observedClouds = { value: 0 };
     const uniforms = {
       surface: { value: surface }, clouds: cloudTexture, relief: { value: normalMap },
-      cloudOffset: { value: new T.Vector2() }, cloudVeil, sun,
+      cloudOffset: { value: 0 }, sun,
       borders: { value: null }, showBorders: { value: 0 }, atmosphereOn: { value: 1 },
     };
     const geometry = new T.SphereGeometry(1, columns, rows);
@@ -502,9 +534,19 @@ function initAtlas(atlas) {
       const hit = raycaster.intersectObject(terrain)[0];
       if (!hit?.uv) return;
       if (measuring) addMeasurePoint(hit.uv.y * 180 - 90, hit.uv.x * 360 - 180);
-      else showCountry(countryAt(borderData, hit.uv.x * 360 - 180, hit.uv.y * 180 - 90));
+      else showCountry(countryAt(borderData, hit.uv.x * 360 - 180, hit.uv.y * 180 - 90), canvas);
     }
+    let labelAnchors = [];
+    const labelSlots = Array.from({ length: 12 }, () => {
+      const label = document.createElement('span');
+      label.hidden = true;
+      countryLabels.append(label);
+      return label;
+    });
+    const countryAnchor = country => labelAnchors.find(anchor => anchor.country === country);
     function showBorders(data) {
+      labelAnchors = data ? countryLabelAnchors(data) : [];
+      if (!data) labelSlots.forEach(label => { label.hidden = true; });
       uniforms.borders.value?.dispose();
       uniforms.borders.value = data ? new T.CanvasTexture(drawCountryLines(data)) : null;
       uniforms.showBorders.value = Number(Boolean(data));
@@ -513,56 +555,79 @@ function initAtlas(atlas) {
     const measureGroup = new T.Group();
     earth.add(measureGroup);
     const measurePoints = [];
-    const pinGeometry = new T.SphereGeometry(.016, 12, 8);
-    const pinMaterials = [0xffd186, 0x95edff].map(color => new T.MeshBasicMaterial({ color }));
-    const routeMaterial = new T.LineBasicMaterial({ color: 0xffe4ae });
-    let measureArc;
+    const routeSegments = 72, routeSides = 6;
+    const routeMaterial = new T.MeshBasicMaterial({ color: 0xffdda0 });
+    const routeEdge = new T.MeshBasicMaterial({ color: 0x302522, side: T.BackSide });
+    const pinMaterials = ['#ffce79', '#a9f2ff'].map((color, index) => {
+      const icon = document.createElement('canvas');
+      icon.width = icon.height = 96;
+      const ctx = icon.getContext('2d');
+      ctx.beginPath();
+      ctx.arc(48, 48, 37, 0, Math.PI * 2);
+      ctx.fillStyle = '#102330';
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.font = 'bold 47px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(index === 0 ? 'A' : 'B', 48, 50);
+      return new T.SpriteMaterial({ map: new T.CanvasTexture(icon), depthWrite: false });
+    });
+    let measureRoute = [], routeStarted = 0;
     function clearMeasure() {
       measurePoints.length = 0;
       measureGroup.clear();
-      measureArc?.geometry.dispose();
-      measureArc = null;
+      measureRoute.forEach(mesh => mesh.geometry.dispose());
+      measureRoute = [];
       render();
     }
     function addMeasurePoint(lat, lon) {
       if (measurePoints.length === 2) clearMeasure();
       const point = new T.Vector3(...pointFromLatLon(lat, lon));
-      const marker = new T.Mesh(pinGeometry, pinMaterials[measurePoints.length]);
-      marker.position.copy(point).multiplyScalar(1.057);
+      const marker = new T.Sprite(pinMaterials[measurePoints.length]);
+      marker.position.copy(point).multiplyScalar(1.05);
+      marker.scale.setScalar(.13);
+      marker.renderOrder = 3;
       measureGroup.add(marker);
       measurePoints.push(point);
+      clearMeasurement.disabled = false;
       if (measurePoints.length === 1) {
         measureOutput.textContent = 'A placed · choose pin B';
       } else {
         const [a, b] = measurePoints;
-        const turn = new T.Quaternion().setFromUnitVectors(a, b);
-        const partial = new T.Quaternion();
-        const arc = Array.from({ length: 65 }, (_, index) => {
-          const t = index / 64;
-          return a.clone().applyQuaternion(partial.identity().slerp(turn, t))
-            .multiplyScalar(1.057 + .035 * Math.sin(Math.PI * t));
-        });
-        measureArc = new T.Line(new T.BufferGeometry().setFromPoints(arc), routeMaterial);
-        measureGroup.add(measureArc);
-        const km = a.angleTo(b) * 6371.0088;
+        const angle = a.angleTo(b);
+        if (angle > .000001) {
+          const turn = new T.Quaternion().setFromUnitVectors(a, b);
+          const partial = new T.Quaternion();
+          const curve = new T.CatmullRomCurve3(Array.from({ length: routeSegments + 1 }, (_, index) => {
+            const t = index / routeSegments;
+            return a.clone().applyQuaternion(partial.identity().slerp(turn, t))
+              .multiplyScalar(1.05 + .041 * Math.sin(Math.PI * t));
+          }));
+          measureRoute = [[.009, routeEdge], [.0045, routeMaterial]].map(([radius, material]) => {
+            const mesh = new T.Mesh(new T.TubeGeometry(curve, routeSegments, radius, routeSides, false), material);
+            // The edge is a back-face shell so the brighter tube is visible inside it.
+            mesh.geometry.setDrawRange(0, motionQuery.matches ? Infinity : 0);
+            measureGroup.add(mesh);
+            return mesh;
+          });
+          routeStarted = performance.now();
+        }
+        const km = angle * 6371.0088;
         const format = new Intl.NumberFormat('en-US', { maximumFractionDigits: km < 10 ? 1 : 0 });
         measureOutput.textContent = `A → B · ${format.format(km)} km / ${format.format(km / 1.609344)} mi`;
       }
       render();
     }
-    const clouds = new T.SphereGeometry(1, 112, 64);
-    function cloudShell(radius, upper) {
-      const shell = new T.Mesh(clouds, new T.ShaderMaterial({
-        uniforms: { clouds: cloudTexture, cloudVeil, observed: observedClouds, sun, upper: { value: upper } },
-        vertexShader: atlasVertex, fragmentShader: atlasCloud, transparent: true, depthWrite: false,
-      }));
-      shell.scale.setScalar(radius);
-      shell.renderOrder = upper + 1;
-      earth.add(shell);
-      return shell;
-    }
-    const weather = cloudShell(1.026, 0);
-    const cirrus = cloudShell(1.050, 1);
+    const weather = new T.Mesh(new T.SphereGeometry(1.035, 112, 64), new T.ShaderMaterial({
+      uniforms: { clouds: cloudTexture, observed: observedClouds, sun },
+      vertexShader: atlasVertex, fragmentShader: atlasCloud, transparent: true, depthWrite: false,
+    }));
+    weather.renderOrder = 1;
+    earth.add(weather);
     const airRadius = 1.14;
     const atmosphere = new T.Mesh(new T.SphereGeometry(airRadius, 80, 48), new T.ShaderMaterial({
       uniforms: { sun, radius: { value: airRadius } }, vertexShader: atlasVertex, fragmentShader: atlasAir,
@@ -570,7 +635,7 @@ function initAtlas(atlas) {
     }));
     tilt.add(atmosphere);
     function setAtmosphere(visible) {
-      weather.visible = cirrus.visible = atmosphere.visible = visible;
+      weather.visible = atmosphere.visible = visible;
       uniforms.atmosphereOn.value = Number(visible);
       render();
     }
@@ -595,7 +660,6 @@ function initAtlas(atlas) {
       }
       const previous = cloudTexture.value;
       cloudTexture.value = texture;
-      cloudVeil.value.set(image ? 0 : .009, image ? 0 : .006);
       observedClouds.value = Number(Boolean(image));
       if (previous !== cloudMap) previous.dispose();
       render();
@@ -646,6 +710,35 @@ function initAtlas(atlas) {
         node.button.setAttribute('aria-label',count>1?`${count} nearby stories. Choose a story.`:`${node.story.kind}: ${node.story.title} — ${node.story.place}`);
         node.button.dataset.clusterSize=String(count);
       }
+      positionCountryLabels(w, h, occupied);
+    }
+    function positionCountryLabels(width, height, markers) {
+      let used = 0;
+      if (dialog.open && !measuring) {
+        const boxes = markers.map(({x, y}) => ({ x, y, half: 30, height: 29 }));
+        const limit = compactQuery.matches ? 6 : labelSlots.length;
+        for (const { country, lat, lon, weight } of labelAnchors) {
+          if (used >= limit) break;
+          if (weight < (distance > 3.2 ? 42 : distance > 2.6 ? 12 : 3)) break;
+          vector.fromArray(pointFromLatLon(lat, lon, 1.04));
+          earth.localToWorld(vector);
+          normal.copy(vector).sub(tilt.position).normalize();
+          view.copy(camera.position).sub(vector).normalize();
+          if (normal.dot(view) < .38) continue;
+          vector.project(camera);
+          const x = (vector.x + 1) * width / 2, y = (1 - vector.y) * height / 2;
+          const [name] = country;
+          const half = name.length * 4.2 + 7;
+          if (x < half || x > width - half || y < 67 || y > height - 20
+            || boxes.some(box => Math.abs(x - box.x) < half + box.half && Math.abs(y - box.y) < box.height)) continue;
+          const label = labelSlots[used++];
+          if (label.textContent !== name) label.textContent = name;
+          label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
+          label.hidden = false;
+          boxes.push({ x, y, half, height: 22 });
+        }
+      }
+      labelSlots.slice(used).forEach(label => { label.hidden = true; });
     }
     let effects, nightAmount = 0;
     const daylight = sun.value.clone();
@@ -665,7 +758,7 @@ function initAtlas(atlas) {
       if (!rendererVisible || document.hidden || !isInView) return;
       const dt = Math.min(.05, last ? (t-last)/1000 : 0); last = t;
       if (!paused) cloudPhase += dt * .007;
-      const stillCamera = paused || motionQuery.matches;
+      const stillCamera = paused || motionQuery.matches || measuring;
       if (!stillCamera) floatPhase += dt * 1.15;
       const interacting = pointerOnGlobe || stage.contains(document.activeElement) || drag || pinch || transition;
       const nextFloat = stillCamera || interacting ? 0 : Math.sin(floatPhase) * .026;
@@ -683,7 +776,7 @@ function initAtlas(atlas) {
       // Preserve a usable globe on tall phone canvases instead of cropping
       // both continental coasts (and every marker) outside the narrow view.
       const portraitScale = Math.max(1, box.height / (box.width * .99));
-      const targetZ = (distance + (expanded ? .17 : 0)) * portraitScale;
+      const targetZ = (distance - (expanded && !narrow ? .10 : 0)) * portraitScale;
       let scale = box.height / (focalScale * targetZ);
       let screenX = box.left + box.width / 2 + x * scale;
       let screenY = box.top + box.height / 2 - y * scale;
@@ -709,9 +802,8 @@ function initAtlas(atlas) {
       if (dialTransform !== framing) { dial.style.transform = framing; dialTransform = framing; }
       const observed = cloudTexture.value !== cloudMap;
       weather.rotation.y = observed ? 0 : cloudPhase;
-      cirrus.rotation.y = observed ? 0 : .027 + cloudPhase * 1.63;
-      uniforms.cloudOffset.value.set(-weather.rotation.y / (2 * Math.PI), -cirrus.rotation.y / (2 * Math.PI));
-      const projection = `${longitude}/${latitude}/${box.width}/${box.height}/${framing}`;
+      uniforms.cloudOffset.value = -weather.rotation.y / (2 * Math.PI);
+      const projection = `${longitude}/${latitude}/${distance < 2.6 ? 2 : Number(distance < 3.2)}/${box.width}/${box.height}/${framing}`;
       if (pinsDirty || lastProjection !== projection) {
         positionPins();
         lastProjection = projection;
@@ -729,12 +821,16 @@ function initAtlas(atlas) {
       if (playback.scene) effects ??= createOrbitalEffects(T, earth, sun);
       effects?.update(playback.scene, playback.progress, atmosphereOn, reduced);
       if (playback.scene) showOrbitalCard(playback.scene);
+      const routeProgress = !measureRoute.length || reduced ? 1 : Math.min(1, Math.max(0, (t - routeStarted) / 660));
+      const drawnSegments = Math.ceil(routeSegments * (1 - (1 - routeProgress) ** 3));
+      measureRoute.forEach(({geometry}) => geometry.setDrawRange(0, drawnSegments * routeSides * 6));
       renderer.render(scene, camera);
       if (playback.rotate) {
         showOrbitalCard(null);
         longitude = (longitude + dt * 7 + 540) % 360 - 180;
       }
-      if (!frame && (!paused || transition || distance !== zoomTarget || nightAmount !== nightTarget || (!reduced && (auto || playback.scene)))) {
+      if (!frame && (!paused || transition || distance !== zoomTarget || routeProgress < 1
+        || nightAmount !== nightTarget || (!reduced && (auto || playback.scene)))) {
         frame = requestAnimationFrame(draw);
       }
     }
@@ -858,7 +954,7 @@ function initAtlas(atlas) {
       weatherButton.disabled=true;
       airButton.disabled = measureButton.disabled = true;
       setMeasuring(false); weatherCredit.hidden=true;
-      canvas.hidden=true;pins.hidden=true;$('[data-atlas-fallback]').hidden=false;
+      canvas.hidden=true;pins.hidden=true;countryLabels.hidden=true;$('[data-atlas-fallback]').hidden=false;
       atlas.dataset.graphics='fallback';
       atlas.querySelectorAll('[data-atlas-turn],[data-atlas-zoom],[data-atlas-reset],[data-atlas-motion]').forEach(button=>{button.disabled=true;});
       setStatus('Map view is available. Choose a story below while graphics are unavailable.');
@@ -868,7 +964,7 @@ function initAtlas(atlas) {
       rendererVisible=true;
       orbitalToggle.hidden = motionQuery.matches;
       $('[data-orbital-picker]').hidden = false;
-      canvas.hidden=false;pins.hidden=false;$('[data-atlas-fallback]').hidden=true;
+      canvas.hidden=false;pins.hidden=false;countryLabels.hidden=false;$('[data-atlas-fallback]').hidden=true;
       weatherButton.disabled = !atmosphereOn; weatherCredit.hidden=!satellite;
       airButton.disabled = measureButton.disabled = false;
       atlas.dataset.graphics='ready';
@@ -878,7 +974,7 @@ function initAtlas(atlas) {
     // Diagnostics are intentionally only local, with no telemetry or student data.
     atlas.addEventListener('atlas:inspect',()=>{atlas.dataset.rendering=String(rendererVisible);});
     if (borderData.length) showBorders(borderData);
-    return { clearMeasure, setAtmosphere, showBorders, render, resize, center, reframe, useSatellite, framing: () => currentFraming };
+    return { clearMeasure, countryAnchor, setAtmosphere, showBorders, render, resize, center, reframe, useSatellite, framing: () => currentFraming };
   }
 
   // The page and source links are usable before the optional renderer arrives.

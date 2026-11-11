@@ -20,8 +20,7 @@ export const atlasSurface = `
   uniform sampler2D borders;
   uniform float showBorders;
   uniform float atmosphereOn;
-  uniform vec2 cloudOffset;
-  uniform vec2 cloudVeil;
+  uniform float cloudOffset;
   uniform vec3 sun;
   varying vec2 uvMap;
   varying vec3 worldN;
@@ -49,22 +48,24 @@ export const atlasSurface = `
     vec3 base = mix(ocean, bronze, land);
 
     vec3 localN = texture2D(relief, uvMap).rgb * 2. - 1.;
-    localN.xy *= .32 + land * 1.95;
+    localN.xy *= .30 + land * 2.15;
     vec3 surfaceN = normalize(t * localN.x + b * localN.y + n * max(.26, localN.z));
     float cosSun = dot(n, sun);
     float day = smoothstep(-.21, .49, cosSun);
     float cosView = max(0., dot(n, view));
     float sunlight = max(dot(surfaceN, sun), 0.);
     vec2 shadowOffset = vec2(dot(sun, t), dot(sun, b)) * .005 / max(.24, dot(n, sun));
-    float shadow = smoothstep(.16, .87, texture2D(clouds, uvMap + shadowOffset + vec2(cloudOffset.x, 0.)).r);
-    float upperShadow = smoothstep(.37, .86, texture2D(clouds, uvMap + shadowOffset * 1.8 + vec2(cloudOffset.y, 0.) + cloudVeil).r);
-    float transmission = 1. - (shadow * .42 + upperShadow * .13) * atmosphereOn;
+    float transmission = 1.;
+    if (atmosphereOn > .5) {
+      float shadow = smoothstep(.17, .89, texture2D(clouds, uvMap + shadowOffset + vec2(cloudOffset, 0.)).r);
+      transmission -= shadow * .36 * smoothstep(.02, .42, cosSun);
+    }
     base *= mix(vec3(.055, .09, .20), vec3(.15, .24, .37), day)
       + vec3(1.38, 1.11, .78) * sunlight * transmission;
     if (showBorders > .5) {
       float border = texture2D(borders, uvMap).a;
       base = mix(base, mix(vec3(.31, .49, .60), vec3(.92, .71, .38), day),
-        border * smoothstep(.08, .6, cosView) * .65);
+        border * smoothstep(.10, .56, cosView) * mix(.83, .57, atmosphereOn));
     }
     float halfVector = max(dot(surfaceN, normalize(sun + view)), 0.);
     float sunglint = pow(halfVector, 37.) * .18 + pow(halfVector, 112.) * .72;
@@ -89,25 +90,24 @@ export const atlasSurface = `
 export const atlasCloud = `
   uniform sampler2D clouds;
   uniform vec3 sun;
-  uniform float upper;
   uniform float observed;
-  uniform vec2 cloudVeil;
   varying vec2 uvMap;
   varying vec3 worldN;
   varying vec3 worldP;
   varying vec3 worldT;
 
   float density(vec2 uv) {
-    return texture2D(clouds, uv + cloudVeil * upper).r;
+    return texture2D(clouds, uv).r;
   }
 
   void main() {
     float center = density(uvMap);
-    float illustratedCover = mix(smoothstep(.055, .70, center) * .96, smoothstep(.23, .87, center) * .66, upper);
-    float satelliteCover = mix(smoothstep(.12, .91, center) * .86, smoothstep(.50, .97, center) * .29, upper);
-    float cover = mix(illustratedCover, satelliteCover, observed);
-    // Feather the illustrated upper deck into thin mist around the cloud banks.
-    cover += (1. - observed) * upper * smoothstep(.09, .27, center) * (1. - cover) * .20;
+    // Wisps, banks and tall cores come from one registered cloud field.
+    float wisps = smoothstep(.055, .26, center);
+    float banks = smoothstep(.13, .71, center);
+    float core = smoothstep(.46, .96, center);
+    float illustratedCover = wisps * .16 + banks * .65 + core * .17;
+    float cover = mix(illustratedCover, smoothstep(.12, .91, center) * .91, observed);
     if (cover < .008) discard;
     vec3 n = normalize(worldN);
     vec3 t = normalize(worldT + vec3(.00001, 0., 0.));
@@ -115,12 +115,12 @@ export const atlasCloud = `
     vec2 stepUV = vec2(.0009, .0015);
     vec2 slope = vec2(density(uvMap + vec2(stepUV.x, 0.)) - density(uvMap - vec2(stepUV.x, 0.)),
                       density(uvMap + vec2(0., stepUV.y)) - density(uvMap - vec2(0., stepUV.y)));
-    vec3 cloudN = normalize(n - (t * slope.x + b * slope.y) * mix(3.6, 1.65, upper));
+    vec3 cloudN = normalize(n - (t * slope.x + b * slope.y) * mix(2.25, 4.3, core));
     float light = smoothstep(-.22, .83, dot(cloudN, sun));
     float day = smoothstep(-.25, .39, dot(n, sun));
     vec3 silver = mix(vec3(.055, .14, .31), vec3(.44, .61, .76), day);
-    vec3 gold = mix(vec3(.94, .87, .74), vec3(1., .79, .54), upper);
-    vec3 color = silver * (.51 + center * .23) + gold * light * (.32 + center * .68);
+    vec3 gold = mix(vec3(.86, .85, .80), vec3(1., .91, .76), core);
+    vec3 color = silver * (.47 + banks * .25) + gold * light * (.25 + banks * .47 + core * .26);
     float edge = pow(1. - max(0., dot(n, normalize(cameraPosition - worldP))), 2.1);
     color += mix(vec3(.075, .22, .45), vec3(.55, .28, .09), light) * edge * .57;
     color /= vec3(1.) + max(color - .68, 0.) * .49;

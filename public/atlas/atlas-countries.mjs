@@ -15,6 +15,38 @@ export function countryAt(countries, lon, lat) {
     insideRing(outline, lon, lat) && !holes.some(ring => insideRing(ring, lon, lat))));
 }
 
+export function countryLabelAnchors(countries) {
+  const anchors = [];
+  for (const country of countries) {
+    let best = null;
+    for (const [outline, ...holes] of country[1]) {
+      const latitudes = outline.map(point => point[1]);
+      const bottom = Math.min(...latitudes), top = Math.max(...latitudes);
+      for (const fraction of [.5, .32, .68, .15, .85]) {
+        const lat = bottom + (top - bottom) * fraction;
+        const intersections = [];
+        for (const ring of [outline, ...holes]) {
+          for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+            const [x, y] = ring[i], [previousX, previousY] = ring[j];
+            if ((y > lat) !== (previousY > lat)) intersections.push(x + (previousX - x) * (lat - y) / (previousY - y));
+          }
+        }
+        intersections.sort((a, b) => a - b);
+        for (let i = 0; i + 1 < intersections.length; i += 2) {
+          const left = intersections[i], right = intersections[i + 1];
+          const lon = (left + right) / 2;
+          const weight = Math.min(right - left, 180) * (top - bottom) * Math.cos(lat * Math.PI / 180);
+          if (weight > (best?.weight ?? 0) && insideRing(outline, lon, lat) && !holes.some(ring => insideRing(ring, lon, lat))) {
+            best = { country, lat, lon, weight };
+          }
+        }
+      }
+    }
+    if (best) anchors.push(best);
+  }
+  return anchors.sort((a, b) => b.weight - a.weight);
+}
+
 export function drawCountryLines(countries) {
   const canvas = document.createElement('canvas');
   canvas.width = 2048;

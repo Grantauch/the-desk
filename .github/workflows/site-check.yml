@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     # Keep all gates, including 600 balance games and the five-real-minute town
     # observation. The full suite exceeded 30 minutes in run 39816669934.
-    # Resident-home travel and persistent-world browser journeys add real play time.
-    timeout-minutes: 45
+    # Run 43068266893 reached 45 minutes in the final browser suite.
+    timeout-minutes: 55
     steps:
       - name: Check out the site
         uses: actions/checkout@v7

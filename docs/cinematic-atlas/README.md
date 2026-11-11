@@ -54,8 +54,7 @@ imagery supplies the equirectangular surface. The editable Blender master
 combines NASA topography, two cloud shells, a blue-hour fill and an amber
 solar key. Its terrain profile is exported as a 145 × 97 lattice of byte
 heights for the live globe. A credited CC BY 4.0 normal map adds fine relief.
-The browser shades two drifting cloud decks independently and samples their
-shadows on the surface. A soft atmosphere and ocean sunglint follow the
+The browser shades wisps, banks and tall cores from a single drifting cloud mask, with one ground shadow. A soft atmosphere and ocean sunglint follow the
 lighting direction. The globe floats gently while idle and settles when
 someone points at it, moves focus to it, or drags. Pausing cloud motion
 also stops the float. Deep zoom can load a sharper NASA texture.
