@@ -70,7 +70,9 @@ const fragment = `
       float detail = textureField(q * 69. - time * 4.);
       float canopy = ellipse(q, vec2(size, size * .70));
       float column = ellipse(p, vec2(.025, .045));
-      opacity = smoothstep(.17, .70, detail * (canopy * 1.24 + column * .35)) * .95;
+      float shelf = ellipse(q + vec2(.022, -.019), vec2(size * 1.30, size * .58));
+      opacity = max(canopy * (.22 + detail * .32), shelf * detail * .50)
+        + smoothstep(.29, .76, detail * (canopy * 1.11 + column * .40)) * .63;
       color = mix(vec3(.24, .20, .22), vec3(.81, .67, .53), detail * .65 + light * .2);
     } else if (kind < 5.5) {
       float arc = .09 - p.x * p.x * .91 + sin(p.x * 16. - phase * .4) * .027;

@@ -647,7 +647,9 @@ function initAtlas(atlas) {
         node.button.dataset.clusterSize=String(count);
       }
     }
-    let effects;
+    let effects, nightAmount = 0;
+    const daylight = sun.value.clone();
+    const nightLight = new T.Vector3(-.72, .13, -.68).normalize();
     const orbitalPoint = new T.Vector3(), orbitalNormal = new T.Vector3(), orbitalView = new T.Vector3();
     function eventInView(event) {
       orbitalPoint.fromArray(pointFromLatLon(event.lat, event.lon));
@@ -718,12 +720,21 @@ function initAtlas(atlas) {
       const reduced = motionQuery.matches;
       const auto = orbitalEnabled && !expanded && !interacting && panel.hidden && countryPanel.hidden;
       const playback = orbital.tick({ dt, year, auto, blocked: measuring, still: reduced, visible: eventInView });
+      const isNightScene = playback.scene?.id === 'thunderstorm' || playback.scene?.id === 'aurora';
+      const nightTarget = isNightScene && atmosphereOn ? 1 : 0;
+      nightAmount = reduced || Math.abs(nightTarget - nightAmount) < .002
+        ? nightTarget
+        : T.MathUtils.lerp(nightAmount, nightTarget, 1 - Math.exp(-dt * 2.8));
+      sun.value.copy(daylight).lerp(nightLight, nightAmount).normalize();
       if (playback.scene) effects ??= createOrbitalEffects(T, earth, sun);
       effects?.update(playback.scene, playback.progress, atmosphereOn, reduced);
       if (playback.scene) showOrbitalCard(playback.scene);
       renderer.render(scene, camera);
-      if (playback.rotate) longitude = (longitude + dt * 7 + 540) % 360 - 180;
-      if (!frame && (!paused || transition || distance !== zoomTarget || (!reduced && (auto || playback.scene)))) {
+      if (playback.rotate) {
+        showOrbitalCard(null);
+        longitude = (longitude + dt * 7 + 540) % 360 - 180;
+      }
+      if (!frame && (!paused || transition || distance !== zoomTarget || nightAmount !== nightTarget || (!reduced && (auto || playback.scene)))) {
         frame = requestAnimationFrame(draw);
       }
     }

@@ -115,7 +115,15 @@ jobs:
 
       - name: Install Chromium for browser checks
         if: steps.browser.outputs.needed == 'true'
-        run: npx playwright install --with-deps chromium
+        run: |
+          npx playwright install chromium
+          check_launch() {
+            node --input-type=module -e "import { chromium } from 'playwright'; const browser = await chromium.launch(); await browser.close();"
+          }
+          if ! check_launch; then
+            npx playwright install-deps chromium
+            check_launch
+          fi
 
       - name: Check changed StoryHub pages in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode == 'storyhub'
