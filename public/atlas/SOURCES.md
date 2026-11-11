@@ -90,3 +90,7 @@ Country outlines use Natural Earth Admin 0 Countries at 1:110m, rounded to two d
 Country profiles use a snapshot of the public-domain CIA World Factbook mirrored at https://github.com/factbook/factbook.json/tree/144d6977b2b01ac1cbd220de754c0a005616760b . Figures carry their source years. Population falls back to the Natural Earth estimate when available. GDP is purchasing power parity. The leading export is the first reported commodity by value. The U.S. relations field reports archived diplomatic representation when available, with a link to State Department profiles for current context.
 
 The six historical snapshots are simplified from [Historical Basemaps](https://github.com/aourednik/historical-basemaps/tree/4b5039e50d8d2464b065bd76ad6086cd4597108d/geojson) by Aurèle Ourednik and contributors. The outlines and names are source interpretations. The snapshot data in `history/` is distributed under the [GNU GPL v3](./history/LICENSE.txt). Processing retains NAME, SUBJECTO, and polygon geometry, simplifies geometry by 0.20 degrees with GDAL, rounds coordinates to two decimal places, and converts features to [name, polygons, subject] JSON entries.
+
+### Orbital scenes
+
+The seven orbital scenes use procedural illustrations with compressed timing and scale. The dated reconstructions reference the source linked on each event card. The lightning scene illustrates weather and has no historical date.

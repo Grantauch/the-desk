@@ -1,6 +1,8 @@
 import { HISTORY, newsFromPayload, pointFromLatLon } from './story-data.mjs';
 import { atlasAir, atlasCloud, atlasSurface, atlasVertex } from './atlas-light.mjs';
 
+import { createOrbitalPlayback, eligibleEvents } from './orbital-events.mjs';
+import { createOrbitalEffects } from './orbital-effects.mjs';
 import { countryAt, drawCountryLines } from './atlas-countries.mjs';
 
 const root = document.querySelector('[data-atlas]');
@@ -13,6 +15,63 @@ function initAtlas(atlas) {
   const explore = $('[data-atlas-explore]');
   const canvas = $('[data-atlas-canvas]');
   const stage = $('.atlas-stage');
+  const orbital = createOrbitalPlayback();
+  const orbitalToggle = $('[data-orbital-toggle]');
+  const orbitalCard = $('[data-orbital-card]');
+  const orbitalSelect = $('[data-orbital-select]');
+  const orbitalSource = $('[data-orbital-source]');
+  let orbitalEnabled = true, displayedEvent;
+  function updateOrbitalToggle() {
+    const enabled = orbitalEnabled && !motionQuery.matches;
+    orbitalToggle.textContent = enabled ? 'Pause orbital scenes' : 'Play orbital scenes';
+    orbitalToggle.setAttribute('aria-pressed', String(Boolean(enabled)));
+  }
+  function updateOrbitalPicker() {
+    orbitalSelect.replaceChildren(new Option('Choose a scene', ''),
+      ...eligibleEvents(year).map(event => new Option(event.title, event.id)));
+  }
+  function showOrbitalCard(event) {
+    if (event === displayedEvent) return;
+    displayedEvent = event;
+    if (!event) {
+      if (orbitalCard.contains(document.activeElement)) orbitalToggle.focus({ preventScroll: true });
+      orbitalCard.hidden = true;
+      orbitalSelect.value = '';
+      return;
+    }
+    $('[data-orbital-date]').textContent = `${event.date} · ${event.place}`;
+    $('[data-orbital-title]').textContent = event.title;
+    $('[data-orbital-summary]').textContent = event.summary;
+    orbitalSource.hidden = !event.source;
+    if (event.source) orbitalSource.href = event.source;
+    orbitalCard.hidden = false;
+    orbitalSelect.value = event.id;
+  }
+  function stopOrbital() {
+    orbital.stop();
+    showOrbitalCard(null);
+    map?.render();
+  }
+  function replayOrbital(event) {
+    if (!event || !map) return;
+    closeCountry();
+    closeStory();
+    setMeasuring(false);
+    map.center(event.lat, event.lon, false);
+    orbital.replay(event, motionQuery.matches);
+    map.render();
+  }
+  orbitalSelect.addEventListener('change', () => {
+    if (!orbitalSelect.value) stopOrbital();
+    else replayOrbital(eligibleEvents(year).find(event => event.id === orbitalSelect.value));
+  });
+  orbitalToggle.addEventListener('click', () => {
+    orbitalEnabled = !orbitalEnabled;
+    stopOrbital();
+    updateOrbitalToggle();
+  });
+  $('[data-orbital-replay]').addEventListener('click', () => replayOrbital(displayedEvent));
+  $('[data-orbital-close]').addEventListener('click', stopOrbital);
   const dial = $('[data-atlas-dial]');
   const coordinates = $('[data-atlas-coordinates]');
   const timeline = $('[data-atlas-year]');
@@ -21,6 +80,7 @@ function initAtlas(atlas) {
   const measureOutput = $('[data-measure-readout]');
   let atmosphereOn = true, measuring = false;
   function setMeasuring(enabled) {
+    if (enabled) stopOrbital();
     measuring = enabled;
     measureButton.setAttribute('aria-pressed', String(enabled));
     atlas.classList.toggle('is-measuring', enabled);
@@ -64,6 +124,7 @@ function initAtlas(atlas) {
   $('[data-country-close]').addEventListener('click', closeCountry);
   function showCountry(country) {
     if (!country) { closeCountry(); return; }
+    stopOrbital();
     closeStory();
     const [name, , facts, code] = country;
     const historical = year !== Number(timeline.max);
@@ -152,6 +213,7 @@ function initAtlas(atlas) {
   };
 
   function selectStory(story, center = false) {
+    stopOrbital();
     closeCountry();
     selected = story;
     panel.hidden = false;
@@ -172,6 +234,7 @@ function initAtlas(atlas) {
   }
 
   function showCluster(stories) {
+    stopOrbital();
     closeCountry();
     selected = null; panel.hidden = false;
     markerNodes.forEach(({button})=>button.setAttribute('aria-expanded','false'));
@@ -280,6 +343,7 @@ function initAtlas(atlas) {
 
   function expand(invoker = document.activeElement) {
     if (dialog.open) return;
+    stopOrbital();
     const framing = map?.framing();
     originScroll = scrollY;
     restoreFocus = invoker;
@@ -294,6 +358,7 @@ function initAtlas(atlas) {
     map?.reframe(framing);
   }
   function restore() {
+    stopOrbital();
     setMeasuring(false);
     closeCountry();
     const framing = map?.framing();
@@ -320,6 +385,8 @@ function initAtlas(atlas) {
   $('[data-atlas-dismiss]').addEventListener('click', closeStory);
   timeline.addEventListener('input', () => {
     year = Number(timeline.value);
+    stopOrbital();
+    updateOrbitalPicker();
     const minimum = Number(timeline.min), maximum = Number(timeline.max);
     updateBorderYear();
     timeline.style.setProperty('--year-fill', `${100 * (year - minimum) / (maximum - minimum)}%`);
@@ -339,8 +406,15 @@ function initAtlas(atlas) {
     map?.render();
   }
   motion.addEventListener('click', () => { paused = !paused; updateMotion(); });
-  motionQuery.addEventListener('change', () => { paused = motionQuery.matches; updateMotion(); });
+  motionQuery.addEventListener('change', () => {
+    paused = motionQuery.matches;
+    stopOrbital();
+    updateOrbitalToggle();
+    orbitalToggle.hidden = motionQuery.matches || !rendererVisible;
+    updateMotion();
+  });
   $('[data-atlas-instruments]').hidden = false;
+  updateOrbitalPicker(); updateOrbitalToggle();
   updateMotion(); rebuildStories();
 
   async function start() {
@@ -355,6 +429,8 @@ function initAtlas(atlas) {
       });
       map = await createGlobe(window.THREE);
       rendererVisible = true;
+      orbitalToggle.hidden = motionQuery.matches;
+      $('[data-orbital-picker]').hidden = false;
       weatherButton.disabled = !atmosphereOn;
       airButton.disabled = measureButton.disabled = false;
       atlas.dataset.graphics = 'ready';
@@ -526,6 +602,7 @@ function initAtlas(atlas) {
     }
 
     function setZoom(next) {
+      stopOrbital();
       zoomTarget = T.MathUtils.clamp(next, 1.62, 5.75);
       if (!detailRequested && zoomTarget < 2.85 && renderer.capabilities.isWebGL2
         && renderer.capabilities.maxTextureSize >= 5400) {
@@ -569,6 +646,17 @@ function initAtlas(atlas) {
         node.button.setAttribute('aria-label',count>1?`${count} nearby stories. Choose a story.`:`${node.story.kind}: ${node.story.title} — ${node.story.place}`);
         node.button.dataset.clusterSize=String(count);
       }
+    }
+    let effects;
+    const orbitalPoint = new T.Vector3(), orbitalNormal = new T.Vector3(), orbitalView = new T.Vector3();
+    function eventInView(event) {
+      orbitalPoint.fromArray(pointFromLatLon(event.lat, event.lon));
+      earth.localToWorld(orbitalPoint);
+      orbitalNormal.copy(orbitalPoint).sub(tilt.position).normalize();
+      orbitalView.copy(camera.position).sub(orbitalPoint).normalize();
+      if (orbitalNormal.dot(orbitalView) < .83) return false;
+      orbitalPoint.project(camera);
+      return Math.abs(orbitalPoint.x) < .82 && Math.abs(orbitalPoint.y) < .78;
     }
     function draw(t = performance.now()) {
       frame = 0;
@@ -627,8 +715,17 @@ function initAtlas(atlas) {
         lastProjection = projection;
         pinsDirty = false;
       }
+      const reduced = motionQuery.matches;
+      const auto = orbitalEnabled && !expanded && !interacting && panel.hidden && countryPanel.hidden;
+      const playback = orbital.tick({ dt, year, auto, blocked: measuring, still: reduced, visible: eventInView });
+      if (playback.scene) effects ??= createOrbitalEffects(T, earth, sun);
+      effects?.update(playback.scene, playback.progress, atmosphereOn, reduced);
+      if (playback.scene) showOrbitalCard(playback.scene);
       renderer.render(scene, camera);
-      if (!paused || transition || distance !== zoomTarget) frame = requestAnimationFrame(draw);
+      if (playback.rotate) longitude = (longitude + dt * 7 + 540) % 360 - 180;
+      if (!frame && (!paused || transition || distance !== zoomTarget || (!reduced && (auto || playback.scene)))) {
+        frame = requestAnimationFrame(draw);
+      }
     }
     function render() {
       pinsDirty = true;
@@ -644,7 +741,10 @@ function initAtlas(atlas) {
       transition = from && !motionQuery.matches ? { ...from, started: performance.now() } : null;
       resize();
     }
-    function center(lat, lon) { latitude = lat; longitude = lon; render(); }
+    function center(lat, lon, interrupt = true) {
+      if (interrupt) stopOrbital();
+      latitude = lat; longitude = lon; render();
+    }
     function zoom(direction) { setZoom(zoomTarget * Math.exp(direction * .19)); }
     function beginDrag(id, x, y, pendingTouch = false) {
       drag = { id, x, y, lat: latitude, lon: longitude, pendingTouch, canPick: dialog.open && !pinch };
@@ -654,10 +754,11 @@ function initAtlas(atlas) {
       return Math.max(12, Math.hypot(first.x - second.x, first.y - second.y));
     }
     stage.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') pointerOnGlobe = true; });
-    stage.addEventListener('pointerleave', () => { pointerOnGlobe = false; });
+    stage.addEventListener('pointerleave', () => { pointerOnGlobe = false; render(); });
     canvas.addEventListener('pointerdown', event => {
       const touch = event.pointerType === 'touch';
       if (event.button !== 0 || (!event.isPrimary && (!touch || !dialog.open)) || (touch && touches.size >= 2)) return;
+      stopOrbital();
       const wasExpanded = dialog.open;
       const pendingTouch = !wasExpanded && touch;
       if (!pendingTouch) expand(canvas);
@@ -723,6 +824,7 @@ function initAtlas(atlas) {
       }
       if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(event.key)) return;
       event.preventDefault();
+      stopOrbital();
       if (event.key==='ArrowLeft') longitude-=10;
       if (event.key==='ArrowRight') longitude+=10;
       if (event.key==='ArrowUp') latitude=Math.min(78,latitude+8);
@@ -731,14 +833,17 @@ function initAtlas(atlas) {
       if (event.key==='-') zoom(1);
       render();
     });
-    atlas.querySelectorAll('[data-atlas-turn]').forEach(button=>button.addEventListener('click',()=>{longitude+=Number(button.dataset.atlasTurn)*15;render();}));
+    atlas.querySelectorAll('[data-atlas-turn]').forEach(button=>button.addEventListener('click',()=>{stopOrbital();longitude+=Number(button.dataset.atlasTurn)*15;render();}));
     atlas.querySelectorAll('[data-atlas-zoom]').forEach(button=>button.addEventListener('click',()=>zoom(Number(button.dataset.atlasZoom))));
-    $('[data-atlas-reset]').addEventListener('click',()=>{longitude=-30;latitude=26;distance=zoomTarget=homeDistance;render();});
+    $('[data-atlas-reset]').addEventListener('click',()=>{stopOrbital();longitude=-30;latitude=26;distance=zoomTarget=homeDistance;render();});
     new ResizeObserver(resize).observe(stage);
     new IntersectionObserver(entries=>{isInView=entries.some(entry=>entry.isIntersecting);last=0;if(!isInView&&frame){cancelAnimationFrame(frame);frame=0;}render();},{rootMargin:'50px'}).observe(stage);
     document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}render();});
     canvas.addEventListener('webglcontextlost',event=>{
       event.preventDefault(); rendererVisible=false; if(frame)cancelAnimationFrame(frame);frame=0;
+      orbitalToggle.hidden = true;
+      $('[data-orbital-picker]').hidden = true;
+      stopOrbital();
       weatherButton.disabled=true;
       airButton.disabled = measureButton.disabled = true;
       setMeasuring(false); weatherCredit.hidden=true;
@@ -749,7 +854,10 @@ function initAtlas(atlas) {
       $('[data-atlas-index]').open=true;
     });
     canvas.addEventListener('webglcontextrestored',()=>{
-      rendererVisible=true;canvas.hidden=false;pins.hidden=false;$('[data-atlas-fallback]').hidden=true;
+      rendererVisible=true;
+      orbitalToggle.hidden = motionQuery.matches;
+      $('[data-orbital-picker]').hidden = false;
+      canvas.hidden=false;pins.hidden=false;$('[data-atlas-fallback]').hidden=true;
       weatherButton.disabled = !atmosphereOn; weatherCredit.hidden=!satellite;
       airButton.disabled = measureButton.disabled = false;
       atlas.dataset.graphics='ready';

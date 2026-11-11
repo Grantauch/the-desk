@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { HISTORY, newsFromPayload, pointFromLatLon } from '../public/atlas/story-data.mjs';
 import { countryAt } from '../public/atlas/atlas-countries.mjs';
+import { ORBITAL_EVENTS, createOrbitalPlayback, eligibleEvents } from '../public/atlas/orbital-events.mjs';
 import atlasClouds from '../netlify/functions/atlas-clouds.mjs';
 
 const now = Date.parse('2026-11-09T17:00:00Z');
@@ -128,4 +129,36 @@ test('country picking honors the dateline, ocean, and the selected historical ma
   assert.equal(countryAt(modern, 139.69, 35.68)?.[0], 'Japan');
   for (const lon of [-179.9, 179.9]) assert.equal(countryAt(modern, lon, -16.2)?.[0], 'Fiji');
   assert.equal(countryAt(modern, -140, 0), undefined);
+});
+
+test('orbital autoplay chooses only visible, year-eligible scenes and rotates when none are in view', () => {
+  assert.equal(ORBITAL_EVENTS.length, 7);
+  assert.equal(new Set(ORBITAL_EVENTS.map(event => event.effect)).size, 7);
+  assert.deepEqual(eligibleEvents(1914).map(event => event.id), ['thunderstorm']);
+  const playback = createOrbitalPlayback(() => 0);
+  const tick = overrides => playback.tick({
+    dt: 6, year: 2026, auto: true, blocked: false, still: false, visible: () => false, ...overrides,
+  });
+  assert.equal(tick({}).rotate, true);
+  assert.equal(tick({ visible: event => event.id === 'katrina' }).scene.id, 'katrina');
+  assert.equal(tick({ year: 1969 }).scene, null);
+  assert.equal(tick({ year: 1969, visible: event => event.id === 'katrina' }).rotate, true);
+  assert.equal(tick({ blocked: true }).rotate, false);
+});
+
+test('orbital playback shuffles without repeats and offers a static reduced-motion replay', () => {
+  const playback = createOrbitalPlayback(() => 0);
+  const tick = overrides => playback.tick({
+    dt: 20, year: 2026, auto: true, blocked: false, still: false, visible: () => true, ...overrides,
+  });
+  const seen = Array.from({ length: 7 }, () => tick({}).scene.id);
+  assert.equal(new Set(seen).size, 7);
+  assert.notEqual(tick({}).scene.id, seen.at(-1));
+  playback.stop();
+  assert.equal(tick({ still: true }).scene, null);
+  playback.replay(ORBITAL_EVENTS[5], true);
+  const still = tick({ still: true, auto: false });
+  assert.equal(still.scene.id, 'eclipse');
+  assert.equal(still.progress, .62);
+  assert.equal(tick({ still: true, blocked: true }).scene, null);
 });

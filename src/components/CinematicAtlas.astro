@@ -26,6 +26,17 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <a class="atlas-primary" href="#courses">{siteContent.home.startLabel} <span aria-hidden="true">↘</span></a>
     </div>
     <button type="button" class="atlas-explore" data-atlas-explore hidden>drag to explore <span aria-hidden="true">↗</span></button>
+    <button type="button" class="atlas-attract" data-orbital-toggle aria-pressed="false" hidden>Attract mode</button>
+    <aside class="atlas-orbital-card" data-orbital-card hidden aria-labelledby="atlas-orbital-title">
+      <div class="atlas-orbital-meta" data-orbital-date></div>
+      <h2 id="atlas-orbital-title" data-orbital-title></h2>
+      <p data-orbital-summary></p>
+      <div class="atlas-orbital-actions">
+        <button type="button" data-orbital-replay>Replay</button>
+        <button type="button" data-orbital-close aria-label="Dismiss orbital scene">Close</button>
+        <a data-orbital-source>Source ↗</a>
+      </div>
+    </aside>
     <aside class="atlas-story" data-atlas-story hidden aria-label="Selected story">
       <button class="atlas-story-close" type="button" data-atlas-dismiss aria-label="Close story preview">×</button>
       <p class="atlas-eyebrow" data-story-kind>from the archive</p>
@@ -84,6 +95,9 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
           {[1878, 1914, 1938, 1945, 1960, 1994].map(year => <option value={year}>{year}</option>)}
           <option value={new Date().getFullYear()}>Today</option>
         </select>
+      </label>
+      <label class="atlas-country-picker" data-orbital-picker hidden>Orbital scenes
+        <select data-orbital-select><option value="">Choose a scene</option></select>
       </label>
       <p class="atlas-status" data-atlas-borders-status></p>
       <p class="atlas-status" data-atlas-status role="status">Drag to rotate. Select a marker or choose a story below.</p>
