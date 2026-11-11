@@ -82,3 +82,11 @@ Publisher photographs are not requested or displayed by the atlas. Headlines
 with missing dates, stale dates, unknown places, or conflicting place matches
 are left off the globe. “Location matched from the headline” is an approximate
 navigation aid. Broad region names use a labeled approximate reference point.
+
+### Country layer
+
+Country outlines use Natural Earth Admin 0 Countries at 1:110m, rounded to two decimal places. The outlines are generalized and show de facto boundaries. Smaller jurisdictions may be absent. https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/
+
+Country profiles use a snapshot of the public-domain CIA World Factbook mirrored at https://github.com/factbook/factbook.json/tree/144d6977b2b01ac1cbd220de754c0a005616760b . Figures carry their source years. Population falls back to the Natural Earth estimate when available. GDP is purchasing power parity. The leading export is the first reported commodity by value. The U.S. relations field reports archived diplomatic representation when available, with a link to State Department profiles for current context.
+
+The six historical snapshots are simplified from [Historical Basemaps](https://github.com/aourednik/historical-basemaps/tree/4b5039e50d8d2464b065bd76ad6086cd4597108d/geojson) by Aurèle Ourednik and contributors. The outlines and names are source interpretations. The snapshot data in `history/` is distributed under the [GNU GPL v3](./history/LICENSE.txt). Processing retains NAME, SUBJECTO, and polygon geometry, simplifies geometry by 0.20 degrees with GDAL, rounds coordinates to two decimal places, and converts features to [name, polygons, subject] JSON entries.

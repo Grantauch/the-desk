@@ -17,6 +17,9 @@ export const atlasSurface = `
   uniform sampler2D surface;
   uniform sampler2D clouds;
   uniform sampler2D relief;
+  uniform sampler2D borders;
+  uniform float showBorders;
+  uniform float atmosphereOn;
   uniform vec2 cloudOffset;
   uniform vec2 cloudVeil;
   uniform vec3 sun;
@@ -55,8 +58,14 @@ export const atlasSurface = `
     vec2 shadowOffset = vec2(dot(sun, t), dot(sun, b)) * .005 / max(.24, dot(n, sun));
     float shadow = smoothstep(.16, .87, texture2D(clouds, uvMap + shadowOffset + vec2(cloudOffset.x, 0.)).r);
     float upperShadow = smoothstep(.37, .86, texture2D(clouds, uvMap + shadowOffset * 1.8 + vec2(cloudOffset.y, 0.) + cloudVeil).r);
-    float transmission = 1. - shadow * .42 - upperShadow * .13;
-    base *= vec3(.16, .26, .42) + vec3(1.32, 1.06, .73) * sunlight * transmission;
+    float transmission = 1. - (shadow * .42 + upperShadow * .13) * atmosphereOn;
+    base *= mix(vec3(.055, .09, .20), vec3(.15, .24, .37), day)
+      + vec3(1.38, 1.11, .78) * sunlight * transmission;
+    if (showBorders > .5) {
+      float border = texture2D(borders, uvMap).a;
+      base = mix(base, mix(vec3(.31, .49, .60), vec3(.92, .71, .38), day),
+        border * smoothstep(.08, .6, cosView) * .65);
+    }
     float halfVector = max(dot(surfaceN, normalize(sun + view)), 0.);
     float sunglint = pow(halfVector, 37.) * .18 + pow(halfVector, 112.) * .72;
     vec3 reflection = mix(vec3(.18, .42, .61), vec3(1., .78, .43), day);
@@ -71,7 +80,7 @@ export const atlasSurface = `
     vec3 air = mix(vec3(.016, .095, .30), vec3(.12, .34, .58), day);
     air += vec3(.79, .30, .055) * pow(max(cosSun, 0.), 3.);
     float lowHaze = pow(1. - cosView, 1.65);
-    base += air * (limb * .92 + lowHaze * .18);
+    base += air * (limb * .92 + lowHaze * .18) * atmosphereOn;
     gl_FragColor = vec4(base, 1.);
     #include <encodings_fragment>
   }

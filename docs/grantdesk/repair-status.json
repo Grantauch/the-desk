@@ -2,7 +2,7 @@
   "atlas-atmosphere-2026-11-11": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
-    "scope": "Cinematic Atlas cloud depth, atmospheric scattering and homepage glass surfaces.",
+    "scope": "Cinematic Atlas relief, atmosphere and homepage glass, country profiles, six historical border snapshots, and two-point globe measurement.",
     "verification_status": "ATLAS_UNIT_CHECKS_AND_SITE_BUILD_PASSED",
     "deployment_status": "PROTECTED_BUILD_AND_PRODUCTION_READBACK_REQUIRED",
     "field_status": "SCHOOL_CHROMEBOOK_PERFORMANCE_PENDING",

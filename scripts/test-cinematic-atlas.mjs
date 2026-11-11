@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { HISTORY, newsFromPayload, pointFromLatLon } from '../public/atlas/story-data.mjs';
+import { countryAt } from '../public/atlas/atlas-countries.mjs';
 import atlasClouds from '../netlify/functions/atlas-clouds.mjs';
 
 const now = Date.parse('2026-11-09T17:00:00Z');
@@ -117,4 +118,14 @@ test('satellite relay cancels an oversized stream without a content length', asy
   assert.equal(result.headers.get('cache-control'), 'no-store');
   assert.equal(cancelled, true);
   assert.equal(pulled, 2);
+});
+
+test('country picking honors the dateline, ocean, and the selected historical map', () => {
+  const modern = JSON.parse(readFileSync(new URL('../public/atlas/countries.json', import.meta.url)));
+  const historical = JSON.parse(readFileSync(new URL('../public/atlas/history/1914.json', import.meta.url)));
+  assert.equal(countryAt(modern, 16.37, 48.21)?.[0], 'Austria');
+  assert.equal(countryAt(historical, 16.37, 48.21)?.[0], 'Austro-Hungarian Empire');
+  assert.equal(countryAt(modern, 139.69, 35.68)?.[0], 'Japan');
+  for (const lon of [-179.9, 179.9]) assert.equal(countryAt(modern, lon, -16.2)?.[0], 'Fiji');
+  assert.equal(countryAt(modern, -140, 0), undefined);
 });

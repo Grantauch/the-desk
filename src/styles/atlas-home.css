@@ -183,7 +183,7 @@ html:root body[data-atlas-home] a:focus-visible,
 .atlas.is-expanded .atlas-fallback img { left: 50%; top: 50%; max-width: 112%; }
 .atlas.is-expanded .atlas-copy, .atlas.is-expanded .atlas-explore { display: none; }
 .atlas.is-expanded canvas { touch-action: none; }
-.atlas.is-expanded .atlas-instruments { grid-template-columns: max-content minmax(9rem, 30rem) max-content; justify-content: center; }
+.atlas.is-expanded .atlas-instruments { grid-template-columns: minmax(0, max-content) minmax(9rem, 30rem) minmax(0, max-content); justify-content: center; }
 .atlas-dialog-foot { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: .5rem 1.2rem; border-top: 1px solid #445056; gap: 1rem; }
 .atlas-dialog-foot span { color: #c4bbaa; font-size: .75rem; }
 .atlas-open { overflow: hidden; background: #0b141b; }
@@ -302,4 +302,74 @@ html:root body[data-atlas-home] .feature-card.feature-card .feature-card__label 
 .atlas-instruments, .atlas-quick-links {
   background: linear-gradient(125deg, #2b3a42, #17252d 43%, #1e2a31 77%, #2e3535);
   box-shadow: inset 0 1px #ead5ab24;
+}
+
+.atlas-pin {
+  background: radial-gradient(ellipse at 30% 12%, #647779d9, #17262ddd 68%);
+  box-shadow: inset 0 1px #ffe3a766, 0 0 0 3px #ebae4035, 0 3px 12px #070b0ddd;
+}
+.atlas-pin--news {
+  box-shadow: inset 0 1px #ddf7ff70, 0 0 0 3px color-mix(in srgb, currentColor 26%, transparent), 0 3px 12px #070b0ddd;
+}
+.atlas-pin--mixed {
+  box-shadow: inset 0 1px #ddf7ff70, 0 0 0 3px #80d6df42, 0 3px 12px #070b0ddd;
+}
+.atlas-pin:hover { background: #514029; }
+.atlas-pin--news:hover { background: #23404b; }
+.atlas-country dl {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, auto) 1fr;
+  gap: .45rem .8rem;
+  margin: .85rem 0;
+  font-size: .83rem;
+  line-height: 1.35;
+}
+.atlas-country dt { color: #f4bd5c; }
+.atlas-country dd { margin: 0; overflow-wrap: anywhere; }
+.atlas-country a { margin-right: .65rem; font-size: .75rem; }
+.atlas-country-picker { display: grid; gap: .2rem; color: #ded1b9; font-size: .75rem; }
+.atlas-country-picker select {
+  max-width: 12rem;
+  color: #fff0d6;
+  background: #192830;
+  border: 1px solid #758a96;
+  border-radius: .35rem;
+  padding: .4rem .55rem;
+}
+.atlas-country-picker select:focus-visible { outline: 3px solid #a4e8ec; outline-offset: 2px; }
+
+.atlas-measure-readout {
+  position: absolute;
+  z-index: 4;
+  top: .75rem;
+  right: .75rem;
+  max-width: min(21rem, calc(100% - 1.5rem));
+  padding: .65rem .9rem;
+  border: 1px solid #c6aa74;
+  border-radius: .55rem;
+  background: #172831ed;
+  color: #ffe6b5;
+  font: 600 .8rem/1.4 var(--font-mono);
+  pointer-events: none;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .atlas-measure-readout { backdrop-filter: blur(12px); background: #172831c9; }
+}
+.atlas.is-measuring canvas { cursor: crosshair; }
+.atlas.is-measuring .atlas-pin { pointer-events: none; opacity: .35; }
+.atlas-camera [data-atlas-measure][aria-pressed='true'] {
+  background: #f4bd5c;
+  color: #152027;
+  border-color: #f4bd5c;
+}
+[data-atlas-borders-status]:empty { display: none; }
+
+.atlas.is-expanded .atlas-stage::before {
+  background: url('/atlas/sky-grain.svg') center / 800px 480px repeat,
+    radial-gradient(ellipse at 32% 22%, #72513b64, transparent 37%),
+    radial-gradient(ellipse 37% 15% at 72% 67%, #698a9d38, transparent),
+    radial-gradient(ellipse at 50% 43%, #253f50, #101d27 52%, #0a121a 89%);
+}
+.atlas.is-air-off .atlas-stage::before {
+  background: url('/atlas/sky-grain.svg') center / 800px 480px repeat, #0a141d;
 }

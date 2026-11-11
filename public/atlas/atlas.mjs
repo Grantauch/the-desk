@@ -1,6 +1,8 @@
 import { HISTORY, newsFromPayload, pointFromLatLon } from './story-data.mjs';
 import { atlasAir, atlasCloud, atlasSurface, atlasVertex } from './atlas-light.mjs';
 
+import { countryAt, drawCountryLines } from './atlas-countries.mjs';
+
 const root = document.querySelector('[data-atlas]');
 if (root) initAtlas(root);
 
@@ -14,12 +16,114 @@ function initAtlas(atlas) {
   const dial = $('[data-atlas-dial]');
   const coordinates = $('[data-atlas-coordinates]');
   const timeline = $('[data-atlas-year]');
+  const airButton = $('[data-atlas-air]');
+  const measureButton = $('[data-atlas-measure]');
+  const measureOutput = $('[data-measure-readout]');
+  let atmosphereOn = true, measuring = false;
+  function setMeasuring(enabled) {
+    measuring = enabled;
+    measureButton.setAttribute('aria-pressed', String(enabled));
+    atlas.classList.toggle('is-measuring', enabled);
+    pins.inert = enabled;
+    measureOutput.hidden = !enabled;
+    measureOutput.textContent = 'Place pin A · click the globe or press Enter on it';
+    map?.clearMeasure();
+    if (enabled) {
+      closeCountry();
+      closeStory();
+      canvas.focus({ preventScroll: true });
+    }
+  }
+  measureButton.addEventListener('click', () => setMeasuring(!measuring));
+  airButton.addEventListener('click', () => {
+    atmosphereOn = !atmosphereOn;
+    airButton.setAttribute('aria-pressed', String(atmosphereOn));
+    atlas.classList.toggle('is-air-off', !atmosphereOn);
+    weatherButton.disabled = !atmosphereOn || !rendererVisible;
+    map?.setAtmosphere(atmosphereOn);
+  });
   const weatherButton = $('[data-atlas-weather]');
   const weatherStatus = $('[data-atlas-weather-status]');
   const weatherCredit = $('[data-atlas-weather-credit]');
   const pins = $('[data-atlas-pins]');
   const choices = $('[data-atlas-choices]');
   const panel = $('[data-atlas-story]');
+  const countryPanel = $('[data-atlas-country]');
+  const countryPicker = $('[data-country-picker]');
+  const borderPicker = $('[data-border-year]');
+  const borderStatus = $('[data-atlas-borders-status]');
+  const historicalYears = new Set([1878, 1914, 1938, 1945, 1960, 1994]);
+  const borderRequests = new Map();
+  let borderData = [];
+  const countryFields = countryPanel.querySelectorAll('[data-country-fact]');
+  const closeCountry = () => {
+    if (countryPanel.contains(document.activeElement)) countryPicker.focus({ preventScroll: true });
+    countryPanel.hidden = true;
+    countryPicker.value = '';
+  };
+  $('[data-country-close]').addEventListener('click', closeCountry);
+  function showCountry(country) {
+    if (!country) { closeCountry(); return; }
+    closeStory();
+    const [name, , facts, code] = country;
+    const historical = year !== Number(timeline.max);
+    $('[data-country-title]').textContent = name;
+    countryPanel.querySelectorAll('[data-country-modern]').forEach(element => { element.hidden = historical; });
+    const historicalNote = $('[data-country-historical]');
+    historicalNote.hidden = !historical;
+    historicalNote.textContent = historical && facts && facts !== name ? `${year} · Subject to ${facts}` : `${year} · Historical map snapshot`;
+    if (!historical) {
+      countryFields.forEach((field, index) => {
+        field.textContent = facts[index] || 'Unavailable in archive';
+      });
+    }
+    const source = $('[data-country-source]');
+    source.hidden = !historical && !code;
+    source.href = historical ? 'https://github.com/aourednik/historical-basemaps' : 'https://github.com/factbook/factbook.json';
+    source.textContent = historical ? 'Historical Basemaps ↗' : 'Factbook archive ↗';
+    countryPicker.value = String(borderData.indexOf(country));
+    countryPanel.hidden = false;
+    $('[data-country-close]').focus({ preventScroll: true });
+  }
+  countryPicker.addEventListener('change', () => showCountry(borderData[countryPicker.value]));
+  borderPicker.addEventListener('change', () => {
+    if (!borderPicker.value) return;
+    timeline.value = borderPicker.value;
+    timeline.dispatchEvent(new Event('input'));
+  });
+  async function updateBorderYear() {
+    const requestedYear = year;
+    const modern = requestedYear === Number(timeline.max);
+    const hasSnapshot = modern || historicalYears.has(requestedYear);
+    borderPicker.value = hasSnapshot ? String(requestedYear) : '';
+    closeCountry();
+    borderData = [];
+    countryPicker.closest('label').hidden = true;
+    map?.showBorders(null);
+    borderStatus.textContent = hasSnapshot ? 'Loading borders…' : 'No border snapshot for this year. Choose a mapped year.';
+    if (!hasSnapshot) return;
+    if (!borderRequests.has(requestedYear)) {
+      const url = modern ? '/atlas/countries.json' : `/atlas/history/${requestedYear}.json`;
+      borderRequests.set(requestedYear, fetch(url).then(response => {
+        if (!response.ok) throw new Error('Borders unavailable');
+        return response.json();
+      }));
+    }
+    try {
+      const data = await borderRequests.get(requestedYear);
+      if (year !== requestedYear) return;
+      borderData = data;
+      const options = data.map(([name], index) => new Option(name, String(index)));
+      options.sort((a, b) => a.text.localeCompare(b.text));
+      countryPicker.replaceChildren(new Option('Choose a country', ''), ...options);
+      countryPicker.closest('label').hidden = false;
+      borderStatus.textContent = modern ? 'Present-day borders' : `${requestedYear} borders · Historical Basemaps`;
+      map?.showBorders(data);
+    } catch {
+      borderRequests.delete(requestedYear);
+      if (year === requestedYear) borderStatus.textContent = 'Borders could not load. Select the map year again.';
+    }
+  }
   const status = $('[data-atlas-status]');
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
   const compactQuery = matchMedia('(max-width: 699px)');
@@ -48,6 +152,7 @@ function initAtlas(atlas) {
   };
 
   function selectStory(story, center = false) {
+    closeCountry();
     selected = story;
     panel.hidden = false;
     $('[data-story-cluster]').hidden = true;
@@ -67,6 +172,7 @@ function initAtlas(atlas) {
   }
 
   function showCluster(stories) {
+    closeCountry();
     selected = null; panel.hidden = false;
     markerNodes.forEach(({button})=>button.setAttribute('aria-expanded','false'));
     $('[data-story-kind]').textContent = 'nearby on the atlas';
@@ -168,7 +274,7 @@ function initAtlas(atlas) {
     } finally {
       weatherLoading = false;
       weatherButton.removeAttribute('aria-busy');
-      weatherButton.disabled = !rendererVisible;
+      weatherButton.disabled = !rendererVisible || !atmosphereOn;
     }
   });
 
@@ -183,10 +289,13 @@ function initAtlas(atlas) {
     host.append(atlas);
     atlas.classList.add('is-expanded');
     dialog.showModal();
+    updateBorderYear();
     document.documentElement.classList.add('atlas-open');
     map?.reframe(framing);
   }
   function restore() {
+    setMeasuring(false);
+    closeCountry();
     const framing = map?.framing();
     home.after(atlas);
     placeholder.hidden = true;
@@ -212,6 +321,7 @@ function initAtlas(atlas) {
   timeline.addEventListener('input', () => {
     year = Number(timeline.value);
     const minimum = Number(timeline.min), maximum = Number(timeline.max);
+    updateBorderYear();
     timeline.style.setProperty('--year-fill', `${100 * (year - minimum) / (maximum - minimum)}%`);
     $('[data-atlas-year-output]').textContent = year === maximum ? 'today' : String(year);
     rebuildStories();
@@ -245,7 +355,8 @@ function initAtlas(atlas) {
       });
       map = await createGlobe(window.THREE);
       rendererVisible = true;
-      weatherButton.disabled = false;
+      weatherButton.disabled = !atmosphereOn;
+      airButton.disabled = measureButton.disabled = false;
       atlas.dataset.graphics = 'ready';
       $('[data-atlas-fallback]').hidden = true;
       map.resize();
@@ -269,7 +380,7 @@ function initAtlas(atlas) {
     const tilt = new T.Group(), earth = new T.Group(); tilt.add(earth); scene.add(tilt);
     const loader = new T.TextureLoader();
     let surface, cloudMap, normalMap, depth;
-    const columns = 144, rows = 96, reliefScale = .021;
+    const columns = 144, rows = 96, reliefScale = .032;
     try {
       [surface, cloudMap, normalMap, depth] = await Promise.all([
         loader.loadAsync('/atlas/earth-color.jpg'), loader.loadAsync('/atlas/cloud-mask.jpg'),
@@ -290,6 +401,7 @@ function initAtlas(atlas) {
     const uniforms = {
       surface: { value: surface }, clouds: cloudTexture, relief: { value: normalMap },
       cloudOffset: { value: new T.Vector2() }, cloudVeil, sun,
+      borders: { value: null }, showBorders: { value: 0 }, atmosphereOn: { value: 1 },
     };
     const geometry = new T.SphereGeometry(1, columns, rows);
     const positions = geometry.attributes.position;
@@ -298,9 +410,70 @@ function initAtlas(atlas) {
       vertex.fromBufferAttribute(positions, i).multiplyScalar(1 + reliefScale * depth[i] / 255);
       positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
     }
-    earth.add(new T.Mesh(geometry, new T.ShaderMaterial({
+    const terrain = new T.Mesh(geometry, new T.ShaderMaterial({
       uniforms, vertexShader: atlasVertex, fragmentShader: atlasSurface,
-    })));
+    }));
+    earth.add(terrain);
+    const raycaster = new T.Raycaster();
+    function pickCountry(event) {
+      if ((!borderData.length && !measuring) || transition) return;
+      const bounds = canvas.getBoundingClientRect();
+      const ndc = new T.Vector2(
+        (event.clientX - bounds.left) / bounds.width * 2 - 1,
+        1 - (event.clientY - bounds.top) / bounds.height * 2,
+      );
+      raycaster.setFromCamera(ndc, camera);
+      const hit = raycaster.intersectObject(terrain)[0];
+      if (!hit?.uv) return;
+      if (measuring) addMeasurePoint(hit.uv.y * 180 - 90, hit.uv.x * 360 - 180);
+      else showCountry(countryAt(borderData, hit.uv.x * 360 - 180, hit.uv.y * 180 - 90));
+    }
+    function showBorders(data) {
+      uniforms.borders.value?.dispose();
+      uniforms.borders.value = data ? new T.CanvasTexture(drawCountryLines(data)) : null;
+      uniforms.showBorders.value = Number(Boolean(data));
+      render();
+    }
+    const measureGroup = new T.Group();
+    earth.add(measureGroup);
+    const measurePoints = [];
+    const pinGeometry = new T.SphereGeometry(.016, 12, 8);
+    const pinMaterials = [0xffd186, 0x95edff].map(color => new T.MeshBasicMaterial({ color }));
+    const routeMaterial = new T.LineBasicMaterial({ color: 0xffe4ae });
+    let measureArc;
+    function clearMeasure() {
+      measurePoints.length = 0;
+      measureGroup.clear();
+      measureArc?.geometry.dispose();
+      measureArc = null;
+      render();
+    }
+    function addMeasurePoint(lat, lon) {
+      if (measurePoints.length === 2) clearMeasure();
+      const point = new T.Vector3(...pointFromLatLon(lat, lon));
+      const marker = new T.Mesh(pinGeometry, pinMaterials[measurePoints.length]);
+      marker.position.copy(point).multiplyScalar(1.057);
+      measureGroup.add(marker);
+      measurePoints.push(point);
+      if (measurePoints.length === 1) {
+        measureOutput.textContent = 'A placed · choose pin B';
+      } else {
+        const [a, b] = measurePoints;
+        const turn = new T.Quaternion().setFromUnitVectors(a, b);
+        const partial = new T.Quaternion();
+        const arc = Array.from({ length: 65 }, (_, index) => {
+          const t = index / 64;
+          return a.clone().applyQuaternion(partial.identity().slerp(turn, t))
+            .multiplyScalar(1.057 + .035 * Math.sin(Math.PI * t));
+        });
+        measureArc = new T.Line(new T.BufferGeometry().setFromPoints(arc), routeMaterial);
+        measureGroup.add(measureArc);
+        const km = a.angleTo(b) * 6371.0088;
+        const format = new Intl.NumberFormat('en-US', { maximumFractionDigits: km < 10 ? 1 : 0 });
+        measureOutput.textContent = `A → B · ${format.format(km)} km / ${format.format(km / 1.609344)} mi`;
+      }
+      render();
+    }
     const clouds = new T.SphereGeometry(1, 112, 64);
     function cloudShell(radius, upper) {
       const shell = new T.Mesh(clouds, new T.ShaderMaterial({
@@ -320,6 +493,11 @@ function initAtlas(atlas) {
       transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
     }));
     tilt.add(atmosphere);
+    function setAtmosphere(visible) {
+      weather.visible = cirrus.visible = atmosphere.visible = visible;
+      uniforms.atmosphereOn.value = Number(visible);
+      render();
+    }
     const homeDistance = 3.62;
     let longitude = -30, latitude = 26, distance = homeDistance, zoomTarget = homeDistance, drag = null;
     const touches = new Map();
@@ -469,7 +647,7 @@ function initAtlas(atlas) {
     function center(lat, lon) { latitude = lat; longitude = lon; render(); }
     function zoom(direction) { setZoom(zoomTarget * Math.exp(direction * .19)); }
     function beginDrag(id, x, y, pendingTouch = false) {
-      drag = { id, x, y, lat: latitude, lon: longitude, pendingTouch };
+      drag = { id, x, y, lat: latitude, lon: longitude, pendingTouch, canPick: dialog.open && !pinch };
     }
     function touchSpan() {
       const [first, second] = touches.values();
@@ -480,14 +658,18 @@ function initAtlas(atlas) {
     canvas.addEventListener('pointerdown', event => {
       const touch = event.pointerType === 'touch';
       if (event.button !== 0 || (!event.isPrimary && (!touch || !dialog.open)) || (touch && touches.size >= 2)) return;
-      const pendingTouch = !dialog.open && touch;
+      const wasExpanded = dialog.open;
+      const pendingTouch = !wasExpanded && touch;
       if (!pendingTouch) expand(canvas);
       canvas.setPointerCapture(event.pointerId);
       if (touch) touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (touches.size === 2) {
         pinch = { span: touchSpan(), distance: zoomTarget };
         drag = null;
-      } else beginDrag(event.pointerId, event.clientX, event.clientY, pendingTouch);
+      } else {
+        beginDrag(event.pointerId, event.clientX, event.clientY, pendingTouch);
+        drag.canPick = wasExpanded;
+      }
     });
     canvas.addEventListener('pointermove', event => {
       if (touches.has(event.pointerId)) {
@@ -496,6 +678,7 @@ function initAtlas(atlas) {
       }
       if (event.pointerId !== drag?.id) return;
       const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+      if (Math.hypot(dx, dy) > 6) drag.canPick = false;
       if (drag.pendingTouch) {
         if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { drag = null; return; }
         if (Math.abs(dx) < 8) return;
@@ -511,12 +694,17 @@ function initAtlas(atlas) {
       if (touches.delete(event.pointerId) && pinch) {
         pinch = null;
         const [remaining] = touches.entries();
-        if (remaining) beginDrag(remaining[0], remaining[1].x, remaining[1].y);
+        if (remaining) {
+          beginDrag(remaining[0], remaining[1].x, remaining[1].y);
+          drag.canPick = false;
+        }
       } else if (event.pointerId === drag?.id) drag = null;
     };
     canvas.addEventListener('pointerup', event => {
-      if (event.pointerId === drag?.id && drag.pendingTouch) expand(canvas);
+      const ended = event.pointerId === drag?.id ? drag : null;
       release(event);
+      if (ended?.pendingTouch) expand(canvas);
+      else if (ended?.canPick && Math.hypot(event.clientX - ended.x, event.clientY - ended.y) <= 6) pickCountry(event);
     });
     canvas.addEventListener('pointercancel', release);
     canvas.addEventListener('lostpointercapture', release);
@@ -527,6 +715,12 @@ function initAtlas(atlas) {
       setZoom(zoomTarget * Math.exp(T.MathUtils.clamp(event.deltaY * units, -240, 240) * .0023));
     }, { passive: false });
     canvas.addEventListener('keydown', event => {
+      if (measuring && event.key === 'Enter') {
+        event.preventDefault();
+        const bounds = canvas.getBoundingClientRect();
+        pickCountry({ clientX: bounds.left + bounds.width / 2, clientY: bounds.top + bounds.height / 2 });
+        return;
+      }
       if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(event.key)) return;
       event.preventDefault();
       if (event.key==='ArrowLeft') longitude-=10;
@@ -545,7 +739,9 @@ function initAtlas(atlas) {
     document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}render();});
     canvas.addEventListener('webglcontextlost',event=>{
       event.preventDefault(); rendererVisible=false; if(frame)cancelAnimationFrame(frame);frame=0;
-      weatherButton.disabled=true; weatherCredit.hidden=true;
+      weatherButton.disabled=true;
+      airButton.disabled = measureButton.disabled = true;
+      setMeasuring(false); weatherCredit.hidden=true;
       canvas.hidden=true;pins.hidden=true;$('[data-atlas-fallback]').hidden=false;
       atlas.dataset.graphics='fallback';
       atlas.querySelectorAll('[data-atlas-turn],[data-atlas-zoom],[data-atlas-reset],[data-atlas-motion]').forEach(button=>{button.disabled=true;});
@@ -554,14 +750,16 @@ function initAtlas(atlas) {
     });
     canvas.addEventListener('webglcontextrestored',()=>{
       rendererVisible=true;canvas.hidden=false;pins.hidden=false;$('[data-atlas-fallback]').hidden=true;
-      weatherButton.disabled=false; weatherCredit.hidden=!satellite;
+      weatherButton.disabled = !atmosphereOn; weatherCredit.hidden=!satellite;
+      airButton.disabled = measureButton.disabled = false;
       atlas.dataset.graphics='ready';
       atlas.querySelectorAll('[data-atlas-turn],[data-atlas-zoom],[data-atlas-reset],[data-atlas-motion]').forEach(button=>{button.disabled=false;});
       rebuildStories();render();
     });
     // Diagnostics are intentionally only local, with no telemetry or student data.
     atlas.addEventListener('atlas:inspect',()=>{atlas.dataset.rendering=String(rendererVisible);});
-    return { render, resize, center, reframe, useSatellite, framing: () => currentFraming };
+    if (borderData.length) showBorders(borderData);
+    return { clearMeasure, setAtmosphere, showBorders, render, resize, center, reframe, useSatellite, framing: () => currentFraming };
   }
 
   // The page and source links are usable before the optional renderer arrives.
