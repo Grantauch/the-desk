@@ -17,6 +17,9 @@ export const atlasSurface = `
   uniform sampler2D surface;
   uniform sampler2D clouds;
   uniform sampler2D relief;
+  uniform sampler2D borders;
+  uniform float showBorders;
+  uniform float atmosphereOn;
   uniform vec2 cloudOffset;
   uniform vec2 cloudVeil;
   uniform vec3 sun;
@@ -55,8 +58,14 @@ export const atlasSurface = `
     vec2 shadowOffset = vec2(dot(sun, t), dot(sun, b)) * .005 / max(.24, dot(n, sun));
     float shadow = smoothstep(.16, .87, texture2D(clouds, uvMap + shadowOffset + vec2(cloudOffset.x, 0.)).r);
     float upperShadow = smoothstep(.37, .86, texture2D(clouds, uvMap + shadowOffset * 1.8 + vec2(cloudOffset.y, 0.) + cloudVeil).r);
-    float transmission = 1. - shadow * .42 - upperShadow * .13;
-    base *= vec3(.16, .26, .42) + vec3(1.32, 1.06, .73) * sunlight * transmission;
+    float transmission = 1. - (shadow * .42 + upperShadow * .13) * atmosphereOn;
+    base *= mix(vec3(.055, .09, .20), vec3(.15, .24, .37), day)
+      + vec3(1.38, 1.11, .78) * sunlight * transmission;
+    if (showBorders > .5) {
+      float border = texture2D(borders, uvMap).a;
+      base = mix(base, mix(vec3(.31, .49, .60), vec3(.92, .71, .38), day),
+        border * smoothstep(.08, .6, cosView) * .65);
+    }
     float halfVector = max(dot(surfaceN, normalize(sun + view)), 0.);
     float sunglint = pow(halfVector, 37.) * .18 + pow(halfVector, 112.) * .72;
     vec3 reflection = mix(vec3(.18, .42, .61), vec3(1., .78, .43), day);
@@ -70,7 +79,8 @@ export const atlasSurface = `
     float limb = pow(1. - cosView, 3.8);
     vec3 air = mix(vec3(.016, .095, .30), vec3(.12, .34, .58), day);
     air += vec3(.79, .30, .055) * pow(max(cosSun, 0.), 3.);
-    base += air * limb * .85;
+    float lowHaze = pow(1. - cosView, 1.65);
+    base += air * (limb * .92 + lowHaze * .18) * atmosphereOn;
     gl_FragColor = vec4(base, 1.);
     #include <encodings_fragment>
   }
@@ -93,9 +103,11 @@ export const atlasCloud = `
 
   void main() {
     float center = density(uvMap);
-    float illustratedCover = mix(smoothstep(.075, .72, center) * .94, smoothstep(.31, .89, center) * .55, upper);
+    float illustratedCover = mix(smoothstep(.055, .70, center) * .96, smoothstep(.23, .87, center) * .66, upper);
     float satelliteCover = mix(smoothstep(.12, .91, center) * .86, smoothstep(.50, .97, center) * .29, upper);
     float cover = mix(illustratedCover, satelliteCover, observed);
+    // Feather the illustrated upper deck into thin mist around the cloud banks.
+    cover += (1. - observed) * upper * smoothstep(.09, .27, center) * (1. - cover) * .20;
     if (cover < .008) discard;
     vec3 n = normalize(worldN);
     vec3 t = normalize(worldT + vec3(.00001, 0., 0.));
@@ -103,7 +115,7 @@ export const atlasCloud = `
     vec2 stepUV = vec2(.0009, .0015);
     vec2 slope = vec2(density(uvMap + vec2(stepUV.x, 0.)) - density(uvMap - vec2(stepUV.x, 0.)),
                       density(uvMap + vec2(0., stepUV.y)) - density(uvMap - vec2(0., stepUV.y)));
-    vec3 cloudN = normalize(n - (t * slope.x + b * slope.y) * mix(2.9, 1.4, upper));
+    vec3 cloudN = normalize(n - (t * slope.x + b * slope.y) * mix(3.6, 1.65, upper));
     float light = smoothstep(-.22, .83, dot(cloudN, sun));
     float day = smoothstep(-.25, .39, dot(n, sun));
     vec3 silver = mix(vec3(.055, .14, .31), vec3(.44, .61, .76), day);
@@ -128,9 +140,20 @@ export const atlasAir = `
     float chord = abs(dot(n, view));
     float altitude = max(0., radius * sqrt(max(0., 1. - chord * chord)) - 1.008);
     float density = exp(-altitude * 34.) * smoothstep(0., .34, chord);
-    float day = smoothstep(-.35, .75, dot(n, sun));
-    vec3 color = mix(vec3(.045, .22, .56), vec3(.96, .43, .12), day * day);
-    gl_FragColor = vec4(color, density * mix(.24, .52, day));
+    // A tight blue rim and a broad, faint halo share the same atmosphere shell.
+    float halo = exp(-altitude * 14.) * smoothstep(0., .24, chord);
+    float light = dot(n, sun);
+    float day = smoothstep(-.42, .65, light);
+    float terminator = (light - .12) * 2.65;
+    float twilight = exp(-terminator * terminator);
+    vec3 rim = mix(vec3(.05, .23, .62), vec3(.26, .58, .89), day);
+    rim = mix(rim, vec3(.97, .46, .16), twilight * .75);
+    vec3 mist = mix(vec3(.14, .32, .63), vec3(.73, .44, .23), twilight);
+    float rimOpacity = density * mix(.30, .64, day);
+    float haloOpacity = halo * .13;
+    float opacity = rimOpacity + haloOpacity;
+    vec3 color = (rim * rimOpacity + mist * haloOpacity) / max(.0001, opacity);
+    gl_FragColor = vec4(color, opacity);
     #include <encodings_fragment>
   }
 `;

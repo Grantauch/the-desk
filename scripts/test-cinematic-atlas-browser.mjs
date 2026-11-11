@@ -215,6 +215,52 @@ try{
     await page.locator('[data-atlas-return]').click();
     await page.waitForFunction(start=>scrollY===start,startScroll);
   },{touch:true});
+  await run('countries-and-measurement',{width:1366,height:768},async(page)=>{
+    await page.locator('[data-atlas-explore]').click();
+    const country=page.locator('[data-country-picker]');
+    await country.selectOption({label:'Austria'});
+    await page.getByRole('heading',{name:'Austria',exact:true}).waitFor();
+    assert.notEqual(await page.locator('[data-country-fact]').first().textContent(),'Unavailable in archive');
+    await page.getByRole('button',{name:'Close country facts'}).click();
+    await page.locator('[data-border-year]').selectOption('1914');
+    await country.selectOption({label:'Austro-Hungarian Empire'});
+    await page.getByRole('heading',{name:'Austro-Hungarian Empire',exact:true}).waitFor();
+    assert.equal(await page.locator('[data-country-modern]').first().isHidden(),true);
+    await page.getByRole('button',{name:'Close country facts'}).click();
+
+    const atmosphere=page.locator('[data-atlas-air]');
+    await atmosphere.click();
+    assert.equal(await atmosphere.getAttribute('aria-pressed'),'false');
+    assert.equal(await page.locator('[data-atlas-weather]').isDisabled(),true);
+    await page.locator('[data-atlas-measure]').click();
+    const globe=page.locator('[data-atlas-canvas]');
+    const readout=page.locator('[data-measure-readout]');
+    await globe.press('Enter');
+    await readout.filter({hasText:'A placed'}).waitFor();
+    const coordinates=page.locator('[data-atlas-coordinates]');
+    await globe.press('ArrowRight');
+    await coordinates.filter({hasText:'020° W'}).waitFor();
+    await globe.press('Enter');
+    await readout.filter({hasText:/A → B · [1-9][\d,]* km/}).waitFor();
+    await page.locator('[data-atlas-measure]').click();
+    assert.equal(await readout.isHidden(),true);
+  });
+  await run('orbital-scenes',{width:1366,height:768},async(page)=>{
+    await page.locator('[data-atlas-explore]').click();
+    const picker=page.locator('[data-orbital-select]');
+    assert.equal(await picker.locator('option').count(),8);
+    await picker.selectOption('apollo-11');
+    const card=page.locator('[data-orbital-card]');
+    await card.getByRole('heading',{name:'Apollo 11 launch'}).waitFor();
+    await card.getByRole('button',{name:'Replay'}).click();
+    await card.getByRole('heading',{name:'Apollo 11 launch'}).waitFor();
+    await page.locator('[data-border-year]').selectOption('1914');
+    await card.waitFor({state:'hidden'});
+    assert.deepEqual(await picker.locator('option').evaluateAll(options=>options.map(option=>option.value)),['','thunderstorm']);
+    await picker.selectOption('thunderstorm');
+    await card.getByRole('heading',{name:'Lightning from orbit'}).waitFor();
+    assert.equal(await card.locator('[data-orbital-source]').isHidden(),true);
+  });
   await run('satellite-clouds',{width:1366,height:768},async(page,network)=>{
     await page.locator('[data-atlas-explore]').click();
     assert.equal(network.weatherRequests,0,'Satellite imagery loads on request');

@@ -1,4 +1,26 @@
 {
+  "atlas-orbital-events-2026-11-11": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Seven orbital scenes, visibility-based idle rotation, era filtering, replay and a static reduced-motion view.",
+    "verification_status": "ATLAS_UNIT_CHECKS_AND_SITE_BUILD_PASSED",
+    "deployment_status": "PROTECTED_BUILD_AND_PRODUCTION_READBACK_REQUIRED",
+    "evidence": [
+      "Scene scheduling and year eligibility are tested independently from WebGL."
+    ]
+  },
+  "atlas-atmosphere-2026-11-11": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Cinematic Atlas relief, atmosphere and homepage glass, country profiles, six historical border snapshots, and two-point globe measurement.",
+    "verification_status": "ATLAS_UNIT_CHECKS_AND_SITE_BUILD_PASSED",
+    "deployment_status": "PROTECTED_BUILD_AND_PRODUCTION_READBACK_REQUIRED",
+    "field_status": "SCHOOL_CHROMEBOOK_PERFORMANCE_PENDING",
+    "evidence": [
+      "Atmosphere and cloud changes reuse the existing render passes and textures.",
+      "Local Chromium could not start because the runner denied its process socket. Protected browser verification is required."
+    ]
+  },
   "ready-v1-2026-11-09": {
     "status": "FORWARD_PORTED",
     "owner": "Codex",

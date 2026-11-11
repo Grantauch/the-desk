@@ -25,7 +25,7 @@ html:root body[data-atlas-home] #desk-search-input::placeholder { color: #c3bbaa
 html:root body[data-atlas-home] .site-header .nav-menu { background: #172026; border-color: #445056; }
 html:root body[data-atlas-home] .site-header .nav-menu a { color: var(--atlas-paper); }
 html:root body[data-atlas-home] .class-entry { margin-bottom: 1rem; }
-html:root body[data-atlas-home] .class-entry a { padding: .8rem 1.2rem; border: 1px solid #5b5037; background: #151d20; color: var(--atlas-paper); box-shadow: none; }
+html:root body[data-atlas-home] .class-entry a { padding: .8rem 1.2rem; border: 1px solid #5b5037; background: linear-gradient(130deg, #2b393d, #151d20 72%); color: var(--atlas-paper); box-shadow: inset 0 1px #ead5ab24; }
 html:root body[data-atlas-home] .class-entry strong { font: 700 clamp(1rem, 2vw, 1.4rem)/1.2 Georgia, serif; color: var(--atlas-gold); }
 html:root body[data-atlas-home] .class-entry small { color: var(--atlas-muted); }
 html:root body[data-atlas-home] .class-entry__icon { color: var(--atlas-gold); border-color: #74603d; }
@@ -42,7 +42,9 @@ html:root body[data-atlas-home] a:focus-visible,
 .atlas-stage::before {
   z-index: -1;
   background: url('/atlas/sky-grain.svg') center / 800px 480px repeat,
-    radial-gradient(ellipse at 61% 20%, #65513b55, transparent 36%),
+    radial-gradient(ellipse at 61% 20%, #8c623c55, transparent 39%),
+    radial-gradient(ellipse 44% 17% at 83% 62%, #8d9d9b32, transparent 100%),
+    radial-gradient(ellipse 38% 11% at 72% 73%, #527f9438, transparent 100%),
     radial-gradient(ellipse at 66% 42%, #263e4b 0, #13232e 38%, #0a131a 75%);
 }
 .atlas-stage::after { z-index: 1; background: linear-gradient(90deg, #0b141b 0, #0b141bee 19%, transparent 54%); }
@@ -181,7 +183,7 @@ html:root body[data-atlas-home] a:focus-visible,
 .atlas.is-expanded .atlas-fallback img { left: 50%; top: 50%; max-width: 112%; }
 .atlas.is-expanded .atlas-copy, .atlas.is-expanded .atlas-explore { display: none; }
 .atlas.is-expanded canvas { touch-action: none; }
-.atlas.is-expanded .atlas-instruments { grid-template-columns: max-content minmax(9rem, 30rem) max-content; justify-content: center; }
+.atlas.is-expanded .atlas-instruments { grid-template-columns: minmax(0, max-content) minmax(9rem, 30rem) minmax(0, max-content); justify-content: center; }
 .atlas-dialog-foot { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: .5rem 1.2rem; border-top: 1px solid #445056; gap: 1rem; }
 .atlas-dialog-foot span { color: #c4bbaa; font-size: .75rem; }
 .atlas-open { overflow: hidden; background: #0b141b; }
@@ -280,3 +282,146 @@ html:root body[data-atlas-home] .feature-card__stamp { color: #f4bd5c; border-co
 html:root body[data-atlas-home] .feature-card.feature-card .feature-card__stamp { color: #f4bd5c; border-color: #aa8c57; }
 html:root body[data-atlas-home] .feature-card.feature-card .feature-card__action { color: #ffcd7d; }
 html:root body[data-atlas-home] .feature-card.feature-card .feature-card__label { color: #d2c5b0; }
+
+/* Frost the controls that overlap the globe. Keep dense text on darker glass. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .atlas-explore, .atlas-story {
+    -webkit-backdrop-filter: blur(12px) saturate(135%);
+    backdrop-filter: blur(12px) saturate(135%);
+    background: linear-gradient(145deg, #43535778, #101b23e8 72%);
+  }
+  .atlas-story {
+    background: linear-gradient(145deg, #263740eb, #101b23f5 72%);
+    box-shadow: inset 0 1px #f9dfa530, 0 15px 40px #0007;
+  }
+  .atlas-explore:hover, .atlas-explore:focus-visible {
+    background: linear-gradient(145deg, #465856e6, #1e2b32eb 72%);
+  }
+}
+
+.atlas-instruments, .atlas-quick-links {
+  background: linear-gradient(125deg, #2b3a42, #17252d 43%, #1e2a31 77%, #2e3535);
+  box-shadow: inset 0 1px #ead5ab24;
+}
+
+.atlas-pin {
+  background: radial-gradient(ellipse at 30% 12%, #647779d9, #17262ddd 68%);
+  box-shadow: inset 0 1px #ffe3a766, 0 0 0 3px #ebae4035, 0 3px 12px #070b0ddd;
+}
+.atlas-pin--news {
+  box-shadow: inset 0 1px #ddf7ff70, 0 0 0 3px color-mix(in srgb, currentColor 26%, transparent), 0 3px 12px #070b0ddd;
+}
+.atlas-pin--mixed {
+  box-shadow: inset 0 1px #ddf7ff70, 0 0 0 3px #80d6df42, 0 3px 12px #070b0ddd;
+}
+.atlas-pin:hover { background: #514029; }
+.atlas-pin--news:hover { background: #23404b; }
+.atlas-country dl {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, auto) 1fr;
+  gap: .45rem .8rem;
+  margin: .85rem 0;
+  font-size: .83rem;
+  line-height: 1.35;
+}
+.atlas-country dt { color: #f4bd5c; }
+.atlas-country dd { margin: 0; overflow-wrap: anywhere; }
+.atlas-country a { margin-right: .65rem; font-size: .75rem; }
+.atlas-country-picker { display: grid; gap: .2rem; color: #ded1b9; font-size: .75rem; }
+.atlas-country-picker select {
+  max-width: 12rem;
+  color: #fff0d6;
+  background: #192830;
+  border: 1px solid #758a96;
+  border-radius: .35rem;
+  padding: .4rem .55rem;
+}
+.atlas-country-picker select:focus-visible { outline: 3px solid #a4e8ec; outline-offset: 2px; }
+
+.atlas-measure-readout {
+  position: absolute;
+  z-index: 4;
+  top: .75rem;
+  right: .75rem;
+  max-width: min(21rem, calc(100% - 1.5rem));
+  padding: .65rem .9rem;
+  border: 1px solid #c6aa74;
+  border-radius: .55rem;
+  background: #172831ed;
+  color: #ffe6b5;
+  font: 600 .8rem/1.4 var(--font-mono);
+  pointer-events: none;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .atlas-measure-readout { backdrop-filter: blur(12px); background: #172831c9; }
+}
+.atlas.is-measuring canvas { cursor: crosshair; }
+.atlas.is-measuring .atlas-pin { pointer-events: none; opacity: .35; }
+.atlas-camera [data-atlas-measure][aria-pressed='true'] {
+  background: #f4bd5c;
+  color: #152027;
+  border-color: #f4bd5c;
+}
+[data-atlas-borders-status]:empty { display: none; }
+
+.atlas.is-expanded .atlas-stage::before {
+  background: url('/atlas/sky-grain.svg') center / 800px 480px repeat,
+    radial-gradient(ellipse at 32% 22%, #72513b64, transparent 37%),
+    radial-gradient(ellipse 37% 15% at 72% 67%, #698a9d38, transparent),
+    radial-gradient(ellipse at 50% 43%, #253f50, #101d27 52%, #0a121a 89%);
+}
+.atlas.is-air-off .atlas-stage::before {
+  background: url('/atlas/sky-grain.svg') center / 800px 480px repeat, #0a141d;
+}
+
+.atlas-attract, .atlas-orbital-card {
+  position: absolute;
+  z-index: 4;
+  color: #fff0d6;
+  border: 1px solid #c6aa746e;
+  background: linear-gradient(145deg, #263945f2, #111a24f5 76%);
+  box-shadow: inset 0 1px #ffdea738, 0 10px 30px #080e18a3;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .atlas-attract, .atlas-orbital-card {
+    background: linear-gradient(145deg, #263945e8, #101822ee 76%);
+    backdrop-filter: blur(12px) saturate(125%);
+  }
+}
+.atlas-attract {
+  top: .85rem;
+  right: .85rem;
+  padding: .5rem .75rem;
+  min-height: 40px;
+  border-radius: 99px;
+  cursor: pointer;
+  font: 600 .72rem/1.2 var(--font-sans);
+}
+.atlas.is-expanded .atlas-attract { display: none; }
+.atlas.is-expanded .atlas-orbital-card { bottom: .85rem; }
+.atlas-orbital-card {
+  right: 1rem;
+  bottom: 4.7rem;
+  width: min(17rem, calc(100% - 2rem));
+  padding: .75rem .9rem;
+  border-radius: .7rem;
+}
+.atlas-orbital-meta { color: #edd0a0; font: 600 .63rem/1.4 var(--font-mono); }
+.atlas-orbital-card h2 { margin: .28rem 0; font: 600 1.18rem/1.12 Georgia, serif; }
+.atlas-orbital-card p { margin: .35rem 0; color: #e4e8e9; font-size: .76rem; line-height: 1.38; }
+.atlas-orbital-actions { display: flex; flex-wrap: wrap; gap: .1rem .75rem; }
+.atlas-orbital-actions a, .atlas-orbital-actions button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  color: #ffe2ab;
+  font-size: .72rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+  cursor: pointer;
+}
+@media (max-width: 699px) {
+  .atlas:not(.is-expanded) .atlas-attract { top: auto; bottom: 4.6rem; }
+  .atlas:not(.is-expanded) .atlas-orbital-card { bottom: 7.5rem; }
+}

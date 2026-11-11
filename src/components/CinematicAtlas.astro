@@ -26,6 +26,17 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <a class="atlas-primary" href="#courses">{siteContent.home.startLabel} <span aria-hidden="true">↘</span></a>
     </div>
     <button type="button" class="atlas-explore" data-atlas-explore hidden>drag to explore <span aria-hidden="true">↗</span></button>
+    <button type="button" class="atlas-attract" data-orbital-toggle aria-pressed="false" hidden>Attract mode</button>
+    <aside class="atlas-orbital-card" data-orbital-card hidden aria-labelledby="atlas-orbital-title">
+      <div class="atlas-orbital-meta" data-orbital-date></div>
+      <h2 id="atlas-orbital-title" data-orbital-title></h2>
+      <p data-orbital-summary></p>
+      <div class="atlas-orbital-actions">
+        <button type="button" data-orbital-replay>Replay</button>
+        <button type="button" data-orbital-close aria-label="Dismiss orbital scene">Close</button>
+        <a data-orbital-source>Source ↗</a>
+      </div>
+    </aside>
     <aside class="atlas-story" data-atlas-story hidden aria-label="Selected story">
       <button class="atlas-story-close" type="button" data-atlas-dismiss aria-label="Close story preview">×</button>
       <p class="atlas-eyebrow" data-story-kind>from the archive</p>
@@ -35,6 +46,23 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <p data-story-summary></p>
       <div class="atlas-cluster" data-story-cluster hidden></div>
       <a data-story-link href="/storyhubs/">open the story ↗</a>
+    </aside>
+    <output class="atlas-measure-readout" data-measure-readout role="status" hidden></output>
+    <aside class="atlas-story atlas-country" data-atlas-country hidden aria-labelledby="atlas-country-title">
+      <button class="atlas-story-close" type="button" data-country-close aria-label="Close country facts">×</button>
+      <h2 id="atlas-country-title" data-country-title></h2>
+      <p data-country-historical hidden></p>
+      <dl data-country-modern>
+        <dt>Government</dt><dd data-country-fact></dd>
+        <dt>Population</dt><dd data-country-fact></dd>
+        <dt>GDP (PPP)</dt><dd data-country-fact></dd>
+        <dt>U.S. relations</dt><dd data-country-fact></dd>
+        <dt>Leading export</dt><dd data-country-fact></dd>
+        <dt>Languages</dt><dd data-country-fact></dd>
+      </dl>
+      <p data-country-modern>Archived estimates · GDP in international dollars</p>
+      <a data-country-source href="https://github.com/factbook/factbook.json">Factbook archive ↗</a>
+      <a data-country-modern href="https://www.state.gov/countries-areas/">U.S. country profiles ↗</a>
     </aside>
   </div>
 
@@ -49,16 +77,32 @@ const homeTitle = siteContent.home.title.replace(/[.!?]+$/, '');
       <span class="atlas-year-ticks" aria-hidden="true"><span>1865</span><span>1914</span><span>1947</span><span>1989</span><span>today</span></span>
     </label>
     <div class="atlas-camera" role="group" aria-label="Globe controls">
+      <label class="atlas-country-picker" hidden>Find a country
+        <select data-country-picker><option value="">Choose a country</option></select>
+      </label>
       <button type="button" data-atlas-turn="-1" aria-label="Rotate globe west">←</button>
       <button type="button" data-atlas-turn="1" aria-label="Rotate globe east">→</button>
       <button type="button" data-atlas-zoom="-1" aria-label="Zoom in">+</button>
       <button type="button" data-atlas-zoom="1" aria-label="Zoom out">−</button>
       <button type="button" data-atlas-reset>reset</button>
+      <button type="button" data-atlas-measure aria-pressed="false" disabled>measure</button>
       <button type="button" data-atlas-motion aria-pressed="false">pause clouds</button>
     </div>
     <div class="atlas-instrument-status">
+      <label class="atlas-country-picker">Border snapshots
+        <select data-border-year>
+          <option value="">Choose a map year</option>
+          {[1878, 1914, 1938, 1945, 1960, 1994].map(year => <option value={year}>{year}</option>)}
+          <option value={new Date().getFullYear()}>Today</option>
+        </select>
+      </label>
+      <label class="atlas-country-picker" data-orbital-picker hidden>Orbital scenes
+        <select data-orbital-select><option value="">Choose a scene</option></select>
+      </label>
+      <p class="atlas-status" data-atlas-borders-status></p>
       <p class="atlas-status" data-atlas-status role="status">Drag to rotate. Select a marker or choose a story below.</p>
       <div class="atlas-weather" role="group" aria-label="Cloud layer">
+        <button type="button" data-atlas-air aria-pressed="true" disabled>clouds &amp; haze</button>
         <button type="button" data-atlas-weather aria-pressed="false" disabled>satellite clouds</button>
         <span data-atlas-weather-status role="status"></span>
       </div>

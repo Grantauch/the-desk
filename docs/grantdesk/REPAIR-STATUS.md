@@ -1,3 +1,11 @@
+## November 11 orbital events
+
+Owner Codex. Seven classroom reconstructions and illustrations play as their locations face the idle homepage globe. Expanded mode offers a year-filtered scene picker and replay. Reduced motion uses a static frame. Local Atlas unit tests and the site build pass. Protected browser checks and production readback are separate.
+
+## November 11 Cinematic Atlas atmosphere and homepage glass
+
+Owner Codex. The Earth shader deepens the illustrated cloud banks and adds a broader blue and amber atmospheric halo. The homepage adds soft haze behind the globe, frosted Explore and story controls, and glass-inspired surfaces on the daily links and instrument strip. The globe strengthens day-night contrast and terrain relief, adds a cloud and haze toggle, and measures great-circle distances with two globe pins. Current country cards use archived facts, and six sourced border snapshots show the selected historical names. The atmospheric effects reuse existing meshes and textures. Protected CI, production readback and school Chromebook performance are tracked separately.
+
 ## November 9 GrantDesk Ready viewer
 
 Owner Codex. Forward-ports the browser-local Ready Snapshot viewer from PR #86. The direct `/ready/` route accepts a sanitized JSON file or opens a labeled sample. Invalid imports clear the previous result, and clearing or choosing another input prevents a late file read from restoring stale data. The release adds the snapshot unit checks and synthetic browser journey to the existing verification suites. The GoClassroom scanner remains a separate integration.
