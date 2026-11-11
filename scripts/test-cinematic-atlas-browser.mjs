@@ -218,6 +218,8 @@ try{
   await run('countries-and-measurement',{width:1366,height:768},async(page)=>{
     await page.locator('[data-atlas-explore]').click();
     const country=page.locator('[data-country-picker]');
+    const labels=page.locator('[data-atlas-country-labels] span:visible');
+    await labels.first().waitFor();
     await country.selectOption({label:'Austria'});
     await page.getByRole('heading',{name:'Austria',exact:true}).waitFor();
     assert.notEqual(await page.locator('[data-country-fact]').first().textContent(),'Unavailable in archive');
@@ -227,6 +229,7 @@ try{
     await page.getByRole('heading',{name:'Austro-Hungarian Empire',exact:true}).waitFor();
     assert.equal(await page.locator('[data-country-modern]').first().isHidden(),true);
     await page.getByRole('button',{name:'Close country facts'}).click();
+    await page.locator('[data-atlas-reset]').click();
 
     const atmosphere=page.locator('[data-atlas-air]');
     await atmosphere.click();
@@ -242,8 +245,12 @@ try{
     await coordinates.filter({hasText:'020° W'}).waitFor();
     await globe.press('Enter');
     await readout.filter({hasText:/A → B · [1-9][\d,]* km/}).waitFor();
-    await page.locator('[data-atlas-measure]').click();
+    await page.locator('[data-measure-clear]').click();
+    await readout.filter({hasText:'Place pin A'}).waitFor();
+    assert.equal(await page.locator('[data-measure-clear]').isDisabled(),true);
+    await page.locator('[data-measure-exit]').click();
     assert.equal(await readout.isHidden(),true);
+    assert.equal(await page.locator('[data-atlas-measure]').evaluate(button=>button===document.activeElement),true);
   });
   await run('orbital-scenes',{width:1366,height:768},async(page)=>{
     await page.locator('[data-atlas-explore]').click();
