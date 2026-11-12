@@ -71,6 +71,8 @@ let browser;
 try {
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
+  // Same desk-save test hook as the other browser tests: no PIN gate, no Turn In traffic.
+  await page.addInitScript(() => { window.__deskSaveTest = { endpoint: '', gate: false }; });
   await page.goto(`${origin}/hubs/bts-s01-the-death-harvest.html`, { waitUntil: 'networkidle' });
   const allEntries = await page.locator('.record-entry:not([hidden])').count();
   if (allEntries !== 20) throw new Error(`BTS audit expected 20 entries, found ${allEntries}.`);
