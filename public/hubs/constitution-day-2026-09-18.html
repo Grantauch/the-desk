@@ -29,10 +29,10 @@
 
 <section class="identity-block" aria-labelledby="student-info-heading">
 <h2 id="student-info-heading">Start here: identify your work</h2>
-<p>Use your real first and last name and the period you are sitting in. Your answers save on this Chromebook while you work.</p>
+<p>Use your real first and last name and the period you are sitting in. Your answers save in this tab while you work. Use the shared Work options for account saving and backups.</p>
 <div class="identity">
 <input id="studentName" placeholder="First and last name" aria-label="Student name" autocomplete="name">
-<select id="period" aria-label="Class period"><option value="">Choose period</option><option>2nd</option><option>3rd</option><option>4th</option><option>5th</option><option>6th</option></select>
+<select id="period" aria-label="Class period"><option value="">Choose period</option><option>1st</option><option>2nd</option><option>3rd</option><option>4th</option><option>5th</option><option>6th</option></select>
 </div>
 </section>
 
@@ -128,25 +128,27 @@
 <button class="action save" id="downloadBtn">Download my work</button>
 <button class="action copy" id="copyBtn">Copy all answers</button>
 <button class="action clear" id="clearBtn">Clear this course</button>
-<span class="status" id="status">Answers save automatically on this device.</span>
+<span class="status" id="status">Answers save in this tab. Use Work options for account saving and backups.</span>
 </div>
 
-<div class="footer">Official reference: <a href="https://www.archives.gov/founding-docs/constitution-transcript" target="_blank" rel="noopener">National Archives · Constitution transcript</a>. Optional background: <a href="https://constitutioncenter.org/education/constitution-day-resources" target="_blank" rel="noopener">National Constitution Center · Constitution Day resources</a>.<br><br>If the page reloads, your responses should return on the same Chromebook and browser. Before leaving class, download your work and submit that file in Google Classroom. If Classroom is temporarily unavailable, keep the downloaded file so your work is not lost.</div>
+<div class="footer">Official reference: <a href="https://www.archives.gov/founding-docs/constitution-transcript" target="_blank" rel="noopener">National Archives · Constitution transcript</a>. Optional background: <a href="https://constitutioncenter.org/education/constitution-day-resources" target="_blank" rel="noopener">National Constitution Center · Constitution Day resources</a>.<br><br>Your tab copy can recover a refresh. Closing the tab ends that local copy; keep an account save or downloaded backup. Before leaving class, download your work and submit that file in Google Classroom. If Classroom is temporarily unavailable, keep the downloaded file so your work is not lost.</div>
 </main>
 
 <script>
 const courseNames={us:"US-History",hh:"Hidden-History",bs:"Beyond-the-Scoreboard"};
-let activeCourse=localStorage.getItem("constitutionCourse")||"us";
+let activeCourse="us";
 const panels=[...document.querySelectorAll("[data-course-panel]")];
 const buttons=[...document.querySelectorAll("[data-course]")];
 const status=document.getElementById("status");
-function showCourse(c){activeCourse=c;localStorage.setItem("constitutionCourse",c);panels.forEach(p=>p.classList.toggle("active",p.dataset.coursePanel===c));buttons.forEach(b=>b.setAttribute("aria-pressed",b.dataset.course===c?"true":"false"));restore();}
+function showCourse(c){activeCourse=c;panels.forEach(p=>p.classList.toggle("active",p.dataset.coursePanel===c));buttons.forEach(b=>b.setAttribute("aria-pressed",b.dataset.course===c?"true":"false"));}
 buttons.forEach(b=>b.addEventListener("click",()=>showCourse(b.dataset.course)));
-function key(q){return "constitution-2026-09-18-"+q}
-function saveField(el){localStorage.setItem(key(el.dataset.q),el.value);status.textContent="Saved on this device.";setTimeout(()=>status.textContent="Answers save automatically on this device.",1200)}
-function restore(){document.querySelectorAll("#panel-"+activeCourse+" textarea").forEach(el=>{el.value=localStorage.getItem(key(el.dataset.q))||""})}
-document.querySelectorAll("textarea[data-q]").forEach(el=>el.addEventListener("input",()=>saveField(el)));
-for(const id of ["studentName","period"]){const el=document.getElementById(id);el.value=localStorage.getItem(key(id))||"";el.addEventListener("input",()=>localStorage.setItem(key(id),el.value));}
+// The shared desk-save runtime owns all answer persistence. Never restore
+// names or work from browser-wide storage on a shared student Chromebook.
+document.querySelectorAll("textarea[data-q]").forEach(el=>{
+ const label=el.previousElementSibling;
+ label.id="constitution-label-"+el.dataset.q;
+ el.setAttribute("aria-labelledby",label.id);
+});
 function collect(){
  const name=document.getElementById("studentName").value.trim()||"Unnamed Student";
  const period=document.getElementById("period").value||"Period not entered";
@@ -161,7 +163,7 @@ document.getElementById("downloadBtn").addEventListener("click",()=>{
  const safe=d.name.replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"")||"student"; a.download=safe+"-"+courseNames[activeCourse]+"-Constitution-Day.txt"; a.click(); URL.revokeObjectURL(a.href); status.textContent="Downloaded. Attach the file in Google Classroom.";
 });
 document.getElementById("copyBtn").addEventListener("click",async()=>{if(!document.getElementById("studentName").value.trim()||!document.getElementById("period").value){status.textContent="Add your name and period before copying.";window.scrollTo({top:document.querySelector(".identity-block").offsetTop-20,behavior:"smooth"});return;}const d=collect();try{await navigator.clipboard.writeText(d.out);status.textContent="Copied. Paste into Google Classroom if needed."}catch(e){status.textContent="Copy blocked by browser. Use Download my work."}});
-document.getElementById("clearBtn").addEventListener("click",()=>{if(!confirm("Clear saved answers for this course on this device?"))return;document.querySelectorAll("#panel-"+activeCourse+" textarea").forEach(el=>{localStorage.removeItem(key(el.dataset.q));el.value=""});status.textContent="This course was cleared."});
+document.getElementById("clearBtn").addEventListener("click",()=>{if(!confirm("Clear saved answers for this course on this device?"))return;document.querySelectorAll("#panel-"+activeCourse+" textarea").forEach(el=>{el.value="";el.dispatchEvent(new Event("input",{bubbles:true}))});status.textContent="This course was cleared."});
 showCourse(activeCourse);
 </script>
 <script src="/hubs/desk-save.js" defer></script>
