@@ -234,7 +234,7 @@ const groups = [
       ],
       [
         'The familiar NCAA came afterward.',
-        'The NCAA did not begin as the giant sports business students know today.',
+        'The NCAA did not begin as the giant sports business you know today.',
       ],
       [
         'Eligibility enforcement, the definition of amateurism, national championships, and broadcast contracts developed over the following century. They were not the institution’s founding purpose.',
