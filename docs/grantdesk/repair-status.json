@@ -1,4 +1,18 @@
 {
+  "student-discovery-2026-11-12": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Reconcile 109 root-level hub HTML files and disposition 13 catalog exceptions; publish safe navigation additions only.",
+    "verification_status": "FULL_CANONICAL_72_MAIN_78_EXTENDED_AND_FOCUSED_BROWSER_PASSED",
+    "deployment_status": "PROTECTED_BUILD_MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "REAL_TEACHER_HOSTED_ROOM_AND_SCHOOL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Baseline main dda9945033e04df136f8602e1395b7eab44cf104: 109 root HTML files, 96 catalog references and 13 exceptions; all 13 production direct URLs returned HTTP 200.",
+      "Games adds the student Jeopardy buzzer and repaired Constitution Day case files. Prototype lab is removed from game discovery; U.S. History replaces Jeopardy V2 with V3 and removes prototype Situation Room. V2 is removed from the sitemap; original URLs remain intact.",
+      "Constitution Day no longer reads or writes browser-wide identity/answer storage; original q: save keys are preserved. Synthetic Chromium checks at 320, 390 and 1440 cover tab recovery, new-tab isolation, clear persistence, three course panels, labels, navigation and failed buzzer joins.",
+      "Detailed dispositions and the complete baseline inventory: docs/student-discovery-audit-2026-11-12.md. Held activities are not claimed repaired."
+    ]
+  },
   "atlas-visual-polish-2026-11-11": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
