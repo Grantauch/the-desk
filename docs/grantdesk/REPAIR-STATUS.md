@@ -1,3 +1,7 @@
+## November 13 Hall Pass Batch 02 evidence refresh
+
+Owner Codex. Current program passes 445 runtime behaviors across 32 areas at main `f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee`; that exact baseline passed protected full release and browser acceptance in run 43488008757. The private RC2 rebuilt reproducibly from canonical Git bytes, with seven matching source hashes and a confirmed public-output refusal. Readiness and installer-contract documents now record the same archive/manifest fingerprints. Both release flags remain false. Source review and merge are separate from school field acceptance; no deployment, public kit, school data or credential change was made.
+
 ## November 12 Checkaverse plaza artwork recovery
 
 Codex recovered the Gemini Sprite Book arena, market stall, bus and notice board from draft PR #284. The current map draws the versioned art at existing placements. The original files serve older clients and replace missing versioned images. Local Chromium verified the new artwork and both fallback levels at Chromebook size. Independent release verification and physical Chromebook use are pending.

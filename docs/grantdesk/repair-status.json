@@ -1,4 +1,18 @@
 {
+  "hall-pass-batch-02-evidence-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Refresh issue #323 evidence from canonical current source without publishing the held RC2 installer.",
+    "verification_status": "445_RUNTIME_CHECKS_EXACT_BASELINE_PROTECTED_CI_REPRODUCIBLE_ARCHIVE_AND_PUBLIC_REFUSAL_PASS",
+    "deployment_status": "SOURCE_REVIEW_PENDING_NO_PUBLICATION_OR_CUTOVER",
+    "field_status": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Source baseline f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee; protected full release and browser acceptance passed in run 43488008757.",
+      "Private canonical-LF RC2: 182718 bytes; SHA-256 5e8e861d7e83f1a476015c2a61868331a336bf74adb10f729972a6818d110ff1.",
+      "Payload manifest SHA-256 a53510a7b727326093b9375ca6be160773966a18832fa5603a2c62064e3a57b7; all seven source hashes match; repeated builds are identical; public output refused.",
+      "distributionApproved and productionCutoverAuthorized remain false. No runtime source, existing public ZIP, template, production deployment, real student data or credentials changed."
+    ]
+  },
   "checklings-plaza-sprite-book-2026-11-12": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
