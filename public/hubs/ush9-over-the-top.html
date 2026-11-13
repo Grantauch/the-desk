@@ -71,9 +71,21 @@ body.scoping #scopeexit{display:block}
 </style>
 <script>(function(){function deco(){document.querySelectorAll('.video:not([data-done])').forEach(function(v){v.setAttribute('data-done','1');var im=v.querySelector('img');if(im)im.onerror=function(){im.style.display='none'};var a=document.createElement('a');a.href='https://www.youtube.com/watch?v='+v.dataset.vid;a.target='_blank';a.rel='noopener';a.className='ytlink';a.textContent='\u25b6 Open this video on YouTube';v.parentNode.insertBefore(a,v.nextSibling);});}new MutationObserver(deco).observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',deco);})();</script>
 <style>.ytlink{display:inline-block;margin:-6px 0 14px;font:600 13px ui-monospace,Menlo,Consolas,monospace;color:inherit;opacity:.85;text-decoration:underline}.video{min-height:120px}</style>
+<script>
+// WebGL2 is required for the trench exhibit. A complete reading alternative
+// is safer on shared devices than leaving the student at a frozen 3D loader.
+(function () {
+  try {
+    var check = document.createElement('canvas').getContext('webgl2');
+    if (!check) { location.replace('/hubs/wwi-gallery-reader.html#over-the-top'); return; }
+    check.getExtension('WEBGL_lose_context')?.loseContext();
+  } catch (error) { location.replace('/hubs/wwi-gallery-reader.html#over-the-top'); }
+}());
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=/hubs/wwi-gallery-reader.html#over-the-top"></noscript>
 </head>
 <body>
-<div id="intro"><div><div class="iy">US HISTORY · WORLD WAR I · 1918</div><h1 class="it">OVER THE TOP</h1><div class="is">By the summer of 1918, ten thousand Americans were landing in France every day. Walk the line they held.</div><p class="reconstruction" style="max-width:42em;margin:16px auto;color:#b8b09a;font:12px/1.5 Georgia,serif">3D equipment is an interpretive reconstruction. M1917 and Adrian helmets, M1903 rifles with M1905 bayonets, wooden periscope and supply cases are simplified; display scale varies.</p><button>Move up to the line</button><div class="ih">Arrows or numbers to move between stops. Drag to look around.</div></div></div>
+<div id="intro"><div><div class="iy">US HISTORY · WORLD WAR I · 1918</div><h1 class="it">OVER THE TOP</h1><div class="is">By the summer of 1918, ten thousand Americans were landing in France every day. Walk the line they held.</div><p class="reconstruction" style="max-width:42em;margin:16px auto;color:#b8b09a;font:12px/1.5 Georgia,serif">3D equipment is an interpretive reconstruction. M1917 and Adrian helmets, M1903 rifles with M1905 bayonets, wooden periscope and supply cases are simplified; display scale varies.</p><button>Move up to the line</button><p style="margin:15px 0 0"><a href="/hubs/wwi-gallery-reader.html#over-the-top" style="color:#f0dcab;font:600 14px/1.5 system-ui,sans-serif;text-underline-offset:3px">Read the accessible trench guide instead</a></p><div class="ih">Arrows or numbers to move between stops. Drag to look around.</div></div></div>
 <div id="loading">MOVING UP TO THE LINE</div>
 <canvas id="c"></canvas>
 <div id="labels"></div>
