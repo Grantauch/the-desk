@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/audit-visual-assets.mjs'
       - 'scripts/audit-visual-code.mjs'
+      - 'scripts/audit-visual-contact-sheet.py'
       - '.github/workflows/visual-asset-inventory.yml'
   workflow_dispatch:
 
@@ -30,6 +31,10 @@ jobs:
         run: node scripts/audit-visual-assets.mjs
       - name: Inventory unmerged visual interface code variants
         run: node scripts/audit-visual-code.mjs
+      - name: Prepare branch image comparison sheets
+        run: python3 -m pip install --user Pillow
+      - name: Render old/current comparison contact sheets
+        run: python3 scripts/audit-visual-contact-sheet.py
       - name: Publish detailed JSON and triage table
         uses: actions/upload-artifact@v4
         with:
