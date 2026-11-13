@@ -1,3 +1,7 @@
+## November 12 Checkaverse plaza artwork recovery
+
+Codex recovered the Gemini Sprite Book arena, market stall, bus and notice board from draft PR #284. The current map draws the versioned art at existing placements. The original files serve older clients and replace missing versioned images. Local Chromium verified the new artwork and both fallback levels at Chromebook size. Independent release verification and physical Chromebook use are pending.
+
 ## November 12 student discovery and navigation
 
 Owner Codex. Reconciled all 109 root HTML hub experiences against the two catalogs and inspected the 13 exceptions. Add the student Jeopardy join page and repaired Constitution Day case files to games; replace the stale U.S. History Jeopardy V2 link with V3, remove V2 from the sitemap and remove prototype Lab/Situation Room navigation. Original files remain available for existing links.

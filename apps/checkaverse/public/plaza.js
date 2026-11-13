@@ -769,7 +769,14 @@
   function snapCamera() { cam = cameraTarget(); }
 
   // ---------- art ----------
-  // Sprite Book art is stored at 2x (64 pixels a tile). If a picture fails to load, the old shapes stand in for it.
+  // Most art uses the original 64px-per-tile files. These Wave 2 landmarks use
+  // versioned 32px exports. Keep the original URLs for cached pages and fallback.
+  const LANDMARK_ART = {
+    arena: 'arena-v2',
+    'market-stall': 'market-stall-v2',
+    'prop-bus': 'prop-bus-v2',
+    'prop-notice-board': 'prop-notice-board-v2',
+  };
   const ART_NAMES = [
     'tile-grass', 'tile-path', 'tile-water', 'prop-tree', 'prop-bush', 'prop-rock', 'prop-lantern', 'prop-bench',
     'prop-bus-stop', 'prop-bus', 'prop-notice-board', 'ui-bubble', 'hood-plot', 'house-cottage', 'house-stump',
@@ -785,8 +792,14 @@
   let ground = null, groundKey = '';
   for (const name of ART_NAMES) {
     const im = new Image();
-    im.onload = im.onerror = () => { artWaiting--; ground = null; };
-    im.src = `/art/${name}.png`;
+    const loaded = () => { artWaiting--; ground = null; };
+    const original = `/art/${name}.png`;
+    im.onload = loaded;
+    im.onerror = LANDMARK_ART[name] ? () => {
+      im.onerror = loaded;
+      im.src = original;
+    } : loaded;
+    im.src = LANDMARK_ART[name] ? `/art/${LANDMARK_ART[name]}.png` : original;
     ART[name] = im;
   }
   const has = (name) => ART[name] && ART[name].complete && ART[name].naturalWidth > 0;
