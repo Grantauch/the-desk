@@ -1,3 +1,7 @@
+## November 13 Checkaverse houses and Kettle Creek buildings
+
+Codex recovered the Gemini Sprite Book cottage, stump and creek houses and the Kettle Creek store, apothecary, clinic and daycare from draft PR #284. They use the same versioned-file fallback as the plaza landmarks (original PNGs, then the existing shapes). Local Chromium loaded a saved trainer's Kettle Creek, drew the cottage and all four buildings, and repeated the walk with the versioned and then both generations missing. The stump and creek houses appear only on claimed Neighborhood plots; their delivery and fallback requests are checked but not drawn. Independent release verification and physical Chromebook use are pending.
+
 ## November 12 Checkaverse plaza artwork recovery
 
 Codex recovered the Gemini Sprite Book arena, market stall, bus and notice board from draft PR #284. The current map draws the versioned art at existing placements. The original files serve older clients and replace missing versioned images. Local Chromium verified the new artwork and both fallback levels at Chromebook size. Independent release verification and physical Chromebook use are pending.
