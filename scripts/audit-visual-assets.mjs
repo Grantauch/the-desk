@@ -171,6 +171,7 @@ const report = {
 };
 writeFileSync(join(reportDir, 'inventory.json'), JSON.stringify(report, null, 2) + '\n');
 const important = candidateRecords.filter(item => item.priority);
+const uniqueCandidateContents = new Set(candidateRecords.map(item => item.gitBlobSha)).size;
 const noRef = usageRecords.filter(item => item.classification === 'no-static-reference-found').sort((a, b) => b.bytes - a.bytes);
 const table = (items, format, limit = 70) => items.slice(0, limit).map(format).join('\n') || '| None found | | |';
 const md = `# Repository-wide visual recovery — ${report.generatedAt.slice(0, 10)}
@@ -178,7 +179,7 @@ const md = `# Repository-wide visual recovery — ${report.generatedAt.slice(0, 
 **Base:** \`${baseRef}\` @ \`${baseCommit}\`  
 **Branches inspected:** ${allBranches.length}; divergent with unpublished commits: ${reviewed.length}.  
 **Main tracked files:** ${main.size}; main visual/media/source assets: ${mainAssets.length}.  
-**Branch-exclusive asset-content candidates:** ${candidateRecords.length} (priority-themed: ${important.length}).
+**Branch-exclusive asset-path variants:** ${candidateRecords.length} (**${uniqueCandidateContents} distinct file contents**) (priority-themed: ${important.length}).
 
 ## What the inventory means
 
@@ -218,7 +219,7 @@ ${table(noRef, x => `| \`${x.path}\` | ${x.bytes} | No exact/basename references
 See \`inventory.json\` for **every inspected ref**, candidate's path and SHAs, and every public asset's static source references.
 `;
 writeFileSync(join(reportDir, 'triage.md'), md);
-const brief = `VISUAL_AUDIT base=${baseCommit.slice(0, 12)} branches=${allBranches.length} divergent=${reviewed.length} candidates=${candidateRecords.length} priority=${important.length} noStaticRef=${noRef.length}\n`;
+const brief = `VISUAL_AUDIT base=${baseCommit.slice(0, 12)} branches=${allBranches.length} divergent=${reviewed.length} assetPaths=${candidateRecords.length} uniqueAssetBlobs=${uniqueCandidateContents} priority=${important.length} noStaticRef=${noRef.length}\n`;
 process.stdout.write(brief);
 console.log('PRIORITY_CANDIDATES');
 for (const item of important.slice(0, 20)) console.log(item.path, item.bytes, item.branches.slice(0, 3).join(','));
