@@ -1,4 +1,31 @@
 {
+  "hall-pass-active-credential-consistency-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Forward-port #117 onto current Hall Pass while preserving leading-zero aliases and school-directory credentials.",
+    "verification_status": "BOTH_BASELINE_FAILURES_REPRODUCED_FULL_CANONICAL_447_RUNTIME_AND_DIRECTORY_CHECKS_PASS",
+    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "field_status": "AUTHENTICATED_SYNTHETIC_SMOKE_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Current main cf4cf93 fails both restored #117 cases: historical inactive hash invalidates a valid session, and conflicting active hashes issue an action proof.",
+      "Credential versions now use active memberships and authentication rejects inconsistent or missing active hashes before minting proofs.",
+      "The actual matched hash preserves the existing leading-zero twin behavior. All 447 runtime checks and independent-room directory tests pass using synthetic fixtures only."
+    ]
+  },
+  "hall-pass-batch-02-evidence-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Refresh issue #323 evidence from canonical current source without publishing the held RC2 installer.",
+    "verification_status": "447_RUNTIME_LOCAL_CANONICAL_REPRODUCIBLE_ARCHIVE_AND_PUBLIC_REFUSAL_PASS_PROTECTED_PENDING",
+    "deployment_status": "SOURCE_REVIEW_PENDING_NO_PUBLICATION_OR_CUTOVER",
+    "field_status": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Candidate baseline 4e0ede69f23f41d8329c367a3c8ad04f3391712f; 447 runtime checks and local canonical verification pass. Exact protected run 43502935244 was pending at preparation; combined head requires its own protected pass.",
+      "Private canonical-LF RC2: 182830 bytes; SHA-256 da7566c5cb55e4c440889bce599c2e6d1541d0044ca8a48846afec035092d71a.",
+      "Payload manifest SHA-256 532c1a8231eebd6b0db907e9c56839b966702ce1e3181c3ad3f30def721ec09c; all seven source hashes match; repeated builds are identical; public output refused.",
+      "distributionApproved and productionCutoverAuthorized remain false. Candidate source includes the separately tested credential repair; no existing public ZIP, template, production deployment, real school data or credentials changed."
+    ]
+  },
   "checklings-plaza-sprite-book-2026-11-12": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
@@ -249,7 +276,7 @@
       "Tiled JSON south-lane extensions add 12 named cottages and interiors, preserve original map rows/buildings/doors/graves/forage locations and all 24 player plots, and reject attempts to overwrite the existing map.",
       "Pax collects, carries and delivers clinic parcels; Nell receives them. Every delivery is conserved as received or waiting. Watering, sweeping, stock displays, inspections, observations, notes and social memories change real resident state. Work effects occur after the activity completes.",
       "Two real WebSocket clients agree on shared positions/tasks/results. Private resident histories and interaction holds are isolated. Teacher pause freezes the clocks. Jobs/memories survive a real process restart and saved-account reconnect. Actual walking enters/exits named homes, and remote-entry messages cannot teleport.",
-      "Browser journeys enter Pax\u2019s home, wait for his return, check dialogue against his completed delivery, follow current whereabouts through homes and the wilds gate, verify carried parcels and Nell\u2019s receipts, and compare quiet/ordinary clients. Dialog WCAG A/AA and phone fit pass. Final frozen-source diagnostics, full server suite and both browser suites passed.",
+      "Browser journeys enter Pax’s home, wait for his return, check dialogue against his completed delivery, follow current whereabouts through homes and the wilds gate, verify carried parcels and Nell’s receipts, and compare quiet/ordinary clients. Dialog WCAG A/AA and phone fit pass. Final frozen-source diagnostics, full server suite and both browser suites passed.",
       "The canonical local verify command completed successfully: zero diagnostic errors/warnings, 54 built routes, 162 HTML files, 5423 local references and 30 releases/231 assets. Core school services, attendance, pet schemas/care/growth, battle rewards and merchant inventory remain unchanged. New data uses resident-only meta namespaces and anonymous scope keys."
     ]
   },
@@ -1287,7 +1314,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {

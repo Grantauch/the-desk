@@ -1,3 +1,11 @@
+## November 13 active credential consistency
+
+Owner Codex. Reproduced both #117 failures against current main using synthetic memberships: inactive historical PIN hashes expired a valid signed session, and disagreeing active hashes issued an action proof. Credential versions now use active memberships, and PIN verification requires one consistent active credential before issuing a session or proof. The comparison uses the hash that actually matched, preserving five/six-digit leading-zero aliases and directory credentials. All 447 runtime checks, the independent school-directory suite and full canonical verification pass (55 pages, 172 HTML files, 5,773 references, 35 sealed releases / 264 assets). Protected source review, production deployment and authenticated synthetic smoke remain separate. No real student data or credential was read or changed.
+
+## November 13 Hall Pass Batch 02 evidence refresh
+
+Owner Codex. Credential-repair candidate `4e0ede69f23f41d8329c367a3c8ad04f3391712f` passes 447 runtime behaviors across 32 areas and local canonical verification. Its exact protected run 43502935244 was pending when this checkpoint was prepared, and the combined release head requires its own protected pass. The private RC2 rebuilt reproducibly from canonical Git bytes, with seven matching source hashes and a confirmed public-output refusal. Readiness and installer-contract documents record the same refreshed archive/manifest fingerprints. Both release flags remain false. Source review and merge are separate from school field acceptance; no deployment, public kit, school data or credential change was made.
+
 ## November 12 Checkaverse plaza artwork recovery
 
 Codex recovered the Gemini Sprite Book arena, market stall, bus and notice board from draft PR #284. The current map draws the versioned art at existing placements. The original files serve older clients and replace missing versioned images. Local Chromium verified the new artwork and both fallback levels at Chromebook size. Independent release verification and physical Chromebook use are pending.

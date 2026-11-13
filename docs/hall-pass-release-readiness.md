@@ -1,6 +1,15 @@
 # Hall Pass issue #319 — clean-environment release readiness
 
-Owner: Codex. Review branch: `work/hall-pass-release-gate`. Inspected main: `e30413bea130962e26317dc1cc9f6b4a0fbad95f` on November 4, 2026 (Detroit). Requirements: [issue #319](https://github.com/Grantauch/the-desk/issues/319), updated November 4. The November 4 preparation batch changed no production, deployment, directory, roster, student credential or existing public download. The November 5 setup-error follow-up below supersedes its source-only promotion hold for the setup repair.
+Owner: Codex. Current evidence refresh: November 13, 2026, for [Batch 02 / issue #323](https://github.com/Grantauch/the-desk/issues/323). Candidate source baseline: `4e0ede69f23f41d8329c367a3c8ad04f3391712f` from [credential repair #366](https://github.com/Grantauch/the-desk/pull/366), based on main `cf4cf9399be1e090cfabb66007d4444435ebe14d`. Requirements remain [issue #319](https://github.com/Grantauch/the-desk/issues/319). Earlier November 4-5 observations below remain dated historical evidence.
+
+## Current evidence - November 13
+
+- PR #322 is merged at `60eecb1e12f9890e951012f20617f40b766e8a0d`. This refresh incorporates the active-credential repair that supersedes #117, rather than using #322's former moving review head.
+- `node scripts/test-hall-pass-runtime.cjs` reports **447 behavioral checks across 32 areas** against the candidate program. Local canonical verification also passed. Earlier 441, 442 and 445 counts describe historical baselines.
+- The exact candidate's protected [site-check](https://github.com/Grantauch/the-desk/actions/runs/43502935244/job/132153108324) was still running when this checkpoint was prepared. The combined release head must pass its own protected check before merge. The earlier green baseline does not certify this candidate, and source checks do not establish school field acceptance.
+- RC2 was rebuilt twice from the canonical Git tree bytes (UTF-8 with LF), producing identical archives. All seven source-file SHA-256 values in `SOURCE-MANIFEST.json` match the archived files. The 18-entry archive includes both manifests.
+- The builder refused a destination under `public/` before writing any file. `VERSION.json` retains `distributionApproved: false` and `productionCutoverAuthorized: false`.
+- This refresh makes no deployment, template, public-download, school-directory, roster, PIN or credential change. The exact private candidate remains held pending the later engineering and school acceptance steps.
 
 ## Requirement map
 
@@ -29,13 +38,17 @@ Owner: Codex. Review branch: `work/hall-pass-release-gate`. Inspected main: `e30
 
 Archive: `HallPass-Teacher-Installer-v1.0.0-rc.2.zip`.
 
-SHA-256: `da342495e6906d90d39bb4002830b7fc81c0fc05f23bc847f3332eea60ba6855`.
+Source baseline: `4e0ede69f23f41d8329c367a3c8ad04f3391712f`; canonical Git tree bytes, 182,830-byte private RC2 archive.
 
-Payload manifest SHA-256: `c00e4f869652fa1bee17a533194da0e027457abc79d099a086d83af8b7f26dd7`.
+SHA-256: `da7566c5cb55e4c440889bce599c2e6d1541d0044ca8a48846afec035092d71a`.
+
+Payload manifest SHA-256: `532c1a8231eebd6b0db907e9c56839b966702ce1e3181c3ad3f30def721ec09c`.
+
+These hashes describe the seven program files and fixed kit payload at the stated source baseline. They are not a hash of this documentation or of a later repository head. Rebuild and replace this checkpoint if a packaged input changes. A normal Windows checkout may use CRLF and therefore produce a different exact-byte archive; use canonical Git bytes for reproduction and the included normalized source hashes for editor comparisons.
 
 Rebuild privately with `python scripts/build-hall-pass-teacher-kit.py`; verify with the included `verify.py`. The candidate is not placed in `public/` or a release attachment.
 
-## Verification evidence
+## Historical verification evidence - November 4
 
 - `node scripts/test-hall-pass-teacher-kit.cjs`: PASS. Exercises actual launcher handlers, Preflight UI defaults and stale-artifact resets, deterministic builds, exact seven source files, checksum/tamper/missing/extra/duplicate failures, evidence binding and forged approval rejection. Invokes the synthetic Python negative tests.
 - `npm run hall-pass:verify`: PASS, including 441 runtime behaviors across 32 areas, structural/handoff checks, independent-room directory/credential/revocation/throttling tests and new kit checks.

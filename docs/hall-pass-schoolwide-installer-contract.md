@@ -1,8 +1,10 @@
 # Hall Pass school directory and teacher kit
 
-## Current release-gate checkpoint — November 4
+## Current release-gate checkpoint - November 13
 
 Package `1.0.0-rc.2` adds offline integrity checks, operator field evidence, a source manifest, strict setup links and recovery/smoke materials. The classroom application remains `1.0.0-rc.1`; the November 5 follow-up corrects template setup recovery for failed settings reads. This candidate is held outside `public/`; no production or student PIN change is authorized. [Release readiness](hall-pass-release-readiness.md) maps complete/partial requirements and actual environment blockers. Central software updates, explicit identity/version references and browser duplicate-name exception review remain gaps. The RC1 description below records inherited implementation, not clean-environment release approval.
+
+Batch 02 evidence now uses credential-repair candidate `4e0ede69f23f41d8329c367a3c8ad04f3391712f`: **447 Hall Pass runtime behaviors across 32 areas**, with local canonical verification passed. Its protected [site-check](https://github.com/Grantauch/the-desk/actions/runs/43502935244/job/132153108324) was running when this checkpoint was prepared; the final combined head also requires its own protected pass. The repeatable canonical-LF private archive is 182,830 bytes, SHA-256 `da7566c5cb55e4c440889bce599c2e6d1541d0044ca8a48846afec035092d71a`; payload manifest SHA-256 `532c1a8231eebd6b0db907e9c56839b966702ce1e3181c3ad3f30def721ec09c`. All seven archived source hashes match. Both approval flags remain false, and public output was rejected. See the readiness document for reproduction and exact-baseline limits.
 
 ## Confirmed requirements
 
@@ -28,6 +30,6 @@ The ZIP includes exact source as an IT/recovery fallback, verified against check
 
 ## Evidence and remaining prerequisites
 
-Existing Hall Pass: 441 behaviors across 32 areas. New independent-workbook tests cover shared credentials, enrollment isolation, old-PIN refusal, corrections, revocation, malformed source, stale previews and persistent rate limits after cache/nonce resets. Turn In: 61 tests, including exact five/six-digit shared credentials and session invalidation. Teacher kit: offline launcher, allowed file set, exact published ZIP bytes and SHA-256 manifest. Private preflight: five tests. Kiosk browser checks cover keypad, request/return, no premature submission, leading zero, immediate privacy reset, idle clear and viewport fit at 320/768/1366.
+Candidate Hall Pass: 447 behaviors across 32 areas. Independent-workbook tests cover shared credentials, enrollment isolation, old-PIN refusal, corrections, revocation, malformed source, stale previews and persistent rate limits after cache/nonce resets. The earlier November 4 checkpoint separately recorded 61 Turn In tests, five private-preflight tests and kiosk checks at 320/768/1366; those historical counts are not a new execution claim in this evidence refresh. Teacher-kit integrity, exact canonical source hashes, repeatable archive bytes and rejection of public output were rechecked on November 13.
 
 Canonical verification, protected CI, production deployment and live smoke are separate evidence stages in PR #320 and release control. Real credential cutover still requires authoritative school email mappings for the supplied numbers, a verified second-teacher installation and managed Chromebook field acceptance. The package is labeled a release candidate until field checks pass. A code merge never by itself rotates student PINs.
