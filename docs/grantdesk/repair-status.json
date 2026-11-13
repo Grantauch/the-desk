@@ -156,14 +156,15 @@
     "owner": "Codex",
     "scope": "Issue 329: fail-closed public Hall Pass ZIP and owner-only production-deploy approval guards; fixtures only.",
     "branch": "work/hall-pass-329-approval-guard",
-    "verification_status": "10_FIXTURE_GROUPS_PASS_CANONICAL_INTENTIONALLY_BLOCKED_BY_INHERITED_PUBLIC_RC1",
+    "verification_status": "OPTION_A_PUBLIC_RC1_MOVED_DISTRIBUTION_STILL_UNAPPROVED",
     "deployment_status": "NONE_NO_WORKFLOW_DISPATCH_TEMPLATE_ZIP_PIN_OR_PRODUCTION_CHANGE",
     "field_status": "NO_FIELD_CLAIM_GATE_REMAINS_CLOSED",
     "evidence": [
       "Public ZIP guard rejects false/missing/malformed approval; nested/case-varied names and renamed installer VERSION.json identities covered. Existing candidate builder still refuses public output.",
       "Both deploy entrypoints require trusted owner/main/repository/event/exact confirmation and productionCutoverAuthorized true before credentials or network. Workflow jobs also restrict owner and rerun actor.",
       "10/10 fixture groups pass, including copied deploy scripts with a network trap and no source/credentials, and copied npm verify/full/fast/build paths. Node syntax and three workflow YAML parses pass.",
-      "Canonical npm run verify exits 1 at publication guard on unchanged public RC1 ZIP while distributionApproved is false; downstream suite is blocked, not passed. No RC1 exception or policy flag change.",
+      "Source-review tree blocked canonical verify on the public rc.1 ZIP while distributionApproved is false. No RC1 exception or policy flag change.",
+      "November 13 Option A moved HallPass-Teacher-Installer-v1.0.0-rc.1.zip to distribution/archive/, outside public/ and outside the teacher-kit whitelist. The setup page download link is a paused note. distributionApproved and productionCutoverAuthorized stay false. The live rc.1 URL disappears on the next site deploy. No deploy workflow was run.",
       "Source-review commit uses [skip ci]; no production deployment workflows dispatched or rerun. Technical flags do not verify written owner/district approval or the Batch 07 freeze SHA. See docs/hall-pass-approval-guard.md for scope and limitations."
     ]
   },

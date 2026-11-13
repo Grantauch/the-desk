@@ -34,12 +34,11 @@ open policies test only the pure authorization decision, never a successful depl
 Node syntax checks for the changed deployment helpers and shared authorization
 module pass. All three changed workflow YAML files parse. Whitespace checks pass.
 
-The actual read-only `npm run verify` exits 1 at the new guard because the unchanged
-inherited `public/downloads/HallPass-Teacher-Installer-v1.0.0-rc.1.zip` is present and
-`distributionApproved` is false. Full downstream verification is therefore **blocked,
-not passed**. There is intentionally no RC1 exception or approval override. A later
-authorized batch must reconcile that artifact with the release policy before a site
-build can pass. Removing it or setting approval true is outside this batch.
+The source-review tree made read-only `npm run verify` exit 1 at the new guard because
+the inherited `public/downloads/HallPass-Teacher-Installer-v1.0.0-rc.1.zip` was present
+and `distributionApproved` was false. There is intentionally no RC1 exception or
+approval override. The November 13 integration below moves that ZIP out of `public/`
+so a site build can pass while the flag stays false.
 
 ## Limits and handoff
 
@@ -66,5 +65,21 @@ build can pass. Removing it or setting approval true is outside this batch.
   workaround for the closed gate.
 
 Next action: owner/reviewer reviews the guard source. Keep publication and cutover
-closed; resolve the inherited ZIP and #329 human gates in a separately authorized
-batch. This fixture pass is engineering evidence only.
+closed. This fixture pass is engineering evidence only.
+
+## Integration — November 13, Option A
+
+`distributionApproved` and `productionCutoverAuthorized` stay false. The inherited
+rc.1 ZIP moved from `public/downloads/` to
+`distribution/archive/HallPass-Teacher-Installer-v1.0.0-rc.1.zip`. It is not inside
+`distribution/hall-pass-teacher-kit/`, because that folder's direct children are an
+exact packaging whitelist and an extra `archive/` directory would make the candidate
+builder refuse the kit. The setup page keeps the optional-download `<details>` and
+replaces the file link with: "The test download is paused while the revised installer
+is reviewed." The live rc.1 URL disappears on the next site deploy.
+
+GitHub Actions `ubuntu-latest` and Netlify's Ubuntu build image both include Python 3
+(`python3`; Netlify documents Python 3.x on the current image). The Node wrapper
+invokes `python3`. If that interpreter cannot start, it prints
+`Hall Pass publication guard could not run; refusing release.` and exits 1. The
+failure stays closed.
