@@ -5,6 +5,17 @@ import { resolve, extname, sep } from 'node:path';
 import { chromium } from 'playwright';
 
 const publicRoot = resolve('public');
+
+// The reader is the same content as the 3D galleries. Fail if a gallery
+// placard is added or renamed without the reader following it.
+const readerHtml = await readFile(resolve(publicRoot, 'hubs/wwi-gallery-reader.html'), 'utf8');
+for (const gallery of ['ush9-the-arsenal.html', 'ush9-over-the-top.html']) {
+  const source = await readFile(resolve(publicRoot, 'hubs', gallery), 'utf8');
+  const titles = [...source.matchAll(/\{id:"[a-z]+",(?:no:"[IVX]+",)?(?:when:"[^"]*",)?title:"([^"]+)"/g)].map(m => m[1]);
+  assert.ok(titles.length >= 7, gallery + ' placards found');
+  for (const title of titles) assert.ok(readerHtml.includes('<h3>' + title + '</h3>'), 'reader is missing ' + title);
+}
+console.log('PASS reader carries every gallery placard');
 const output = resolve('browser-results/wwi-readable-fallback');
 await mkdir(output, { recursive: true });
 const server = createServer(async (req, res) => {
