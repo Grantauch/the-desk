@@ -31,7 +31,7 @@ const exhibits = [
   ['timber_supply_case_1916', 5, 'trench'],
 ];
 
-function inspectGlb(stem) {
+function inspectGlb(stem, where) {
   const data = readFileSync(modelFile(stem));
   assert.ok(data.length >= 28 && data.length < 700_000, stem + ': unexpected model weight');
   assert.equal(data.readUInt32LE(0), 0x46546c67, stem + ': GLB magic');
@@ -60,7 +60,14 @@ function inspectGlb(stem) {
   assert.ok(json && Array.isArray(json.meshes), stem + ': missing mesh list');
   assert.ok(!json.images?.length && !json.textures?.length, stem + ': embedded textures need a reviewed loader');
   assert.ok(!json.animations?.length, stem + ': animation needs explicit review');
-  // Blender may flag PBR *material* extensions as required. The current\n  // lightweight exhibit decoder intentionally reads core baseColor and roughness\n  // only; extension data on materials is safely ignored for these approximations.\n  // Geometry/compression extensions are not supported.\n  assert.deepEqual((json.extensionsRequired || []).filter(ext => !/^KHR_materials_/.test(ext)), [],\n    stem + ': GLTF requires an unsupported nonmaterial extension');
+  // The Arsenal decoder never reads extensionsRequired. Blender may flag material
+  // (KHR_materials_*) or light (KHR_lights_punctual) extensions as required; the
+  // decoder only uses core meshes and baseColor/roughness, so those are ignored
+  // safely. Anything else (e.g. mesh compression) would break it. The Over the Top
+  // decoder is stricter and throws on any required extension, so trench props must have none.
+  const allowed = where === 'trench' ? /^$/ : /^(KHR_materials_[a-z_]+|KHR_lights_punctual)$/;
+  assert.deepEqual((json.extensionsRequired || []).filter(ext => !allowed.test(ext)), [],
+    stem + ': GLTF requires an extension its ' + where + ' decoder does not support');
   assert.ok((json.buffers || []).every(buffer => !buffer.uri), stem + ': external data dependency');
   return { meshes: json.meshes.length, bytes: data.length };
 }
@@ -103,8 +110,8 @@ test('every published WWI Blender export has a matching source and a student-fac
 
 test('WWI model exports stay inside their audited browser parser and download budgets', () => {
   let total = 0;
-  for (const [stem, expectedMeshes] of exhibits) {
-    const result = inspectGlb(stem);
+  for (const [stem, expectedMeshes, where] of exhibits) {
+    const result = inspectGlb(stem, where);
     assert.equal(result.meshes, expectedMeshes, stem + ': material batch contract changed');
     total += result.bytes;
   }
