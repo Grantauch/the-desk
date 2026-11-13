@@ -4,16 +4,16 @@ Baseline: `Grantauch/the-desk` `main` commit `da332b0ea7f7ffe9e905a72f64e6b64336
 
 This is a **disposition ledger**, not evidence that every published page has passed visual acceptance. Full path, Git blob SHA, raw content SHA-256 and branch sources are recorded for every candidate in `inventory.json`, with separate `visual-code-variants.json` for JavaScript/CSS/HTML/Astro visual code differences.
 
-## Branch-only artwork: all 52 files accounted for
+## Branch-only artwork: 52 unique contents across 58 paths accounted for
 
 | Group | Count | Disposition | Evidence / next gate |
 | --- | ---: | --- | --- |
 | Old Hidden History Rabbit Hole deck art | 14 | **Superseded; do not restore by default.** The current `public/hubs/hh-down-the-rabbit-hole.html` references a newer `rh2-*` art sequence, more evidence-specific imagery and a captioned archival clip. The old `bugs.webp`, `card-a.webp` through `card-e.webp`, `cheshire.webp`, `eye.webp`, `floor.webp`, `goldwater.webp`, `keyhole.webp`, `queen.webp`, `triad.webp` and `walrus.webp` were preserved only in older branch heads. | Do not replace the newer page without side-by-side aesthetic and source verification. |
-| Checklings Sprite Book art | 20 | **Owned by draft PR #284, not abandoned.** Fourteen files are under `apps/checkaverse/public/art/`; six are founder-facing camp exports under `public/hubs/checkling/camp/assets/`. | [PR #284](https://github.com/Grantauch/the-desk/pull/284) explicitly records incomplete Wave 2 source access, two rejected sprites, unavailable Wave 3/4 assets and missing Kettle Creek map acceptance. Do not merge or bypass the independent review gate. |
+| Checklings Sprite Book art | 26 paths / 20 unique PNGs | **Owned by draft PR #284, not abandoned.** Fourteen files are under `apps/checkaverse/public/art/`; six are founder-facing camp exports under `public/hubs/checkling/camp/assets/`. | [PR #284](https://github.com/Grantauch/the-desk/pull/284) explicitly records incomplete Wave 2 source access, two rejected sprites, unavailable Wave 3/4 assets and missing Kettle Creek map acceptance. Do not merge or bypass the independent review gate. |
 | USH9 L018 early images | 14 | **Superseded; do not restore.** Their previous versions are only ~2.5–3.7 KB each; current `main` has 14 substantially larger `public/storyhub/ush9/l018/assets/*.webp` images and `public/hubs/ush9-l018-the-debt-didnt-move.html` references all 14. | Retain current images; do not introduce older low-resolution placeholders. |
 | Legacy touch/PWA icons | 4 | **Not recovered unchanged.** `public/apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, and `icon-maskable-512.png` live only on `polish/site-nightly-20260903`; current `main` uses `public/favicon.svg`. | Design new raster sizes from the current identity if a current PWA/touch icon is wanted. Do not reapply pre-redesign branding blindly. |
 
-**Result:** All 52 branch-exclusive binary/media candidates are classified. Zero were found in the WWI or Cinematic Atlas priority asset paths. This is not permission to delete their historical Git objects.
+**Result:** All 58 branch-exclusive asset paths are classified and collapse to 52 unique file contents. Six new `checklings/sprite-book-battle-poses` paths are byte-for-byte duplicates of the six existing staged founder camp PNGs, not additional artwork. Zero were found in the WWI or Cinematic Atlas priority asset paths. This is not permission to delete their historical Git objects.
 
 ## Visual interface variants: 323 distinct nonmain source blobs
 
@@ -46,6 +46,16 @@ The automatic reference scan checks literal URLs, same-directory basenames and g
 The Arsenal and Over the Top contained no independent reading path for devices without WebGL2. Draft [PR #355](https://github.com/Grantauch/the-desk/pull/355) adds a lightweight guide and automatic GPU-unavailable routing while leaving existing 3D art untouched. Its focused browser test passed; protected review and site release remain gates.
 
 The existing museum source/export/URL contracts are safeguarded by draft [PR #351](https://github.com/Grantauch/the-desk/pull/351). Its focused workflow passed after accommodating Blender material-only GLTF extensions.
+
+## Visual contact sheets and actual source inspection
+
+The full branch-only asset contact sheets were rendered in [CI run 43345752225](https://github.com/Grantauch/the-desk/actions/runs/43345752225) and are available in its [comparison artifact](https://github.com/Grantauch/the-desk/actions/runs/43345752225/artifacts/14001551582). All **58** path variants decoded successfully.
+
+- The early Rabbit Hole imagery consists mainly of flat card, eye, queen, chessboard and other illustrative UI motifs. The current `rh2` edition uses a more substantive, source-specific visual sequence; restoring the early set would be an aesthetic and pedagogical downgrade.
+- The 14 L018 old images were inspected **side by side with current `main` versions**. The old 160 × 90 miniatures are visibly blurred and much less detailed than the 1672 × 941 polished images currently loaded. Definitive no-restore verdict.
+- The Checklings draft images are pixel-art source and pose sheets, and the six newer alternate-path copies are exact Git blob/content-hash duplicates of the staged camp files. They are **not** six additional missing designs.
+
+No legacy placeholders were restored based on these visual comparisons.
 
 ## Browser-based runtime validation
 
