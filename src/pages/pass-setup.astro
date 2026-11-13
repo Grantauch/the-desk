@@ -5,8 +5,6 @@ import Base from '../layouts/Base.astro';
 // no student data; each copy belongs to the teacher who makes it.
 const templateCopyUrl = 'https://docs.google.com/spreadsheets/d/18rWtvXq5DhKalWatT9KmoPWwhxqDk7RfVh_-pcQTjl0/copy';
 
-const teacherKitUrl = '/downloads/HallPass-Teacher-Installer-v1.0.0-rc.1.zip';
-
 // GoClassroom's newest tested Windows installer, published by its build on each version tag.
 const goClassroomInstallerUrl = 'https://github.com/Grantauch/Classroom-Auto-Turn-In/releases/latest/download/GoClassroom-Setup.exe';
 
@@ -72,7 +70,7 @@ const parts = (text: string) => text.split(/\*\*(.+?)\*\*/g).map((chunk, index) 
       <p>First setup needs a computer web browser. Make your own blank copy and click the large setup button on its opening page. Google requires one-time school-account approval and publishing. After setup, your teacher dashboard works on a computer or phone. No Windows installation or personal website is needed.</p>
       <a class="setup-link" href={templateCopyUrl} target="_blank" rel="noopener">Start my Hall Pass ↗</a>
       <details><summary>Optional test and recovery download</summary>
-        <a class="setup-link" href={teacherKitUrl} download>download hall pass teacher kit ↓</a>
+        <p>The test download is paused while the revised installer is reviewed.</p>
         <p>Existing download: 1.0.0-rc.1 test package. The revised installer is still under review; do not redistribute it as a finished release.</p>
       </details>
     </aside>
