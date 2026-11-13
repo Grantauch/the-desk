@@ -14,6 +14,7 @@ if(location.hash){const n=parseInt(location.hash.slice(2),10);if(n)setTimeout(()
 function upscaleAndSharpen(img){
   if(img.dataset.hdProcessed==='1')return;
   img.dataset.hdProcessed='1';
+  if(img.naturalWidth>=1200)return; // full-size art needs no canvas upscale
   try{
     const scale=4,w=img.naturalWidth*scale,h=img.naturalHeight*scale;
     if(!img.naturalWidth||!img.naturalHeight)return;
