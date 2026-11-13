@@ -1,0 +1,541 @@
+{
+  "note": "UNAPPROVED EXPERIMENT; v2 adjusts weak kits after synthetic 39,168-battle screening. Not for the live server.",
+  "contentVersion": "bramblefen-proposal-v2",
+  "regionId": "bramblefen_basin",
+  "source": "docs/checklings/preproduction/BRAMBLEFEN-WAVE2.md",
+  "moves": {
+    "reed_pledge": {
+      "name": "Reed Pledge",
+      "type": "meadow",
+      "cost": 5,
+      "damage": 10,
+      "guard": 0.65,
+      "first": true,
+      "detail": "10 Meadow damage and incoming hits land at 65 percent this turn."
+    },
+    "peat_charge": {
+      "name": "Peat Charge",
+      "type": "meadow",
+      "cost": 6,
+      "damage": 20,
+      "detail": "20 Meadow damage at a high stamina cost."
+    },
+    "puddle_waltz": {
+      "name": "Puddle Waltz",
+      "type": "tide",
+      "cost": 5,
+      "phases": [
+        {
+          "damage": 12
+        },
+        {
+          "damage": 17
+        }
+      ],
+      "detail": "Alternates 12 and 17 Tide damage."
+    },
+    "reed_shelter": {
+      "name": "Reed Shelter",
+      "type": "tide",
+      "cost": 5,
+      "damage": 10,
+      "shield": 10,
+      "first": true,
+      "detail": "10 Tide damage and a 10 point shield this turn."
+    },
+    "pollen_sail": {
+      "name": "Pollen Sail",
+      "type": "meadow",
+      "cost": 4,
+      "damage": 12,
+      "guard": 0.75,
+      "first": true,
+      "detail": "12 Meadow damage and incoming hits land at 75 percent this turn."
+    },
+    "moss_knot": {
+      "name": "Moss Knot",
+      "type": "meadow",
+      "cost": 5,
+      "damage": 13,
+      "restore": 2,
+      "detail": "13 Meadow damage and recover 2 stamina after paying the cost."
+    },
+    "glass_halfmoon": {
+      "name": "Glass Halfmoon",
+      "type": "tide",
+      "cost": 5,
+      "damage": 10,
+      "shield": 11,
+      "first": true,
+      "detail": "10 Tide damage and an 11 point shield this turn."
+    },
+    "hollow_bellow": {
+      "name": "Hollow Bellow",
+      "type": "tide",
+      "cost": 7,
+      "damage": 23,
+      "detail": "23 Tide damage, leaving little stamina for follow-up attacks."
+    },
+    "briar_buckle": {
+      "name": "Briar Buckle",
+      "type": "meadow",
+      "cost": 5,
+      "damage": 10,
+      "shield": 13,
+      "first": true,
+      "detail": "10 Meadow damage and a 13 point shield this turn."
+    },
+    "seed_dive": {
+      "name": "Seed Dive",
+      "type": "meadow",
+      "cost": 5,
+      "phases": [
+        {
+          "damage": 16
+        },
+        {
+          "damage": 7,
+          "shield": 8
+        }
+      ],
+      "detail": "Alternates a 16 damage dive with 7 damage and an 8 point shield."
+    },
+    "circle_count": {
+      "name": "Circle Count",
+      "type": "tide",
+      "cost": 5,
+      "phases": [
+        {
+          "damage": 9
+        },
+        {
+          "damage": 13
+        },
+        {
+          "damage": 17
+        }
+      ],
+      "detail": "Repeats a three use rhythm of 9, 13, then 17 Tide damage."
+    },
+    "dew_return": {
+      "name": "Dew Return",
+      "type": "tide",
+      "cost": 4,
+      "damage": 12,
+      "restore": 2,
+      "detail": "12 Tide damage and recover 2 stamina after paying the cost."
+    }
+  },
+  "species": {
+    "reedawn": {
+      "name": "Reedawn",
+      "type": "meadow",
+      "base": {
+        "hp": 52,
+        "power": 8,
+        "stamina": 9,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "reed_pledge"
+      ],
+      "traits": [],
+      "line": "Reedawn watches its opponent in the marsh."
+    },
+    "cattunnel": {
+      "name": "Cattunnel",
+      "type": "meadow",
+      "base": {
+        "hp": 50,
+        "power": 9,
+        "stamina": 8,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.5,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.1
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "peat_charge"
+      ],
+      "traits": [],
+      "line": "Cattunnel watches its opponent in the marsh."
+    },
+    "skidril": {
+      "name": "Skidril",
+      "type": "tide",
+      "base": {
+        "hp": 44,
+        "power": 8,
+        "stamina": 9,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.6,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "puddle_waltz"
+      ],
+      "traits": [],
+      "line": "Skidril watches its opponent in the marsh."
+    },
+    "finline": {
+      "name": "Finline",
+      "type": "tide",
+      "base": {
+        "hp": 51,
+        "power": 8,
+        "stamina": 11,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.1
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "reed_shelter"
+      ],
+      "traits": [],
+      "line": "Finline watches its opponent in the marsh."
+    },
+    "pollisk": {
+      "name": "Pollisk",
+      "type": "meadow",
+      "base": {
+        "hp": 52,
+        "power": 8,
+        "stamina": 10,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.8,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.1
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "pollen_sail"
+      ],
+      "traits": [],
+      "line": "Pollisk watches its opponent in the marsh."
+    },
+    "mosswhirl": {
+      "name": "Mosswhirl",
+      "type": "meadow",
+      "base": {
+        "hp": 46,
+        "power": 8,
+        "stamina": 10,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.5,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "moss_knot"
+      ],
+      "traits": [],
+      "line": "Mosswhirl watches its opponent in the marsh."
+    },
+    "glasprite": {
+      "name": "Glasprite",
+      "type": "tide",
+      "base": {
+        "hp": 48,
+        "power": 8,
+        "stamina": 11,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.5,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "glass_halfmoon"
+      ],
+      "traits": [],
+      "line": "Glasprite watches its opponent in the marsh."
+    },
+    "mudhorn": {
+      "name": "Mudhorn",
+      "type": "tide",
+      "base": {
+        "hp": 45,
+        "power": 9,
+        "stamina": 9,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.5,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.1
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "hollow_bellow"
+      ],
+      "traits": [],
+      "line": "Mudhorn watches its opponent in the marsh."
+    },
+    "thornlock": {
+      "name": "Thornlock",
+      "type": "meadow",
+      "base": {
+        "hp": 56,
+        "power": 8,
+        "stamina": 9,
+        "speed": 4
+      },
+      "growth": {
+        "hp": 1.8,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.1
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "briar_buckle"
+      ],
+      "traits": [],
+      "line": "Thornlock watches its opponent in the marsh."
+    },
+    "seedrift": {
+      "name": "Seedrift",
+      "type": "meadow",
+      "base": {
+        "hp": 42,
+        "power": 8,
+        "stamina": 9,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 1.4,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "seed_dive"
+      ],
+      "traits": [],
+      "line": "Seedrift watches its opponent in the marsh."
+    },
+    "rippletap": {
+      "name": "Rippletap",
+      "type": "tide",
+      "base": {
+        "hp": 47,
+        "power": 8,
+        "stamina": 10,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.5,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "circle_count"
+      ],
+      "traits": [],
+      "line": "Rippletap watches its opponent in the marsh."
+    },
+    "whisprill": {
+      "name": "Whisprill",
+      "type": "tide",
+      "base": {
+        "hp": 49,
+        "power": 8,
+        "stamina": 11,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.4,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "dew_return"
+      ],
+      "traits": [],
+      "line": "Whisprill watches its opponent in the marsh."
+    }
+  },
+  "slots": [
+    {
+      "slot": "CK013",
+      "id": "reedawn",
+      "name": "Reedawn",
+      "type": "meadow",
+      "evolution": "two-stage",
+      "intendedRole": "vanguard",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK014",
+      "id": "cattunnel",
+      "name": "Cattunnel",
+      "type": "meadow",
+      "evolution": "two-stage",
+      "intendedRole": "bruiser",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK015",
+      "id": "skidril",
+      "name": "Skidril",
+      "type": "tide",
+      "evolution": "two-stage",
+      "intendedRole": "skirmisher",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK016",
+      "id": "finline",
+      "name": "Finline",
+      "type": "tide",
+      "evolution": "two-stage",
+      "intendedRole": "warder",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK017",
+      "id": "pollisk",
+      "name": "Pollisk",
+      "type": "meadow",
+      "evolution": "care-morph",
+      "intendedRole": "attrition",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK018",
+      "id": "mosswhirl",
+      "name": "Mosswhirl",
+      "type": "meadow",
+      "evolution": "care-morph",
+      "intendedRole": "disruptor",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK019",
+      "id": "glasprite",
+      "name": "Glasprite",
+      "type": "tide",
+      "evolution": "care-morph",
+      "intendedRole": "sustain",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK020",
+      "id": "mudhorn",
+      "name": "Mudhorn",
+      "type": "tide",
+      "evolution": "care-morph",
+      "intendedRole": "artillery",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK021",
+      "id": "thornlock",
+      "name": "Thornlock",
+      "type": "meadow",
+      "evolution": "non-evolver",
+      "intendedRole": "warder",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK022",
+      "id": "seedrift",
+      "name": "Seedrift",
+      "type": "meadow",
+      "evolution": "non-evolver",
+      "intendedRole": "skirmisher",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK023",
+      "id": "rippletap",
+      "name": "Rippletap",
+      "type": "tide",
+      "evolution": "non-evolver",
+      "intendedRole": "disruptor",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    },
+    {
+      "slot": "CK024",
+      "id": "whisprill",
+      "name": "Whisprill",
+      "type": "tide",
+      "evolution": "non-evolver",
+      "intendedRole": "sustain",
+      "approved": false,
+      "notes": "Prototype numbers for simulation only; require design/novelty/art/balance review."
+    }
+  ]
+}

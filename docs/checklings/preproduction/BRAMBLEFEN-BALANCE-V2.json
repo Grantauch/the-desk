@@ -1,0 +1,936 @@
+{
+  "run": "2026-11-03 early morning EDT",
+  "syntheticOnly": true,
+  "contentVersion": "bramblefen-proposal-v2",
+  "labVersion": "bramblefen-candidate-v1",
+  "status": "unapproved concepts and simulated stats only",
+  "reference": "actual current Checkaverse battle.mjs with in-memory 12-species overlay",
+  "candidates": 12,
+  "founders": 4,
+  "levels": [
+    10,
+    30
+  ],
+  "policies": 3,
+  "randomSeedsPerPair": 8,
+  "totalMatches": 39168,
+  "comparisons": 272,
+  "candidateVsFounder": [
+    {
+      "id": "reedawn",
+      "type": "meadow",
+      "vsFounderMean": 0.299,
+      "minFounder": 0,
+      "maxFounder": 0.778,
+      "neutralOutliers": [
+        {
+          "opponent": "zee",
+          "level": 10,
+          "ownWin": 0.153
+        }
+      ]
+    },
+    {
+      "id": "cattunnel",
+      "type": "meadow",
+      "vsFounderMean": 0.45,
+      "minFounder": 0,
+      "maxFounder": 1,
+      "neutralOutliers": []
+    },
+    {
+      "id": "skidril",
+      "type": "tide",
+      "vsFounderMean": 0.354,
+      "minFounder": 0.111,
+      "maxFounder": 1,
+      "neutralOutliers": [
+        {
+          "opponent": "zee",
+          "level": 10,
+          "ownWin": 0.167
+        }
+      ]
+    },
+    {
+      "id": "finline",
+      "type": "tide",
+      "vsFounderMean": 0.651,
+      "minFounder": 0.111,
+      "maxFounder": 1,
+      "neutralOutliers": []
+    },
+    {
+      "id": "pollisk",
+      "type": "meadow",
+      "vsFounderMean": 0.483,
+      "minFounder": 0,
+      "maxFounder": 1,
+      "neutralOutliers": []
+    },
+    {
+      "id": "mosswhirl",
+      "type": "meadow",
+      "vsFounderMean": 0.447,
+      "minFounder": 0,
+      "maxFounder": 0.958,
+      "neutralOutliers": []
+    },
+    {
+      "id": "glasprite",
+      "type": "tide",
+      "vsFounderMean": 0.661,
+      "minFounder": 0.111,
+      "maxFounder": 1,
+      "neutralOutliers": []
+    },
+    {
+      "id": "mudhorn",
+      "type": "tide",
+      "vsFounderMean": 0.427,
+      "minFounder": 0,
+      "maxFounder": 1,
+      "neutralOutliers": []
+    },
+    {
+      "id": "thornlock",
+      "type": "meadow",
+      "vsFounderMean": 0.648,
+      "minFounder": 0,
+      "maxFounder": 1,
+      "neutralOutliers": [
+        {
+          "opponent": "zee",
+          "level": 10,
+          "ownWin": 0.958
+        }
+      ]
+    },
+    {
+      "id": "seedrift",
+      "type": "meadow",
+      "vsFounderMean": 0.276,
+      "minFounder": 0,
+      "maxFounder": 0.778,
+      "neutralOutliers": [
+        {
+          "opponent": "mochi",
+          "level": 10,
+          "ownWin": 0.139
+        },
+        {
+          "opponent": "zee",
+          "level": 10,
+          "ownWin": 0.028
+        }
+      ]
+    },
+    {
+      "id": "rippletap",
+      "type": "tide",
+      "vsFounderMean": 0.312,
+      "minFounder": 0,
+      "maxFounder": 0.667,
+      "neutralOutliers": [
+        {
+          "opponent": "zee",
+          "level": 10,
+          "ownWin": 0.069
+        }
+      ]
+    },
+    {
+      "id": "whisprill",
+      "type": "tide",
+      "vsFounderMean": 0.59,
+      "minFounder": 0.111,
+      "maxFounder": 1,
+      "neutralOutliers": []
+    }
+  ],
+  "neutralFlagThreshold": "A-side share outside 20ΓÇô80%, for manual inspection only",
+  "neutralAlerts": [
+    {
+      "a": "mochi",
+      "b": "seedrift",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.861,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 16.83,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "zee",
+      "b": "reedawn",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.847,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 10.49,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "zee",
+      "b": "skidril",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.833,
+      "mostA": 1,
+      "leastA": 0.25,
+      "avgTurns": 7.89,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "zee",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.042,
+      "mostA": 0.375,
+      "leastA": 0,
+      "avgTurns": 14.76,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "zee",
+      "b": "seedrift",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.972,
+      "mostA": 1,
+      "leastA": 0.875,
+      "avgTurns": 7.99,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "zee",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.931,
+      "mostA": 1,
+      "leastA": 0.375,
+      "avgTurns": 8.51,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "reedawn",
+      "b": "finline",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.167,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 15.74,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "reedawn",
+      "b": "glasprite",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.181,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 15.54,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "reedawn",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0,
+      "mostA": 0,
+      "leastA": 0,
+      "avgTurns": 15,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "reedawn",
+      "b": "whisprill",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.125,
+      "mostA": 0.75,
+      "leastA": 0,
+      "avgTurns": 9.5,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "cattunnel",
+      "b": "skidril",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.875,
+      "mostA": 1,
+      "leastA": 0.25,
+      "avgTurns": 7.11,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "cattunnel",
+      "b": "seedrift",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.847,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 7.56,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "cattunnel",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 7.39,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "finline",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0,
+      "mostA": 0,
+      "leastA": 0,
+      "avgTurns": 10.83,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "pollisk",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.153,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 8.47,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "glasprite",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.014,
+      "mostA": 0.125,
+      "leastA": 0,
+      "avgTurns": 10.86,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0,
+      "mostA": 0,
+      "leastA": 0,
+      "avgTurns": 10.53,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "whisprill",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.153,
+      "mostA": 0.5,
+      "leastA": 0,
+      "avgTurns": 7.52,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "finline",
+      "b": "mosswhirl",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 11.54,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "finline",
+      "b": "seedrift",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.986,
+      "mostA": 1,
+      "leastA": 0.875,
+      "avgTurns": 14.08,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "finline",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 11.18,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "pollisk",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.097,
+      "mostA": 0.875,
+      "leastA": 0,
+      "avgTurns": 14.07,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "pollisk",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.931,
+      "mostA": 1,
+      "leastA": 0.375,
+      "avgTurns": 9.11,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mosswhirl",
+      "b": "glasprite",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.083,
+      "mostA": 0.375,
+      "leastA": 0,
+      "avgTurns": 11.49,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mosswhirl",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0,
+      "mostA": 0,
+      "leastA": 0,
+      "avgTurns": 10.92,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mosswhirl",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.938,
+      "mostA": 1,
+      "leastA": 0.5,
+      "avgTurns": 8.02,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mosswhirl",
+      "b": "whisprill",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.056,
+      "mostA": 0.5,
+      "leastA": 0,
+      "avgTurns": 8,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "glasprite",
+      "b": "seedrift",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.875,
+      "mostA": 1,
+      "leastA": 0.375,
+      "avgTurns": 13.99,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "glasprite",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.958,
+      "mostA": 1,
+      "leastA": 0.625,
+      "avgTurns": 11.45,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mudhorn",
+      "b": "seedrift",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.875,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 6.83,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mudhorn",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 7.33,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "thornlock",
+      "b": "seedrift",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 12.82,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "thornlock",
+      "b": "rippletap",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 11.03,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "thornlock",
+      "b": "whisprill",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.875,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 11.4,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "seedrift",
+      "b": "whisprill",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.111,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 7.95,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "rippletap",
+      "b": "whisprill",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0,
+      "mostA": 0,
+      "leastA": 0,
+      "avgTurns": 8.08,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "reedawn",
+      "b": "mosswhirl",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.125,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 11.44,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "cattunnel",
+      "b": "skidril",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.819,
+      "mostA": 1,
+      "leastA": 0.125,
+      "avgTurns": 7.74,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "cattunnel",
+      "b": "mosswhirl",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.847,
+      "mostA": 1,
+      "leastA": 0.5,
+      "avgTurns": 7.68,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "cattunnel",
+      "b": "seedrift",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.819,
+      "mostA": 1,
+      "leastA": 0.125,
+      "avgTurns": 7.28,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "finline",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.194,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 11.81,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "pollisk",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.194,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 9.83,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "mudhorn",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.194,
+      "mostA": 0.875,
+      "leastA": 0,
+      "avgTurns": 6.76,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "skidril",
+      "b": "thornlock",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.069,
+      "mostA": 0.375,
+      "leastA": 0,
+      "avgTurns": 12.65,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "finline",
+      "b": "seedrift",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 12.56,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "pollisk",
+      "b": "seedrift",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 1,
+      "mostA": 1,
+      "leastA": 1,
+      "avgTurns": 9.81,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "pollisk",
+      "b": "rippletap",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.986,
+      "mostA": 1,
+      "leastA": 0.875,
+      "avgTurns": 9.47,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mosswhirl",
+      "b": "thornlock",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0,
+      "mostA": 0,
+      "leastA": 0,
+      "avgTurns": 13,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "mosswhirl",
+      "b": "whisprill",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.083,
+      "mostA": 0.375,
+      "leastA": 0,
+      "avgTurns": 8.4,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "glasprite",
+      "b": "thornlock",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.181,
+      "mostA": 0.875,
+      "leastA": 0,
+      "avgTurns": 21.74,
+      "timeLimitRate": 0.222,
+      "samples": 144
+    },
+    {
+      "a": "glasprite",
+      "b": "seedrift",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.917,
+      "mostA": 1,
+      "leastA": 0.375,
+      "avgTurns": 12.61,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "thornlock",
+      "b": "seedrift",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.889,
+      "mostA": 1,
+      "leastA": 0.5,
+      "avgTurns": 14.11,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "thornlock",
+      "b": "rippletap",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.903,
+      "mostA": 1,
+      "leastA": 0.25,
+      "avgTurns": 12.5,
+      "timeLimitRate": 0,
+      "samples": 144
+    },
+    {
+      "a": "rippletap",
+      "b": "whisprill",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.083,
+      "mostA": 0.75,
+      "leastA": 0,
+      "avgTurns": 8.11,
+      "timeLimitRate": 0,
+      "samples": 144
+    }
+  ],
+  "timeLimitAlerts": [
+    {
+      "a": "mochi",
+      "b": "finline",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.25,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 25.9,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "mochi",
+      "b": "glasprite",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.236,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 25.65,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "mochi",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.236,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 25.53,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "finline",
+      "b": "finline",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.5,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 26.68,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "finline",
+      "b": "glasprite",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.528,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 26.56,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "finline",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.444,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 26.36,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "glasprite",
+      "b": "glasprite",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.5,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 26.54,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "glasprite",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.444,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 26,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "thornlock",
+      "b": "thornlock",
+      "level": 10,
+      "edge": "neutral",
+      "meanAWin": 0.5,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 25.85,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "mochi",
+      "b": "thornlock",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.333,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 27.47,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    },
+    {
+      "a": "thornlock",
+      "b": "thornlock",
+      "level": 30,
+      "edge": "neutral",
+      "meanAWin": 0.5,
+      "mostA": 1,
+      "leastA": 0,
+      "avgTurns": 27.22,
+      "timeLimitRate": 0.444,
+      "samples": 144
+    }
+  ]
+}
