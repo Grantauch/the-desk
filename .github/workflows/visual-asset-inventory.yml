@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/audit-visual-assets.mjs'
+      - 'scripts/audit-visual-code.mjs'
       - '.github/workflows/visual-asset-inventory.yml'
   workflow_dispatch:
 
@@ -27,6 +28,8 @@ jobs:
         run: node --check scripts/audit-visual-assets.mjs
       - name: Inventory branch-only artwork and live usage
         run: node scripts/audit-visual-assets.mjs
+      - name: Inventory unmerged visual interface code variants
+        run: node scripts/audit-visual-code.mjs
       - name: Publish detailed JSON and triage table
         uses: actions/upload-artifact@v4
         with:
@@ -37,3 +40,5 @@ jobs:
         run: |
           cat reports/visual-assets/triage.md >> "$GITHUB_STEP_SUMMARY"
           sed -n '1,100p' reports/visual-assets/triage.md
+          sed -n '1,95p' reports/visual-assets/visual-code-triage.md
+          cat reports/visual-assets/visual-code-triage.md >> "$GITHUB_STEP_SUMMARY"
