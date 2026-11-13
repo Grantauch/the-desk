@@ -1,0 +1,13 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {sourceCareContract,migrationDefaults,proposalCare,auditCare}=require('./audit.cjs');
+const ts='export interface Creature {care:{nutrition:number; happiness:number; energy:number; cleanliness:number; focus:number}; friendship:number} // All care numbers are 0-100: higher is healthier.';
+const migration='const INITIAL_CARE = Object.freeze({nutrition:82, happiness:85, energy:84, cleanliness:88, focus:78});';
+const good='## 1. Core Care\n| Field | Type | Default | Description |\n| --- | --- | --- | --- |\n'+['nutrition','happiness','energy','cleanliness','focus'].map(f=>'| `'+f+'` | `INT (0..100)` | `82` | Valid |').join('\n')+'\n## 2. Next section';
+const draft='## 1. Core Care\n| `satiety` | `INT (0..1000)` | `850` | New |\n| `energy` | `INT (0..1000)` | `850` | New |\n| `happiness` | `INT (0..1000)` | `850` | New |\n| `hydration_cleanliness` | `INT (0..1000)` | `900` | New |\n| `friendship_bond` | `INT (0..1000)` | `250` | New |\n| `body_condition_reserved` | `INT (-100..+100)` | 0 | Future |\n## 2. Other\nLegacy `t: "EDAFC0"`';
+test('parses five canonical care fields and 0..100 range',()=>assert.deepEqual(sourceCareContract(ts).names,['nutrition','happiness','energy','cleanliness','focus']));
+test('official migration defaults match current contract',()=>{assert.deepEqual(migrationDefaults(migration),{nutrition:82,happiness:85,energy:84,cleanliness:88,focus:78});assert.equal(auditCare(ts,migration,good).pass,true);});
+test('detects new 1000-point proposed meters without silently converting them',()=>{const r=auditCare(ts,migration,draft);assert.equal(r.pass,false);assert.ok(r.errors.includes('PROPOSAL_SCALE_MISMATCH energy'));assert.ok(r.errors.includes('PROPOSAL_MISSING_CANONICAL focus'));assert.ok(r.warnings.some(s=>s.includes('PROPOSAL_NEW_OR_RENAMED_FIELD satiety')));});
+test('flags new friendship field and unknown legacy nibble without asserting production evidence',()=>{const r=auditCare(ts,migration,draft);assert.ok(r.warnings.some(s=>s.includes('friendship_bond')));assert.ok(r.warnings.some(s=>s.includes('PROPOSAL_LEGACY_T')));});
+test('fails for missing default and inconsistent supported meter range',()=>{const r=auditCare(ts,migration.replace('focus:78','focus:1001'),good);assert.ok(r.errors.includes('MIGRATION_OUT_OF_RANGE focus'));});
+test('invalid or absent declarations are not treated as approval',()=>{assert.throws(()=>sourceCareContract('interface NoCare {}'),/not found/);assert.throws(()=>proposalCare('## 1. No meters'),/No proposed/);});
