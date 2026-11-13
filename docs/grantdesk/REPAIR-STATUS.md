@@ -1,3 +1,7 @@
+## November 13 active credential consistency
+
+Owner Codex. Reproduced both #117 failures against current main using synthetic memberships: inactive historical PIN hashes expired a valid signed session, and disagreeing active hashes issued an action proof. Credential versions now use active memberships, and PIN verification requires one consistent active credential before issuing a session or proof. The comparison uses the hash that actually matched, preserving five/six-digit leading-zero aliases and directory credentials. All 447 runtime checks, the independent school-directory suite and full canonical verification pass (55 pages, 172 HTML files, 5,773 references, 35 sealed releases / 264 assets). Protected source review, production deployment and authenticated synthetic smoke remain separate. No real student data or credential was read or changed.
+
 ## November 12 Checkaverse plaza artwork recovery
 
 Codex recovered the Gemini Sprite Book arena, market stall, bus and notice board from draft PR #284. The current map draws the versioned art at existing placements. The original files serve older clients and replace missing versioned images. Local Chromium verified the new artwork and both fallback levels at Chromebook size. Independent release verification and physical Chromebook use are pending.
