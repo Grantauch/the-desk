@@ -8,9 +8,37 @@
   "narrativeQuestion": "How does a forgery fool the experts, and what does it break while it is believed?",
   "chapters": [
     {
+      "id": "hero",
+      "title": "The painting",
+      "claim": "Every man who judged the skull is in one painting.",
+      "namedPeople": [
+        {
+          "name": "Charles Dawson",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A02"
+        },
+        {
+          "name": "Arthur Smith Woodward",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A03"
+        },
+        {
+          "name": "Arthur Keith",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A18"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I00"
+      ]
+    },
+    {
       "id": "d1",
       "title": "The gravel pit",
-      "claim": "Dawson brought the find to Woodward, a credible amateur and a serious professional.",
+      "claim": "Dawson brought the find to Woodward after years of waiting for a big one.",
       "namedPeople": [
         {
           "name": "Charles Dawson",
@@ -29,7 +57,7 @@
     {
       "id": "d2",
       "title": "The announcement",
-      "claim": "The scientific name and the press name did different jobs, and the connecting parts were missing.",
+      "claim": "The two pieces that could test the match were missing.",
       "namedPeople": [],
       "visualAnchorIds": [
         "A05"
@@ -48,12 +76,33 @@
     },
     {
       "id": "d4",
+      "title": "The pieces kept arriving",
+      "claim": "Each new find answered the last objection.",
+      "namedPeople": [
+        {
+          "name": "Pierre Teilhard de Chardin",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Arthur Keith",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A18"
+        }
+      ],
+      "visualAnchorIds": [
+        "A15"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "d5",
       "title": "The people who said no",
       "claim": "Correct objections were published early and lost.",
       "namedPeople": [
         {
           "name": "Gerrit Smith Miller",
-          "anchorStatus": "not-available"
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A19"
         }
       ],
       "visualAnchorIds": [
@@ -62,64 +111,32 @@
       "interactionIds": []
     },
     {
-      "id": "d5",
-      "title": "The second site",
-      "claim": "The confirming site failed every test of independence.",
-      "namedPeople": [],
-      "visualAnchorIds": [],
-      "interactionIds": [
-        "I02"
-      ]
-    },
-    {
       "id": "d6",
-      "title": "What got built on it",
-      "claim": "Textbooks, displays, careers, and a monument rested on the fake.",
+      "title": "The second site",
+      "claim": "The confirming site rested on one source and failed every test of independence.",
       "namedPeople": [],
-      "visualAnchorIds": [
-        "A06"
-      ],
-      "interactionIds": []
-    },
-    {
-      "id": "d7",
-      "title": "1949",
-      "claim": "Fluorine dating reopened the case thirty seven years later.",
-      "namedPeople": [
-        {
-          "name": "Kenneth Oakley",
-          "anchorStatus": "not-available"
-        }
-      ],
       "visualAnchorIds": [],
       "interactionIds": [
+        "I02",
         "I03"
       ]
     },
     {
-      "id": "d8",
-      "title": "1953",
-      "claim": "The manufacture was a human skull, an orangutan jaw, filing and stain.",
-      "namedPeople": [],
-      "visualAnchorIds": [],
-      "interactionIds": [
-        "I04"
-      ]
-    },
-    {
-      "id": "d9",
-      "title": "2016",
-      "claim": "One method across both sites points to one forger.",
+      "id": "d7",
+      "title": "What got built on it",
+      "claim": "Films, a monument and a nature reserve rested on the fake.",
       "namedPeople": [],
       "visualAnchorIds": [
-        "A07"
+        "A06",
+        "A16",
+        "A17"
       ],
       "interactionIds": []
     },
     {
-      "id": "d10",
+      "id": "d8",
       "title": "The fossil that was real",
-      "claim": "The forgery made Dart's genuine Taung child look wrong for about two decades.",
+      "claim": "The men who vouched for Piltdown judged the Taung child.",
       "namedPeople": [
         {
           "name": "Raymond Dart",
@@ -128,15 +145,70 @@
         }
       ],
       "visualAnchorIds": [
-        "A08",
-        "A09"
+        "A08"
       ],
       "interactionIds": []
     },
     {
+      "id": "d9",
+      "title": "A test that measured time",
+      "claim": "Measurement precision separated the jaw from the skull.",
+      "namedPeople": [
+        {
+          "name": "Kenneth Oakley",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Joseph Weiner",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "d10",
+      "title": "What it was made of",
+      "claim": "The 1953 and 1955 reports took the specimen apart.",
+      "namedPeople": [
+        {
+          "name": "Wilfrid Le Gros Clark",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [
+        "A11",
+        "A13",
+        "A14"
+      ],
+      "interactionIds": [
+        "I05",
+        "I06"
+      ]
+    },
+    {
       "id": "d11",
-      "title": "What caught it",
-      "claim": "No confession. A measurement and a microscope.",
+      "title": "Who did it",
+      "claim": "Only one suspect is tied to both sites.",
+      "namedPeople": [
+        {
+          "name": "Martin Hinton",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [
+        "A07"
+      ],
+      "interactionIds": [
+        "I07"
+      ]
+    },
+    {
+      "id": "d12",
+      "title": "No confession, no witness",
+      "claim": "A laboratory caught it.",
       "namedPeople": [],
       "visualAnchorIds": [],
       "interactionIds": []

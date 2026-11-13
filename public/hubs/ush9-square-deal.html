@@ -47,7 +47,10 @@ p{margin:0}
 /* title */
 .title{padding:1.4rem 0 3rem}
 .title-top{display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;align-items:center}
-@media (max-width:860px){.title-top{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .title{padding-inline:1rem}
+  .title-top{grid-template-columns:minmax(0,1fr)}
+}
 .kick{color:var(--red)}
 .title h1{font-size:clamp(3rem,9vw,6.4rem);letter-spacing:.01em;margin:.25rem 0 .2rem;color:var(--ink);text-shadow:3px 3px 0 var(--gold)}
 .title .dek{font:italic 400 1.25rem/1.4 var(--body);color:var(--ink2);max-width:36rem}

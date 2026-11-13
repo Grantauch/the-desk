@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HOLE2",
+  "course": "HH",
+  "lessonCode": "HOLE2",
+  "title": "They Couldn't Stop",
+  "audience": "students",
+  "narrativeQuestion": "Can fear spread from one mind to the next like a disease?",
+  "chapters": [
+    {
+      "id": "l1-strasbourg",
+      "title": "The summer the city danced",
+      "claim": "In 1518 Strasbourg's cure of stages and musicians spread a dancing outbreak that faded after a shrine pilgrimage. Mass psychogenic illness fits the clues better than ergot.",
+      "namedPeople": [
+        {
+          "name": "Frau Troffea",
+          "role": "First dancer in later chronicles",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "John Waller",
+          "role": "Historian",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01",
+        "A03"
+      ],
+      "interactionIds": [
+        "I01",
+        "I02"
+      ]
+    },
+    {
+      "id": "l2-mattoon",
+      "title": "The gas that was never there",
+      "claim": "In September 1944 the Mattoon Journal-Gazette headlines tracked the rise and fall of nearly thirty gas reports with no gas found.",
+      "namedPeople": [
+        {
+          "name": "Aline Kearney",
+          "role": "First reported case",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "l3-tanganyika",
+      "title": "The school that could not stop laughing",
+      "claim": "Beginning January 30, 1962, 95 of 159 girls at Kashasha were affected, and closing the school carried it to villages.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "l4-screens",
+      "title": "The first outbreak spread by screen",
+      "claim": "From 2019 to 2021 functional tic-like behavior spread through social media; Müller-Vahl's team named mass social media induced illness in 2021.",
+      "namedPeople": [
+        {
+          "name": "Kirsten Müller-Vahl",
+          "role": "Psychiatrist",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "l5-havana",
+      "title": "The case that is still open",
+      "claim": "Havana Syndrome remains unresolved; the June 12, 2026 rescission of the 2023 and 2025 assessments reopened the question.",
+      "namedPeople": [
+        {
+          "name": "Alexander Stubbs",
+          "role": "Biologist",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I06"
+      ]
+    },
+    {
+      "id": "out",
+      "title": "Climb out",
+      "claim": "Students explain spread, leadership, the difference from faking, and what evidence would change their minds.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I07"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Strasbourg numbers given as the 50 to 400 range; later death counts flagged as unsupported.",
+    "The contagion engine is a model, not data; the real Kashasha figure is printed beside it.",
+    "Havana status stated as of November 2026."
+  ]
+}

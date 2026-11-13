@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICKBYTE",
+  "title": "Who Let Him Back",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": ["fan zine", "hands on", "argumentative"],
+    "paletteIntent": "Riso print on cream paper. Fluorescent pink and riso blue laid slightly off register, yellow for highlighter and stickers, green for a yes vote.",
+    "typographyIntent": "Bowlby One SC for zine headlines with an offset pink shadow, Source Serif 4 for reading, IBM Plex Mono for labels and dates.",
+    "textureLanguage": ["paper grain", "halftone dots", "foil trading cards", "rubber stamped years"],
+    "shapeLanguage": "Thick black outlines with hard offset shadows, slight rotations like pasted paper.",
+    "motionGrammar": ["replacement: trading cards flip to their backs", "accumulation: the dog grid recolors as each step is pressed"],
+    "interactionSignature": ["flip eight recap cards", "follow 66 dogs through the case", "vote on seven real decisions and see your own line between a job and an honor"],
+    "densityRhythm": "Five short bytes, each ending in one written move, then a ballot board.",
+    "archivalBehavior": "One openly licensed photograph shown with a pink and blue print treatment and credited. Video from Best Friends, the Humane Society and Club Shay Shay through YouTube embeds.",
+    "endingLanguage": "The student's own board: two bars comparing jobs and honors and a sentence naming where they drew the line."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Riso ink colors and the Eagles photograph printed in two inks.",
+    "edgeTreatment": "Hard black borders with offset color shadows.",
+    "controlLanguage": "Cards to flip, stage buttons on a kennel grid, and ballot boxes to punch.",
+    "spacingLanguage": "Loose zine margins, dense card and ballot grids.",
+    "transitionLanguage": "Cards flip in 3D and swap instantly with reduced motion. Dots recolor with a short fade."
+  }
+}

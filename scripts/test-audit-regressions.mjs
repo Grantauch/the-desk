@@ -19,7 +19,7 @@ const checks = [
     'First Day Hidden History verdicts use Debunked instead of Supported',
   ],
   [
-    firstDay.includes('Current U.S. History unit: The Gilded Age.')
+    firstDay.includes('The current unit is always on the <a href="/us-history/">U.S. History page</a>.')
       && firstDay.includes('The table below is the original launch map, not the live pacing calendar.'),
     'First Day pacing copy names the current unit and does not present the launch map as live pacing',
   ],

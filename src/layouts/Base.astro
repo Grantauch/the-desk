@@ -10,9 +10,10 @@ interface Props {
   title?: string;
   description?: string;
   wide?: boolean;
+  atlas?: boolean;
 }
 
-const { title, description = 'the desk — home base for us history, hidden history, and beyond the scoreboard.', wide = false } = Astro.props;
+const { title, description = 'the desk — home base for us history, hidden history, and beyond the scoreboard.', wide = false, atlas = false } = Astro.props;
 const fullTitle = title ? `${title} · the desk` : 'the desk';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // per-course social cards live in public/; anything unlisted falls back to og.png
@@ -52,7 +53,7 @@ const ogImage = new URL(isLearningHub ? '/og-learning-hubs.png' : (ogMap[Astro.u
       }
     </script>
   </head>
-  <body class="min-h-screen flex flex-col">
+  <body class="min-h-screen flex flex-col" data-atlas-home={atlas || undefined}>
     <a href="#main" class="skip-link">skip to content</a>
     <Nav wide={wide} />
     <main id="main" class:list={['flex-1 w-full mx-auto px-5 py-8 sm:py-10', wide ? 'max-w-6xl' : 'max-w-4xl']}>

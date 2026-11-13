@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICK",
+  "course": "BTS",
+  "lessonCode": "VICK",
+  "title": "23 Months",
+  "audience": "students",
+  "narrativeQuestion": "Michael Vick lost almost everything in 2007. Who decided he could have it back, and why?",
+  "chapters": [
+    { "id": "01-home", "title": "Bad Newz", "claim": "Vick grew up in Newport News, finished third in the 1999 Heisman vote as a freshman and played for the national title on January 4, 2000.", "namedPeople": [ { "name": "Michael Vick", "role": "Quarterback", "anchorStatus": "anchored", "visualAnchorId": "A01" }, { "name": "Tommie Reamon", "role": "Warwick High School coach", "anchorStatus": "not-needed" } ], "visualAnchorIds": ["A01", "A08"], "interactionIds": ["I01"] },
+    { "id": "02-falcon", "title": "The No. 1 pick", "claim": "Atlanta drafted Vick first in 2001, signed him to a 10 year, $130 million deal in December 2004, and he became the first quarterback to run for 1,000 yards in 2006.", "namedPeople": [ { "name": "Michael Vick", "role": "Falcons quarterback", "anchorStatus": "anchored", "visualAnchorId": "A02" }, { "name": "Bobby Douglass", "role": "Previous record holder", "anchorStatus": "not-needed" }, { "name": "Lamar Jackson", "role": "Current record holder", "anchorStatus": "not-needed" } ], "visualAnchorIds": ["A02"], "interactionIds": ["I01"] },
+    { "id": "03-road", "title": "The house on Moonlight Road", "claim": "Police searched 1915 Moonlight Road on April 25, 2007 and removed 66 dogs. Vick said he was rarely there and told Goodell he was not involved.", "namedPeople": [ { "name": "Davon Boddie", "role": "Vick's cousin", "anchorStatus": "not-needed" }, { "name": "Roger Goodell", "role": "NFL commissioner", "anchorStatus": "not-needed" } ], "visualAnchorIds": ["A07"], "interactionIds": [] },
+    { "id": "04-case", "title": "The case file", "claim": "Between April and December 2007 Vick went from denial to a guilty plea, and Judge Henry Hudson sentenced him to 23 months.", "namedPeople": [ { "name": "Henry Hudson", "role": "U.S. District Judge", "anchorStatus": "not-needed" }, { "name": "Purnell Peace", "role": "Co-defendant", "anchorStatus": "not-needed" }, { "name": "Quanis Phillips", "role": "Co-defendant", "anchorStatus": "not-needed" }, { "name": "Tony Taylor", "role": "Co-defendant", "anchorStatus": "not-needed" } ], "visualAnchorIds": [], "interactionIds": ["I02", "I01"] },
+    { "id": "05-pen", "title": "Leavenworth", "claim": "Vick spent 548 days in federal custody, missed two seasons and filed for Chapter 11 bankruptcy in July 2008 with $20.4 million in debts.", "namedPeople": [], "visualAnchorIds": ["A06"], "interactionIds": [] },
+    { "id": "06-doors", "title": "Who opened the door", "claim": "Nine separate decisions from 2009 to 2025, by Goodell, Dungy, the Eagles, the Humane Society, AP voters, Nike, the Falcons, Norfolk State and the National Football Foundation, rebuilt his career.", "namedPeople": [ { "name": "Tony Dungy", "role": "Mentor", "anchorStatus": "not-needed" }, { "name": "Jeffrey Lurie", "role": "Eagles owner", "anchorStatus": "not-needed" }, { "name": "Wayne Pacelle", "role": "Humane Society president", "anchorStatus": "not-needed" }, { "name": "Arthur Blank", "role": "Falcons owner", "anchorStatus": "not-needed" } ], "visualAnchorIds": ["A03"], "interactionIds": ["I03", "I01"] },
+    { "id": "07-mnf", "title": "Monday Night", "claim": "On November 15, 2010 Vick threw for 333 yards and four touchdowns and ran for 80 yards and two more in a 59 to 28 win at Washington.", "namedPeople": [ { "name": "DeSean Jackson", "role": "Eagles receiver", "anchorStatus": "not-needed" } ], "visualAnchorIds": ["A04"], "interactionIds": ["I01"] },
+    { "id": "08-chart", "title": "The gap", "claim": "Vick played 13 seasons across 15 years, with nothing in 2007 and 2008.", "namedPeople": [], "visualAnchorIds": [], "interactionIds": ["I04"] },
+    { "id": "09-now", "title": "Where it landed", "claim": "Vick paid back more than $17 million, was hired by Norfolk State in December 2024 and entered the College Football Hall of Fame in December 2025. The Falcons Ring of Honor has not added him.", "namedPeople": [ { "name": "Michael Vick", "role": "Norfolk State head coach", "anchorStatus": "anchored", "visualAnchorId": "A05" } ], "visualAnchorIds": ["A05"], "interactionIds": ["I01"] }
+  ],
+  "accuracyNotes": [
+    "Dog counts vary by source. The page uses 66 dogs removed on April 25, 2007 from police and animal control reports.",
+    "The season chart uses StatMuse and NFL.com totals that sum to 6,109 rushing and 22,464 passing yards.",
+    "Norfolk State 2026 record is stated as of mid October 2026."
+  ]
+}

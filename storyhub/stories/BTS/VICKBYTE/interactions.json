@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICKBYTE",
+  "interactions": [
+    { "id": "I01", "chapterId": "01-tape", "type": "flip-cards", "teaches": "Recall of the main hub's key dates and numbers.", "studentAction": "Flip eight trading cards.", "feedback": "Each card turns to show the story behind the number, and a counter tracks the set.", "staticFallback": "Card backs are read aloud in the button label and appear without animation under reduced motion.", "identityFit": "Foil trading cards suit a sports zine.", "status": "implemented" },
+    { "id": "I02", "chapterId": "02-dogs", "type": "unit-grid", "teaches": "How 66 dogs became 51 in the case, 47 placed, and where they went.", "studentAction": "Press four steps.", "feedback": "66 dots recolor for each step and a large count and note update.", "staticFallback": "The step text describes every number.", "identityFit": "Riso dots on paper.", "status": "implemented" },
+    { "id": "I03", "chapterId": "06-board", "type": "ballot", "teaches": "Students separate second chances that are jobs from second chances that are honors and see their own pattern.", "studentAction": "Vote Right call, Too soon or Never on seven decisions.", "feedback": "A strip colors each decision by vote, two bars compare jobs and honors, and a sentence names the line the student drew.", "staticFallback": "Votes are ordinary radio buttons that save with the page.", "identityFit": "Punch ballot boxes with stamped job and honor tags.", "status": "implemented" },
+    { "id": "I04", "chapterId": "06-board", "type": "written-response", "teaches": "Explaining a personal standard with evidence.", "studentAction": "Write 4 to 6 sentences about where the line is.", "feedback": "Saves through Turn In.", "staticFallback": "Plain textarea.", "identityFit": "Ballot card styling.", "status": "implemented" },
+    { "id": "I05", "chapterId": "01-tape", "type": "written-response", "teaches": "Four short written moves on lying, the dogs, the apologies and Nike.", "studentAction": "Write 3 to 5 sentences for each move.", "feedback": "Saves through Turn In.", "staticFallback": "Plain textarea.", "identityFit": "Pasted zine cards with a blue offset.", "status": "implemented" }
+  ]
+}

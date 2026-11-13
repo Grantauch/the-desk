@@ -5,6 +5,8 @@ import Base from '../layouts/Base.astro';
 // no student data; each copy belongs to the teacher who makes it.
 const templateCopyUrl = 'https://docs.google.com/spreadsheets/d/18rWtvXq5DhKalWatT9KmoPWwhxqDk7RfVh_-pcQTjl0/copy';
 
+const teacherKitUrl = '/downloads/HallPass-Teacher-Installer-v1.0.0-rc.1.zip';
+
 // GoClassroom's newest tested Windows installer, published by its build on each version tag.
 const goClassroomInstallerUrl = 'https://github.com/Grantauch/Classroom-Auto-Turn-In/releases/latest/download/GoClassroom-Setup.exe';
 
@@ -14,7 +16,7 @@ const steps = [
   {
     title: 'get your copy.',
     bullets: [
-      'Make sure you are signed in to your **school** Google account.',
+      'Use a Chrome profile signed in only to your **school** Google account, or an Incognito window with only that account signed in.',
       'Click the **get my hall pass** button below.',
       'Click the blue **Make a copy** button.',
       'Your own Hall Pass spreadsheet opens. It is yours, and it has no one else’s students.',
@@ -24,11 +26,10 @@ const steps = [
   {
     title: 'answer a few questions.',
     bullets: [
-      'Wait a few seconds for **Hall Pass** to appear in the menu at the top (to the right of **Help**).',
-      'Click **Hall Pass**, then **▶ Start setup**.',
+      'Click the large **Start setup / show my links** button on the opening page. You do not need the Sheets toolbar.',
       'Google asks for permission the first time. Click **Continue**, click your name, then click **Allow**.',
-      'If you see “Google hasn’t verified this app”: click **Advanced**, then **Go to Hall Pass**. It is safe; it is your own copy.',
-      'Click **Hall Pass → ▶ Start setup** one more time.',
+      'Check that Google shows your own school account and your own copy. If your school blocks approval, ask school IT.',
+      'After approving access, click the same large **Start setup / show my links** button again.',
       'Type your name, how student emails end, and your bell times. Click **Next** after each page.',
     ],
   },
@@ -36,18 +37,18 @@ const steps = [
     title: 'turn it on.',
     bullets: [
       'The setup window shows six numbered steps. Do them in order. They take about two minutes.',
-      'At the end, Google shows a long link. Click **Copy** under it.',
-      'Go back to the setup window, click in the box, and paste (hold **Ctrl** and press **V**).',
-      'Click **Finish**.',
+      'Copy the **Web app URL** from Google’s Deploy window. Return to setup, paste it under **Connect the published app link**, and click **Prepare link check**.',
+      'Open the link-check page. When it says your app link is verified, return to setup and click **Finish setup**.',
+      'The setup window saves your teacher and door kiosk links on the opening page.',
     ],
   },
   {
-    title: 'share it with students.',
+    title: 'open your classroom app.',
     bullets: [
-      'Click **Post it in Google Classroom** to give students the link.',
+      'Open **Teacher dashboard** and bookmark it. This is your everyday app; you do not need to work in Sheets.',
       'Using one computer by the door? Open the **door computer link** on it and leave it open.',
-      'Click **Open my teacher page**, then bookmark it (click the ☆ star by the address bar).',
-      'On your teacher page, click **Add students**, then print the **PIN Cards** and hand them out.',
+      'Test sign-out and return on the actual door device before inviting students. Share the student link after those checks pass.',
+      'For a shared school directory, open **Settings → school directory / enroll by number**, connect the private directory, and enroll students by their lunch number and period. Otherwise, use **Add students** for an independent roster.',
     ],
   },
 ];
@@ -63,8 +64,18 @@ const parts = (text: string) => text.split(/\*\*(.+?)\*\*/g).map((chunk, index) 
       set up your hall pass<span class="text-accent">.</span>
     </h1>
     <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
-      Your own copy, your own students, your own Google account. Students sign out with a PIN on their Chromebook or at one station by your door, and you see who is out from your teacher view.
+      A classroom app with a teacher dashboard and a door kiosk. Google Sheets stores your records in the background. A guided window handles setup; you use the app for daily tasks.
     </p>
+
+    <aside class="setup-note mt-6">
+      <h2 class="font-display text-2xl font-bold">start in your browser</h2>
+      <p>First setup needs a computer web browser. Make your own blank copy and click the large setup button on its opening page. Google requires one-time school-account approval and publishing. After setup, your teacher dashboard works on a computer or phone. No Windows installation or personal website is needed.</p>
+      <a class="setup-link" href={templateCopyUrl} target="_blank" rel="noopener">Start my Hall Pass ↗</a>
+      <details><summary>Optional test and recovery download</summary>
+        <a class="setup-link" href={teacherKitUrl} download>download hall pass teacher kit ↓</a>
+        <p>Existing download: 1.0.0-rc.1 test package. The revised installer is still under review; do not redistribute it as a finished release.</p>
+      </details>
+    </aside>
 
     <ol class="setup-steps mt-9">
       {steps.map((step, index) => (
@@ -83,13 +94,19 @@ const parts = (text: string) => text.split(/\*\*(.+?)\*\*/g).map((chunk, index) 
       ))}
     </ol>
 
+    <aside class="setup-note mt-6" id="setup-permission-help">
+      <h2 class="font-display text-2xl font-bold">setup says “PERMISSION_DENIED”?</h2>
+      <p>Google Apps Script can fail when several Google accounts are signed in. Open your existing Hall Pass spreadsheet in a Chrome profile or Incognito window signed into only your school account, then click <strong>Start setup / show my links</strong> on the opening page again. If you have an older copy without that button, use <strong>Hall Pass → Start setup</strong>. If the menu is hidden, expand the toolbar using the down-arrow at the top right or press <strong>Ctrl+Shift+F</strong>. Approve Google’s permissions if asked and reopen setup. Keep your existing copy and its tabs.</p>
+      <p>If it still fails, school IT needs to check Apps Script access for that teacher’s account. Give them the error and spreadsheet link privately. <a class="setup-link" href="https://developers.google.com/apps-script/guides/support/troubleshooting#issues_with_multiple_google_accounts" target="_blank" rel="noopener">Google’s account troubleshooting ↗</a></p>
+    </aside>
+
     <aside class="setup-note mt-6">
-      <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">using GoClassroom?</h2>
+      <details><summary class="font-display text-xl font-bold">Optional: connect GoClassroom on Windows</summary>
       <p>GoClassroom copies your students from Google Classroom into Hall Pass for you, so you don’t have to type them. It is a Windows program.</p>
       <ul class="setup-bullets">
         <li>Click <strong>download GoClassroom</strong> below. It saves to your <strong>Downloads</strong> folder.</li>
         <li>Open <strong>GoClassroom-Setup.exe</strong> from your Downloads.</li>
-        <li>If Windows says “Windows protected your PC”: click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
+        <li>If Windows or school policy blocks installation, ask school IT. Hall Pass works in the browser without this Windows program.</li>
         <li>When GoClassroom opens, click <strong>Rosters &amp; Hall Pass</strong> on the left.</li>
         <li>Paste your <strong>student link</strong> from the setup window into the Hall Pass link box, then click <strong>Save Hall Pass link</strong>.</li>
         <li>Click <strong>Find my rosters</strong> at the top right.</li>
@@ -98,6 +115,7 @@ const parts = (text: string) => text.split(/\*\*(.+?)\*\*/g).map((chunk, index) 
         <li>It only adds students and fixes names, and only after you click Apply.</li>
       </ul>
       <a class="setup-link" href={goClassroomInstallerUrl}>download GoClassroom ↓</a>
+      </details>
     </aside>
 
     <aside class="setup-note mt-4">

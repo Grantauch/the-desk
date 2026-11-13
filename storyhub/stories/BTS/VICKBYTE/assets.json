@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICKBYTE",
+  "assets": [
+    { "id": "A01", "status": "shipped", "type": "photograph", "role": "Cover image with a two ink print treatment", "sourceMode": "archival-source-first", "subject": "Vick passing against Indianapolis in 2010.", "sourceUrl": "https://commons.wikimedia.org/wiki/File:Vick_2010.jpg", "rightsStatus": "CC-BY-SA-3.0", "provenance": "Mr.schultz via Wikimedia Commons. Shared with 23 Months. Color treatment applied with CSS and noted in the caption.", "htmlSafeZone": "Text sits beside the image.", "responsiveCrop": "object-fit cover.", "deployPath": "/storyhub/bts/23-months/assets/eagles-2010.webp" },
+    { "id": "A02", "status": "embedded", "type": "video", "role": "Dogs, advocacy and interview footage", "sourceMode": "embedded-third-party", "subject": "Best Friends on the Vicktory dogs, Humane Society video with Vick, Club Shay Shay interview.", "sourceUrl": "https://www.youtube.com/watch?v=jlhytiytHU8", "rightsStatus": "Third party, played through the YouTube embed player", "provenance": "Not downloaded or rehosted.", "htmlSafeZone": "Video sits in its own 16:9 frame.", "responsiveCrop": "16:9 frame at every width.", "deploymentStatus": "embedded-not-hosted", "deploymentNote": "Played from YouTube through a lazy loaded embed." }
+  ]
+}

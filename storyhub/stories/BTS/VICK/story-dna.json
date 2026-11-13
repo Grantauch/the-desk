@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICK",
+  "title": "23 Months",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": ["broadcast loud", "court record plain", "unresolved"],
+    "paletteIntent": "The page changes uniform as his career does. Falcons black and red for the rise, federal docket paper for the case, Leavenworth concrete grey, Eagles midnight green for the return, Norfolk State green and gold at the end.",
+    "typographyIntent": "Barlow Condensed in heavy caps for scoreboard headlines, Barlow for reading, IBM Plex Mono for dates, docket entries and stat labels.",
+    "textureLanguage": ["scoreboard stat tiles", "docket paper with ink stamps", "hatched empty seasons"],
+    "shapeLanguage": "Hard square edges everywhere. Round pins appear only on the timeline of decisions, where each circle is a person saying yes.",
+    "motionGrammar": ["stoppage: career bars rise season by season and stop at 2006", "accumulation: doors fill in one at a time as decisions are opened"],
+    "interactionSignature": ["step through the 2007 docket comparing what Vick said with what the record showed", "open nine doors to see who let him back and when"],
+    "densityRhythm": "Long chapters with one strong photo or video each, broken by three dense interactive panels at the case, the comeback and the career.",
+    "archivalBehavior": "Openly licensed and public domain photographs only, credited under each image. Game footage, the plea and interviews play through YouTube embeds from the NFL, ESPN, CBS and the AP Archive.",
+    "endingLanguage": "Vick's own sentence from 60 Minutes in 2009 about losing the $130 million, followed by the fact that he later signed for $100 million."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Team uniforms in the photographs and the cream of a federal court filing.",
+    "edgeTreatment": "Square corners and thick rules, like a scoreboard and a docket sheet.",
+    "controlLanguage": "Docket date chips, numbered doors and season bars. Each control is a record the student pulls.",
+    "spacingLanguage": "Generous chapter padding, tight stat grids.",
+    "transitionLanguage": "Natural scroll with a sticky chapter rail. Bars grow once on load, instant with reduced motion."
+  }
+}

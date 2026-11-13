@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-WHYFOUGHT",
+  "title": "Why They Fought",
+  "route": "/hubs/ush9-bytesize-why-they-fought.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/USH9/WHYFOUGHT/story.json",
+    "note": "ByteSize no. 23."
+  },
+  "files": [
+    {
+      "path": "/hubs/ush9-bytesize-why-they-fought.html",
+      "bytes": 46247,
+      "sha256": "b2086256e55da547eaa3a8125db7ccf7453023bd6058c90ee07ffc3bde391f97"
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/sarajevo-1914.webp",
+      "assetId": "A01",
+      "bytes": 288608,
+      "sha256": "98e5fcae31ed297f1c221583378e47242117cc5de88277e106ed75e97fadaa9d",
+      "width": 900,
+      "height": 1090
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/pasic.webp",
+      "assetId": "A02",
+      "bytes": 50984,
+      "sha256": "82d4f4e4a6aa876979f1f32d832b467541bcc0eafef606e0b8f50a5b1c0d098e",
+      "width": 640,
+      "height": 942
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/franz-joseph-1910.webp",
+      "assetId": "A03",
+      "bytes": 84850,
+      "sha256": "bede9571852f47495f07d4052f3466f37c2a3584139beb5051bb7a86b5d37001",
+      "width": 640,
+      "height": 896
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/wilhelm-1902.webp",
+      "assetId": "A04",
+      "bytes": 50540,
+      "sha256": "54ecd85e2fb7e4b352695544ba9d910218b4e386a1695ed0e90734471c99be0a",
+      "width": 640,
+      "height": 853
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/nicholas-ii.webp",
+      "assetId": "A05",
+      "bytes": 73602,
+      "sha256": "f359e38accc2a485921d8e89de8647c88adb9e0412818c32e8d19c89260cb153",
+      "width": 640,
+      "height": 893
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/poincare.webp",
+      "assetId": "A06",
+      "bytes": 99732,
+      "sha256": "93bce4072bf1e463aa0ae80cc46dde9e5ceccb29d7f199209d32e1db0c2ef0d5",
+      "width": 640,
+      "height": 859
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/grey.webp",
+      "assetId": "A07",
+      "bytes": 72172,
+      "sha256": "582b18f664791f6202eee42e8d4af43cb43000e23ef002bed774882e575c7df1",
+      "width": 640,
+      "height": 760
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/enver-1911.webp",
+      "assetId": "A08",
+      "bytes": 165706,
+      "sha256": "c392e0cf0c07db570ed87ccce7c2a3bc3aaad1ca64655094cc44c1b4a946bd6a",
+      "width": 640,
+      "height": 947
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/salandra.webp",
+      "assetId": "A09",
+      "bytes": 39610,
+      "sha256": "7f6ace5e0dc057e6cadc1c5bf58ef79e7e59e77b943e2a09286620d4e8169b32",
+      "width": 362,
+      "height": 528
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/wilson.webp",
+      "assetId": "A10",
+      "bytes": 52470,
+      "sha256": "9713badc5250be2225f1cefb689146bbeebdd445977cfa694f04a91c36db3571",
+      "width": 640,
+      "height": 829
+    },
+    {
+      "path": "/storyhub/ush9/why-they-fought/assets/zimmermann-telegram.webp",
+      "assetId": "A11",
+      "bytes": 214122,
+      "sha256": "78ca123c8f318bf3198efb63998bf348325a496a99353903ef28662eacc5a9da",
+      "width": 1100,
+      "height": 1393
+    }
+  ],
+  "totalBytes": 1238643,
+  "sealedAt": "2026-11-09"
+}

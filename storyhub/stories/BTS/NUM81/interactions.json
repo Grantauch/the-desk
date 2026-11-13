@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-NUM81",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "02-draft",
+      "type": "draft-simulation",
+      "teaches": "How talent outweighed documented red flags in 2010.",
+      "studentAction": "Draft or pass in each of four rounds.",
+      "feedback": "Each pass adds lines to the scouting file; the end reveals pick 113 with Reese and Kraft quotes.",
+      "staticFallback": "All file lines appear at the end and the reveal is plain text.",
+      "identityFit": "Scouting board and draft clock.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "04-jerseys",
+      "type": "unit-grid",
+      "teaches": "The scale and audience of the jersey exchange.",
+      "studentAction": "Switch four views of 250 jersey shapes.",
+      "feedback": "Shapes fade or recolor with a reading line for each view.",
+      "staticFallback": "Every number is in the reading line.",
+      "identityFit": "Tackle twill jersey shapes.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "05-record",
+      "type": "record-stepper",
+      "teaches": "A conviction changed status three times.",
+      "studentAction": "Step through five dated moments.",
+      "feedback": "A stamp and explanation replace the record card.",
+      "staticFallback": "All five steps are buttons with full text.",
+      "identityFit": "Court record card with rubber stamps.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "06-brain",
+      "type": "age-bars",
+      "teaches": "How unusual his CTE was for his age.",
+      "studentAction": "Scroll to the comparison.",
+      "feedback": "Two bars grow to 27 and 46.",
+      "staticFallback": "Numbers are printed beside the bars.",
+      "identityFit": "Jersey red and silver bars.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "06-brain",
+      "type": "stance-scale",
+      "teaches": "Students separate explanation from responsibility.",
+      "studentAction": "Mark four statements disagree, not sure or agree.",
+      "feedback": "A sentence names the line the student drew. Not graded.",
+      "staticFallback": "Plain radio buttons.",
+      "identityFit": "Locker room tags.",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "06-brain",
+      "type": "written-response",
+      "teaches": "Argue with evidence.",
+      "studentAction": "Write four answers.",
+      "feedback": "Shared save and Turn In.",
+      "staticFallback": "Plain textareas.",
+      "identityFit": "White answer cards.",
+      "status": "implemented"
+    }
+  ]
+}

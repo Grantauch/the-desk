@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICKBYTE",
+  "title": "Who Let Him Back",
+  "route": "/hubs/bts-bytesize-who-let-him-back.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/VICKBYTE/story.json",
+    "note": "ByteSize no. 22, companion to 23 Months. Shares one image with that release."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-bytesize-who-let-him-back.html",
+      "bytes": 48973,
+      "sha256": "1630ef089edd2163e82ee2ebf7b454e46c53364ea42f9a908f63745daeb7b983"
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/eagles-2010.webp",
+      "assetId": "A01",
+      "bytes": 94644,
+      "sha256": "ef5e32d98e8c9a2f72493ede70267dedbca20aecca61edfc160a0999f0fbe870",
+      "width": 960,
+      "height": 766
+    }
+  ],
+  "totalBytes": 143617,
+  "sealedAt": "2026-11-04"
+}

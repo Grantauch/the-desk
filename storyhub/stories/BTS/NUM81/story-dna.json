@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-NUM81",
+  "title": "Number 81",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "case file",
+      "sober",
+      "argumentative"
+    ],
+    "paletteIntent": "Navy, jersey white and a red stitched outline, with gold for dates.",
+    "typographyIntent": "Graduate for tackle twill numerals, Libre Franklin for reading, JetBrains Mono for records.",
+    "textureLanguage": [
+      "mesh jersey weave",
+      "court record paper",
+      "rubber stamps"
+    ],
+    "shapeLanguage": "Square photo with an offset red shadow, jersey silhouettes, stamped labels.",
+    "motionGrammar": [
+      "accumulation: file lines appear as you pass",
+      "replacement: record stamps swap",
+      "growth: age bars"
+    ],
+    "interactionSignature": [
+      "run the 2010 draft",
+      "erase 2,500 jerseys",
+      "step through the record"
+    ],
+    "densityRhythm": "Six short bytes, four written answers, one stance scale.",
+    "archivalBehavior": "One openly licensed game photo, one CTE comparison diagram and one portrait, each credited. No photo of the victim is available under an open license, so his byte is text.",
+    "endingLanguage": "The student's own stance line, then Turn In."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The number 81 jersey in the hero photograph.",
+    "edgeTreatment": "Hard white borders with a red offset shadow.",
+    "controlLanguage": "Draft buttons, view pills, record steps, stance tags.",
+    "spacingLanguage": "Wide margins around dense records.",
+    "transitionLanguage": "Short fades, all off under reduced motion."
+  }
+}

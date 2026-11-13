@@ -46,7 +46,7 @@ test('companion-only class selection is PIN-verified and confined to the same st
 
 test('companion visits retain school-account and invalid-PIN checks', () => {
   const c = setup();
-  assert.throws(()=>c.harness.call('identifyChecklingWithPin','not-a-pin','bad-pet'),/six-digit PIN/);
+  assert.throws(()=>c.harness.call('identifyChecklingWithPin','not-a-pin','bad-pet'),/5- or 6-digit PIN/);
   c.harness.signInAs('outsider@example.org');
   assert.throws(()=>c.harness.call('identifyChecklingWithPin',c.pin(PEOPLE.ada),'foreign-pet'));
   assert.equal(c.checkIns().length,0);

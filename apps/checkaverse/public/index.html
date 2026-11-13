@@ -11,12 +11,12 @@
     <canvas id="town" width="1536" height="1024" aria-label="Map. Walk with arrow keys or WASD. Use Talk to speak to nearby residents." tabindex="-1"></canvas>
 
     <div class="hud hud-top-left">
-      <p class="chip place-chip"><strong>Checkaverse</strong> <span id="place">Town</span></p>
+      <p class="chip place-chip"><strong id="placeTitle">Checkaverse</strong> <span id="place">Town</span></p>
       <p id="status" class="chip status" role="status">Connecting...</p>
     </div>
 
     <div class="hud hud-top-right">
-      <p class="chip me-chip">You are <strong id="me">...</strong> <span id="record" class="record"></span></p>
+      <p class="chip me-chip"><span class="me-label">You are </span><strong id="me">...</strong> <span id="record" class="record"></span></p>
       <button id="menuBtn" type="button" class="round" aria-expanded="false" aria-controls="menu" title="Menu">&#9776;</button>
     </div>
 
