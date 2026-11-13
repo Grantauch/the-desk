@@ -1,0 +1,39 @@
+name: Repository visual recovery inventory
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit-visual-assets.mjs'
+      - '.github/workflows/visual-asset-inventory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch all named repository branches for a read-only comparison
+        run: git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate inventory script syntax
+        run: node --check scripts/audit-visual-assets.mjs
+      - name: Inventory branch-only artwork and live usage
+        run: node scripts/audit-visual-assets.mjs
+      - name: Publish detailed JSON and triage table
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-asset-recovery-inventory
+          path: reports/visual-assets/
+          retention-days: 30
+      - name: Summarize results
+        run: |
+          cat reports/visual-assets/triage.md >> "$GITHUB_STEP_SUMMARY"
+          sed -n '1,100p' reports/visual-assets/triage.md
