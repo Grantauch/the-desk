@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Hall Pass | Teacher Setup</title>
+<style>
+:root{font:16px system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f6f9;color:#182943}
+*{box-sizing:border-box}body{margin:0}header{background:#122338;color:#fff;padding:32px max(22px,calc((100vw - 850px)/2))}
+main{max-width:850px;margin:0 auto;padding:22px}h1{font-size:clamp(2rem,5vw,3.4rem);letter-spacing:-.05em;margin:6px 0}
+header p{color:#c9d6e5}section{background:white;border:1px solid #d8e0e9;border-radius:14px;margin:16px 0;padding:24px}
+h2{margin:0 0 12px;font-size:1.4rem}p,li{line-height:1.55}label{display:block;font-weight:700;margin-bottom:8px}
+a.button,button{display:inline-block;background:#1d496f;color:white;font-weight:700;text-decoration:none;border:0;border-radius:8px;padding:12px 16px;cursor:pointer}
+input{width:100%;padding:13px;font:inherit;border-radius:8px;border:1px solid #91a7c0}
+.warning{background:#fff3dc;border-left:5px solid #bb7635;padding:15px;border-radius:6px}[hidden]{display:none!important}
+.note{color:#576980;font-size:.93rem}output{display:block;margin:6px 0 12px;overflow-wrap:anywhere;font:13px Consolas,monospace}
+#results{display:none}#results.ready{display:block}.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:16px}
+.linkbox{padding:16px;background:#f5f8fc;border-radius:9px}#error{color:#b32b31;min-height:1.3em}
+</style></head><body>
+<header><small>HALL PASS / TEACHER INSTALLATION</small><h1>Your classroom. Your kiosk.</h1>
+<p>Set up a private Hall Pass app for a Chromebook by your door—without owning a website.</p></header>
+<main>
+<div class="warning"><strong>Review candidate · 1.0.0-rc.2</strong> For authorized staging with synthetic identities. Distribution and production cutover are unapproved. Keep current production and student PINs unchanged.</div>
+<section><h2>Before you start: check this package</h2><p>Extract the entire ZIP into its own folder. Open the package checker, select this folder, and verify the files before setup. Keep the original ZIP for your test record.</p><a class="button" href="Preflight.html">Open package and staging checks</a><p class="note">Package 1.0.0-rc.2 contains classroom application 1.0.0-rc.1 with corrected setup recovery and package verification.</p></section>
+<section><h2>1. Make an approved private copy</h2><p>Use a Chrome profile signed into only your school Google account, or an Incognito window with only that account. Ask your school coordinator for the blank template checked against this package. Do not use an existing teacher's live workbook.</p>
+<form id="template-setup"><label for="template-url">School coordinator's approved blank template link</label><input id="template-url" type="url" required autocomplete="off" placeholder="https://docs.google.com/spreadsheets/d/.../copy"><p id="template-error" role="alert"></p><button type="submit">Prepare my template copy link</button></form>
+<p><a id="copy-template" class="button" target="_blank" rel="noopener noreferrer" hidden>Copy approved blank template</a></p>
+<p class="note">A link alone does not prove source integrity. School IT must compare all seven template files with SOURCE-MANIFEST.json before deployment. If that check is unavailable, stop here and ask the coordinator. This page never provisions a Google project itself.</p></section>
+<section><h2>2. Configure your classroom</h2><p>On your new copy’s opening page click the large <strong>Start setup / show my links</strong> button. You do not need to find a Sheets menu. After Google approval, click the same button again. If an older copy has no button, its backup is Hall Pass → Start setup (Ctrl+Shift+F expands a hidden toolbar). Enter your name, class schedule, school student-email domain and pass rules. Grant Google's requested permissions only from your school account.</p></section>
+<section><h2>If Google cannot read your settings</h2><p>For <strong>PERMISSION_DENIED</strong>, open your existing copy in a Chrome profile or Incognito window signed into only your school account, then click <strong>Start setup / show my links</strong> again. Approve Google’s permissions if asked and reopen setup. Keep your copy and its tabs. If it still fails, give the error and copy link privately to school IT. See <a href="Recovery.md">recovery instructions</a>.</p></section>
+<section><h2>3. Open your staging web app</h2><p>Follow the built-in setup wizard. In Google's deploy screen choose <strong>Web app</strong>, <strong>Execute as Me</strong> and <strong>Who has access: Anyone within your school</strong>, if permitted. Return to the setup window and click <strong>Find my app link</strong>. It checks that the link belongs to this copy, then saves the teacher dashboard and door kiosk links on the opening page. Bookmark the dashboard for daily use; Sheets holds the records in the background.</p><p class="note">A school administrator may need to approve Apps Script and Chromebook kiosk use.</p></section>
+<section><h2>4. Open your classroom app</h2><p>Use the links saved by the setup window. Your teacher dashboard is your everyday app. The form below is an optional shortcut tool for a link you already checked in your own setup window.</p><details><summary>Make a spare shortcut from an existing app link</summary><p>This page makes links locally. It does not upload the address or keep it after you close the page. You can choose to save a kiosk shortcut.</p>
+<form id="setup"><label for="url">Your new Google web app URL</label><input id="url" type="url" required placeholder="https://script.google.com/.../exec" autocomplete="off">
+<p id="error" role="alert"></p><button type="submit">Make my kiosk and teacher links</button></form>
+<div id="results" aria-live="polite"><div class="links">
+<div class="linkbox"><strong>Door Chromebook</strong><output id="kiosk"></output><a class="button" id="open-kiosk" rel="noopener noreferrer" target="_blank">Open kiosk</a></div>
+<div class="linkbox"><strong>Teacher dashboard</strong><output id="teacher"></output><a class="button" id="open-teacher" rel="noopener noreferrer" target="_blank">Open dashboard</a></div>
+</div><p><a class="button" id="open-releasecheck" rel="noopener noreferrer" target="_blank">Open protected synthetic test</a></p><p class="note">The protected test runs only as this teacher. Its separate synthetic workbook test does not prove shared-directory or cross-teacher acceptance. Follow the full staging checklist.</p><p><a class="button" id="save-shortcut">Save Chromebook kiosk shortcut</a></p><p class="note">Send the kiosk link privately or open the shortcut in Chrome on the door Chromebook. Bookmark it and use Chrome's full-screen control (F11 on Windows; the full-screen key on Chromebook). The kiosk's keep-awake request may be limited by school policy. IT should confirm sleep, relaunch and account restrictions.</p></div></details></section>
+<section><h2>5. Connect your school directory</h2><p>On your teacher dashboard open <strong>Settings → school directory / enroll by number</strong>. Connect the private directory link from your school coordinator, then enroll only synthetic test identities by their exact school number and period. Real enrollment and lunch-PIN cutover require separate district approval and a coordinated plan. Unassigned students stay inactive. Use the same exact lunch number in every connected room. Run the two-teacher tests in Preflight before release review. Imports create no memberships; never bulk-activate the directory.</p><p class="note">Do not sign a teacher account into the student Chromebook. District IT handles managed kiosk policy and screen-sleep settings.</p></section>
+<section><h2>6. Finish the staging checks</h2><p>Use <a href="Preflight.html">package and staging checks</a> to record test outcomes and save a private review record. Do not include names, lunch numbers or screenshots of student records.</p><p class="warning">Shared directory corrections are automatic. Independent software copies still require a separate deployment update. The requirement for centrally managed software updates remains unresolved; this candidate is not a finished rollout.</p></section>
+<p class="note"><a href="README.md">Setup guide</a> · <a href="Recovery.md">Recovery and updates</a> · <a href="School-IT-Checklist.md">School IT checklist</a></p>
+<p class="note">This ZIP contains no school roster, lunch PINs, student data, Google credentials or tokens.</p>
+</main><script>
+(function(){
+'use strict';
+document.getElementById('template-setup').addEventListener('submit',function(e){
+e.preventDefault();var error=document.getElementById('template-error'),link=document.getElementById('copy-template');error.textContent='';link.hidden=true;link.removeAttribute('href');
+try{var u=new URL(document.getElementById('template-url').value.trim());var m=/^\/spreadsheets\/d\/([A-Za-z0-9_-]{20,120})(?:\/(?:edit|copy))?\/?$/.exec(u.pathname);
+if(u.protocol!=='https:'||u.host!=='docs.google.com'||u.username||u.password||!m)throw Error('Paste the approved blank Google Sheets template link from your school coordinator.');
+link.href='https://docs.google.com/spreadsheets/d/'+m[1]+'/copy';link.hidden=false;
+}catch(ex){error.textContent=ex.message||'Invalid template link.';}
+});
+var shortcutUrl='';
+window.addEventListener('pagehide',function(){if(shortcutUrl)URL.revokeObjectURL(shortcutUrl);});
+document.getElementById('setup').addEventListener('submit',function(e){
+e.preventDefault();var error=document.getElementById('error');error.textContent='';
+document.getElementById('results').className='';
+['open-kiosk','open-teacher','open-releasecheck','save-shortcut'].forEach(function(id){document.getElementById(id).removeAttribute('href');});
+['kiosk','teacher'].forEach(function(id){document.getElementById(id).textContent='';});
+if(shortcutUrl){URL.revokeObjectURL(shortcutUrl);shortcutUrl='';}
+try{
+var u=new URL(document.getElementById('url').value.trim());
+if(u.protocol!=='https:'||u.host!=='script.google.com'||!/^\/(?:a\/macros\/[a-z0-9.-]+\/|macros\/)s\/[A-Za-z0-9_-]{20,}\/exec$/.test(u.pathname)||u.username||u.password)throw Error('Paste a Google Apps Script web app URL ending in /exec.');
+u.search='';u.hash='';var base=u.toString();
+['kiosk','teacher'].forEach(function(mode){
+var url=base+'?mode='+mode;
+document.getElementById(mode).textContent=url;
+document.getElementById('open-'+mode).href=url;
+});
+document.getElementById('open-releasecheck').href=base+'?mode=releasecheck';
+shortcutUrl=URL.createObjectURL(new Blob(['<!doctype html><html lang="en"><meta charset="utf-8"><title>Hall Pass kiosk</title><p><a href="'+base+'?mode=kiosk">Open classroom kiosk</a></p></html>'],{type:'text/html'}));
+var shortcut=document.getElementById('save-shortcut');shortcut.href=shortcutUrl;shortcut.download='HallPass-Kiosk.html';
+document.getElementById('results').className='ready';
+}catch(ex){error.textContent=ex.message||'Invalid web app address.';}
+});
+})();
+</script></body></html>

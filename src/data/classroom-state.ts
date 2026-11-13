@@ -22,13 +22,13 @@ export interface ClassroomCourseState {
  */
 export const classroomState: Record<ClassroomCourse, ClassroomCourseState> = {
   'US History': {
-    currentUnit: 'The Gilded Age',
+    currentUnit: 'WWI & the Twenties',
     calendarHighlights: [
       {
-        month: 'september',
+        month: 'november',
         when: 'right now',
         course: 'history',
-        detail: 'Railroads, robber barons, unions, and the price of progress.',
+        detail: 'From a shooting in Sarajevo to the trenches, and the telegram that pulled America in.',
       },
     ],
   },

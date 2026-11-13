@@ -1150,7 +1150,7 @@
     var gateActions = make('form', { class: 'actions', method: 'post', autocomplete: 'off' });
     var gatePinLabel = make('label', {}, 'Hall pass PIN');
     // Shared classroom devices must not offer to retain another student's PIN.
-    var gatePin = make('input', { name: 'pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', required: '', maxlength: '6', minlength: '6', pattern: '[0-9]{6}', enterkeyhint: 'go' });
+    var gatePin = make('input', { name: 'pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', required: '', maxlength: '6', minlength: '5', pattern: '[0-9]{5,6}', enterkeyhint: 'go' });
     gatePinLabel.appendChild(gatePin);
     var gateStart = make('button', { class: 'primary', type: 'submit' }, 'Start');
     gateActions.appendChild(gatePinLabel);
@@ -1252,7 +1252,7 @@
     gateActions.addEventListener('submit', function (event) {
       event.preventDefault();
       var code = digits(gatePin);
-      if (code.length !== 6) { setStatus(gateStatus, 'Enter your six digit hall pass PIN.', false); gatePin.focus(); return; }
+      if ((code.length < 5 || code.length > 6)) { setStatus(gateStatus, 'Enter your five or six digit hall pass PIN.', false); gatePin.focus(); return; }
       busy(gateStart, true, 'Checking…');
       setStatus(gateStatus, '', false);
       signIn(code, { recover: true, preservePending: Boolean(state.identityKey && !state.token && pendingCloud()) }).then(function (result) {
@@ -1334,7 +1334,7 @@
       resumePin.addEventListener('input', function () { resumePin.value = digits(resumePin).slice(0, 6); });
       resumeSign.addEventListener('click', function () {
         var code = digits(resumePin);
-        if (code.length !== 6) { setStatus(resumeStatus, 'Enter your six digit hall pass PIN.', false); return; }
+        if ((code.length < 5 || code.length > 6)) { setStatus(resumeStatus, 'Enter your five or six digit hall pass PIN.', false); return; }
         busy(resumeSign, true, 'Checking…');
         clearTimeout(cloudTimer);
         signIn(code, { recover: true }).then(function (result) {
@@ -1573,7 +1573,7 @@
 
     signBtn.addEventListener('click', function () {
       var code = digits(popPin);
-      if (code.length !== 6) { message = 'Enter your six digit hall pass PIN.'; messageGood = false; ui.refresh(); return; }
+      if ((code.length < 5 || code.length > 6)) { message = 'Enter your five or six digit hall pass PIN.'; messageGood = false; ui.refresh(); return; }
       busy(signBtn, true, 'Checking…');
       signIn(code, { recover: true }).then(function (result) {
         busy(signBtn, false, 'Save to my account');
@@ -1589,7 +1589,7 @@
     turnBtn.addEventListener('click', function () {
       var code = digits(pin);
       if (!code && heldPin && state.token) code = heldPin;
-      if (code.length !== 6 && !(compactUi && state.token)) { setStatus(status, 'Enter your six digit hall pass PIN.', false); pin.focus(); return; }
+      if ((code.length < 5 || code.length > 6) && !(compactUi && state.token)) { setStatus(status, 'Enter your five or six digit hall pass PIN.', false); pin.focus(); return; }
       busy(turnBtn, true, 'Sending…');
       setStatus(status, '', false);
       turnIn(code).then(function (result) {

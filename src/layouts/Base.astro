@@ -10,9 +10,10 @@ interface Props {
   title?: string;
   description?: string;
   wide?: boolean;
+  atlas?: boolean;
 }
 
-const { title, description = 'the desk — home base for us history, hidden history, and beyond the scoreboard.', wide = false } = Astro.props;
+const { title, description = 'the desk — home base for us history, hidden history, and beyond the scoreboard.', wide = false, atlas = false } = Astro.props;
 const fullTitle = title ? `${title} · the desk` : 'the desk';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // per-course social cards live in public/; anything unlisted falls back to og.png
@@ -40,8 +41,13 @@ const ogImage = new URL(isLearningHub ? '/og-learning-hubs.png' : (ogMap[Astro.u
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image:alt" content={title ? `${title} — the desk` : 'the desk'} />
     <meta name="theme-color" content="#1f2ce6" />
+    <meta name="color-scheme" content="light" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet" />
@@ -52,12 +58,60 @@ const ogImage = new URL(isLearningHub ? '/og-learning-hubs.png' : (ogMap[Astro.u
       }
     </script>
   </head>
-  <body class="min-h-screen flex flex-col">
+  <body class="min-h-screen flex flex-col" data-atlas-home={atlas || undefined}>
     <a href="#main" class="skip-link">skip to content</a>
     <Nav wide={wide} />
     <main id="main" class:list={['flex-1 w-full mx-auto px-5 py-8 sm:py-10', wide ? 'max-w-6xl' : 'max-w-4xl']}>
       <slot />
     </main>
     <Footer wide={wide} />
+    <a class="to-top" href="#main" hidden aria-label="Back to the top of this page">
+      <span aria-hidden="true">↑</span> top
+    </a>
+    <script is:inline>
+      // Long pages (the detour shelf runs nine screens) get a way back up.
+      // Progressive enhancement only: without it the anchor stays hidden and
+      // the page behaves exactly as it did before.
+      (() => {
+        const button = document.querySelector('.to-top');
+        if (!button) return;
+        const reveal = () => {
+          const past = window.scrollY > window.innerHeight * 1.5;
+          const scrollable = document.documentElement.scrollHeight > window.innerHeight * 2.5;
+          button.hidden = !(past && scrollable);
+        };
+        // The anchor already goes to #main. Let the browser do the scrolling so
+        // it keeps honouring the reduced-motion rule in the stylesheet; the only
+        // thing missing natively is a focus target for keyboard and screen
+        // reader users, so give #main one on the way.
+        button.addEventListener('click', () => {
+          const main = document.getElementById('main');
+          if (main && !main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+        });
+        addEventListener('scroll', reveal, { passive: true });
+        addEventListener('resize', reveal, { passive: true });
+        reveal();
+      })();
+
+      // Nobody remembers to open every dropdown before hitting print, and a
+      // closed <details> prints as a heading with nothing under it. Open them
+      // for the print job only, then put every one back exactly as it was.
+      (() => {
+        // null means no print is in flight. Browsers can fire beforeprint more
+        // than once for a single job, and a second capture would record an empty
+        // list and strand every dropdown open, so only the first one counts.
+        let reopened = null;
+        addEventListener('beforeprint', () => {
+          if (reopened) return;
+          reopened = [...document.querySelectorAll('details:not([open])')];
+          reopened.forEach((node) => node.setAttribute('open', ''));
+        });
+        addEventListener('afterprint', () => {
+          if (!reopened) return;
+          reopened.forEach((node) => node.removeAttribute('open'));
+          reopened = null;
+        });
+      })();
+    </script>
   </body>
 </html>

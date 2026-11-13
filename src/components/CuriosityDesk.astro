@@ -1,4 +1,6 @@
 ---
+import archiveRecords from '../data/curiosity-archive.json';
+
 const curiosityCollections = {
   power: {
     query: 'presidents congress political campaigns',
@@ -42,25 +44,14 @@ const curiosityCollections = {
   },
 };
 
-// The visible fallback is deliberately generic so the desk never pretends a small static
-// story list is the live collection.
-const curiosityItems = Object.entries(curiosityCollections).map(([collection, settings]) => ({
+const curiosityItems = (Object.keys(curiosityCollections) as (keyof typeof curiosityCollections)[]).map((collection) => ({
+  ...archiveRecords[collection],
   collection,
-  tags: [collection],
-  category: settings.category,
-  source: 'Library of Congress',
-  date: 'live collection',
-  question: settings.question,
-  clue: settings.clue,
-  context:
-    'The live catalog is temporarily unavailable. Open the Library of Congress search record to inspect current collection results directly.',
-  image: '/og.png',
-  alt: `The Desk mark shown while the live ${collection} collection loads.`,
-  position: 'center',
-  record: `https://www.loc.gov/photos/?q=${encodeURIComponent(settings.query)}`,
-  credit: 'Live records supplied by the Library of Congress',
-  related: settings.related,
-  relatedLabel: settings.relatedLabel,
+  category: curiosityCollections[collection].category,
+  mode: 'selected archive record',
+  position: collection === 'sports' ? 'top' : 'center',
+  related: curiosityCollections[collection].related,
+  relatedLabel: curiosityCollections[collection].relatedLabel,
   deeper: '/detour-shelf/',
   deeperLabel: 'follow another evidence-first detour',
 }));
@@ -71,12 +62,12 @@ const first = curiosityItems[0];
 <section id="curiosity-desk" class="curiosity-desk" data-curiosity-desk aria-labelledby="curiosity-title">
   <header class="curiosity-header">
     <div>
-      <p class="curiosity-eyebrow">live collections / Library of Congress</p>
+      <p class="curiosity-eyebrow">primary sources / five collections</p>
       <h2 id="curiosity-title">the curiosity desk<span>.</span></h2>
     </div>
     <p class="curiosity-intro">
-      Real collection records rotate through five lenses. Start with a guess, then open the catalog evidence.
-      <span class="curiosity-live-status" data-curiosity-live-status role="status" aria-live="polite">loading the first live collection…</span>
+      Start with an archive artifact, make a guess, then open the record. The Library of Congress adds live discoveries when its catalog is available.
+      <span class="curiosity-live-status" data-curiosity-live-status role="status">showing a selected archive record</span>
     </p>
   </header>
 
@@ -91,7 +82,7 @@ const first = curiosityItems[0];
 
   <div class="curiosity-stage">
     <a class="curiosity-image" href={first.record} target="_blank" rel="noopener" data-link="record">
-      <img src={first.image} alt={first.alt} style={`object-position: ${first.position};`} data-field="image" />
+      <img src={first.image} alt={first.alt} style={`object-position: ${first.position};`} loading="lazy" decoding="async" data-field="image" />
       <span class="curiosity-image-fallback" data-field="image-fallback" hidden>archive image unavailable</span>
       <span class="curiosity-date" data-field="date">{first.date}</span>
       <span class="curiosity-record">view the full archive record <span aria-hidden="true">&#8599;</span></span>
@@ -103,6 +94,8 @@ const first = curiosityItems[0];
           <span data-field="category">{first.category}</span>
           <span aria-hidden="true">/</span>
           <span data-field="source">{first.source}</span>
+          <span aria-hidden="true">/</span>
+          <span data-field="mode">{first.mode}</span>
         </p>
         <p class="curiosity-count" data-field="count">artifact 01 of {String(curiosityItems.length).padStart(2, '0')}</p>
         <h3 data-field="question">{first.question}</h3>
@@ -162,9 +155,9 @@ const first = curiosityItems[0];
       const seeds = [...curiosityItems];
       const liveCollections = new Map();
       const inFlight = new Map();
-      let currentItems = [...seeds];
       let activeFilter = 'all';
-      let currentIndex = 0;
+      let currentItem = seeds[0];
+      let selection = 0;
 
       const setText = (name, value) => {
         root.querySelectorAll(`[data-field="${name}"]`).forEach((element) => {
@@ -217,9 +210,9 @@ const first = curiosityItems[0];
 
         return {
           collection,
-          tags: [collection],
           category: curiosityCollections[collection].category,
-          source: 'Library of Congress live catalog',
+          source: 'Library of Congress',
+          mode: 'live catalog record',
           date,
           question: curiosityCollections[collection].question,
           clue: curiosityCollections[collection].clue,
@@ -244,9 +237,9 @@ const first = curiosityItems[0];
         if (!recordUrl || !imageUrl || !title) return null;
         return {
           collection,
-          tags: [collection],
           category: curiosityCollections[collection].category,
-          source: 'Library of Congress live catalog',
+          source: 'Library of Congress',
+          mode: 'live catalog record',
           date: shortText(item.date, 48) || 'catalog date',
           question: curiosityCollections[collection].question,
           clue: curiosityCollections[collection].clue,
@@ -261,13 +254,6 @@ const first = curiosityItems[0];
           deeper: '/detour-shelf/',
           deeperLabel: 'follow another evidence-first detour',
         };
-      };
-
-      const rebuildItems = () => {
-        const collectionKeys = Object.keys(curiosityCollections);
-        const live = collectionKeys.flatMap((key) => liveCollections.get(key) ?? []);
-        const fallbacks = seeds.filter((seed) => !liveCollections.has(seed.collection));
-        currentItems = [...live, ...fallbacks];
       };
 
       const loadCollection = (collection) => {
@@ -295,7 +281,6 @@ const first = curiosityItems[0];
                 const uniqueResolved = [...new Map(resolved.map((item) => [item.record, item])).values()];
                 if (uniqueResolved.length) {
                   liveCollections.set(collection, uniqueResolved.slice(0, 5));
-                  rebuildItems();
                   return true;
                 }
               }
@@ -334,7 +319,6 @@ const first = curiosityItems[0];
             const rotation = Math.floor(Date.now() / 604800000) % unique.length;
             const rotated = [...unique.slice(rotation), ...unique.slice(0, rotation)].slice(0, 5);
             liveCollections.set(collection, rotated);
-            rebuildItems();
             return true;
           } catch {
             return false;
@@ -347,10 +331,9 @@ const first = curiosityItems[0];
         return request;
       };
 
-      const matchingIndexes = () => currentItems
-        .map((item, index) => ({ item, index }))
-        .filter(({ item }) => activeFilter === 'all' || item.tags.includes(activeFilter))
-        .map(({ index }) => index);
+      const matchingItems = () => seeds
+        .filter((item) => activeFilter === 'all' || item.collection === activeFilter)
+        .flatMap((item) => [item, ...(liveCollections.get(item.collection) ?? [])]);
 
       const filterLabel = () => filterButtons
         .find((button) => button.dataset.filter === activeFilter)
@@ -364,8 +347,8 @@ const first = curiosityItems[0];
       };
 
       const updateCollectionControls = () => {
-        const matches = matchingIndexes();
-        const matchPosition = Math.max(0, matches.indexOf(currentIndex));
+        const matches = matchingItems();
+        const matchPosition = Math.max(0, matches.indexOf(currentItem));
         const scope = activeFilter === 'all' ? '' : `${filterLabel()} collection / `;
         setText(
           'count',
@@ -379,10 +362,8 @@ const first = curiosityItems[0];
         }
       };
 
-      const showItem = (index) => {
-        const item = currentItems[index];
-        if (!item) return;
-        currentIndex = index;
+      const showItem = (item) => {
+        currentItem = item;
 
         if (image instanceof HTMLImageElement) {
           const showFallback = () => {
@@ -404,6 +385,7 @@ const first = curiosityItems[0];
         setText('date', item.date);
         setText('category', item.category);
         setText('source', item.source);
+        setText('mode', item.mode);
         setText('question', item.question);
         setText('clue', item.clue);
         setText('context', item.context);
@@ -422,53 +404,45 @@ const first = curiosityItems[0];
         updateCollectionControls();
       };
 
-      const liveSummary = () => {
-        const ready = liveCollections.size;
-        const total = Object.keys(curiosityCollections).length;
-        return ready
-          ? `live Library of Congress records / ${ready} of ${total} collections ready / more load as you browse`
-          : 'live catalog unavailable / showing the preserved fallback';
+      const loadForSelection = async (collection, preferLive) => {
+        const requestedSelection = ++selection;
+        if (!liveCollections.has(collection)) {
+          setLiveStatus('checking the live catalog / archive record ready to explore');
+        }
+        const loaded = await loadCollection(collection);
+        if (requestedSelection !== selection) return;
+        if (loaded && preferLive && contextPanel?.hidden && currentItem === seeds.find(item => item.collection === collection)) {
+          showItem(liveCollections.get(collection)[0]);
+        }
+        updateCollectionControls();
+        setLiveStatus(loaded
+          ? 'live catalog records available in this collection'
+          : 'live catalog unavailable / explore the selected archive record');
       };
 
       filterButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
+        button.addEventListener('click', () => {
           const requested = button.dataset.filter || 'all';
           setActiveFilter(requested);
 
           if (requested === 'all') {
-            const matches = matchingIndexes();
-            if (matches.length) showItem(matches.includes(currentIndex) ? currentIndex : matches[0]);
-            setLiveStatus(liveSummary());
+            updateCollectionControls();
+            void loadForSelection(currentItem.collection, false);
             return;
           }
 
-          setLiveStatus(`loading the live ${filterLabel()} collection…`);
-          const loaded = await loadCollection(requested);
-          const matches = matchingIndexes();
-          if (matches.length) showItem(matches[0]);
-          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
+          showItem(liveCollections.get(requested)?.[0] ?? matchingItems()[0]);
+          void loadForSelection(requested, true);
         });
       });
 
-      nextButton?.addEventListener('click', async () => {
-        const matches = matchingIndexes();
+      nextButton?.addEventListener('click', () => {
+        const matches = matchingItems();
         if (matches.length < 2) return;
-        const matchPosition = matches.indexOf(currentIndex);
-        const nextIndex = matches[(matchPosition + 1) % matches.length];
-        const nextItem = currentItems[nextIndex];
-        if (!nextItem) return;
-
-        if (!liveCollections.has(nextItem.collection)) {
-          setLiveStatus(`loading the live ${nextItem.collection} collection…`);
-          const loaded = await loadCollection(nextItem.collection);
-          const refreshedMatches = matchingIndexes();
-          const refreshedIndex = refreshedMatches.find((index) => currentItems[index]?.collection === nextItem.collection);
-          if (refreshedIndex !== undefined) showItem(refreshedIndex);
-          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
-          return;
-        }
-
-        showItem(nextIndex);
+        const matchPosition = matches.indexOf(currentItem);
+        const nextItem = matches[(matchPosition + 1) % matches.length];
+        showItem(nextItem);
+        void loadForSelection(nextItem.collection, false);
       });
 
       revealButton?.addEventListener('click', () => {
@@ -479,17 +453,8 @@ const first = curiosityItems[0];
         revealButton.textContent = willOpen ? 'hide the context' : 'reveal the context';
       });
 
-      const initialCollection = seeds[0]?.collection;
-      if (initialCollection) {
-        setLiveStatus('loading the first live collection…');
-        loadCollection(initialCollection).then((loaded) => {
-          const matches = matchingIndexes();
-          if (matches.length) showItem(matches[0]);
-          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
-        });
-      } else {
-        setLiveStatus('live catalog unavailable / showing the preserved fallback');
-      }
+      showItem(currentItem);
+      void loadForSelection(currentItem.collection, true);
     }
   </script>
 </section>

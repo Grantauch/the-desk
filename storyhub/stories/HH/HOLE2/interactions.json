@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HOLE2",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "l1-strasbourg",
+      "type": "cure-log",
+      "teaches": "How the official cure spread the outbreak and source uncertainty in the counts.",
+      "studentAction": "Step through five moments of summer 1518.",
+      "feedback": "A crowd of 120 figures changes between supported, claimed and sent to the shrine, with a number and explanation.",
+      "staticFallback": "Every step is a button with full text; the key explains the figures.",
+      "identityFit": "Parchment ledger and red shoes.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "l1-strasbourg",
+      "type": "theory-board",
+      "teaches": "Weighing three explanations against clues.",
+      "studentAction": "Open six clues.",
+      "feedback": "Each theory's meter gains green or red marks and a verdict appears after all six.",
+      "staticFallback": "Clue text carries the evidence.",
+      "identityFit": "Pale engraving cards on black.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "l2-mattoon",
+      "type": "front-pages",
+      "teaches": "Media coverage tracked the rise and fall of reports.",
+      "studentAction": "Click eight dated front pages.",
+      "feedback": "Headline, summary and a tone pin change.",
+      "staticFallback": "Headlines are text buttons.",
+      "identityFit": "1944 newspaper front.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "l3-tanganyika",
+      "type": "contagion-model",
+      "teaches": "Stress, closeness and adult response shape spread.",
+      "studentAction": "Set three variables and run.",
+      "feedback": "Dots turn green as the outbreak spreads; a count and explanation compare to the real 95 of 159.",
+      "staticFallback": "With reduced motion the run computes instantly; real figures are printed below.",
+      "identityFit": "Lab dish in mold green.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "l4-screens",
+      "type": "network-compare",
+      "teaches": "Screens remove distance from contagion.",
+      "studentAction": "Run both networks.",
+      "feedback": "Nodes light in sequence or all at once.",
+      "staticFallback": "Captions state the difference.",
+      "identityFit": "Phone era violet.",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "l5-havana",
+      "type": "redacted-files",
+      "teaches": "Weighing open evidence.",
+      "studentAction": "Unredact bars, play the recording and set a judgment slider.",
+      "feedback": "Hidden words reveal; a sentence challenges the chosen position.",
+      "staticFallback": "All file text is in the page; slider has a label.",
+      "identityFit": "Classified paper and redaction bars.",
+      "status": "implemented"
+    },
+    {
+      "id": "I07",
+      "chapterId": "out",
+      "type": "written-response",
+      "teaches": "Explain with evidence.",
+      "studentAction": "Write four answers.",
+      "feedback": "Shared save and Turn In.",
+      "staticFallback": "Plain textareas.",
+      "identityFit": "Bone answer cards.",
+      "status": "implemented"
+    }
+  ]
+}

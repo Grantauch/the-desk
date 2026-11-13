@@ -226,13 +226,21 @@
   }
   // Artwork recovery belongs to this page, never to the portable camp save.
   const failedMovingArt = new Set(), movingArtRetries = new Map();
-  function artSource(id, ext) {
+  const practicePoses = new Set(["mochi", "bolt", "ember"]);
+  const unavailablePracticePoses = new Set();
+  function hasPracticePose(id) {
+    return !globalThis.PIXEL_CAMP_ART && practicePoses.has(id) && !unavailablePracticePoses.has(id);
+  }
+  function artSource(id, ext, face = "front") {
+    if (face === "back" && hasPracticePose(id)) {
+      return "assets/" + id + (ext === "gif" ? "-back-idle.png" : "-back.png");
+    }
     const file = id + "." + ext;
     return globalThis.PIXEL_CAMP_ART?.[file] || "assets/" + file;
   }
-  function art(id, still = false) {
-    if (still || effectiveQuiet() || failedMovingArt.has(id)) return artSource(id, "png");
-    let source = artSource(id, "gif");
+  function art(id, still = false, face = "front") {
+    if (still || effectiveQuiet() || failedMovingArt.has(id)) return artSource(id, "png", face);
+    let source = artSource(id, "gif", face);
     const retries = movingArtRetries.get(id) || 0;
     if (retries && !source.startsWith("data:")) {
       const url = new URL(source, document.baseURI);
@@ -254,7 +262,14 @@
   }
   document.addEventListener("error", (event) => {
     const image = event.target, id = movingArtOwner(image);
-    if (!id || !image.complete || image.naturalWidth !== 0 || effectiveQuiet()) return;
+    if (!id || !image.complete || image.naturalWidth !== 0) return;
+    if (image.id === "battle-friend-art" && hasPracticePose(id)
+      && image.src === new URL(art(id, false, "back"), document.baseURI).href) {
+      unavailablePracticePoses.add(id);
+      image.src = art(id);
+      return;
+    }
+    if (effectiveQuiet()) return;
     const current = image.getAttribute("src"), original = artSource(id, "gif");
     if (!current) return;
     // Accept only the currently requested original animation, including our retry query.
@@ -276,7 +291,10 @@
     failedMovingArt.clear();
     for (const image of document.querySelectorAll(".actor img, #battle-friend-art")) {
       const id = movingArtOwner(image);
-      if (retry.has(id)) { image.removeAttribute("src"); image.src = art(id); }
+      if (retry.has(id)) {
+        image.removeAttribute("src");
+        image.src = art(id, false, image.id === "battle-friend-art" ? "back" : "front");
+      }
     }
     // Keep the dialog and its next keyboard action usable when this notice hides.
     if ($("founder-picture-help").contains(document.activeElement)) $("menu-dialog").querySelector(".close-form button").focus();
@@ -675,7 +693,7 @@
     const p = battle.fighters[battle.active];
     $("battle-friend-name").textContent = name(battle.active);
     $("battle-friend-art").dataset.pet = battle.active;
-    $("battle-friend-art").src = art(battle.active);
+    $("battle-friend-art").src = art(battle.active, false, "back");
     $("battle-friend-art").alt = name(battle.active) + " practicing";
     $("friend-hp").value = p.hp;
     $("friend-hp-text").textContent = p.hp + "/65";

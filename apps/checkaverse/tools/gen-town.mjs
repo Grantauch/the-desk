@@ -187,7 +187,7 @@ const kblob = (cx, cy, rx, ry, c, seed) => {
 };
 kblob(8, 4.5, 6.2, 2.9, 'G', 11); kblob(13, 3.5, 2.2, 1.8, 'G', 12);
 krect(12, 11, 27, 11, 'P'); krect(12, 21, 27, 21, 'P');
-krect(12, 8, 12, 21, 'P'); krect(27, 9, 27, 21, 'P');
+krect(12, 8, 12, 21, 'P'); krect(27, 11, 27, 13, 'P'); // a short link between the lanes; the Day Care sits south of it
 krect(6, 13, 32, 13, 'P'); krect(32, 8, 32, 13, 'P');
 for (let y = 12; y <= 23; y++) {
   const x = y < 17 ? 35 : 34;
@@ -208,20 +208,20 @@ for (const [s, x, y, place, off] of [
   kprop(s, x, y, 5, 3, x, y + 3, 5, place);
   const door = { x: x + off, y: y + 3, place };
   doors.push(door);
-  krect(door.x, door.y, door.x, y < 10 ? 11 : door.y + 1, 'P');
+  // Each door gets one straight lane to the nearest street, no stair steps.
+  krect(door.x, door.y, door.x, y < 10 ? 11 : y < 16 ? door.y : 21, 'P');
 }
 krect(5, 14, 6, 15, 'P');
-krect(18, 20, 18, 21, 'P'); krect(25, 20, 25, 21, 'P');
 kprop('prop-route-sign', 11, 8, 1, 1, 11, 9, 102 / 64, 'route-1');
 
-// Fences use the same footprint pattern as town props. Short end pieces can
-// overlap visually; each sprite stays at its native two tile width.
-const fence = (x, y, fw = 2, drawX = x) => kprop('prop-fence', x, y, fw, 1, drawX, y + 1, 2);
+// Fences are drawn tile by tile from the fence kit (tools/make-fence-art.py): a post on
+// every fence tile, rails to each fence neighbour, so runs turn corners and north south
+// sides look like fences rather than stacked ladders. Fence tiles are solid.
+const fences = [], gates = [];
+const kfence = (x0, y0, x1 = x0, y1 = y0) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { kset(x, y, 'H'); fences.push([x, y]); } };
 // Cemetery hill: 11 by 7, with alternating grave rows and clear walking lanes.
-for (let x = 27; x <= 35; x += 2) fence(x, 2);
-fence(37, 2, 1);
-for (let y = 3; y <= 7; y++) { fence(27, y, 1, 26); fence(37, y, 1); }
-fence(27, 8); fence(29, 8); fence(34, 8); fence(36, 8);
+kfence(27, 2, 37, 2); kfence(27, 3, 27, 7); kfence(37, 3, 37, 7);
+kfence(27, 8, 30, 8); kfence(34, 8, 37, 8);
 // The arch has solid posts and an open middle. Its sign footprint is the west
 // post, not the walkable aperture; the east post is solid too.
 kprop('kc-cemetery-gate', 31, 8, 1, 1, 31, 9, 3, 'cemetery-gate');
@@ -229,13 +229,15 @@ kset(33, 8, 'H');
 const graves = [];
 for (const y of [3, 5, 7]) for (const x of [28, 29, 30, 31, 33, 34, 35, 36]) graves.push([x, y]);
 
-// A small practice enclosure with a southern entrance off the home lane.
-for (const x of [3, 5, 7, 9]) fence(x, 18);
-for (let y = 19; y <= 22; y++) { fence(3, y, 1, 2); fence(10, y, 1); }
-fence(3, 23); fence(7, 23); fence(9, 23);
+// A small practice yard with a two leaf gate on the south side. The gate tiles stay
+// walkable; the leaves swing open on screen whenever anyone walks up to them.
+kfence(3, 18, 10, 18); kfence(3, 19, 3, 22); kfence(10, 19, 10, 22);
+kfence(3, 23, 4, 23); kfence(7, 23, 10, 23);
+gates.push({ x: 5, y: 23, w: 2 });
 krect(5, 23, 6, 23, 'P'); krect(6, 21, 6, 24, 'P');
 krect(6, 24, 12, 24, 'P'); krect(12, 21, 12, 24, 'P');
 kprop('prop-route-sign', 7, 22, 1, 1, 7, 23, 102 / 64, 'practice-yard');
+for (const [x, y] of [[4, 20], [6, 19], [8, 20]]) kprop('prop-stump', x, y, 1, 1, x + 0.1, y + 1, 0.8, 'practice-stump');
 
 // The bus and welcome sign sit just below the southern stretch of the loop.
 kprop('prop-bus-stop', 17, 23, 2, 1, 17, 24, 2, 'bus-stop-kc');
@@ -246,15 +248,42 @@ for (const [x, y] of [[29, 17], [14, 23]]) kprop('prop-bench', x, y, 2, 1, x, y 
 for (const [x, y] of [[2, 11], [30, 21]]) kprop('prop-rock', x, y, 1, 1, x, y + 1, 1, 'rock');
 for (const [x, y] of [[3, 14], [22, 20], [33, 11]]) kprop('prop-bush', x, y, 1, 1, x, y + 1, 1, 'bush');
 for (const [x, y] of [[2, 9], [10, 15], [29, 23], [37, 18]]) kprop('prop-tree', x, y, 1, 1, x, y + 1, 122 / 64);
-for (const [x, y] of [[3, 13], [9, 13], [15, 9], [21, 10], [28, 15], [31, 19], [16, 22], [23, 24]]) kset(x, y, 'F');
+// Flower patches only ever go on open grass, never in the middle of a lane.
+for (const [x, y] of [[3, 13], [8, 16], [15, 9], [21, 10], [28, 15], [31, 19], [9, 16], [23, 24]]) if (k[y][x] === '.') kset(x, y, 'F');
+
+// Roofs are solid, the Red and Blue way: a trainer can never walk behind a building
+// and vanish. Every grass tile a building's art covers above its footprint is blocked.
+const artHeight = (name) => { const b = fs.readFileSync(path.join(OUT, '..', 'public', 'art', `${name}.png`)); return b.readUInt32BE(20) / b.readUInt32BE(16); };
+for (const p of kprops) {
+  if (!['house-cottage', 'kc-store', 'kc-apothecary', 'kc-clinic', 'kc-daycare'].includes(p.s)) continue;
+  const top = Math.floor(p.b - artHeight(p.s) * p.w + 0.6);
+  for (let y = top; y < p.f[1]; y++) for (let x = p.f[0]; x < p.f[0] + p.f[2]; x++) if ('.GF'.includes(k[y][x])) kset(x, y, 'H');
+}
+
+
+ // Forage is only map data at this stage; actual item claims require server-side authority.
+const forage = [];
+for (const [id, art, x, y] of [
+  ['berry-patch', 'prop-bush', 4, 7],
+  ['creek-bank', 'prop-rock', 34, 15],
+  ['herb-garden', 'prop-bush', 13, 18],
+  ['old-stump', 'prop-rock', 14, 6],
+]) {
+  if (k[y]?.[x] !== '.') throw new Error(`Kettle forage ${id} needs open ground at ${x},${y}`);
+  kprop(art, x, y, 1, 1, x, y + 1, 1, `forage-${id}`);
+  forage.push({ id, x, y });
+}
 
 const kettle = {
   id: 'kettle',
   rows: k.map((r) => r.join('')),
   arrive: [[5, 14], [6, 14], [5, 15], [6, 15]],
   props: kprops,
+  fences,
+  gates,
   doors,
   graves,
+  forage,
   exits: [],
 };
 
@@ -282,6 +311,9 @@ const checkKettle = (occupiedGraves) => {
   for (const [x, y] of kettle.arrive) if (!reachable(x, y)) throw new Error(`Kettle unreachable arrival ${x},${y}`);
   for (const [x, y] of graves) {
     if (k[y][x] !== '.' || !neighbours(x, y).some(([nx, ny]) => reachable(nx, ny))) throw new Error(`Kettle inaccessible grave ${x},${y}`);
+  }
+  for (const { id, x, y } of forage) {
+    if (k[y][x] !== 'H' || !neighbours(x, y).some(([nx, ny]) => reachable(nx, ny))) throw new Error(`Kettle inaccessible forage ${id}`);
   }
 };
 checkKettle(false);

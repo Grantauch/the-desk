@@ -902,6 +902,8 @@ export function mountSomme(opts: MountOpts): SommeApi {
       phase = "fly";
     },
     dispose: () => {
+      // An asynchronous GLB fetch must not attach meshes after the scene is gone.
+      props.group.userData.disposed = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener("keydown", onKeyDown);

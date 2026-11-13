@@ -598,7 +598,7 @@ const quiz = [
   .idea-card p { margin-top: .5rem; color: var(--color-ink-soft); font-size: .82rem; line-height: 1.5; }
   .clear-button { display: inline-flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 1.5rem; min-height: 3rem; padding: .75rem 1rem; border: 2px solid var(--color-ink); border-radius: .5rem; background: var(--hub-color); color: white; box-shadow: 4px 4px 0 var(--color-ink); font: 700 .78rem/1.2 var(--font-mono); text-transform: lowercase; cursor: pointer; }
   .clear-button:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 var(--color-ink); }
-  .clear-button span { color: rgba(255,255,255,.72); font-size: .65rem; }
+  .clear-button span { font-size: .65rem; }
   .timeline-game { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin-top: 1.5rem; }
   .timeline-game-card { display: flex; gap: .9rem; align-items: start; padding: 1rem; border: 2px solid var(--color-line); border-radius: .65rem; background: var(--color-paper); }
   .timeline-game-card select { width: 3rem; height: 3rem; flex: 0 0 auto; border: 2px solid var(--color-ink); border-radius: .45rem; background: white; color: var(--hub-color); font: 750 1.1rem/1 var(--font-display); text-align: center; }
@@ -619,6 +619,7 @@ const quiz = [
   .flip-card strong { font: 750 1.35rem/1.2 var(--font-display); }
   .flip-card em { color: var(--hub-color); font: 700 .68rem/1 var(--font-mono); font-style: normal; }
   .flip-back { transform: rotateX(90deg); opacity: 0; background: var(--color-ink); color: white; }
+  .flip-back small, .flip-back em { color: inherit; }
   .flip-back strong { font: 500 .88rem/1.5 var(--font-sans); }
   .flip-card.is-flipped .flip-front { transform: rotateX(-90deg); opacity: 0; }
   .flip-card.is-flipped .flip-back { transform: rotateX(0); opacity: 1; }
@@ -655,7 +656,7 @@ const quiz = [
   .badge-burst { display: grid; place-items: center; width: 5rem; height: 5rem; margin: 0 auto 1rem; border: 2px solid white; border-radius: 50%; background: var(--color-ink); font-size: 2rem; box-shadow: 0 0 0 .55rem color-mix(in srgb, white 20%, transparent); }
   .completion-card > p:first-of-type { font: 700 .7rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .15em; }
   .completion-card h2 { margin-top: .6rem; font: 750 clamp(2rem, 5vw, 3.5rem)/1 var(--font-display); }
-  .completion-card h2 + p { max-width: 38rem; margin: .8rem auto 0; color: rgba(255,255,255,.8); }
+  .completion-card h2 + p { max-width: 38rem; margin: .8rem auto 0; }
   .completion-card a { display: inline-block; margin-top: 1.4rem; padding: .85rem 1rem; border: 2px solid white; border-radius: .5rem; color: white; font: 700 .75rem/1 var(--font-mono); }
   .unit-pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
   .unit-pager a { padding: 1rem; border: 2px solid var(--color-ink); border-radius: .65rem; color: var(--hub-color); font: 700 .7rem/1.2 var(--font-mono); text-transform: lowercase; }

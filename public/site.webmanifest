@@ -1,0 +1,24 @@
+{
+  "name": "the desk",
+  "short_name": "the desk",
+  "description": "Home base for us history, hidden history, and beyond the scoreboard.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1f2ce6",
+  "background_color": "#fafaf7",
+  "lang": "en",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Daily check-in", "short_name": "check-in", "url": "/check-in/", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Hall pass", "short_name": "hall pass", "url": "/pass/", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Today", "short_name": "today", "url": "/announcements/", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
