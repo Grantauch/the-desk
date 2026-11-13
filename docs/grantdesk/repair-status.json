@@ -1,4 +1,272 @@
 {
+  "student-discovery-2026-11-12": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Reconcile 109 root-level hub HTML files and disposition 13 catalog exceptions; publish safe navigation additions only.",
+    "verification_status": "FULL_CANONICAL_72_MAIN_78_EXTENDED_AND_FOCUSED_BROWSER_PASSED",
+    "deployment_status": "PROTECTED_BUILD_MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "REAL_TEACHER_HOSTED_ROOM_AND_SCHOOL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Baseline main dda9945033e04df136f8602e1395b7eab44cf104: 109 root HTML files, 96 catalog references and 13 exceptions; all 13 production direct URLs returned HTTP 200.",
+      "Games adds the student Jeopardy buzzer and repaired Constitution Day case files. Prototype lab is removed from game discovery; U.S. History replaces Jeopardy V2 with V3 and removes prototype Situation Room. V2 is removed from the sitemap; original URLs remain intact.",
+      "Constitution Day no longer reads or writes browser-wide identity/answer storage; original q: save keys are preserved. Synthetic Chromium checks at 320, 390 and 1440 cover tab recovery, new-tab isolation, clear persistence, three course panels, labels, navigation and failed buzzer joins.",
+      "Detailed dispositions and the complete baseline inventory: docs/student-discovery-audit-2026-11-12.md. Held activities are not claimed repaired."
+    ]
+  },
+  "atlas-visual-polish-2026-11-11": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Atlas cloud, country labels and facts, teaching controls and measurement polish.",
+    "verification_status": "PROTECTED_BROWSER_CHECK_PENDING",
+    "deployment_status": "PRODUCTION_READBACK_PENDING",
+    "field_status": "SCHOOL_CHROMEBOOK_PERFORMANCE_PENDING",
+    "evidence": [
+      "The browser uses one moving cloud mask and one surface shadow. Country labels use interior points in the active border snapshot.",
+      "The distance tool shows two labeled pins, a great-circle arc and explicit clear and exit controls."
+    ]
+  },
+  "atlas-orbital-events-2026-11-11": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Seven orbital scenes, visibility-based idle rotation, era filtering, replay and a static reduced-motion view.",
+    "verification_status": "ATLAS_UNIT_CHECKS_AND_SITE_BUILD_PASSED",
+    "deployment_status": "PROTECTED_BUILD_AND_PRODUCTION_READBACK_REQUIRED",
+    "evidence": [
+      "Scene scheduling and year eligibility are tested independently from WebGL."
+    ]
+  },
+  "atlas-atmosphere-2026-11-11": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Cinematic Atlas relief, atmosphere and homepage glass, country profiles, six historical border snapshots, and two-point globe measurement.",
+    "verification_status": "ATLAS_UNIT_CHECKS_AND_SITE_BUILD_PASSED",
+    "deployment_status": "PROTECTED_BUILD_AND_PRODUCTION_READBACK_REQUIRED",
+    "field_status": "SCHOOL_CHROMEBOOK_PERFORMANCE_PENDING",
+    "evidence": [
+      "Atmosphere and cloud changes reuse the existing render passes and textures.",
+      "Local Chromium could not start because the runner denied its process socket. Protected browser verification is required."
+    ]
+  },
+  "ready-v1-2026-11-09": {
+    "status": "FORWARD_PORTED",
+    "owner": "Codex",
+    "scope": "Browser-local Ready Snapshot viewer and labeled sample at /ready/.",
+    "verification_status": "SNAPSHOT_UNIT_CHECKS_AND_SYNTHETIC_BROWSER_JOURNEY_IN_RELEASE_SUITES",
+    "deployment_status": "PROTECTED_BUILD_AND_PRODUCTION_READBACK_REQUIRED",
+    "field_status": "GOCLASSROOM_SCANNER_SEPARATE",
+    "evidence": [
+      "PR #86 viewer only. Invalid imports clear stale results, and late file reads cannot undo a clear or newer selection."
+    ]
+  },
+  "resource-access-2026-11-06": {
+    "status": "REPAIRED_READBACK_VERIFIED",
+    "owner": "Codex",
+    "scope": "School-domain viewer access repaired for 23 linked lessons; held station-sheet draft truthfully marked coming-soon.",
+    "verification_status": "128_IDS_RESOLVED_23_PERMISSION_READBACKS_CONFIRMED_CATALOG_BUILD_STATIC_AND_FULL_CANONICAL_PASSED",
+    "deployment_status": "DRIVE_PERMISSIONS_SAVED_CATALOG_PROTECTED_PROMOTION_PENDING",
+    "field_status": "GROUP_SHARED_RESOURCE_INTENDED_STUDENT_ACCOUNT_ACCEPTANCE_PENDING",
+    "evidence": [
+      "Existing named grants preserved; link discovery disabled and no broad public sharing.",
+      "Catalog: 136 records, 127 links and nine coming-soon entries. Explicitly unreviewed draft stays private.",
+      "Private student and permission-recipient identifiers excluded from git."
+    ]
+  },
+  "publication-completion-2026-11-06": {
+    "status": "INTEGRATED_LOCAL_VERIFIED_PROTECTED_CI_PENDING",
+    "owner": "Codex",
+    "scope": "Remaining WWI trench models, Kettle Creek graphics within the Design Bible, current assistant navigation and unpublished-work inventory.",
+    "verification_status": "FULL_CANONICAL_PASSED_PROTECTED_SUPPLY_FADE_POLL_TIMEOUT_RECHECK_PENDING",
+    "deployment_status": "REVIEW_BRANCH_ONLY_NETLIFY_AND_SEPARATE_GAME_RUNTIME_PENDING",
+    "field_status": "SCHOOL_NETWORK_AND_PHYSICAL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production baseline 0987512a2715aa36bf5bcbb6edbdaeeaf3604771 independently matched main before this release; older skipped builds were superseded.",
+      "Museum supply and fallback journeys passed at 1366 and390 pixels. Visual review exposed the delayed return fade; its fix has a direct visibility assertion.",
+      "Protected run 42330229902 passed full verification and earlier browser stages, then timed out polling the supply-tour return fade. Both museum tests now assert the cleared finale state and at-most-one-second configured return transition separately from settling to zero opacity; product behavior is unchanged.",
+      "The living-world browser suite now compares visible wilds residents against received authoritative snapshots, since residents commute through homes and maps.",
+      "TheAtlas is offline in Desktop Commander. No live game files/processes/private storage or Hall Pass Apps Script, PINs or directory were changed. See docs/publication-readiness-2026-11-06.md."
+    ]
+  },
+  "wwi-trench-supply-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Replace three trench rifle sticks with M1903/M1905 Blender reconstructions and four plain cases with timber supply props; stack the overlapping entry cases.",
+    "verification_status": "CHROME_1366_AND_390_SIX_OPTIONAL_UPGRADES_ALL_STOPS_SCOPE_LADDER_AND_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Original editable Blender sources and repeatable generator; two no-texture GLBs total165148 bytes, with5 material batches each and5086 triangles across the two source models. Geometry/materials are shared across placed copies.",
+      "Both viewport journeys load all six optional asset classes with no uncaught errors/model warnings, traverse seven stops, use periscope/Escape, climb and return. Separate rifle/case HTTP404 cases preserve their own original fallback while all other replacements load.",
+      "Two previously coincident cases now stack; no collision, reading-text, save, camera or interaction code changes. The intro and asset record identify display reconstructions and period/source limitations."
+    ]
+  },
+  "wwi-trench-observation-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "M1917 and Adrian helmets plus wooden WWI trench periscope in Over the Top, with editable Blender sources and independent load-failure fallbacks.",
+    "verification_status": "CHROME_1366_AND_390_ALL_STOPS_PERISCOPE_LADDER_AND_THREE_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Blender 5.2.3 exports total 6192 triangles across three assets: M1917 2280, Adrian 2076 and periscope 1836; GLBs total 177684 bytes with no textures.",
+      "Both viewport journeys loaded all four optional upgrades, traversed every stop, entered/exited the periscope, climbed the ladder and returned to the trench with no page errors or model warnings.",
+      "Each new model was separately forced to HTTP404. Its original prop remained while the other replacements loaded, and navigation still reached stop7.",
+      "Five placed helmets clone shared geometry/materials. Existing scene, stop text, camera and sandbag instancing are retained. Museum reference and reconstruction-scale limitations are recorded in assets/wwi-blender/README.md."
+    ]
+  },
+  "website-credit-recovery-2026-11-04": {
+    "status": "LIVE_CONTENT_VERIFIED_MAIN_REDEPLOY_PENDING",
+    "owner": "Codex",
+    "scope": "Audit skipped website releases after Netlify credits were restored; preserve the museum and Michael Vick releases on protected main.",
+    "verification_status": "PRODUCTION_ROUTES_AND_RELEASE_ANCESTRY_VERIFIED",
+    "deployment_status": "PUBLISHED_PREVIEW_TREE_EQUALS_MAIN_PRODUCTION_REBUILD_PENDING",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Published deploy 6aeaa05ad8b5c5a8828b82b6 serves commit 692e657ea5d182dfb61ebda8a06b982164c2a2df. Its Git tree e6a785806234d28112e1f7d1af620a2b9ae209be exactly equals main merge 029a951c28097eb1cb828bf655fce013521c515b after PR311.",
+      "Main includes all 19 commits since the previous November 2 production baseline 3a3d0114a9655e485ea588df30fef1875fd86449 with no divergence. Superseded skipped builds do not need to be replayed.",
+      "Production GET checks returned HTTP200 for home, StoryHubs, US History, both Michael Vick pages, The Arsenal, Over the Top and Over the Somme. Prior production browser verification loaded all ten Arsenal GLBs and the Blender trench sandbags without page errors or model warnings.",
+      "The separate Checkaverse public health endpoint reports healthy version 0.15.0. This website release does not deploy that server, Apps Script or unfinished experimental pull requests."
+    ]
+  },
+  "hall-pass-published-link-recovery-2026-11-05": {
+    "status": "FIXED_LOCALLY_PROTECTED_REVIEW_PENDING",
+    "owner": "Codex",
+    "scope": "Finish fresh teacher setup when Google reports an editor-only /dev URL after publication.",
+    "verification_status": "445_RUNTIME_CHECKS_AND_SETUP_BROWSER_PASS_CANONICAL_AND_PROTECTED_PENDING",
+    "deployment_status": "FOLLOWUP_NOT_YET_PUBLISHED",
+    "field_status": "FRESH_FOLLOWUP_COPY_AND_SECOND_TEACHER_CHROMEBOOK_PENDING",
+    "evidence": [
+      "PR 322 merged as 60eecb1e12f9890e951012f20617f40b766e8a0d with the identical protected-tested tree. Template publication 42132761794 read back all seven files; Netlify 6aed16d3db9dfd32ea7525ea published that merge.",
+      "Actual school-account blank-copy check loaded and saved the wizard and opened a zero-student dashboard. Google returned /dev in editor context and an unusable /exec address from setup; editor metadata cannot prove a usable deployment. No real student record or classroom deployment was used.",
+      "The fallback opens the pasted /exec in its own authenticated owner context. Only the published app can record its own Google-reported /exec URL, bound to its script identity. The wizard separately saves after matching deployment IDs. Another copy, unproved editor /exec metadata, /dev, malformed or inherited receipt cannot complete setup. Legacy school URLs normalize to the Deploy-dialog path.",
+      "No new Google service, OAuth scope, public access policy or finished kit publication. The existing classroom deployment is not updated by template publication. Graphics and game behavior remain separate.",
+      "445 runtime behaviors and focused actual-HTML Chromium checks pass, including fallback not-yet-verified refusal, changed-input reset, retry, WCAG A/AA and phone/dialog fit. Full canonical and protected checks remain required before merge."
+    ]
+  },
+  "hall-pass-visible-setup-wrapper-2026-11-05": {
+    "status": "IMPLEMENTED_FOCUSED_VERIFIED_FULL_RELEASE_CHECK_RUNNING",
+    "owner": "Codex",
+    "scope": "Visible setup entry and app-first daily use for teachers whose Sheets toolbar is collapsed.",
+    "verification_status": "442_RUNTIME_CHECKS_AND_PACKAGE_NEGATIVES_PASS_FULL_GATE_AND_NEW_BROWSER_ACCEPTANCE_PENDING",
+    "deployment_status": "NOT_YET_PUBLISHED",
+    "field_status": "CLEAN_SCHOOL_ACCOUNT_BUTTON_AUTHORIZATION_AND_MANAGED_DOOR_DEVICE_PENDING",
+    "evidence": [
+      "Opening page contains a local clickable image assigned to the setup function; no hidden-menu dependency or remote image request. Reopens do not stack buttons. Existing initialized workbooks without this owned front door are left alone.",
+      "Opening page survives initialization and holds this copy’s verified teacher-dashboard and door-kiosk links. Daily work stays in the existing app.",
+      "Find my app link replaces the required URL paste. Save rejects missing deployments and other-copy deployment IDs; school-domain and ordinary URL forms for the same deployment are accepted.",
+      "Wizard shows the school account, supplies the owner-authorized Mt. Morris student-email ending, retains 1–5 pass capacity, and describes links ready separately from roster/access/device acceptance.",
+      "Phone fit and accessible link labels, direct kiosk open, browser-first guide, optional Windows integration and older-copy collapsed-toolbar fallback are covered in the change. New browser execution is required before promotion.",
+      "442 synthetic runtime checks and the source/package/tamper suites pass. Actual Google consent, drawing execution in a fresh school-account copy and second-teacher Chromebook acceptance are not certified.",
+      "Focused Chromium run 42124188205 passed the wrapper’s failure/retry, own-link discovery, direct app links, completion-state, phone/dialog fit and WCAG A/AA checks, plus the existing resident journey. Screenshots were visually inspected; the teacher dashboard was then moved above sharing links so the daily app is first. Final-head acceptance remains required.",
+      "No production deployment, current student credentials, public RC1 ZIP or independent teacher copy changed. Distribution remains held at the owner’s request pending quality review."
+    ]
+  },
+  "hall-pass-setup-recovery-2026-11-05": {
+    "status": "IMPLEMENTED_FOCUSED_BROWSER_VERIFIED_PENDING_PROTECTED_CI",
+    "owner": "Codex",
+    "scope": "Stop the teacher setup wizard after a failed initial settings read, provide account recovery and explicit retry, and update setup guidance.",
+    "verification_status": "LOCAL_CANONICAL_AND_ISOLATED_SETUP_AND_NAMED_VISITOR_JOURNEY_PASS_PROTECTED_RECHECK_PENDING",
+    "deployment_status": "PROTECTED_SOURCE_TEMPLATE_AND_SITE_PROMOTION_PENDING",
+    "field_status": "SECOND_TEACHER_PERMISSION_RECOVERY_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Screenshot shows Google storage PERMISSION_DENIED; old failure handler opened an empty About form and enabled Next.",
+      "Recovery blocks setup navigation until valid settings load. Failed later saves preserve answers on the current screen.",
+      "Google documents unsupported multi-account sign-in; school-only Chrome profile/one-account Incognito is a possible recovery, not a confirmed account diagnosis.",
+      "Template fixes reach new copies; current copies need environmental recovery or their own source update. No policy weakening, guessed OAuth scopes, property clearing or tab deletion.",
+      "The owner requested the setup repair. Finished installer field acceptance remains a separate gate. No private school data or credentials are present in this batch.",
+      "Focused Hall Pass verification passes: 441 runtime behaviors, structural/handoff checks, independent-room directory tests, actual setup handlers and deterministic package negative tests. Local Chrome startup is blocked by the execution environment; actual-HTML browser coverage remains required in protected CI.",
+      "Full local canonical npm run verify passed: zero diagnostic errors/warnings, 54 routes, 167 HTML files, 5464 local references and 32 sealed releases/244 assets. Tracked source remained unchanged.",
+      "Actual setup HTML passed isolated Chromium run 42104433254 at phone/dialog widths: denial/retry, malformed responses, blocked navigation, preserved save answers, step progress and WCAG A/AA. Recovery screenshot visually reviewed.",
+      "Protected run 42101937464 passed full verification twice but stopped before Hall Pass browser acceptance on the unchanged visitor/resident canvas-tap timeout. The fixture now waits for a current-room, visible, unobstructed, stationary resident before sampling coordinates, then still requires a real tap and the correct conversation. Phase 3 / core loop step 4; no game behavior changed.",
+      "Isolated run 42107816045 passed the updated visitor fixture and Hall Pass tests. New-head protected acceptance, template publication and exact site readback remain pending.",
+      "Run 42108213097 exposed overlapping residents: a canvas tap opened Orin instead of Tess. Visitor story acceptance now uses the visible directory Find and talk control and verifies the intended name; it walks out of a resident home when necessary and retains found/done story, gate, wilds and direct canvas-tap coverage. Isolated run 42117676572 passed this journey and Hall Pass setup acceptance. No gameplay code changes."
+    ]
+  },
+  "hall-pass-clean-release-gate-2026-11-04": {
+    "status": "SOURCE_REVIEW_AUTHORIZED_FIELD_RELEASE_BLOCKED",
+    "owner": "Codex",
+    "scope": "Issue 319: package-only RC2 setup, offline preflight, exact-ZIP operator evidence, recovery and clean-environment gap assessment. Application source unchanged. Historical preparation record; November 5 template recovery follow-up is tracked separately.",
+    "verification_status": "FULL_LOCAL_CANONICAL_AND_PACKAGE_PASS_FIELD_GATE_BLOCKED",
+    "deployment_status": "NONE_NO_PRODUCTION_TEMPLATE_PUBLIC_DOWNLOAD_OR_PIN_CHANGES",
+    "handoff_status": "NOVEMBER_5_SETUP_REPAIR_PROMOTION_AUTHORIZED_FINISHED_KIT_FIELD_RELEASE_STILL_BLOCKED",
+    "field_status": "CLEAN_LOCAL_EXTRACTION_SECOND_SCHOOL_ACCOUNT_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Built package 1.0.0-rc.2 containing unchanged application 1.0.0-rc.1. Builder refuses public output, unexpected/symlinked inputs and embedded deployment endpoints/common Google token forms; source manifest retains exact and editor-normalized hashes.",
+      "Full canonical npm run verify passed (exit 0): diagnostics 0 errors / 0 warnings; static validation 167 HTML files / 5464 local references; 32 StoryHub releases / 244 sealed assets. Hall Pass verification passes 441 runtime behaviors, independent-room shared-directory checks and package tests. Kit tests reject changed/missing/extra/duplicate files, archive path escape, stale field results, altered artifact evidence and forged approval flags. Five private roster-validator tests pass without reading actual school data.",
+      "Chrome HTTP preview renders setup/preflight and generates synthetic links. Actual native local-file flow is unverified: cloud browser file-protocol navigation is blocked by URL policy; no workaround attempted.",
+      "Release blockers: centrally managed software updates, explicit stable identity/version references and duplicate-name exception workflow, district credential-reuse authorization, exact-template verification and two-account managed-Chromebook acceptance. Existing RC1 public source artifact is unchanged and not certified by this work.",
+      "Candidate SHA-256 f4ee14cf915e12f667b16ccbfcec4da3de8a00510f6e63eb071a008d1946b1c8; no binary published. Readiness map: docs/hall-pass-release-readiness.md. Distribution and production cutover remain unapproved."
+    ]
+  },
+  "hall-pass-school-directory-2026-11-04": {
+    "status": "MERGED_RELEASE_IN_PROGRESS",
+    "owner": "Codex",
+    "scope": "Private shared school directory, exact five/six-digit lunch PINs, independent classroom enrollments, Chromebook kiosk and downloadable teacher kit.",
+    "verification_status": "CANONICAL_AND_ALL_PROTECTED_BROWSER_GATES_PASS",
+    "deployment_status": "PR_320_MERGED_TURNIN_DEPLOYED_HALL_PASS_AND_SITE_IN_PROGRESS_TEMPLATE_TARGET_FIX_PENDING",
+    "field_status": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Separate private directory imports create no classroom memberships. Email links use exact school numbers; connection refuses incomplete active-roster mappings.",
+      "Independent teacher workbooks derive credentials from the same directory; corrections and revocations invalidate identity sessions. Private pass histories remain isolated.",
+      "Server-derived persistent attempt budgets survive client nonce rotation. Kiosk clears PINs on submission and student details after completion.",
+      "Teacher kit includes complete source, launcher, version, recovery instructions and checksums. Google consent/deployment and real field acceptance remain required.",
+      "Turn In and shared work-panel gates accept exact five/six-digit PINs and use the same school directory. No live student credential cutover has been performed.",
+      "Protected run 41890821777 passed every gate on 0752f94724bb50cdeeec3bff4c4827d44e35130a; PR 320 merged as 22bd8c717fb51da475f9065dad986eb7a02b7e69. Turn In release 41895602732 succeeded. Other deployment and signed-in smoke evidence remain separate.",
+      "Template publication refused an empty target before mutation. Owner-only issue release now supplies the existing published blank template as fallback and verifies its spreadsheet binding. Corrective protected checks and actual template publication remain pending."
+    ]
+  },
+  "checkaverse-resident-lives-2026-11-02": {
+    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "User-authorized core loop step 4: all 12 NPCs have visitable homes, actual work/travel/rest/social actions, shared server state, persistent private Kettle histories and dialogue grounded in those activities.",
+    "verification_status": "ALL_LOCAL_CANONICAL_ENGINE_SERVER_RESTART_BOTH_BROWSER_ACCESSIBILITY_PASSED",
+    "deployment_status": "PENDING_PROTECTED_CHECK_MERGE_AND_CHECKAVERSE_PUBLIC_READBACK",
+    "field_status": "SCHOOL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Tiled JSON south-lane extensions add 12 named cottages and interiors, preserve original map rows/buildings/doors/graves/forage locations and all 24 player plots, and reject attempts to overwrite the existing map.",
+      "Pax collects, carries and delivers clinic parcels; Nell receives them. Every delivery is conserved as received or waiting. Watering, sweeping, stock displays, inspections, observations, notes and social memories change real resident state. Work effects occur after the activity completes.",
+      "Two real WebSocket clients agree on shared positions/tasks/results. Private resident histories and interaction holds are isolated. Teacher pause freezes the clocks. Jobs/memories survive a real process restart and saved-account reconnect. Actual walking enters/exits named homes, and remote-entry messages cannot teleport.",
+      "Browser journeys enter Pax\u2019s home, wait for his return, check dialogue against his completed delivery, follow current whereabouts through homes and the wilds gate, verify carried parcels and Nell\u2019s receipts, and compare quiet/ordinary clients. Dialog WCAG A/AA and phone fit pass. Final frozen-source diagnostics, full server suite and both browser suites passed.",
+      "The canonical local verify command completed successfully: zero diagnostic errors/warnings, 54 built routes, 162 HTML files, 5423 local references and 30 releases/231 assets. Core school services, attendance, pet schemas/care/growth, battle rewards and merchant inventory remain unchanged. New data uses resident-only meta namespaces and anonymous scope keys."
+    ]
+  },
+  "checkaverse-living-world-2026-11-02": {
+    "status": "LIVE_VERIFIED",
+    "owner": "Codex",
+    "scope": "Core loop step 4, existing phase 3 exploration: consistent walking direction, connected dirt paths, meadow detail, 12 residents, branching conversations, three visit-local stories and bounded environmental effects.",
+    "verification_status": "ALL_LOCAL_STAGES_AFTER_WINDOWS_IMPORT_FIX_AND_PROTECTED_FULL_AND_BROWSER_PASSED",
+    "deployment_status": "CHECKAVERSE_0_14_0_PUBLIC_HEALTH_HASHES_AND_VISITOR_PLAYTHROUGH_VERIFIED",
+    "field_status": "SCHOOL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Source sheets contain an opposite-facing third frame in each left walk row; the renderer corrects that cell and mirrors the consistent gait for right. Original art is preserved.",
+      "All 12 routes, dialogue links and three story targets validate and are reachable. Unsafe content is rejected at server startup.",
+      "World clock and ambient movement stop for teacher pause, hidden tabs, battles and modal conversations. System reduced motion and a scenery switch retain static residents and usable story targets.",
+      "Chromium playthrough at 1366x768, 390x844 and 320x740 covers walking, sprite approach, dialogue choices, focus, Escape, story return, journal, teacher pause, quiet scenery and town/wilds travel. All three complete stories, all 16 path connection masks and new dialog WCAG A/AA audits pass at all three sizes with no browser errors.",
+      "No map generator, map geometry, creature artwork, species, database schema, school service, care rule, item balance or battle reward changes. Stories remain local to the visit.",
+      "Protected run 41395928338 passed the full site gate, new Checkaverse server/browser suite and all existing browser suites. The merged tree equals the tested head. Public 0.14.0 health, exact versioned JS/CSS hashes and a visitor walking/Orin conversation passed with no browser errors.",
+      "The first local canonical run found an existing Windows drive-path ESM import in the ticket test. The pathToFileURL fix passes all 70 Checkling/ticket checks; all remaining canonical stages then passed, with zero diagnostic errors/warnings, 54 built routes and 162 HTML / 5423 local references. No earlier failed run is called a pass."
+    ],
+    "release": {
+      "pull_request": 298,
+      "tested_head": "8d45ca692691313eeb11cf35fd078e9805f41c15",
+      "protected_run": 41395928338,
+      "merge": "3a3d0114a9655e485ea588df30fef1875fd86449",
+      "public_origin": "https://game.grant-desk.com",
+      "verified_at": "2026-11-02T06:22:53.118Z"
+    }
+  },
+  "learning-hub-contrast-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Improve Learning Hub contrast across course themes and interactive states.",
+    "verification_status": "28_CHROMIUM_CONTRAST_CASES_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "ASSISTIVE_TECHNOLOGY_AND_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production axe reported contrast failures in all six Beyond the Scoreboard and all six Hidden History learning units. Interactive testing also found insufficient contrast on the backs of flipped vocabulary cards.",
+      "Darkened the Beyond the Scoreboard theme green and gave secondary text on solid action, completion and vocabulary surfaces the foreground color of the parent.",
+      "All 22 unit launch pages pass the Chromium contrast rule at 390 pixels. Six additional cases check flipped cards, selected decisions and the completion panel at 320 and 1440 pixels."
+    ]
+  },
   "heel-personal-report-2026-10-30": {
     "status": "IMPLEMENTED_BROWSER_VERIFIED",
     "owner": "Codex",
@@ -1156,6 +1424,32 @@
       "Real classroom field cycle"
     ]
   },
+  "mobile-lesson-reflow-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Remove horizontal page scrolling on eight classroom launch pages and keep the mobile Explore menu inside the viewport.",
+    "verification_status": "LAYOUT_REGRESSIONS_ADDED_PROTECTED_REVIEW_PENDING",
+    "deployment_status": "NETLIFY_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production Chromium checks showed overflow at 320 or 390 pixels across the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and three review guides.",
+      "Changes cover the sticky progress bar, heading, stamp effect, game artwork, evidence-chain layout and guide-card track sizing. Browser coverage checks all eight routes at 320, 390 and 1440 pixels.",
+      "On production at 320 and 390 pixels, the last Explore menu link remained partly beyond the bottom edge even after scrolling the menu to its limit. The height now leaves room for the sticky header. The browser regression opens Explore by keyboard, scrolls to the last link and follows it.",
+      "The sealed USH9 L014 drawer finding is tracked separately from this layout batch."
+    ]
+  },
+  "hh-dont-worry-about-it-reflow-2026-11-08": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Keep the Don’t Worry About It student header within a narrow viewport.",
+    "verification_status": "NARROW_FONT_METRICS_REGRESSION_ADDED",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production Chromium measured a 326-pixel document at a 320-pixel viewport after the web fonts finished loading. The Name and Hour flex items extended outside the header.",
+      "Allow the label flex items to shrink, using the existing input sizing. The regression enlarges the input font in an offline browser fixture and checks the field bounds and separate map scrolling."
+    ]
+  },
   "website_design_20260907": {
     "base": "d18e7c126e53b187713dc9bb83e31c2eaea5f424",
     "scope": "Public website presentation and navigation only",
@@ -1382,6 +1676,19 @@
       "Authenticated Version 41 synthetic smoke passed: ok=true, request=STARTED, return=RETURNED_COUNTABLE, evidenceUsed=1, testPassVoided=true, testMembershipDeactivated=true, productionFactsUnchanged=true and syntheticOnly=true. Schema/client contract match the release. Private test workbook URL and real student details are omitted. Actual classroom use remains FIELD_PENDING."
     ]
   },
+  "ush9-l014-readable-type-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Fit the sealed Unions and Collective Bargaining StoryHub headings and statistic across viewports.",
+    "verification_status": "STORYHUB_BUILD_AND_FOUR_BROWSER_CASES_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production overflow persisted after removing the off-canvas drawer. Chromium text ranges isolated oversized headings and the membership statistic.",
+      "Bounded responsive type, allowed a fallback wrap on headings and improved contrast for chapter numbers and footer labels. Resealed only USH9-L014; the original source fingerprint and imagery remain in the manifest.",
+      "Focused StoryHub verification and four Chromium checks passed at 320, 390 and 1440 pixels, including reduced motion and automated WCAG A/AA."
+    ]
+  },
   "storyhub_work_controls_20261026": {
     "status": "SOURCE_REPAIRED_FOCUSED_VERIFIED_PROTECTED_PENDING",
     "owner": "Codex",
@@ -1423,6 +1730,38 @@
       "Current issue #28 release authority, Pixel Camp integration and later repair records preserved; unfinished drafts excluded.",
       "Exact protected checks, merge and Netlify production commit must be read independently.",
       "Full canonical npm run verify passed: Astro zero errors/warnings; 54 generated routes; 155 HTML files and 5233 references validated; 27 releases and 193 sealed files verified. Protected browser/combined-source CI remains required."
+    ]
+  },
+  "wwi-museums-2026-11-04": {
+    "status": "ALL_ARSENAL_AND_TRENCH_SANDBAGS_IMPLEMENTED",
+    "verification_status": "BATCH1_FULL_LOCAL_AND_WEBGL_PASSED_PROTECTED_PENDING",
+    "deployment_status": "ROUTES_RESTORED_BATCH1_PENDING",
+    "field_status": "FIELD_PENDING",
+    "summary": "Restore missing WWI museum routes by publishing the already-built merged PR 305 release; add Blender Vickers, QF18 and Sopwith Camel reconstructions with original-object fallbacks.",
+    "evidence": [
+      "Netlify production builds 6ae9ee5171fb2bfc5513f80e and 6aea8bae11a3899574df700f were skipped for account credit exhaustion.",
+      "Published existing ready deploy 6aea7da4775e0c260094143d at 2026-11-04T01:43:30.298Z; both museum HTML and extensionless routes and both original Arsenal GLBs returned HTTP 200.",
+      "New Blender exports: Vickers 111012 bytes / 3908 triangles / 7 batches; QF18 130308 / 4812 / 6; Camel 197128 / 7776 / 10. New batch verification and deployment are separate from route recovery.",
+      "PR #307: four WebGL scenarios passed at 1440x900 and 1366x768 with original-asset 404 fallbacks, zero uncaught errors, all five model requests accounted for; full local npm run verify passed (165 HTML / 5429 references).",
+      "Batch 2 adds SBR, barbed wire and Wex with gas/flame effects retained; focused validation pending.",
+      "Batch 2 four desktop/Chromebook WebGL scenarios passed: all eight model requests and all eight synthetic fallback loads, no uncaught errors. Visual inspection prompted alignment of the retained flame effect to the new lance.",
+      "Batch 3 adds Zeppelin and U-boat with editable Blender sources, 6/7 batches and 703800 combined GLB bytes; new-batch focused and protected validation pending.",
+      "Over the Top sandbag model is 1924 bytes / 44 triangles / one batch; geometry replaces the existing two InstancedMeshes and retains all instance transforms and original load-failure geometry. Trench model browser checks pending.",
+      "All ten Arsenal GLBs passed success/failure desktop and Chromebook-viewport scenarios with no uncaught errors before final ship winding correction; final corrected-ship rerun pending.",
+      "Trench model initial four scenarios passed all seven stops, trench-parts controls and original fallback. Software-renderer timing prompted reducing per-bag geometry from 252 to 44 triangles; final repeat pending."
+    ]
+  },
+  "curiosity-archive-outage-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Keep the five Curiosity Desk collections usable during a live catalog outage.",
+    "verification_status": "LOCAL_CHROMIUM_OUTAGE_AND_RECOVERY_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "SCHOOL_NETWORK_AND_EXTERNAL_CATALOG_ACCESS_PENDING",
+    "evidence": [
+      "Scheduled production health run 42278965733 failed on HTTP 502. Anonymous requests independently returned 502 and no records for power, entertainment, sports, mysteries, and Michigan.",
+      "Each collection has a selected archive artifact with a local optimized image, distinct source and status labels, an evidence prompt, and a link to the holding institution. Live records still load on demand.",
+      "Six Chromium cases at 320, 390 and 1440 pixels cover an outage, keyboard reveal, responsive layout, automated WCAG A/AA, and a delayed response that preserves open context. The production feed health check still reports upstream failures."
     ]
   }
 }

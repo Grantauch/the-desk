@@ -1,0 +1,866 @@
+{
+  "version": 1,
+  "stepMs": 400,
+  "catchupSeconds": 600,
+  "seed": 17011,
+  "residents": [
+    {
+      "id": "rowan",
+      "homeMap": "kettle",
+      "homeDescription": "A trail map hangs above a notebook full of carefully numbered leaves.",
+      "homeTitle": "Rowan’s home",
+      "workResult": "cleared trail sections",
+      "initialDelay": 0,
+      "stages": [
+        {
+          "id": "work",
+          "map": "kettle",
+          "at": [
+            10,
+            9
+          ],
+          "label": "Working at the Route 1 verge",
+          "action": "sweep",
+          "seconds": 14,
+          "speech": "I am clearing fallen leaves off the Route 1 approach.",
+          "result": "cleared trail sections",
+          "complete": "The trail approach is clear again.",
+          "tool": "rake"
+        },
+        {
+          "id": "visit",
+          "map": "kettle",
+          "at": [
+            31,
+            10
+          ],
+          "label": "Visiting Mara",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Mara.",
+          "friend": "mara",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:rowan",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Writing trail notes",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "kettle",
+          "at": [
+            10,
+            10
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "map"
+    },
+    {
+      "id": "nell",
+      "homeMap": "kettle",
+      "homeDescription": "Pressed mint leaves, a watering can and clinic-garden notes fill the little desk.",
+      "homeTitle": "Nell’s home",
+      "workResult": "watered garden beds",
+      "initialDelay": 2,
+      "stages": [
+        {
+          "id": "work",
+          "map": "kettle",
+          "at": [
+            15,
+            19
+          ],
+          "label": "Working at the clinic garden",
+          "action": "water",
+          "seconds": 14,
+          "speech": "These clinic beds need a careful drink, then I will leave them alone.",
+          "result": "watered garden beds",
+          "complete": "The clinic beds are watered.",
+          "tool": "can"
+        },
+        {
+          "id": "visit",
+          "map": "kettle",
+          "at": [
+            17,
+            19
+          ],
+          "label": "Visiting Pax",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Pax.",
+          "friend": "pax",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:nell",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Reading the garden notebook",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "kettle",
+          "at": [
+            15,
+            19
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "can"
+    },
+    {
+      "id": "ivo",
+      "homeMap": "kettle",
+      "homeDescription": "A creek sketch and a stack of fish-counting notebooks sit beside the bed.",
+      "homeTitle": "Ivo’s home",
+      "workResult": "creek observations",
+      "initialDelay": 4,
+      "stages": [
+        {
+          "id": "work",
+          "map": "kettle",
+          "at": [
+            32,
+            16
+          ],
+          "label": "Working at the creek bank",
+          "action": "observe",
+          "seconds": 14,
+          "speech": "I am watching the little fish and putting the sightings in my notebook.",
+          "result": "creek observations",
+          "complete": "Another creek observation is in the notebook.",
+          "tool": "book"
+        },
+        {
+          "id": "visit",
+          "map": "kettle",
+          "at": [
+            15,
+            19
+          ],
+          "label": "Visiting Nell",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Nell.",
+          "friend": "nell",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:ivo",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Updating the creek notebook",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "kettle",
+          "at": [
+            32,
+            15
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "book"
+    },
+    {
+      "id": "pax",
+      "homeMap": "kettle",
+      "homeDescription": "Parcel labels are sorted into small trays. The work boots are finally off duty.",
+      "homeTitle": "Pax’s home",
+      "workResult": "delivered parcels",
+      "initialDelay": 6,
+      "stages": [
+        {
+          "id": "collect",
+          "map": "kettle",
+          "at": [
+            18,
+            9
+          ],
+          "label": "Collecting a clinic parcel",
+          "action": "pickup",
+          "seconds": 8,
+          "speech": "This parcel is ready at the store. I will take it to the clinic.",
+          "carry": "parcel",
+          "tool": "parcel",
+          "complete": "Picked up a clinic parcel."
+        },
+        {
+          "id": "work",
+          "map": "kettle",
+          "at": [
+            17,
+            19
+          ],
+          "label": "Working at the clinic doorstep",
+          "action": "deliver",
+          "seconds": 14,
+          "speech": "This parcel came from the store. I am taking it to the clinic.",
+          "result": "delivered parcels",
+          "complete": "The clinic parcel is delivered.",
+          "tool": "parcel"
+        },
+        {
+          "id": "visit",
+          "map": "kettle",
+          "at": [
+            15,
+            19
+          ],
+          "label": "Visiting Nell",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Nell.",
+          "friend": "nell",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:pax",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Sorting tomorrow’s parcel labels",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "kettle",
+          "at": [
+            14,
+            12
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "parcel"
+    },
+    {
+      "id": "mara",
+      "homeMap": "kettle",
+      "homeDescription": "A vase of pressed flowers stands beside a tidy book of hill-maintenance notes.",
+      "homeTitle": "Mara’s home",
+      "workResult": "swept hill approaches",
+      "initialDelay": 8,
+      "stages": [
+        {
+          "id": "work",
+          "map": "kettle",
+          "at": [
+            31,
+            10
+          ],
+          "label": "Working at the cemetery approach",
+          "action": "sweep",
+          "seconds": 14,
+          "speech": "I am sweeping the approach so people can reach the hill comfortably.",
+          "result": "swept hill approaches",
+          "complete": "The hill approach is tidy.",
+          "tool": "broom"
+        },
+        {
+          "id": "visit",
+          "map": "kettle",
+          "at": [
+            10,
+            10
+          ],
+          "label": "Visiting Rowan",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Rowan.",
+          "friend": "rowan",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:mara",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Pressing flowers at the desk",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "kettle",
+          "at": [
+            30,
+            10
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "flowers"
+    },
+    {
+      "id": "orin",
+      "homeMap": "town",
+      "homeDescription": "A timetable, a conductor’s cap and a book wait on the side table.",
+      "homeTitle": "Orin’s home",
+      "workResult": "completed bus-stop checks",
+      "initialDelay": 10,
+      "stages": [
+        {
+          "id": "work",
+          "map": "town",
+          "at": [
+            16,
+            14
+          ],
+          "label": "Working at the bus stop",
+          "action": "inspect",
+          "seconds": 14,
+          "speech": "I am checking the bus-stop fittings and noting anything loose.",
+          "result": "completed bus-stop checks",
+          "complete": "The bus-stop check is recorded.",
+          "tool": "book"
+        },
+        {
+          "id": "visit",
+          "map": "town",
+          "at": [
+            18,
+            8
+          ],
+          "label": "Visiting Tess",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Tess.",
+          "friend": "tess",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:orin",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Reading at home",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "town",
+          "at": [
+            15,
+            14
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "cap"
+    },
+    {
+      "id": "tess",
+      "homeMap": "town",
+      "homeDescription": "A wooden tally and a neatly squared stack of market receipts cover the desk.",
+      "homeTitle": "Tess’s home",
+      "workResult": "arranged market crates",
+      "initialDelay": 12,
+      "stages": [
+        {
+          "id": "collect",
+          "map": "town",
+          "at": [
+            20,
+            8
+          ],
+          "label": "Collecting a display crate",
+          "action": "pickup",
+          "seconds": 8,
+          "speech": "This crate needs unpacking at the market display.",
+          "carry": "crate",
+          "tool": "crate",
+          "complete": "Picked up a market display crate."
+        },
+        {
+          "id": "work",
+          "map": "town",
+          "at": [
+            18,
+            8
+          ],
+          "label": "Working at the market stalls",
+          "action": "stock",
+          "seconds": 14,
+          "speech": "I am unpacking and arranging the market display crates.",
+          "result": "arranged market crates",
+          "complete": "Another display crate is unpacked and arranged.",
+          "tool": "crate"
+        },
+        {
+          "id": "visit",
+          "map": "town",
+          "at": [
+            16,
+            14
+          ],
+          "label": "Visiting Orin",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Orin.",
+          "friend": "orin",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:tess",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Checking the market tally",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "town",
+          "at": [
+            17,
+            8
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "tally"
+    },
+    {
+      "id": "bram",
+      "homeMap": "town",
+      "homeDescription": "A clean pair of arena shoes sits under a shelf of match notebooks.",
+      "homeTitle": "Bram’s home",
+      "workResult": "swept arena approaches",
+      "initialDelay": 14,
+      "stages": [
+        {
+          "id": "work",
+          "map": "town",
+          "at": [
+            9,
+            8
+          ],
+          "label": "Working at the arena entrance",
+          "action": "sweep",
+          "seconds": 14,
+          "speech": "I am sweeping the arena approach before the next trainers arrive.",
+          "result": "swept arena approaches",
+          "complete": "The arena approach is ready.",
+          "tool": "broom"
+        },
+        {
+          "id": "visit",
+          "map": "town",
+          "at": [
+            10,
+            15
+          ],
+          "label": "Visiting Ada",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Ada.",
+          "friend": "ada",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:bram",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Resting after the arena round",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "town",
+          "at": [
+            8,
+            8
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "shoes"
+    },
+    {
+      "id": "ada",
+      "homeMap": "town",
+      "homeDescription": "A small planter and a well-used walking map give this cottage its character.",
+      "homeTitle": "Ada’s home",
+      "workResult": "watered roadside planters",
+      "initialDelay": 16,
+      "stages": [
+        {
+          "id": "work",
+          "map": "town",
+          "at": [
+            26,
+            14
+          ],
+          "label": "Working at the Neighborhood planters",
+          "action": "water",
+          "seconds": 14,
+          "speech": "I am tending the planters along the Neighborhood road.",
+          "result": "watered roadside planters",
+          "complete": "The roadside planters have had their water.",
+          "tool": "can"
+        },
+        {
+          "id": "visit",
+          "map": "town",
+          "at": [
+            10,
+            15
+          ],
+          "label": "Visiting Bram",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Bram.",
+          "friend": "bram",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:ada",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Resting beside the planter",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "town",
+          "at": [
+            26,
+            14
+          ],
+          "label": "Walking the town round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "plant"
+    },
+    {
+      "id": "fern",
+      "homeMap": "town",
+      "homeDescription": "Field notes are stacked by habitat, with a magnifier on the open page.",
+      "homeTitle": "Fern’s home",
+      "workResult": "field observations",
+      "initialDelay": 18,
+      "stages": [
+        {
+          "id": "work",
+          "map": "wilds",
+          "at": [
+            27,
+            35
+          ],
+          "label": "Working at the lower wilds",
+          "action": "observe",
+          "seconds": 14,
+          "speech": "I am making field notes about the grass and the creatures moving in it.",
+          "result": "field observations",
+          "complete": "The new field observation is written down.",
+          "tool": "book"
+        },
+        {
+          "id": "visit",
+          "map": "wilds",
+          "at": [
+            22,
+            12
+          ],
+          "label": "Visiting Wren",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Wren.",
+          "friend": "wren",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:fern",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Writing up the field notes",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "wilds",
+          "at": [
+            26,
+            35
+          ],
+          "label": "Walking the field round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "book"
+    },
+    {
+      "id": "sol",
+      "homeMap": "town",
+      "homeDescription": "Bridge sketches, a tool roll and carefully straightened spare pegs sit on the desk.",
+      "homeTitle": "Sol’s home",
+      "workResult": "completed bridge checks",
+      "initialDelay": 20,
+      "stages": [
+        {
+          "id": "work",
+          "map": "wilds",
+          "at": [
+            28,
+            20
+          ],
+          "label": "Working at the creek bridge",
+          "action": "inspect",
+          "seconds": 14,
+          "speech": "I am inspecting the bridge joints with my tool roll open.",
+          "result": "completed bridge checks",
+          "complete": "The bridge check is complete.",
+          "tool": "tools"
+        },
+        {
+          "id": "visit",
+          "map": "wilds",
+          "at": [
+            27,
+            35
+          ],
+          "label": "Visiting Fern",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Fern.",
+          "friend": "fern",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:sol",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Putting the bridge tools in order",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "wilds",
+          "at": [
+            26,
+            20
+          ],
+          "label": "Walking the field round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "tools"
+    },
+    {
+      "id": "wren",
+      "homeMap": "town",
+      "homeDescription": "Pressed starflowers mark the pages of an observation book beside the bed.",
+      "homeTitle": "Wren’s home",
+      "workResult": "starflower observations",
+      "initialDelay": 22,
+      "stages": [
+        {
+          "id": "work",
+          "map": "wilds",
+          "at": [
+            22,
+            12
+          ],
+          "label": "Working at the starflower edge",
+          "action": "observe",
+          "seconds": 14,
+          "speech": "I am watching the starflower edge and recording what settles there.",
+          "result": "starflower observations",
+          "complete": "The starflower observation is recorded.",
+          "tool": "book"
+        },
+        {
+          "id": "visit",
+          "map": "wilds",
+          "at": [
+            27,
+            35
+          ],
+          "label": "Visiting Fern",
+          "action": "visit",
+          "seconds": 12,
+          "speech": "I am stopping by to see Fern.",
+          "friend": "fern",
+          "tool": "none",
+          "complete": "Finished a neighborly visit."
+        },
+        {
+          "id": "home",
+          "map": "home:wren",
+          "at": [
+            4,
+            4
+          ],
+          "label": "Pressing flowers in the notebook",
+          "action": "rest",
+          "seconds": 24,
+          "speech": "I am taking a proper break at home. The next round can wait a moment.",
+          "tool": "book",
+          "complete": "Rested at home."
+        },
+        {
+          "id": "round",
+          "map": "wilds",
+          "at": [
+            20,
+            12
+          ],
+          "label": "Walking the field round",
+          "action": "observe",
+          "seconds": 10,
+          "speech": "I am taking a look around before my next job.",
+          "tool": "book",
+          "complete": "Finished a walking round."
+        }
+      ],
+      "homeObject": "flowers"
+    }
+  ]
+}

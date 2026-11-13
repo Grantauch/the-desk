@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-S03",
+  "title": "the last morning",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "field message pad: plain, timed, exact"
+    ],
+    "paletteIntent": "olive drab ground, message pad buff, pencil graphite, one signal red reserved for time remaining",
+    "typographyIntent": "stencil headers and clock numerals, a book serif for narrative, typewriter mono for message headers",
+    "textureLanguage": [
+      "field message pads",
+      "pinned photographs"
+    ],
+    "shapeLanguage": "numbered message sheets, a clock dial, squares that count materiel",
+    "motionGrammar": [
+      "countdown: the red wedge shrinks as minutes pass",
+      "dawn: light rises with the clock"
+    ],
+    "interactionSignature": [
+      "scrub the six hours on a clock",
+      "step inside the car",
+      "weigh the reasons on the record"
+    ],
+    "densityRhythm": "Ten short message sheets alternating drab and buff, built around one clock.",
+    "archivalBehavior": "Period photographs and the signing painting are labeled, and contested numbers are attributed.",
+    "endingLanguage": "The holiday still keeps the same hour."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Uniform drab, message pads, and the gray morning in the 1918 photograph",
+    "edgeTreatment": "Pinned photo plates with slight rotation, dashed fold lines on details",
+    "controlLanguage": "Stencil labels and outline buttons like form fields",
+    "spacingLanguage": "Message headers with numbered sheets",
+    "transitionLanguage": "Natural scrolling, clock driven state changes"
+  }
+}

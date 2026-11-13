@@ -3352,6 +3352,22 @@ test('applying switches PINs: the lunch number works and the old PIN does not', 
   assert.equal(card['Email Status'], 'SENT', 'lunch numbers must not queue PIN emails');
 });
 
+test('5-digit and leading-zero lunch PINs authorize as issued or with the zero added or dropped', () => {
+  const c = classroom({ settings: { MAX_ACTIVE_PASSES: 2 } });
+  const originalAdaPin = c.pin(PEOPLE.ada);
+  setLunch(c, lunchList([[PEOPLE.ada, '41234'], [PEOPLE.alan, '012345']]), 'USE LUNCH NUMBERS');
+  assert.throws(() => signOutWith(c, PEOPLE.ada, originalAdaPin), /did not match/);
+  assert.equal(signOutWith(c, PEOPLE.ada, '41234').actionOutcome.kind, 'STARTED');
+  assert.equal(signOutWith(c, PEOPLE.alan, '012345').actionOutcome.kind, 'STARTED');
+  assert.equal(String(c.pinCards().find(row => String(row['Student Email']) === PEOPLE.alan.email).PIN), '012345');
+  // School exports drop leading zeros for some students, so both spellings must work.
+  const who = (pin, nonce) => { c.harness.newRequest(); return c.harness.call('identifyWithPin', pin, nonce).student.key; };
+  assert.equal(who('12345', 'zero-dropped'), who('012345', 'alan-as-issued'));
+  assert.equal(who('041234', 'zero-added'), who('41234', 'ada-as-issued'));
+  c.harness.newRequest();
+  assert.throws(() => c.harness.call('identifyWithPin', '112345', 'not-a-zero'), /did not match/);
+});
+
 test('a student not on the list keeps their current PIN', () => {
   const c = classroom();
   const gracePin = c.pin(PEOPLE.grace);
@@ -3368,9 +3384,9 @@ test('two students with the same number stop the switch with nothing changed', (
   assert.equal(c.rosterRows().map((row) => row['PIN Hash']).join(), before);
 });
 
-test('a bad line or a number that is not 6 digits stops the switch', () => {
+test('a bad line or a number shorter than five digits stops the switch', () => {
   const c = classroom();
-  assert.throws(() => setLunch(c, lunchList([[PEOPLE.ada, '41234']]), 'USE LUNCH NUMBERS'), /Nothing was changed/);
+  assert.throws(() => setLunch(c, lunchList([[PEOPLE.ada, '4123']]), 'USE LUNCH NUMBERS'), /Nothing was changed/);
   assert.throws(() => setLunch(c, `${PEOPLE.ada.email}\t412345\nno email here 412346`, 'USE LUNCH NUMBERS'), /Nothing was changed/);
 });
 
@@ -3426,7 +3442,10 @@ test('a new copy greets the teacher with a Start here note and a setup menu item
   h.call('onOpen');
   const names = h.spreadsheet.getSheets().map((sheet) => sheet.getName());
   assert.deepEqual(names, ['Start here']);
-  assert.match(String(h.sheet('Start here').readCell(3, 1)), /Hall Pass.*Start setup/);
+  assert.match(String(h.sheet('Start here').readCell(3, 1)), /Start setup.*No menu needed/);
+  assert.equal(h.sheet('Start here').images[0].script, 'hallPassStartSetup');
+  h.call('onOpen');
+  assert.equal(h.sheet('Start here').images.length, 1, 'reopening must not stack buttons');
 });
 
 test('the welcome note never touches a workbook that is already set up', () => {
@@ -3443,7 +3462,7 @@ test('the menu item opens the setup window', () => {
   assert.deepEqual(h.state.dialogs, ['Set up your Hall Pass']);
 });
 
-test('opening setup builds the workbook quietly and removes the Start here note', () => {
+test('opening setup builds the workbook quietly and keeps the app front door', () => {
   const h = freshCopy();
   h.call('onOpen');
   h.newRequest();
@@ -3455,7 +3474,7 @@ test('opening setup builds the workbook quietly and removes the Start here note'
   assert.equal(state.links, null);
   assert.equal(state.bellsReady, false);
   assert.equal(h.state.uiAlerts.length, 0, 'no alert may pop over the setup window');
-  assert.equal(h.spreadsheet.getSheetByName('Start here'), null);
+  assert.ok(h.spreadsheet.getSheetByName('Start here'));
   assert.ok(h.spreadsheet.getSheetByName('Settings'));
   assert.match(state.scriptEditorUrl, /^https:\/\/script\.google\.com\/d\/synthetic-script-id\/edit$/);
 });
@@ -3520,7 +3539,10 @@ test('the pasted Web app link is cleaned up, checked, and turned into links to s
   h.newRequest();
   h.call('setupWizardSave', riveraAnswers());
   h.newRequest();
+  h.state.serviceUrl = RIVERA_LINK;
+  h.call('doGet', {parameter: {mode: 'setup-link'}});
   const state = h.call('setupWizardSaveLink', `  ${RIVERA_LINK}?mode=teacher#top `);
+  assert.match(h.sheet('Start here').readCell(14, 1), /Open teacher dashboard/);
   assert.equal(state.links.student, RIVERA_LINK);
   assert.equal(state.links.kiosk, `${RIVERA_LINK}?mode=kiosk`);
   assert.equal(state.links.teacher, `${RIVERA_LINK}?mode=teacher`);
@@ -3528,6 +3550,23 @@ test('the pasted Web app link is cleaned up, checked, and turned into links to s
   h.newRequest();
   assert.equal(h.call('webAppUrl_', 'kiosk'), `${RIVERA_LINK}?mode=kiosk`, 'PIN emails and the teacher page use the saved link');
   assert.equal(h.call('classroomSetupView_', h.call('getSettings_')).studentLink, RIVERA_LINK);
+});
+
+test('setup refuses another teacher’s deployment and does not offer inherited links', () => {
+  const h = freshCopy();
+  h.call('onOpen'); h.newRequest(); h.signInAs(RIVERA); h.call('setupWizardLoad');
+  assert.throws(() => h.call('setupWizardSaveLink', RIVERA_LINK), /not confirmed/);
+  h.state.serviceUrl = RIVERA_LINK;
+  h.call('doGet', {parameter: {mode: 'setup-link'}});
+  const other = RIVERA_LINK.replace('SyntheticRivera', 'SyntheticOther');
+  assert.throws(() => h.call('setupWizardSaveLink', other), /different Hall Pass copy/);
+  assert.equal(h.properties.getProperty('WEB_APP_URL'), null);
+  h.properties.setProperty('WEB_APP_URL', other); h.newRequest();
+  assert.equal(h.call('setupWizardLoad').links, null);
+  assert.equal(h.sheet('Start here').readCell(14, 1), '');
+  const schoolForm = RIVERA_LINK.replace('/macros/s/', '/a/macros/lakeview.example.org/s/');
+  const result = h.call('setupWizardSaveLink', schoolForm);
+  assert.equal(result.links.student, RIVERA_LINK);
 });
 
 test('a test link, a spreadsheet link, or junk is refused with a plain explanation', () => {
@@ -3543,7 +3582,7 @@ test('a test link, a spreadsheet link, or junk is refused with a plain explanati
   assert.equal(h.properties.getProperty('WEB_APP_URL'), null);
 });
 
-test('setup offers the link Google already knows, but only a real /exec one', () => {
+test('setup refuses editor metadata, including an unproved /exec address', () => {
   const h = freshCopy();
   h.newRequest();
   h.signInAs(RIVERA);
@@ -3553,7 +3592,59 @@ test('setup offers the link Google already knows, but only a real /exec one', ()
   assert.equal(h.call('setupWizardFindLink').link, '');
   h.state.serviceUrl = RIVERA_LINK;
   h.newRequest();
+  assert.equal(h.call('setupWizardFindLink').link, '');
+  assert.throws(() => h.call('setupWizardSaveLink', RIVERA_LINK), /not confirmed/);
+  h.call('doGet', {parameter: {mode: 'setup-link'}});
   assert.equal(h.call('setupWizardFindLink').link, RIVERA_LINK);
+});
+
+test('a published owner visit resolves editor /dev discovery without trusting a pasted link', () => {
+  const h = freshCopy();
+  h.call('setupWizardLoad');
+  const other = RIVERA_LINK.replace('SyntheticRivera', 'SyntheticOther');
+  h.state.serviceUrl = RIVERA_LINK.replace(/exec$/, 'dev');
+  assert.equal(h.call('setupWizardFindLink').link, '');
+  assert.equal(h.call('setupWizardPrepareLink', RIVERA_LINK).verifyUrl, `${RIVERA_LINK}?mode=setup-link`);
+  assert.equal(h.properties.getProperty('WEB_APP_URL'), null, 'preparing never saves an unverified address');
+  assert.throws(() => h.call('setupWizardSaveLink', RIVERA_LINK), /not confirmed/);
+  // Published HTTP execution, rather than an editor RPC, reports /exec.
+  h.newRequest(); h.state.serviceUrl = RIVERA_LINK;
+  const proof = h.call('doGet', {parameter: {mode: 'setup-link', url: other}});
+  assert.match(proof.content, /Your app link is verified/);
+  assert.equal(h.properties.getProperty('WEB_APP_URL'), null, 'the visit only records discovery; Finish saves');
+  h.newRequest(); h.state.serviceUrl = RIVERA_LINK.replace(/exec$/, 'dev');
+  assert.equal(h.call('setupWizardFindLink').link, RIVERA_LINK);
+  assert.throws(() => h.call('setupWizardSaveLink', other), /different Hall Pass copy/);
+  const saved = h.call('setupWizardSaveLink', RIVERA_LINK);
+  assert.equal(saved.links.teacher, `${RIVERA_LINK}?mode=teacher`);
+  h.newRequest();
+  assert.equal(h.call('setupWizardLoad').links.student, RIVERA_LINK, 'reopening works while Google still reports /dev');
+});
+
+test('deployment discovery receipts reject other-copy identity, malformed records, and non-published execution', () => {
+  const h = freshCopy(); h.call('setupWizardLoad');
+  h.state.serviceUrl = RIVERA_LINK.replace(/exec$/, 'dev');
+  for (const receipt of ['{', JSON.stringify({scriptId: 'different-copy', url: RIVERA_LINK}),
+    JSON.stringify({scriptId: 'synthetic-script-id', url: 'https://evil.example.org/exec'})]) {
+    h.properties.setProperty('SETUP_VERIFIED_DEPLOYMENT', receipt);
+    assert.equal(h.call('setupWizardFindLink').link, '');
+  }
+  assert.throws(() => h.call('doGet', {parameter: {mode: 'setup-link'}}), /test link/);
+  h.state.serviceUrl = RIVERA_LINK;
+  h.signInAs('different.teacher@lakeview.example.org');
+  assert.throws(() => h.call('setupWizardPrepareLink', RIVERA_LINK), /limited to the teacher/);
+  assert.throws(() => h.call('doGet', {parameter: {mode: 'setup-link'}}), /limited to the teacher/);
+});
+
+test('all three Google school URL forms identify the same owned deployment', () => {
+  const h = freshCopy(); h.call('setupWizardLoad');
+  const alternate = RIVERA_LINK.replace('/a/macros/lakeview.example.org/', '/a/lakeview.example.org/macros/');
+  h.state.serviceUrl = alternate;
+  h.call('doGet', {parameter: {mode: 'setup-link'}});
+  h.state.serviceUrl = RIVERA_LINK.replace(/exec$/, 'dev');
+  assert.equal(h.call('setupWizardFindLink').link, RIVERA_LINK, 'legacy school paths become the working Deploy-dialog form');
+  assert.equal(h.call('setupWizardSaveLink', alternate).links.student, RIVERA_LINK);
+  assert.equal(h.call('setupWizardSaveLink', RIVERA_LINK.replace('/a/macros/lakeview.example.org/', '/macros/')).links.student, RIVERA_LINK);
 });
 
 test('reopening setup after it is done goes straight to the links', () => {
@@ -3564,6 +3655,8 @@ test('reopening setup after it is done goes straight to the links', () => {
   h.newRequest();
   h.call('setupWizardSave', riveraAnswers());
   h.newRequest();
+  h.state.serviceUrl = RIVERA_LINK;
+  h.call('doGet', {parameter: {mode: 'setup-link'}});
   h.call('setupWizardSaveLink', RIVERA_LINK);
   h.newRequest();
   const again = h.call('setupWizardLoad');
@@ -3580,6 +3673,8 @@ test('a finished copy lets its students sign out', () => {
   h.newRequest();
   h.call('setupWizardSave', riveraAnswers());
   h.newRequest();
+  h.state.serviceUrl = RIVERA_LINK;
+  h.call('doGet', {parameter: {mode: 'setup-link'}});
   h.call('setupWizardSaveLink', RIVERA_LINK);
   h.newRequest();
   const added = h.call('teacherPasteStudents', 'Sam\tLee\tsam.lee@students.lakeview.example.org', 'Period 1', TEACHER_CONTRACT);

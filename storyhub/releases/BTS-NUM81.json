@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-NUM81",
+  "title": "Number 81",
+  "route": "/hubs/bts-bytesize-number-81.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/NUM81/story.json",
+    "note": "ByteSize no. 24."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-bytesize-number-81.html",
+      "bytes": 36236,
+      "sha256": "c334eb9fa031b9a2a85d1ee4376824da64c0a0066198a691176a4548ecc78e86"
+    },
+    {
+      "path": "/storyhub/bts/hernandez/assets/hernandez-2011.webp",
+      "assetId": "A01",
+      "bytes": 90926,
+      "sha256": "4ef0800cfc8066c44a7f366dd8a697c147449fbcb661674fc251e8676f00f909",
+      "width": 900,
+      "height": 1160
+    },
+    {
+      "path": "/storyhub/bts/hernandez/assets/cte-brain.webp",
+      "assetId": "A02",
+      "bytes": 28056,
+      "sha256": "a6ab809bed01f5f32a2a1bf20563e9423f84398a357cd0f6940d3af65985e225",
+      "width": 784,
+      "height": 455
+    },
+    {
+      "path": "/storyhub/bts/hernandez/assets/mckee.webp",
+      "assetId": "A03",
+      "bytes": 16846,
+      "sha256": "fde992b7aedef5c50cb0d63ef17fb9032c6a96eb806e66dd92e8d32f7d50aeeb",
+      "width": 441,
+      "height": 535
+    }
+  ],
+  "totalBytes": 172064,
+  "sealedAt": "2026-11-09"
+}

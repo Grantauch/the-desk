@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-S03",
+  "course": "USH9",
+  "lessonCode": "S03",
+  "title": "the last morning",
+  "audience": "students",
+  "narrativeQuestion": "Everyone knew the war would end at 11:00. What did commanders do with the six hours?",
+  "chapters": [
+    {
+      "id": "s1",
+      "title": "The signatures",
+      "claim": "The armistice was signed about 5:12 and set the end at 11:00.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s2",
+      "title": "The car",
+      "claim": "Dining car 2419D was Foch's office and later Hitler's stage.",
+      "namedPeople": [
+        {
+          "name": "Ferdinand Foch",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A01"
+        },
+        {
+          "name": "Matthias Erzberger",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A06"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "What Germany agreed to",
+      "claim": "The terms stripped Germany of the means to fight and move an army.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "Why wait until 11",
+      "claim": "The hour had to travel and had a ring to it, and attacks were not ordered to stop.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s5",
+      "title": "The six hours",
+      "claim": "Most of the last day's losses came after the signing.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "s6",
+      "title": "The last four",
+      "claim": "Four armies each remember a last man killed.",
+      "namedPeople": [
+        {
+          "name": "George Ellison",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Augustin Trébuchon",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A07"
+        },
+        {
+          "name": "George Lawrence Price",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A08"
+        }
+      ],
+      "visualAnchorIds": [
+        "A07",
+        "A08",
+        "A09"
+      ],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "s7",
+      "title": "Henry Gunther",
+      "claim": "Gunther was killed at 10:59 charging a machine gun.",
+      "namedPeople": [
+        {
+          "name": "Henry Gunther",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A09"
+        }
+      ],
+      "visualAnchorIds": [
+        "A09"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s8",
+      "title": "Why attack at all",
+      "claim": "The reasons given and what the record says about them.",
+      "namedPeople": [
+        {
+          "name": "John J. Pershing",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "William Wright",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "s9",
+      "title": "From Armistice Day to Veterans Day",
+      "claim": "The day became a holiday and was renamed in 1954.",
+      "namedPeople": [
+        {
+          "name": "Dwight Eisenhower",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A05"
+        }
+      ],
+      "visualAnchorIds": [
+        "A04",
+        "A05"
+      ],
+      "interactionIds": []
+    }
+  ]
+}

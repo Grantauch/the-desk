@@ -7,50 +7,182 @@
   <link rel="stylesheet" href="/plaza.css">
 </head>
 <body>
-  <main class="frame">
-    <header class="top">
-      <h1>Checkaverse <span id="place">Town</span></h1>
-      <p id="status" class="status" role="status">Connecting...</p>
-    </header>
+  <main class="stage" id="stage">
+    <canvas id="town" width="1536" height="1024" aria-label="Map. Walk with arrow keys or WASD. Use Talk to speak to nearby residents." tabindex="-1"></canvas>
 
-    <div class="play">
-    <div class="stage">
-      <canvas id="town" width="1536" height="1024" aria-label="Town map"></canvas>
-      <div id="toast" class="toast" role="status" hidden></div>
-      <div id="paused" class="paused" role="status" hidden>The teacher paused the Checkaverse.</div>
-      <div id="ask" class="ask" hidden>
-        <p id="askText"></p>
-        <div class="ask-row">
-          <button id="askYes" type="button">Battle</button>
-          <button id="askNo" type="button" class="ghost">No thanks</button>
+    <div class="hud hud-top-left">
+      <p class="chip place-chip"><strong id="placeTitle">Checkaverse</strong> <span id="place">Town</span></p>
+      <p id="status" class="chip status" role="status">Connecting...</p>
+    </div>
+
+    <div class="hud hud-top-right">
+      <p class="chip me-chip"><span class="me-label">You are </span><strong id="me">...</strong> <span id="record" class="record"></span></p>
+      <button id="menuBtn" type="button" class="round" aria-expanded="false" aria-controls="menu" title="Menu">&#9776;</button>
+    </div>
+
+    <div class="hud hud-bottom-left">
+      <button id="partnerBtn" type="button" class="chip-btn partner-btn" aria-expanded="false" aria-controls="partnerPop" title="Battle partner">
+        <img id="partnerImg" alt=""><span id="partnerName">Partner</span>
+      </button>
+      <button id="careBtn" type="button" class="chip-btn care-btn" aria-expanded="false" aria-controls="carePop" hidden>Care<span id="careFlag" class="care-flag" hidden></span></button>
+      <button id="sayBtn" type="button" class="chip-btn" aria-expanded="false" aria-controls="phrases">Say</button>
+      <span id="charmChip" class="chip charm-chip" hidden></span>
+    </div>
+
+    <div class="hud hud-bottom-right">
+      <button id="watch" type="button" class="chip-btn" hidden>Watch battle</button>
+      <button id="challenge" type="button" class="action" hidden>Challenge (C)</button>
+      <button id="talkBtn" type="button" class="chip-btn" hidden>Talk (Space)</button>
+    </div>
+
+    <div class="pad" aria-label="Walk">
+      <button data-d="u" type="button" aria-label="Up">&#9650;</button>
+      <button data-d="l" type="button" aria-label="Left">&#9664;</button>
+      <button data-d="d" type="button" aria-label="Down">&#9660;</button>
+      <button data-d="r" type="button" aria-label="Right">&#9654;</button>
+    </div>
+
+    <div id="partnerPop" class="pop pop-left" role="dialog" aria-label="Battle partner" hidden>
+      <p class="pop-title">Battle partner</p>
+      <div id="partners" class="partners" role="radiogroup" aria-label="Battle partner"></div>
+      <div id="den" class="den" hidden></div>
+      <p class="pop-note" id="partnerNote"></p>
+    </div>
+
+    <div id="phrases" class="pop pop-left phrases" role="dialog" aria-label="Phrases" hidden></div>
+
+    <div id="carePop" class="pop pop-left care-pop" role="dialog" aria-labelledby="careName" hidden>
+      <div class="care-head">
+        <img id="careImg" alt="">
+        <div><p class="pop-title" id="careName">Care</p><p id="careSub" class="care-sub"></p></div>
+      </div>
+      <div id="careSwitch" class="care-switch" role="tablist" aria-label="Choose a Checkling"></div>
+      <div id="careBars" class="care-bars"></div>
+      <div id="careTags" class="care-tags"></div>
+      <div id="careActions" class="care-actions"></div>
+      <p id="careMsg" class="care-msg" role="status"></p>
+    </div>
+
+    <div id="reportPop" class="pop card-pop" role="dialog" aria-labelledby="reportTitle" hidden>
+      <p class="pop-title" id="reportTitle">While you were gone</p>
+      <div id="reportBody"></div>
+      <button id="reportClose" type="button" class="ghost">Got it</button>
+    </div>
+
+    <div id="busPop" class="pop card-pop" role="dialog" aria-labelledby="busTitle" hidden>
+      <p class="pop-title" id="busTitle">Ride the bus?</p>
+      <p class="pop-note" id="busNote"></p>
+      <div class="bus-row"><button id="busYes" type="button" class="ghost">Yes, let's go</button><button id="busNo" type="button" class="ghost">Not yet</button></div>
+    </div>
+
+    <div id="hatchPop" class="pop card-pop" role="dialog" aria-labelledby="hatchTitle" hidden>
+      <p class="pop-title" id="hatchTitle">Your egg is hatching!</p>
+      <p class="pop-note">Pick who comes out. This one is yours for good.</p>
+      <div id="hatchPick" class="hatch-pick"></div>
+    </div>
+
+    <div id="cemeteryPop" class="pop card-pop cemetery-pop" role="dialog" aria-labelledby="cemeteryTitle" hidden>
+      <p class="pop-title" id="cemeteryTitle">Class cemetery</p>
+      <div id="stones" class="stones"></div>
+      <p id="cemeteryNote" class="pop-note"></p>
+      <button id="cemeteryClose" type="button" class="ghost">Close</button>
+    </div>
+
+    <div id="menu" class="pop pop-right menu" role="dialog" aria-label="Menu" hidden>
+      <label class="busy"><input id="busy" type="checkbox"> Busy (no challenges)</label>
+      <button id="rename" type="button" class="ghost">New name</button>
+      <button id="outfit" type="button" class="ghost">Change outfit</button>
+      <p id="home" class="pop-note">Finding your plot...</p>
+      <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
+      <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
+      <button id="ranksBtn" type="button" class="ghost">This week's rankings</button>
+      <button id="cemeteryBtn" type="button" class="ghost">Class cemetery</button>
+      <button id="tipsAgain" type="button" class="ghost">Show tips again</button>
+      <button id="journalBtn" type="button" class="ghost">Around town · neighbors and stories</button>
+      <button id="motionBtn" type="button" class="ghost" aria-pressed="false">Scenery motion: on</button>
+      <button id="busBtn" type="button" class="ghost" hidden>Ride the bus</button>
+      <a id="busLink" class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
+    </div>
+
+    <div id="ranksPop" class="pop ranks-pop" role="dialog" aria-labelledby="ranksTitle" hidden>
+      <p class="pop-title" id="ranksTitle">This week's rankings</p>
+      <ol id="ranksList" class="ranks-list"></ol>
+      <p id="ranksNote" class="pop-note"></p>
+      <button id="ranksClose" type="button" class="ghost">Close</button>
+    </div>
+
+    <div id="tip" class="tip" role="status" hidden>
+      <p id="tipText"></p>
+      <button id="tipOk" type="button">Got it</button>
+    </div>
+
+    <dialog id="residentDialog" class="resident-dialog" aria-labelledby="residentName" aria-describedby="residentText">
+      <div class="resident-heading"><img id="residentPortrait" alt=""><div><p class="resident-eyebrow" id="residentRole"></p><h2 id="residentName"></h2></div></div>
+      <p id="residentText" class="resident-text" aria-live="polite"></p>
+      <div id="residentChoices" class="resident-choices"></div>
+      <button id="residentClose" type="button" class="resident-close">Close (Esc)</button>
+    </dialog>
+    <dialog id="worldJournal" class="resident-dialog" aria-labelledby="journalTitle">
+      <p class="resident-eyebrow">Small stories</p><h2 id="journalTitle">Around town</h2>
+      <p class="journal-note">Follow your neighbors’ rounds, find their homes, and keep track of the people you have helped.</p>
+      <div id="journalEntries"></div><h3>Neighbors</h3><div id="residentDirectory" class="resident-directory"></div><button id="journalClose" type="button" class="ghost">Back to the map</button>
+    </dialog>
+    <div id="worldCue" class="world-cue" role="status" hidden></div>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <div id="paused" class="paused" role="status" hidden>The teacher paused the Checkaverse.</div>
+
+    <div id="battle" class="battle" role="region" aria-label="Battle" hidden>
+      <div class="b-scene">
+        <div class="b-card b-foe-card">
+          <p class="b-name"><span id="bFoeName"></span> <span class="b-lv" id="bFoeLv"></span></p>
+          <p class="b-trainer" id="bFoeTrainer"></p>
+          <div class="b-bar"><span class="b-hp" id="bFoeHp"></span></div>
+          <div class="b-bar b-st"><span id="bFoeSt"></span></div>
+        </div>
+        <img id="bFoeMon" class="b-mon b-foe-mon" alt="">
+        <img id="bMeMon" class="b-mon b-me-mon" alt="">
+        <img id="bFoeKo" class="b-ko b-foe-ko" src="/art/fx-knockout.png" alt="" hidden>
+        <img id="bMeKo" class="b-ko b-me-ko" src="/art/fx-knockout.png" alt="" hidden>
+        <span id="bFoePop" class="b-pop b-foe-pop" hidden></span>
+        <span id="bMePop" class="b-pop b-me-pop" hidden></span>
+        <div class="b-card b-me-card">
+          <p class="b-name"><span id="bMeName"></span> <span class="b-lv" id="bMeLv"></span></p>
+          <div class="b-bar"><span class="b-hp" id="bMeHp"></span></div>
+          <p class="b-num" id="bMeHpNum"></p>
+          <div class="b-bar b-st"><span id="bMeSt"></span></div>
+          <p class="b-num" id="bMeStNum"></p>
         </div>
       </div>
+      <div class="b-bottom">
+        <div class="b-talk">
+          <p id="bMsg" class="b-msg" aria-live="polite"></p>
+          <div class="b-clock"><span id="bClock"></span></div>
+          <p id="bClockText" class="b-clock-text"></p>
+        </div>
+        <div class="b-right">
+          <div id="bMoves" class="b-moves"></div>
+          <div id="bWild" class="b-wild" hidden>
+            <button id="bCharm" type="button" class="ghost">5. Throw charm</button>
+            <button id="bRun" type="button" class="ghost">6. Run</button>
+          </div>
+          <div id="bDone" class="b-done" hidden>
+            <button id="bGg" type="button">Good game</button>
+            <button id="bClose" type="button" class="ghost">Back to town</button>
+          </div>
+        </div>
+      </div>
+      <button id="bGiveUp" type="button" class="ghost b-giveup">Give up</button>
     </div>
 
-    <section class="panel">
-      <div class="you">
-        <p>You are <strong id="me">...</strong></p>
-        <label class="busy"><input id="busy" type="checkbox"> Busy</label>
-        <button id="challenge" type="button" disabled>Challenge</button>
-        <button id="rename" type="button" class="ghost">New name</button>
-        <button id="outfit" type="button" class="ghost">Outfit</button>
+    <div id="ask" class="ask" role="alertdialog" aria-labelledby="askText" hidden>
+      <p id="askText"></p>
+      <div class="ask-row">
+        <button id="askYes" type="button">Battle</button>
+        <button id="askNo" type="button" class="ghost">No thanks</button>
       </div>
-      <div class="home">
-        <p id="home">Finding your plot...</p>
-        <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
-        <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
-      </div>
-      <div id="phrases" class="phrases" aria-label="Phrases"></div>
-      <div class="pad" aria-label="Walk">
-        <button data-d="u" type="button" aria-label="Up">&#9650;</button>
-        <button data-d="l" type="button" aria-label="Left">&#9664;</button>
-        <button data-d="d" type="button" aria-label="Down">&#9660;</button>
-        <button data-d="r" type="button" aria-label="Right">&#9654;</button>
-      </div>
-      <p class="help">Walk with the arrow keys or WASD, or tap where you want to go. Tap a landmark, or face it and press Space, to read it. Your house is in the Neighborhood to the east. Walk up into any open front door to look inside. Stand next to another trainer and press C to challenge them.</p>
-    </section>
     </div>
   </main>
-  <script src="/plaza.js"></script>
+  <script type="module" src="/world.js"></script>
+  <script type="module" src="/plaza.js"></script>
 </body>
 </html>

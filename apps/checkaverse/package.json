@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server.mjs",
     "backup": "node --disable-warning=ExperimentalWarning backup.mjs",
-    "test": "node --disable-warning=ExperimentalWarning test.mjs"
+    "test:world": "node world.test.mjs && node resident-lives.test.mjs",
+    "test:browser": "node world-browser.test.mjs && node resident-lives-browser.test.mjs",
+    "test": "node world.test.mjs && node resident-lives.test.mjs && node --disable-warning=ExperimentalWarning resident-lives-server.test.mjs && node --disable-warning=ExperimentalWarning care.test.mjs && node battle.test.mjs && node --disable-warning=ExperimentalWarning accounts.test.mjs && node --disable-warning=ExperimentalWarning test.mjs && node --disable-warning=ExperimentalWarning kettle.test.mjs"
   },
   "engines": {
     "node": ">=22.13.0"

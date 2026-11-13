@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICKBYTE",
+  "course": "BTS",
+  "lessonCode": "VICKBYTE",
+  "title": "Who Let Him Back",
+  "audience": "students",
+  "narrativeQuestion": "When a famous athlete serves his sentence, which second chances does he deserve: a job, an honor, both or neither?",
+  "chapters": [
+    { "id": "01-tape", "title": "Run it back", "claim": "Recap of 23 Months through eight dated cards from the 2001 draft to the 2024 Norfolk State hire.", "namedPeople": [ { "name": "Michael Vick", "role": "Quarterback and coach", "anchorStatus": "anchored", "visualAnchorId": "A01" } ], "visualAnchorIds": ["A01"], "interactionIds": ["I01", "I05"] },
+    { "id": "02-dogs", "title": "What happened to the dogs", "claim": "Of 51 pit bulls held in the federal case, 47 were placed after individual evaluation, 22 of them at Best Friends in Utah. In April 2009 national groups changed their policy on dogs seized from fighting rings.", "namedPeople": [ { "name": "Rebecca Huss", "role": "Court appointed guardian", "anchorStatus": "not-needed" }, { "name": "Jonny Justice", "role": "Vicktory dog and therapy dog", "anchorStatus": "not-needed" } ], "visualAnchorIds": [], "interactionIds": ["I02", "I05"] },
+    { "id": "03-law", "title": "The rules changed around him", "claim": "Federal dogfighting law was strengthened in 2007, 2008 and 2014, and Vick lobbied Congress in 2011.", "namedPeople": [], "visualAnchorIds": [], "interactionIds": ["I05"] },
+    { "id": "04-words", "title": "Two apologies", "claim": "Vick's 2007 statement did not apologize to the dogs. In 2009 on 60 Minutes he said he should have stopped it and deserved to lose the $130 million.", "namedPeople": [ { "name": "James Brown", "role": "CBS interviewer", "anchorStatus": "not-needed" }, { "name": "Shannon Sharpe", "role": "Podcast host", "anchorStatus": "not-needed" } ], "visualAnchorIds": [], "interactionIds": ["I05"] },
+    { "id": "05-money", "title": "The swoosh comes back", "claim": "Nike ended Vick's deal in August 2007 and signed him again on July 1, 2011.", "namedPeople": [ { "name": "Michael Smith", "role": "ESPN commentator", "anchorStatus": "not-needed" } ], "visualAnchorIds": [], "interactionIds": [] },
+    { "id": "06-board", "title": "You make the call", "claim": "Seven real decisions from 2009 to 2026 split into jobs and honors.", "namedPeople": [], "visualAnchorIds": [], "interactionIds": ["I03", "I04"] }
+  ],
+  "accuracyNotes": [
+    "Dog counts follow Best Friends Animal Society: 51 pit bulls in the case, 47 placed, 22 to Best Friends, the rest to seven other groups.",
+    "Norfolk State record stated as of mid October 2026."
+  ]
+}

@@ -128,6 +128,7 @@ class FakeSheet {
     this.maxRows = maxRows;
     this.hidden = false;
     this.frozenRows = 0;
+    this.images = [];
   }
 
   getName() { return this.name; }
@@ -233,6 +234,18 @@ class FakeSheet {
   autoResizeColumn() { return this; }
   autoResizeColumns() { return this; }
   setColumnWidth() { return this; }
+  setHiddenGridlines() { return this; }
+  setRowHeight() { return this; }
+  getImages() { return this.images; }
+  insertImage(blob, column, row) {
+    const image = {blob, column, row, title: '', script: '',
+      setAltTextTitle(value) { this.title = value; return this; },
+      getAltTextTitle() { return this.title; },
+      setAltTextDescription(value) { this.description = value; return this; },
+      assignScript(value) { this.script = value; return this; }};
+    this.images.push(image);
+    return image;
+  }
 
   /** Test-side convenience: every data row as an array, header excluded. */
   dataRows() {
@@ -466,9 +479,9 @@ function createHarness(options = {}) {
     Date: HarnessDate,
 
     SpreadsheetApp: {
-      create: (name) => new FakeSpreadsheet(name),
+      create: (name) => { const book = new FakeSpreadsheet('synthetic-directory-' + String(++state.uuidCounter).padStart(12, '0')); if (options.workbooks) options.workbooks.set(book.getId(), book); return book; },
       getActiveSpreadsheet: () => spreadsheet,
-      openById: () => spreadsheet,
+      openById: (id) => { if (!options.workbooks) return spreadsheet; const book = id === spreadsheetId ? spreadsheet : options.workbooks.get(id); if (!book) throw new Error('Workbook unavailable'); return book; },
       getUi: () => {
         const ui = {
           ButtonSet: { OK: 'OK', OK_CANCEL: 'OK_CANCEL', YES_NO: 'YES_NO' },
@@ -501,7 +514,7 @@ function createHarness(options = {}) {
 
     LockService: {
       getScriptLock: () => scriptLock,
-      getUserLock: () => scriptLock,
+      getUserLock: () => ({ waitLock() {}, releaseLock() {} }),
       getDocumentLock: () => scriptLock,
     },
 
@@ -570,6 +583,10 @@ function createHarness(options = {}) {
     },
 
     HtmlService: {
+      createHtmlOutput: (content) => {
+        const output = { content, setTitle: () => output };
+        return output;
+      },
       createTemplateFromFile: () => ({
         evaluate: () => ({
           setTitle: function setTitle() { return this; },

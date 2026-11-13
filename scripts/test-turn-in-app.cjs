@@ -71,6 +71,34 @@ test('a PIN made by Hall Pass signs a student in to Turn In', () => {
   assert.ok(result.token);
 });
 
+test('exact lunch numbers work in Turn In, unassigned numbers fail, and corrections invalidate sessions', () => {
+  const w = world();
+  const old = w.pin(PEOPLE.ada);
+  assert.equal(w.post({ action:'signin', pin:old, hub:'x', device:'old' }).ok,true);
+  const directory = w.sandbox.SpreadsheetApp.create('Synthetic shared directory');
+  const sheet = directory.insertSheet('School Directory');
+  sheet.getRange(1,1,4,4).setValues([
+    ['School Student ID','Student Name','School Email','Status'],
+    ['012345','Byron, Ada',PEOPLE.ada.email,'AVAILABLE'],
+    ['54321','Turing, Alan',PEOPLE.alan.email,'AVAILABLE'],
+    ['98765','Unassigned Student','unassigned@students.mtmorrisschools.org','AVAILABLE'],
+  ]);
+  w.school.harness.call('setSettingValue_','SCHOOL_DIRECTORY_SOURCE_ID',directory.getId());
+  const first = w.post({ action:'signin', pin:'012345', hub:'x', device:'first' });
+  assert.equal(first.ok,true,JSON.stringify(first));
+  assert.equal(w.post({ action:'signin', pin:'54321', hub:'x', device:'second' }).ok,true);
+  // A lunch number typed with or without its leading zero reaches the same student.
+  assert.equal(w.post({ action:'signin', pin:'12345', hub:'x', device:'no-zero' }).ok,true);
+  assert.equal(w.post({ action:'signin', pin:'054321', hub:'x', device:'added-zero' }).ok,true);
+  for (const pin of ['112345','98765',old,'01a2345']) assert.equal(w.post({ action:'signin', pin, hub:'x', device:'invalid-'+pin }).ok,false);
+  sheet.getRange(2,1).setValue('023456');
+  assert.equal(w.post({ action:'signin', pin:'012345', hub:'x', device:'changed' }).ok,false);
+  assert.equal(w.post({ action:'signin', pin:'023456', hub:'x', device:'changed' }).ok,true);
+  assert.throws(() => w.sandbox.readToken_(first.token), /changed|Enter/);
+  sheet.getRange(2,4).setValue('DISABLED');
+  assert.equal(w.post({ action:'signin', pin:'023456', hub:'x', device:'disabled' }).ok,false);
+});
+
 test('a wrong PIN is refused, and repeated misses slow that Chromebook only', () => {
   const w = world();
   const real = w.pin(PEOPLE.ada);

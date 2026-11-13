@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import DeskObject from '../components/DeskObject.astro';
+import CinematicAtlas from '../components/CinematicAtlas.astro';
+import '../styles/atlas-home.css';
 import { getCollection } from 'astro:content';
 import siteContent from '../data/site-content.json';
 import { learningCourses } from '../data/learningHubs';
@@ -12,9 +13,6 @@ const announcements = (await getCollection('announcements'))
 const totalLearningUnits = learningCourses.reduce((total, course) => total + course.units.length, 0);
 const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 const withoutTerminal = (value: string) => value.replace(/[.!?]+$/, '');
-const heroTitleWords = withoutTerminal(siteContent.home.title).trim().split(/\s+/);
-const heroTitleLead = heroTitleWords.length > 1 ? heroTitleWords.shift() : '';
-const heroTitleMain = heroTitleWords.join(' ');
 const newsTitleParts = withoutTerminal(siteContent.home.newsTitle).split(/\s+\+\s+/, 2);
 
 const courses = [
@@ -24,6 +22,8 @@ const courses = [
     identity: 'american archive',
     blurb: siteContent.courseCards.usHistory,
     theme: 'history',
+    art: '/atlas/us-history.webp',
+    artAlt: 'Illustration after a circa-1900 photograph of Mulberry Street, New York.',
   },
   {
     href: '/hidden-history/',
@@ -31,6 +31,8 @@ const courses = [
     identity: 'evidence desk',
     blurb: siteContent.courseCards.hiddenHistory,
     theme: 'classified',
+    art: '/atlas/hidden-history.webp',
+    artAlt: 'Illustration after Alexander Gardner’s 1862 photograph of Pinkerton, Lincoln and McClernand.',
   },
   {
     href: '/beyond-the-scoreboard/',
@@ -38,6 +40,8 @@ const courses = [
     identity: 'film room',
     blurb: siteContent.courseCards.beyondTheScoreboard,
     theme: 'scoreboard',
+    art: '/atlas/beyond-the-scoreboard.webp',
+    artAlt: 'Illustration after an 1887 Detroit baseball cabinet photograph.',
   },
 ];
 
@@ -59,41 +63,15 @@ const moreLinks = [
 ];
 ---
 
-<Base wide>
+<Base wide atlas>
   <nav class="class-entry" aria-label="Everyday classroom actions">
     <a href="/check-in/"><span class="class-entry__icon" aria-hidden="true">✓</span><span><small>START HERE · EVERY DAY</small><strong>daily check-in</strong><span>check in for class →</span></span></a>
     <a href="/pass/"><span class="class-entry__icon" aria-hidden="true">⇄</span><span><small>HEADING OUT OR BACK?</small><strong>hall pass</strong><span>request a pass or sign back in →</span></span></a>
   </nav>
-  <section class="home-hero dot-grid" aria-labelledby="home-title">
-    <div class="home-hero__rule">
-      <span>{siteContent.global.signalLeft}</span>
-      <span>{siteContent.global.location}</span>
-    </div>
-
-    <div class="home-hero__body">
-      <div class="home-hero__copy">
-        <p class="home-kicker">{siteContent.home.kicker}</p>
-        <h1 id="home-title">
-          {heroTitleLead && <span>{heroTitleLead}</span>}
-          <strong>{heroTitleMain}</strong><em>.</em>
-        </h1>
-        <p class="home-hero__promise">{siteContent.home.promise}</p>
-        <a class="home-hero__start" href="#courses">{siteContent.home.startLabel} <span aria-hidden="true">↓</span></a>
-      </div>
-
-      <DeskObject />
-    </div>
-
-    <nav class="quick-dock" aria-label="Quick student links">
-      {quickLinks.slice(2).map((link, index) => (
-        <a href={link.href} class={`quick-dock__link quick-dock__link--${link.tone}${link.everyday ? ' quick-dock__link--everyday' : ''}`} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener' : undefined}>
-          <span class="quick-dock__number">0{index + 3}</span>
-          <span>{link.everyday && <span class="quick-dock__cue">every day</span>}<strong>{link.label}</strong><small>{link.note}</small></span>
-          <b aria-hidden="true">{link.external ? '↗' : '→'}</b>
-        </a>
-      ))}
-    </nav>
-  </section>
+  <CinematicAtlas />
+  <nav class="atlas-quick-links" aria-label="Quick student links">
+    {quickLinks.slice(2).map(link => <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener' : undefined}>{link.label} <span aria-hidden="true">{link.external ? '↗' : '→'}</span></a>)}
+  </nav>
 
   <section id="courses" class="home-section" aria-labelledby="courses-title">
     <header class="section-heading">
@@ -107,14 +85,18 @@ const moreLinks = [
     <div class="course-grid">
       {courses.map((course, index) => (
         <a href={course.href} class="course-card" data-course={course.theme}>
-          <span class="course-card__index">0{index + 1}</span>
-          <span class="course-card__identity">{course.identity}</span>
+          <picture class="course-card__plate">
+            <source type="image/avif" media="(min-width: 1200px) and (min-resolution: 2dppx)" srcset={course.art.replace('.webp', '-1440.avif')} />
+            <img class="course-card__art" src={course.art} srcset={`${course.art.replace('.webp', '-480.webp')} 480w, ${course.art} 840w`} sizes="(max-width: 700px) calc(100vw - 2rem), (max-width: 1440px) 31vw, 450px" alt={course.artAlt} width="840" height="560" loading="lazy" decoding="async" />
+          </picture>
+          <span class="course-card__identity">{course.identity}<span aria-hidden="true">plate 0{index + 1}</span></span>
           <h3>{course.name}<span>.</span></h3>
           <p>{course.blurb}</p>
           <span class="course-card__action">open class <b aria-hidden="true">→</b></span>
         </a>
       ))}
     </div>
+    <p class="atlas-art-note">Woodcut-style illustrations adapted from archival photographs. <a href="/atlas/SOURCES.md">View originals and image credits ↗</a></p>
   </section>
 
   <section class="home-section" aria-labelledby="live-desks-title">
@@ -472,18 +454,6 @@ const moreLinks = [
   .course-card[data-course='history'] { --course-accent: #1f2ce6; --course-soft: #eef0ff; }
   .course-card[data-course='classified'] { --course-accent: #08765a; --course-soft: #e8f8f0; }
   .course-card[data-course='scoreboard'] { --course-accent: #e64f30; --course-soft: #fff0ea; }
-
-  .course-card__index {
-    position: absolute;
-    right: 0.7rem;
-    top: 0.45rem;
-    color: var(--course-soft);
-    font-family: var(--font-display);
-    font-size: 6rem;
-    font-weight: 800;
-    letter-spacing: -0.1em;
-    line-height: 1;
-  }
 
   .course-card__identity {
     position: relative;

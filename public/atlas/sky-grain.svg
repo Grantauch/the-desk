@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" fill="none">
+  <g fill="#b2cfda" opacity=".36">
+    <circle cx="43" cy="94" r=".8"/><circle cx="58" cy="327" r=".7"/><circle cx="121" cy="181" r=".65"/>
+    <circle cx="133" cy="418" r=".85"/><circle cx="177" cy="41" r=".75"/><circle cx="218" cy="295" r="1"/>
+    <circle cx="230" cy="136" r=".7"/><circle cx="298" cy="403" r=".65"/><circle cx="359" cy="73" r=".85"/>
+    <circle cx="382" cy="207" r="1"/><circle cx="419" cy="353" r=".7"/><circle cx="487" cy="436" r=".75"/>
+    <circle cx="516" cy="129" r=".65"/><circle cx="574" cy="65" r="1"/><circle cx="598" cy="250" r=".65"/>
+    <circle cx="650" cy="179" r=".85"/><circle cx="676" cy="368" r=".65"/><circle cx="722" cy="281" r=".8"/>
+    <circle cx="761" cy="54" r=".65"/><circle cx="771" cy="427" r=".9"/>
+  </g>
+  <g stroke="#ddbc87" stroke-width=".6" opacity=".32">
+    <path d="M96 238v7m-3.5-3.5h7M328 155v6m-3-3h6M554 327v7m-3.5-3.5h7M736 138v6m-3-3h6"/>
+  </g>
+</svg>

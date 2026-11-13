@@ -294,6 +294,9 @@
       .setup-card .setup-links { display:grid; gap:10px; margin-top:14px; }
       .setup-card .setup-links label { display:grid; gap:6px; font-size:13px; font-weight:600; }
       .setup-banner { margin-bottom:16px; }
+      .kiosk-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0; }
+      .kiosk-keypad button { min-height:64px; font-size:26px; touch-action:manipulation; }
+      .kiosk-tools { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; }
       .lunch-preview { border:1px solid var(--line); border-radius:12px; padding:12px; background:#f8f9ff; font-size:13px; }
       .teacher-action-dialog { width:min(520px,calc(100% - 32px)); padding:28px; border:1px solid var(--line); border-radius:20px; color:var(--ink); background:white; }
       .teacher-action-dialog h2 { margin:0 0 14px; font-size:25px; line-height:1.2; letter-spacing:-.6px; }
@@ -445,6 +448,8 @@
       .is-earned .ck-keepsake { background:#deebbb; color:#29432d; }
       .ck-journey small { font-size:10px; }
       .ck-pocket .ck-note { font-size:12px; line-height:1.6; margin:0; }
+      .ck-bus-link { display:inline-block; margin:2px 8px 6px 0; padding:10px 18px; border-radius:12px; background:#173b31; color:#fff8e6; font-weight:800; font-size:15px; text-decoration:none; }
+      .ck-bus-link:hover, .ck-bus-link:focus-visible { background:#0f2a23; outline:3px solid #f2c14e; outline-offset:2px; }
       .ck-pocket :focus-visible { outline:3px solid #087458; outline-offset:3px; }
       .ck-world :focus-visible { outline-color:#d6f5b0; }
       .ck-pocket [hidden] { display:none!important; }
@@ -457,6 +462,28 @@
       .ck-camp-top {display:flex;align-items:center;justify-content:space-between;gap:12px;}
       .ck-school-camp iframe {display:block;width:100%;height:min(920px,85vh);min-height:600px;border:0;margin-top:12px;}
       .ck-school-camp h3 {font-size:22px;}
+      body.kiosk-mode .shell { width:min(900px,calc(100% - 32px)); padding:16px 0; }
+      .kiosk-mode .brandbar { margin-bottom:12px; font-size:16px; }
+      .kiosk-mode .top { margin-bottom:14px; }
+      .kiosk-mode h1 { font-size:34px; }
+      .kiosk-mode .school { display:none; }
+      .kiosk-mode .card { padding:22px; }
+      .kiosk-mode .pin-box { max-width:none; padding:0; }
+      .kiosk-mode .pin-box::before { display:none; }
+      .kiosk-mode .pin-box h2 { font-size:27px; }
+      .kiosk-mode .pin-label { margin-top:14px; }
+      .kiosk-mode .pin-input { min-height:54px; }
+      .kiosk-mode .kiosk-keypad { gap:10px; margin:12px 0; }
+      .kiosk-mode .kiosk-keypad button { min-height:56px; margin-top:0; }
+      .kiosk-mode .pin-help { margin-top:12px; }
+      .kiosk-mode .privacy { margin-top:12px; font-size:10px; }
+      @media(min-width:600px) {
+        .kiosk-mode .pin-box { display:grid; grid-template-columns:minmax(220px,1fr) minmax(220px,1fr); gap:8px 32px; align-items:center; }
+        .kiosk-mode .pin-box > * { grid-column:1; }
+        .kiosk-mode .pin-box .kiosk-keypad { grid-column:2; grid-row:1 / span 7; }
+        .kiosk-mode .pin-box .pin-help { grid-column:1 / -1; }
+        .kiosk-mode .kiosk-tools { margin:0; }
+      }
     </style>
   </head>
   <body data-site-brand="<?= siteBrand ?>">
@@ -480,6 +507,7 @@
 
     <script>
       const APP_MODE = <?!= JSON.stringify(appMode) ?>;
+      if (APP_MODE === 'kiosk') document.body.classList.add('kiosk-mode');
       const TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
       const CALL_TIMEOUT_MS = 45000;
       const BUSY_LOCK_TEXT = 'The classroom system is handling other students right now.';
@@ -804,7 +832,7 @@
         if (!sharedDevice()) return;
         handoffMessage = message;
         showHandoffNote(message);
-        handoffHandle = setTimeout(() => resetToPin('Enter your six-digit PIN.'), delay);
+        handoffHandle = setTimeout(() => resetToPin('Enter your 5- or 6-digit PIN.'), delay);
       };
 
       /**
@@ -818,10 +846,10 @@
         clearTimeout(idleHandle);
         idleHandle = null;
         if (!sharedDevice()) return;
-        if (screen === 'pin') return;
-        const remaining = Math.max(0, IDLE_RESET_MS - (Date.now() - lastInteraction));
+        if (screen === 'pin' && APP_MODE !== 'kiosk') return;
+        const remaining = Math.max(0, (APP_MODE === 'kiosk' ? 30000 : IDLE_RESET_MS) - (Date.now() - lastInteraction));
         idleHandle = setTimeout(() => {
-          if (sharedDevice() && screen !== 'pin') resetToPin('Enter your six-digit PIN.');
+          if (sharedDevice()) resetToPin('Enter your 5- or 6-digit PIN.');
         }, remaining);
       };
 
@@ -832,6 +860,7 @@
 
       document.addEventListener('click', noteInteraction, true);
       document.addEventListener('keydown', noteInteraction, true);
+      document.addEventListener('input', noteInteraction, true);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') noteInteraction();
       });
@@ -845,7 +874,7 @@
         authorizedAction = '';
         state = null;
         clearError();
-        renderPin(message || 'Enter your six-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
+        renderPin(message || 'Enter your 5- or 6-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
       };
 
       /* ------------------------------------------------------------ screens */
@@ -874,21 +903,36 @@
           <form class="pin-box" id="pin-form">
             <p class="eyebrow">${APP_MODE === 'kiosk' ? 'shared classroom kiosk' : 'your private classroom pass'}</p>
             <h2>you’re in the right place.</h2>
-            <p class="message">${escapeHtml(message || 'Use the six-digit PIN your teacher gave you.')}</p>
-            <label class="pin-label" for="pin">Your six-digit PIN</label>
-            <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
+            <p class="message">${escapeHtml(message || 'Use the 5- or 6-digit PIN your teacher gave you.')}</p>
+            <label class="pin-label" for="pin">Your 5- or 6-digit PIN</label>
+            <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off" aria-label="5- or 6-digit student PIN" required>
+            ${APP_MODE === 'kiosk' ? '<div class="kiosk-keypad" aria-label="PIN keypad">' + ['1','2','3','4','5','6','7','8','9','clear','0','delete'].map((key) => `<button class="secondary" type="button" data-digit="${key}" aria-label="${key === 'delete' ? 'Delete last digit' : key === 'clear' ? 'Clear PIN' : key}">${key === 'delete' ? '⌫' : key}</button>`).join('') + '</div>' : ''}
             <button class="primary" type="submit">${purpose === 'checkin' ? 'check in' : 'continue with PIN'} →</button>
             ${purpose === 'checkin' ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
-            <details class="pin-help"><summary>Need a hand?</summary><p>Use the six-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
+            ${APP_MODE === 'kiosk' ? '<div class="kiosk-tools"><button class="secondary" type="button" id="kiosk-fullscreen">fullscreen / keep awake</button></div>' : ''}
+            <details class="pin-help"><summary>Need a hand?</summary><p>Use the 5- or 6-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
           </form>`;
         const input = document.querySelector('#pin');
         input.focus();
+        if (APP_MODE === 'kiosk') {
+          content.querySelectorAll('[data-digit]').forEach((key) => key.addEventListener('click', () => {
+            if (inFlight) return;
+            const digit = key.dataset.digit;
+            input.value = digit === 'clear' ? '' : digit === 'delete' ? input.value.slice(0, -1) : (input.value + digit).slice(0, 6);
+            input.focus(); noteInteraction();
+          }));
+          content.querySelector('#kiosk-fullscreen').addEventListener('click', async () => {
+            try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); } catch {}
+            try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch {}
+          });
+        }
         document.querySelector('#pin-form').addEventListener('submit', (event) => {
           event.preventDefault();
           const button = event.currentTarget.querySelector('button');
           act(button, async () => {
             try {
-              adoptState(await call('authorizeAndActStudent', purpose === 'checkin' ? 'identify-checkin' : 'identify-pass', input.value, '', '', getPinAttemptNonce()));
+              const submittedPin = input.value; input.value = '';
+              adoptState(await call('authorizeAndActStudent', purpose === 'checkin' ? 'identify-checkin' : 'identify-pass', submittedPin, '', '', getPinAttemptNonce()));
             } catch (error) {
               input.select();
               throw error;
@@ -901,6 +945,16 @@
 
       /** Draw the screen that follows a finished student action. */
       const renderCompletedAction = (action) => {
+        if (APP_MODE === 'kiosk') {
+          const outcome = state && state.actionOutcome || {};
+          const message = action === 'RETURN' ? 'Return recorded. You’re all set.'
+            : outcome.kind === 'QUEUED' ? 'You’re in line. Your teacher will let you know when it’s your turn.'
+            : action === 'CHECKIN' ? 'Check-in recorded.'
+            : state && state.ownPass ? 'Pass started. Enter your PIN again when you return.'
+            : 'Request checked. Ask your teacher if you need help.';
+          resetToPin(message);
+          return;
+        }
         if (action === 'CHECKIN') {
           renderCheckIn();
           if (sharedDevice()) scheduleHandoff(state.actionOutcome && state.actionOutcome.kind === 'LATE_CHECK_IN_RECORDED' ? 'Late sign-in recorded. This screen clears itself for the next student.' : 'Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
@@ -970,8 +1024,8 @@
             <p class="message">${escapeHtml(message || (checkIn
               ? 'A fresh PIN records exactly one daily check-in.'
               : 'A fresh PIN either requests the bathroom or records your return.'))}</p>
-            <label class="pin-label" for="action-pin">Your six-digit PIN</label>
-            <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
+            <label class="pin-label" for="action-pin">Your 5- or 6-digit PIN</label>
+            <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off" aria-label="5- or 6-digit student PIN" required>
             <button class="primary" type="submit">${checkIn ? 'check in now' : 'continue'}</button>
             ${checkIn ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
             ${canGoBack ? '<button class="secondary" id="cancel-action-pin" type="button">go back</button>' : ''}
@@ -1146,7 +1200,7 @@
         }));
 
         const switchButton = document.querySelector('#switch-student');
-        if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN.'));
+        if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your 5- or 6-digit PIN.'));
         const pinButton = document.querySelector('#use-pin');
         if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your PIN if this Chromebook is not signed into your own account.'));
         const evidenceDialog = document.querySelector('#allowance-evidence-dialog');
@@ -1268,10 +1322,10 @@
         }));
 
         const nextButton = document.querySelector('#checkin-next');
-        if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN to check in.'));
+        if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your 5- or 6-digit PIN to check in.'));
 
         const pinButton = document.querySelector('#checkin-pin');
-        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your one six-digit student PIN. It works in all your classes.'));
+        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your 5- or 6-digit student PIN. It works in all your classes.'));
         renderCheckling();
         armIdleReset();
       };
@@ -1407,6 +1461,7 @@
               <div class="ck-growth"><div><strong>${escapeHtml(companion.stage)}</strong><span>best streak · ${best}</span></div><progress value="${Math.min(best,goal)}" max="${goal}" aria-label="${companion.nextMilestone ? `${best} of ${goal} school days toward the next stage` : 'All Checkling stages unlocked'}"></progress><p>${companion.nextMilestone ? `${Math.max(0,goal-best)} more consecutive school ${goal-best === 1 ? 'day' : 'days'} to the next little adventure.` : 'Every home unlocked. There’s still a whole world to play in.'}</p></div>
               ${pet ? '<div class="ck-action-grid"><button type="button" class="secondary" id="ck-nuzzle">nuzzle</button><button type="button" class="secondary" id="ck-snacks">snacks</button><button type="button" class="secondary" id="ck-pairs">star pairs</button><button type="button" class="secondary" id="ck-echo">echo grove</button></div><div id="ck-play" class="ck-play" aria-label="Checkling play corner"></div>' : ''}
               ${pet ? '<button type="button" class="secondary" id="ck-open-camp">open Pixel Camp</button><p class="ck-note">Your school PIN, original friend, earned homes and private camp save travel together.</p>' : ''}
+              ${pet ? '<button type="button" class="secondary" id="ck-ride-bus">ride the bus to the Checkaverse</button><p id="ck-bus" class="ck-note" role="status">Battle your class and keep what you catch. Your ticket carries no name.</p>' : ''}
               <details ${pet ? '' : 'open'}><summary>${pet ? 'make it yours' : 'hatch a friend'}</summary><form id="ck-form">
                 <fieldset class="ck-friends"><legend>Choose a friend</legend>${friends.map(entry => `<label><input type="radio" name="ck-species" aria-label="${escapeHtml(entry.name + ", " + entry.kind)}" value="${entry.id}" ${entry.id === friend.id ? 'checked' : ''}><img src="${images}${entry.id}/idle-1.png" alt="" width="56" height="56" referrerpolicy="no-referrer"><span>${entry.name}</span></label>`).join('')}</fieldset>
                 <label class="ck-name">Their name<input name="ck-name" maxlength="18" required value="${escapeHtml(pet ? pet.name : friend.name)}" autocomplete="off"></label>
@@ -1419,6 +1474,28 @@
           </section>`;
         const campButton = slot.querySelector('#ck-open-camp');
         if (campButton) campButton.onclick = openPixelCamp;
+        // The bus prints a two hour ticket for the shared town. The student taps a second time to board, so no
+        // pop-up blocker can stop it and nothing opens on its own.
+        const busButton = slot.querySelector('#ck-ride-bus');
+        if (busButton) busButton.onclick = async () => {
+          const token = pinToken, line = slot.querySelector('#ck-bus');
+          busButton.disabled = true; noteInteraction();
+          line.textContent = 'Printing your bus ticket…';
+          try {
+            const ride = await call('getCheckaverseTicket', token);
+            if (token !== pinToken || !line.isConnected) return;
+            const link = document.createElement('a');
+            link.href = ride.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.className = 'ck-bus-link';
+            link.textContent = 'board the bus ↗';
+            line.textContent = '';
+            line.append(link, ' Your ticket works for two hours in the tab it opens.');
+            link.focus();
+          } catch (error) {
+            if (line.isConnected) line.textContent = error.message || 'The bus could not leave. Try again.';
+          } finally {
+            if (busButton.isConnected) busButton.disabled = false;
+          }
+        };
         const shell = slot.querySelector('.ck-pocket');
         // An active companion visit may outlast the brief transaction handoff.
         // The existing two-minute inactivity reset and explicit next-student
@@ -1836,10 +1913,57 @@
         });
       };
 
+      const openSchoolDirectoryDialog = async () => {
+        const directory = await call('teacherGetSchoolDirectoryState');
+        let previewKey = '', revision = '';
+        teacherFormDialog(`<p class="eyebrow">SCHOOLWIDE ROSTER · VERSION ${escapeHtml(directory.version)}</p><h2>one school number in every room.</h2>
+          <p>Import the school list into a separate private directory. Students stay unassigned until you add them to a class. Link verified school emails by the exact lunch number.</p>
+          ${directory.directoryUrl ? `<p><a href="${escapeHtml(directory.directoryUrl)}" target="_blank" rel="noopener">Open your private directory</a> · ${escapeHtml(directory.students)} students · ${escapeHtml(directory.withoutEmail)} need email mapping.</p>` : ''}
+          <label>Choose a task<select name="task"><option value="import">Import / update the school directory</option><option value="connect">Connect this classroom to a directory</option><option value="enroll">Enroll a student by school number</option></select></label>
+          <label>School list (number, then name; or tab-separated number, name, email)<textarea name="list" rows="7" autocomplete="off"></textarea></label>
+          <label>Verified email mapping (optional; number,school email)<textarea name="mapping" rows="4" autocomplete="off"></textarea></label>
+          <label>Directory spreadsheet link (for connection)<input name="directory" value="${escapeHtml(directory.sourceId ? ['https:', '', 'docs.google.com', 'spreadsheets', 'd', directory.sourceId, 'edit'].join('/') : directory.directoryUrl)}" autocomplete="off"></label>
+          <label>School number (for enrollment)<input name="studentId" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off"></label>
+          <label>Class / period (for enrollment)<input name="period" placeholder="Period 1" autocomplete="off"></label>
+          <div class="lunch-preview" hidden></div>
+          <label>Confirmation (shown after preview)<input name="confirmation" autocomplete="off"></label>`, async (form) => {
+          const task = form.elements.task.value, list = form.elements.list.value, mapping = form.elements.mapping.value;
+          const directoryUrl = form.elements.directory.value;
+          if (task === 'enroll') {
+            adoptState(await call('teacherEnrollSchoolStudent', form.elements.studentId.value, form.elements.period.value));
+            renderTeacher(); return true;
+          }
+          const key = JSON.stringify([task, list, mapping, directoryUrl]);
+          const box = form.querySelector('.lunch-preview');
+          const phrase = task === 'connect' ? 'USE SCHOOL DIRECTORY' : 'IMPORT SCHOOL DIRECTORY';
+          if (previewKey !== key || !revision) {
+            const result = task === 'connect'
+              ? await call('teacherConnectSchoolDirectory', directoryUrl, '', '')
+              : await call('teacherImportSchoolDirectory', list, mapping, '', '');
+            const p = result.preview; revision = p.revision; previewKey = key;
+            box.hidden = false;
+            box.innerHTML = task === 'connect'
+              ? `<p>${escapeHtml(p.matched)} current students matched. ${escapeHtml(p.unmatched.length)} need verified mappings.</p>${p.unmatched.length ? `<p>${escapeHtml(p.unmatched.join(', '))}</p>` : `<p>Current PINs will change to the exact school lunch numbers. Open identity sessions will expire.</p>`}`
+              : `<p>${escapeHtml(p.total)} students in the directory, ${escapeHtml(p.added)} added, ${escapeHtml(p.withoutEmail)} without email mappings. No class enrollments are created.</p>`;
+            box.innerHTML += `<p>Type <strong>${phrase}</strong>, then save again to apply.</p>`;
+            form.elements.confirmation.value = '';
+            return false;
+          }
+          if (form.elements.confirmation.value.trim() !== phrase) throw new Error('Type ' + phrase + ' to apply the preview.');
+          const result = task === 'connect'
+            ? await call('teacherConnectSchoolDirectory', directoryUrl, phrase, revision)
+            : await call('teacherImportSchoolDirectory', list, mapping, phrase, revision);
+          if (!result.applied) throw new Error('The change was not applied. Preview again.');
+          teacherNotice = task === 'connect' ? 'Classroom connected. Students now use their exact school lunch number.' : 'School directory imported. Students remain unassigned until enrolled in a class.';
+          renderTeacher();
+          return true;
+        });
+      };
+
       const openLunchPinDialog = () => {
         let previewed = '';
         teacherFormDialog(`<p class="eyebrow">STUDENT PINS</p><h2>use lunch numbers as PINs.</h2>
-          <p>Paste two columns from the school list: each student's school email and their 6-digit lunch number. Students who are not in your classes are ignored, so the whole school list is fine.</p>
+          <p>Paste two columns from the school list: each student's school email and their 5- or 6-digit lunch number. Students who are not in your classes are ignored, so the whole school list is fine.</p>
           <label>School list<textarea name="list" rows="8" placeholder="student@students.school.org&#9;412345"></textarea></label>
           <div class="lunch-preview" hidden></div>
           <label class="lunch-confirm" hidden>Type USE LUNCH NUMBERS to switch<input name="confirmation" autocomplete="off"></label>`,
@@ -2041,11 +2165,12 @@
           card.querySelectorAll('[data-copy-link]').forEach((input) => input.addEventListener('focus', () => input.select()));
           const lunch = document.createElement('section');
           lunch.className = 'subcard setup-card'; lunch.id = 'lunch-pin-card';
-          lunch.innerHTML = `<h3>lunch-number PINs</h3>
-            <p class="message">When you have the school list, students can use their 6-digit lunch number as their PIN. Paste the list, check the preview, then confirm. Students not on the list keep their current PIN.</p>
-            <div class="button-row"><button class="secondary" type="button" id="open-lunch-pins">switch PINs to lunch numbers</button></div>`;
+          lunch.innerHTML = `<h3>school directory &amp; lunch-number PINs</h3>
+            <p class="message">When you have the school list, students can use their 5- or 6-digit lunch number as their PIN. Paste the list, check the preview, then confirm. Students not on the list keep their current PIN.</p>
+            <div class="button-row"><button class="secondary" type="button" id="open-lunch-pins">switch PINs to lunch numbers</button><button class="secondary" type="button" id="open-school-directory">school directory / enroll by number</button></div>`;
           panels.settings.append(lunch);
           lunch.querySelector('#open-lunch-pins').addEventListener('click', () => openLunchPinDialog());
+          lunch.querySelector('#open-school-directory').addEventListener('click', (event) => act(event.currentTarget, openSchoolDirectoryDialog));
           if (!setup.bellsReady || !setup.membershipCount) {
             const banner = document.createElement('div'); banner.className = 'attention-banner setup-banner';
             banner.innerHTML = !setup.bellsReady
@@ -2296,7 +2421,7 @@
               <td class="action"><div class="table-actions"><button class="secondary compact" data-reset-pin-email="${escapeHtml(student.email)}" data-reset-pin-name="${escapeHtml(student.name)}">reset PIN</button><button class="secondary compact danger" data-remove-student="${escapeHtml(student.key)}" data-remove-name="${escapeHtml(student.name)}" data-remove-class="${escapeHtml(student.classPeriod)}">remove from class</button></div></td>
             </tr>`).join('') : '<tr><td colspan="4">No active students are on the roster.</td></tr>';
         const rosterResultHtml = teacherRosterResult ? `
-          <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new six-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
+          <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new 5- or 6-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
 
         const pinPreviewHtml = teacherPinPreview ? `
           <div class="notice warning email-preview"><p><strong>${escapeHtml(teacherPinPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(teacherPinPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(teacherPinPreview.subject)}</p><p>${escapeHtml(teacherPinPreview.example)}</p></div>` : '';
@@ -2830,7 +2955,7 @@
         } catch (error) {
           if (/expired/i.test(error.message || '')) {
             studentRefreshFailures = 0;
-            resetToPin('Enter your six-digit PIN again.');
+            resetToPin('Enter your 5- or 6-digit PIN again.');
             return;
           }
           studentRefreshFailures += 1;
@@ -2840,6 +2965,13 @@
         }
       };
 
+      window.addEventListener('offline', () => {
+        if (APP_MODE === 'kiosk' && !inFlight) resetToPin('Connection lost. Reconnect before entering your PIN.');
+      });
+      window.addEventListener('online', () => {
+        if (APP_MODE === 'kiosk' && !inFlight) resetToPin('Connection restored. Enter your PIN. If a previous request was interrupted, ask your teacher to check its status first.');
+      });
+
       /* ---------------------------------------------------------------- boot */
 
       (async () => {
@@ -2847,7 +2979,7 @@
           adoptState(await call('getBootstrap', APP_MODE));
           setTitle(state.appTitle);
           if (APP_MODE === 'teacher') renderTeacher();
-          else if (APP_MODE === 'kiosk') resetToPin('Enter your six-digit PIN.');
+          else if (APP_MODE === 'kiosk') resetToPin('Enter your 5- or 6-digit PIN.');
           else if (!state.recognized) renderPin(state.message, APP_MODE === 'checkin' ? 'checkin' : 'pass');
           else renderResolvedState(APP_MODE === 'checkin' ? 'checkin' : 'pass');
 
@@ -2884,7 +3016,7 @@
  <div class="game-layout">
   <aside class="party-panel panel" aria-label="Your party"><div class="section-label">YOUR PARTY</div><div id="party-list" class="party-list" role="group" aria-label="Choose a founder"></div><div class="friend-details"><div class="friend-heading"><h2 id="pet-name">Mochi</h2><button type="button" id="rename" class="tiny-button">Name</button></div><p id="pet-region" class="region-label">MEADOWS</p><div id="vitals" class="vitals"></div><p id="pet-note" class="pet-note">Ready to play.</p></div><button type="button" id="open-decor" class="decor-open"><span class="item i-planter" aria-hidden="true"></span><span>Decorate camp</span></button><div class="trail-progress"><span class="item i-badge" aria-hidden="true"></span><div><strong id="discovery-count">0 / 12</strong><span>Trail discoveries</span></div></div></aside>
   <div class="play-area">
-   <section id="world-view" aria-label="Camp and trail"><div class="world-frame"><div class="world" id="world" data-weather="sun"><img id="world-art" class="world-art" src="assets/willowbank-pixel.png" alt="Pixel woodland camp with a shelter, grassy paths, stream and pond" fetchpriority="high"><div class="weather-shade" aria-hidden="true"></div><div class="location-hud"><div class="location-label"><span id="location-name">WILLOWBANK CAMP</span><small id="location-hint">Pick a friend.</small></div><label class="weather-label"><span class="sr-only">Camp weather</span><select data-desk-skip id="weather"><option value="sun">Sun</option><option value="rain">Rain</option><option value="dusk">Night</option></select></label></div><button type="button" id="ground" class="ground" aria-label="Call your selected friend to a spot in camp"></button><div id="trail-landmark" class="trail-landmark" hidden aria-hidden="true"></div><div id="camp-decoration" class="camp-decoration" hidden aria-hidden="true"></div><div id="actors" class="actors"></div><div id="care-prop" class="care-prop" hidden aria-hidden="true"></div>
+   <section id="world-view" aria-label="Camp and trail"><div class="world-frame"><div class="world" id="world" data-weather="sun"><img id="world-art" class="world-art" src="assets/willowbank-pixel.png" alt="Pixel woodland camp with a shelter, grassy paths, stream and pond" fetchpriority="high"><div class="weather-shade" aria-hidden="true"></div><div class="location-hud"><div class="location-label"><span id="location-name">KETTLE CREEK</span><small id="location-hint">Pick a friend.</small></div><label class="weather-label"><span class="sr-only">Camp weather</span><select data-desk-skip id="weather"><option value="sun">Sun</option><option value="rain">Rain</option><option value="dusk">Night</option></select></label></div><button type="button" id="ground" class="ground" aria-label="Call your selected friend to a spot in camp"></button><div id="trail-landmark" class="trail-landmark" hidden aria-hidden="true"></div><div id="camp-decoration" class="camp-decoration" hidden aria-hidden="true"></div><div id="actors" class="actors"></div><div id="care-prop" class="care-prop" hidden aria-hidden="true"></div>
     <div id="practice-welcome" class="practice-welcome panel" hidden><span class="item i-sword" aria-hidden="true"></span><h2>STUMP SPARRING</h2><p>Watch its next move.<br>Guard big hits. Find your opening.</p><button type="button" id="start-practice">Let’s practice!</button><small>No injuries. Leave any time.</small></div>
     <div id="combat-scene" class="combat-scene" hidden><div class="combat-hud friend-hud panel"><strong id="battle-friend-name">Mochi</strong><div class="combat-meter"><span>HP</span><meter id="friend-hp" min="0" max="65" value="65" aria-label="Friend practice health"></meter><span id="friend-hp-text">65/65</span></div><div class="combat-meter"><span>SP</span><meter id="friend-sp" min="0" max="10" value="10" aria-label="Friend stamina"></meter><span id="friend-sp-text">10/10</span></div></div><div class="combat-hud enemy-hud panel"><strong>PRACTICE STUMP</strong><div class="combat-meter"><span>HP</span><meter id="enemy-hp" min="0" max="125" value="125" aria-label="Practice stump health"></meter><span id="enemy-hp-text">125/125</span></div><div class="intent-label"><span>NEXT:</span><strong id="enemy-intent">STRIKE</strong></div></div><img id="battle-friend-art" class="battle-friend-art" src="assets/mochi.png" alt="Mochi practicing"><div id="stump-sprite" class="stump-sprite" role="img" aria-label="Friendly wooden practice stump" data-pose="0" aria-busy="true"><img id="stump-art" class="stump-atlas" src="assets/practice-stump-sheet.png" alt="" width="2172" height="724" fetchpriority="low" decoding="async"></div><div id="practice-result" class="practice-result panel" hidden><span class="item i-badge" aria-hidden="true"></span><strong id="result-title">PRACTICE CLEAR!</strong><span id="result-copy">Nice work. Everyone is okay.</span><div><button type="button" id="retry-practice">Again!</button><button type="button" data-go="home">Back to camp</button></div></div></div>
    </div></div>

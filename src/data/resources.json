@@ -1,7 +1,7 @@
 {
   "source": "the-desk-public-resource-catalog",
   "resourceCount": 136,
-  "linkedCount": 128,
+  "linkedCount": 133,
   "resources": [
     {
       "id": "002-cold-war-timeline-slides",
@@ -1153,7 +1153,8 @@
       "name": "Station Sheets & Claim Cards",
       "type": "Packet",
       "onWebsite": true,
-      "href": "https://docs.google.com/document/d/1-IBhlpcTMofvfwFthAYZelwl9H4FGULBCL9EQoqfclk/edit"
+      "href": null,
+      "status": "coming-soon"
     },
     {
       "id": "502-scoreboard-unit-2-lesson-07-belt-classroom-deck",
@@ -1162,8 +1163,7 @@
       "name": "Lesson 07 — The Belt Nobody Wanted Him to Hold",
       "type": "Slides",
       "onWebsite": true,
-      "href": null,
-      "status": "coming-soon"
+      "href": "/downloads/slides/bts-l07-the-belt-nobody-wanted-him-to-hold.pptx"
     },
     {
       "id": "503-scoreboard-unit-2-lesson-08-fifteen-rounds-classroom-deck",
@@ -1172,8 +1172,7 @@
       "name": "Lesson 08 — Fifteen Rounds and the Count That Followed",
       "type": "Slides",
       "onWebsite": true,
-      "href": null,
-      "status": "coming-soon"
+      "href": "/downloads/slides/bts-l08-fifteen-rounds-and-the-count-that-followed.pptx"
     },
     {
       "id": "504-scoreboard-unit-2-lesson-09-law-chased-film-classroom-deck",
@@ -1182,8 +1181,7 @@
       "name": "Lesson 09 — The Law That Chased the Film",
       "type": "Slides",
       "onWebsite": true,
-      "href": null,
-      "status": "coming-soon"
+      "href": "/downloads/slides/bts-l09-the-law-that-chased-the-film.pptx"
     },
     {
       "id": "505-scoreboard-unit-2-lesson-10-statute-broad-enough-classroom-deck",
@@ -1192,8 +1190,7 @@
       "name": "Lesson 10 — A Statute Broad Enough to Fit",
       "type": "Slides",
       "onWebsite": true,
-      "href": null,
-      "status": "coming-soon"
+      "href": "/downloads/slides/bts-l10-a-statute-broad-enough-to-fit.pptx"
     },
     {
       "id": "506-scoreboard-unit-2-lesson-11-eight-men-two-verdicts-classroom-deck",
@@ -1202,8 +1199,7 @@
       "name": "Lesson 11 — Eight Men, Two Verdicts",
       "type": "Slides",
       "onWebsite": true,
-      "href": null,
-      "status": "coming-soon"
+      "href": "/downloads/slides/bts-l11-eight-men-two-verdicts.pptx"
     },
     {
       "id": "507-scoreboard-unit-2-lesson-12-authority-outlived-everyone-classroom-deck",
@@ -1212,8 +1208,7 @@
       "name": "Lesson 12 — The Authority That Outlived Everyone",
       "type": "Slides",
       "onWebsite": true,
-      "href": null,
-      "status": "coming-soon"
+      "href": "/downloads/slides/bts-l12-the-authority-that-outlived-everyone.pptx"
     },
     {
       "id": "508-scoreboard-unit-2-student-activity-packet-v2",

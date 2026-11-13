@@ -8,7 +8,14 @@ import { chromium } from 'playwright';
 const origin = 'http://127.0.0.1:4391';
 const artifacts = new URL('../browser-results/', import.meta.url);
 const artifact = name => fileURLToPath(new URL(name, artifacts));
-const routes = ['/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/', '/resources/', '/tools/', '/check-in/', '/pass/', '/hubs/ush9-l015-who-showed-up.html', '/hubs/bts-l03-not-in-the-room.html', '/hubs/hh-l06-two-sources.html'];
+const routes = [
+  '/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/',
+  '/resources/', '/tools/', '/ready/', '/check-in/', '/pass/',
+  '/hubs/ush9-l014-unions.html',
+  '/hubs/ush9-l015-who-showed-up.html',
+  '/hubs/bts-l03-not-in-the-room.html',
+  '/hubs/hh-l06-two-sources.html',
+];
 const viewports = [
   { name: 'phone-320', width: 320, height: 740 },
   { name: 'phone-390', width: 390, height: 844 },
@@ -66,6 +73,73 @@ try {
   server = await preview({ server: { host: '127.0.0.1', port: 4391 } });
   browser = await chromium.launch({ headless: true });
   for (const viewport of viewports) {
+    await runCase('curiosity archive during a catalog outage', viewport, async page => {
+      const requests = [];
+      await page.route('**/.netlify/functions/curiosity?*', route => {
+        const collection = new URL(route.request().url()).searchParams.get('collection');
+        requests.push(collection);
+        return route.fulfill({ status: 502, json: { collection, items: [] } });
+      });
+      await visit(page, '/curiosity-desk/');
+      const desk = page.locator('[data-curiosity-desk]');
+      const status = desk.locator('[data-curiosity-live-status]');
+      await status.filter({ hasText: 'live catalog unavailable' }).waitFor();
+      assert.deepEqual(requests, ['power'], 'Only the initial collection loads before a reader interacts');
+      for (const collection of ['power', 'entertainment', 'sports', 'mysteries', 'michigan']) {
+        await desk.locator(`[data-filter="${collection}"]`).click();
+        const image = desk.locator('[data-field="image"]');
+        await image.waitFor();
+        await page.waitForFunction(() => document.querySelector('[data-field="image"]').naturalWidth > 0);
+        assert.match(await image.getAttribute('src'), /^\/images\/curiosity\/.+\.webp$/);
+        assert.equal(await desk.locator('[data-field="mode"]').textContent(), 'selected archive record');
+        assert.match(await desk.locator('[data-link="record"]').first().getAttribute('href'), /^https:\/\//);
+        const reveal = desk.locator('[data-action="reveal"]');
+        await reveal.focus();
+        await page.keyboard.press('Enter');
+        assert.equal(await reveal.getAttribute('aria-expanded'), 'true');
+        assert.ok(await desk.locator('[data-field="context-panel"]').isVisible());
+      }
+      assert.ok(requests.includes('michigan'), 'Live collection requests follow the chosen filter');
+      const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      assert.deepEqual(audit.violations.map(violation => violation.id), []);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    }, 'reduce');
+
+    await runCase('curiosity live response preserves a revealed artifact', viewport, async page => {
+      let respond;
+      const pending = new Promise(resolve => { respond = resolve; });
+      await page.route('**/.netlify/functions/curiosity?*', async route => {
+        const collection = new URL(route.request().url()).searchParams.get('collection');
+        if (collection === 'power') await pending;
+        await route.fulfill({ json: { items: [{
+          alt: 'Live catalog fixture',
+          record: `https://www.loc.gov/item/${collection}-fixture/`,
+          image: 'https://tile.loc.gov/fixture.jpg',
+        }] } });
+      });
+      try {
+        await visit(page, '/curiosity-desk/');
+        const desk = page.locator('[data-curiosity-desk]');
+        const mode = desk.locator('[data-field="mode"]');
+        const panel = desk.locator('[data-field="context-panel"]');
+        await desk.locator('[data-action="reveal"]').click();
+        respond();
+        await desk.locator('[data-curiosity-live-status]').filter({ hasText: 'live catalog records available' }).waitFor();
+        assert.ok(await panel.isVisible(), 'Delayed response leaves open context in place');
+        assert.equal(await mode.textContent(), 'selected archive record');
+        await desk.locator('[data-action="next"]').click();
+        assert.equal(await mode.textContent(), 'live catalog record');
+        assert.ok(await panel.isHidden());
+        await desk.locator('[data-filter="michigan"]').click();
+        await desk.locator('[data-link="record"]').first().and(page.locator('[href="https://www.loc.gov/item/michigan-fixture/"]')).waitFor();
+        assert.equal(await mode.textContent(), 'live catalog record');
+        await desk.locator('[data-action="next"]').click();
+        assert.equal(await mode.textContent(), 'selected archive record', 'The selected artifact is still available with a working feed');
+      } finally {
+        respond();
+      }
+    });
+
     for (const route of routes) await runCase(`page ${route}`, viewport, async page => {
       await visit(page, route);
       assert.ok(await page.locator('h1').first().isVisible(), 'Visible page heading');
@@ -128,6 +202,48 @@ try {
         assert.ok(titles.some(title => title.trim().toLowerCase() === current), `${course} calendar matches course`);
         assert.ok(await page.locator('[data-calendar-event]:visible').evaluateAll((events, course) => events.every(event => ['all', course].includes(event.dataset.course)), course), 'Unrelated milestones hidden');
       }
+    });
+    await runCase('Ready imports, rejects and clears local snapshots', viewport, async page => {
+      await visit(page, '/ready/');
+      const input = page.locator('#ready-file');
+      const message = page.locator('#ready-message');
+      const status = page.locator('#overall-status .ready-status__label');
+      await page.locator('#load-sample').click();
+      assert.equal(await status.textContent(), 'blocked');
+      assert.equal(await page.locator('#exception-list article').count(), 2);
+      assert.match(await message.textContent(), /Sample preview/);
+
+      const snapshot = {
+        schemaVersion: 1, generatedAt: '2026-11-09T12:00:00Z',
+        source: 'Synthetic fixture', sourceVersion: '1',
+        courses: [{ courseName: 'Synthetic class', checks: [{
+          id: 'fixture', label: 'Attachment checked', status: 'pass', detail: '<em>Text only</em>',
+        }] }],
+      };
+      const file = (name, data) => ({ name, mimeType: 'application/json', buffer: Buffer.from(data) });
+      await input.setInputFiles(file('valid.json', JSON.stringify(snapshot)));
+      await message.filter({ hasText: 'valid.json loaded.' }).waitFor();
+      assert.equal(await status.textContent(), 'ready');
+      assert.equal(await page.locator('#course-list em').count(), 0);
+      assert.match(await page.locator('#course-list').textContent(), /<em>Text only<\/em>/);
+
+      await input.setInputFiles(file('invalid.json', '{'));
+      await page.locator('#ready-message[data-error="true"]').waitFor();
+      assert.ok(await page.locator('#ready-results').isHidden());
+      assert.equal(await page.locator('#course-list details').count(), 0);
+
+      await page.evaluate(() => {
+        File.prototype.text = () => new Promise(resolve => { window.releaseReadyRead = resolve; });
+      });
+      await input.setInputFiles(file('slow.json', JSON.stringify(snapshot)));
+      await message.filter({ hasText: 'Reading snapshot' }).waitFor();
+      await page.locator('#clear-ready').click();
+      await page.evaluate(async json => {
+        window.releaseReadyRead(json);
+        await new Promise(resolve => requestAnimationFrame(resolve));
+      }, JSON.stringify(snapshot));
+      assert.equal(await status.textContent(), 'waiting for a scan');
+      assert.ok(await page.locator('#ready-results').isHidden());
     });
     await runCase('course materials open the guided heel project', viewport, async page => {
       await visit(page, '/beyond-the-scoreboard/');
@@ -192,17 +308,6 @@ try {
     hiddenHistorySource.includes('the four verdicts — confirmed, debunked, misleading, unproven')
       && !hiddenHistorySource.includes('verdict: it’s complicated'),
     'Hidden History uses one Four Verdicts vocabulary',
-  );
-
-  const curiositySource = await readFile(new URL('../src/components/CuriosityDesk.astro', import.meta.url), 'utf8');
-  pass(
-    !curiositySource.includes('Promise.all(Object.keys(curiosityCollections).map(loadCollection))'),
-    'Curiosity Desk does not preload all five collections',
-  );
-  pass(
-    curiositySource.includes('loadCollection(initialCollection)')
-      && curiositySource.includes('await loadCollection(nextItem.collection)'),
-    'Curiosity Desk loads the first and next collections on demand',
   );
 
   const deskObjectSource = await readFile(new URL('../src/components/DeskObject.astro', import.meta.url), 'utf8');

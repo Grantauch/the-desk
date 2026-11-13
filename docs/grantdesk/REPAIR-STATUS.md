@@ -1,3 +1,123 @@
+## November 12 student discovery and navigation
+
+Owner Codex. Reconciled all 109 root HTML hub experiences against the two catalogs and inspected the 13 exceptions. Add the student Jeopardy join page and repaired Constitution Day case files to games; replace the stale U.S. History Jeopardy V2 link with V3, remove V2 from the sitemap and remove prototype Lab/Situation Room navigation. Original files remain available for existing links.
+
+Constitution Day uses the shared save runtime with unchanged `q:` keys, accessible response labels and first-period support. Focused synthetic browser checks pass at 320, 390 and 1440 pixels, including shared-device isolation, refresh/clear, all three course panels and failed join behavior. Full canonical `npm run verify`, 72/72 main UI cases and 78/78 extended browser cases passed. Protected CI and production publication remain separate at this source checkpoint. The disposition table and full inventory are in [the audit](../student-discovery-audit-2026-11-12.md); held activities have not been repaired or promoted. Physical school-device/network and real teacher-hosted game acceptance are separate.
+
+## November 11 Cinematic Atlas visual polish
+
+Owner Codex. Illustrated clouds use a single drifting field with shaded wisps and tall cores. Expanded mode brings teaching tools onto the globe, adds decluttered country labels for the active map, and draws an animated great-circle measurement with labeled pins and reduced-motion support. Iran and North Korea cards correct the U.S. diplomatic relationship field, and the 1914 snapshot uses Republic of China. Protected CI, live readback and physical Chromebook use are tracked separately.
+
+## November 11 orbital events
+
+Owner Codex. Seven classroom reconstructions and illustrations play as their locations face the idle homepage globe. Expanded mode offers a year-filtered scene picker and replay. Reduced motion uses a static frame. Local Atlas unit tests and the site build pass. Protected browser checks and production readback are separate.
+
+## November 11 Cinematic Atlas atmosphere and homepage glass
+
+Owner Codex. The Earth shader deepens the illustrated cloud banks and adds a broader blue and amber atmospheric halo. The homepage adds soft haze behind the globe, frosted Explore and story controls, and glass-inspired surfaces on the daily links and instrument strip. The globe strengthens day-night contrast and terrain relief, adds a cloud and haze toggle, and measures great-circle distances with two globe pins. Current country cards use archived facts, and six sourced border snapshots show the selected historical names. The atmospheric effects reuse existing meshes and textures. Protected CI, production readback and school Chromebook performance are tracked separately.
+
+## November 9 GrantDesk Ready viewer
+
+Owner Codex. Forward-ports the browser-local Ready Snapshot viewer from PR #86. The direct `/ready/` route accepts a sanitized JSON file or opens a labeled sample. Invalid imports clear the previous result, and clearing or choosing another input prevents a late file read from restoring stale data. The release adds the snapshot unit checks and synthetic browser journey to the existing verification suites. The GoClassroom scanner remains a separate integration.
+
+## November 6 unpublished-work integration
+
+Owner: Codex. Grant requested publication of finished website work and an audit of all open PRs. The release combines the remaining WWI trench props (#312–#314), Kettle Creek graphics (#300, excluding companion following under the Design Bible), and current assistant-board navigation (#288), preserving the newer Hall Pass/StoryHub baseline. It fixes the delayed trench return fade and checks authoritative resident rosters instead of an invalid fixed commuter count. Both museum suites are added to protected browser acceptance.
+
+The initial public crawl returned HTTP 200 for 250 distinct page URLs. Checkaverse publicly reports healthy 0.15.0; its source update still requires the separate PC runtime. TheAtlas is offline in Desktop Commander, so no game process or private storage was touched. Source, local verification, protected CI, Netlify publication and physical school acceptance remain separate evidence stages. Hall Pass distribution/cutover and the approval-guard draft remain outside this release. The Windows kiosk screenshot path is repaired with fileURLToPath; real synthetic kiosk flows pass at320/768/1366. Canonical verification passed with zero errors/warnings,167 HTML files and5464 references on the preceding source tree; protected CI verifies the final tree separately. The catalog also retains eight BTS Unit2 coming-soon entries awaiting student-publication QA. The complete [open-PR inventory](../publication-readiness-2026-11-06.md) explains which old drafts and prototypes are still held and why.
+
+Protected run 42330229902 passed full verification, the Checkaverse and main browser suites, and museum observation, then timed out polling the settled supply-tour fade for two seconds. Both museum suites now assert that the finale state clears and the configured return transition is at most one second before waiting for a rendered transparent overlay. The product fade is unchanged at 350 ms; this separates animation timing from a slow software-rendered frame. Fresh protected browser verification is required.
+
+## November 6 resource access repair
+
+Owner: Codex. All 128 originally linked Drive resource IDs resolved. Twenty owner-only lessons and three named-account-only lessons now have school-domain viewer permission with link discovery disabled; independent permission readback confirmed all 23 and existing grants were preserved. One group-shared resource needs intended-student acceptance. No broad public sharing was applied.
+
+The explicitly unreviewed Station Sheets & Claim Cards draft stays private and is marked coming-soon rather than linking students to an access-request dead end. The public catalog now has 136 records, 127 links and nine coming-soon entries. Targeted catalog fixtures, the 54-route build and static validation pass (167 HTML files, 5464 local references, 32 releases/244 sealed assets). Full canonical verification then passed with zero diagnostic errors/warnings. The final Netlify preview served the corrected catalog and five exact model files. Protected promotion remains pending at this source checkpoint. No student identifiers or private permission-recipient IDs are recorded here.
+
+## November 4 trench supply polish
+
+Owner: Codex. Three M1903 Springfield/M1905 bayonet reconstructions replace the rifle sticks, and four generic planked timber cases replace plain boxes. The overlapping entry cases are stacked. Each class shares geometry/materials and retains an independent original fallback. Editable .blend files, generator, compact GLBs and period/source limitations are recorded alongside the earlier models.
+
+Chrome at 1366x768 and 390x768 passes all six optional asset classes, seven stops, periscope/Escape and ladder/return with zero page errors or model warnings. Separate missing-rifle and missing-case scenarios retain only their original class while the remaining models load. Protected full checks and production readback are pending; physical Chromebook and classroom acceptance remain separate.
+
+## November 4 trench observation polish
+
+Owner: Codex. Three Blender reconstructions replace the simple M1917 and Adrian helmet props and wooden periscope in Over the Top. Editable .blend sources, small texture-free GLBs, museum references and display-scale limitations are included. The five helmets share geometry/materials and each optional asset has an independent original-prop fallback.
+
+Chrome journeys at 1366x768 and 390x768 load all models, traverse seven stops, enter/exit the periscope and complete the ladder/return flow with zero page errors or model warnings. Three separate HTTP404 scenarios retain only the failed asset's original while loading the other replacements. Source scene/camera, reading text, sandbag instances and performance controls remain intact. Protected full checks, production deployment/readback and physical Chromebook/classroom acceptance remain separate gates.
+
+## November 4 website publication recovery
+
+Owner: Codex. The published Michael Vick release includes all merged website changes since the November 2 baseline, including the WWI week, all ten Arsenal Blender models, Over the Top sandbags and the Somme tank. PR #311 is now merged to preserve both Vick pages on main. Published commit `692e657ea5d182dfb61ebda8a06b982164c2a2df` and main merge `029a951c28097eb1cb828bf655fce013521c515b` have the identical Git tree `e6a785806234d28112e1f7d1af620a2b9ae209be`.
+
+Eight production route checks returned HTTP 200. Prior actual production browser checks loaded all ten Arsenal GLBs and Blender trench sandbags with no page errors or model warnings. Skipped older main builds are superseded, so replaying them would roll back newer work. Credits have been restored by Grant; a fresh protected-main production rebuild and readback are the next gate. Checkaverse separately reports healthy version 0.15.0; this does not claim a server or Apps Script deployment. Draft and preproduction work remains separate from classroom-ready publication.
+
+## November 5 published-link recovery after actual blank-copy verification
+
+Owner: Codex. PR #322 was merged as 60eecb1e12f9890e951012f20617f40b766e8a0d; template publication 42132761794 read back seven exact files and Netlify 6aed16d3db9dfd32ea7525ea published that merge. A real school-account blank test copy loaded/saved the wizard and opened its empty teacher dashboard. The remaining link step failed because Google reported an enabled editor-only /dev address in an editor probe; the bound setup also returned an unusable /exec address in a legacy school URL shape. This is observed fresh-copy evidence, separate from the synthetic browser suite. No student records or classroom deployment were used.
+
+The follow-up adds an authenticated published-app visit as the discovery fallback. It records Google's own /exec URI with this script's identity; it never accepts an arbitrary pasted URI as proof. Finish setup separately matches the pasted deployment ID before saving the existing dashboard/kiosk links. Other-copy receipts, wrong-owner access, malformed and test links remain rejected. All three Google school URL forms are supported. No new scopes/services or permission weakening. The public guide makes Start my Hall Pass primary and the existing RC1 download optional; first setup needs a computer, daily dashboard use supports a phone.
+
+Local focused verification passes: 445 runtime behaviors and actual-HTML Chromium failure/retry, fallback refusal/completion, changed-input clearing, phone/dialog fit and WCAG A/AA. Canonical verification, protected CI, follow-up template publication and a fresh-copy completion remain pending at this source checkpoint. The blank master now retains exactly one existing setup button after reload, before first authorization. Existing teacher copies and managed-device/classroom acceptance remain separate. Graphics and game behavior are excluded.
+
+## November 5 visible Hall Pass setup and app entry
+
+Owner: Codex. The teacher reported a collapsed Sheets toolbar prevented initialization. The template now keeps a visible opening page with a large local image button assigned to Start setup; initialization retains that page and saves verified dashboard/kiosk hyperlinks. Teachers use the existing web app for daily tasks. The menu remains a backup. Google authorization and publishing remain explicit one-time owner actions.
+
+The wizard discovers its own deployment, rejects another copy’s link, shows the school account, and distinguishes saved links from classroom readiness. Phone layout, link labels and 1–5 pass capacity are preserved. Browser-first instructions make Windows integration optional. The review ZIP keeps its publication hold and IT checks; the immutable public RC1 package is unchanged.
+
+Focused source checks pass, including 442 synthetic runtime behaviors, exact school-directory isolation and package integrity negatives. Canonical verification and new-head browser acceptance are pending. The earlier recovery head passed protected run 42118092883, which does not cover this newer wrapper. Actual fresh-school-account image execution/consent, the copied teacher’s policy and the managed Chromebook still need field evidence. No production deployment, real credential or independent teacher copy was changed.
+
+Focused follow-up: Chromium run 42124188205 passed the wrapper screens at phone/dialog sizes, including discovery failure, verification retry, direct links, readiness language and WCAG A/AA, plus the resident journey. Screenshots were visually inspected. The teacher dashboard was then moved above sharing links so the everyday app is first; final-head acceptance remains required.
+
+## November 5 Hall Pass setup startup recovery
+
+Owner: Codex, follow-up to PR #322. The other teacher's screenshot shows Google's storage PERMISSION_DENIED response. The wizard incorrectly continued to an empty form after its initial settings read failed. It now stops on a recovery screen, blocks Next/save navigation until a valid load, offers explicit retry, and retains save inputs after later failures. Public setup guidance and the review kit explain Google's documented single-account recovery and escalation if the school-account policy still blocks access. Existing independent copies do not automatically receive hosted template updates.
+
+The user's current request authorizes this setup repair and its protected source/template/site promotion. The finished schoolwide kit remains subject to the actual two-account and managed-Chromebook acceptance gates. No classroom server, existing production deployment, public RC1 archive or real credential is changed by this code batch. Focused Hall Pass checks pass: 441 runtime behaviors, structural/handoff validation, independent-room directory tests, setup handler regressions and package integrity negatives. Browser coverage uses synthetic Google replies only; local Chrome startup is blocked by the execution environment. Full local canonical checks are running. Protected CI, template publication and exact site readback remain separate pending gates.
+
+Validation follow-up: full local canonical verification passed with zero diagnostic errors/warnings, 54 built routes, 167 HTML files and 5464 local references. Isolated Chromium run 42104433254 passed the actual setup UI; the phone recovery screenshot was visually reviewed. Protected run 42101937464 passed full verification twice but stopped on the existing visitor/resident canvas-tap timeout before Hall Pass browser acceptance. The fixture now waits for a visible, unobstructed resident stop before sampling coordinates and still asserts a real click and the correct conversation. This is Phase 3 / core loop step 4 test setup only; game behavior is unchanged. Isolated run 42107816045 passed the repaired fixture and Hall Pass tests. New-head protected CI, template publication and exact site readback remain pending.
+
+Visitor-test follow-up: run 42108213097 identified overlapping resident hit areas (Orin opened instead of Tess). The visitor journey now selects Tess through the visible Find and talk directory, verifies her identity and walks through the real house exit when needed. Story found/done, town/wilds travel and the existing direct sprite-tap journeys remain asserted. Isolated run 42117676572 passed this visitor journey and Hall Pass setup acceptance. No gameplay source changes; protected recheck and publication remain pending.
+
+## November 4 Hall Pass clean-environment release preparation
+
+Owner: Codex, branch `work/hall-pass-release-gate`, issue #319. Package-only RC2 adds offline package checks, a 16-case operator record, exact ZIP/manifest evidence binding, source hashes, strict setup links, a portable kiosk shortcut and smoke/rollback/IT materials. All seven application/template source files remain unchanged. Candidates stay outside public/. No production, hosted template, public download or student PIN change was made. The owner has now approved pushing only the source branch and opening a draft PR in Grantauch/the-desk. The initial push had been blocked by automatic approval review. This source-review approval excludes ZIP publication, merging, template changes, production deployment and credential cutover.
+
+Focused Hall Pass verification passes 441 runtime behaviors, structural/handoff and independent-room directory tests. Package tests cover deterministic builds, exact source bytes, tampering/missing/extra/duplicate rejection, path escape, stale field results, exact-artifact evidence and forged approval flags. Five private roster-validator tests pass. Full canonical npm run verify passed (exit 0): 0 diagnostic errors/warnings, 167 HTML files, 5464 local references and 32 releases/244 sealed assets. Protected CI remains pending. Chrome HTTP preview verifies layout and synthetic link generation. Native local-file acceptance is pending because this cloud browser rejects file-protocol navigation; no bypass was attempted.
+
+[Release readiness](../hall-pass-release-readiness.md) maps gaps: centrally managed software updates, explicit stable identity/version references and browser duplicate-name exception review. District authorization, protected authoritative mappings, exact template verification, a second school-account installation and managed Chromebook acceptance require the actual school environment. Candidate ZIP SHA-256: `f4ee14cf915e12f667b16ccbfcec4da3de8a00510f6e63eb071a008d1946b1c8`. It is not published or approved for distribution/cutover. The inherited RC1 public source artifact remains unchanged and is not evidence of clean-environment approval.
+
+## November 4 Hall Pass school directory and kiosk release
+
+Owner: Codex, PR #320. Adds a separate private school directory, exact-number email mapping, explicit classroom connection and enrollment, shared credential lookup and revocation, persistent server attempt budgets, touchscreen kiosk controls and immediate shared-screen clearing. Imports create no class memberships. An existing classroom cannot connect until all active students have verified mappings. The supplied school list has no school emails, so credential cutover remains pending that mapping.
+
+The teacher kit includes complete source, browser launcher, setup directions, recovery and checksums. Google permissions and web-app deployment remain owner steps. Existing Hall Pass 441 checks, 61 Turn In checks, independent-workbook directory tests, ZIP equality/checksum checks and kiosk browser request/return/idle/privacy journeys at 320/768/1366 pixels pass. Canonical verification and every protected browser gate passed on `0752f94724bb50cdeeec3bff4c4827d44e35130a`; PR #320 merged as `22bd8c717fb51da475f9065dad986eb7a02b7e69`. Turn In production release run 41895602732 succeeded. Hall Pass and website publishing remain in progress; signed-in synthetic smoke, second-teacher and managed Chromebook acceptance remain pending.
+
+The first template publish stopped before any Google mutation because the optional template-script environment variable was empty. Owner-only issue releases now fall back to the existing published blank template and verify its spreadsheet binding before updating source. Explicit manual first-run inputs retain their previous behavior. The corrective protected check and template publication are separate pending stages; no private student directory is included in the template or ZIP.
+
+## November 2 Checkaverse resident lives
+
+Owner: Codex, branch `codex/checkaverse-resident-lives-20261102`. User-authorized expansion of core loop step 4. Twelve named homes and interiors, real work/travel/rest/social actions, shared server simulation and private persistent Kettle Creek histories. Pax’s parcels reach the clinic and Nell receives them; gardening, sweeping, market displays, inspections, observations and notes leave actual results. Dialogue reports current activity and real history. Story returns enter the next relevant work round. Around town finds the current resident across maps and homes.
+
+Local engine/content/reachability, deterministic circuits, parcel conservation, actual social encounters/notes, private isolation, bounded holds, real two-client agreement, teacher pause, process restart and home-door journeys pass. Browser journeys find Pax at home after a real delivery, follow current locations, check carried parcels and receipt state, traverse the wilds gate by touch, and pass dialog WCAG A/AA. The final frozen-source diagnostics, full server suite and both browser suites passed. Local canonical verify completed with zero diagnostic errors/warnings, 54 built routes and 162 HTML / 5423 references. Protected checks, merge and separate live Checkaverse publication are pending; school Chromebook/classroom acceptance remains pending.
+
+Homes append from Tiled JSON without moving existing buildings, doors, graves, forage sites or player plots. School services, pet schemas/care/growth, attendance, battle rewards and merchant inventory remain unchanged. Details: `docs/checklings/resident-lives.md`.
+
+## November 2 Checkaverse living world
+
+Owner: Codex, branch `codex/checkaverse-living-world-20261102`. Core loop step 4, polish to the existing phase 3 exploration. Corrects the opposite-facing third side-walk frame, paints connected dirt paths with rounded ends and meadow verges, and adds 12 residents, branching conversations, three visit-local find-and-return stories and an Around town journal. Butterflies, creek rings and fish, chimney puffs, lantern glow, foliage, gusts and footstep particles use a bounded presentation simulation. System reduced motion and the scenery switch retain usable static residents.
+
+Content, routes, dialogue, stories, direction, clock pause and quiet scenery pass. All existing care, battle, accounts, multiplayer and Kettle Creek suites pass. Chromium at 1366x768, 390x844 and 320x740 passes real walking, resident approach, branching choices, focus/Escape, all three complete stories, journal, teacher pause, quiet scenery, all 16 path masks/flower bridges and town/wilds travel. New dialog WCAG A/AA audits pass at all three sizes. The first local canonical run exposed an existing Windows ESM import in the ticket test; that is fixed and all 70 Checkling/ticket checks and remaining canonical stages pass. Diagnostics finish with zero errors/warnings; static validation checks 162 HTML files and 5423 local references.
+
+Protected run 41395928338 passed the full release and every browser gate on 8d45ca692691313eeb11cf35fd078e9805f41c15. PR #298 merged as 3a3d0114a9655e485ea588df30fef1875fd86449, with an identical tree. Six runtime files were copied after the empty-town/source preflight and original runtime backup. Checkaverse 0.14.0 was verified publicly on November 2 at 06:22 UTC: healthy service, exact versioned client asset hashes, and real visitor walking plus an Orin conversation with zero browser errors. Saved Kettle Creek and school-service journeys use isolated synthetic data only. Actual school Chromebook/classroom acceptance remains pending.
+
+No map geometry, artwork, species, database schema, school service, care rule or battle-reward changes. Stories are local to the visit and do not grant items or growth. Short notes and class checks: `docs/checklings/releases/2026-11-02-living-world.md`.
+
+## November 6 Learning Hub contrast
+
+Owner: Codex. The expanded production axe scan flagged all six Beyond the Scoreboard and all six Hidden History units for low contrast. Interactive testing also found low-contrast labels on flipped vocabulary cards. The repair deepens the Beyond the Scoreboard green and uses the parent foreground color for small action labels, completion copy and the back of vocabulary cards. All 22 initial unit pages at 390 pixels and six completed or interactive cases at 320 and 1440 pixels pass the contrast rule. Protected review, production and assistive-technology acceptance are separate.
+
 ## October 30 heel personal report
 
 Owner: Codex, branch `feat/heel-student-report`. The complete pre-implementation map is in `docs/storyhub/HEEL-REPORT-MAP.md`. The research route adds a persistent Report button and a final Finish and view report action. The personal report reads every current answer without altering the shared save runtime, answer keys, existing rounds or Turn In. Separate report name, hour and date remain in tab storage and are excluded from submission data.
@@ -328,6 +448,14 @@ The new integration checks use temporary local repositories and a local editor H
 
 Implementation `adb14b472bf7d57eed1d1218558eda5e732acf5b` was pushed to main and the remote SHA matched. [Canonical GitHub Actions verification passed](https://github.com/Grantauch/the-desk/actions/runs/34054617391). The homepage, resources, editor, pass and check-in routes returned HTTP 200 after the push; availability does not prove the deployed source version. Netlify dashboard sign-in is required for the exact deployment fingerprint and production gate verification. Apps Script Version 18 and the private workbook are unchanged.
 
+## November 6 mobile lesson reflow
+
+Owner: Codex. The production viewport sweep found horizontal scrolling in the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and the Robinson, MKUltra and Muckrakers review guides. The phone Explore menu also extended beyond the bottom of the screen, cutting off the last link even when scrolled as far as it could go. The batch adjusts layout sizing and keeps the lesson and game interactions. The extended Chromium suite measures reflow on all eight routes and follows the last Explore link at 320, 390 and 1440 pixels. The sealed USH9 L014 drawer needs a separate release review. Protected review, publication and managed Chromebook acceptance remain pending.
+
+## November 8 Don’t Worry About It mobile form
+
+Owner: Codex. At 320 pixels the production page grew to 326 pixels after loading its web fonts. The student header's Name and Hour labels kept the automatic minimum width of their inputs. Letting the labels shrink keeps the fields inside the form and keeps the Pacific map independently scrollable. The browser regression uses wider input font metrics with external fonts blocked, so it can reproduce the failure offline. Protected review and publication are separate.
+
 ## September 7 website design edition
 
 Built on main d18e7c1 in a separate checkout. Adds dimensional field notes, course-cover styling, a keyboard-accessible page finder, tool jump links, and fullscreen timer presentation. Hall Pass and Daily Check-In shortcuts remain green. Browser checks passed on six representative routes at 390, 768, and 1440 pixels; search, timer countdown, and fullscreen entry/exit passed without browser errors. Existing StoryHub asset bytes were normalized locally to their committed LF form for Windows verification; no StoryHub content changes. Production push and live confirmation are recorded in the release task after verification. No Apps Script or private-data changes.
@@ -423,6 +551,10 @@ Owner: Codex, branch `fix/americas-most-hated-load-work`. The research workspace
 Canonical `npm run verify` passed all 18 stages, including 39/39 Turn In service checks, Astro with zero errors and warnings, a 53-route production build, 136 HTML files, 4,618 local references and all 13 releases / 117 sealed files. Added Chromium acceptance scenarios cover the visible button, PIN validation, offline failures, cancelled and accepted replacement, all five research rounds, rubric restoration, confirmed saving and 320/390/1366 accessibility. These new browser scenarios could not run locally because Chromium is unavailable and its download failed. Feature code is recorded in local commit `99820cd4943ecfafb15bfe6b9cc7b53a81bfcc6c`. Source publication and production release are now explicitly authorized. Protected CI must run the added browser scenarios before merge; the exact production commit and visible recovery control require separate deployment readback. Classroom verification remains pending.
 
 
+## November 6 USH9 L014 typography and contrast
+
+Owner: Codex. Browser text bounds traced the sealed Unions and Collective Bargaining page's horizontal overflow to large headings and the membership statistic. The CSS bounds those sizes and allows fallback wrapping, and raises the contrast of chapter numbers and footer text. Only the L014 release manifest was resealed. Focused build and asset verification passed, and four Chromium cases passed layout and automated WCAG A/AA at 320, 390 and 1440 pixels including reduced motion. Protected review and production remain separate.
+
 ## StoryHub work controls — October 26, 2026
 
 Owner: Codex. Source repaired and focused verification passed on `feat/storyhub-work-panel`; protected review pending. Common controls cover the 47-page catalogue (36 written assignments, 11 reading pages). Turn In v9 adds checked revisions, account-token/PIN matching and validated receipts; the client reports storage failures and preserves conflicts. Server tests 51/51, final work browser 34/34, Astro check and StoryHub assets pass. Canonical full verification completed; final added server checks pass independently. The broader browser command stopped on unchanged The League 320px overflow in the local runtime; its remaining work-save/Jeopardy/companion stages passed independently. See [the audit and release sequence](../storyhub/SAVE-LOAD-AUDIT-2026-10-26.md). No website or Apps Script deployment is claimed. Automatic approval review blocked the Google Accounts origin; existing-project activation needs explicit authorization. Classroom cycle remains pending.
@@ -458,7 +590,7 @@ Four original three-chapter founder journeys, repeatable renewable supply gather
 32 focused rules/save checks and the complete companion browser suites pass. The six new journeys exercise all three Mochi chapters, actual crafting, download/reload, 320/390/1366 layouts, automated WCAG A/AA, native modal keyboard behavior, school formats 1/2/3, lost acknowledgement/retry and account clearing. A two-line native path-separator repair fixes the existing Windows Pond browser fixture. The full canonical gate passed all 18 stages from the recovered source: 54 routes, 156 HTML files, 5,238 local references and 27 sealed releases/193 assets. Protected CI, website deployment and guarded school deployment/readback remain pending at this source checkpoint. Authenticated live smoke and observed classroom/device use remain separate. See [the release behavior and verification notes](../checklings-pixel-camp-six.md).
 
 
-## October 29 School Pixel Camp pause � release review
+## October 29 School Pixel Camp pause � release review
 
 Owner: Codex, branch `checklings/teacher-pause-20261029`. The private teacher dashboard can pause school play without changing attendance, passes, companion identity or save version3. Server enforcement rejects new camp opens and writes while still acknowledging already committed retries. A workbook setting, authenticated current teacher contract, shared-lock reauthorization and audit/rollback protect the control. Updated active camps retain unconfirmed progress, offer native file export/check again/explicit return, and retry retained saves on resume. Existing session privacy clearing stays authoritative. See [behavior and evidence boundaries](../checklings-teacher-pause.md).
 
@@ -477,3 +609,22 @@ Nine original-art/roster cases and five guide browser journeys pass, covering th
 Owner: Codex, branch `checklings/workshop-plan-20261029`. Existing recipes show actual/required supplies and native labeled progress. A temporary trail plan guides the next resource or free rest and returns to the exact Build control. Locked special keepsakes lead to their journey; completed journey hints recognize already-built keepsakes. Existing engine costs/unlocks, original art, format3 saves and private school46 remain unchanged. No new species, saved field or school command.
 
 Eight focused browser journeys pass, including three widths with zero automated WCAG A/AA violations, actual gathering/building, exact costs/reload/export, surplus counts, free rest, plan changes/cancellation, active-spar preservation, school formats1/2/3 and shared-device/attendance isolation. Full18-stage canonical verification passed:66focused cases,440HallPass behaviors,54routes,156HTML,5238references,27sealedreleases/193assets. Complete companion browser regression and final8workshop journeys also pass. Protected CI, merge and new deployment remain pending. Predecessor6.2 is now production verified: PR267/51edfc4, protected40889584028 and main40894399886 checks passed, both websites matched24files each, school46 source unchanged and fresh authenticated synthetic save/pause/retry passed. Independent peer and physical classroom acceptance remain separate. See [workshop behavior](../checklings/workshop-plan.md).
+
+
+## WWI museum route recovery and Blender batch - November 4
+
+Owner: Codex, issue #306. Netlify production builds were skipped for account credit exhaustion. Published already-built merged PR #305 deploy 6aea7da4775e0c260094143d at 2026-11-04T01:43:30.298Z. Both museums, both URL forms and both existing Arsenal GLBs returned HTTP 200. No route code change was needed. Vickers, 18-pounder and Camel sources/exports are implemented. New-batch browser/protected checks and deployment remain pending. See assets/wwi-blender/README.md for asset budgets, references and limitations.
+
+Batch 1: full local npm run verify passed (165 HTML / 5429 references); four WebGL scenarios at 1440x900 and 1366x768 passed with five successful GLBs or five deliberate fallbacks and no uncaught errors. PR #307 protected checks pending. Batch 2 SBR/wire/Wex implemented; browser validation pending.
+
+Batch 2 initial four desktop/Chromebook scenarios passed with eight GLBs and eight synthetic fallbacks, no uncaught errors. Flame alignment corrected after visual inspection. Batch 3 Zeppelin and U-boat sources/exports implemented; all eight remaining Arsenal exhibits now have Blender assets. Protected checks and new batch production release remain separate and pending.
+
+Over the Top: rounded Blender sandbag source and 1924-byte GLB implemented, preserving the same two InstancedMeshes and original fallback geometry. New trench-model browser/protected checks and release pending.
+
+Initial trench browser journeys passed all seven stops, trench-part labels and synthetic model failure; reducing bag geometry from 252 to 44 triangles after software-renderer measurements. All ten Arsenal model requests and all ten fallback scenarios passed at both viewports before final hull correction; corrected-ship repeat pending.
+
+## November 6 Curiosity Desk catalog outage
+
+Owner: Codex. Production health run [42278965733](https://github.com/Grantauch/the-desk/actions/runs/42278965733) failed on the Curiosity feed. Anonymous requests reproduced HTTP 502 across all five collections. The repair gives each collection a selected archive artifact with a locally served WebP, source credit, primary-source question and original record link. The browser continues to request live records on demand and preserves an open context panel when the live response arrives. The scheduled feed check still measures the live service.
+
+Six Chromium cases at 320, 390 and 1440 pixels passed the outage and delayed-live-response journeys, including keyboard reveal and automated WCAG A/AA. Some external record pages refused requests from the audit environment. Protected review, Netlify publication and school-network acceptance are separate.

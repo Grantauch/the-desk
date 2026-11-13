@@ -154,6 +154,8 @@ The long term goal is 300 Checkling lines, released in waves of twelve. Collecti
 
 **Art rules.** Every form needs a front sprite, a back sprite for battle and a two frame idle. Conditions like obese or sick are drawn as shape tweaks and overlays on the base sprite, not as separate sprites for hundreds of forms. That keeps the art load possible. All species follow the founder art style already in the game.
 
+**Wave One.** The first twelve lines, their tables, battle entries and approved writing are in `docs/checklings/wave-one.md`.
+
 **The sprite target.** The goal is 600 forms, added as we go in waves of twelve lines. At about one wave a month during the school year, the full set takes two and a half to three years. It works only if every wave follows one locked art contract and is approved before the next wave starts.
 
 ## Kettle Creek, the home town
@@ -214,6 +216,56 @@ The Checkaverse is a much bigger town that every student shares, and it is the c
 **Teacher controls.** The teacher can pause the Checkaverse, hide a player from it, see the merchant sales log and send any party to Day Care.
 
 **Not planned yet.** Red/Blue had Checkling trading. It is held for later because it needs its own rules against pressure between students.
+
+## Twelve-biome persistent wilderness (Grant-approved direction, Nov 2, 2026)
+
+**Committed long-term direction, not a claim that these maps are live:** a very large, coherent, persistent world is intended to be Checklings' defining feature. Expand toward **twelve distinct major wilderness biomes**, in addition to Kettle Creek, Checkaverse town and the existing Wilds crossroads. This is a geographic goal, **not twelve new elemental types**: keep the eight approved battle types and their existing matchup chart. The target remains **300 distinct original Checkling lines** across the world, with evolved and care-morphed forms counted separately. Preserve the locked first twelve in `wave-one.md`; allocate the rest by habitat and progression rather than exactly 25 exclusive lines per biome.
+
+### Approved planning regions
+
+| Major biome | Identity | Places and exploration themes |
+| --- | --- | --- |
+| Bramblefen Basin | Wetlands and flooded forests | Rivers, hidden clearings, old trees and flooded ruins |
+| Cindergear Expanse | Industrial ruins and quarries | Abandoned mechanisms, industrial passages and stoneworks |
+| Tempest Crown | Storm mountains and highlands | Exposed ridges, geothermal pools and remote plateaus |
+| Starfall Gloam | Celestial ruins and eerie wilderness | Luminous caverns, dark groves and fallen fragments |
+| Verdant Crown | Tropical jungle | Dense canopy, ancient temples and hidden waterfalls |
+| Frostglass Reach | Arctic tundra and glaciers | Snowfields, frozen lakes, ice caves and secluded outposts |
+| Emberfall Caldera | Volcanic fields | Ash slopes, lava channels and sheltered pockets |
+| Saltwind Coast | Coastal islands and tidal habitats | Beaches, coves, inlets and tidal caves |
+| Glassdune Wastes | Deserts and buried settlements | Dunes, ravines and buried ruins |
+| Hollowdeep | Extensive underground caves | Tunnels, caverns and mineral formations |
+| Sungrass Steppe | Vast grassland | Open plains, gullies and rocky landmarks |
+| Whisperwood | Ancient temperate forest | Old-growth groves, forgotten routes and secluded places |
+
+These are the **approved biome identities and working names**, while exact layouts, encounter tables, art and landmarks will be reviewed as they are authored. Each region must feel ecologically and geographically distinct—not just the same map with recolored tiles—and offer memorable routes, sights, discoveries and reasons to return. The central Wilds should become the shared crossroads to these regions. Kettle Creek remains each student's private home; do not overwrite existing maps, player plots or saves.
+
+### Scale and world-generation architecture
+
+- Today's Wilds map is **56 × 44 tiles**. Aim toward **512 × 512 tiles per major biome**, about 262,000 terrain tiles each (over 3 million across twelve). This is an **aspirational full-scale target subject to testing**, not an instruction to render or simulate all tiles at once. Quality and discoverable content density matter more than empty acreage.
+- **Prove a 256 × 256 biome first**, then scale toward 512 × 512 if the real browser, network, server and gameplay tests pass. Connected subregions or additional chunks may deliver the same sense of scale where one contiguous square is impractical.
+- Use **hybrid procedural generation**: authored towns, landmarks, special locations, narrative paths and meaningful encounter sites embedded in deterministic procedural wilderness, rivers, geology, vegetation and habitat placement. Support Tiled-authored fixed elements alongside generated terrain.
+- Use **a permanent world seed + generator/content version + region ID + coordinates** to reconstruct identical terrain for every trainer in a shared instance. A known cave, road or waterfall must stay in the same place tomorrow. Do not reroll the whole world per visit, day or player; generation-version changes require a deliberate migration that preserves explored geography.
+- Begin by prototyping **32 × 32 tile chunks**, streamed/rendered near the camera with a travel buffer and nearby-entity updates. Chunk dimensions are tunable against benchmarks. The current Checkaverse engine does **not yet have** this large-world streaming architecture; it must be implemented and validated before the huge maps can be playable.
+- Procedural terrain does not substitute for authored creatures, creature art, validated encounter tables, route connectivity, landmarks, stories or balanced gameplay. Verify accessible entrances, exits, vital paths and safe return routes. Approved events, encounters and resource states may change over time; permanent geography remains stable. Do not introduce an unapproved day/night cycle.
+
+### Multiplayer and persistence
+
+- Students exploring the **same shared region/instance see the same map, nearby players and authoritative world state**. Chunk boundaries are a networking optimization, not separate copies of the landscape. Kettle Creek's per-student privacy remains intact.
+- The **server remains authoritative** for movement validation, encounters, catches, rewards, items, persistent object changes and battles. Clients may predict movement and draw reconstructed terrain, but cannot grant themselves results or modify canonical state.
+- Track player chunk interest to send **nearby players, residents and changes**, rather than broadcasting every distant movement. Simulate distant regions at bounded rates or leave them dormant when appropriate. Store seeds/version and durable meaningful changes; do not write millions of unchanged tiles or every movement frame into SQLite.
+- Resolve shared catching/resource claims atomically so two requests cannot duplicate an exclusive reward. Preserve anonymous school tickets, teacher pause, class isolation, approved phrase-only communication, attendance-safe progression, and the existing rules that absences, outages and battle knockouts never cause permanent death.
+- The current home-PC Node/WebSocket/SQLite deployment is a valid prototype but not proof of twelve-biome reliability; design for backups, reconnects, restarts, concurrency controls and eventual migration to more dependable hosting.
+
+### Development and release gates
+
+1. **Blueprint:** define biome connection graph, permanent seed/version contract, map/chunk schema, art and tile rules, discovery density, habitat tables, progress gating and protected existing landmarks. Planning does not change the live game.
+2. **First large-biome prototype:** create one 256 × 256 region with fixed landmarks, procedural surroundings, reachable routes and two trainers observing the same world. Validate reconnection, restart and consistent encounters.
+3. **Classroom reality check:** run synthetic stress tests, then real school-Chromebook and school-network full-class journeys covering travel, battles, catches, teacher pause, save/reconnect and failure recovery. A previous 32-player synthetic test of today's smaller world does not certify giant maps.
+4. **Scale gate:** profile frame rate, memory, chunk load/generation, server tick/CPU, bandwidth, collision, reachable paths and durable-write volume; increase toward 512 × 512 only when these gates pass.
+5. **Content waves:** distribute the 300 original lines gradually across habitats. Every line needs a distinctive silhouette, personality, care reaction, Field Guide entry, encounter location, battle role, validated stats/moves and approved front/back/idle art. Simulate eight-type matchups, level progression, battle length, stamina economy and care-condition balance before each release.
+
+**Scope protection:** this direction does not authorize immediately exposing twelve unfinished areas, replacing existing maps or school data, changing the first twelve species, softening the risk/death rules, adding free-text chat, adding unapproved mechanics or claiming a feature is student-ready before classroom acceptance. The existing Check-In-first daily loop and Design Bible safety and scope rules continue to govern every implementation phase.
 
 ## Daily return
 

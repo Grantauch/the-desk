@@ -3,7 +3,7 @@
   const $ = (id) => document.getElementById(id);
   let key = '';
   try { key = sessionStorage.getItem('checkaverse-teacher') || ''; } catch { /* private mode */ }
-  let paused = false, timer = 0;
+  let paused = false, noSchool = false, timer = 0;
 
   async function api(path, body) {
     const res = await fetch(`/api/teacher/${path}`, {
@@ -22,12 +22,16 @@
     paused = state.paused;
     $('pause').textContent = paused ? 'Resume the Checkaverse' : 'Pause the Checkaverse';
     $('pauseState').textContent = paused ? 'Paused. Nobody can walk, talk or challenge.' : 'Running.';
-    status(`Live · ${state.players.length} trainer${state.players.length === 1 ? '' : 's'} · server ${state.version}`);
+    noSchool = Boolean(state.noSchool);
+    $('noSchool').textContent = noSchool ? 'Undo: there was school today' : 'No school today';
+    $('noSchoolState').textContent = noSchool ? 'Checkling body clocks skip today, like a snow day.' : 'Body clocks count today as a school day if the calendar does.';
+    if (Date.now() > holdStatus) status(`Live · ${state.players.length} trainer${state.players.length === 1 ? '' : 's'} · server ${state.version}`);
     const list = $('list');
     list.textContent = '';
-    for (const p of state.players) {
+    // Alphabetical, so the teacher can find a trainer fast in a class of thirty.
+    for (const p of [...state.players].sort((a, b) => a.name.localeCompare(b.name))) {
       const tr = document.createElement('tr');
-      for (const v of [p.name + (p.busy ? ' (Busy)' : ''), p.room, p.minutes, p.phrases, p.challenges]) {
+      for (const v of [p.name + (p.busy ? ' (Busy)' : ''), p.hour || '', p.room, p.minutes, p.phrases, p.challenges]) {
         const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
       }
       const td = document.createElement('td');
@@ -41,6 +45,7 @@
     }
   }
 
+  let holdStatus = 0; // keeps "Message sent." up past the 3 second refresh
   async function refresh() {
     try {
       render(await api('state'));
@@ -63,11 +68,12 @@
 
   $('login').addEventListener('submit', (e) => { e.preventDefault(); key = $('key').value.trim(); start(); });
   $('pause').addEventListener('click', async () => { try { await api('pause', { v: !paused }); refresh(); } catch (e) { status(e.message, true); } });
+  $('noSchool').addEventListener('click', async () => { try { await api('noschool', { v: !noSchool }); refresh(); } catch (e) { status(e.message, true); } });
   $('say').addEventListener('submit', async (e) => {
     e.preventDefault();
     const msg = $('msg').value.trim();
     if (!msg) return;
-    try { await api('say', { msg }); $('msg').value = ''; status('Message sent.'); } catch (err) { status(err.message, true); }
+    try { await api('say', { msg }); $('msg').value = ''; status('Message sent.'); holdStatus = Date.now() + 5000; } catch (err) { status(err.message, true); }
   });
   if (key) start();
 })();

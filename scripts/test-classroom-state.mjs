@@ -3,12 +3,13 @@ import { test } from 'node:test';
 import { classroomState, currentUnitFor, calendarHighlightsFor } from '../src/data/classroom-state.ts';
 
 test('changing the selected unit changes its calendar title with no second edit', () => {
+  const original = classroomState['US History'].currentUnit;
   const state = structuredClone(classroomState);
   state['US History'].currentUnit = 'The Progressive Era';
   const available = ['The Gilded Age', 'The Progressive Era'];
   assert.equal(currentUnitFor('US History', available, state), 'The Progressive Era');
   assert.equal(calendarHighlightsFor(state).find(item => item.course === 'history').title, 'The Progressive Era');
-  assert.equal(classroomState['US History'].currentUnit, 'The Gilded Age');
+  assert.equal(classroomState['US History'].currentUnit, original);
 });
 test('missing or duplicate course units fail clearly instead of hiding the current unit', () => {
   assert.throws(() => currentUnitFor('US History', ['Reconstruction']), /exactly once/);

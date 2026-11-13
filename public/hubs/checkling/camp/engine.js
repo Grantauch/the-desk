@@ -26,7 +26,7 @@
   {id:'mushroom',name:'Spotted mushroom',stop:0,rarity:'uncommon',cell:7,note:'Pretty. Do not eat it.'},
   {id:'nest',name:'Robin egg nest',stop:0,rarity:'uncommon',cell:0,note:'Empty and abandoned, so it is fine to keep.'},
   {id:'clover',name:'Four-leaf clover',stop:0,rarity:'rare',cell:12,note:'Four leaves. Counted twice.'},
-  {id:'holeystone',name:'Holey stone',stop:1,rarity:'common',cell:2,note:'The stream wore a window through it.'},
+  {id:'holeystone',name:'Ringed stone',stop:1,rarity:'common',cell:2,note:'The stream wore a window through it.'},
   {id:'frog',name:'Wheel frog',stop:1,rarity:'common',cell:4,note:'Lives under the wheel. Visits, then leaves.'},
   {id:'gear',name:'Brass gear',stop:1,rarity:'uncommon',cell:5,note:'Fell off something important.'},
   {id:'quill',name:'Heron quill',stop:1,rarity:'uncommon',cell:6,note:'A long teal feather from the reeds.'},

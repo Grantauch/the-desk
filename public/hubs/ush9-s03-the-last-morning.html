@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>the last morning | U.S. History 9 | the desk</title>
+<meta name="description" content="World War I was signed away at 5:12 in the morning on November 11, 1918. The guns did not stop until 11:00. Walk the six hours in between.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-s03-the-last-morning.html">
+<meta property="og:title" content="The Last Morning">
+<meta property="og:description" content="November 11, 1918. Six hours between the signature and the silence.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://grant-desk.com/storyhub/ush9/the-last-morning/assets/armistice-train.webp">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Saira+Stencil+One&display=swap">
+<style>
+:root{
+  --drab:#23271C; --drab-2:#2D3224; --drab-3:#383E2D; --buff:#E9DFC4; --buff-2:#F4EEDC; --pencil:#2F2E2A; --mute:#B9B29C;
+  --red:#C2412D; --red-soft:rgba(194,65,45,.16); --rule:rgba(233,223,196,.18); --focus:#9CC3FF;
+  --stencil:"Saira Stencil One","Big Shoulders Stencil Display",Impact,sans-serif;
+  --body:"Crimson Pro",Georgia,"Times New Roman",serif;
+  --mono:"Courier Prime","Courier New",monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:3.4rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--drab);color:var(--buff);font-family:var(--body);font-size:1.12rem;line-height:1.6}
+a{color:inherit;text-underline-offset:.2em}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+img{display:block;max-width:100%;height:auto}
+h1,h2,h3,h4{margin:0;font-weight:400;text-wrap:balance}
+p{margin:0}
+.wrap{width:min(1100px,100% - 2.5rem);margin-inline:auto}
+.mono{font-family:var(--mono);font-size:.88rem;line-height:1.5}
+
+/* top strip: a field message pad header */
+.strip{position:sticky;top:0;z-index:30;background:#191c14;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:.8rem}
+.strip .wrap{display:flex;align-items:center;gap:.3rem;min-height:3rem;overflow-x:auto;scrollbar-width:thin}
+.strip a{text-decoration:none;padding:.3rem .55rem;white-space:nowrap;color:var(--mute)}
+.strip a:hover,.strip a[aria-current="true"]{color:var(--buff);background:var(--drab-3)}
+.strip .home{font-family:var(--stencil);color:var(--buff);font-size:1rem;margin-right:.6rem}
+
+/* hero */
+.hero{min-height:88vh;display:grid;align-items:end;position:relative;overflow:hidden;padding:5rem 0 3rem;background:#0b0e09}
+.hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.1) brightness(.42)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,14,9,.25),rgba(11,14,9,.92) 78%)}
+.hero .wrap{position:relative;z-index:2}
+.kicker{font-family:var(--mono);font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.hero .big{font-family:var(--stencil);font-size:clamp(4.2rem,17vw,12rem);line-height:.85;color:var(--buff);margin:.4rem 0 .2rem}
+.hero h1{font-family:var(--stencil);font-size:clamp(2rem,5.5vw,3.6rem);line-height:1;color:var(--buff)}
+.hero .dek{font-size:clamp(1.2rem,2.3vw,1.5rem);max-width:38ch;margin-top:1rem}
+.hero .note{margin-top:1.4rem;color:var(--mute)}
+.hero figcaption{position:absolute;right:1rem;bottom:.8rem;z-index:2;font-family:var(--mono);font-size:.7rem;color:var(--mute);max-width:40ch;text-align:right}
+
+/* message sheets */
+.sheet{padding:clamp(2.6rem,7vw,5rem) 0;border-top:1px solid var(--rule)}
+.sheet.paper{background:var(--buff);color:var(--pencil)}
+.sheet.paper .kicker{color:#6b6450}
+.msg{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;font-family:var(--mono);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;border-top:2px solid currentColor;border-bottom:1px solid currentColor;padding:.4rem 0;margin-bottom:1.3rem;opacity:.85}
+.sheet h2{font-family:var(--stencil);font-size:clamp(2.2rem,6vw,4rem);line-height:.95;margin-bottom:1.3rem;max-width:20ch}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:start}
+.read p{font-size:clamp(1.15rem,2vw,1.35rem);line-height:1.5;margin-bottom:.9rem;max-width:40ch}
+.read p.key{font-family:var(--stencil);font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.15}
+.photo{background:var(--buff-2);padding:.6rem .6rem 0;color:var(--pencil);transform:rotate(-.6deg);box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.photo.r{transform:rotate(.7deg)}
+.photo img{width:100%;filter:grayscale(1) contrast(1.05)}
+.photo figcaption{font-family:var(--mono);font-size:.72rem;line-height:1.45;padding:.5rem 0 .6rem}
+@media (prefers-reduced-motion:reduce){.photo,.photo.r{transform:none}}
+details.more{margin-top:1.4rem;border:1px dashed currentColor;max-width:64ch}
+details.more summary{font-family:var(--mono);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;padding:.7rem .9rem;cursor:pointer;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"+ "}
+details.more[open] summary::before{content:"\2212 "}
+details.more .body{padding:0 1rem 1rem}
+details.more .body p{margin-top:.75rem}
+
+/* instruments */
+.inst{margin-top:2rem;background:var(--drab-2);border:1px solid var(--rule);padding:clamp(1rem,3vw,1.6rem)}
+.sheet.paper .inst{background:var(--buff-2);border-color:rgba(47,46,42,.25)}
+.inst h3{font-family:var(--stencil);font-size:1.8rem;line-height:1}
+.inst .sub{font-family:var(--mono);font-size:.86rem;margin:.4rem 0 1rem;opacity:.9}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.btn{border:1.5px solid currentColor;background:transparent;padding:.5rem .85rem;font-family:var(--mono);font-size:.8rem;letter-spacing:.04em;text-transform:uppercase}
+.btn[aria-pressed="true"]{background:var(--buff);color:var(--drab)}
+.sheet.paper .btn[aria-pressed="true"]{background:var(--pencil);color:var(--buff)}
+.btn:hover{background:rgba(233,223,196,.12)}
+.btn[aria-pressed="true"]:hover{background:var(--buff);color:var(--drab)}
+.sheet.paper .btn[aria-pressed="true"]:hover{background:var(--pencil);color:var(--buff)}
+.always{font-family:var(--mono);font-size:.86rem;border-top:1px solid currentColor;margin-top:1rem;padding-top:.8rem;opacity:.95}
+
+/* 3d car */
+.car-box{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:1.2rem}
+#car-stage{position:relative;min-height:400px;background:#070b16;overflow:hidden}
+#car-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#car-clock{position:absolute;left:.8rem;top:.6rem;font-family:var(--stencil);font-size:2rem;color:var(--buff);text-shadow:0 2px 8px rgba(0,0,0,.6);z-index:2}
+#car-stage .hint{position:absolute;left:.6rem;bottom:.5rem;font-family:var(--mono);font-size:.7rem;background:rgba(0,0,0,.5);padding:.2rem .45rem;z-index:2}
+#car-stage.no-3d{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.86rem;text-align:center;padding:1rem}
+#car-stage.no-3d::after{content:"The 3D car needs WebGL. Every view's facts are in the panel beside it."}
+#car-stage.no-3d .hint{display:none}
+#car-panel .pp{width:110px;float:right;margin:0 0 .5rem .8rem;filter:grayscale(1);border:4px solid var(--buff)}
+#car-panel h4{font-family:var(--stencil);font-size:1.5rem;line-height:1.1;margin-bottom:.5rem}
+#car-panel p{margin-bottom:.7rem;font-size:1.05rem}
+.time-ctl{margin-top:1rem}
+.time-ctl input{width:100%;accent-color:var(--red)}
+
+/* terms data */
+.terms-viz{display:grid;gap:1rem}
+.tv-row{display:grid;grid-template-columns:200px 1fr;gap:1rem;align-items:start}
+.tv-row b{font-family:var(--stencil);font-size:1.6rem;display:block;line-height:1}
+.tv-row span{font-family:var(--mono);font-size:.78rem}
+.grid{display:flex;flex-wrap:wrap;gap:3px;padding-top:.3rem}
+.grid i{width:12px;height:12px;background:var(--pencil);display:block}
+.grid i.part{width:9px}
+.tv-key{font-family:var(--mono);font-size:.8rem;margin-bottom:1rem;display:flex;gap:.5rem;align-items:center}
+.tv-key i{width:12px;height:12px;background:var(--pencil);display:inline-block}
+
+/* the six hours */
+.hours{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:1.4rem;align-items:start}
+.dial{position:relative;text-align:center}
+.dial svg{width:100%;max-width:330px;height:auto}
+.left{font-family:var(--stencil);font-size:clamp(3rem,9vw,5rem);line-height:1;color:var(--red)}
+.left-lbl{font-family:var(--mono);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}
+.hour-ctl input{width:100%;accent-color:var(--red)}
+.log{list-style:none;margin:0;padding:0;max-height:440px;overflow-y:auto;border-top:1px solid var(--rule)}
+.log li{display:grid;grid-template-columns:5.6rem 1fr;gap:.8rem;padding:.65rem 0;border-bottom:1px solid var(--rule);font-size:1.02rem;line-height:1.45}
+.log li .t{font-family:var(--mono);font-weight:700;color:var(--mute)}
+.log li.future{opacity:.28}
+.log li.future .what{filter:blur(3px)}
+.sheet.paper .log li .t{color:#5e5844}
+.log li.now .t{color:var(--red)}
+.totals{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1.2rem}
+.totals div{border:1px solid var(--rule);padding:.8rem}
+.totals b{font-family:var(--stencil);font-size:clamp(1.8rem,5vw,2.8rem);line-height:1;display:block;color:var(--red)}
+.totals span{font-family:var(--mono);font-size:.76rem}
+
+/* last four */
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.man{background:var(--buff-2);color:var(--pencil);border:0;padding:.6rem;text-align:left;display:flex;flex-direction:column;gap:.5rem}
+.man img{width:100%;aspect-ratio:3/4;object-fit:cover;filter:grayscale(1) contrast(1.05)}
+.man .tm{font-family:var(--stencil);font-size:1.8rem;line-height:1;color:var(--red)}
+.man .nm{font-weight:700;font-size:1.1rem;line-height:1.2}
+.man .nat{font-family:var(--mono);font-size:.74rem}
+.man .noimg{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:3/4;background:var(--drab-3);color:var(--buff);font-family:var(--stencil);font-size:2.6rem}
+.man[aria-expanded="true"]{outline:3px solid var(--red)}
+.man-detail{margin-top:1rem;background:var(--buff-2);color:var(--pencil);padding:1rem 1.1rem;min-height:5rem;font-size:1.08rem}
+.man-detail h4{font-family:var(--stencil);font-size:1.5rem;margin-bottom:.4rem}
+
+/* reasons */
+.reasons{display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem}
+.reason{border:1.5px solid rgba(47,46,42,.5);background:var(--buff-2);color:var(--pencil);padding:1rem}
+.reason h4{font-family:var(--stencil);font-size:1.35rem;line-height:1.1;margin-bottom:.4rem}
+.reason .who{font-family:var(--mono);font-size:.78rem;margin-bottom:.6rem}
+.reason .judge{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem}
+.reason .rec{margin-top:.7rem;border-left:4px solid var(--red);padding-left:.7rem;font-size:1rem}
+
+/* holiday line */
+.years{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
+.years div{border-top:3px solid currentColor;padding-top:.6rem}
+.years b{font-family:var(--stencil);font-size:2.2rem;display:block;line-height:1}
+.years p{font-size:1.02rem;margin-top:.3rem}
+
+/* terms + response + sources */
+.vocab{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.8rem;margin-top:1.2rem}
+.vocab div{border:1px solid var(--rule);padding:.85rem;font-size:1.02rem}
+.vocab b{font-family:var(--stencil);font-size:1.3rem;display:block;line-height:1.1;margin-bottom:.3rem}
+.vocab small{display:block;font-family:var(--mono);font-size:.74rem;margin-top:.5rem;color:var(--mute)}
+.response{background:var(--buff);color:var(--pencil);padding:clamp(2.6rem,7vw,5rem) 0}
+.response h2{font-family:var(--stencil);font-size:clamp(2.2rem,5vw,3.4rem);line-height:1;margin:.6rem 0 .8rem}
+.qblock{margin-top:1.4rem;max-width:760px}
+.qblock label{display:block;font-weight:700;line-height:1.45;margin-bottom:.5rem}
+.qblock textarea{width:100%;min-height:8.5rem;font:inherit;font-size:1.05rem;line-height:1.5;padding:.8rem;background:var(--buff-2);color:var(--pencil);border:1.5px solid var(--pencil);resize:vertical;
+  background-image:repeating-linear-gradient(transparent 0 1.55rem,rgba(47,46,42,.12) 1.55rem 1.6rem);background-attachment:local}
+.sources{padding:3rem 0 4rem;border-top:1px solid var(--rule);font-size:1rem}
+.sources h2{font-family:var(--stencil);font-size:2rem}
+.sources ol{padding-left:1.2rem}
+.sources li{margin:.4rem 0}
+
+@media (max-width:880px){
+  .cols,.car-box,.hours{grid-template-columns:1fr}
+  .four{grid-template-columns:repeat(2,1fr)}
+  .reasons,.years{grid-template-columns:1fr 1fr}
+  .tv-row{grid-template-columns:1fr}
+  .totals{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<nav class="strip" aria-label="Sections">
+  <div class="wrap">
+    <a class="home" href="/us-history/">the desk</a>
+    <a href="#s1">5:12</a><a href="#s2">the car</a><a href="#s3">the terms</a><a href="#s4">why 11</a><a href="#s5">six hours</a><a href="#s6">the last four</a><a href="#s7">gunther</a><a href="#s8">why attack</a><a href="#s9">after</a><a href="#vocab">words</a><a href="#your-turn">your turn</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <img class="bg" src="/storyhub/ush9/the-last-morning/assets/armistice-train.webp" width="545" height="719" alt="" fetchpriority="high">
+  <div class="wrap">
+    <p class="kicker">U.S. History 9 · November 11, 1918</p>
+    <p class="big" aria-hidden="true">5:12</p>
+    <h1>The Last Morning</h1>
+    <p class="dek">World War I was signed away a little after five in the morning. The guns kept firing until eleven. This is what happened in the six hours between.</p>
+    <p class="note mono">About 40 minutes. Ten sections, a railroad car you can step inside, a clock you control, and three questions at the end.</p>
+  </div>
+  <figcaption>Marshal Ferdinand Foch, second from right, outside his railroad car after the signing, November 11, 1918. Public domain.</figcaption>
+</header>
+
+<main>
+<!-- 1 -->
+<section class="sheet paper" id="s1" aria-labelledby="s1-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 1</span><span>Forest of Compiègne, France</span><span>5:12 a.m.</span></p>
+    <h2 id="s1-t">The signatures</h2>
+    <div class="cols">
+      <div class="read">
+        <p>By November 1918, World War I had gone on for four years and three months. Around nine million soldiers were dead.</p>
+        <p>Germany was running out of men, food, and allies. Its leaders asked for an armistice, an agreement to stop fighting.</p>
+        <p>The meeting happened in a railroad car parked in a forest about forty miles north of Paris.</p>
+        <p>At about 5:12 in the morning on November 11, the Germans signed.</p>
+        <p class="key">The fighting would stop at 11:00. Until then, the war was still on.</p>
+      </div>
+      <figure class="photo">
+        <img src="/storyhub/ush9/the-last-morning/assets/signing-painting.webp" width="960" height="627" loading="lazy" decoding="async" alt="A painting of the armistice signing inside the railroad car: Allied officers stand behind a long table while German delegates sit across from them.">
+        <figcaption>The signing inside the car, as a painter imagined it soon after the war. A painting, not a photograph. Public domain.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="sheet" id="s2" aria-labelledby="s2-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 2</span><span>Siding at Rethondes</span><span>November 8 to 11</span></p>
+    <h2 id="s2-t">The car</h2>
+    <div class="read">
+      <p>Marshal Ferdinand Foch, the French general in command of all the Allied armies, ran the meeting from his private train.</p>
+      <p class="key">Step inside. Then move the clock and watch the morning come up.</p>
+    </div>
+    <div class="inst" id="car">
+      <h3>Dining car 2419D</h3>
+      <p class="sub">Pick a view. Drag or use the arrow keys to circle the car. The slider moves the clock from 5:00 to 11:00.</p>
+      <div class="btns" role="group" aria-label="Choose a view">
+        <button type="button" class="btn" data-view="outside" aria-pressed="true">The clearing</button>
+        <button type="button" class="btn" data-view="foch" aria-pressed="false">Foch's side</button>
+        <button type="button" class="btn" data-view="german" aria-pressed="false">The German side</button>
+        <button type="button" class="btn" data-view="papers" aria-pressed="false">The papers</button>
+        <button type="button" class="btn" data-view="y1940" aria-pressed="false">The same car, 1940</button>
+      </div>
+      <div class="car-box">
+        <div id="car-stage"><span id="car-clock" aria-hidden="true">5:12 a.m.</span><canvas id="car-canvas" tabindex="0" aria-label="3D model of the armistice railroad car in the forest clearing. Use the left and right arrow keys to circle it."></canvas><span class="hint">drag to circle</span></div>
+        <div><div id="car-panel" aria-live="polite"></div></div>
+      </div>
+      <div class="time-ctl"><label for="car-time" class="mono">Clock, 5:00 to 11:00 a.m.</label><input type="range" id="car-time" min="300" max="660" step="1" value="312" data-desk-skip></div>
+      <p class="always">A stylized model for study. The real car was a 1914 wooden dining car with a steel frame, one of a series of about twenty identical cars.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="sheet paper" id="s3" aria-labelledby="s3-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 3</span><span>Conditions of the armistice</span><span>Signed 5:12 a.m.</span></p>
+    <h2 id="s3-t">What Germany agreed to</h2>
+    <div class="read">
+      <p>An armistice is not a peace treaty. It is a stop. The terms were written so Germany could not start again.</p>
+      <p>German troops had fifteen days to leave France, Belgium, Luxembourg, and Alsace Lorraine. Allied troops would occupy German land west of the Rhine River. The naval blockade that was starving Germany stayed in place.</p>
+      <p class="key">Then Germany had to hand over the tools of war.</p>
+    </div>
+    <div class="inst" id="handover">
+      <h3>The handover</h3>
+      <p class="sub">Each square is 1,000 items. Pick one to count it out.</p>
+      <div class="btns" role="group" aria-label="Choose an item">
+        <button type="button" class="btn" data-hand="0" aria-pressed="true">Artillery guns</button>
+        <button type="button" class="btn" data-hand="1" aria-pressed="false">Machine guns</button>
+        <button type="button" class="btn" data-hand="2" aria-pressed="false">Airplanes</button>
+        <button type="button" class="btn" data-hand="3" aria-pressed="false">Locomotives</button>
+        <button type="button" class="btn" data-hand="4" aria-pressed="false">Railroad cars</button>
+        <button type="button" class="btn" data-hand="5" aria-pressed="false">Trucks</button>
+        <button type="button" class="btn" data-hand="all" aria-pressed="false">All of it</button>
+      </div>
+      <p class="tv-key"><i aria-hidden="true"></i> = 1,000</p>
+      <div class="terms-viz" id="hand-viz" aria-live="polite"></div>
+      <p class="always">Guns and planes fight a war. Locomotives, railroad cars, and trucks move one. Germany gave up both.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="sheet" id="s4" aria-labelledby="s4-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 4</span><span>Allied headquarters</span><span>Time chosen for the ceasefire</span></p>
+    <h2 id="s4-t">Why wait until 11?</h2>
+    <div class="cols">
+      <div class="read">
+        <p>The front ran more than four hundred miles. Word had to reach every army by telephone, telegraph, radio, and runners.</p>
+        <p>The hour was also easy to remember. The eleventh hour of the eleventh day of the eleventh month.</p>
+        <p>Two days earlier, Foch had ordered his armies to keep up the pressure until the end. Nobody told them to stop attacking before 11:00.</p>
+        <p class="key">Every commander knew the war would end at eleven. Each one decided what to do with the time that was left.</p>
+      </div>
+      <figure class="photo r">
+        <img src="/storyhub/ush9/the-last-morning/assets/nyt-1918.webp" width="760" height="964" loading="lazy" decoding="async" alt="Front page of The New York Times for November 11, 1918, with a huge headline announcing that the armistice was signed and the war is over.">
+        <figcaption>The New York Times, November 11, 1918. The news was printed in New York while men were still being killed in France. Public domain.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="sheet paper" id="s5" aria-labelledby="s5-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 5</span><span>Western Front</span><span>5:00 to 11:00 a.m.</span></p>
+    <h2 id="s5-t">The six hours</h2>
+    <div class="read"><p>Drag the clock forward. Events appear as the minutes pass.</p></div>
+    <div class="inst" id="six">
+      <div class="hours">
+        <div class="dial">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"/>
+            <g id="ticks"></g>
+            <path id="wedge" fill="var(--red-soft)" stroke="var(--red)" stroke-width="1.5"/>
+            <line id="hh" x1="100" y1="100" x2="100" y2="52" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+            <line id="mh" x1="100" y1="100" x2="100" y2="22" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="100" cy="100" r="5" fill="currentColor"/>
+          </svg>
+          <p class="left" id="mins-left">348</p>
+          <p class="left-lbl">minutes until the guns stop</p>
+          <div class="hour-ctl" style="margin-top:1rem"><label for="six-time" class="mono">Clock</label><input type="range" id="six-time" min="300" max="660" step="1" value="312" data-desk-skip aria-describedby="six-now"></div>
+          <p class="mono" id="six-now" aria-live="polite"></p>
+        </div>
+        <ol class="log" id="six-log"></ol>
+      </div>
+      <div class="totals" id="six-totals" hidden>
+        <div><b>2,738</b><span>soldiers killed on all sides on the last day, by historian Joseph Persico's estimate</span></div>
+        <div><b>10,944</b><span>total casualties on all sides that day, killed, wounded, and missing</span></div>
+        <div><b>3,500+</b><span>American casualties on November 11, including about 320 killed</span></div>
+      </div>
+      <p class="always">Most attacks happen in daylight, and the sun came up after the signing. Most of the last day's casualties came after everyone knew when the war would end.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="sheet" id="s6" aria-labelledby="s6-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 6</span><span>Belgium and France</span><span>9:30 to 10:59 a.m.</span></p>
+    <h2 id="s6-t">The last four</h2>
+    <div class="read"><p>Four men, four armies, ninety minutes. Each is remembered as the last of his country killed in the war. Open each one.</p></div>
+    <div class="four" role="group" aria-label="Four soldiers">
+      <button type="button" class="man" data-man="0" aria-expanded="false" aria-controls="man-detail"><span class="noimg" aria-hidden="true">G.E.</span><span class="tm">9:30</span><span class="nm">George Ellison</span><span class="nat">British Army</span></button>
+      <button type="button" class="man" data-man="1" aria-expanded="false" aria-controls="man-detail"><img src="/storyhub/ush9/the-last-morning/assets/trebuchon.webp" width="319" height="499" loading="lazy" decoding="async" alt="Portrait of French soldier Augustin Trébuchon in uniform."><span class="tm">10:45</span><span class="nm">Augustin Trébuchon</span><span class="nat">French Army</span></button>
+      <button type="button" class="man" data-man="2" aria-expanded="false" aria-controls="man-detail"><img src="/storyhub/ush9/the-last-morning/assets/price.webp" width="150" height="230" loading="lazy" decoding="async" alt="Portrait of Canadian Private George Lawrence Price in uniform."><span class="tm">10:58</span><span class="nm">George Lawrence Price</span><span class="nat">Canadian Army</span></button>
+      <button type="button" class="man" data-man="3" aria-expanded="false" aria-controls="man-detail"><img src="/storyhub/ush9/the-last-morning/assets/gunther.webp" width="283" height="377" loading="lazy" decoding="async" alt="Portrait of American soldier Henry Gunther in uniform."><span class="tm">10:59</span><span class="nm">Henry Gunther</span><span class="nat">U.S. Army</span></button>
+    </div>
+    <div class="man-detail" id="man-detail" aria-live="polite"><p class="mono">Choose a soldier.</p></div>
+    <p class="mono" style="margin-top:.8rem;color:var(--mute)">Portraits of Trébuchon, Price, and Gunther, public domain. No free photograph of Ellison could be used here.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="sheet paper" id="s7" aria-labelledby="s7-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 7</span><span>Chaumont devant Damvillers, France</span><span>10:59 a.m.</span></p>
+    <h2 id="s7-t">Henry Gunther</h2>
+    <div class="cols">
+      <div class="read">
+        <p>Henry Gunther was a bank clerk from Baltimore, drafted in September 1917. He went to France as a supply sergeant with the 313th Infantry, a regiment called Baltimore's Own.</p>
+        <p>He wrote a letter home telling a friend how bad things were and warning him not to enlist. An Army censor read it. Gunther was busted down to private.</p>
+        <p>On the last morning his unit was ordered forward near a French village. Two German machine gun teams blocked the road.</p>
+        <p>The Germans knew the war had minutes left. Men who were there said the Germans tried to wave him back. Gunther kept charging with his bayonet.</p>
+        <p class="key">A burst of fire killed him at 10:59. One minute to go.</p>
+      </div>
+      <div style="display:grid;gap:1rem">
+        <figure class="photo r">
+          <img src="/storyhub/ush9/the-last-morning/assets/gunther.webp" width="283" height="377" loading="lazy" decoding="async" alt="Portrait of Henry Gunther in his Army uniform.">
+          <figcaption>Henry Gunther, 1895 to 1918. Public domain.</figcaption>
+        </figure>
+      </div>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Gunther's regiment was part of the 79th Division. On the morning of November 11 the division was ordered to attack at 9:30, although the time of the armistice was by then common knowledge along the front.</p>
+      <p>Why Gunther charged is not known. Some of the men with him believed he was trying to win back his rank. A Baltimore Sun reporter who talked to his platoon after the war told the story that way.</p>
+      <p>General John J. Pershing's order of the day afterward named Gunther as the last American killed in the war. The Army restored his rank of sergeant after his death. His body came home to Baltimore in 1923.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="sheet" id="s8" aria-labelledby="s8-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 8</span><span>Washington, D.C.</span><span>November 1919</span></p>
+    <h2 id="s8-t">Why attack at all?</h2>
+    <div class="read">
+      <p>A year later, Congress asked General Pershing why American divisions had attacked on a morning when everyone knew the war would end at eleven.</p>
+      <p class="key">Here are the reasons on the record. Decide whether each one holds up. Then read what the record says.</p>
+    </div>
+    <div class="reasons" id="reasons"></div>
+    <p class="always">Nothing here is graded. Your marks are only for you.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="sheet paper" id="s9" aria-labelledby="s9-t">
+  <div class="wrap">
+    <p class="msg"><span>No. 9</span><span>Every November 11</span><span>11:00 a.m.</span></p>
+    <h2 id="s9-t">From Armistice Day to Veterans Day</h2>
+    <div class="cols">
+      <div class="read">
+        <p>When the guns stopped, men climbed out of the trenches and celebrated. Back home, people poured into the streets.</p>
+        <p>November 11 became Armistice Day, a day to remember the war that was supposed to end all wars.</p>
+        <p class="key">It did not end all wars. So the day changed.</p>
+      </div>
+      <figure class="photo">
+        <img src="/storyhub/ush9/the-last-morning/assets/celebrate-64th.webp" width="960" height="602" loading="lazy" decoding="async" alt="American soldiers of the 64th Regiment waving helmets and cheering after hearing the armistice news, November 11, 1918.">
+        <figcaption>Soldiers of the U.S. 64th Infantry celebrate the news, November 11, 1918. U.S. Army Signal Corps, public domain.</figcaption>
+      </figure>
+    </div>
+    <div class="years">
+      <div><b>1919</b><p>President Woodrow Wilson marks the first Armistice Day.</p></div>
+      <div><b>1921</b><p>An unknown American soldier is buried at Arlington National Cemetery on November 11.</p></div>
+      <div><b>1938</b><p>Congress makes November 11 a national holiday.</p></div>
+      <div><b>1954</b><p>After World War II and Korea, the day is renamed Veterans Day to honor veterans of every war.</p></div>
+    </div>
+    <figure class="photo r" style="margin-top:2rem;max-width:560px">
+      <img src="/storyhub/ush9/the-last-morning/assets/eisenhower-1954.webp" width="504" height="401" loading="lazy" decoding="async" alt="President Dwight Eisenhower seated at a desk signing the bill that changed Armistice Day to Veterans Day, surrounded by members of veterans groups, June 1, 1954.">
+      <figcaption>President Dwight Eisenhower signs the law renaming Armistice Day as Veterans Day, June 1, 1954. Public domain.</figcaption>
+    </figure>
+    <div class="read" style="margin-top:2rem"><p class="key">The holiday still keeps the same hour. The eleventh hour of the eleventh day of the eleventh month.</p></div>
+  </div>
+</section>
+
+<!-- vocab -->
+<section class="sheet" id="vocab" aria-labelledby="vocab-t">
+  <div class="wrap">
+    <p class="msg"><span>Glossary</span></p>
+    <h2 id="vocab-t">Words you already met</h2>
+    <div class="vocab">
+      <div><b>armistice</b>An agreement to stop fighting. It is not the final peace treaty.<small>The papers signed at 5:12</small></div>
+      <div><b>ceasefire</b>The moment the shooting is supposed to stop.<small>11:00 a.m., Paris time</small></div>
+      <div><b>delegation</b>A group sent to speak for a country.<small>Erzberger and the Germans in the clearing</small></div>
+      <div><b>blockade</b>Ships stopping goods from reaching a country.<small>It stayed in place after the armistice</small></div>
+      <div><b>casualties</b>Soldiers killed, wounded, or missing, counted together.<small>10,944 on the last day</small></div>
+      <div><b>censor</b>An official who reads mail and cuts or reports what the Army does not want sent.<small>Gunther's letter</small></div>
+      <div><b>posthumous</b>Given after a person has died.<small>Gunther's rank restored</small></div>
+      <div><b>Veterans Day</b>The holiday on November 11 that honors everyone who served in the U.S. military.<small>Renamed in 1954</small></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<section class="response" id="your-turn" aria-labelledby="yt-t">
+  <div class="wrap">
+    <p class="kicker" style="color:#6b6450">your turn</p>
+    <h2 id="yt-t">Report back</h2>
+    <p class="mono">Answer in your own words. Use times, names, or numbers from the page. Keep each answer under 150 words. Your work saves as you type.</p>
+    <div class="qblock"><label for="answer-1">1. Pick one event from the six hours between 5:12 and 11:00. Explain what happened and why it still bothers people more than a hundred years later.</label><textarea id="answer-1" name="answer-1" data-desk-label="Pick one event from the six hours between 5:12 and 11:00. Explain what happened and why it still bothers people more than a hundred years later." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-2">2. Commanders gave reasons for attacking on the last morning. Choose one reason and argue whether it was worth the cost. Use at least one number from the page.</label><textarea id="answer-2" name="answer-2" data-desk-label="Commanders gave reasons for attacking on the last morning. Choose one reason and argue whether it was worth the cost. Use at least one number from the page." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-3">3. France dated Augustin Trébuchon's grave November 10, not November 11. Why would a government do that, and what does it hide?</label><textarea id="answer-3" name="answer-3" data-desk-label="France dated Augustin Trébuchon's grave November 10, not November 11. Why would a government do that, and what does it hide?" rows="5"></textarea></div>
+    <div data-desk-turnin></div>
+  </div>
+</section>
+
+<footer class="sources" id="sources" aria-labelledby="src-t">
+  <div class="wrap">
+    <h2 id="src-t">Sources and limits</h2>
+    <ol>
+      <li>Joseph E. Persico, <i>Eleventh Month, Eleventh Day, Eleventh Hour: Armistice Day, 1918</i>, Random House, 2004, for the last day's casualty estimates, the Stenay attack, and Gunther's story.</li>
+      <li>The Armistice of November 11, 1918, conditions as signed at Compiègne.</li>
+      <li>79th Division, <i>Summary of Operations in the World War</i>, American Battle Monuments Commission, for the 9:30 attack order.</li>
+      <li>U.S. House of Representatives, Committee on Military Affairs, hearings of November 1919, including General Pershing's answers on the last day's attacks.</li>
+      <li>Western Front Association and the Defense Visual Information Distribution Service, on Henry Gunther and the Navy railway guns.</li>
+      <li>U.S. Department of Veterans Affairs, history of Veterans Day.</li>
+    </ol>
+    <p><b>Limits.</b> The last day's casualty totals are estimates, and Persico's numbers are the ones most often cited. The exact minute of each of the last four deaths comes from regimental records and witness accounts, and a few sources give slightly different times. Why Henry Gunther charged is not known. The car on this page is a stylized model.</p>
+    <p class="mono" style="margin-top:1rem;color:var(--mute)">Images: Foch's train after the signing. Painting of the signing. The New York Times, November 11, 1918. Portraits of Trébuchon, Price, and Gunther. The 64th Infantry celebrating, U.S. Army Signal Corps. Eisenhower signing, 1954. Public domain via Wikimedia Commons. Matthias Erzberger portrait, Bundesarchiv, Bild 146-1989-072-16, CC BY-SA 3.0 DE.</p>
+  </div>
+</footer>
+
+<script src="/hubs/ush9-splendid-little-war/lib/three.min.js" defer></script>
+<script src="/storyhub/ush9/the-last-morning/assets/carriage.js" defer></script>
+<script>
+(function(){
+  'use strict';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* the handover */
+  var HAND=[['Artillery guns',5000],['Machine guns',25000],['Airplanes',1700],['Locomotives',5000],['Railroad cars',150000],['Trucks',5000]];
+  var hv=document.getElementById('hand-viz'),hb=[].slice.call(document.querySelectorAll('[data-hand]'));
+  function squares(n){var full=Math.floor(n/1000),rem=(n%1000)/1000,h='';for(var i=0;i<full;i++)h+='<i></i>';if(rem>0)h+='<i class="part" style="width:'+Math.max(3,Math.round(12*rem))+'px"></i>';return h;}
+  function row(it){return '<div class="tv-row"><div><b>'+it[1].toLocaleString('en-US')+'</b><span>'+it[0]+'</span></div><div class="grid" role="img" aria-label="'+it[1].toLocaleString('en-US')+' '+it[0].toLowerCase()+', shown as '+(it[1]/1000)+' squares">'+squares(it[1])+'</div></div>';}
+  function hand(k){hb.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.hand===k));});hv.innerHTML=k==='all'?HAND.map(row).join(''):row(HAND[+k]);}
+  hb.forEach(function(b){b.addEventListener('click',function(){hand(b.dataset.hand);});});
+  hand('0');
+
+  /* the six hours */
+  var EV=[
+    [312,'5:12','The signatures go on in Foch\'s railroad car. They finish around 5:20. The official time is written as 5:00.'],
+    [320,'5:20','Right away, the news goes out to the armies by radio, telegraph, and telephone. Fighting is to stop at 11:00.'],
+    [480,'about 8:00','General William Wright\'s American 89th Division pushes to take the town of Stenay. Persico wrote that Wright wanted the town partly so his men could bathe there. The last crossing and attack cost the division around 300 casualties by Persico\'s count. Other accounts give different casualty numbers.'],
+    [570,'9:30','Private George Ellison, a British cavalryman, is killed near Mons, Belgium. In August 1914 the British army fought its first battle of the war at Mons.'],
+    [570,'9:30','The American 79th Division, Henry Gunther\'s division, is ordered to attack.'],
+    [630,'10:30','Units of the American 92nd Division, made up of Black soldiers, are ordered into a final charge, according to one of its officers\' later testimony.'],
+    [645,'10:45','French soldier Augustin Trébuchon is shot while carrying a message to his unit. The message said soup would be served at 11:30, half an hour after the war was to end.'],
+    [657,'10:57','An American Navy railway gun fires its last shell, timed to land just before eleven.'],
+    [658,'10:58','Canadian Private George Lawrence Price is shot by a sniper in a Belgian village.'],
+    [659,'10:59','American Private Henry Gunther is killed charging a German machine gun.'],
+    [660,'11:00','The guns stop along the Western Front.']
+  ];
+  var slider=document.getElementById('six-time'),log=document.getElementById('six-log'),left=document.getElementById('mins-left'),now=document.getElementById('six-now'),tot=document.getElementById('six-totals');
+  log.innerHTML=EV.map(function(e,i){return '<li data-i="'+i+'"><span class="t">'+e[1]+'</span><span class="what">'+e[2]+'</span></li>';}).join('');
+  var items=[].slice.call(log.children),ticks=document.getElementById('ticks'),tk='';
+  for(var i=0;i<60;i++){var a=i*6*Math.PI/180,r1=i%5?86:80;tk+='<line x1="'+(100+r1*Math.sin(a))+'" y1="'+(100-r1*Math.cos(a))+'" x2="'+(100+90*Math.sin(a))+'" y2="'+(100-90*Math.cos(a))+'" stroke="currentColor" stroke-width="'+(i%5?1:2.5)+'" opacity=".7"/>';}
+  ticks.innerHTML=tk;
+  function fmt(m){var h=Math.floor(m/60),mm=m%60;return h+':'+(mm<10?'0':'')+mm+' a.m.';}
+  function arc(m){
+    /* red wedge = the time between now and 11:00 on a 12 hour dial */
+    var a0=((m/60)%12)/12*2*Math.PI,a1=(11/12)*2*Math.PI;if(a1<a0)a1+=2*Math.PI;
+    var r=92,x0=100+r*Math.sin(a0),y0=100-r*Math.cos(a0),x1=100+r*Math.sin(a1),y1=100-r*Math.cos(a1),large=(a1-a0)>Math.PI?1:0;
+    return 'M100 100 L'+x0+' '+y0+' A'+r+' '+r+' 0 '+large+' 1 '+x1+' '+y1+' Z';
+  }
+  var lastShown=-1;
+  function six(){
+    var m=+slider.value,h=(m/60)%12,mins=m%60;
+    document.getElementById('hh').setAttribute('transform','rotate('+(h*30)+' 100 100)');
+    document.getElementById('mh').setAttribute('transform','rotate('+(mins*6)+' 100 100)');
+    document.getElementById('wedge').setAttribute('d',m>=660?'':arc(m));
+    left.textContent=Math.max(0,660-m);
+    var seen=0,latest=null;
+    items.forEach(function(li,i){var on=EV[i][0]<=m;li.classList.toggle('future',!on);li.classList.toggle('now',false);li.setAttribute('aria-hidden',String(!on));if(on){seen++;latest=li;}});
+    if(latest)latest.classList.add('now');
+    tot.hidden=m<660;
+    var msg=fmt(m)+', '+Math.max(0,660-m)+' minutes left. ';
+    if(latest&&seen!==lastShown){msg+='Latest: '+EV[seen-1][1]+'. '+EV[seen-1][2];}
+    lastShown=seen;
+    now.textContent=msg;
+    slider.setAttribute('aria-valuetext',fmt(m));
+    if(latest&&!reduce)latest.scrollIntoView({block:'nearest'});
+  }
+  slider.addEventListener('input',six);six();
+
+  /* the last four */
+  var MEN=[
+    ['George Ellison, British Army, 9:30 a.m.','Ellison was a cavalryman from Leeds, about forty years old, who had been fighting since 1914. He had been near Mons in August 1914, at the start of the war. He was killed scouting on the edge of Mons, back where he began, ninety minutes before the end.'],
+    ['Augustin Trébuchon, French Army, about 10:45 a.m.','Trébuchon was a shepherd from the mountains of central France who had served the whole war. On the last morning he was carrying a message to his unit near the Meuse River. It said soup would be served at 11:30. He was shot on the way. After the war, France marked the graves of its soldiers killed that morning with the date November 10.'],
+    ['George Lawrence Price, Canadian Army, 10:58 a.m.','Price was born in Nova Scotia and was working as a farmhand on the Canadian prairie when he was drafted in 1917. His unit was clearing houses in a Belgian village called Ville sur Haine. A sniper shot him two minutes before the ceasefire. A school in the village is named for him.'],
+    ['Henry Gunther, U.S. Army, 10:59 a.m.','Gunther was a twenty three year old bank clerk from Baltimore. He is listed as the last soldier of any army killed in World War I. Read his full story in the next section.']
+  ];
+  var mb=[].slice.call(document.querySelectorAll('[data-man]')),md=document.getElementById('man-detail');
+  mb.forEach(function(b){b.addEventListener('click',function(){var M=MEN[+b.dataset.man];mb.forEach(function(x){x.setAttribute('aria-expanded',String(x===b));});md.innerHTML='<h4>'+M[0]+'</h4><p>'+M[1]+'</p>';});});
+
+  /* reasons */
+  var RS=[
+    ['Orders from the top','Pershing, to Congress in 1919','Marshal Foch had ordered the Allied armies on November 9 to keep pressing the Germans until the end. Pershing said he was following those orders.'],
+    ['The Germans might not keep their word','Pershing and other commanders','Commanders argued that nobody could be sure Germany would honor the ceasefire, so stopping early could be dangerous. Germany did honor it. The fighting stopped at 11:00 and did not start again.'],
+    ['A better position when it ended','Several division commanders','Taking a village or a ridge before 11:00 meant holding better ground afterward. But every army was going to stop where it stood, and Germany had already agreed to pull back.'],
+    ['Not hauling the shells back','Artillery units on many parts of the front','Some batteries kept firing to use up their ammunition rather than carry it away. Shells fired at 10:45 still landed on men.'],
+    ['A bath in Stenay','General William Wright, 89th Division, as Joseph Persico tells it','Persico wrote that Wright wanted Stenay partly for its bathing facilities. Wright was never punished for the attack.']
+  ];
+  var rs=document.getElementById('reasons');
+  rs.innerHTML=RS.map(function(r,i){return '<div class="reason"><h4>'+r[0]+'</h4><p class="who">Who gave it: '+r[1]+'</p><div class="judge" role="group" aria-label="Your judgment of this reason"><button type="button" class="btn" data-r="'+i+'" data-v="holds" aria-pressed="false">Holds up</button><button type="button" class="btn" data-r="'+i+'" data-v="fails" aria-pressed="false">Does not hold up</button></div><p class="rec" id="rec-'+i+'" hidden aria-live="polite">'+r[2]+'</p></div>';}).join('');
+  rs.addEventListener('click',function(e){var b=e.target.closest('[data-r]');if(!b)return;var i=b.dataset.r;[].slice.call(rs.querySelectorAll('[data-r="'+i+'"]')).forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});document.getElementById('rec-'+i).hidden=false;});
+
+  /* section strip */
+  var links=[].slice.call(document.querySelectorAll('.strip a[href^="#"]'));
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)links.forEach(function(a){if(a.hash==='#'+e.target.id)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('main section[id],#your-turn').forEach(function(s){io.observe(s);});}
+})();
+</script>
+<script src="/hubs/desk-save.js" defer></script>
+</body></html>

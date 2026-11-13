@@ -1,7 +1,22 @@
 {
   "checkedAt": "2026-10-29",
-  "catalogueCount": 64,
+  "catalogueCount": 72,
   "hubs": [
+    {
+      "hub": "hh-they-couldnt-stop.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-bytesize-number-81.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-bytesize-why-they-fought.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
     {
       "hub": "hh-down-the-rabbit-hole.html",
       "mode": "assignment",
@@ -64,6 +79,16 @@
     },
     {
       "hub": "hh-bytesize-moon-hoax.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-23-months.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-bytesize-who-let-him-back.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     },
@@ -319,6 +344,21 @@
     },
     {
       "hub": "bts-who-lost-when-robinson-won.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-s02-the-entry-list.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-s02-the-first-englishman.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-s03-the-last-morning.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }
