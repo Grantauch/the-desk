@@ -76,3 +76,48 @@ test('the server deadline clears a visible private panel without a background po
   await client.loadCreature('pet',()=>{});expire();assert.equal(clears,1);assert.equal(calls,1);
   await client.loadCreature('pet',()=>{});assert.equal(calls,1);client.dispose();
 });
+
+for(const [name,failure] of [
+  ['network rejection',async()=>{throw new TypeError('synthetic connection lost');}],
+  ['interrupted response body',async()=>({ok:true,status:200,json:async()=>{throw new TypeError('synthetic body interrupted');}})],
+  ['malformed success JSON',async()=>new Response('{broken',{status:200})],
+  ['unreadable unauthorized response',async()=>new Response('<html>signed out</html>',{status:401})],
+]) test(`${name} clears already rendered private state in both tabs`,async()=>{
+  let failing=false,calls=0,local='empty',peer='empty';
+  const f=setup(async()=>{calls++;return failing?failure():ok({creature:{nickname:'synthetic private pet'}});});
+  const a=createGameClient({environment:f.environment,onClear:()=>{local='';}});
+  const b=createGameClient({environment:f.environment,onClear:()=>{peer='';}});
+  try {
+    await a.loadCreature('pet',data=>{local=data.creature.nickname;});
+    await b.loadCreature('pet',data=>{peer=data.creature.nickname;});
+    assert.equal(local,'synthetic private pet');assert.equal(peer,local);
+    failing=true;
+    await assert.rejects(a.loadCreature('pet',()=>assert.fail('Failed response must not render')));
+    await Promise.resolve();
+    assert.equal(local,'');assert.equal(peer,'');
+    const before=calls;
+    await a.loadCreature('pet',()=>assert.fail('Cleared client must remain inactive'));
+    await b.loadCreature('pet',()=>assert.fail('Cleared peer must remain inactive'));
+    assert.equal(calls,before);
+  } finally {a.dispose();b.dispose();}
+});
+
+test('transport failure cancels a peer request and suppresses its late successful response',async()=>{
+  let failing=false,pending,lateSignal,rendered=0;
+  const f=setup((path,options)=>{
+    if(path==='/api/rename')return Promise.reject(new TypeError('synthetic connection lost'));
+    if(failing)return new Promise(resolve=>{pending=resolve;lateSignal=options.signal;});
+    return Promise.resolve(ok({creature:{}}));
+  });
+  const a=createGameClient({environment:f.environment}),b=createGameClient({environment:f.environment});
+  try {
+    await a.loadCreature('pet',()=>{});failing=true;
+    const late=b.loadCreature('pet',()=>{rendered++;});
+    await assert.rejects(a.rename('synthetic-command',{},()=>assert.fail('Failed rename must not render')));
+    await Promise.resolve();
+    // The late transport deliberately ignores AbortSignal, as some callbacks do.
+    const aborted=lateSignal.aborted;
+    pending(ok({creature:{nickname:'old private result'}}));await late;
+    assert.equal(aborted,true);assert.equal(rendered,0);
+  } finally {a.dispose();b.dispose();}
+});

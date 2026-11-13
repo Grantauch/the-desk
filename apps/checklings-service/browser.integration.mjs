@@ -122,6 +122,46 @@ test('synthetic Chromium sign-in, cookie and shared-device acceptance over HTTPS
       await page.locator('#load').click();await page.waitForFunction(()=>document.getElementById('private').textContent==='Keep my progress');
       f.advance(120000);await page.locator('#load').click();await page.waitForFunction(()=>document.getElementById('private').textContent==='');await page.close();
     });
+    for(const [name,interrupt] of [
+      ['network failure',route=>route.abort('failed')],
+      ['malformed success JSON',route=>route.fulfill({status:200,contentType:'application/json',body:'{broken'})],
+      ['unreadable unauthorized response',route=>route.fulfill({status:401,contentType:'text/html',body:'<html>signed out</html>'})],
+    ])await t.test(`${name} clears an already visible private pet`,async()=>{
+      const page=await context.newPage();
+      try {
+        await login(page);
+        await page.locator('#load').click();await page.waitForFunction(()=>document.getElementById('private').textContent==='Keep my progress');
+        await page.route('**/api/creature',interrupt);
+        await page.locator('#load').click();await page.waitForFunction(()=>document.getElementById('private').textContent==='');
+      } finally {await page.close();}
+    });
+    await t.test('a rename committed before transport failure survives clearing, retry and a new login',async()=>{
+      const page=await context.newPage();
+      try {
+        await login(page);
+        await page.locator('#load').click();await page.waitForFunction(()=>document.getElementById('private').textContent==='Keep my progress');
+        await page.route('**/api/rename',async route=>{
+          const committed=await route.fetch();assert.equal(committed.status(),200);
+          await route.abort('failed'); // Lose only the acknowledgement, after commit.
+        });
+        const cleared=await page.evaluate(async id=>{
+          const {createGameClient}=await import('/auth/client.js');
+          const panel=document.getElementById('private'),client=createGameClient({onClear:()=>{panel.textContent='';}});
+          try {
+            await client.rename('synthetic-lost-rename',{creatureId:id,expectedRevision:0,nickname:'Saved before loss'},()=>{throw new Error('Lost response must not render');});
+            return false;
+          } catch {return panel.textContent==='';} finally {client.dispose();}
+        },creatureId);
+        assert.equal(cleared,true);
+        const fresh=await f.login();
+        const saved=await f.store.load(fresh.token,creatureId);
+        assert.equal(saved.nickname,'Saved before loss');assert.equal(saved.revision,1);
+        const replay=await f.store.rename(fresh.token,'synthetic-lost-rename',{creatureId,expectedRevision:0,nickname:'Saved before loss'});
+        assert.deepEqual(replay.creature,saved);
+        await login(page);await page.locator('#load').click();
+        await page.waitForFunction(()=>document.getElementById('private').textContent==='Saved before loss');
+      } finally {await page.close();}
+    });
     await context.close();
   } finally {
     hold?.release.resolve();if(browser)await browser.close();
