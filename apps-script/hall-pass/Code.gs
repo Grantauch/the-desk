@@ -832,17 +832,27 @@ function verifyStudentPin_(pin, activeEmail, attemptNonce) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
     throw new Error('Enter your 5- or 6-digit PIN.');
   }
-  let students = getStudentsByPinHash_(hashPin_(cleaned));
+  let matchedHash = hashPin_(cleaned);
+  let students = getStudentsByPinHash_(matchedHash);
   // Lunch numbers lose a leading zero in some school exports (020772 vs 20772).
   // Accept either spelling of the same number before calling it a wrong PIN.
   const zeroTwin = leadingZeroTwin_(cleaned);
-  if (!students.length && zeroTwin) students = getStudentsByPinHash_(hashPin_(zeroTwin));
+  if (!students.length && zeroTwin) {
+    matchedHash = hashPin_(zeroTwin);
+    students = getStudentsByPinHash_(matchedHash);
+  }
   if (!students.length) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
     throw new Error('That PIN did not match an active student. Try again or ask your teacher.');
   }
   const emails = [...new Set(students.map((student) => student.email))];
   if (emails.length !== 1) throw new Error('That PIN is not unique. Ask your teacher to repair the PIN list.');
+  const activeMemberships = getStudentsByEmail_(emails[0]);
+  const activeHashes = new Set(activeMemberships.map((student) => student.pinHash).filter(Boolean));
+  if (activeMemberships.some((student) => !student.pinHash)
+    || activeHashes.size !== 1 || !activeHashes.has(matchedHash)) {
+    throw new Error('That student’s active PIN records do not agree. Ask your teacher to repair the PIN list.');
+  }
   clearPinAttempts_(activeEmail, attemptNonce);
   clearServerPinAttempt_(activeEmail);
   return students;
@@ -949,7 +959,7 @@ function credentialVersionForEmail_(emailValue) {
   if (!email) return '';
   const versions = gdMemo_('credential-versions', () => {
     const byEmail = {};
-    readRosterRowsCached_().forEach((student) => {
+    getRoster_().forEach((student) => {
       if (!student.email || !student.pinHash) return;
       if (!byEmail[student.email]) byEmail[student.email] = new Set();
       byEmail[student.email].add(student.pinHash);

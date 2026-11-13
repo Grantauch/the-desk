@@ -1,4 +1,17 @@
 {
+  "hall-pass-active-credential-consistency-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Forward-port #117 onto current Hall Pass while preserving leading-zero aliases and school-directory credentials.",
+    "verification_status": "BOTH_BASELINE_FAILURES_REPRODUCED_447_RUNTIME_AND_DIRECTORY_CHECKS_PASS",
+    "deployment_status": "CANONICAL_AND_PROTECTED_REVIEW_PENDING",
+    "field_status": "AUTHENTICATED_SYNTHETIC_SMOKE_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Current main cf4cf93 fails both restored #117 cases: historical inactive hash invalidates a valid session, and conflicting active hashes issue an action proof.",
+      "Credential versions now use active memberships and authentication rejects inconsistent or missing active hashes before minting proofs.",
+      "The actual matched hash preserves the existing leading-zero twin behavior. All 447 runtime checks and independent-room directory tests pass using synthetic fixtures only."
+    ]
+  },
   "checklings-plaza-sprite-book-2026-11-12": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
