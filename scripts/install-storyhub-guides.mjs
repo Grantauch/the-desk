@@ -62,7 +62,7 @@ for (const config of configs) {
   }
 
   const button = '<button type="button" class="btn gold-guide-open" data-gold-guide-open aria-controls="goldGuide" aria-expanded="false">Guide</button>';
-  const today = '<a class="btn" href="/hubs/substitute-day-2026-09-08.html">Today</a>';
+  const today = '<a class="btn" href="/storyhubs/">All StoryHubs</a>';
   if (!html.includes(today)) throw new Error(`${config.file}: missing Today link.`);
   html = html.replace(today, `${button}${today}`);
 
