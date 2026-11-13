@@ -47,6 +47,17 @@ The Arsenal and Over the Top contained no independent reading path for devices w
 
 The existing museum source/export/URL contracts are safeguarded by draft [PR #351](https://github.com/Grantauch/the-desk/pull/351). Its focused workflow passed after accommodating Blender material-only GLTF extensions.
 
+## Browser-based runtime validation
+
+The first no-login, offline-controlled browser pass [run 43344743336](https://github.com/Grantauch/the-desk/actions/runs/43344743336) visited all **109 root-level HTML hubs** at desktop width plus **7 high-priority hubs at mobile width** (116 browser visits total). The browser requested **483 distinct local media paths** across those visits.
+
+- All 116 routes returned HTTP 200.
+- No local media request failures, JavaScript page errors or horizontal overflow were observed.
+- Four pages displayed failed `i.ytimg.com` thumbnails because the audit intentionally blocked all third-party network calls; these are **not proven production defects** and were not counted as local asset failures.
+- 315 public media files were not requested in this initial-load/scroll pass. This is **not an orphan count**: the test did not open every narrative branch, avatar choice or lazy scene and did not load the site's Astro homepage, so expected Atlas textures and responsive course artwork are absent from the request set.
+
+An expanded runtime workflow now visits **all 109 hubs on both desktop and mobile**, plus priority pages at a narrow 320px viewport. Its final report will be reviewed separately before any asset removals or fixes.
+
 ## Remaining verification / release gates
 
 1. Independent review of PRs #351, #354 and #355; final full site check and merge permission.
