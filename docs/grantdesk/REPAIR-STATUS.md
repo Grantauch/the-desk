@@ -1,3 +1,7 @@
+## November 13 active credential consistency
+
+Owner Codex. Reproduced both #117 failures against current main using synthetic memberships: inactive historical PIN hashes expired a valid signed session, and disagreeing active hashes issued an action proof. Credential versions now use active memberships, and PIN verification requires one consistent active credential before issuing a session or proof. The comparison uses the hash that actually matched, preserving five/six-digit leading-zero aliases and directory credentials. All 447 runtime checks, the independent school-directory suite and full canonical verification pass (55 pages, 172 HTML files, 5,773 references, 35 sealed releases / 264 assets). Protected source review, production deployment and authenticated synthetic smoke remain separate. No real student data or credential was read or changed.
+
 ## November 13 Hall Pass Batch 02 evidence refresh
 
 Owner Codex. Current program passes 445 runtime behaviors across 32 areas at main `f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee`; that exact baseline passed protected full release and browser acceptance in run 43488008757. The private RC2 rebuilt reproducibly from canonical Git bytes, with seven matching source hashes and a confirmed public-output refusal. Readiness and installer-contract documents now record the same archive/manifest fingerprints. Both release flags remain false. Source review and merge are separate from school field acceptance; no deployment, public kit, school data or credential change was made.
