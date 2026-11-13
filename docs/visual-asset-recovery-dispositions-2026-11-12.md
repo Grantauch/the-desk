@@ -23,7 +23,7 @@ Only four code paths in this scan are absent by path from `main`:
 
 - `public/hubs/wwi-gallery-reader.html` — intentionally proposed as a new, accessible field guide in draft [PR #355](https://github.com/Grantauch/the-desk/pull/355). It is not a historical recovery.
 - `src/pages/rabbit-holes.astro` — old standalone navigation route; main now directs Rabbit Holes through the Detour Shelf. Preserve the newer navigation instead of duplicating legacy routes.
-- `public/hubs/blacktop-kings/ball-physics.js` — isolated ball simulation from an old branch 563 commits behind current `main`. Needs a separate modern gameplay/feel review; adding it to the newer game without rebalancing evidence is unsafe.
+- `public/hubs/blacktop-kings/ball-physics.js` — isolated ball simulation from an old branch 563 commits behind current `main`. **Explicitly excluded in merged PR #176**, which reconciled #174 and #175 but rejected its predetermined make/miss planner in favor of the skill-driven physical trajectory. Do not restore that unused module.
 - `public/hubs/Robber barons.html` — old space/capitalization-named duplicate; the live game has its established canonical `robber-barons.html` route. Do not surface duplicate titles or route students to the old copy.
 
 Atlas branch PR #348 had no missing art and six older/different priority files; merged PRs #349 and #350 include the later upgrades. [PR #348 was closed as superseded](https://github.com/Grantauch/the-desk/pull/348) rather than merged over newer artwork.
