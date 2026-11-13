@@ -1,4 +1,16 @@
 {
+  "checklings-plaza-sprite-book-2026-11-12": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Recover four Wave 2 plaza landmarks from draft PR #284 for the existing Checkaverse map.",
+    "verification_status": "LOCAL_CHROMIUM_RENDER_AND_FALLBACK_PASS",
+    "deployment_status": "INDEPENDENT_RELEASE_VERIFICATION_PENDING",
+    "field_status": "PHYSICAL_SCHOOL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Original Gemini Sprite Book PNG hashes match the intake record and regenerated pixels match the four reviewed draft exports.",
+      "At 1366 by 768, Chromium walked the plaza and drew all four versioned sprites. Simulated missing images exercised both the original Wave 1 art and the existing shape fallback."
+    ]
+  },
   "student-discovery-2026-11-12": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
@@ -23,6 +35,18 @@
     "evidence": [
       "The browser uses one moving cloud mask and one surface shadow. Country labels use interior points in the active border snapshot.",
       "The distance tool shows two labeled pins, a great-circle arc and explicit clear and exit controls."
+    ]
+  },
+  "checklings-battle-sprite-book-2026-11-12": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Recover the complete Mochi, Bolt and Ember pose pairs from draft PR #284 for the existing Checkaverse battle screen.",
+    "verification_status": "LOCAL_CHROMIUM_BATTLE_POSES_MOTION_AND_FALLBACK_PASS",
+    "deployment_status": "INDEPENDENT_RELEASE_VERIFICATION_PENDING",
+    "field_status": "PHYSICAL_SCHOOL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Each versioned pose has a 32px still and a two-frame idle with a common baseline. The original founder paths remain available.",
+      "Local visitor battles exercised all four founders, a real battle turn, reduced-motion switching and failed animation and still requests."
     ]
   },
   "atlas-orbital-events-2026-11-11": {

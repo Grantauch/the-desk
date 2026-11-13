@@ -769,7 +769,14 @@
   function snapCamera() { cam = cameraTarget(); }
 
   // ---------- art ----------
-  // Sprite Book art is stored at 2x (64 pixels a tile). If a picture fails to load, the old shapes stand in for it.
+  // Most art uses the original 64px-per-tile files. These Wave 2 landmarks use
+  // versioned 32px exports. Keep the original URLs for cached pages and fallback.
+  const LANDMARK_ART = {
+    arena: 'arena-v2',
+    'market-stall': 'market-stall-v2',
+    'prop-bus': 'prop-bus-v2',
+    'prop-notice-board': 'prop-notice-board-v2',
+  };
   const ART_NAMES = [
     'tile-grass', 'tile-path', 'tile-water', 'prop-tree', 'prop-bush', 'prop-rock', 'prop-lantern', 'prop-bench',
     'prop-bus-stop', 'prop-bus', 'prop-notice-board', 'ui-bubble', 'hood-plot', 'house-cottage', 'house-stump',
@@ -785,8 +792,14 @@
   let ground = null, groundKey = '';
   for (const name of ART_NAMES) {
     const im = new Image();
-    im.onload = im.onerror = () => { artWaiting--; ground = null; };
-    im.src = `/art/${name}.png`;
+    const loaded = () => { artWaiting--; ground = null; };
+    const original = `/art/${name}.png`;
+    im.onload = loaded;
+    im.onerror = LANDMARK_ART[name] ? () => {
+      im.onerror = loaded;
+      im.src = original;
+    } : loaded;
+    im.src = LANDMARK_ART[name] ? `/art/${LANDMARK_ART[name]}.png` : original;
     ART[name] = im;
   }
   const has = (name) => ART[name] && ART[name].complete && ART[name].naturalWidth > 0;
@@ -1640,6 +1653,36 @@
     el.style.width = `${pct}%`;
     if (hp) { el.classList.toggle('mid', pct <= 50 && pct > 20); el.classList.toggle('low', pct <= 20); }
   }
+  // Battle-only Wave 2 poses. The original front and back URLs still serve
+  // the map, partner screens, older clients, and the last image fallback.
+  const battlePoseSpecies = new Set(['mochi', 'bolt', 'ember']);
+  function battlePose(image, species, face) {
+    const original = `/art/${face}-${species}.png`;
+    image.onerror = null;
+    image.classList.toggle('sprite-book-pose', battlePoseSpecies.has(species));
+    if (!battlePoseSpecies.has(species)) {
+      image.src = original;
+      return;
+    }
+    const still = `/art/${face}-${species}-v2.png`;
+    image.onerror = () => {
+      if (image.getAttribute('src') !== still) image.src = still;
+      else {
+        image.onerror = null;
+        image.classList.remove('sprite-book-pose');
+        image.src = original;
+      }
+    };
+    image.src = motionQuery.matches ? still : `/art/${face}-${species}-v2-idle.png`;
+  }
+  function drawBattlePoses(view) {
+    const n = nearSide(), mine = view.sides[n], foe = view.sides[1 - n];
+    battlePose($('bFoeMon'), foe.species, 'front');
+    $('bFoeMon').alt = `${foe.name}'s ${foe.speciesName}`;
+    battlePose($('bMeMon'), mine.species, 'back');
+    $('bMeMon').alt = `${mine.name}'s ${mine.speciesName}, from behind`;
+  }
+  motionQuery.addEventListener('change', () => { if (bt) drawBattlePoses(bt.view); });
   function drawSides(view, sprites) {
     const n = nearSide(), mine = view.sides[n], foe = view.sides[1 - n];
     const nameWith = (el, f) => { el.textContent = f.speciesName; el.prepend(typeImg(f.type)); };
@@ -1651,10 +1694,7 @@
     bar($('bMeHp'), mine.hp, mine.maxHp, true); bar($('bMeSt'), mine.stamina, mine.maxStamina);
     $('bMeHpNum').textContent = `${bt && bt.watching ? `${mine.name} · ` : ''}HP ${mine.hp} / ${mine.maxHp}`;
     $('bMeStNum').textContent = `Stamina ${mine.stamina} / ${mine.maxStamina}`;
-    if (sprites) {
-      $('bFoeMon').src = `/art/front-${foe.species}.png`; $('bFoeMon').alt = `${foe.name}'s ${foe.speciesName}`;
-      $('bMeMon').src = `/art/back-${mine.species}.png`; $('bMeMon').alt = `${mine.name}'s ${mine.speciesName}, from behind`;
-    }
+    if (sprites) drawBattlePoses(view);
   }
   function say(text) { bMsg.textContent = text; }
   function buildMoves() {

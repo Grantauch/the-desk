@@ -1,0 +1,28 @@
+name: WWI visual export contracts
+
+on:
+  pull_request:
+    paths:
+      - 'assets/wwi-blender/**'
+      - 'public/hubs/ush9-the-arsenal.html'
+      - 'public/hubs/ush9-the-arsenal/models/**'
+      - 'public/hubs/ush9-over-the-top.html'
+      - 'public/hubs/ush9-over-the-somme/**'
+      - 'scripts/test-wwi-visual-exports.mjs'
+      - '.github/workflows/wwi-visual-exports.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  asset-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify model wiring, Blender sources, GLB layout and fallbacks
+        run: node --test scripts/test-wwi-visual-exports.mjs

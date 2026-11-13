@@ -1,3 +1,7 @@
+## November 12 Checkaverse plaza artwork recovery
+
+Codex recovered the Gemini Sprite Book arena, market stall, bus and notice board from draft PR #284. The current map draws the versioned art at existing placements. The original files serve older clients and replace missing versioned images. Local Chromium verified the new artwork and both fallback levels at Chromebook size. Independent release verification and physical Chromebook use are pending.
+
 ## November 12 student discovery and navigation
 
 Owner Codex. Reconciled all 109 root HTML hub experiences against the two catalogs and inspected the 13 exceptions. Add the student Jeopardy join page and repaired Constitution Day case files to games; replace the stale U.S. History Jeopardy V2 link with V3, remove V2 from the sitemap and remove prototype Lab/Situation Room navigation. Original files remain available for existing links.
@@ -7,6 +11,10 @@ Constitution Day uses the shared save runtime with unchanged `q:` keys, accessib
 ## November 11 Cinematic Atlas visual polish
 
 Owner Codex. Illustrated clouds use a single drifting field with shaded wisps and tall cores. Expanded mode brings teaching tools onto the globe, adds decluttered country labels for the active map, and draws an animated great-circle measurement with labeled pins and reduced-motion support. Iran and North Korea cards correct the U.S. diplomatic relationship field, and the 1914 snapshot uses Republic of China. Protected CI, live readback and physical Chromebook use are tracked separately.
+
+## November 12 Checkaverse battle artwork recovery
+
+Codex recovered the Gemini Sprite Book front and back poses for Mochi, Bolt and Ember from draft PR #284. The battle screen chooses stills for reduced motion, and the original founder PNGs back up the versioned files. Local Chromium verified all four founders in visitor battles, including one complete turn and image failure recovery. Independent release verification and physical Chromebook use are pending.
 
 ## November 11 orbital events
 
