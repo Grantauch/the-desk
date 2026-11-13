@@ -1,6 +1,15 @@
 # Hall Pass issue #319 — clean-environment release readiness
 
-Owner: Codex. Review branch: `work/hall-pass-release-gate`. Inspected main: `e30413bea130962e26317dc1cc9f6b4a0fbad95f` on November 4, 2026 (Detroit). Requirements: [issue #319](https://github.com/Grantauch/the-desk/issues/319), updated November 4. The November 4 preparation batch changed no production, deployment, directory, roster, student credential or existing public download. The November 5 setup-error follow-up below supersedes its source-only promotion hold for the setup repair.
+Owner: Codex. Current evidence refresh: November 13, 2026, for [Batch 02 / issue #323](https://github.com/Grantauch/the-desk/issues/323). Source baseline: `f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee`. Requirements remain [issue #319](https://github.com/Grantauch/the-desk/issues/319). The earlier November 4-5 observations below remain dated historical evidence.
+
+## Current evidence - November 13
+
+- PR #322 is merged at `60eecb1e12f9890e951012f20617f40b766e8a0d`. The evidence refresh therefore uses current main, rather than its former moving review head.
+- `node scripts/test-hall-pass-runtime.cjs` reports **445 behavioral checks across 32 areas** against the current program. The earlier 441 and 442 counts are historical, not the current count.
+- The protected [site-check for this exact baseline](https://github.com/Grantauch/the-desk/actions/runs/43488008757/job/132101733753) completed successfully, including full release verification and browser acceptance. This does not establish field acceptance or authorize a rollout.
+- RC2 was rebuilt twice from the canonical Git tree bytes (UTF-8 with LF), producing identical archives. All seven source-file SHA-256 values in `SOURCE-MANIFEST.json` match the archived files. The 18-entry archive includes both manifests.
+- The builder refused a destination under `public/` before writing any file. `VERSION.json` retains `distributionApproved: false` and `productionCutoverAuthorized: false`.
+- This refresh makes no deployment, template, public-download, school-directory, roster, PIN or credential change. The exact private candidate remains held pending the later engineering and school acceptance steps.
 
 ## Requirement map
 
@@ -29,13 +38,17 @@ Owner: Codex. Review branch: `work/hall-pass-release-gate`. Inspected main: `e30
 
 Archive: `HallPass-Teacher-Installer-v1.0.0-rc.2.zip`.
 
-SHA-256: `da342495e6906d90d39bb4002830b7fc81c0fc05f23bc847f3332eea60ba6855`.
+Source baseline: `f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee`; canonical Git tree bytes, 182,718-byte private RC2 archive.
 
-Payload manifest SHA-256: `c00e4f869652fa1bee17a533194da0e027457abc79d099a086d83af8b7f26dd7`.
+SHA-256: `5e8e861d7e83f1a476015c2a61868331a336bf74adb10f729972a6818d110ff1`.
+
+Payload manifest SHA-256: `a53510a7b727326093b9375ca6be160773966a18832fa5603a2c62064e3a57b7`.
+
+These hashes describe the seven program files and fixed kit payload at the stated source baseline. They are not a hash of this documentation or of a later repository head. Rebuild and replace this checkpoint if a packaged input changes. A normal Windows checkout may use CRLF and therefore produce a different exact-byte archive; use canonical Git bytes for reproduction and the included normalized source hashes for editor comparisons.
 
 Rebuild privately with `python scripts/build-hall-pass-teacher-kit.py`; verify with the included `verify.py`. The candidate is not placed in `public/` or a release attachment.
 
-## Verification evidence
+## Historical verification evidence - November 4
 
 - `node scripts/test-hall-pass-teacher-kit.cjs`: PASS. Exercises actual launcher handlers, Preflight UI defaults and stale-artifact resets, deterministic builds, exact seven source files, checksum/tamper/missing/extra/duplicate failures, evidence binding and forged approval rejection. Invokes the synthetic Python negative tests.
 - `npm run hall-pass:verify`: PASS, including 441 runtime behaviors across 32 areas, structural/handoff checks, independent-room directory/credential/revocation/throttling tests and new kit checks.
