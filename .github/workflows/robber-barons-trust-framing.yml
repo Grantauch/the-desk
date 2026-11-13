@@ -1,0 +1,34 @@
+name: Robber Barons dormant model framing QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/inspect-trust-formation-3d.mjs'
+      - '.github/workflows/robber-barons-trust-framing.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npx playwright install chromium
+      - name: Render isolated 3D trust model with original and candidate cameras
+        run: node scripts/inspect-trust-formation-3d.mjs
+      - name: Export screenshots and mesh bounds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trust-model-visual-comparison
+          path: browser-results/robber-barons-trust-framing/
+          retention-days: 30
+          if-no-files-found: warn
