@@ -1,0 +1,39 @@
+name: Visual runtime request audit
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit-visual-rendering.mjs'
+      - '.github/workflows/visual-runtime-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-hubs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npx playwright install chromium
+      - name: Render every root hub with offline dependencies and record media requests
+        run: node scripts/audit-visual-rendering.mjs
+      - name: Upload runtime report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-hub-visual-runtime
+          path: reports/visual-assets/visual-runtime.*
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Show runtime audit summary
+        if: success()
+        run: |
+          sed -n '1,100p' reports/visual-assets/visual-runtime.md
+          cat reports/visual-assets/visual-runtime.md >> "$GITHUB_STEP_SUMMARY"
