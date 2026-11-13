@@ -151,6 +151,22 @@
       "The separate Checkaverse public health endpoint reports healthy version 0.15.0. This website release does not deploy that server, Apps Script or unfinished experimental pull requests."
     ]
   },
+  "hall-pass-approval-guard-2026-11-06": {
+    "status": "IMPLEMENTED_FIXTURE_TESTED_SOURCE_REVIEW_ONLY",
+    "owner": "Codex",
+    "scope": "Issue 329: fail-closed public Hall Pass ZIP and owner-only production-deploy approval guards; fixtures only.",
+    "branch": "work/hall-pass-329-approval-guard",
+    "verification_status": "10_FIXTURE_GROUPS_PASS_CANONICAL_INTENTIONALLY_BLOCKED_BY_INHERITED_PUBLIC_RC1",
+    "deployment_status": "NONE_NO_WORKFLOW_DISPATCH_TEMPLATE_ZIP_PIN_OR_PRODUCTION_CHANGE",
+    "field_status": "NO_FIELD_CLAIM_GATE_REMAINS_CLOSED",
+    "evidence": [
+      "Public ZIP guard rejects false/missing/malformed approval; nested/case-varied names and renamed installer VERSION.json identities covered. Existing candidate builder still refuses public output.",
+      "Both deploy entrypoints require trusted owner/main/repository/event/exact confirmation and productionCutoverAuthorized true before credentials or network. Workflow jobs also restrict owner and rerun actor.",
+      "10/10 fixture groups pass, including copied deploy scripts with a network trap and no source/credentials, and copied npm verify/full/fast/build paths. Node syntax and three workflow YAML parses pass.",
+      "Canonical npm run verify exits 1 at publication guard on unchanged public RC1 ZIP while distributionApproved is false; downstream suite is blocked, not passed. No RC1 exception or policy flag change.",
+      "Source-review commit uses [skip ci]; no production deployment workflows dispatched or rerun. Technical flags do not verify written owner/district approval or the Batch 07 freeze SHA. See docs/hall-pass-approval-guard.md for scope and limitations."
+    ]
+  },
   "hall-pass-published-link-recovery-2026-11-05": {
     "status": "FIXED_LOCALLY_PROTECTED_REVIEW_PENDING",
     "owner": "Codex",
