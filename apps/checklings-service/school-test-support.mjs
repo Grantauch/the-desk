@@ -51,3 +51,13 @@ export async function schoolFixture(database) {
   }
   return {config,auth,school,store,handler,requests,invoke,call,request,begin,approve,exchange,failTransport:value=>{transportFailure=value;},close:()=>worker.terminate()};
 }
+
+/** Inspect a selection the way a client could: raw text, and a signed payload if one is present. */
+export function selectionDisclosure(selection) {
+  const text=String(selection??'');
+  const parts=[text];
+  if(text.includes('.')) {
+    try { parts.push(Buffer.from(text.split('.')[0],'base64url').toString('utf8')); } catch { /* not a token */ }
+  }
+  return parts.join('\n');
+}

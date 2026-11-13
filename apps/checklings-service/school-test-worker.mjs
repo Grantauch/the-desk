@@ -7,6 +7,22 @@ const {classroom,PEOPLE,TEACHER}=require('../../scripts/lib/hall-pass-fixtures.c
 const c=classroom({now:new Date(workerData.now),memberships:[[PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 2'],[PEOPLE.alan,'Period 1']]});
 const h=c.harness;
 h.properties.setProperty('CHECKLINGS_BRIDGE_CONFIG',JSON.stringify(workerData.config));
+const userStores=new Map();
+h.context.CacheService.getUserCache=()=>{
+  const email=String(h.state.activeEmail||'');
+  if(!userStores.has(email))userStores.set(email,new Map());
+  const store=userStores.get(email);
+  return {
+    get(key){
+      const entry=store.get(key);
+      if(!entry)return null;
+      if(entry.expiresAt<=h.state.now.getTime()){store.delete(key);return null;}
+      return entry.value;
+    },
+    put(key,value,seconds){store.set(key,{value:String(value),expiresAt:h.state.now.getTime()+(Number(seconds)||600)*1000});},
+    remove(key){store.delete(key);},
+  };
+};
 h.context.HtmlService.createHtmlOutput=content=>({content,setTitle(){return this;}});
 h.context.UrlFetchApp={fetch(url,options){
   if(h.state.lock.held)throw new Error('Network called inside a school workbook lock');
@@ -39,6 +55,18 @@ parentPort.on('message',m=>{
       const row=h.sheet('Roster').records().findIndex(r=>r['Student Email']===PEOPLE.ada.email && r['Class / Period']===(m.period??'Period 1'))+2;
       h.sheet('Roster').getRange(row,m.column).setValue(m.column===4?h.call('hashPin_',m.value):m.value);value=true;
     } else if(m.kind==='config') {h.properties.setProperty('CHECKLINGS_BRIDGE_CONFIG',JSON.stringify({...workerData.config,...m.patch}));value=true;}
+    else if(m.kind==='expireSelection') {
+      const store=userStores.get(String(h.state.activeEmail||''));
+      const entry=store&&store.get(m.handle);
+      if(!entry)throw new Error('missing selection');
+      if(m.mode==='ttl')entry.expiresAt=h.state.now.getTime()-1000;
+      else {
+        const parsed=JSON.parse(entry.value);
+        parsed.exp=Math.floor(h.state.now.getTime()/1000)-1;
+        entry.value=JSON.stringify(parsed);
+      }
+      value=true;
+    }
     else throw new Error('Unknown synthetic worker command');
     parentPort.postMessage({id:m.id,value:JSON.parse(JSON.stringify(value??null))});
   } catch(error) {parentPort.postMessage({id:m.id,error:error.message});}

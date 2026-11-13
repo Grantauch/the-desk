@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {PGlite} from '@electric-sql/pglite';
 import {migrate} from './database.mjs';
-import {schoolFixture} from './school-test-support.mjs';
+import {schoolFixture,selectionDisclosure} from './school-test-support.mjs';
 
 test('actual school PIN issuer and HTTP/SQL broker with synthetic Apps Script workbook',async t=>{
   const db=await PGlite.create(),database={transaction:work=>db.transaction(work)};
@@ -50,6 +50,22 @@ test('actual school PIN issuer and HTTP/SQL broker with synthetic Apps Script wo
       const i=await f.invoke({kind:'identify',ticket:l.ticket,as:'ada'});
       await assert.rejects(f.call('completeChecklingsGame',[i.selection,i.classes[0].id,l.ticket],'alan'),/PIN again/);
       await assert.rejects(f.call('syncChecklingsAccess',['Period 1',false],'ada'),/teacher account/);
+    });
+    await t.test('selection handle has no identity and fails on replay, expiry, or another account',async()=>{
+      const f=await fixture();await f.call('syncChecklingsAccess',['Period 1',true]);
+      const l=await f.begin(),i=await f.invoke({kind:'identify',ticket:l.ticket,as:'ada'});
+      assert.equal(typeof i.selection,'string');
+      assert.doesNotMatch(selectionDisclosure(i.selection),/@|ada\.byron|alan\.turing|Byron|Turing|"email"|"account"|students\.mtmorrisschools\.org/);
+      await assert.rejects(f.call('completeChecklingsGame',[i.selection,i.classes[0].id,l.ticket],'alan'),/PIN again/);
+      const done=await f.call('completeChecklingsGame',[i.selection,i.classes[0].id,l.ticket],'ada');
+      assert.ok(done.callbackUrl.startsWith(f.config.gameOrigin+'/auth/callback#'));
+      await assert.rejects(f.call('completeChecklingsGame',[i.selection,i.classes[0].id,l.ticket],'ada'),/PIN again/);
+      const expiredTtl=await f.begin(),ttl=await f.invoke({kind:'identify',ticket:expiredTtl.ticket,as:'ada'});
+      await f.invoke({kind:'expireSelection',handle:ttl.selection,mode:'ttl',as:'ada'});
+      await assert.rejects(f.call('completeChecklingsGame',[ttl.selection,ttl.classes[0].id,expiredTtl.ticket],'ada'),/PIN again/);
+      const expiredExp=await f.begin(),exp=await f.invoke({kind:'identify',ticket:expiredExp.ticket,as:'ada'});
+      await f.invoke({kind:'expireSelection',handle:exp.selection,mode:'exp',as:'ada'});
+      await assert.rejects(f.call('completeChecklingsGame',[exp.selection,exp.classes[0].id,expiredExp.ticket],'ada'),/PIN again/);
     });
     await t.test('unexposed school email still uses the existing PIN identity path',async()=>{
       const f=await fixture();await f.call('syncChecklingsAccess',['Period 1',true]);const l=await f.begin();

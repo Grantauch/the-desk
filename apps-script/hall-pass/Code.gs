@@ -723,12 +723,15 @@ function identifyChecklingsGame(pin, attemptNonce, ticket) {
   const students = verifyStudentPin_(pin, getActiveEmail_(), attemptNonce);
   const eligible = students.filter((s) => c.classPeriods.includes(s.classPeriod) && checklingsPolicy_(c, s.classPeriod).enabled);
   if (!eligible.length) throw new Error('Your teacher has not opened Checklings for your class.');
-  const now = Math.floor(Date.now() / 1000);
+  const now = Math.floor(Date.now() / 1000), exp = Math.min(flow.exp, now + 60);
+  const handle = Utilities.getUuid() + Utilities.getUuid();
+  // The handle is the only value returned. Identity stays in this user's cache.
+  CacheService.getUserCache().put(handle, JSON.stringify({
+    email: students[0].email, account: getActiveEmail_(), credentialVersion: credentialVersionForEmail_(students[0].email),
+    ticketHash: checklingsMac_(c.flowKey, 'checklings:ticket-hash:v1', ticket), iat: now, exp: exp,
+  }), 60);
   return {
-    selection: checklingsSign_(c.assertionKey, 'checklings:selection:v1', {
-      v: 1, email: students[0].email, account: getActiveEmail_(), credentialVersion: credentialVersionForEmail_(students[0].email),
-      ticketHash: checklingsMac_(c.flowKey, 'checklings:ticket-hash:v1', ticket), iat: now, exp: Math.min(flow.exp, now + 60),
-    }),
+    selection: handle,
     classes: eligible.map((s) => ({ id: checklingsId_(c, 'class', s.classPeriod), label: s.classPeriod })),
   };
 }
@@ -773,11 +776,22 @@ function checklingsPost_(c, path, body) {
 function checklingsSendSnapshot_(c, snapshot) {
   return checklingsPost_(c, '/bridge/school', { snapshot: checklingsSign_(c.schoolKey, 'checklings:school:v1', snapshot) });
 }
+function checklingsTakeSelection_(selection) {
+  const cache = CacheService.getUserCache();
+  const usable = typeof selection === 'string' && selection.length > 0 && selection.length <= 250;
+  let raw = null;
+  try { if (usable) raw = cache.get(selection); } catch (error) { raw = null; }
+  try { if (usable) cache.remove(selection); } catch (error) { /* first read consumes the handle */ }
+  let selected = null;
+  try { if (typeof raw === 'string' && raw) selected = JSON.parse(raw); } catch (error) { selected = null; }
+  if (!selected || typeof selected !== 'object' || Array.isArray(selected)) throw new Error('Enter your PIN again from Checklings.');
+  return selected;
+}
 function completeChecklingsGame(selection, classId, ticket) {
   const c = checklingsConfig_(), flow = checklingsTicket_(c, ticket);
   ensureWorkbookReady_(); checklingsAccount_();
-  const selected = checklingsRead_(c.assertionKey, 'checklings:selection:v1', selection), now = Math.floor(Date.now() / 1000);
-  if (selected.v !== 1 || selected.account !== getActiveEmail_() || selected.exp <= now || selected.iat > now || selected.exp - selected.iat > 60 ||
+  const selected = checklingsTakeSelection_(selection), now = Math.floor(Date.now() / 1000);
+  if (selected.account !== getActiveEmail_() || selected.exp <= now || selected.iat > now || selected.exp - selected.iat > 60 ||
       !secureEquals_(selected.ticketHash, checklingsMac_(c.flowKey, 'checklings:ticket-hash:v1', ticket))) throw new Error('Enter your PIN again from Checklings.');
   assertCredentialVersion_(selected.email, selected.credentialVersion);
   const student = getStudentsByEmail_(selected.email).find((s) => checklingsId_(c, 'class', s.classPeriod) === classId);
