@@ -4,7 +4,7 @@ Owner Codex. Reproduced both #117 failures against current main using synthetic 
 
 ## November 13 Hall Pass Batch 02 evidence refresh
 
-Owner Codex. Current program passes 445 runtime behaviors across 32 areas at main `f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee`; that exact baseline passed protected full release and browser acceptance in run 43488008757. The private RC2 rebuilt reproducibly from canonical Git bytes, with seven matching source hashes and a confirmed public-output refusal. Readiness and installer-contract documents now record the same archive/manifest fingerprints. Both release flags remain false. Source review and merge are separate from school field acceptance; no deployment, public kit, school data or credential change was made.
+Owner Codex. Credential-repair candidate `4e0ede69f23f41d8329c367a3c8ad04f3391712f` passes 447 runtime behaviors across 32 areas and local canonical verification. Its exact protected run 43502935244 was pending when this checkpoint was prepared, and the combined release head requires its own protected pass. The private RC2 rebuilt reproducibly from canonical Git bytes, with seven matching source hashes and a confirmed public-output refusal. Readiness and installer-contract documents record the same refreshed archive/manifest fingerprints. Both release flags remain false. Source review and merge are separate from school field acceptance; no deployment, public kit, school data or credential change was made.
 
 ## November 12 Checkaverse plaza artwork recovery
 

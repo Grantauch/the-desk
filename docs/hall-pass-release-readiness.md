@@ -1,12 +1,12 @@
 # Hall Pass issue #319 — clean-environment release readiness
 
-Owner: Codex. Current evidence refresh: November 13, 2026, for [Batch 02 / issue #323](https://github.com/Grantauch/the-desk/issues/323). Source baseline: `f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee`. Requirements remain [issue #319](https://github.com/Grantauch/the-desk/issues/319). The earlier November 4-5 observations below remain dated historical evidence.
+Owner: Codex. Current evidence refresh: November 13, 2026, for [Batch 02 / issue #323](https://github.com/Grantauch/the-desk/issues/323). Candidate source baseline: `4e0ede69f23f41d8329c367a3c8ad04f3391712f` from [credential repair #366](https://github.com/Grantauch/the-desk/pull/366), based on main `cf4cf9399be1e090cfabb66007d4444435ebe14d`. Requirements remain [issue #319](https://github.com/Grantauch/the-desk/issues/319). Earlier November 4-5 observations below remain dated historical evidence.
 
 ## Current evidence - November 13
 
-- PR #322 is merged at `60eecb1e12f9890e951012f20617f40b766e8a0d`. The evidence refresh therefore uses current main, rather than its former moving review head.
-- `node scripts/test-hall-pass-runtime.cjs` reports **445 behavioral checks across 32 areas** against the current program. The earlier 441 and 442 counts are historical, not the current count.
-- The protected [site-check for this exact baseline](https://github.com/Grantauch/the-desk/actions/runs/43488008757/job/132101733753) completed successfully, including full release verification and browser acceptance. This does not establish field acceptance or authorize a rollout.
+- PR #322 is merged at `60eecb1e12f9890e951012f20617f40b766e8a0d`. This refresh incorporates the active-credential repair that supersedes #117, rather than using #322's former moving review head.
+- `node scripts/test-hall-pass-runtime.cjs` reports **447 behavioral checks across 32 areas** against the candidate program. Local canonical verification also passed. Earlier 441, 442 and 445 counts describe historical baselines.
+- The exact candidate's protected [site-check](https://github.com/Grantauch/the-desk/actions/runs/43502935244/job/132153108324) was still running when this checkpoint was prepared. The combined release head must pass its own protected check before merge. The earlier green baseline does not certify this candidate, and source checks do not establish school field acceptance.
 - RC2 was rebuilt twice from the canonical Git tree bytes (UTF-8 with LF), producing identical archives. All seven source-file SHA-256 values in `SOURCE-MANIFEST.json` match the archived files. The 18-entry archive includes both manifests.
 - The builder refused a destination under `public/` before writing any file. `VERSION.json` retains `distributionApproved: false` and `productionCutoverAuthorized: false`.
 - This refresh makes no deployment, template, public-download, school-directory, roster, PIN or credential change. The exact private candidate remains held pending the later engineering and school acceptance steps.
@@ -38,11 +38,11 @@ Owner: Codex. Current evidence refresh: November 13, 2026, for [Batch 02 / issue
 
 Archive: `HallPass-Teacher-Installer-v1.0.0-rc.2.zip`.
 
-Source baseline: `f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee`; canonical Git tree bytes, 182,718-byte private RC2 archive.
+Source baseline: `4e0ede69f23f41d8329c367a3c8ad04f3391712f`; canonical Git tree bytes, 182,830-byte private RC2 archive.
 
-SHA-256: `5e8e861d7e83f1a476015c2a61868331a336bf74adb10f729972a6818d110ff1`.
+SHA-256: `da7566c5cb55e4c440889bce599c2e6d1541d0044ca8a48846afec035092d71a`.
 
-Payload manifest SHA-256: `a53510a7b727326093b9375ca6be160773966a18832fa5603a2c62064e3a57b7`.
+Payload manifest SHA-256: `532c1a8231eebd6b0db907e9c56839b966702ce1e3181c3ad3f30def721ec09c`.
 
 These hashes describe the seven program files and fixed kit payload at the stated source baseline. They are not a hash of this documentation or of a later repository head. Rebuild and replace this checkpoint if a packaged input changes. A normal Windows checkout may use CRLF and therefore produce a different exact-byte archive; use canonical Git bytes for reproduction and the included normalized source hashes for editor comparisons.
 

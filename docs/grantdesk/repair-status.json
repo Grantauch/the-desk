@@ -16,14 +16,14 @@
     "status": "IMPLEMENTED",
     "owner": "Codex",
     "scope": "Refresh issue #323 evidence from canonical current source without publishing the held RC2 installer.",
-    "verification_status": "445_RUNTIME_CHECKS_EXACT_BASELINE_PROTECTED_CI_REPRODUCIBLE_ARCHIVE_AND_PUBLIC_REFUSAL_PASS",
+    "verification_status": "447_RUNTIME_LOCAL_CANONICAL_REPRODUCIBLE_ARCHIVE_AND_PUBLIC_REFUSAL_PASS_PROTECTED_PENDING",
     "deployment_status": "SOURCE_REVIEW_PENDING_NO_PUBLICATION_OR_CUTOVER",
     "field_status": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
     "evidence": [
-      "Source baseline f0fdc36e296fd52de1eb9c7ba5cd65202426e5ee; protected full release and browser acceptance passed in run 43488008757.",
-      "Private canonical-LF RC2: 182718 bytes; SHA-256 5e8e861d7e83f1a476015c2a61868331a336bf74adb10f729972a6818d110ff1.",
-      "Payload manifest SHA-256 a53510a7b727326093b9375ca6be160773966a18832fa5603a2c62064e3a57b7; all seven source hashes match; repeated builds are identical; public output refused.",
-      "distributionApproved and productionCutoverAuthorized remain false. No runtime source, existing public ZIP, template, production deployment, real student data or credentials changed."
+      "Candidate baseline 4e0ede69f23f41d8329c367a3c8ad04f3391712f; 447 runtime checks and local canonical verification pass. Exact protected run 43502935244 was pending at preparation; combined head requires its own protected pass.",
+      "Private canonical-LF RC2: 182830 bytes; SHA-256 da7566c5cb55e4c440889bce599c2e6d1541d0044ca8a48846afec035092d71a.",
+      "Payload manifest SHA-256 532c1a8231eebd6b0db907e9c56839b966702ce1e3181c3ad3f30def721ec09c; all seven source hashes match; repeated builds are identical; public output refused.",
+      "distributionApproved and productionCutoverAuthorized remain false. Candidate source includes the separately tested credential repair; no existing public ZIP, template, production deployment, real school data or credentials changed."
     ]
   },
   "checklings-plaza-sprite-book-2026-11-12": {
