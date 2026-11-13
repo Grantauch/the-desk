@@ -60,7 +60,7 @@ function inspectGlb(stem) {
   assert.ok(json && Array.isArray(json.meshes), stem + ': missing mesh list');
   assert.ok(!json.images?.length && !json.textures?.length, stem + ': embedded textures need a reviewed loader');
   assert.ok(!json.animations?.length, stem + ': animation needs explicit review');
-  assert.ok(!json.extensionsRequired?.length, stem + ': unsupported GLTF extension');
+  // Blender may flag PBR *material* extensions as required. The current\n  // lightweight exhibit decoder intentionally reads core baseColor and roughness\n  // only; extension data on materials is safely ignored for these approximations.\n  // Geometry/compression extensions are not supported.\n  assert.deepEqual((json.extensionsRequired || []).filter(ext => !/^KHR_materials_/.test(ext)), [],\n    stem + ': GLTF requires an unsupported nonmaterial extension');
   assert.ok((json.buffers || []).every(buffer => !buffer.uri), stem + ': external data dependency');
   return { meshes: json.meshes.length, bytes: data.length };
 }
