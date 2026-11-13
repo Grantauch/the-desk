@@ -12,6 +12,10 @@ Constitution Day uses the shared save runtime with unchanged `q:` keys, accessib
 
 Owner Codex. Illustrated clouds use a single drifting field with shaded wisps and tall cores. Expanded mode brings teaching tools onto the globe, adds decluttered country labels for the active map, and draws an animated great-circle measurement with labeled pins and reduced-motion support. Iran and North Korea cards correct the U.S. diplomatic relationship field, and the 1914 snapshot uses Republic of China. Protected CI, live readback and physical Chromebook use are tracked separately.
 
+## November 12 Checkaverse battle artwork recovery
+
+Codex recovered the Gemini Sprite Book front and back poses for Mochi, Bolt and Ember from draft PR #284. The battle screen chooses stills for reduced motion, and the original founder PNGs back up the versioned files. Local Chromium verified all four founders in visitor battles, including one complete turn and image failure recovery. Independent release verification and physical Chromebook use are pending.
+
 ## November 11 orbital events
 
 Owner Codex. Seven classroom reconstructions and illustrations play as their locations face the idle homepage globe. Expanded mode offers a year-filtered scene picker and replay. Reduced motion uses a static frame. Local Atlas unit tests and the site build pass. Protected browser checks and production readback are separate.

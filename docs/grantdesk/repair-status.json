@@ -37,6 +37,18 @@
       "The distance tool shows two labeled pins, a great-circle arc and explicit clear and exit controls."
     ]
   },
+  "checklings-battle-sprite-book-2026-11-12": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Recover the complete Mochi, Bolt and Ember pose pairs from draft PR #284 for the existing Checkaverse battle screen.",
+    "verification_status": "LOCAL_CHROMIUM_BATTLE_POSES_MOTION_AND_FALLBACK_PASS",
+    "deployment_status": "INDEPENDENT_RELEASE_VERIFICATION_PENDING",
+    "field_status": "PHYSICAL_SCHOOL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Each versioned pose has a 32px still and a two-frame idle with a common baseline. The original founder paths remain available.",
+      "Local visitor battles exercised all four founders, a real battle turn, reduced-motion switching and failed animation and still requests."
+    ]
+  },
   "atlas-orbital-events-2026-11-11": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
