@@ -1,0 +1,53 @@
+name: Checklings review-tool unit tests
+
+on:
+  pull_request:
+    paths:
+      - 'apps/checklings-tools/**'
+      - '.github/workflows/checklings-tool-audits.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/checklings-tools/**'
+      - '.github/workflows/checklings-tool-audits.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checklings-tool-audits-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out untrusted review sources without credentials
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Use project Node version
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run all committed Checklings tool tests (no network or npm install)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d apps/checklings-tools ]; then
+            echo "::error::Expected apps/checklings-tools directory; cannot certify an empty test suite."
+            exit 1
+          fi
+          mapfile -d '' tests < <(find apps/checklings-tools -type f -name '*.test.cjs' -print0 | sort -z)
+          if [ "${#tests[@]}" -eq 0 ]; then
+            echo "::error::No committed Checklings tool tests found; failing closed."
+            exit 1
+          fi
+          printf 'Running %s committed test file(s):\n' "${#tests[@]}"
+          printf ' - %s\n' "${tests[@]}"
+          node --test "${tests[@]}"
