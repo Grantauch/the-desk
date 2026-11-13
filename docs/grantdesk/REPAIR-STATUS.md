@@ -1,3 +1,7 @@
+## November 12 Checkaverse battle artwork recovery
+
+Codex recovered the Gemini Sprite Book front and back poses for Mochi, Bolt and Ember from draft PR #284. The battle screen chooses stills for reduced motion, and the original founder PNGs back up the versioned files. Local Chromium verified all four founders in visitor battles, including one complete turn and image failure recovery. Independent release verification and physical Chromebook use are pending.
+
 ## November 12 student discovery and navigation
 
 Owner Codex. Reconciled all 109 root HTML hub experiences against the two catalogs and inspected the 13 exceptions. Add the student Jeopardy join page and repaired Constitution Day case files to games; replace the stale U.S. History Jeopardy V2 link with V3, remove V2 from the sitemap and remove prototype Lab/Situation Room navigation. Original files remain available for existing links.

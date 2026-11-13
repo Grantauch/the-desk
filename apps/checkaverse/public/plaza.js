@@ -1640,6 +1640,36 @@
     el.style.width = `${pct}%`;
     if (hp) { el.classList.toggle('mid', pct <= 50 && pct > 20); el.classList.toggle('low', pct <= 20); }
   }
+  // Battle-only Wave 2 poses. The original front and back URLs still serve
+  // the map, partner screens, older clients, and the last image fallback.
+  const battlePoseSpecies = new Set(['mochi', 'bolt', 'ember']);
+  function battlePose(image, species, face) {
+    const original = `/art/${face}-${species}.png`;
+    image.onerror = null;
+    image.classList.toggle('sprite-book-pose', battlePoseSpecies.has(species));
+    if (!battlePoseSpecies.has(species)) {
+      image.src = original;
+      return;
+    }
+    const still = `/art/${face}-${species}-v2.png`;
+    image.onerror = () => {
+      if (image.getAttribute('src') !== still) image.src = still;
+      else {
+        image.onerror = null;
+        image.classList.remove('sprite-book-pose');
+        image.src = original;
+      }
+    };
+    image.src = motionQuery.matches ? still : `/art/${face}-${species}-v2-idle.png`;
+  }
+  function drawBattlePoses(view) {
+    const n = nearSide(), mine = view.sides[n], foe = view.sides[1 - n];
+    battlePose($('bFoeMon'), foe.species, 'front');
+    $('bFoeMon').alt = `${foe.name}'s ${foe.speciesName}`;
+    battlePose($('bMeMon'), mine.species, 'back');
+    $('bMeMon').alt = `${mine.name}'s ${mine.speciesName}, from behind`;
+  }
+  motionQuery.addEventListener('change', () => { if (bt) drawBattlePoses(bt.view); });
   function drawSides(view, sprites) {
     const n = nearSide(), mine = view.sides[n], foe = view.sides[1 - n];
     const nameWith = (el, f) => { el.textContent = f.speciesName; el.prepend(typeImg(f.type)); };
@@ -1651,10 +1681,7 @@
     bar($('bMeHp'), mine.hp, mine.maxHp, true); bar($('bMeSt'), mine.stamina, mine.maxStamina);
     $('bMeHpNum').textContent = `${bt && bt.watching ? `${mine.name} · ` : ''}HP ${mine.hp} / ${mine.maxHp}`;
     $('bMeStNum').textContent = `Stamina ${mine.stamina} / ${mine.maxStamina}`;
-    if (sprites) {
-      $('bFoeMon').src = `/art/front-${foe.species}.png`; $('bFoeMon').alt = `${foe.name}'s ${foe.speciesName}`;
-      $('bMeMon').src = `/art/back-${mine.species}.png`; $('bMeMon').alt = `${mine.name}'s ${mine.speciesName}, from behind`;
-    }
+    if (sprites) drawBattlePoses(view);
   }
   function say(text) { bMsg.textContent = text; }
   function buildMoves() {
