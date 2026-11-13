@@ -1,4 +1,16 @@
 {
+  "checklings-houses-kettle-creek-sprite-book-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Recover three Wave 2 houses and four Kettle Creek buildings from draft PR #284 for the existing Checkaverse maps.",
+    "verification_status": "LOCAL_CHROMIUM_KETTLE_CREEK_RENDER_AND_FALLBACK_PASS",
+    "deployment_status": "INDEPENDENT_RELEASE_VERIFICATION_PENDING",
+    "field_status": "PHYSICAL_SCHOOL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "The seven versioned PNGs are byte-identical to the files in draft PR #284. Original files remain the fallback.",
+      "At 1366 by 768, a saved trainer's Kettle Creek drew the cottage and four buildings from the versioned files, then from the originals, then as shapes."
+    ]
+  },
   "checklings-plaza-sprite-book-2026-11-12": {
     "status": "IMPLEMENTED",
     "owner": "Codex",

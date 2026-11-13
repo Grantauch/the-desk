@@ -769,13 +769,21 @@
   function snapCamera() { cam = cameraTarget(); }
 
   // ---------- art ----------
-  // Most art uses the original 64px-per-tile files. These Wave 2 landmarks use
-  // versioned 32px exports. Keep the original URLs for cached pages and fallback.
+  // Most art uses the original 64px-per-tile files. These Wave 2 landmarks, houses
+  // and Kettle Creek buildings use versioned 32px exports. Keep the original URLs
+  // for cached pages and fallback.
   const LANDMARK_ART = {
     arena: 'arena-v2',
     'market-stall': 'market-stall-v2',
     'prop-bus': 'prop-bus-v2',
     'prop-notice-board': 'prop-notice-board-v2',
+    'house-cottage': 'house-cottage-v2',
+    'house-stump': 'house-stump-v2',
+    'house-creek': 'house-creek-v2',
+    'kc-store': 'kc-store-v2',
+    'kc-apothecary': 'kc-apothecary-v2',
+    'kc-clinic': 'kc-clinic-v2',
+    'kc-daycare': 'kc-daycare-v2',
   };
   const ART_NAMES = [
     'tile-grass', 'tile-path', 'tile-water', 'prop-tree', 'prop-bush', 'prop-rock', 'prop-lantern', 'prop-bench',
