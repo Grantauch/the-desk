@@ -14,8 +14,9 @@ Preserve Ember, Bolt, Mochi, Zee and all existing progress. Game state belongs o
 - [Batch 02 persistence handoff](BATCH-02-PERSISTENCE.md): database implementation, evidence and remaining staging gates.
 - [Batch 03 authentication handoff](BATCH-03-AUTH.md): private launch broker, durable sessions, upgrade preservation and remaining school/HTTP integration.
 - [Batch 04 browser boundary](BATCH-04-BROWSER-AUTH.md): unmounted cookie/CSRF adapter, callback, shared-device clearing, pending-login cancellation and shared request limits.
+- [Batch 05 school bridge](BATCH-05-SCHOOL-BRIDGE.md): actual school PIN issuer source, explicit class confirmation, private roster/credential/pause snapshots, bounded access freshness and synthetic issuer-to-database tests.
 - `apps/checklings-foundation/`: offline import planner, death admission policy reference, TypeScript contracts, species design candidates and synthetic tests. These files are not wired to a student application or production datastore.
 
 Run `npm run checkling:test` for original companion, foundation, embedded storage/auth and migration tests. Run `npm run verify` before pushing. No game service, migration or new student feature is deployed by this batch.
 
-Current continuation: `checklings/batch-04-browser-auth`, stacked on session PR #228, persistence PR #227 and foundation PR #226. Weight/body changes, exercise, long-term complications and anatomically placed battle scars are scheduled for later implementation; they do not displace the database/authentication priority.
+Current continuation: `checklings/batch-05-school-bridge`, stacked on browser PR #229, session PR #228, persistence PR #227 and foundation PR #226. Source is disabled by default; no hosted or real school login is claimed. Weight/body changes, exercise, long-term complications and anatomically placed battle scars are scheduled for later implementation; they do not displace the database/authentication priority.

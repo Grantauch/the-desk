@@ -32,8 +32,13 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
   assertionKey=Buffer.from(assertionKey);flowKey=Buffer.from(flowKey);
   async function time(c) {const now=await clock(c);insist(Number.isSafeInteger(now) && now>=0);return now;}
   async function member(c,actor) {
+    const policy=(await c.query('SELECT issuer,audience,enabled,valid_until_ms FROM ck_school_classes WHERE tenant_id=$1 AND class_id=$2 FOR SHARE',[actor.tenantId,actor.classId])).rows[0];
+    insist(policy?.enabled===true && policy.issuer===issuer && policy.audience===audience);
     const {rows}=await c.query('SELECT class_id,auth_epoch,active FROM ck_memberships WHERE tenant_id=$1 AND member_id=$2 FOR UPDATE',[actor.tenantId,actor.memberId]);
     insist(rows[0]?.active===true && rows[0].class_id===actor.classId && rows[0].auth_epoch===actor.authEpoch);
+    // Lock waits cannot extend a school authorization lease.
+    insist(await time(c)<Number(policy.valid_until_ms));
+    return Number(policy.valid_until_ms);
   }
   function verify(assertion) {
     insist(typeof assertion==='string' && assertion.length<=4096);
@@ -48,7 +53,7 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
     insist(Number.isSafeInteger(claims.iat) && Number.isSafeInteger(claims.exp) && claims.exp>claims.iat && claims.exp-claims.iat<=30);
     return claims;
   }
-  // Global lock order for authenticated work: membership, then flow/session.
+  // Global lock order: school class, membership, then flow/session.
   // First session lookup is an unlocked hint only; recheck after the owner lock.
   async function session(c,token,{touch=true}={}) {
     insist(secret(token));
@@ -56,12 +61,13 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
     const hint=(await c.query('SELECT issuer,audience,tenant_id,member_id,class_id,auth_epoch FROM ck_sessions WHERE token_hash=$1',[tokenHash])).rows[0];
     insist(hint && hint.tenant_id===tenantId && hint.issuer===issuer && hint.audience===audience);
     const actor={tenantId:hint.tenant_id,memberId:hint.member_id,classId:hint.class_id,authEpoch:hint.auth_epoch};
-    await member(c,actor);
+    const schoolExpiry=await member(c,actor);
     const row=(await c.query('SELECT * FROM ck_sessions WHERE token_hash=$1 FOR UPDATE',[tokenHash])).rows[0];
     const now=await time(c);
+    insist(now<schoolExpiry);
     insist(row && row.issuer===issuer && row.audience===audience && row.tenant_id===tenantId && row.member_id===actor.memberId && row.class_id===actor.classId && row.auth_epoch===actor.authEpoch);
     insist(row && row.revoked_ms===null && now<Number(row.idle_expires_ms) && now<Number(row.absolute_expires_ms));
-    const expiry=Math.min(touch?now+120000:Number(row.idle_expires_ms),Number(row.absolute_expires_ms));
+    const expiry=Math.min(touch?now+120000:Number(row.idle_expires_ms),Number(row.absolute_expires_ms),schoolExpiry);
     if(touch)await c.query('UPDATE ck_sessions SET idle_expires_ms=$1 WHERE token_hash=$2',[expiry,tokenHash]);
     return {actor,tokenHash,now,remainingMs:expiry-now};
   }
@@ -80,9 +86,10 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
     async acceptAssertion(assertion) {
       const claims=verify(assertion);
       return database.transaction(async c=>{
-        await member(c,claims);
+        const schoolExpiry=await member(c,claims);
         const flow=(await c.query('SELECT * FROM ck_launch_flows WHERE flow_id=$1 FOR UPDATE',[claims.flowId])).rows[0];
         const now=await time(c);
+        insist(now<schoolExpiry);
         insist(claims.iat*1000<=now && claims.exp*1000>now);
         insist(flow && flow.cancelled_ms===null && flow.issuer===issuer && flow.audience===audience && flow.code_hash===null && now<Number(flow.expires_ms) && equal(flow.challenge,claims.challenge));
         const used=await c.query('INSERT INTO ck_launch_assertions (issuer,assertion_id,flow_id,expires_ms) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING RETURNING assertion_id',[issuer,claims.jti,claims.flowId,claims.exp*1000]);
@@ -101,9 +108,10 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
         const hint=(await c.query('SELECT tenant_id,member_id,class_id,auth_epoch FROM ck_launch_flows WHERE flow_id=$1',[flowId])).rows[0];
         insist(hint && hint.tenant_id===tenantId);
         const actor={tenantId,memberId:hint.member_id,classId:hint.class_id,authEpoch:hint.auth_epoch};
-        await member(c,actor);
+        const schoolExpiry=await member(c,actor);
         const flow=(await c.query('SELECT * FROM ck_launch_flows WHERE flow_id=$1 FOR UPDATE',[flowId])).rows[0];
         const now=await time(c);
+        insist(now<schoolExpiry);
         insist(flow && flow.tenant_id===tenantId && flow.member_id===actor.memberId && flow.class_id===actor.classId && flow.auth_epoch===actor.authEpoch);
         insist(flow && flow.cancelled_ms===null && flow.issuer===issuer && flow.audience===audience && flow.consumed_ms===null && now<Number(flow.expires_ms) && now<Number(flow.code_expires_ms));
         insist(equal(flow.cookie_hash,digest(flowCookie)) && equal(flow.state_hash,digest(state)) && equal(flow.code_hash,digest(code)) && equal(flow.challenge,challenge(flowCookie)));

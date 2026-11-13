@@ -5,6 +5,7 @@ import pg from 'pg';
 import {postgresDatabase} from './database.mjs';
 import {storageContract} from './storage-contract.mjs';
 import {authContract} from './auth-contract.mjs';
+import {schoolContract} from './school-contract.mjs';
 
 // Explicit synthetic-only opt-in. Every run uses a fresh private test schema.
 const url=process.env.CHECKLINGS_TEST_DATABASE_URL;
@@ -23,6 +24,7 @@ test('native PostgreSQL independent-client transactions and 35 simultaneous requ
     finally {clients.forEach(c=>c.release());}
     await storageContract(t,postgresDatabase(pool));
     await authContract(t,postgresDatabase(pool));
+    await schoolContract(t,postgresDatabase(pool));
   } finally {
     if(pool)await pool.end();
     await admin.query(`DROP SCHEMA ${schema} CASCADE`);
