@@ -70,7 +70,9 @@ async function inspect(file,viewport){
       const alts=imgs.filter(x=>!x.hasAttribute('alt')).map(x=>x.currentSrc||x.src).slice(0,12);
       return {title:document.title,broken:boxes,alts,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2,bodyLength:document.body?.innerText?.length||0};
     });
-    result.title=dom.title;result.rendered=dom.bodyLength>20;result.brokenImages=dom.broken;result.altMissing=dom.alts;result.overflow=dom.overflow;
+    result.title=dom.title;result.rendered=dom.bodyLength>20;result.brokenImages=dom.broken.filter(src => new URL(src).origin === origin);
+    result.externalImagesUnavailable=dom.broken.filter(src => new URL(src).origin !== origin);
+    result.altMissing=dom.alts;result.overflow=dom.overflow;
   }catch(e){result.navigationError=String(e.message).slice(0,300);}
   finally{
     result.localAssets=[...assets].sort();
@@ -83,7 +85,8 @@ async function inspect(file,viewport){
 try{
   browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   for(const file of allPaths) await inspect(file,{width:1366,height:768});
-  for(const file of priorityNames.filter(x=>allPaths.includes(x))) await inspect(file,{width:390,height:844});
+  for(const file of allPaths) await inspect(file,{width:390,height:844});
+  for(const file of priorityNames.filter(x=>allPaths.includes(x))) await inspect(file,{width:320,height:740});
 }finally{
   await browser?.close();
   await new Promise(resolve=>server.close(resolve));
