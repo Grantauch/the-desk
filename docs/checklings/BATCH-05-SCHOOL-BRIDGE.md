@@ -30,7 +30,7 @@ The optional school path is off unless private Script Property `CHECKLINGS_BRIDG
 | Field | Requirement |
 |---|---|
 | `issuer`, `audience`, `tenantId` | Stable opaque identifiers matching the dedicated broker configuration |
-| `gameOrigin` | Exact HTTPS origin of an approved separate `*.netlify.app` host or `checklings.grant-desk.com`; no path, credentials, query, port or arbitrary return URL |
+| `gameOrigin` | Exact string match against `CHECKLINGS_ALLOWED_ORIGINS`, currently only `https://checklings.grant-desk.com`. No regex, wildcard, other host, path, credentials, query, or port |
 | `classPeriods` | Explicit allowlist of exact existing class labels; max 20 |
 | `assertionKey`, `flowKey`, `schoolKey`, `identityKey` | Four different, independently generated 32-byte random values encoded as 43-character base64url strings; never commit them |
 

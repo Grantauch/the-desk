@@ -664,13 +664,14 @@ function unrecognizedState_(settings, purpose, message) {
 // Disabled unless a privately provisioned configuration explicitly enables it.
 // Keys are independent random 32-byte base64url strings, used as UTF-8 HMAC
 // keys on BOTH sides (not decoded). No workbook IDs, names or PINs leave here.
+const CHECKLINGS_ALLOWED_ORIGINS = ['https://checklings.grant-desk.com'];
 function checklingsConfig_() {
   let c;
   try { c = JSON.parse(PropertiesService.getScriptProperties().getProperty('CHECKLINGS_BRIDGE_CONFIG') || '{}'); } catch (error) { c = {}; }
+  if (CHECKLINGS_ALLOWED_ORIGINS.indexOf(c.gameOrigin) === -1) throw new Error('Expanded Checklings is not available yet. Your classroom tools still work.');
   const opaque = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(v);
   const keys = [c.assertionKey, c.flowKey, c.schoolKey, c.identityKey];
   if (c.enabled !== true || !opaque(c.issuer) || !opaque(c.audience) || !opaque(c.tenantId) ||
-      !/^https:\/\/(?:[a-z0-9-]+\.netlify\.app|checklings\.grant-desk\.com)$/.test(c.gameOrigin || '') ||
       keys.some((key) => typeof key !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(key)) || new Set(keys).size !== 4 ||
       !Array.isArray(c.classPeriods) || !c.classPeriods.length || c.classPeriods.length > 20 ||
       c.classPeriods.some((p) => typeof p !== 'string' || !p.trim() || p !== p.trim() || p.length > 80) || new Set(c.classPeriods).size !== c.classPeriods.length) {

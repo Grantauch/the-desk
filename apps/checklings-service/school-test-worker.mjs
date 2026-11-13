@@ -54,7 +54,12 @@ parentPort.on('message',m=>{
     else if(m.kind==='roster') {
       const row=h.sheet('Roster').records().findIndex(r=>r['Student Email']===PEOPLE.ada.email && r['Class / Period']===(m.period??'Period 1'))+2;
       h.sheet('Roster').getRange(row,m.column).setValue(m.column===4?h.call('hashPin_',m.value):m.value);value=true;
-    } else if(m.kind==='config') {h.properties.setProperty('CHECKLINGS_BRIDGE_CONFIG',JSON.stringify({...workerData.config,...m.patch}));value=true;}
+    } else if(m.kind==='config') {
+      const next={...workerData.config,...m.patch};
+      if(m.patch && Object.prototype.hasOwnProperty.call(m.patch,'gameOrigin') && m.patch.gameOrigin==null) delete next.gameOrigin;
+      h.properties.setProperty('CHECKLINGS_BRIDGE_CONFIG',JSON.stringify(next));
+      value=true;
+    }
     else if(m.kind==='expireSelection') {
       const store=userStores.get(String(h.state.activeEmail||''));
       const entry=store&&store.get(m.handle);

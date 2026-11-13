@@ -10,6 +10,16 @@ test('actual school PIN issuer and HTTP/SQL broker with synthetic Apps Script wo
   await migrate(database);
   const fixture=async()=>{const f=await schoolFixture(database);t.after(()=>f.close());return f;};
   try {
+    await t.test('game origin must match the pinned allow-list exactly',async()=>{
+      const f=await fixture(),l=await f.begin();
+      const rejected=['https://evil.netlify.app','https://checklings.grant-desk.com.evil.com','http://checklings.grant-desk.com','https://checklings.grant-desk.com:8443','https://checklings.grant-desk.com/x','https://user@checklings.grant-desk.com','https://CHECKLINGS.grant-desk.com','',null];
+      for(const gameOrigin of rejected) {
+        await f.invoke({kind:'config',patch:{gameOrigin}});
+        await assert.rejects(f.invoke({kind:'identify',ticket:l.ticket,as:'ada'}),/not available/);
+      }
+      await f.invoke({kind:'config',patch:{gameOrigin:'https://checklings.grant-desk.com'}});
+      await assert.rejects(f.invoke({kind:'identify',ticket:l.ticket,as:'ada'}),/not opened/);
+    });
     await t.test('configuration and each teacher class default closed',async()=>{
       const f=await fixture(),l=await f.begin();
       assert.deepEqual(await f.call('getChecklingsAccess'),[{period:'Period 1',enabled:false},{period:'Period 2',enabled:false}]);

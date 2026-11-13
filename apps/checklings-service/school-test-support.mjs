@@ -7,7 +7,7 @@ import {createGameStore} from './store.mjs';
 import {createGameHandler} from './http.mjs';
 import {createRateLimiter} from './rate-limit.mjs';
 export async function schoolFixture(database) {
-  const now=Date.now(),origin='https://synthetic-checklings.netlify.app';
+  const now=Date.now(),origin='https://checklings.grant-desk.com';
   const config={enabled:true,issuer:'synthetic_school',audience:'synthetic_game',tenantId:'gas_'+randomUUID().replaceAll('-',''),gameOrigin:origin,classPeriods:['Period 1','Period 2']};
   for(const k of ['assertionKey','flowKey','schoolKey','identityKey'])config[k]=randomBytes(32).toString('base64url');
   const serviceConfig={database,...config,assertionKey:Buffer.from(config.assertionKey),flowKey:Buffer.from(config.flowKey),schoolKey:Buffer.from(config.schoolKey),clock:async()=>now};
