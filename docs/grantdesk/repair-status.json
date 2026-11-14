@@ -1,4 +1,13 @@
 {
+  "market-shock-prices-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Issue #371: consistent ingredient/rival prices, learner-paced round feedback, cash-flow ending, explained classroom model and games discovery.",
+    "verification_status": "FOCUSED_CHROMIUM_320_390_1440_PASS_CANONICAL_PENDING",
+    "deployment_status": "PROTECTED_CI_MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": ["Shortage inventory quotes and charges share the $6 cost. Competition compares with the advertised $7. Round feedback remains until Next round.", "Synthetic Chromium passed eight rounds, all inventory quotes, $9 rival penalty and $6 undercut, keyboard selection, WCAG A/AA, cash updates, duplicate-open rejection, unaffordable prep and cash-flow ending at 320, 390 and 1440 pixels."]
+  },
   "checklings-houses-kettle-creek-sprite-book-2026-11-13": {
     "status": "IMPLEMENTED",
     "owner": "Codex",

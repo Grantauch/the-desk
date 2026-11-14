@@ -1,3 +1,7 @@
+## November 13 Market Shock Arena prices and student publication
+
+Owner Codex, issue #371. Inventory quotes now use each round's ingredient cost, and the rival comparison uses the advertised $7. Learners keep each round's news, choices and economics note until pressing Next round. Insufficient cash for the next minimum prep ends the season instead of trapping the player. The page explains its invented demand, price, reputation and cost rules and appears in games. Focused browser acceptance, canonical verification, protected CI and production readback are separate release checks; physical classroom acceptance remains pending.
+
 ## November 13 Checkaverse houses and Kettle Creek buildings
 
 Codex recovered the Gemini Sprite Book cottage, stump and creek houses and the Kettle Creek store, apothecary, clinic and daycare from draft PR #284. They use the same versioned-file fallback as the plaza landmarks (original PNGs, then the existing shapes). Local Chromium loaded a saved trainer's Kettle Creek, drew the cottage and all four buildings, and repeated the walk with the versioned and then both generations missing. The stump and creek houses appear only on claimed Neighborhood plots; their delivery and fallback requests are checked but not drawn. Independent release verification and physical Chromebook use are pending.
