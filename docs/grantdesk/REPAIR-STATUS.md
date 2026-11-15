@@ -1,3 +1,9 @@
+## November 15 Boss Fight Review student publication
+
+Owner Codex, issue #373. The additive `boss-fight-review.html` edition keeps answer explanations until Continue, consumes each transition once, and moves keyboard focus to feedback, the next question and the ending. The original underscore-named baseline is preserved in source; existing classroom URLs redirect to the corrected edition. The corrected edition adds source links, qualifies monopoly/scrip/strike claims, replaces unsupported Title IX word-count and participation claims, dates the NCAA NIL question to July 2021, distinguishes invented scores from grades, and appears in Games and the sitemap. The game stores and transmits no work.
+
+The original timeout and BODY focus defects reproduce on source byte-identical to the live baseline. Focused Chromium passes win/loss, all 12 explanations, persistent feedback, duplicate activation, focus/keyboard, WCAG A/AA, viewport fit and stateless play at 320, 390 and 1440 pixels; references remain readable with JavaScript disabled. Canonical verification, protected CI and exact production readback are separate release checks. Physical classroom acceptance remains pending.
+
 ## November 13 Market Shock Arena prices and student publication
 
 Owner Codex, issue #371. Inventory quotes now use each round's ingredient cost, and the rival comparison uses the advertised $7. Learners keep each round's news, choices and economics note until pressing Next round. Insufficient cash for the next minimum prep ends the season instead of trapping the player. The page explains its invented demand, price, reputation and cost rules and appears in games. Focused browser acceptance, canonical verification, protected CI and production readback are separate release checks; physical classroom acceptance remains pending.
