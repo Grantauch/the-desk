@@ -1,3 +1,9 @@
+## November 15 Evidence Locker student publication
+
+Owner Codex, issue #374. Native buttons replace mouse-only evidence selection and filing. Learners can revise cards before filing, receive status announcements and keep focus through selection, filing, report and reset. Four historical summaries link to the Church Committee report and Senate/FBI histories; the other four cards and claim B are explicitly invented practice examples. The report counts sorting matches and explains evidence quality instead of presenting invented certainty percentages. A Games card makes the repaired activity discoverable.
+
+Focused Chromium covers complete keyboard journeys, corrected and deliberately inverted filing, reset, reload, no external requests, WCAG A/AA and viewport fit at 320, 390 and 1440 pixels. Canonical verification, protected CI, merge and exact production readback are separate pending release checks at this source checkpoint. Physical school Chromebook and school-network source access remain field checks. No student service is used.
+
 ## November 13 Market Shock Arena prices and student publication
 
 Owner Codex, issue #371. Inventory quotes now use each round's ingredient cost, and the rival comparison uses the advertised $7. Learners keep each round's news, choices and economics note until pressing Next round. Insufficient cash for the next minimum prep ends the season instead of trapping the player. The page explains its invented demand, price, reputation and cost rules and appears in games. Focused browser acceptance, canonical verification, protected CI and production readback are separate release checks; physical classroom acceptance remains pending.
