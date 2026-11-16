@@ -154,6 +154,8 @@ The long term goal is 300 Checkling lines, released in waves of twelve. Collecti
 
 **Art rules.** Every form needs a front sprite, a back sprite for battle and a two frame idle. Conditions like obese or sick are drawn as shape tweaks and overlays on the base sprite, not as separate sprites for hundreds of forms. That keeps the art load possible. All species follow the founder art style already in the game.
 
+**Art direction, decided by the owner Nov 16, 2026.** The smooth, unpixelated look is preferred. New species are kept at full size and never crushed into 32 pixel art. Checklings may show every emotion, mean ones included, because that variety is part of what makes collecting and raising them fun. The art check rejects only what cannot be cut cleanly (magenta inside a body, a dirty background, poses that run together). Owner idea for later, not built: a mean Checkling is harder to raise, which makes it a challenge worth taking on. It needs its table filled here before anyone builds it.
+
 **Wave One.** The first twelve lines, their tables, battle entries and approved writing are in `docs/checklings/wave-one.md`.
 
 **The sprite target.** The goal is 600 forms, added as we go in waves of twelve lines. At about one wave a month during the school year, the full set takes two and a half to three years. It works only if every wave follows one locked art contract and is approved before the next wave starts.

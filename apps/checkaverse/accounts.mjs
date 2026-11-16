@@ -230,6 +230,8 @@ export function openStore(db, g, care, clock = {}) {
     hatched: db.prepare('SELECT * FROM checklings WHERE pid = ? AND hatched = 1'),
     addChk: db.prepare('INSERT INTO checklings (pid, species, nick, xp, party, hatched, origin, born) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'),
     syncHatched: db.prepare('UPDATE checklings SET species = ?, nick = ? WHERE id = ?'),
+    setSpecies: db.prepare('UPDATE checklings SET species = ? WHERE id = ?'),
+    setNick: db.prepare('UPDATE checklings SET nick = ? WHERE id = ?'),
     addXp: db.prepare('UPDATE checklings SET xp = xp + ? WHERE id = ?'),
     setParty: db.prepare('UPDATE checklings SET party = ? WHERE id = ?'),
     setPartner: db.prepare('UPDATE trainers SET partner = ? WHERE pid = ?'),
@@ -261,6 +263,19 @@ export function openStore(db, g, care, clock = {}) {
   const spName = (id) => (clock.speciesName ? clock.speciesName(id) : id);
   const body = (row) => Care.readBody(care, row.body, todayKey());
   const saveBody = (id, b) => q.setBody.run(JSON.stringify(b), id);
+  // A Checkling that reached its change level takes its next form. Levels can jump past two changes at once.
+  const lineOf = (id) => (clock.root ? clock.root(id) : id);
+  function grow(id, pid) {
+    let row = q.one.get(pid, id);
+    const from = row?.species;
+    for (let n = 0; row && n < 3; n++) {
+      const into = clock.evolve ? clock.evolve(row.species, level(row), body(row)) : null;
+      if (!into) break;
+      q.setSpecies.run(into, id);
+      row = q.one.get(pid, id);
+    }
+    return row && row.species !== from ? { from, to: row.species } : null;
+  }
   const itemsOf = (tr) => { try { return JSON.parse(tr?.items || '{}') || {}; } catch { return {}; } };
   const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
   // The partner is always a living Checkling in the party, or nobody when every Checkling is gone.
@@ -353,8 +368,9 @@ export function openStore(db, g, care, clock = {}) {
           saveBody(id, Care.newBody(care, todayKey()));
           q.setPartner.run(id, t.pid);
           hatched = q.one.get(t.pid, id);
-        } else if (!hatched.died && (hatched.species !== t.partner.species || hatched.nick !== t.partner.nick)) {
-          q.syncHatched.run(t.partner.species, t.partner.nick, hatched.id);
+        } else if (!hatched.died && (lineOf(hatched.species) !== t.partner.species || hatched.nick !== t.partner.nick)) {
+          // A hatched Checkling that has grown into a later form of the same line keeps that form.
+          q.syncHatched.run(lineOf(hatched.species) === t.partner.species ? hatched.species : t.partner.species, t.partner.nick, hatched.id);
         }
         tr = fresh(t.pid);
         const gained = Math.max(0, t.days - tr.attendance);
@@ -369,7 +385,8 @@ export function openStore(db, g, care, clock = {}) {
           const before = level(partner);
           q.addXp.run(gained * g.dayXp, partner.id);
           const after = level(q.one.get(t.pid, partner.id));
-          credit = { days: gained, xp: gained * g.dayXp, id: partner.id, species: partner.species, nick: partner.nick, before, after };
+          const evolved = grow(partner.id, t.pid);
+          credit = { days: gained, xp: gained * g.dayXp, id: partner.id, species: partner.species, nick: partner.nick, before, after, evolved };
         }
         if (t.days !== tr.attendance) q.attendance.run(t.days, t.pid);
         return { created, credit, trainer: fresh(t.pid), reports: body.reports, deaths: body.deaths };
@@ -495,6 +512,15 @@ export function openStore(db, g, care, clock = {}) {
       });
     },
 
+    // A student names a Checkling they caught or hatched from an egg. The Check-In partner takes its name from Check-In.
+    nickname(pid, id, nick) {
+      const r = q.one.get(pid, id);
+      if (!r) return { ok: false };
+      if (r.hatched) return { ok: false, msg: 'Your first Checkling keeps the name it has in Check-In.' };
+      q.setNick.run(nick, id);
+      return { ok: true };
+    },
+
     charmsLeft: (pid) => Math.max(0, g.charmsPerDay - fresh(pid).day_charms),
     useCharm(pid) {
       if (g.charmsPerDay - fresh(pid).day_charms <= 0) return false;
@@ -519,7 +545,9 @@ export function openStore(db, g, care, clock = {}) {
         const xp = Math.max(0, Math.min(amount, g.dailyBattleXpCap - tr.day_xp));
         const before = level(r);
         if (xp) { q.addXp.run(xp, id); q.dayXp.run(xp, pid); }
-        return { xp, capped: xp < amount, before, after: level(q.one.get(pid, id)), species: r.species, nick: r.nick };
+        const after = level(q.one.get(pid, id));
+        const evolved = xp ? grow(id, pid) : null;
+        return { xp, capped: xp < amount, before, after, species: r.species, nick: r.nick, evolved };
       });
     },
   };

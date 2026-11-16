@@ -1,7 +1,7 @@
 {
   "note": "Each type is strong against two and weak against two. Founder loop: Ember beats Meadow, Meadow beats Gear, Gear beats Cosmic, Cosmic beats Ember. Tune here, never in code.",
-  "strong": 1.3,
-  "weak": 0.75,
+  "strong": 1.15,
+  "weak": 0.85,
   "types": {
     "meadow": { "name": "Meadow", "beats": ["gear", "stone"] },
     "gear": { "name": "Gear", "beats": ["cosmic", "tide"] },

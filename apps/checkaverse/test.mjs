@@ -359,15 +359,15 @@ try {
   assert.equal(ws1.saved, true);
   assert.equal(ws1.team.length, 1);
   const hatched = ws1.team[0];
-  assert.deepEqual([hatched.species, hatched.nick, hatched.hatched, hatched.den], ['bolt', 'Sprocket', true, false]);
+  assert.deepEqual([hatched.species, hatched.nick, hatched.hatched, hatched.den], ['rivet', 'Sprocket', true, false], 'reaching level 15 grows Bolt into Rivet');
   assert.equal(hatched.level, 15, '30 check-ins of XP puts the hatched Checkling at level 15');
   assert.equal(ws1.partner, hatched.v);
   const arrival = (await s1.next('notice', (m) => /rode the bus/.test(m.msg))).msg;
-  assert.match(arrival, /Sprocket the Bolt rode the bus with you\. 30 check-ins since your last ride: Sprocket the Bolt earned 3000 XP and grew to level 15/);
+  assert.match(arrival, /rode the bus with you\. 30 check-ins since your last ride: Sprocket the Bolt earned 3000 XP and grew to level 15! Sprocket grew into a Rivet!/);
   const savedName = ws1.players.find((q) => q.id === ws1.you).name;
-  assert.equal(ws1.players.find((q) => q.id === ws1.you).pt, 'bolt', 'others see the species, never the nickname');
+  assert.equal(ws1.players.find((q) => q.id === ws1.you).pt, 'rivet', 'others see the species, never the nickname');
   assert.ok(!JSON.stringify(ws1.players).includes('Sprocket'));
-  step('a bus ticket loads a saved trainer with the hatched Checkling, grown by attendance');
+  step('a bus ticket loads a saved trainer with the hatched Checkling, grown and evolved by attendance');
 
   // The same student opening a second tab closes the first one.
   const s1closed = new Promise((r) => s1.ws.on('close', (c) => r(c)));
@@ -394,7 +394,7 @@ try {
   assert.deepEqual([end2.reason, end2.kept], ['caught', 'party']);
   const team2 = await s2.next('team', (m) => m.team.length === 2);
   assert.equal(team2.saved, true);
-  assert.match((await s2.next('notice', (m) => /XP/.test(m.msg))).msg, /Sprocket the Bolt earned 15 XP/);
+  assert.match((await s2.next('notice', (m) => /XP/.test(m.msg))).msg, /Sprocket the Rivet earned 15 XP/);
   s2.ws.close(); await sleep(200);
   step('a saved trainer keeps a catch and the partner earns battle XP');
 
@@ -403,12 +403,17 @@ try {
   assert.equal(ws3.team.length, 2);
   assert.equal(ws3.charms, 4, 'charms are counted per day, not per visit');
   assert.equal(ws3.team.find((c) => c.hatched).level, 15);
+  assert.equal(ws3.team.find((c) => c.hatched).species, 'rivet', 'Check-In still says Bolt, and the grown form is kept');
   assert.equal(ws3.team.find((c) => c.hatched).xp, 3000 + 15 + 100 - xpFor(GROWTH, 15));
-  assert.match((await s3.next('notice', (m) => /since your last ride/.test(m.msg))).msg, /One check-in since your last ride: Sprocket the Bolt earned 100 XP\./);
+  assert.match((await s3.next('notice', (m) => /since your last ride/.test(m.msg))).msg, /One check-in since your last ride: Sprocket the Rivet earned 100 XP\./);
   const caughtOne = ws3.team.find((c) => !c.hatched);
+  await s3.send({ t: 'nick', v: caughtOne.v, name: '  Pebble<b>!  ' });
+  assert.equal((await s3.next('team', (m) => m.team.find((c) => c.v === caughtOne.v).nick)).team.find((c) => c.v === caughtOne.v).nick, 'Pebbleb', 'a caught Checkling takes a cleaned name');
+  await s3.send({ t: 'nick', v: hatched.v, name: 'Other' });
+  assert.match((await s3.next('notice', (m) => /Check-In/.test(m.msg))).msg, /keeps the name it has in Check-In/);
   await s3.send({ t: 'partner', v: caughtOne.v });
   assert.equal((await s3.next('partner')).v, caughtOne.v);
-  step('the next ride keeps the catch, pays one new check-in and lets the catch be the partner');
+  step('the next ride keeps the catch and its new name, pays one new check-in and lets the catch be the partner');
 
   // Party and Den: rest the current partner and the job passes on. The last one in the party stays.
   await s3.send({ t: 'den', v: caughtOne.v, party: false });
