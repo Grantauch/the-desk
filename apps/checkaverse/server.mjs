@@ -20,7 +20,7 @@ import { validateWorld } from './public/world.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.17.0';
+const VERSION = '0.18.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -69,6 +69,20 @@ const CARE = Care.loadCare(path.join(HERE, 'content'));
 for (const id of Object.keys(CARE.epitaphs)) if (!CARE.diseases[id] && !CARE.rare[id]) throw new Error(`epitaphs.json: ${id} is not a cause of death`);
 // Ghosts in the cemetery (content/ghosts.json), checked like everything else.
 const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HERE, 'content', 'ghosts.json'), CARE, RULES);
+// Residents battle each other around town (content/npc-battles.json).
+const SPARS = (() => {
+  const c = process.env.CHECKAVERSE_SPARS ? JSON.parse(fs.readFileSync(process.env.CHECKAVERSE_SPARS, 'utf8')) : readContent('npc-battles.json');
+  const bad = (m) => { throw new Error(`npc-battles.json: ${m}`); };
+  if (!(c.gapSeconds?.[0] >= 5 && c.gapSeconds[0] <= c.gapSeconds[1])) bad('gapSeconds needs a low and a high');
+  if (!(c.range >= 1 && c.seeRange >= c.range && c.turnMs >= 800 && c.maxTurns >= 3)) bad('range, seeRange, turnMs and maxTurns');
+  if (c.turnMs * c.maxTurns > 44_000) bad('a resident battle must fit in 44 seconds');
+  for (const [id, r] of Object.entries(c.residents)) {
+    if (!RULES.species.species[r.species]) bad(`${id} has unknown species ${r.species}`);
+    if (!(Number.isInteger(r.level) && r.level >= 1 && r.level <= 50)) bad(`${id} level must be 1 to 50`);
+  }
+  for (const k of ['start', 'win', 'loss']) if (!c.lines?.[k]?.length) bad(`lines.${k} is empty`);
+  return c;
+})();
 const TURN_MS = Number(process.env.CHECKAVERSE_TURN_MS || RULES.settings.turnSeconds * 1000);
 // Wild encounter content is checked the same way: every zone is a real tile in the wilds and every species can battle.
 for (const [tile, z] of Object.entries(WILD.zones)) {
@@ -212,7 +226,10 @@ function lifeFor(p) {
 }
 function residentSnapshot(p){
   const e=lifeFor(p);if(!e)return null;
-  return{residents:e.sim.view(),marks:[...e.sim.marks.values()],clock:e.sim.clock(),stepMs:LIVES.stepMs/residentRate};
+  const residents=e.sim.view();
+  // A resident in the middle of a battle says so.
+  for(const b of battles.values())if(b.npc&&b.npc.key===lifeKey(p))b.npc.res.forEach((id,i)=>{const r=residents.find(x=>x.id===id);if(r)r.activity={...r.activity,id:'battle',label:`Battling ${residentName(b.npc.res[1-i])}`,action:'idle',tool:'none',speech:`Hold on, I am in the middle of a battle with ${residentName(b.npc.res[1-i])}!`,progress:0};});
+  return{residents,marks:[...e.sim.marks.values()],clock:e.sim.clock(),stepMs:LIVES.stepMs/residentRate};
 }
 function saveResidentWorlds(){
   setMeta.run('resident-life-clock-v1',String(residentClock));
@@ -691,14 +708,21 @@ function playTurn(b) {
   b.log.push(picks);
   b.picks = [null, null];
   if (b.wild && !b.state.over) b.picks[1] = wildPick(b);
-  b.deadline = Date.now() + TURN_MS;
-  battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: TURN_MS });
+  if (b.npc && !b.state.over && b.state.turn >= SPARS.maxTurns) {
+    const share = b.state.sides.map((x) => x.hp / x.maxHp);
+    Object.assign(b.state, { over: true, winner: share[0] === share[1] ? 'draw' : share[0] > share[1] ? 0 : 1, reason: 'time' });
+  }
+  const turnMs = b.npc ? SPARS.turnMs : TURN_MS;
+  b.deadline = Date.now() + turnMs;
+  battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: turnMs });
+  if (b.npc) sparUpdate(b, events);
   if (b.state.over) finishBattle(b);
 }
 
 function finishBattle(b) {
   const st = b.state;
   battles.delete(b.id);
+  if (b.npc) return finishSpar(b);
   const winner = st.winner === 'draw' ? 'draw' : b.names[st.winner];
   battleSend(b, { t: 'battle_end', id: b.id, winner: st.winner, reason: st.reason, view: battleView(b), kept: b.kept || (b.wild && !b.pids[0] ? 'visit' : '') });
   b.ids.forEach((id, i) => {
@@ -750,9 +774,9 @@ function finishBattle(b) {
 // zone's table. The wild one picks its move the moment the turn starts. Trainers can weaken it and throw a catching
 // charm, or run. A trainer who rode the bus from Check-In keeps every catch: it joins the party, or the Den when the
 // party is full. A visitor keeps catches only for the visit.
-function wildPick(b) {
-  const st = b.state, f = st.sides[1];
-  const moves = (f.moves || RULES.species.species[f.species].moves).filter((m) => Battle.canUse(RULES, st, 1, m));
+function wildPick(b, side = 1) {
+  const st = b.state, f = st.sides[side];
+  const moves = (f.moves || RULES.species.species[f.species].moves).filter((m) => Battle.canUse(RULES, st, side, m));
   const sig = moves.find((m) => !['strike', 'guard', 'recover'].includes(m));
   const r = Math.random();
   if (sig && r < 0.35) return sig;
@@ -855,8 +879,8 @@ function handleWatch(p, battleId) {
   const b = battles.get(battleId);
   if (!b) return send(p, { t: 'notice', msg: 'That battle already ended.' });
   if (p.battle) return;
-  const fighters = b.ids.map((id) => players.get(id)).filter(Boolean);
-  if (!fighters.some((f) => f.room === p.room && dist(f, p) <= RULES.settings.watchDistance + 2)) return send(p, { t: 'notice', msg: 'Walk closer to watch that battle.' });
+  const fighters = b.npc ? sparFighters(b, p) : b.ids.map((id) => players.get(id)).filter(Boolean);
+  if (!fighters.some((f) => f.room === (b.npc ? residentScene(p) : p.room) && dist(f, p) <= RULES.settings.watchDistance + 2)) return send(p, { t: 'notice', msg: 'Walk closer to watch that battle.' });
   if (p.watching) battles.get(p.watching)?.watchers.delete(p.id);
   b.watchers.add(p.id);
   p.watching = b.id;
@@ -868,6 +892,99 @@ function stopWatching(p) {
   p.watching = 0;
 }
 
+// ---------- resident battles ----------
+// Residents battle each other where they stand, so the town feels alive around a trainer. A battle only starts
+// close to a trainer who is outdoors, uses the real battle engine with both sides picking for themselves, and can
+// be watched on the battle screen. Residents are held still for the length of the battle, then go back to work.
+const sparNext = new Map(); // life world key -> time the next resident battle may start
+const pickLine = (list, vars) => list[Math.floor(Math.random() * list.length)].replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+const residentName = (id) => WORLD.residents.find((r) => r.id === id)?.name || id;
+function sparViewers(key, room) { return [...players.values()].filter((q) => lifeKey(q) === key && residentScene(q) === room && !q.battle); }
+function sparFighters(b, p) {
+  const e = residentWorlds.get(b.npc.key);
+  if (!e || lifeKey(p) !== b.npc.key) return [];
+  return b.npc.res.map((id) => e.sim.byId.get(id)).filter(Boolean);
+}
+function sparSides(b) {
+  const e = residentWorlds.get(b.npc.key);
+  return b.npc.res.map((id, i) => {
+    const n = e?.sim.byId.get(id), f = b.state.sides[i];
+    return { resident: id, name: residentName(id), x: n?.x ?? 0, y: n?.y ?? 0, species: f.species, level: f.level, hp: f.hp, maxHp: f.maxHp };
+  });
+}
+function sparUpdate(b, events = []) {
+  const hits = events.filter((e) => e.k === 'hit').map((e) => e.side);
+  const fades = events.filter((e) => e.k === 'fade').map((e) => e.side);
+  const msg = { t: 'npc_battle', id: b.id, room: b.npc.room, sides: sparSides(b), hits, fades, moves: events.filter((e) => e.k === 'use').map((e) => ({ side: e.side, type: e.type })) };
+  for (const q of sparViewers(b.npc.key, b.npc.room)) send(q, msg);
+}
+function startSpar(key, e, a, bRes) {
+  const owner = `spar:${nextBattle}`;
+  if (!e.sim.reserve(a.id, owner, 45)) return;
+  if (!e.sim.reserve(bRes.id, owner, 45)) { e.sim.release(owner); return; }
+  // Face each other.
+  a.f = Math.abs(bRes.x - a.x) >= Math.abs(bRes.y - a.y) ? (bRes.x > a.x ? 'r' : 'l') : (bRes.y > a.y ? 'd' : 'u');
+  bRes.f = { r: 'l', l: 'r', u: 'd', d: 'u' }[a.f];
+  const id = nextBattle++;
+  const names = [residentName(a.id), residentName(bRes.id)];
+  const sides = [a, bRes].map((n, i) => ({ name: names[i], species: SPARS.residents[n.id].species, level: SPARS.residents[n.id].level }));
+  const state = Battle.createBattle(RULES, sides, crypto.randomInt(0, 2 ** 31));
+  const b = { id, npc: { key, room: a.room, res: [a.id, bRes.id], owner }, ids: [0, 0], names, cids: [0, 0], pids: ['', ''], state, picks: [null, null], log: [], timeouts: [0, 0],
+    deadline: Date.now() + SPARS.turnMs, watchers: new Set(), started: new Date().toISOString(), room: a.room };
+  battles.set(id, b);
+  const line = pickLine(SPARS.lines.start, { a: names[0], b: names[1] });
+  for (const q of sparViewers(key, a.room)) {
+    send(q, { t: 'npc_battle', id, room: a.room, sides: sparSides(b), hits: [], fades: [], moves: [], start: true });
+    if ([a, bRes].some((n) => dist(n, q) <= RULES.settings.watchDistance + 2)) send(q, { t: 'battle_near', id, names, line });
+  }
+}
+function finishSpar(b) {
+  const e = residentWorlds.get(b.npc.key), st = b.state;
+  battleSend(b, { t: 'battle_end', id: b.id, winner: st.winner, reason: st.reason, view: battleView(b) });
+  for (const w of b.watchers) { const q = players.get(w); if (q) q.watching = 0; }
+  if (e) {
+    e.sim.release(b.npc.owner);
+    // The residents remember how it went, and say so when a trainer talks to them.
+    if (st.winner === 0 || st.winner === 1) b.npc.res.forEach((rid, i) => {
+      const n = e.sim.byId.get(rid);
+      if (!n) return;
+      const text = pickLine(st.winner === i ? SPARS.lines.win : SPARS.lines.loss, { other: residentName(b.npc.res[1 - i]) });
+      n.memory.push(text); if (n.memory.length > 6) n.memory.shift(); n.lastCompleted = text;
+    });
+  }
+  const end = { t: 'npc_battle_end', id: b.id, room: b.npc.room, winner: st.winner, sides: sparSides(b) };
+  for (const q of sparViewers(b.npc.key, b.npc.room)) send(q, end);
+}
+// Every few seconds: in each resident world with a trainer outdoors, maybe start one battle near that trainer.
+setInterval(() => {
+  if (paused) return;
+  const now = Date.now();
+  const busy = new Set([...battles.values()].filter((x) => x.npc).map((x) => x.npc.key));
+  for (const [key, e] of residentWorlds) {
+    if (busy.has(key)) continue;
+    const next = sparNext.get(key);
+    if (next === undefined) { sparNext.set(key, now + 1000 * (SPARS.gapSeconds[0] / 2)); continue; }
+    if (now < next) continue;
+    const [lo, hi] = SPARS.gapSeconds;
+    sparNext.set(key, now + 1000 * (lo + Math.random() * (hi - lo)));
+    const watchers = [...players.values()].filter((q) => lifeKey(q) === key && MAPS[residentScene(q)] !== undefined || (lifeKey(q) === key && isKettle(q.room)));
+    if (!watchers.length) continue;
+    const clock = e.sim.clock();
+    const free = e.sim.states.filter((n) => SPARS.residents[n.id] && !n.carry && n.holdUntil <= clock && n.resumeAfter <= clock && !n.room.startsWith('home:'));
+    const pairs = [];
+    for (let i = 0; i < free.length; i++) for (let j = i + 1; j < free.length; j++) {
+      const a = free[i], c = free[j];
+      if (a.room !== c.room || dist(a, c) > SPARS.range || dist(a, c) < 1) continue;
+      const seen = Math.min(...watchers.filter((q) => residentScene(q) === a.room).map((q) => Math.min(dist(q, a), dist(q, c))));
+      if (seen <= SPARS.seeRange) pairs.push({ a, c, seen });
+    }
+    if (!pairs.length) continue;
+    pairs.sort((x, y) => x.seen - y.seen);
+    const pick = pairs[Math.floor(Math.random() * Math.min(3, pairs.length))];
+    startSpar(key, e, pick.a, pick.c);
+  }
+}, 3000).unref();
+
 // The turn clock. While the teacher has the town paused, every clock stands still.
 let lastTick = Date.now();
 setInterval(() => {
@@ -877,6 +994,7 @@ setInterval(() => {
   for (const b of [...battles.values()]) {
     if (paused) { b.deadline += gap; continue; }
     if (now < b.deadline) continue;
+    if (b.npc) { b.picks = [wildPick(b, 0), wildPick(b, 1)]; playTurn(b); continue; }
     const gone = [];
     b.picks.forEach((m, i) => { if (!m) { b.timeouts[i]++; if (b.timeouts[i] >= RULES.settings.timeoutsToForfeit) gone.push(i); } });
     if (gone.length) {
@@ -911,6 +1029,7 @@ const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
   '/world.js': ['world.js', 'text/javascript; charset=utf-8'],
+  '/battle-fx.js': ['battle-fx.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
   '/teacher': ['teacher.html', 'text/html; charset=utf-8'],
   '/teacher.js': ['teacher.js', 'text/javascript; charset=utf-8'],

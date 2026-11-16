@@ -332,7 +332,9 @@ export function view(rules, battle) {
         moves: movesOf(rules, f).map((id) => {
           const m = rules.moves[id];
           const next = m.phases ? m.phases[(f.phase[id] || 0) % m.phases.length] : null;
-          return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, next: next ? next.damage : null, ok: f.stamina >= m.cost };
+          const parts = m.phases || [m];
+          return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, next: next ? next.damage : null, ok: f.stamina >= m.cost,
+            hit: parts.some((ph) => ph.damage > 0), guard: m.guard !== undefined, shield: parts.some((ph) => ph.shield > 0) };
         }),
       };
     }),
