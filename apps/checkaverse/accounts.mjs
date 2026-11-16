@@ -642,6 +642,7 @@ export function openStore(db, g, care, clock = {}) {
       });
     },
     items(pid) { return itemsOf(fresh(pid)); },
+    setItem(pid, k, v) { return tx(() => { const items = itemsOf(fresh(pid)); items[k] = v; saveItems(pid, items); }); },
     // Grave moss comes off a headstone once a day per stone, a few times a day, and pockets only hold so much.
     scrapeMoss(pid, stone, rules) {
       return tx(() => {

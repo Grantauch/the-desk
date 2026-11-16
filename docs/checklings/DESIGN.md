@@ -332,7 +332,11 @@ These are the **approved biome identities and working names**, while exact layou
 
 **The Builders' Guild.** Proposals land on a board. Small ones like a new item, rumor or Gazette story go in on their own. Big ones like a building, zone or event wait for Grant or Claude to approve them. A proposal that needs something the engine cannot do yet goes to the AI team board as a feature request.
 
-**The Checkaverse Gazette.** Each morning a short paper prints real headlines from yesterday's log. It is the first thing a student sees after the bus ride and the main daily hook from the living world.
+**The Checkaverse Gazette.** Each morning a short paper prints real headlines from yesterday's log. It is the first thing a student sees after the bus ride and the main daily hook from the living world. Shipped in Checkaverse 0.20.0: the paper opens by itself on the first ride of each school day, headlines are hand written templates filled from the event log, and the director's checked quotes appear under Around town.
+
+**Mail.** Shipped in 0.20.0. On the first ride of a school day up to two letters arrive from residents, written only from that trainer's own Checklings and progress: a welcome from Orin, Nell about a sick or hungry partner, Bram about the gym, Mara about frost on the cemetery hill, Ada when an evolution is close.
+
+**The director tonight.** Shipped in 0.20.0. It runs at 3:07 AM on the home PC after a database copy and writes one line for three residents from yesterday's facts. Counts and resident names only reach the model, never a trainer's name and nothing about deaths. A line goes live only after the checks in the guardrails below and a second model answer to the mock test. Building proposals, NPC moods and mysteries come in later stages.
 
 ## Living world features
 

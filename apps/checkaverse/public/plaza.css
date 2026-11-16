@@ -197,7 +197,7 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .care-actions button small { display: block; font-weight: normal; font-size: 11px; opacity: .85; }
 .care-actions .risky { grid-column: 1 / -1; background: #5b2a6e; }
 .care-msg { min-height: 1.3em; margin: 8px 0 0; font-size: 14px; }
-.card-pop { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100% - 24px)); max-height: calc(100% - 120px); overflow-y: auto; z-index: 5; }
+.card-pop { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100% - 24px)); max-height: calc(100% - 120px); overflow-y: auto; z-index: 7; }
 .report-item { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 10px; }
 .report-item img { object-fit: contain; width: 48px; height: 48px; }
 .report-item ul { margin: 2px 0 0; padding-left: 18px; font-size: 14px; }
@@ -320,3 +320,21 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .gm-pop { position: absolute; transform: translate(-50%, -50%); font-weight: bold; font-size: 20px; color: #fff; text-shadow: 2px 2px 0 #2b1a12; pointer-events: none; }
 .gm-left { position: absolute; right: 10px; top: 8px; color: #f4f1e6; font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .gm-zone { box-shadow: none; } }
+/* The Checkaverse Gazette: a small newspaper. */
+.paper-pop { width: min(520px, calc(100% - 24px)); background: #f3ecd8; font-family: Georgia, "Times New Roman", serif; }
+.paper-mast { margin: 0; text-align: center; font-size: 26px; font-weight: bold; letter-spacing: .02em; border-bottom: 3px double #2b1a12; padding-bottom: 4px; }
+.paper-date { margin: 4px 0 10px; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: #6b4a2b; }
+.paper-stories article { padding: 8px 0; border-bottom: 1px solid #c9b994; }
+.paper-stories article:first-child h3 { font-size: 21px; }
+.paper-stories h3 { margin: 0 0 4px; font-size: 17px; line-height: 1.2; }
+.paper-stories p { margin: 0; font-size: 14px; line-height: 1.4; }
+.paper-quotes { margin: 10px 0 6px; padding: 8px 10px; background: #e9dfc4; border-left: 4px solid #2b1a12; }
+.paper-quotes h4 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; }
+.paper-quotes p { margin: 0 0 6px; font-size: 14px; font-style: italic; }
+.paper-quotes p b { font-style: normal; }
+/* Mail. */
+.mail-list { display: grid; gap: 8px; margin-bottom: 8px; }
+.mail-list .letter { background: #fffdf5; border: 2px solid #2b1a12; border-radius: 6px; padding: 8px 10px; }
+.mail-list .letter.new { border-color: #b8860b; box-shadow: 0 0 0 2px #ffd166; }
+.mail-list .letter b { display: block; font-size: 13px; margin-bottom: 2px; }
+.mail-list .letter p { margin: 0; font-size: 14px; line-height: 1.4; }

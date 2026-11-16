@@ -255,6 +255,8 @@
       case 'moss': graveMoss = m.moss; tipSoon('moss', 1500); break;
       case 'apothecary': showApothecary(m); break;
       case 'learn_offer': showLearn(m); break;
+      case 'gazette': showPaper(m); break;
+      case 'mail': showMailLine(m); break;
       case 'gym': showGym(m); break;
       case 'gym_round': startGame(m); break;
       case 'gym_result': gameResult(m); break;
@@ -382,7 +384,7 @@
     if (conversing()) return;
     // The gym's mini games take the keyboard while they are open; only Escape leaves.
     if (!$('gameOverlay').hidden) { if (e.code === 'Escape') quitGame(); return; }
-    if (!$('learnPop').hidden || !$('gymPop').hidden) { if (e.code === 'Escape') { $('learnPop').hidden = true; $('gymPop').hidden = true; } return; }
+    if (!$('learnPop').hidden || !$('gymPop').hidden || !$('paperPop').hidden || !$('mailPop').hidden) { if (e.code === 'Escape') { for (const id of ['learnPop', 'gymPop', 'paperPop', 'mailPop']) $(id).hidden = true; } return; }
     // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
@@ -890,6 +892,55 @@
     if (sway) ctx.restore();
     return py;
   }
+  // ---------- the Gazette and the mailbox ----------
+  let mailBox = { letters: [], unread: 0 }, paperLater = null;
+  function showPaper(m) {
+    if (bt || !$('gameOverlay').hidden) { paperLater = m; return; }
+    paperLater = null;
+    const p = m.paper;
+    $('paperTitle').textContent = p.masthead;
+    const [y, mo, d] = p.day.split('-').map(Number);
+    $('paperDate').textContent = new Date(Date.UTC(y, mo - 1, d, 12)).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+    const box = $('paperStories'); box.textContent = '';
+    for (const st of p.stories) {
+      const a = document.createElement('article');
+      const h = document.createElement('h3'); h.textContent = st.title;
+      const t = document.createElement('p'); t.textContent = st.body;
+      a.append(h, t); box.appendChild(a);
+    }
+    const q = $('paperQuotes'); q.textContent = '';
+    q.hidden = !p.quotes.length;
+    if (p.quotes.length) {
+      const h = document.createElement('h4'); h.textContent = p.aroundTown; q.appendChild(h);
+      for (const x of p.quotes) { const line = document.createElement('p'); const who = document.createElement('b'); who.textContent = `${x.who}: `; line.append(who, `"${x.text}"`); q.appendChild(line); }
+    }
+    closePops();
+    $('paperPop').hidden = false;
+    $('paperClose').focus();
+  }
+  function showMailLine(m) {
+    const more = m.unread > mailBox.unread;
+    mailBox = m;
+    $('mailBtn').hidden = !m.letters.length;
+    $('mailBtn').textContent = m.unread ? `Mail (${m.unread} new)` : 'Mail';
+    if (more && m.unread) toast(m.unread === 1 ? 'You have a letter in your mailbox. Open it from the menu.' : `You have ${m.unread} letters in your mailbox. Open them from the menu.`);
+    if (!$('mailPop').hidden) renderMail();
+  }
+  function renderMail() {
+    const list = $('mailList'); list.textContent = '';
+    for (const l of mailBox.letters) {
+      const el = document.createElement('div'); el.className = `letter${l.unread ? ' new' : ''}`;
+      const from = document.createElement('b'); from.textContent = `From ${l.sender}`;
+      const t = document.createElement('p'); t.textContent = l.text;
+      el.append(from, t); list.appendChild(el);
+    }
+  }
+  $('paperBtn').addEventListener('click', () => { closePops(); send({ t: 'gazette' }); });
+  $('paperClose').addEventListener('click', () => { $('paperPop').hidden = true; });
+  $('mailBtn').addEventListener('click', () => { closePops(); renderMail(); $('mailPop').hidden = false; $('mailClose').focus(); if (mailBox.unread) send({ t: 'mail_read' }); });
+  $('mailClose').addEventListener('click', () => { $('mailPop').hidden = true; });
+  for (const id of ['paperPop', 'mailPop']) $(id).addEventListener('pointerdown', (e) => e.stopPropagation());
+
   // ---------- learning moves ----------
   const moveRow = (mv, tag = 'div', cls = 'learn-move') => {
     const row = document.createElement(tag); row.className = cls;
@@ -2021,6 +2072,7 @@
     bEl.hidden = true;
     buildPartners(); watchLine();
     if (learnLater) setTimeout(() => learnLater && showLearn(learnLater), 300);
+    else if (paperLater) setTimeout(() => paperLater && showPaper(paperLater), 300);
   }
   function bar(el, value, max, hp) {
     const pct = Math.max(0, Math.min(100, (100 * value) / Math.max(1, max)));

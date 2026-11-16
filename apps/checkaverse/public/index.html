@@ -100,6 +100,20 @@
       </div>
     </div>
 
+    <div id="paperPop" class="pop card-pop paper-pop" role="dialog" aria-labelledby="paperTitle" hidden>
+      <p class="paper-mast" id="paperTitle">The Checkaverse Gazette</p>
+      <p class="paper-date" id="paperDate"></p>
+      <div id="paperStories" class="paper-stories"></div>
+      <div id="paperQuotes" class="paper-quotes" hidden></div>
+      <button id="paperClose" type="button" class="ghost">Fold the paper</button>
+    </div>
+
+    <div id="mailPop" class="pop card-pop mail-pop" role="dialog" aria-labelledby="mailTitle" hidden>
+      <p class="pop-title" id="mailTitle">Your mailbox</p>
+      <div id="mailList" class="mail-list"></div>
+      <button id="mailClose" type="button" class="ghost">Close</button>
+    </div>
+
     <div id="busPop" class="pop card-pop" role="dialog" aria-labelledby="busTitle" hidden>
       <p class="pop-title" id="busTitle">Ride the bus?</p>
       <p class="pop-note" id="busNote"></p>
@@ -126,6 +140,8 @@
       <p id="home" class="pop-note">Finding your plot...</p>
       <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
       <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
+      <button id="paperBtn" type="button" class="ghost">Today's Gazette</button>
+      <button id="mailBtn" type="button" class="ghost" hidden>Mail</button>
       <button id="ranksBtn" type="button" class="ghost">This week's rankings</button>
       <button id="cemeteryBtn" type="button" class="ghost">Class cemetery</button>
       <button id="tipsAgain" type="button" class="ghost">Show tips again</button>

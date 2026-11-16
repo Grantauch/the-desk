@@ -55,6 +55,8 @@ try {
 
   const { page } = await open();
   await page.waitForFunction(() => /Spirit Sight/.test(document.querySelector('#place')?.textContent || ''), null, { timeout: 5000 });
+  // The Gazette opens by itself on the first ride of the day; fold it like a student would.
+  await page.waitForSelector('#paperPop:not([hidden])', { timeout: 4000 }).then(() => page.click('#paperClose')).catch(() => {});
   await delay(1200);
   await page.screenshot({ path: path.join(out, 'cemetery-ghosts.png') });
   console.log('  ok the cemetery hill shows glowing ghosts and the Spirit Sight chip');
