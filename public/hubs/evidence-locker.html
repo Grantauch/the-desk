@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evidence Locker — the desk</title>
+<meta name="description" content="Sort eight evidence cards, inspect the source trail and distinguish documented history from invented claims.">
+<link rel="canonical" href="https://grant-desk.com/hubs/evidence-locker.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="the desk">
+<meta property="og:title" content="Evidence Locker">
+<meta property="og:description" content="Eight cards. Two claims. Follow the evidence.">
+<meta property="og:url" content="https://grant-desk.com/hubs/evidence-locker.html">
+<meta property="og:image" content="https://grant-desk.com/og-learning-hubs.png">
+<meta property="og:image:alt" content="the desk learning hubs">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--ink:#f6f7fb;--muted:#b9c1d5;--cyan:#61f5ff;--gold:#ffd166;--green:#7cf29a;--line:rgba(255,255,255,.22)}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:radial-gradient(circle at 80% 10%,#15323d,transparent 40%),#070d18;color:var(--ink);min-height:100vh}
+.wrap{width:min(1050px,94vw);margin:auto;padding:30px 0 60px}.card{border:1px solid var(--line);background:#101c2b;border-radius:22px;padding:22px;margin-top:18px}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:800}h1{font-size:clamp(32px,5vw,54px);margin:10px 0;letter-spacing:-.04em}h2{font-size:20px;margin:0 0 10px}p{line-height:1.6}.sub{color:var(--muted)}
+.claims{display:grid;grid-template-columns:1fr 1fr;gap:16px}.claimbox{border:2px dashed var(--line);border-radius:16px;padding:14px;min-width:0}.claimbox.active{border-color:var(--gold)}
+.evidence{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:12px;margin-top:14px}.ev{border:1px solid var(--line);border-radius:13px;padding:12px;background:#0a1320;min-width:0}.ev p{margin:8px 0}.ev.placed{margin-top:12px}
+button{font:inherit;cursor:pointer}button:disabled{cursor:default}.select-card{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:4px;line-height:1.5}.select-card[aria-pressed=true]{outline:2px solid var(--gold);outline-offset:4px;border-radius:4px}
+.tag{display:inline-block;color:var(--gold);font-size:12px;font-weight:800;margin-bottom:8px}.historical{color:var(--green)}.btn{font-weight:700;padding:12px 16px;min-height:44px;border-radius:12px;border:1px solid var(--cyan);color:#071018;background:var(--cyan);margin:8px 5px 0 0}.btn:disabled{background:#253347;color:#c0cada;border-color:#53647d}.ghost{background:transparent;color:var(--cyan)}
+a{color:var(--cyan);overflow-wrap:anywhere}a:focus-visible,button:focus-visible,[tabindex="-1"]:focus-visible{outline:3px solid var(--gold);outline-offset:4px}#status{min-height:3.2em;color:var(--gold)}.verdict{border-left:3px solid var(--gold);padding:0 14px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
+@media(max-width:700px){.claims{grid-template-columns:1fr}.card{padding:16px}}
+</style>
+</head>
+<body>
+<main class="wrap" id="main-content">
+  <a href="/games/">← Back to games</a>
+  <header class="card">
+    <div class="eyebrow">Source detective · eight cards</div>
+    <h1>🗂️ Evidence Locker</h1>
+    <p>Select a card, then choose <strong>File under A</strong> or <strong>File under B</strong>. Use Tab to move and Enter or Space to choose. A filed card can be returned to the locker before you finish.</p>
+    <p class="sub">Decide which claim each card concerns, then inspect how well it supports that claim. Four cards summarize documented history; four are invented examples for practice. Sorting a weak card under a claim does not make the claim true. This activity stays in this tab and does not save or send work.</p>
+  </header>
+  <section class="card" aria-label="Sort the evidence">
+    <div class="claims">
+      <section class="claimbox" id="claimA" aria-labelledby="headingA">
+        <h2 id="headingA">Claim A · documented history</h2>
+        <p>The FBI used COINTELPRO to surveil and disrupt civil rights organizations.</p>
+        <button type="button" class="btn assign" id="assignA" onclick="assign('A')" disabled>File under A</button>
+        <div id="filedA"></div>
+      </section>
+      <section class="claimbox" id="claimB" aria-labelledby="headingB">
+        <h2 id="headingB">Claim B · invented for practice</h2>
+        <p>A secret committee controls every world government from the shadows.</p>
+        <button type="button" class="btn assign" id="assignB" onclick="assign('B')" disabled>File under B</button>
+        <div id="filedB"></div>
+      </section>
+    </div>
+    <h2 id="lockerHeading" style="margin-top:24px">The locker</h2>
+    <p class="sub">Open the source links to check origin, context and limits. These summaries are not quotations. The report and histories may describe the same underlying records; four cards do not automatically mean four independent sources.</p>
+    <p id="status" role="status" aria-atomic="true">0 of 8 cards filed. Select a card.</p>
+    <div class="evidence" id="locker" aria-labelledby="lockerHeading"></div>
+    <button type="button" class="btn" id="fileBtn" onclick="fileCase()" disabled>File the case</button>
+    <button type="button" class="btn ghost" id="resetBtn" onclick="resetLocker()">Reset locker</button>
+  </section>
+  <section class="card" id="report" aria-labelledby="reportTitle" hidden>
+    <h2 id="reportTitle" tabindex="-1">Case strength report</h2>
+    <div class="verdict" id="verdictText"></div>
+    <p class="sub">This is a sorting exercise, not a probability meter or a grade. Source quality depends on what a source can establish, its context and independent corroboration. An official document can also be incomplete or self-serving.</p>
+    <a href="#lockerHeading" onclick="resetLocker(); return false;">Try another filing</a>
+  </section>
+  <noscript><p class="card">Sorting needs JavaScript. The historical source trail is available from the <a href="https://www.senate.gov/about/powers-procedures/investigations/church-committee.htm">Senate's Church Committee history</a>.</p></noscript>
+</main>
+<script>
+const cards=[
+ {t:"The Church Committee's 1976 report describes COINTELPRO operations intended to disrupt political groups, including civil rights organizations.",kind:"Historical summary · primary report",belongs:"A",source:"Read Book III: COINTELPRO section (PDF, about 64 MB)",url:"https://www.intelligence.senate.gov/wp-content/uploads/2024/08/sites-default-files-94755-iii.pdf"},
+ {t:"The Senate's history identifies the Southern Christian Leadership Conference and Martin Luther King Jr. among the FBI program's targets.",kind:"Historical summary · Senate retrospective",belongs:"A",source:"Read the Senate's investigation history",url:"https://www.senate.gov/about/powers-procedures/investigations/church-committee.htm"},
+ {t:"The Church Committee report describes the 1971 break-in at the FBI office in Media, Pennsylvania, and the disclosure of documents that helped expose COINTELPRO.",kind:"Historical summary · primary report",belongs:"A",source:"Read Book III: disclosure of COINTELPRO (PDF, about 64 MB)",url:"https://www.intelligence.senate.gov/wp-content/uploads/2024/08/sites-default-files-94755-iii.pdf"},
+ {t:"The Senate's history describes 1975 public hearings examining the FBI's disruption of civil rights and antiwar movements.",kind:"Historical summary · Senate retrospective",belongs:"A",source:"Read the Senate's public hearings account",url:"https://www.senate.gov/about/powers-procedures/investigations/church-committee.htm"},
+ {t:"An anonymous blog says insiders confirm the secret committee meets twice a year, but supplies no names or documents.",kind:"Invented example · unsupported assertion",belongs:"B"},
+ {t:"A video claims the committee controls world events, citing only patterns its narrator says cannot be coincidence.",kind:"Invented example · pattern claim",belongs:"B"},
+ {t:"A viral post calls a hotel photo proof of the committee's meeting. In this invented scenario, the original photo shows a dental convention.",kind:"Invented example · false context",belongs:"B"},
+ {t:"A friend of a friend says they worked for the committee, but offers no checkable details or evidence.",kind:"Invented example · hearsay",belongs:"B"}
+];
+let selected=null,finished=false;
+const state=cards.map((card,id)=>({...card,id,into:null}));
+const $=id=>document.getElementById(id);
+function announce(message){$('status').textContent=state.filter(c=>c.into!==null).length+' of 8 cards filed. '+message;}
+function cardContent(c){return '<span class="tag '+(c.belongs==='A'?'historical':'')+'">'+c.kind+'</span><br><strong>Card '+(c.id+1)+'.</strong> '+c.t;}
+function sourceLink(c){return c.url?'<p><a href="'+c.url+'" target="_blank" rel="noopener noreferrer">'+c.source+' <span class="sr-only">(opens in a new tab)</span></a></p>':'';}
+function render(){
+ $('locker').innerHTML=state.filter(c=>c.into===null).map(c=>'<article class="ev"><button type="button" class="select-card" id="card'+c.id+'" aria-pressed="false" onclick="selectCard('+c.id+')">'+cardContent(c)+'</button>'+sourceLink(c)+'</article>').join('')||'<p class="sub">Locker empty. Review your filing, then file the case.</p>';
+ for(const claim of ['A','B']){
+  $('filed'+claim).innerHTML=state.filter(c=>c.into===claim).map(c=>'<article class="ev placed">'+cardContent(c)+sourceLink(c)+(finished?'':'<button type="button" class="btn ghost" onclick="returnCard('+c.id+')">Return card '+(c.id+1)+' to locker</button>')+'</article>').join('');
+ }
+ syncSelection();$('fileBtn').disabled=finished||state.some(c=>c.into===null);
+}
+function syncSelection(){
+ document.querySelectorAll('.select-card').forEach(b=>b.setAttribute('aria-pressed',String(b.id==='card'+selected)));
+ for(const claim of ['A','B']){$('assign'+claim).disabled=selected===null||finished;$('claim'+claim).classList.toggle('active',selected!==null);}
+}
+function selectCard(id){if(finished||state[id].into!==null)return;selected=selected===id?null:id;syncSelection();announce(selected===null?'Selection cleared.':'Card '+(id+1)+' selected. Choose File under A or File under B.');}
+function assign(claim){
+ if(finished||selected===null||!['A','B'].includes(claim))return;
+ const id=selected;state[id].into=claim;selected=null;render();
+ announce('Card '+(id+1)+' filed under '+claim+'.');
+ const next=state.find(c=>c.into===null);(next?$('card'+next.id):$('fileBtn')).focus();
+}
+function returnCard(id){if(finished||state[id].into===null)return;state[id].into=null;selected=null;render();announce('Card '+(id+1)+' returned. Select it to file again.');$('card'+id).focus();}
+function fileCase(){
+ if(finished||state.some(c=>c.into===null))return;
+ finished=true;const correct=state.filter(c=>c.into===c.belongs).length;
+ const historical=state.filter(c=>c.belongs==='A'&&c.into==='A').length;
+ const invented=state.filter(c=>c.belongs==='B'&&c.into==='B').length;
+ render();$('verdictText').innerHTML='<p><strong>'+correct+' of 8 cards filed under the claim they concern.</strong> '+historical+' of 4 historical summaries are under A; '+invented+' of 4 invented examples are under B.</p><p>Claim A has a checkable record: a congressional investigation and public documents, with later institutional histories. Read the linked material to test the scope of the claim.</p><p>Claim B has no checkable support in this exercise. The four examples were invented to demonstrate assertion, pattern-seeking, false context and hearsay. Filing all four under B identifies what they claim; it does not strengthen their evidence.</p>';
+ $('report').hidden=false;announce('Case filed. Read the report or reset to try again.');$('reportTitle').focus();
+}
+function resetLocker(){state.forEach(c=>c.into=null);selected=null;finished=false;$('report').hidden=true;render();announce('Locker reset. Select a card.');$('card0').focus();}
+render();
+</script>
+</body>
+</html>

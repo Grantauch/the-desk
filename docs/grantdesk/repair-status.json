@@ -2,7 +2,7 @@
   "evidence-locker-publication-2026-11-15": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
-    "scope": "Issue #374: keyboard evidence sorting, revisable filing, explicit invented examples, official source trail and Games discovery.",
+    "scope": "Issue #374: keyboard evidence sorting, revisable filing, explicit invented examples, official source trail and additive student publication with baseline preservation and legacy redirects.",
     "verification_status": "FOCUSED_CHROMIUM_320_390_1440_PASS_CANONICAL_AND_PROTECTED_CI_PENDING",
     "deployment_status": "MERGE_AND_EXACT_PRODUCTION_READBACK_PENDING",
     "field_status": "SCHOOL_CHROMEBOOK_AND_SOURCE_ACCESS_PENDING",

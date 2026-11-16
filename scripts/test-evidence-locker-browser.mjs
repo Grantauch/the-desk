@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 
 // Production mode exercises only this browser-local activity, without accounts.
-const html = await readFile('public/hubs/evidence_locker.html');
+const html = await readFile('public/hubs/evidence-locker.html');
 const server = process.env.EVIDENCE_LOCKER_ORIGIN ? null : createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(html);
 });
@@ -37,7 +37,7 @@ try {
       assert.deepEqual((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()).violations.map(v => v.id), []);
     }
     try {
-      assert.equal((await page.goto(origin + '/hubs/evidence_locker.html')).status(), 200);
+      assert.equal((await page.goto(origin + '/hubs/evidence-locker.html')).status(), 200);
       assert.equal(await page.locator('#locker .select-card').count(), 8);
       assert.equal(await page.locator('#locker a').count(), 4);
       for (const link of await page.locator('#locker a').all()) {
