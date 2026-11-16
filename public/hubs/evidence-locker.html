@@ -64,6 +64,11 @@ a{color:var(--cyan);overflow-wrap:anywhere}a:focus-visible,button:focus-visible,
     <p class="sub">This is a sorting exercise, not a probability meter or a grade. Source quality depends on what a source can establish, its context and independent corroboration. An official document can also be incomplete or self-serving.</p>
     <a href="#lockerHeading" onclick="resetLocker(); return false;">Try another filing</a>
   </section>
+  <aside class="card" aria-labelledby="sourcesTitle">
+    <h2 id="sourcesTitle">Source trail</h2>
+    <p><a href="https://www.intelligence.senate.gov/wp-content/uploads/2024/08/sites-default-files-94755-iii.pdf" target="_blank" rel="noopener noreferrer">Church Committee final report, Book III (1976, PDF, about 64 MB; opens in a new tab)</a>. See the COINTELPRO section for the program and its disclosure.</p>
+    <p><a href="https://www.senate.gov/about/powers-procedures/investigations/church-committee.htm" target="_blank" rel="noopener noreferrer">Senate committee history (HTML; opens in a new tab)</a>. A shorter account of the hearings, targets and findings.</p>
+  </aside>
   <noscript><p class="card">Sorting needs JavaScript. The historical source trail is available from the <a href="https://www.senate.gov/about/powers-procedures/investigations/church-committee.htm">Senate's Church Committee history</a>.</p></noscript>
 </main>
 <script>
@@ -82,7 +87,12 @@ const state=cards.map((card,id)=>({...card,id,into:null}));
 const $=id=>document.getElementById(id);
 function announce(message){$('status').textContent=state.filter(c=>c.into!==null).length+' of 8 cards filed. '+message;}
 function cardContent(c){return '<span class="tag '+(c.belongs==='A'?'historical':'')+'">'+c.kind+'</span><br><strong>Card '+(c.id+1)+'.</strong> '+c.t;}
-function sourceLink(c){return c.url?'<p><a href="'+c.url+'" target="_blank" rel="noopener noreferrer">'+c.source+' <span class="sr-only">(opens in a new tab)</span></a></p>':'';}
+function sourceLink(c){
+ if(!c.url)return '';
+ const p=document.createElement('p'),link=document.createElement('a'),hint=document.createElement('span');
+ link.href=c.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=c.source+' ';
+ hint.className='sr-only';hint.textContent='(opens in a new tab)';link.appendChild(hint);p.appendChild(link);return p.outerHTML;
+}
 function render(){
  $('locker').innerHTML=state.filter(c=>c.into===null).map(c=>'<article class="ev"><button type="button" class="select-card" id="card'+c.id+'" aria-pressed="false" onclick="selectCard('+c.id+')">'+cardContent(c)+'</button>'+sourceLink(c)+'</article>').join('')||'<p class="sub">Locker empty. Review your filing, then file the case.</p>';
  for(const claim of ['A','B']){
