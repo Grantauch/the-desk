@@ -25,7 +25,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .round { width: 42px; height: 42px; padding: 0; border-radius: 50%; font-size: 20px; background: #0b1410d9; color: #f4f1e6; border: 2px solid #2b1a12; border-bottom-width: 4px; }
 .chip-btn { background: #fbf5e3; color: #2b1a12; border: 2px solid #2b1a12; border-bottom-width: 4px; border-radius: 999px; padding: 6px 14px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
 .partner-btn { padding: 3px 14px 3px 4px; }
-.partner-btn img { width: 34px; height: 34px; image-rendering: pixelated; }
+.partner-btn img { object-fit: contain; width: 34px; height: 34px; }
 .charm-chip { color: #ffd166; }
 .action { font-weight: bold; font-size: 17px; padding: 10px 18px; border: 2px solid #2b1a12; border-bottom-width: 5px; border-radius: 999px; animation: nudge 1.4s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateY(-3px); } }
@@ -49,7 +49,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .bus-home { color: #2b1a12; font-size: 14px; }
 .partners { display: flex; gap: 6px; flex-wrap: wrap; }
 .partners button { display: flex; align-items: center; gap: 4px; padding: 4px 10px 4px 4px; background: #efe4c4; color: #2b1a12; border-bottom-color: #c9b98f; font-size: 14px; }
-.partners button img { width: 30px; height: 30px; image-rendering: pixelated; }
+.partners button img { object-fit: contain; width: 30px; height: 30px; }
 .partners button[aria-checked="true"] { background: #ffd166; border-bottom-color: #b8892a; outline: 2px solid #2b1a12; }
 /* A saved trainer's party: each Checkling with a Rest button, then the Den with Join buttons. */
 .team-row { display: flex; align-items: center; gap: 4px; }
@@ -60,8 +60,10 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .den { margin-top: 10px; max-height: 32vh; overflow-y: auto; }
 .den .pop-title { margin: 0 0 6px; }
 .den-row { padding: 2px 0; font-size: 14px; }
-.den-row img { width: 26px; height: 26px; image-rendering: pixelated; }
+.den-row img { object-fit: contain; width: 26px; height: 26px; }
 .den-row span { flex: 1; }
+.name-form { display: flex; gap: 4px; flex: 1; }
+.name-form input { flex: 1; min-width: 0; font: inherit; font-size: 14px; padding: 4px 8px; border: 2px solid #2b1a12; border-radius: 8px; background: #fffaf0; color: #2b1a12; }
 .phrases { display: flex; flex-wrap: wrap; gap: 8px; width: 380px; }
 .phrases button { background: #efe4c4; color: #2b1a12; border-bottom-color: #c9b98f; }
 
@@ -103,7 +105,7 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .battle { position: absolute; inset: 0; z-index: 4; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: #0b1410; z-index: 2; }
 .battle[hidden] { display: none; }
 .b-scene { position: relative; overflow: hidden; background: #6f9b45 url(/art/bg-battle-meadow.png) center / cover no-repeat; image-rendering: pixelated; }
-.b-mon { position: absolute; image-rendering: pixelated; transition: opacity 400ms, transform 400ms; }
+.b-mon { position: absolute; transition: opacity 400ms, transform 400ms; }
 .b-foe-mon { right: 13%; top: 10%; height: 38%; }
 .b-foe-mon:where(:not(.sprite-book-pose)) { animation: bob 1.6s steps(2) infinite; }
 .b-me-mon { left: 11%; bottom: -4%; height: 56%; }
@@ -173,7 +175,7 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .care-flag { position: absolute; top: -8px; right: -8px; background: #c0392b; color: #fff; border: 2px solid #2b1a12; border-radius: 999px; font-size: 11px; padding: 1px 6px; white-space: nowrap; }
 .care-pop { width: min(380px, calc(100% - 24px)); max-height: calc(100% - 90px); overflow-y: auto; }
 .care-head { display: flex; gap: 10px; align-items: center; }
-.care-head img { width: 64px; height: 64px; image-rendering: pixelated; }
+.care-head img { object-fit: contain; width: 64px; height: 64px; }
 .care-head .pop-title { margin: 0; font-size: 17px; }
 .care-sub { margin: 2px 0 0; font-size: 13px; color: #6b4a2b; }
 .care-switch { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
@@ -197,7 +199,7 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .care-msg { min-height: 1.3em; margin: 8px 0 0; font-size: 14px; }
 .card-pop { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100% - 24px)); max-height: calc(100% - 120px); overflow-y: auto; z-index: 5; }
 .report-item { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 10px; }
-.report-item img { width: 48px; height: 48px; image-rendering: pixelated; }
+.report-item img { object-fit: contain; width: 48px; height: 48px; }
 .report-item ul { margin: 2px 0 0; padding-left: 18px; font-size: 14px; }
 .report-item li.sick, .report-item li.cond { color: #a5281b; font-weight: bold; }
 .report-item li.good { color: #2f6b3a; }
@@ -209,7 +211,7 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .stone .meta { font-size: 12px; color: #6b5a3e; }
 .hatch-pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .hatch-pick button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; }
-.hatch-pick img { width: 56px; height: 56px; image-rendering: pixelated; }
+.hatch-pick img { object-fit: contain; width: 56px; height: 56px; }
 .bus-row { display: flex; gap: 8px; margin-top: 10px; }
 .bus-row button { flex: 1; }
 

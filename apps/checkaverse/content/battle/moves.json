@@ -70,6 +70,217 @@
         "per": 12
       },
       "detail": "14 damage. After a Recover, the stored heat makes it 26."
+    },
+    "thorn_tangle": {
+      "name": "Thorn tangle",
+      "type": "meadow",
+      "cost": 5,
+      "damage": 11,
+      "restore": 2,
+      "detail": "11 damage and 2 stamina back."
+    },
+    "ripple_count": {
+      "name": "Ripple count",
+      "type": "tide",
+      "cost": 4,
+      "phases": [
+        {
+          "damage": 8
+        },
+        {
+          "damage": 12
+        },
+        {
+          "damage": 16
+        }
+      ],
+      "detail": "Takes turns: 8, then 12, then 16 damage."
+    },
+    "steady_glow": {
+      "name": "Steady glow",
+      "type": "ember",
+      "cost": 4,
+      "damage": 10,
+      "restore": 3,
+      "detail": "10 damage and 3 stamina back."
+    },
+    "moss_coat": {
+      "name": "Moss coat",
+      "type": "stone",
+      "cost": 5,
+      "damage": 6,
+      "shield": 16,
+      "first": true,
+      "detail": "6 damage and a 16 point shield this turn."
+    },
+    "wind_up": {
+      "name": "Wind up",
+      "type": "gear",
+      "cost": 5,
+      "damage": 10,
+      "bonus": {
+        "counter": "wind",
+        "per": 5
+      },
+      "detail": "10 damage, plus 5 for each wind stored by Recover (up to 3)."
+    },
+    "drift": {
+      "name": "Drift",
+      "type": "cosmic",
+      "cost": 4,
+      "damage": 10,
+      "guard": 0.5,
+      "first": true,
+      "detail": "10 damage while hits this turn land at half."
+    },
+    "static_snap": {
+      "name": "Static snap",
+      "type": "storm",
+      "cost": 7,
+      "damage": 24,
+      "detail": "24 damage."
+    },
+    "quiet_wings": {
+      "name": "Quiet wings",
+      "type": "shade",
+      "cost": 5,
+      "phases": [
+        {
+          "damage": 8,
+          "shield": 6
+        },
+        {
+          "damage": 20
+        }
+      ],
+      "detail": "Takes turns: 8 damage with a 6 point shield, then 20 damage."
+    },
+    "figure_eight": {
+      "name": "Figure eight",
+      "type": "tide",
+      "cost": 4,
+      "phases": [
+        {
+          "damage": 9,
+          "shield": 6
+        },
+        {
+          "damage": 15
+        }
+      ],
+      "detail": "Takes turns: 9 damage with a 6 point shield, then 15 damage."
+    },
+    "downhill_roll": {
+      "name": "Downhill roll",
+      "type": "stone",
+      "cost": 6,
+      "damage": 19,
+      "detail": "19 damage."
+    },
+    "gust_leap": {
+      "name": "Gust leap",
+      "type": "storm",
+      "cost": 5,
+      "damage": 12,
+      "first": true,
+      "detail": "12 damage, and it moves before any attack."
+    },
+    "finders_keepers": {
+      "name": "Finders keepers",
+      "type": "shade",
+      "cost": 5,
+      "damage": 11,
+      "bonus": {
+        "counter": "loot",
+        "per": 6
+      },
+      "detail": "11 damage, plus 6 for each hit it blocked (up to 2)."
+    },
+    "stump_stance": {
+      "name": "Stump stance",
+      "type": "meadow",
+      "cost": 5,
+      "damage": 8,
+      "shield": 14,
+      "first": true,
+      "detail": "8 damage and a 14 point shield this turn."
+    },
+    "held_breath": {
+      "name": "Held breath",
+      "type": "tide",
+      "cost": 5,
+      "phases": [
+        {
+          "damage": 0,
+          "shield": 12
+        },
+        {
+          "damage": 22
+        }
+      ],
+      "detail": "Takes turns: a 12 point shield, then 22 damage."
+    },
+    "rumble": {
+      "name": "Rumble",
+      "type": "storm",
+      "cost": 5,
+      "damage": 12,
+      "restore": 2,
+      "detail": "12 damage and 2 stamina back."
+    },
+    "spare_part": {
+      "name": "Spare part",
+      "type": "gear",
+      "cost": 5,
+      "damage": 12,
+      "bonus": {
+        "counter": "parts",
+        "per": 6
+      },
+      "detail": "12 damage, plus 6 for each hit it blocked (up to 2)."
+    },
+    "warm_rock": {
+      "name": "Warm rock",
+      "type": "stone",
+      "cost": 3,
+      "damage": 6,
+      "restore": 5,
+      "guard": 0.5,
+      "first": true,
+      "detail": "6 damage, 5 stamina back, and hits this turn land at half."
+    },
+    "peekaboo": {
+      "name": "Peekaboo",
+      "type": "shade",
+      "cost": 5,
+      "phases": [
+        {
+          "damage": 6,
+          "shield": 10
+        },
+        {
+          "damage": 18
+        }
+      ],
+      "detail": "Takes turns: a 10 point shield with 6 damage, then 18 damage."
+    },
+    "falling_star": {
+      "name": "Falling star",
+      "type": "cosmic",
+      "cost": 6,
+      "damage": 20,
+      "detail": "20 damage."
+    },
+    "stick_pile": {
+      "name": "Stick pile",
+      "type": "ember",
+      "cost": 5,
+      "damage": 10,
+      "bonus": {
+        "counter": "sticks",
+        "per": 7
+      },
+      "detail": "10 damage, plus 7 for each stick gathered by Recover (up to 2)."
     }
   }
 }

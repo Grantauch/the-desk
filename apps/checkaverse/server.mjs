@@ -19,7 +19,7 @@ import { validateWorld } from './public/world.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.15.0';
+const VERSION = '0.16.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -58,7 +58,8 @@ const SAY_GAP_MS = 2000;
 const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 // Battle rules are content. A mistake in them stops the server here, before any student connects.
 const RULES = Battle.loadRules(path.join(HERE, 'content', 'battle'));
-const STARTERS = Object.keys(RULES.species.species);
+// The four a student can hatch and a visitor can borrow. Every other species is caught or grown into.
+const STARTERS = RULES.species.starters;
 const SPECIES = RULES.species.species;
 // Growth is content too: XP per check-in, the level curve, battle XP and the daily limits.
 const GROWTH = Accounts.loadGrowth(path.join(HERE, 'content', 'growth.json'));
@@ -160,6 +161,8 @@ const STORE = Accounts.openStore(db, GROWTH, CARE, {
   wasUp: (d) => Boolean(getMeta.get(`up:${d}`)),
   noSchool: (d) => Boolean(getMeta.get(`noschool:${d}`)),
   speciesName: (id) => SPECIES[id]?.name || id,
+  evolve: (id, level, body) => Battle.nextForm(RULES, id, level, body),
+  root: (id) => Battle.lineRoot(RULES, id),
 });
 const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
@@ -523,6 +526,13 @@ function sendTeam(p) {
   send(p, { t: 'team', team: teamView(p), partner: p.partner, charms: charmsOf(p), saved: Boolean(p.pid), partyMax: GROWTH.partyMax, egg: eggOf(p) });
 }
 const label = (species, nick) => (nick ? `${nick} the ${SPECIES[species].name}` : SPECIES[species].name);
+// A Checkling took its next form. The owner hears it, the team list updates, and the town sees the new partner.
+const evolvedLine = (nick, ev) => `${nick || `Your ${SPECIES[ev.from].name}`} grew into ${/^[aeiou]/i.test(SPECIES[ev.to].name) ? 'an' : 'a'} ${SPECIES[ev.to].name}!`;
+function evolvedNotice(p, nick, ev) {
+  send(p, { t: 'notice', msg: evolvedLine(nick, ev) });
+  sendTeam(p);
+  toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
+}
 // Battle XP for a saved trainer, with a line for the level up and one when the daily cap is reached.
 function payXp(p, cid, amount) {
   if (!p?.pid || !cid || !amount) return;
@@ -530,6 +540,7 @@ function payXp(p, cid, amount) {
   if (!got) return;
   const who = label(got.species, got.nick);
   if (got.xp) send(p, { t: 'notice', msg: got.after > got.before ? `${who} earned ${got.xp} XP and grew to level ${got.after}!` : `${who} earned ${got.xp} XP.` });
+  if (got.evolved) evolvedNotice(p, got.nick, got.evolved);
   if (got.capped) send(p, { t: 'notice', msg: "That is all the battle XP for today. Checking in tomorrow is the best way to grow." });
 }
 
@@ -959,6 +970,7 @@ function join(ws, ticket) {
         const who = label(c.species, c.nick);
         const times = c.days === 1 ? 'one check-in' : `${c.days} check-ins`;
         notes.push(c.after > c.before ? `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP and grew to level ${c.after}!` : `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP.`);
+        if (c.evolved) notes.push(evolvedLine(c.nick, c.evolved));
       }
     } else {
       notes.push(TICKET_TROUBLE[checked.why] || TICKET_TROUBLE.default);
@@ -1155,6 +1167,15 @@ function handleMessage(p, msg, now) {
       { const pt = STORE.trainer(p.pid).partner; p.partner = pt ? `k${pt}` : ''; }
       sendTeam(p);
       if (was !== p.partner) toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
+      return;
+    }
+    case 'nick': {
+      // Students name Checklings they caught or hatched from an egg. Names only ever go to their owner's screen.
+      if (!p.pid || typeof msg.v !== 'string' || !/^k\d+$/.test(msg.v) || typeof msg.name !== 'string') return;
+      const nick = msg.name.replace(/[^A-Za-z0-9 '\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
+      const done = STORE.nickname(p.pid, Number(msg.v.slice(1)), nick);
+      if (done.msg) send(p, { t: 'notice', msg: done.msg });
+      if (done.ok) sendTeam(p);
       return;
     }
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));

@@ -1400,6 +1400,30 @@
     });
     return b;
   }
+  // Caught and egg Checklings can be named. The first Checkling keeps its Check-In name.
+  function nameButton(c, row) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'den-btn';
+    b.textContent = 'Name';
+    b.title = `Give ${c.nick || `your ${c.name}`} a name`;
+    b.disabled = Boolean(bt);
+    b.addEventListener('click', (e) => {
+      if (e.detail) b.blur();
+      const form = document.createElement('form'); form.className = 'name-form';
+      const input = document.createElement('input');
+      Object.assign(input, { type: 'text', maxLength: 14, value: c.nick || '', placeholder: c.name, autocomplete: 'off', spellcheck: false });
+      input.setAttribute('aria-label', `Name for your ${c.name}`);
+      input.setAttribute('data-desk-skip', '');
+      const ok = document.createElement('button'); ok.type = 'submit'; ok.className = 'den-btn'; ok.textContent = 'Save';
+      form.append(input, ok);
+      form.addEventListener('submit', (ev) => { ev.preventDefault(); send({ t: 'nick', v: c.v, name: input.value }); });
+      input.addEventListener('keydown', (ev) => { ev.stopPropagation(); if (ev.key === 'Escape') buildPartners(); });
+      row.replaceChildren(form);
+      input.focus();
+      input.select();
+    });
+    return b;
+  }
   function denButton(c, toParty, can) {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'den-btn';
@@ -1591,7 +1615,9 @@
     for (const c of party) {
       if (!saved) { box.appendChild(partnerButton(c)); continue; }
       const row = document.createElement('div'); row.className = 'team-row';
-      row.append(partnerButton(c), denButton(c, false, party.length > 1));
+      row.append(partnerButton(c));
+      if (!c.hatched) row.append(nameButton(c, row));
+      row.append(denButton(c, false, party.length > 1));
       box.appendChild(row);
     }
     const denBox = $('den');
@@ -1604,7 +1630,9 @@
         const row = document.createElement('div'); row.className = 'team-row den-row';
         const im = document.createElement('img'); im.src = `/art/front-${c.species}.png`; im.alt = '';
         const name = document.createElement('span'); name.textContent = shortName(c);
-        row.append(im, name, denButton(c, true, party.length < partyMax));
+        row.append(im, name);
+        if (!c.hatched) row.append(nameButton(c, row));
+        row.append(denButton(c, true, party.length < partyMax));
         denBox.appendChild(row);
       }
     }
@@ -1645,7 +1673,7 @@
     drawSides(m.view, true);
     const n = nearSide(), foe = m.view.sides[1 - n], mine = m.view.sides[n];
     if (bt.watching) say(`You are watching ${m.view.sides[0].name} and ${m.view.sides[1].name}.`);
-    else if (bt.wild) { say(`A wild ${foe.speciesName} jumped out of the ${(bt.zone || 'grass').toLowerCase()}! Go, ${mine.speciesName}!`); tipSoon('wild-battle', 1600); }
+    else if (bt.wild) { say(`A wild ${foe.speciesName} jumped out of ${/^route/i.test(bt.zone || '') ? bt.zone : `the ${(bt.zone || 'grass').toLowerCase()}`}! Go, ${mine.speciesName}!`); tipSoon('wild-battle', 1600); }
     else { say(`${foe.name} sent out ${foe.speciesName}! ${m.intro || ''} Go, ${mine.speciesName}!`); tipSoon('battle', 1600); }
     buildMoves(); buildPartners();
     if (!bt.watching) setTimeout(() => bMoves.querySelector('button:not(:disabled)')?.focus({ preventScroll: true }), 50);
@@ -1661,17 +1689,12 @@
     el.style.width = `${pct}%`;
     if (hp) { el.classList.toggle('mid', pct <= 50 && pct > 20); el.classList.toggle('low', pct <= 20); }
   }
-  // Battle-only Wave 2 poses. The original front and back URLs still serve
+  // Battle-only Sprite Book poses, for every species. The original front and back URLs still serve
   // the map, partner screens, older clients, and the last image fallback.
-  const battlePoseSpecies = new Set(['mochi', 'bolt', 'ember']);
   function battlePose(image, species, face) {
     const original = `/art/${face}-${species}.png`;
     image.onerror = null;
-    image.classList.toggle('sprite-book-pose', battlePoseSpecies.has(species));
-    if (!battlePoseSpecies.has(species)) {
-      image.src = original;
-      return;
-    }
+    image.classList.add('sprite-book-pose');
     const still = `/art/${face}-${species}-v2.png`;
     image.onerror = () => {
       if (image.getAttribute('src') !== still) image.src = still;

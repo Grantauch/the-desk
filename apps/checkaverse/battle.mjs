@@ -73,6 +73,35 @@ export function checkRules(rules) {
       if (b && !(s.traits || []).some((tr) => tr.add === b.counter)) bad(`species ${id} move ${mv} spends ${b.counter} but nothing fills it`);
     }
   }
+  const all = species.species;
+  if (!Array.isArray(species.starters) || species.starters.length < 1) bad('starters must list at least one species');
+  for (const id of species.starters) if (!all[id]) bad(`starter ${id} is not a species`);
+  const CARE = ['kept', 'round', 'scrappy'];
+  for (const k of ['round', 'scrappy']) {
+    for (const r of species.careForms?.[k] || []) {
+      if (!['weight', 'mood', 'health', 'fullness', 'hygiene'].includes(r.stat)) bad(`careForms.${k} watches unknown stat ${r.stat}`);
+      if (!(Number.isFinite(r.atLeast) || Number.isFinite(r.atMost))) bad(`careForms.${k} needs atLeast or atMost`);
+    }
+  }
+  const from = new Map();
+  for (const [id, s] of Object.entries(all)) {
+    if (s.evolves === undefined) continue;
+    if (!Array.isArray(s.evolves) || !s.evolves.length) bad(`species ${id} evolves must be a list`);
+    const morph = s.evolves.some((e) => e.care);
+    if (morph && (s.evolves.length !== 3 || CARE.some((c) => !s.evolves.some((e) => e.care === c)))) bad(`species ${id} morph needs exactly one kept, round and scrappy form`);
+    if (!morph && s.evolves.length !== 1) bad(`species ${id} evolves into one form by level`);
+    if (new Set(s.evolves.map((e) => e.level)).size !== 1) bad(`species ${id} forms must share one change level`);
+    for (const e of s.evolves) {
+      if (!all[e.into] || e.into === id) bad(`species ${id} evolves into unknown species ${e.into}`);
+      if (!(Number.isInteger(e.level) && e.level >= 2 && e.level <= 50)) bad(`species ${id} evolves at level 2 to 50`);
+      if (from.has(e.into)) bad(`species ${e.into} grows from two species`);
+      from.set(e.into, id);
+    }
+  }
+  for (const id of Object.keys(all)) {
+    const seen = new Set([id]);
+    for (let at = from.get(id); at; at = from.get(at)) { if (seen.has(at)) bad(`species ${id} evolves in a circle`); seen.add(at); }
+  }
   if (!(settings.turnSeconds >= 5 && settings.turnSeconds <= 120)) bad('turnSeconds must be 5 to 120');
   if (!(settings.maxTurns >= 5)) bad('maxTurns must be at least 5');
   if (!(settings.roll[0] > 0 && settings.roll[0] <= settings.roll[1] && settings.roll[1] <= 1.2)) bad('roll must be a low and high multiplier');
@@ -97,6 +126,28 @@ export function statsAt(rules, speciesId, level) {
   const out = {};
   for (const st of STATS) out[st] = Math.round(s.base[st] + s.growth[st] * level);
   return out;
+}
+
+// The first form of a line: Thicket and Elderbough both answer mochi.
+export function lineRoot(rules, speciesId) {
+  const all = rules.species.species;
+  let id = speciesId;
+  for (let n = 0; n < 10; n++) {
+    const prev = Object.keys(all).find((k) => (all[k].evolves || []).some((e) => e.into === id));
+    if (!prev) return id;
+    id = prev;
+  }
+  return id;
+}
+// What a Checkling becomes at this level, or null. A morph reads its body: round first, then scrappy, else kept.
+export function nextForm(rules, speciesId, level, body) {
+  const ev = rules.species.species[speciesId]?.evolves;
+  if (!ev || level < ev[0].level) return null;
+  if (!ev[0].care) return ev[0].into;
+  const hit = (r) => Number.isFinite(body?.[r.stat]) && (Number.isFinite(r.atLeast) ? body[r.stat] >= r.atLeast : body[r.stat] <= r.atMost);
+  const forms = rules.species.careForms || {};
+  const care = (forms.round || []).some(hit) ? 'round' : (forms.scrappy || []).some(hit) ? 'scrappy' : 'kept';
+  return ev.find((e) => e.care === care).into;
 }
 
 export function typeMultiplier(rules, moveType, defenderType) {
