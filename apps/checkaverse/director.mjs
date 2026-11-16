@@ -32,7 +32,7 @@ export function checkLine(text, D, allowedNames) {
   const words = t.split(/\s+/);
   for (let i = 1; i < words.length; i++) {
     const w = words[i].replace(/[^A-Za-z']/g, '');
-    if (/^[A-Z]/.test(w) && !/[.!?]$/.test(words[i - 1]) && w !== 'I' && !allowedNames.has(w.replace(/'s$/, ''))) return `unknown name ${w}`;
+    if (/^[A-Z]/.test(w) && !/[.!?]$/.test(words[i - 1]) && !/^I('m|'ve|'ll|'d)?$/.test(w) && !allowedNames.has(w.replace(/'s$/, ''))) return `unknown name ${w}`;
   }
   return '';
 }

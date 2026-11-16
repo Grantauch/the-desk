@@ -22,7 +22,7 @@ import { validateWorld } from './public/world.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.20.0';
+const VERSION = '0.21.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -74,6 +74,11 @@ const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HER
 // Learning and forgetting moves, and the gym's mini games (content/learnsets.json).
 const LEARN = Moves.loadLearnsets(path.join(HERE, 'content', 'learnsets.json'), RULES);
 const GYM_MIN_MS = Number(process.env.CHECKAVERSE_GYM_MIN_MS || LEARN.gym.minRoundMs); // tests only
+// Real Mt. Morris weather and the teacher's reward events (content/weather.json, content/events.json).
+const WEATHER = readContent('weather.json');
+const EVENTS = readContent('events.json');
+for (const [k, w] of Object.entries(WEATHER.kinds)) for (const t of Object.keys(w.boost)) if (!RULES.types.types[t]) throw new Error(`weather.json: ${k} boosts unknown type ${t}`);
+for (const sp of EVENTS.kinds.rare.species) if (!RULES.species.species[sp]) throw new Error(`events.json: unknown rare species ${sp}`);
 // Residents battle each other around town (content/npc-battles.json).
 const SPARS = (() => {
   const c = process.env.CHECKAVERSE_SPARS ? JSON.parse(fs.readFileSync(process.env.CHECKAVERSE_SPARS, 'utf8')) : readContent('npc-battles.json');
@@ -684,7 +689,8 @@ function evolvedNotice(p, nick, ev) {
 // Battle XP for a saved trainer, with a line for the level up and one when the daily cap is reached.
 function payXp(p, cid, amount) {
   if (!p?.pid || !cid || !amount) return;
-  const got = STORE.battleXp(p.pid, cid, amount);
+  const double = eventsNow().doubleXp ? EVENTS.kinds.doubleXp.xp : 1;
+  const got = STORE.battleXp(p.pid, cid, amount * double, double);
   if (!got) return;
   const who = label(got.species, got.nick);
   if (got.xp) send(p, { t: 'notice', msg: got.after > got.before ? `${who} earned ${got.xp} XP and grew to level ${got.after}!` : `${who} earned ${got.xp} XP.` });
@@ -816,7 +822,7 @@ function rollSpecies(table) {
   return Object.keys(table)[0];
 }
 function startWild(p, zone) {
-  const species = rollSpecies(zone.table);
+  const species = rollSpecies(wildTable(zone.table));
   const level = zone.levels[0] + Math.floor(Math.random() * (zone.levels[1] - zone.levels[0] + 1));
   const id = nextBattle++;
   const seed = crypto.randomInt(0, 2 ** 31);
@@ -856,7 +862,7 @@ function handleCharm(p) {
   }
   const left = charmsOf(p);
   const wildOne = b.state.sides[1];
-  const bonus = b.ghost ? (GHOSTS.tempers[b.ghost.temper]?.catch || 0) : 0;
+  const bonus = (b.ghost ? (GHOSTS.tempers[b.ghost.temper]?.catch || 0) : 0) + (eventsNow().festival ? EVENTS.kinds.festival.catchBonus : 0);
   const ok = Math.random() < (CATCH_OVERRIDE !== null ? CATCH_OVERRIDE : Math.max(0.03, Math.min(0.97, catchChance(wildOne) + bonus)));
   const shakes = ok ? 3 : Math.floor(Math.random() * 3);
   const events = [{ k: 'charm', ok, shakes, left }];
@@ -990,6 +996,65 @@ function gymMessage(p, msg, now) {
   }
 }
 
+// ---------- weather ----------
+// The sky over the Checkaverse follows Mt. Morris. CHECKAVERSE_WEATHER=off keeps it clear, and naming a kind
+// (rain, snow, ...) pins it, for tests.
+let weather = { kind: 'clear', tempF: null, at: 0 };
+const kindOfCode = (code) => Object.entries(WEATHER.codes).find(([, list]) => list.includes(code))?.[0] || 'cloudy';
+const weatherView = () => ({ t: 'weather', kind: weather.kind, label: WEATHER.kinds[weather.kind].label, tempF: weather.tempF, line: WEATHER.kinds[weather.kind].line });
+async function refreshWeather() {
+  const pin = process.env.CHECKAVERSE_WEATHER;
+  if (pin === 'off') return;
+  let next;
+  if (pin && WEATHER.kinds[pin]) next = { kind: pin, tempF: 40, at: Date.now() };
+  else {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER.lat}&longitude=${WEATHER.lon}&current=weather_code,temperature_2m&temperature_unit=fahrenheit&timezone=America%2FDetroit`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      const j = await res.json();
+      next = { kind: kindOfCode(j.current.weather_code), tempF: Math.round(j.current.temperature_2m), at: Date.now() };
+    } catch (err) { log('weather lookup failed', err.message); return; }
+  }
+  const changed = next.kind !== weather.kind || next.tempF !== weather.tempF;
+  weather = next;
+  if (changed) { log('weather', weather.kind, weather.tempF ?? ''); toAll(weatherView()); }
+}
+refreshWeather();
+setInterval(refreshWeather, WEATHER.refreshMinutes * 60_000).unref();
+
+// ---------- teacher events ----------
+// Rewards the teacher starts for everyone: a festival, double XP, a rare spawn. Kept in meta so a restart keeps them.
+function eventsNow() {
+  const now = Date.now(), out = {};
+  for (const k of Object.keys(EVENTS.kinds)) {
+    const until = Number(getMeta.get(`event:${k}`)?.value || 0);
+    if (until > now) out[k] = until;
+  }
+  return out;
+}
+const eventsView = () => ({ t: 'events', events: Object.entries(eventsNow()).map(([k, until]) => ({ kind: k, label: EVENTS.kinds[k].label, left: until - Date.now() })) });
+function startEvent(kind) {
+  const e = EVENTS.kinds[kind];
+  if (!e) return false;
+  let until;
+  if (e.minutes) until = Date.now() + e.minutes * 60_000;
+  else { const end = new Date(); end.setHours(23, 59, 0, 0); until = end.getTime(); }
+  setMeta.run(`event:${kind}`, String(until));
+  toAll({ t: 'teacher', msg: e.line });
+  toAll(eventsView());
+  log('teacher event', kind, new Date(until).toISOString());
+  return true;
+}
+function stopEvent(kind) { db.prepare('DELETE FROM meta WHERE key = ?').run(`event:${kind}`); toAll(eventsView()); log('teacher event stopped', kind); }
+// A wild table with today's weather and any rare spawn folded in.
+function wildTable(table) {
+  const boost = WEATHER.kinds[weather.kind]?.boost || {};
+  const out = {};
+  for (const [sp, w] of Object.entries(table)) out[sp] = w * (boost[SPECIES[sp]?.type] || 1);
+  if (eventsNow().rare) for (const sp of EVENTS.kinds.rare.species) out[sp] = (out[sp] || 0) + EVENTS.kinds.rare.weight;
+  return out;
+}
+
 // ---------- the Gazette and the mailbox ----------
 // Today's paper, printed from the event log on the first request of the day. The director's checked quotes are
 // added when it is sent, so pausing the director takes them off the page at once.
@@ -998,7 +1063,7 @@ function todayPaper() {
   const paper = NEWS.paper(day) || NEWS.savePaper(day, composeGazette(NEWS_CONTENT.gazette, NEWS.sinceLastPaper(day), [], { day, speciesName: (s) => SPECIES[s]?.name || s }));
   linesCache.at = 0;
   const quotes = liveLines().map((l) => ({ who: residentName(l.who), text: l.text }));
-  return { ...paper, quotes };
+  return { ...paper, quotes, weather: { label: WEATHER.kinds[weather.kind].label, tempF: weather.tempF } };
 }
 function sendPaper(p, fresh) { send(p, { t: 'gazette', paper: todayPaper(), fresh }); }
 // The first ride of a school day: residents' letters arrive, written from this trainer's own Checklings only.
@@ -1221,6 +1286,8 @@ function teacherApi(req, res, action) {
   if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
     return reply(200, { ok: true, paused, noSchool: Boolean(getMeta.get(`noschool:${Accounts.todayKey()}`)), version: VERSION,
+      weather: { kind: weather.kind, label: WEATHER.kinds[weather.kind].label, tempF: weather.tempF },
+      events: Object.entries(EVENTS.kinds).map(([k, e]) => ({ kind: k, label: e.label, minutes: e.minutes, until: eventsNow()[k] || 0 })),
       director: { paused: directorPaused(), lines: NEWS.lines(Accounts.todayKey()).map((l) => ({ ...l, name: residentName(l.who) })) }, players: [...players.values()].map((p) => ({
       id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : isKettle(p.room) ? 'Kettle Creek' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
@@ -1252,6 +1319,11 @@ function teacherApi(req, res, action) {
       if (body.v) setMeta.run(`noschool:${day}`, '1'); else db.prepare('DELETE FROM meta WHERE key = ?').run(`noschool:${day}`);
       log('teacher', body.v ? 'no school today' : 'school today after all');
       return reply(200, { ok: true, noSchool: Boolean(body.v) });
+    }
+    if (action === 'event') {
+      if (typeof body.start === 'string') return reply(startEvent(body.start) ? 200 : 404, { ok: true, events: eventsNow() });
+      if (typeof body.stop === 'string' && EVENTS.kinds[body.stop]) { stopEvent(body.stop); return reply(200, { ok: true, events: eventsNow() }); }
+      return reply(400, { ok: false });
     }
     if (action === 'director') {
       // Pause or restart the overnight director. Paused, it writes nothing and its lines leave the Gazette at once.
@@ -1389,6 +1461,8 @@ function join(ws, ticket) {
   });
   toRoom(p.room, { t: 'join', p: publicView(p) }, p.id);
   if (home) sendGhosts(p);
+  send(p, weatherView());
+  send(p, eventsView());
   if (p.pid) setTimeout(() => { if (players.has(p.id)) sendOffer(p); }, 1500);
   if (p.pid) {
     deliverMail(p);

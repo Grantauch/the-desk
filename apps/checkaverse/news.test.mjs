@@ -23,6 +23,7 @@ const names = new Set(['Nell', 'Bram', 'Mochi']);
 // ---------- the line checks ----------
 assert.equal(checkLine('The roses loved all that rain yesterday.', D, names), '');
 assert.equal(checkLine('Bram and I watered the garden before the bus came.', D, names), '');
+assert.equal(checkLine("The creek was calm, and I'm ready for another day.", D, names), '', "I'm is not a name");
 assert.match(checkLine('That was a stupid battle.', D, names), /blocked/);
 assert.match(checkLine('I hope nobody got sick out there today.', D, names), /blocked/);
 assert.match(checkLine('Did you see Jake catch one yesterday?', D, names), /unknown name/);

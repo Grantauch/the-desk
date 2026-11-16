@@ -705,12 +705,12 @@ export function openStore(db, g, care, clock = {}) {
     result(pid, r) { (r === 'w' ? q.win : r === 'l' ? q.loss : q.draw).run(pid); },
 
     // Battle XP goes to the Checkling that fought, up to the daily cap.
-    battleXp(pid, id, amount) {
+    battleXp(pid, id, amount, capMult = 1) {
       return tx(() => {
         const tr = fresh(pid);
         const r = q.one.get(pid, id);
         if (!tr || !r) return null;
-        const xp = Math.max(0, Math.min(amount, g.dailyBattleXpCap - tr.day_xp));
+        const xp = Math.max(0, Math.min(amount, g.dailyBattleXpCap * capMult - tr.day_xp));
         const before = level(r);
         if (xp) { q.addXp.run(xp, id); q.dayXp.run(xp, pid); }
         const after = level(q.one.get(pid, id));
