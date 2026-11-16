@@ -197,7 +197,7 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .care-actions button small { display: block; font-weight: normal; font-size: 11px; opacity: .85; }
 .care-actions .risky { grid-column: 1 / -1; background: #5b2a6e; }
 .care-msg { min-height: 1.3em; margin: 8px 0 0; font-size: 14px; }
-.card-pop { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100% - 24px)); max-height: calc(100% - 120px); overflow-y: auto; z-index: 5; }
+.card-pop { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100% - 24px)); max-height: calc(100% - 120px); overflow-y: auto; z-index: 7; }
 .report-item { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 10px; }
 .report-item img { object-fit: contain; width: 48px; height: 48px; }
 .report-item ul { margin: 2px 0 0; padding-left: 18px; font-size: 14px; }
@@ -268,3 +268,73 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .fx-flash { inset: 0; }
 .fx-shield { border-radius: 50%; border: 3px solid rgba(200, 235, 255, 0.95); background: radial-gradient(circle, rgba(170, 220, 255, 0.05) 50%, rgba(170, 220, 255, 0.35)); box-shadow: 0 0 20px rgba(150, 210, 255, 0.8); }
 .fx-plus { width: 10px; height: 10px; background: var(--core); clip-path: polygon(38% 0, 62% 0, 62% 38%, 100% 38%, 100% 62%, 62% 62%, 62% 100%, 38% 100%, 38% 62%, 0 62%, 0 38%, 38% 38%); filter: drop-shadow(0 0 4px var(--core)); }
+/* Learning moves. */
+.learn-move { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center; padding: 8px; border: 2px solid #2b1a12; border-radius: 8px; background: #fff; }
+.learn-move b { font-size: 15px; }
+.learn-move small { grid-column: 2; font-size: 12px; color: #4a3424; }
+.learn-move img { width: 22px; height: 22px; grid-row: span 2; image-rendering: pixelated; }
+.learn-new { background: #fff6cf; border-color: #b8860b; }
+.learn-forget { display: grid; gap: 6px; margin: 8px 0; }
+.learn-forget button { text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 0 8px; align-items: center; font-size: 14px; }
+.learn-forget button small { grid-column: 2; font-weight: normal; font-size: 11px; opacity: .85; }
+.learn-forget button img { grid-row: span 2; width: 20px; height: 20px; }
+/* The gym. */
+.gym-pop { width: min(560px, calc(100% - 24px)); }
+.gym-head { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+.gym-head img { width: 56px; height: 56px; object-fit: contain; }
+.gym-head .pop-title { margin: 0; font-size: 18px; }
+.gym-label { margin: 10px 0 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: .06em; color: #6b4a2b; }
+.gym-known { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gym-known .learn-move { padding: 5px 7px; }
+.gym-moves { display: grid; gap: 8px; }
+.gym-move { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; padding: 8px; border: 2px solid #2b1a12; border-radius: 8px; background: #fff; }
+.gym-move .gm-name { font-weight: bold; display: flex; gap: 6px; align-items: center; }
+.gym-move .gm-name img { width: 20px; height: 20px; }
+.gym-move .gm-detail { grid-column: 1; font-size: 12px; color: #4a3424; }
+.gym-move .gm-bar { grid-column: 1; height: 8px; background: #e4dccb; border-radius: 4px; overflow: hidden; }
+.gym-move .gm-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f3a712, #ffd166); }
+.gym-move .gm-pts { grid-column: 1; font-size: 11px; color: #6b4a2b; }
+.gym-move .gm-btns { grid-column: 2; grid-row: 1 / span 4; display: grid; gap: 4px; }
+.gym-move.done { opacity: .6; }
+/* Mini games. */
+.game-overlay { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: #0b1410e6; }
+.game-overlay[hidden] { display: none; }
+.game-card { width: min(640px, calc(100% - 24px)); background: #fbf5e3; color: #2b1a12; border: 3px solid #2b1a12; border-radius: 12px; padding: 16px; box-shadow: 6px 6px 0 #0008; }
+.game-title { margin: 0; font-size: 22px; font-weight: bold; }
+.game-how { margin: 4px 0 10px; font-size: 14px; color: #4a3424; }
+.game-stage { position: relative; height: 240px; border: 3px solid #2b1a12; border-radius: 10px; overflow: hidden; background: radial-gradient(circle at 50% 120%, #3c6b3a, #1d3324 70%); touch-action: none; user-select: none; }
+.game-score { margin: 10px 0 0; font-size: 16px; font-weight: bold; min-height: 1.3em; }
+.gm-track { position: absolute; left: 6%; right: 6%; top: 46%; height: 34px; border-radius: 17px; background: #102018; border: 3px solid #f4f1e6; }
+.gm-zone { position: absolute; top: 0; bottom: 0; background: linear-gradient(#ffe27a, #f3a712); border-radius: 12px; box-shadow: 0 0 14px #ffd166; }
+.gm-zone.core { background: #fff; box-shadow: 0 0 12px #fff; }
+.gm-marker { position: absolute; top: -12px; width: 8px; height: 52px; margin-left: -4px; background: #fff; border: 2px solid #2b1a12; border-radius: 4px; }
+.gm-gauge { position: absolute; left: 50%; bottom: 18px; width: 64px; height: 190px; margin-left: -32px; border: 3px solid #f4f1e6; border-radius: 12px; background: #102018; overflow: hidden; }
+.gm-gauge i { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, #4aa8ff, #bff0ff); }
+.gm-band { position: absolute; left: -2px; right: -2px; background: #ffd16655; border-top: 3px solid #ffd166; border-bottom: 3px solid #ffd166; }
+.gm-hold { position: absolute; right: 14px; bottom: 14px; padding: 14px 18px; font-size: 16px; }
+.gm-arrow { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px; display: grid; place-items: center; font-size: 64px; color: #fff; text-shadow: 0 0 12px #ffd166; }
+.gm-ring { position: absolute; left: 50%; top: 50%; border: 5px solid #ffd166; border-radius: 50%; transform: translate(-50%, -50%); }
+.gm-pads { position: absolute; left: 8px; bottom: 8px; display: grid; grid-template-columns: repeat(4, 48px); gap: 6px; }
+.gm-pads button { height: 44px; font-size: 22px; padding: 0; }
+.gm-target { position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; border: 0; padding: 0; background: radial-gradient(circle, #fff 0 18%, #e5533d 19% 38%, #fff 39% 56%, #e5533d 57%); box-shadow: 0 0 10px #000a; cursor: pointer; }
+.gm-pop { position: absolute; transform: translate(-50%, -50%); font-weight: bold; font-size: 20px; color: #fff; text-shadow: 2px 2px 0 #2b1a12; pointer-events: none; }
+.gm-left { position: absolute; right: 10px; top: 8px; color: #f4f1e6; font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .gm-zone { box-shadow: none; } }
+/* The Checkaverse Gazette: a small newspaper. */
+.paper-pop { width: min(520px, calc(100% - 24px)); background: #f3ecd8; font-family: Georgia, "Times New Roman", serif; }
+.paper-mast { margin: 0; text-align: center; font-size: 26px; font-weight: bold; letter-spacing: .02em; border-bottom: 3px double #2b1a12; padding-bottom: 4px; }
+.paper-date { margin: 4px 0 10px; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: #6b4a2b; }
+.paper-stories article { padding: 8px 0; border-bottom: 1px solid #c9b994; }
+.paper-stories article:first-child h3 { font-size: 21px; }
+.paper-stories h3 { margin: 0 0 4px; font-size: 17px; line-height: 1.2; }
+.paper-stories p { margin: 0; font-size: 14px; line-height: 1.4; }
+.paper-quotes { margin: 10px 0 6px; padding: 8px 10px; background: #e9dfc4; border-left: 4px solid #2b1a12; }
+.paper-quotes h4 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; }
+.paper-quotes p { margin: 0 0 6px; font-size: 14px; font-style: italic; }
+.paper-quotes p b { font-style: normal; }
+/* Mail. */
+.mail-list { display: grid; gap: 8px; margin-bottom: 8px; }
+.mail-list .letter { background: #fffdf5; border: 2px solid #2b1a12; border-radius: 6px; padding: 8px 10px; }
+.mail-list .letter.new { border-color: #b8860b; box-shadow: 0 0 0 2px #ffd166; }
+.mail-list .letter b { display: block; font-size: 13px; margin-bottom: 2px; }
+.mail-list .letter p { margin: 0; font-size: 14px; line-height: 1.4; }

@@ -16,11 +16,13 @@ import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
 import * as Care from './care.mjs';
 import * as Ghosts from './ghosts.mjs';
+import * as Moves from './moves.mjs';
+import { openNews, loadNewsContent, composeGazette, composeMail } from './town-news.mjs';
 import { validateWorld } from './public/world.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.18.0';
+const VERSION = '0.20.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -69,6 +71,9 @@ const CARE = Care.loadCare(path.join(HERE, 'content'));
 for (const id of Object.keys(CARE.epitaphs)) if (!CARE.diseases[id] && !CARE.rare[id]) throw new Error(`epitaphs.json: ${id} is not a cause of death`);
 // Ghosts in the cemetery (content/ghosts.json), checked like everything else.
 const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HERE, 'content', 'ghosts.json'), CARE, RULES);
+// Learning and forgetting moves, and the gym's mini games (content/learnsets.json).
+const LEARN = Moves.loadLearnsets(path.join(HERE, 'content', 'learnsets.json'), RULES);
+const GYM_MIN_MS = Number(process.env.CHECKAVERSE_GYM_MIN_MS || LEARN.gym.minRoundMs); // tests only
 // Residents battle each other around town (content/npc-battles.json).
 const SPARS = (() => {
   const c = process.env.CHECKAVERSE_SPARS ? JSON.parse(fs.readFileSync(process.env.CHECKAVERSE_SPARS, 'utf8')) : readContent('npc-battles.json');
@@ -182,7 +187,22 @@ const STORE = Accounts.openStore(db, GROWTH, CARE, {
   root: (id) => Battle.lineRoot(RULES, id),
   ghostKeep: GHOSTS.keepCloseSchoolDays,
   ghostParty: GHOSTS.partyMax,
+  speciesMoves: (id) => [...(SPECIES[id]?.moves || [])],
+  levelOffers: (id, from, to) => Moves.levelOffers(LEARN, RULES, id, from, to),
+  slots: LEARN.slots,
+  learnMove: (known, move, forget) => Moves.learn(LEARN, RULES, known, move, forget),
 });
+// The town's memory and its news: the event log, the Gazette, residents' letters and the director's checked lines.
+const NEWS = openNews(db, () => Accounts.todayKey());
+const NEWS_CONTENT = loadNewsContent(path.join(HERE, 'content'));
+const directorPaused = () => getMeta.get('director:paused')?.value === '1';
+// The director's live lines are read often (every resident snapshot), so they are kept for half a minute.
+let linesCache = { at: 0, day: '', lines: [] };
+function liveLines() {
+  const day = Accounts.todayKey();
+  if (Date.now() - linesCache.at > 30_000 || linesCache.day !== day) linesCache = { at: Date.now(), day, lines: NEWS.liveLines(day) };
+  return directorPaused() ? [] : linesCache.lines;
+}
 const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
 // ---------- the town and the houses ----------
@@ -228,6 +248,7 @@ function residentSnapshot(p){
   const e=lifeFor(p);if(!e)return null;
   const residents=e.sim.view();
   // A resident in the middle of a battle says so.
+  for(const l of liveLines()){const r=residents.find(x=>x.id===l.who);if(r)r.memory=[...(r.memory||[]).slice(-2),l.text];}
   for(const b of battles.values())if(b.npc&&b.npc.key===lifeKey(p))b.npc.res.forEach((id,i)=>{const r=residents.find(x=>x.id===id);if(r)r.activity={...r.activity,id:'battle',label:`Battling ${residentName(b.npc.res[1-i])}`,action:'idle',tool:'none',speech:`Hold on, I am in the middle of a battle with ${residentName(b.npc.res[1-i])}!`,progress:0};});
   return{residents,marks:[...e.sim.marks.values()],clock:e.sim.clock(),stepMs:LIVES.stepMs/residentRate};
 }
@@ -606,8 +627,9 @@ function partnerSide(p) {
   if (p.pid) {
     const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
     if (!row) return { name: p.name, species: '', none: true };
-    if (Accounts.isGhost(row)) return { name: p.name, species: row.species, level: row.level, cid: row.id, ghost: { fadeEvery: GHOSTS.caughtFadeEvery, move: GHOSTS.ghostMove, replaces: GHOSTS.replaces } };
-    return { name: p.name, species: row.species, level: row.level, cid: row.id, mods: STORE.mods(p.pid, row.id) };
+    const moves = STORE.moves(p.pid, row.id)?.known;
+    if (Accounts.isGhost(row)) return { name: p.name, species: row.species, level: row.level, cid: row.id, moves, ghost: { fadeEvery: GHOSTS.caughtFadeEvery, move: GHOSTS.ghostMove, replaces: GHOSTS.replaces } };
+    return { name: p.name, species: row.species, level: row.level, cid: row.id, moves, mods: STORE.mods(p.pid, row.id) };
   }
   const c = /^c(\d)$/.exec(p.partner);
   const caught = c && p.caught[Number(c[1])];
@@ -654,6 +676,7 @@ const label = (species, nick) => (nick ? `${nick} the ${SPECIES[species].name}` 
 // A Checkling took its next form. The owner hears it, the team list updates, and the town sees the new partner.
 const evolvedLine = (nick, ev) => `${nick || `Your ${SPECIES[ev.from].name}`} grew into ${/^[aeiou]/i.test(SPECIES[ev.to].name) ? 'an' : 'a'} ${SPECIES[ev.to].name}!`;
 function evolvedNotice(p, nick, ev) {
+  if (p.pid) NEWS.record('evolve', { trainer: p.name, from: ev.from, to: ev.to });
   send(p, { t: 'notice', msg: evolvedLine(nick, ev) });
   sendTeam(p);
   toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
@@ -666,6 +689,7 @@ function payXp(p, cid, amount) {
   const who = label(got.species, got.nick);
   if (got.xp) send(p, { t: 'notice', msg: got.after > got.before ? `${who} earned ${got.xp} XP and grew to level ${got.after}!` : `${who} earned ${got.xp} XP.` });
   if (got.evolved) evolvedNotice(p, got.nick, got.evolved);
+  movesNotice(p, got, cid);
   if (got.capped) send(p, { t: 'notice', msg: "That is all the battle XP for today. Checking in tomorrow is the best way to grow." });
 }
 
@@ -735,7 +759,7 @@ function finishBattle(b) {
       if (b.ghost) {
         // Knocked out, caught or slipped away: that ghost is gone for this trainer until tomorrow.
         if (q.pid && (st.reason === 'caught' || st.reason === 'slipped' || st.winner === 0)) STORE.ghostDone(q.pid, b.ghost.key);
-        if (st.reason === 'caught') { payXp(q, b.cids[0], GROWTH.battleXp.caught); log('ghost caught', q.pid.slice(0, 6), b.ghost.key); }
+        if (st.reason === 'caught') { payXp(q, b.cids[0], GROWTH.battleXp.caught); log('ghost caught', q.pid.slice(0, 6), b.ghost.key); NEWS.record('ghost', { trainer: q.name, species: st.sides[1].species }); }
         else if (st.winner === 0) payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
         if (q.pid) { sendTeam(q); sendGhosts(q); }
         return;
@@ -753,6 +777,7 @@ function finishBattle(b) {
     q.record[r]++;
     if (q.pid && st.reason !== 'restart') {
       STORE.result(q.pid, r);
+      if (r === 'w' && b.pids[1 - i]) NEWS.record('win', { trainer: q.name });
       if (b.cids[i]) STORE.noteBattle(q.pid, b.cids[i]);
       // Two trainers who both walked away earn nothing.
       if (!(r === 'd' && st.reason === 'timeout')) payXp(q, b.cids[i], GROWTH.battleXp[{ w: 'win', l: 'loss', d: 'draw' }[r]]);
@@ -843,6 +868,7 @@ function handleCharm(p) {
     } else if (p.pid) {
       const kept = STORE.addCatch(p.pid, wildOne.species, wildOne.level, b.zone);
       b.kept = kept ? (kept.party ? 'party' : 'den') : '';
+      if (kept) NEWS.record('catch', { trainer: p.name, species: wildOne.species, level: wildOne.level });
     } else if (p.caught.length < 6) p.caught.push({ species: wildOne.species, level: wildOne.level });
     sendTeam(p);
     b.log.push(['charm', 'caught']);
@@ -890,6 +916,114 @@ function stopWatching(p) {
   if (!p.watching) return;
   battles.get(p.watching)?.watchers.delete(p.id);
   p.watching = 0;
+}
+
+// ---------- learning moves and the gym ----------
+const moveInfo = (id) => { const m = RULES.moves[id]; return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, free: m.cost === 0 }; };
+// After a level up: a line for each move learned on the spot, and the learn card for one that needs a slot.
+function movesNotice(p, got, cid) {
+  if (!got) return;
+  const who = label(got.species, got.nick);
+  for (const mv of got.learned || []) send(p, { t: 'notice', msg: `${who} learned ${RULES.moves[mv].name}!` });
+  if (got.offered?.length) sendOffer(p);
+}
+function sendOffer(p) {
+  if (!p.pid) return;
+  const w = STORE.offersWaiting(p.pid)[0];
+  if (!w) return;
+  const row = STORE.get(p.pid, w.id), st = STORE.moves(p.pid, w.id);
+  send(p, { t: 'learn_offer', source: 'offer', id: `k${w.id}`, name: label(row.species, row.nick), species: row.species, move: moveInfo(w.offers[0]), known: st.known.map(moveInfo) });
+}
+// The gym is the arena in the Checkaverse. A trainer standing by it can train.
+const ARENA = TOWN.props.find((pr) => pr.sign === 'arena');
+const nearArena = (p) => p.room === 'town' && ARENA && p.x >= ARENA.f[0] - 3 && p.x < ARENA.f[0] + ARENA.f[2] + 3 && p.y >= ARENA.f[1] - 3 && p.y < ARENA.f[1] + ARENA.f[3] + 3;
+function gymView(p) {
+  const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
+  const g = STORE.gym(p.pid, LEARN.gym.dailyRounds);
+  if (!row) return { t: 'gym', open: true, none: true, roundsLeft: g.roundsLeft };
+  const known = STORE.moves(p.pid, row.id).known;
+  const moves = LEARN.gym.moves.filter((m) => Moves.canLearn(LEARN, RULES, row.species, m.move)).map((m) => ({
+    ...moveInfo(m.move), cost: RULES.moves[m.move].cost, price: m.cost, points: g.points[m.move] || 0, game: m.game, gameName: LEARN.games[m.game].name,
+    minLevel: m.minLevel, known: known.includes(m.move), ready: row.level >= m.minLevel,
+  }));
+  return { t: 'gym', open: true, id: `k${row.id}`, name: label(row.species, row.nick), species: row.species, level: row.level, known: known.map(moveInfo), moves, roundsLeft: g.roundsLeft, slots: LEARN.slots };
+}
+function gymMessage(p, msg, now) {
+  if (!p.pid) return send(p, { t: 'notice', msg: 'Ride the bus from your Check-In page to train at the gym. Visitors can battle, but training is not saved.' });
+  if (!nearArena(p) || p.battle) return;
+  const view = gymView(p);
+  if (msg.t === 'gym') return send(p, view);
+  const entry = typeof msg.move === 'string' && view.moves?.find((m) => m.id === msg.move);
+  if (msg.t === 'gym_start') {
+    if (!entry || !entry.ready) return send(p, { t: 'notice', msg: 'Your partner is not ready to train for that move yet.' });
+    if (entry.known) return send(p, { t: 'notice', msg: 'Your partner already knows that move.' });
+    if (!view.roundsLeft) return send(p, { t: 'notice', msg: 'That is all the gym training for today. Come back tomorrow.' });
+    p.gymRound = { id: crypto.randomUUID(), move: entry.id, game: entry.game, started: now };
+    return send(p, { t: 'gym_round', round: p.gymRound.id, move: entry, game: entry.game, name: LEARN.games[entry.game].name, how: LEARN.games[entry.game].how, seed: crypto.randomInt(0, 2 ** 31) });
+  }
+  if (msg.t === 'gym_finish') {
+    const r = p.gymRound;
+    if (!r || msg.round !== r.id) return;
+    p.gymRound = null;
+    const score = Math.max(0, Math.min(100, Math.round(Number(msg.score) || 0)));
+    const quick = now - r.started < GYM_MIN_MS;
+    const earned = quick ? 0 : Moves.roundPoints(score);
+    const price = LEARN.gym.moves.find((m) => m.move === r.move).cost;
+    const res = STORE.gymRound(p.pid, r.move, earned, price, LEARN.gym.dailyRounds);
+    if (!res.ok) return send(p, { t: 'notice', msg: res.msg });
+    log('gym round', p.pid.slice(0, 6), r.move, score, earned);
+    send(p, { t: 'gym_result', move: r.move, score, earned, points: res.points, price, roundsLeft: res.roundsLeft, quick });
+    return send(p, gymView(p));
+  }
+  if (msg.t === 'gym_teach') {
+    if (!entry || !entry.ready || entry.known) return;
+    if (entry.points < entry.price) return send(p, { t: 'notice', msg: `Train a little more first: ${entry.points} of ${entry.price} points.` });
+    const cid = Number(view.id.slice(1));
+    const r = STORE.learnMove(p.pid, cid, entry.id, typeof msg.forget === 'string' ? msg.forget : null, 'gym');
+    if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+    STORE.gymSpend(p.pid, entry.id, entry.price);
+    log('gym taught', p.pid.slice(0, 6), entry.id);
+    NEWS.record('learn', { trainer: p.name, species: view.species, move: entry.id });
+    send(p, { t: 'notice', msg: `${view.name} learned ${entry.name}!` });
+    sendTeam(p);
+    return send(p, gymView(p));
+  }
+}
+
+// ---------- the Gazette and the mailbox ----------
+// Today's paper, printed from the event log on the first request of the day. The director's checked quotes are
+// added when it is sent, so pausing the director takes them off the page at once.
+function todayPaper() {
+  const day = Accounts.todayKey();
+  const paper = NEWS.paper(day) || NEWS.savePaper(day, composeGazette(NEWS_CONTENT.gazette, NEWS.sinceLastPaper(day), [], { day, speciesName: (s) => SPECIES[s]?.name || s }));
+  linesCache.at = 0;
+  const quotes = liveLines().map((l) => ({ who: residentName(l.who), text: l.text }));
+  return { ...paper, quotes };
+}
+function sendPaper(p, fresh) { send(p, { t: 'gazette', paper: todayPaper(), fresh }); }
+// The first ride of a school day: residents' letters arrive, written from this trainer's own Checklings only.
+function deliverMail(p) {
+  if (!p.pid) return;
+  const day = Accounts.todayKey();
+  const items = STORE.items(p.pid);
+  if (items.mailDay !== day) {
+    const team = STORE.team(p.pid), partner = team.find((r) => `k${r.id}` === p.partner) || team.find((r) => r.party);
+    const g = STORE.gym(p.pid, LEARN.gym.dailyRounds);
+    const close = partner && LEARN.gym.moves.filter((m) => Moves.canLearn(LEARN, RULES, partner.species, m.move) && (g.points[m.move] || 0) >= m.cost / 2 && (g.points[m.move] || 0) < m.cost)[0];
+    const ev = partner && SPECIES[partner.species].evolves?.[0];
+    const ctx = {
+      firstDay: STORE.trainer(p.pid)?.created?.slice(0, 10) === day,
+      flag: partner ? careFlag(p.pid, partner) : '', nick: partner ? (partner.nick || SPECIES[partner.species].name) : 'your Checkling', species: partner ? SPECIES[partner.species].name : '',
+      gymClose: close ? { move: RULES.moves[close.move].name, points: g.points[close.move], price: close.cost } : null,
+      gymNever: !Object.keys(g.points).length && g.roundsLeft === LEARN.gym.dailyRounds,
+      frost: Boolean(KETTLE && STORE.cemetery(p.hour, 1).length && (p.kcGhosts || []).some((x) => x.kind === 'grave')),
+      evolveSoon: Boolean(ev && partner.level < ev.level && ev.level - partner.level <= 2),
+    };
+    for (const letter of composeMail(NEWS_CONTENT.mail, ctx, (rule) => NEWS.sentBefore(p.pid, rule))) NEWS.addMail(p.pid, day, letter);
+    STORE.setItem(p.pid, 'mailDay', day);
+  }
+  const box = NEWS.mail(p.pid);
+  send(p, { t: 'mail', letters: box.letters, unread: box.unread });
 }
 
 // ---------- resident battles ----------
@@ -952,6 +1086,7 @@ function finishSpar(b) {
       n.memory.push(text); if (n.memory.length > 6) n.memory.shift(); n.lastCompleted = text;
     });
   }
+  NEWS.record('spar', { a: residentName(b.npc.res[0]), b: residentName(b.npc.res[1]), winner: st.winner === 0 || st.winner === 1 ? residentName(b.npc.res[st.winner]) : '' });
   const end = { t: 'npc_battle_end', id: b.id, room: b.npc.room, winner: st.winner, sides: sparSides(b) };
   for (const q of sparViewers(b.npc.key, b.npc.room)) send(q, end);
 }
@@ -1030,6 +1165,7 @@ const STATIC = {
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
   '/world.js': ['world.js', 'text/javascript; charset=utf-8'],
   '/battle-fx.js': ['battle-fx.js', 'text/javascript; charset=utf-8'],
+  '/gym.js': ['gym.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
   '/teacher': ['teacher.html', 'text/html; charset=utf-8'],
   '/teacher.js': ['teacher.js', 'text/javascript; charset=utf-8'],
@@ -1084,7 +1220,8 @@ function teacherApi(req, res, action) {
   const reply = (code, body) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...SECURITY_HEADERS }); res.end(JSON.stringify(body)); };
   if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
-    return reply(200, { ok: true, paused, noSchool: Boolean(getMeta.get(`noschool:${Accounts.todayKey()}`)), version: VERSION, players: [...players.values()].map((p) => ({
+    return reply(200, { ok: true, paused, noSchool: Boolean(getMeta.get(`noschool:${Accounts.todayKey()}`)), version: VERSION,
+      director: { paused: directorPaused(), lines: NEWS.lines(Accounts.todayKey()).map((l) => ({ ...l, name: residentName(l.who) })) }, players: [...players.values()].map((p) => ({
       id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : isKettle(p.room) ? 'Kettle Creek' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
@@ -1115,6 +1252,14 @@ function teacherApi(req, res, action) {
       if (body.v) setMeta.run(`noschool:${day}`, '1'); else db.prepare('DELETE FROM meta WHERE key = ?').run(`noschool:${day}`);
       log('teacher', body.v ? 'no school today' : 'school today after all');
       return reply(200, { ok: true, noSchool: Boolean(body.v) });
+    }
+    if (action === 'director') {
+      // Pause or restart the overnight director. Paused, it writes nothing and its lines leave the Gazette at once.
+      if (body.v === true) setMeta.run('director:paused', '1'); else if (body.v === false) db.prepare('DELETE FROM meta WHERE key = ?').run('director:paused');
+      if (Number.isInteger(body.drop)) NEWS.setLine(body.drop, 'removed');
+      linesCache.at = 0;
+      log('teacher director', directorPaused() ? 'paused' : 'running', Number.isInteger(body.drop) ? `removed line ${body.drop}` : '');
+      return reply(200, { ok: true, paused: directorPaused(), lines: NEWS.lines(Accounts.todayKey()) });
     }
     if (action === 'say') {
       const msg = String(body.msg || '').replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -1205,6 +1350,7 @@ function join(ws, ticket) {
       Object.assign(p, { pid: t.pid, hour: t.hour, name: tr.name, look: tr.look % LOOKS, partner: tr.partner ? `k${tr.partner}` : '',
         record: { w: tr.wins, l: tr.losses, d: tr.draws }, rerolls: STORE.renamesLeft(t.pid), attendance: t.days });
       p.arrival = { reports: linked.reports, deaths: linked.deaths };
+      for (const d of linked.deaths) NEWS.record('death', { species: d.species, hour: t.hour });
       for (const f of linked.faded || []) notes.push(`${label(f.species, f.nick)} spent too long out of your party and faded back to the cemetery. You might find it there again someday.`);
       const hatched = STORE.team(t.pid).find((r) => r.hatched);
       if (linked.created && hatched) notes.push(KETTLE ? `Welcome to Kettle Creek, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus home with you.` : `Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
@@ -1213,7 +1359,8 @@ function join(ws, ticket) {
         const who = label(c.species, c.nick);
         const times = c.days === 1 ? 'one check-in' : `${c.days} check-ins`;
         notes.push(c.after > c.before ? `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP and grew to level ${c.after}!` : `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP.`);
-        if (c.evolved) notes.push(evolvedLine(c.nick, c.evolved));
+        if (c.evolved) { notes.push(evolvedLine(c.nick, c.evolved)); NEWS.record('evolve', { trainer: tr.name, from: c.evolved.from, to: c.evolved.to }); }
+        for (const mv of c.learned || []) notes.push(`${label(c.species, c.nick)} learned ${RULES.moves[mv].name}!`);
       }
     } else {
       notes.push(TICKET_TROUBLE[checked.why] || TICKET_TROUBLE.default);
@@ -1242,6 +1389,12 @@ function join(ws, ticket) {
   });
   toRoom(p.room, { t: 'join', p: publicView(p) }, p.id);
   if (home) sendGhosts(p);
+  if (p.pid) setTimeout(() => { if (players.has(p.id)) sendOffer(p); }, 1500);
+  if (p.pid) {
+    deliverMail(p);
+    // The paper opens by itself on the first ride of the day.
+    if (STORE.items(p.pid).paperDay !== Accounts.todayKey()) { STORE.setItem(p.pid, 'paperDay', Accounts.todayKey()); setTimeout(() => { if (players.has(p.id)) sendPaper(p, true); }, 2500); }
+  }
   sendPlots();
   if (!plot && !home) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
   // One card on arrival, so the welcome is not wiped by the growth line a moment later.
@@ -1448,6 +1601,7 @@ function handleMessage(p, msg, now) {
       const r = STORE.care(p.pid, id, msg.a, row.nick || SPECIES[row.species].name);
       if (r.death) {
         log('death', p.pid.slice(0, 6), row.species, r.death.cause);
+        NEWS.record('death', { species: row.species, hour: p.hour });
         send(p, { t: 'death', name: label(row.species, row.nick), cause: r.death.cause, epitaph: r.death.epitaph, msg: r.msg, egg: eggOf(p) });
         sendTeam(p);
         return toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
@@ -1456,6 +1610,25 @@ function handleMessage(p, msg, now) {
       return sendTeam(p);
     }
     case 'bus': return rideBus(p, msg.to);
+    case 'learn': {
+      if (!p.pid || p.battle || typeof msg.move !== 'string') return;
+      const cid = Number(String(msg.id || '').replace(/^k/, ''));
+      const row = STORE.get(p.pid, cid);
+      if (!row) return;
+      const r = STORE.learnMove(p.pid, cid, msg.move, typeof msg.forget === 'string' ? msg.forget : null, 'offer');
+      if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+      send(p, { t: 'notice', msg: r.skipped ? `${label(row.species, row.nick)} kept its moves.` : `${label(row.species, row.nick)} learned ${RULES.moves[msg.move].name}!` });
+      if (!r.skipped) NEWS.record('learn', { trainer: p.name, species: row.species, move: msg.move });
+      sendTeam(p);
+      return sendOffer(p);
+    }
+    case 'gym': case 'gym_start': case 'gym_finish': case 'gym_teach':
+      p.lastGym = p.lastGym || {};
+      if (now - (p.lastGym[msg.t] || 0) < 250) return;
+      p.lastGym[msg.t] = now;
+      return gymMessage(p, msg, now);
+    case 'gazette': if (now - (p.lastPaper || 0) > 1000) { p.lastPaper = now; sendPaper(p, false); } return;
+    case 'mail_read': if (p.pid) { NEWS.readAll(p.pid); const box = NEWS.mail(p.pid); send(p, { t: 'mail', letters: box.letters, unread: box.unread }); } return;
     case 'stone': if (now - (p.lastStone || 0) > 300) { p.lastStone = now; lookAtStone(p, Number(msg.x), Number(msg.y)); } return;
     case 'apothecary': if (now - (p.lastBrew || 0) > 400) { p.lastBrew = now; apothecary(p, Boolean(msg.brew)); } return;
     case 'hatch': {

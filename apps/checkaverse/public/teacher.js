@@ -3,7 +3,7 @@
   const $ = (id) => document.getElementById(id);
   let key = '';
   try { key = sessionStorage.getItem('checkaverse-teacher') || ''; } catch { /* private mode */ }
-  let paused = false, noSchool = false, timer = 0;
+  let paused = false, noSchool = false, directorPaused = false, timer = 0;
 
   async function api(path, body) {
     const res = await fetch(`/api/teacher/${path}`, {
@@ -25,6 +25,23 @@
     noSchool = Boolean(state.noSchool);
     $('noSchool').textContent = noSchool ? 'Undo: there was school today' : 'No school today';
     $('noSchoolState').textContent = noSchool ? 'Checkling body clocks skip today, like a snow day.' : 'Body clocks count today as a school day if the calendar does.';
+    const dir = state.director || { paused: false, lines: [] };
+    directorPaused = dir.paused;
+    $('director').textContent = dir.paused ? 'Restart the director' : 'Pause the director';
+    $('directorState').textContent = dir.paused ? 'Paused. It writes nothing, and its lines are off the Gazette.' : 'Running. It writes once a night.';
+    const lines = $('lines'); lines.textContent = '';
+    if (!dir.lines.length) { const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 4; td.textContent = 'No lines yet today.'; tr.appendChild(td); lines.appendChild(tr); }
+    for (const l of dir.lines) {
+      const tr = document.createElement('tr');
+      for (const v of [l.name, l.text, l.status]) { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }
+      const td = document.createElement('td');
+      if (l.status === 'live') {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'ghost'; b.textContent = 'Remove';
+        b.addEventListener('click', async () => { try { await api('director', { drop: l.id }); refresh(); } catch (e) { status(e.message, true); } });
+        td.appendChild(b);
+      }
+      tr.appendChild(td); lines.appendChild(tr);
+    }
     if (Date.now() > holdStatus) status(`Live · ${state.players.length} trainer${state.players.length === 1 ? '' : 's'} · server ${state.version}`);
     const list = $('list');
     list.textContent = '';
@@ -68,6 +85,7 @@
 
   $('login').addEventListener('submit', (e) => { e.preventDefault(); key = $('key').value.trim(); start(); });
   $('pause').addEventListener('click', async () => { try { await api('pause', { v: !paused }); refresh(); } catch (e) { status(e.message, true); } });
+  $('director').addEventListener('click', async () => { try { await api('director', { v: !directorPaused }); refresh(); } catch (e) { status(e.message, true); } });
   $('noSchool').addEventListener('click', async () => { try { await api('noschool', { v: !noSchool }); refresh(); } catch (e) { status(e.message, true); } });
   $('say').addEventListener('submit', async (e) => {
     e.preventDefault();

@@ -69,6 +69,51 @@
       <button id="reportClose" type="button" class="ghost">Got it</button>
     </div>
 
+    <div id="learnPop" class="pop card-pop learn-pop" role="dialog" aria-labelledby="learnTitle" hidden>
+      <p class="pop-title" id="learnTitle">Learn a move</p>
+      <div id="learnNew" class="learn-move learn-new"></div>
+      <p class="pop-note" id="learnNote"></p>
+      <div id="learnForget" class="learn-forget"></div>
+      <button id="learnSkip" type="button" class="ghost">Keep the moves it has</button>
+    </div>
+
+    <div id="gymPop" class="pop card-pop gym-pop" role="dialog" aria-labelledby="gymTitle" hidden>
+      <div class="gym-head">
+        <img id="gymImg" alt="">
+        <div><p class="pop-title" id="gymTitle">The Gym</p><p id="gymSub" class="care-sub"></p></div>
+      </div>
+      <p class="gym-label">Moves it knows</p>
+      <div id="gymKnown" class="gym-known"></div>
+      <p class="gym-label">Train for a new move</p>
+      <div id="gymMoves" class="gym-moves"></div>
+      <p class="pop-note" id="gymNote"></p>
+      <button id="gymClose" type="button" class="ghost">Done training</button>
+    </div>
+
+    <div id="gameOverlay" class="game-overlay" role="dialog" aria-labelledby="gameTitle" hidden>
+      <div class="game-card">
+        <p class="game-title" id="gameTitle"></p>
+        <p class="game-how" id="gameHow"></p>
+        <div id="gameStage" class="game-stage"></div>
+        <p class="game-score" id="gameScore" role="status"></p>
+        <div class="bus-row"><button id="gameGo" type="button">Start</button><button id="gameQuit" type="button" class="ghost">Back to the gym</button></div>
+      </div>
+    </div>
+
+    <div id="paperPop" class="pop card-pop paper-pop" role="dialog" aria-labelledby="paperTitle" hidden>
+      <p class="paper-mast" id="paperTitle">The Checkaverse Gazette</p>
+      <p class="paper-date" id="paperDate"></p>
+      <div id="paperStories" class="paper-stories"></div>
+      <div id="paperQuotes" class="paper-quotes" hidden></div>
+      <button id="paperClose" type="button" class="ghost">Fold the paper</button>
+    </div>
+
+    <div id="mailPop" class="pop card-pop mail-pop" role="dialog" aria-labelledby="mailTitle" hidden>
+      <p class="pop-title" id="mailTitle">Your mailbox</p>
+      <div id="mailList" class="mail-list"></div>
+      <button id="mailClose" type="button" class="ghost">Close</button>
+    </div>
+
     <div id="busPop" class="pop card-pop" role="dialog" aria-labelledby="busTitle" hidden>
       <p class="pop-title" id="busTitle">Ride the bus?</p>
       <p class="pop-note" id="busNote"></p>
@@ -95,6 +140,8 @@
       <p id="home" class="pop-note">Finding your plot...</p>
       <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
       <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
+      <button id="paperBtn" type="button" class="ghost">Today's Gazette</button>
+      <button id="mailBtn" type="button" class="ghost" hidden>Mail</button>
       <button id="ranksBtn" type="button" class="ghost">This week's rankings</button>
       <button id="cemeteryBtn" type="button" class="ghost">Class cemetery</button>
       <button id="tipsAgain" type="button" class="ghost">Show tips again</button>
@@ -184,6 +231,7 @@
   </main>
   <script type="module" src="/world.js"></script>
   <script type="module" src="/battle-fx.js"></script>
+  <script type="module" src="/gym.js"></script>
   <script type="module" src="/plaza.js"></script>
 </body>
 </html>

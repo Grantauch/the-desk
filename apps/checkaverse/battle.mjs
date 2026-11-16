@@ -167,6 +167,11 @@ function ghostMoves(rules, list, g) {
   return list.length < 4 ? [...list, g.move] : [...list.slice(0, 3), g.move];
 }
 const movesOf = (rules, f) => f.moves || rules.species.species[f.species].moves;
+// A side must always have a free move so it can never get stuck with no stamina.
+function ensureFree(rules, list) {
+  if (list.some((m) => rules.moves[m].cost === 0)) return list;
+  return list.length < 4 ? [...list, 'guard'] : [...list.slice(0, 3), 'guard'];
+}
 
 // ---------- a battle ----------
 // sides: [{ name, species, level, mods, ghost }, ...]. mods are optional stat multipliers from the Checkling's body.
@@ -191,10 +196,17 @@ export function createBattle(rules, sides, seed) {
         hp: st.hp, maxHp: st.hp, stamina: st.stamina, maxStamina: st.stamina, power: st.power, speed: st.speed,
         counters: {}, phase: {},
       };
+      // A Checkling that has learned or forgotten moves battles with its own list.
+      let known = null;
+      if (Array.isArray(s.moves) && s.moves.length) {
+        if (s.moves.length > 4 || s.moves.some((m) => !rules.moves[m])) throw new Error(`bad move list for ${s.species}`);
+        known = ensureFree(rules, [...new Set(s.moves)]);
+        side.moves = known;
+      }
       if (s.ghost) {
         if (!(Number.isInteger(s.ghost.fadeEvery) && s.ghost.fadeEvery >= 2)) throw new Error('ghost fadeEvery must be 2 or more');
         side.ghost = { fadeEvery: s.ghost.fadeEvery };
-        side.moves = ghostMoves(rules, sp.moves, s.ghost);
+        side.moves = ensureFree(rules, ghostMoves(rules, known || sp.moves, s.ghost));
       }
       return side;
     }),
