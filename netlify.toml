@@ -11,6 +11,20 @@
   # The database rules in docs/robber-barons-online/ protect the data, not this key.
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
 
+# Keep the original Boss Fight baseline in source; send old classroom links to
+# the corrected, learner-paced student edition.
+[[redirects]]
+  from = "/hubs/boss_fight_review.html"
+  to = "/hubs/boss-fight-review.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/boss_fight_review"
+  to = "/hubs/boss-fight-review.html"
+  status = 302
+  force = true
+
 # The original, release-sealed /hubs/bts-americas-most-hated.html remains intact.
 # Route the classroom-friendly URL to its expanded interactive assignment.
 [[redirects]]
