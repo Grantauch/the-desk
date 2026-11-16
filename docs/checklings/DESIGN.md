@@ -89,6 +89,32 @@ The epitaph bank grows with every new cause of death, with several lines per cau
 
 **After a death.** The student gets a new egg at their next check-in. There is no revive. Permanent means permanent.
 
+A ghost may return to the cemetery later as a separate creature that can be revealed, battled and caught. The rules are in Ghosts below.
+
+## Ghosts
+
+**Decided Nov 16, 2026:** some dead Checklings come back as ghosts in the cemetery. A ghost is invisible until a student reveals it, then it can be battled and caught. The Checkling that died stays dead. The ghost is a new creature with its old name and memories, so permanent still means permanent.
+
+**Who returns.** Any Checkling in the cemetery can return, NPC Checklings included. None return in the first five school days after death, so the loss gets to land. After that, each school day carries a small chance its ghost is there.
+
+**Signs.** A hidden ghost leaves clues: frost on its headstone, a candle that flickers with no wind, small footprints that stop at nothing. A student's partner Checkling stares or growls at the spot.
+
+**Revealing.** The Spirit Sight potion lets a student's partner see ghosts for ten minutes. It is brewed at the apothecary cauldron from two grave moss, which only grows on headstones. Each stone gives one moss a day, up to three a day, and a trainer can carry six. Once revealed, the ghost floats in plain view and walking into it starts a battle.
+
+**The ghost battle.** A ghost is Shade type and fights at the level it died at, using the moves it knew in life with Wail, a ghost move, in place of Recover. The battle screen warns a turn before each fade, so a student can Guard through it. How it was treated in life decides its temperament:
+
+| Life it lived | Ghost temperament | In battle |
+| --- | --- | --- |
+| Well cared for, died of age or a gamble | Calm | Fades every fourth turn, easier to catch |
+| Ordinary illness or too much care | Restless | Standard fade, standard catch |
+| Neglected, died of a care ladder condition | Angry | Hits harder, fades every other turn, hardest to catch |
+
+**Catching.** A weakened ghost is caught like any wild Checkling, but only while Spirit Sight lasts. If the potion wears off mid battle, the ghost slips away and the student can try again another day. A ghost of a student's own Checkling can only be caught by that student. Classmates can see it and battle it for XP, but never catch it. Ghosts of NPC and wild Checklings are open to anyone.
+
+**Living with a ghost.** A caught ghost keeps its name and shows Returned on its card. It never eats, never gets sick and cannot die again. It never evolves. Instead of feeding, it needs to be kept close: a ghost left out of the party for ten school days fades back to the cemetery and can be found again later. A student can carry one ghost in the party at a time. A caught ghost fades every fourth turn in battle. Shipped in Checkaverse 0.17.0, with every number in apps/checkaverse/content/ghosts.json.
+
+**Art.** A ghost form is a shader over the species' existing sprite: translucent, a cool glow and a faint trail. No species needs a second sprite for its ghost.
+
 ## Battles
 
 Battles are turn based in the Red/Blue mold: pick a move, both sides act, speed decides who goes first. The stamina system already in Pixel Camp stays. Strike, Guard, Recover and a signature move are a solid base, and the stump that telegraphs its next move is a good training dummy.
@@ -124,6 +150,7 @@ Battles are turn based in the Red/Blue mold: pick a move, both sides act, speed 
 | Stamina draught | Reed fiber, honey | Restores stamina mid battle |
 | Clear tea | Mint, spring water | Cures a cold |
 | Slim broth | Kelp, bitter leaf | Takes off weight over three days |
+| Spirit Sight | Two grave moss | Partner sees ghosts in the cemetery for ten minutes |
 
 **Limits.** Battle XP is capped each day, so check-ins stay the main source of growth. Too many battles in a day causes Overtrained. Knockouts are never permanent.
 
@@ -268,6 +295,46 @@ These are the **approved biome identities and working names**, while exact layou
 5. **Content waves:** distribute the 300 original lines gradually across habitats. Every line needs a distinctive silhouette, personality, care reaction, Field Guide entry, encounter location, battle role, validated stats/moves and approved front/back/idle art. Simulate eight-type matchups, level progression, battle length, stamina economy and care-condition balance before each release.
 
 **Scope protection:** this direction does not authorize immediately exposing twelve unfinished areas, replacing existing maps or school data, changing the first twelve species, softening the risk/death rules, adding free-text chat, adding unapproved mechanics or claiming a feature is student-ready before classroom acceptance. The existing Check-In-first daily loop and Design Bible safety and scope rules continue to govern every implementation phase.
+
+## The living world
+
+**Decided Nov 16, 2026:** the Checkaverse keeps moving when no student is watching, and NPCs think, plan and build. Everything they make is content, never code, so the world can grow for years without the codebase drifting.
+
+**Body: rules every tick.** Each NPC has needs, a daily schedule, a job, a house, money and Checklings of its own. None of this needs AI. It is plain rules in content files, and it alone makes the town feel lived in.
+
+**Brain: the overnight director.** Once a night, after the school day ends, a local model running through Ollama on Grant's PC reads the day's event log. It writes each NPC's mood and goals for tomorrow, plus rumors, grudges, mail and the morning Gazette. It runs in one batch, costs nothing and never slows the server during class. The event log is the only thing the director knows, so the world never contradicts itself.
+
+**Hands: NPCs build.** NPCs propose things from a parts kit: a shop, a bridge to a new wild zone, a festival, a bounty, an item recipe. Each proposal is a blueprint in the same content format the engine already reads, checked against the rules before it is accepted. An accepted building appears as a construction site that grows each day. A builder short on lumber posts a bounty, and every student who brings lumber gets their trainer name on the plaque.
+
+**The Builders' Guild.** Proposals land on a board. Small ones like a new item, rumor or Gazette story go in on their own. Big ones like a building, zone or event wait for Grant or Claude to approve them. A proposal that needs something the engine cannot do yet goes to the AI team board as a feature request.
+
+**The Checkaverse Gazette.** Each morning a short paper prints real headlines from yesterday's log. It is the first thing a student sees after the bus ride and the main daily hook from the living world.
+
+## Living world features
+
+| Feature | What happens | Limit |
+| --- | --- | --- |
+| Real weather | The Checkaverse pulls the day's weather for Mt. Morris. Snow outside means snow in game. A real snow day sets off a blizzard event. | School location only, never a student's |
+| Feral runaways | A Checkling that runs away moves into the wilds instead of vanishing. It turns wild tempered or mean and can be found and caught again. | Only its former owner can recatch it for the first ten school days |
+| Mail | NPCs send letters overnight. Opening the mailbox becomes the first stop each day. | Letters come from the vetted line bank |
+| Multi week mysteries | The director plants a mystery in pieces, spread across NPCs, mail and the Gazette until the class solves it. | One mystery running at a time |
+| Teacher events | Grant can start a festival, a double XP weekend or a rare spawn as a class reward from the teacher dashboard. | Rewards only, never a penalty |
+
+**Later list.** Seasonal calendar events, NPCs that age and retire, gossip about play style, a traveling merchant, rumors that can be false, town elections and legacy eggs.
+
+## Living world guardrails
+
+The director makes the world unpredictable, but it never decides what happens to a student's Checkling.
+
+- No live AI text reaches a student. Every line the director writes passes a word filter and the mock test before it enters the vetted line bank. NPCs speak only from the bank.
+- The Gazette names a trainer only for good news. Deaths, runaways and sickness are reported without a name.
+- NPCs never single out a student. NPC memory holds trainer names and game events only.
+- The director never acts on a student's Checkling. A world event can raise risk, never decide an outcome, and always comes with a warning and a counter.
+- Ghost battles and feral recatches only ever offer a way back.
+- The body clock pause for weekends, breaks, snow days and outages covers every living world system.
+- Director output is content in existing formats. Every number is clamped. The director cannot touch death rules, evolution, XP formulas or the species list.
+- At most one big event and one new construction start per day. NPC merchants trade inside a price band.
+- Big proposals wait for approval. One setting pauses the director. The world is snapshotted before every overnight run. The director runs only outside school hours.
 
 ## Daily return
 

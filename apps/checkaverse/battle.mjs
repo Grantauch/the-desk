@@ -158,8 +158,20 @@ export function typeMultiplier(rules, moveType, defenderType) {
   return 1;
 }
 
+// A ghost knows its line's moves with the ghost move in place of one of them (content/ghosts.json).
+function ghostMoves(rules, list, g) {
+  if (!rules.moves[g.move]) throw new Error(`unknown ghost move ${g.move}`);
+  if (list.includes(g.move)) return [...list];
+  const at = list.indexOf(g.replaces);
+  if (at >= 0) return list.map((m, i) => (i === at ? g.move : m));
+  return list.length < 4 ? [...list, g.move] : [...list.slice(0, 3), g.move];
+}
+const movesOf = (rules, f) => f.moves || rules.species.species[f.species].moves;
+
 // ---------- a battle ----------
-// sides: [{ name, species, level, mods }, ...]. mods are optional stat multipliers from the Checkling's body.
+// sides: [{ name, species, level, mods, ghost }, ...]. mods are optional stat multipliers from the Checkling's body.
+// ghost ({ fadeEvery, move, replaces }) makes the side a Shade type ghost that fades on every fadeEvery-th turn,
+// when attacks pass right through it.
 export function createBattle(rules, sides, seed) {
   return {
     seed: seed >>> 0,
@@ -174,26 +186,31 @@ export function createBattle(rules, sides, seed) {
       const st = statsAt(rules, s.species, level);
       // The body carries into the fight: an obese, scrawny or sick Checkling plays differently (content/care.json).
       for (const k of STATS) st[k] = Math.max(1, Math.round(st[k] * (Number.isFinite(s.mods?.[k]) ? s.mods[k] : 1)));
-      return {
-        name: s.name, species: s.species, level, type: sp.type,
+      const side = {
+        name: s.name, species: s.species, level, type: s.ghost ? 'shade' : sp.type,
         hp: st.hp, maxHp: st.hp, stamina: st.stamina, maxStamina: st.stamina, power: st.power, speed: st.speed,
         counters: {}, phase: {},
       };
+      if (s.ghost) {
+        if (!(Number.isInteger(s.ghost.fadeEvery) && s.ghost.fadeEvery >= 2)) throw new Error('ghost fadeEvery must be 2 or more');
+        side.ghost = { fadeEvery: s.ghost.fadeEvery };
+        side.moves = ghostMoves(rules, sp.moves, s.ghost);
+      }
+      return side;
     }),
   };
 }
 
 export function canUse(rules, battle, side, moveId) {
   const f = battle.sides[side];
-  const sp = rules.species.species[f.species];
-  if (!sp.moves.includes(moveId)) return false;
+  if (!movesOf(rules, f).includes(moveId)) return false;
   return f.stamina >= rules.moves[moveId].cost;
 }
 
 // The fallback when a trainer runs out the clock: the first free defensive move the species knows.
 export function fallbackMove(rules, battle, side) {
-  const sp = rules.species.species[battle.sides[side].species];
-  return sp.moves.find((m) => rules.moves[m].guard !== undefined) || sp.moves.find((m) => rules.moves[m].cost === 0);
+  const list = movesOf(rules, battle.sides[side]);
+  return list.find((m) => rules.moves[m].guard !== undefined) || list.find((m) => rules.moves[m].cost === 0);
 }
 
 function bump(rules, f, on) {
@@ -251,6 +268,12 @@ export function resolveTurn(rules, battle, choices) {
       if (a.m.restore) restore(i, a.m.restore);
     }
     if (!a.step.damage) continue;
+    // A ghost on its fading turn: the attack passes right through it.
+    if (foe.ghost && battle.turn % foe.ghost.fadeEvery === 0) {
+      events.push({ k: 'fade', side: 1 - i });
+      say(`${speciesName(rules, foe)} fades. The attack passes right through!`);
+      continue;
+    }
     let base = a.step.damage;
     if (a.m.bonus) {
       const c = me.counters[a.m.bonus.counter] || 0;
@@ -305,7 +328,8 @@ export function view(rules, battle) {
       return {
         name: f.name, species: f.species, speciesName: sp.name, type: f.type, level: f.level,
         hp: f.hp, maxHp: f.maxHp, stamina: f.stamina, maxStamina: f.maxStamina, counters: { ...f.counters },
-        moves: sp.moves.map((id) => {
+        ghost: Boolean(f.ghost), fadeNext: Boolean(f.ghost && !battle.over && (battle.turn + 1) % f.ghost.fadeEvery === 0),
+        moves: movesOf(rules, f).map((id) => {
           const m = rules.moves[id];
           const next = m.phases ? m.phases[(f.phase[id] || 0) % m.phases.length] : null;
           return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, next: next ? next.damage : null, ok: f.stamina >= m.cost };
