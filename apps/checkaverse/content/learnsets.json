@@ -1,0 +1,302 @@
+{
+  "note": "How Checklings learn moves. A Checkling knows up to slots moves and always keeps at least one free move so it can never get stuck. levelUp lists the moves each type is offered as it grows: with a free slot the move is learned on the spot, otherwise the student picks a move to forget or keeps the old ones. universal moves can be learned by any type. At the gym (the arena in the Checkaverse), each move has a mini game tied to it. Every round scores 0 to 100 and earns score divided by 10 points toward that move, rounded. Once a move has its cost in points it can be taught to any Checkling of the right type at or above minLevel. Rounds are capped each day, and a round shorter than minRoundMs earns nothing.",
+  "slots": 4,
+  "universal": [
+    "quick_jab",
+    "deep_breath"
+  ],
+  "levelUp": {
+    "meadow": [
+      {
+        "level": 8,
+        "move": "vine_lash"
+      },
+      {
+        "level": 16,
+        "move": "soothing_sap"
+      },
+      {
+        "level": 24,
+        "move": "petal_storm"
+      }
+    ],
+    "gear": [
+      {
+        "level": 8,
+        "move": "piston_punch"
+      },
+      {
+        "level": 16,
+        "move": "patch_plate"
+      },
+      {
+        "level": 24,
+        "move": "overclock"
+      }
+    ],
+    "cosmic": [
+      {
+        "level": 8,
+        "move": "comet_dash"
+      },
+      {
+        "level": 16,
+        "move": "star_veil"
+      },
+      {
+        "level": 24,
+        "move": "meteor_shower"
+      }
+    ],
+    "ember": [
+      {
+        "level": 8,
+        "move": "spark_jab"
+      },
+      {
+        "level": 16,
+        "move": "warm_up"
+      },
+      {
+        "level": 24,
+        "move": "flare_burst"
+      }
+    ],
+    "tide": [
+      {
+        "level": 8,
+        "move": "splash_shot"
+      },
+      {
+        "level": 16,
+        "move": "mist_screen"
+      },
+      {
+        "level": 24,
+        "move": "undertow"
+      }
+    ],
+    "stone": [
+      {
+        "level": 8,
+        "move": "pebble_toss"
+      },
+      {
+        "level": 16,
+        "move": "bulwark"
+      },
+      {
+        "level": 24,
+        "move": "avalanche"
+      }
+    ],
+    "storm": [
+      {
+        "level": 8,
+        "move": "zap"
+      },
+      {
+        "level": 16,
+        "move": "tailwind"
+      },
+      {
+        "level": 24,
+        "move": "thunderclap"
+      }
+    ],
+    "shade": [
+      {
+        "level": 8,
+        "move": "shadow_nip"
+      },
+      {
+        "level": 16,
+        "move": "dusk_cloak"
+      },
+      {
+        "level": 24,
+        "move": "gloom_wave"
+      }
+    ]
+  },
+  "gym": {
+    "dailyRounds": 12,
+    "minRoundMs": 6000,
+    "moves": [
+      {
+        "move": "vine_lash",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "soothing_sap",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "petal_storm",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "piston_punch",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "patch_plate",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "overclock",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "comet_dash",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "star_veil",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "meteor_shower",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "spark_jab",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "warm_up",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "flare_burst",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "splash_shot",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "mist_screen",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "undertow",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "pebble_toss",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "bulwark",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "avalanche",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "zap",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "tailwind",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "thunderclap",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "shadow_nip",
+        "cost": 30,
+        "game": "timing",
+        "minLevel": 1
+      },
+      {
+        "move": "dusk_cloak",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 5
+      },
+      {
+        "move": "gloom_wave",
+        "cost": 40,
+        "game": "rhythm",
+        "minLevel": 10
+      },
+      {
+        "move": "quick_jab",
+        "cost": 30,
+        "game": "aim",
+        "minLevel": 1
+      },
+      {
+        "move": "deep_breath",
+        "cost": 30,
+        "game": "hold",
+        "minLevel": 1
+      }
+    ]
+  },
+  "games": {
+    "timing": {
+      "name": "Strike the mark",
+      "how": "A marker sweeps across the bar. Press Space or tap to stop it inside the bright zone. Five tries, each one faster."
+    },
+    "hold": {
+      "name": "Charge up",
+      "how": "Hold Space or hold the button to fill the gauge, then let go inside the band. Five tries."
+    },
+    "rhythm": {
+      "name": "Combo",
+      "how": "Press the arrow that lights up before its ring closes. Ten in a row, each one quicker."
+    },
+    "aim": {
+      "name": "Target practice",
+      "how": "Targets pop up around the ring. Tap or click each one before it vanishes. Twelve targets."
+    }
+  }
+}

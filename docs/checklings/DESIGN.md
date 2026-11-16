@@ -154,6 +154,30 @@ Battles are turn based in the Red/Blue mold: pick a move, both sides act, speed 
 
 **Limits.** Battle XP is capped each day, so check-ins stay the main source of growth. Too many battles in a day causes Overtrained. Knockouts are never permanent.
 
+**Learning moves.** Decided Nov 16, 2026. Every type learns three moves as it grows: a quick typed hit at level 8, a defensive move at level 16 and a big hit at level 24. With a free slot the move is learned on the spot. With four moves already, the student picks one to forget or keeps what it has. A Checkling always keeps at least one free move, so it can never get stuck with no stamina. Two moves, Quick jab and Deep breath, can be learned by any type.
+
+| Type | Level 8 | Level 16 | Level 24 |
+| --- | --- | --- | --- |
+| Meadow | Vine lash | Soothing sap | Petal storm |
+| Gear | Piston punch | Patch plate | Overclock |
+| Cosmic | Comet dash | Star veil | Meteor shower |
+| Ember | Spark jab | Warm up | Flare burst |
+| Tide | Splash shot | Mist screen | Undertow |
+| Stone | Pebble toss | Bulwark | Avalanche |
+| Storm | Zap | Tailwind | Thunderclap |
+| Shade | Shadow nip | Dusk cloak | Gloom wave |
+
+Quick hits cost 3 stamina for 12 damage. Big hits cost 6 for 21. Shields cost 2 for a 15 point shield. Meadow, Ember and Storm's defensive moves are free: a 6 point shield and 3 stamina back. Quick jab costs 2 for 8 damage that lands before anything else. Deep breath is free and gives 6 stamina back.
+
+**The Gym.** The arena in the Checkaverse is the gym. Any move a Checkling's type can learn can also be earned there, early, by playing a mini game tied to that kind of move. Each round scores 0 to 100 and earns the score divided by ten in points toward that move. Once the points reach the move's price (30, or 40 for big hits), the move can be taught to the partner, forgetting one if needed. Gym moves have a minimum level: 1 for quick hits, 5 for defensive moves, 10 for big hits. Training is capped at 12 rounds a day, so check-ins stay the main way to grow.
+
+| Mini game | Move kind | How it plays |
+| --- | --- | --- |
+| Strike the mark | Quick hits | Stop a sweeping marker inside a bright zone. Five tries, each faster |
+| Charge up | Defensive moves, Deep breath | Hold to fill a gauge and let go inside a band. Five tries |
+| Combo | Big hits | Press the arrow that lights up before its ring closes. Ten in a row |
+| Target practice | Quick jab | Tap targets before they vanish. Twelve targets |
+
 ## Collection and evolution
 
 The long term goal is 300 Checkling lines, released in waves of twelve. Collecting them is the reason to keep exploring after the partner is strong.

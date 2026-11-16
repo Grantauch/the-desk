@@ -289,6 +289,201 @@
       "damage": 13,
       "restore": 1,
       "detail": "13 damage and 1 stamina back. Only ghosts know it."
+    },
+    "vine_lash": {
+      "name": "Vine lash",
+      "type": "meadow",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "soothing_sap": {
+      "name": "Soothing sap",
+      "type": "meadow",
+      "cost": 0,
+      "restore": 3,
+      "shield": 6,
+      "first": true,
+      "detail": "A 6 point shield and 3 stamina back. No attack."
+    },
+    "petal_storm": {
+      "name": "Petal storm",
+      "type": "meadow",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "piston_punch": {
+      "name": "Piston punch",
+      "type": "gear",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "patch_plate": {
+      "name": "Patch plate",
+      "type": "gear",
+      "cost": 2,
+      "shield": 15,
+      "first": true,
+      "detail": "A 15 point shield this turn. No attack."
+    },
+    "overclock": {
+      "name": "Overclock",
+      "type": "gear",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "comet_dash": {
+      "name": "Comet dash",
+      "type": "cosmic",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "star_veil": {
+      "name": "Star veil",
+      "type": "cosmic",
+      "cost": 2,
+      "shield": 15,
+      "first": true,
+      "detail": "A 15 point shield this turn. No attack."
+    },
+    "meteor_shower": {
+      "name": "Meteor shower",
+      "type": "cosmic",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "spark_jab": {
+      "name": "Spark jab",
+      "type": "ember",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "warm_up": {
+      "name": "Warm up",
+      "type": "ember",
+      "cost": 0,
+      "restore": 3,
+      "shield": 6,
+      "first": true,
+      "detail": "A 6 point shield and 3 stamina back. No attack."
+    },
+    "flare_burst": {
+      "name": "Flare burst",
+      "type": "ember",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "splash_shot": {
+      "name": "Splash shot",
+      "type": "tide",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "mist_screen": {
+      "name": "Mist screen",
+      "type": "tide",
+      "cost": 2,
+      "shield": 15,
+      "first": true,
+      "detail": "A 15 point shield this turn. No attack."
+    },
+    "undertow": {
+      "name": "Undertow",
+      "type": "tide",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "pebble_toss": {
+      "name": "Pebble toss",
+      "type": "stone",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "bulwark": {
+      "name": "Bulwark",
+      "type": "stone",
+      "cost": 2,
+      "shield": 15,
+      "first": true,
+      "detail": "A 15 point shield this turn. No attack."
+    },
+    "avalanche": {
+      "name": "Avalanche",
+      "type": "stone",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "zap": {
+      "name": "Zap",
+      "type": "storm",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "tailwind": {
+      "name": "Tailwind",
+      "type": "storm",
+      "cost": 0,
+      "restore": 3,
+      "shield": 6,
+      "first": true,
+      "detail": "A 6 point shield and 3 stamina back. No attack."
+    },
+    "thunderclap": {
+      "name": "Thunderclap",
+      "type": "storm",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "shadow_nip": {
+      "name": "Shadow nip",
+      "type": "shade",
+      "cost": 3,
+      "damage": 12,
+      "detail": "12 damage."
+    },
+    "dusk_cloak": {
+      "name": "Dusk cloak",
+      "type": "shade",
+      "cost": 2,
+      "shield": 15,
+      "first": true,
+      "detail": "A 15 point shield this turn. No attack."
+    },
+    "gloom_wave": {
+      "name": "Gloom wave",
+      "type": "shade",
+      "cost": 6,
+      "damage": 21,
+      "detail": "21 damage. Costs a lot of stamina."
+    },
+    "quick_jab": {
+      "name": "Quick jab",
+      "type": null,
+      "cost": 2,
+      "damage": 8,
+      "first": true,
+      "detail": "8 damage that lands before anything else this turn."
+    },
+    "deep_breath": {
+      "name": "Deep breath",
+      "type": null,
+      "cost": 0,
+      "restore": 6,
+      "first": true,
+      "detail": "6 stamina back. No attack."
     }
   }
 }

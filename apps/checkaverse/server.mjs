@@ -16,11 +16,12 @@ import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
 import * as Care from './care.mjs';
 import * as Ghosts from './ghosts.mjs';
+import * as Moves from './moves.mjs';
 import { validateWorld } from './public/world.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.18.0';
+const VERSION = '0.19.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -69,6 +70,9 @@ const CARE = Care.loadCare(path.join(HERE, 'content'));
 for (const id of Object.keys(CARE.epitaphs)) if (!CARE.diseases[id] && !CARE.rare[id]) throw new Error(`epitaphs.json: ${id} is not a cause of death`);
 // Ghosts in the cemetery (content/ghosts.json), checked like everything else.
 const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HERE, 'content', 'ghosts.json'), CARE, RULES);
+// Learning and forgetting moves, and the gym's mini games (content/learnsets.json).
+const LEARN = Moves.loadLearnsets(path.join(HERE, 'content', 'learnsets.json'), RULES);
+const GYM_MIN_MS = Number(process.env.CHECKAVERSE_GYM_MIN_MS || LEARN.gym.minRoundMs); // tests only
 // Residents battle each other around town (content/npc-battles.json).
 const SPARS = (() => {
   const c = process.env.CHECKAVERSE_SPARS ? JSON.parse(fs.readFileSync(process.env.CHECKAVERSE_SPARS, 'utf8')) : readContent('npc-battles.json');
@@ -182,6 +186,10 @@ const STORE = Accounts.openStore(db, GROWTH, CARE, {
   root: (id) => Battle.lineRoot(RULES, id),
   ghostKeep: GHOSTS.keepCloseSchoolDays,
   ghostParty: GHOSTS.partyMax,
+  speciesMoves: (id) => [...(SPECIES[id]?.moves || [])],
+  levelOffers: (id, from, to) => Moves.levelOffers(LEARN, RULES, id, from, to),
+  slots: LEARN.slots,
+  learnMove: (known, move, forget) => Moves.learn(LEARN, RULES, known, move, forget),
 });
 const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
@@ -606,8 +614,9 @@ function partnerSide(p) {
   if (p.pid) {
     const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
     if (!row) return { name: p.name, species: '', none: true };
-    if (Accounts.isGhost(row)) return { name: p.name, species: row.species, level: row.level, cid: row.id, ghost: { fadeEvery: GHOSTS.caughtFadeEvery, move: GHOSTS.ghostMove, replaces: GHOSTS.replaces } };
-    return { name: p.name, species: row.species, level: row.level, cid: row.id, mods: STORE.mods(p.pid, row.id) };
+    const moves = STORE.moves(p.pid, row.id)?.known;
+    if (Accounts.isGhost(row)) return { name: p.name, species: row.species, level: row.level, cid: row.id, moves, ghost: { fadeEvery: GHOSTS.caughtFadeEvery, move: GHOSTS.ghostMove, replaces: GHOSTS.replaces } };
+    return { name: p.name, species: row.species, level: row.level, cid: row.id, moves, mods: STORE.mods(p.pid, row.id) };
   }
   const c = /^c(\d)$/.exec(p.partner);
   const caught = c && p.caught[Number(c[1])];
@@ -666,6 +675,7 @@ function payXp(p, cid, amount) {
   const who = label(got.species, got.nick);
   if (got.xp) send(p, { t: 'notice', msg: got.after > got.before ? `${who} earned ${got.xp} XP and grew to level ${got.after}!` : `${who} earned ${got.xp} XP.` });
   if (got.evolved) evolvedNotice(p, got.nick, got.evolved);
+  movesNotice(p, got, cid);
   if (got.capped) send(p, { t: 'notice', msg: "That is all the battle XP for today. Checking in tomorrow is the best way to grow." });
 }
 
@@ -892,6 +902,77 @@ function stopWatching(p) {
   p.watching = 0;
 }
 
+// ---------- learning moves and the gym ----------
+const moveInfo = (id) => { const m = RULES.moves[id]; return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, free: m.cost === 0 }; };
+// After a level up: a line for each move learned on the spot, and the learn card for one that needs a slot.
+function movesNotice(p, got, cid) {
+  if (!got) return;
+  const who = label(got.species, got.nick);
+  for (const mv of got.learned || []) send(p, { t: 'notice', msg: `${who} learned ${RULES.moves[mv].name}!` });
+  if (got.offered?.length) sendOffer(p);
+}
+function sendOffer(p) {
+  if (!p.pid) return;
+  const w = STORE.offersWaiting(p.pid)[0];
+  if (!w) return;
+  const row = STORE.get(p.pid, w.id), st = STORE.moves(p.pid, w.id);
+  send(p, { t: 'learn_offer', source: 'offer', id: `k${w.id}`, name: label(row.species, row.nick), species: row.species, move: moveInfo(w.offers[0]), known: st.known.map(moveInfo) });
+}
+// The gym is the arena in the Checkaverse. A trainer standing by it can train.
+const ARENA = TOWN.props.find((pr) => pr.sign === 'arena');
+const nearArena = (p) => p.room === 'town' && ARENA && p.x >= ARENA.f[0] - 3 && p.x < ARENA.f[0] + ARENA.f[2] + 3 && p.y >= ARENA.f[1] - 3 && p.y < ARENA.f[1] + ARENA.f[3] + 3;
+function gymView(p) {
+  const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
+  const g = STORE.gym(p.pid, LEARN.gym.dailyRounds);
+  if (!row) return { t: 'gym', open: true, none: true, roundsLeft: g.roundsLeft };
+  const known = STORE.moves(p.pid, row.id).known;
+  const moves = LEARN.gym.moves.filter((m) => Moves.canLearn(LEARN, RULES, row.species, m.move)).map((m) => ({
+    ...moveInfo(m.move), cost: RULES.moves[m.move].cost, price: m.cost, points: g.points[m.move] || 0, game: m.game, gameName: LEARN.games[m.game].name,
+    minLevel: m.minLevel, known: known.includes(m.move), ready: row.level >= m.minLevel,
+  }));
+  return { t: 'gym', open: true, id: `k${row.id}`, name: label(row.species, row.nick), species: row.species, level: row.level, known: known.map(moveInfo), moves, roundsLeft: g.roundsLeft, slots: LEARN.slots };
+}
+function gymMessage(p, msg, now) {
+  if (!p.pid) return send(p, { t: 'notice', msg: 'Ride the bus from your Check-In page to train at the gym. Visitors can battle, but training is not saved.' });
+  if (!nearArena(p) || p.battle) return;
+  const view = gymView(p);
+  if (msg.t === 'gym') return send(p, view);
+  const entry = typeof msg.move === 'string' && view.moves?.find((m) => m.id === msg.move);
+  if (msg.t === 'gym_start') {
+    if (!entry || !entry.ready) return send(p, { t: 'notice', msg: 'Your partner is not ready to train for that move yet.' });
+    if (entry.known) return send(p, { t: 'notice', msg: 'Your partner already knows that move.' });
+    if (!view.roundsLeft) return send(p, { t: 'notice', msg: 'That is all the gym training for today. Come back tomorrow.' });
+    p.gymRound = { id: crypto.randomUUID(), move: entry.id, game: entry.game, started: now };
+    return send(p, { t: 'gym_round', round: p.gymRound.id, move: entry, game: entry.game, name: LEARN.games[entry.game].name, how: LEARN.games[entry.game].how, seed: crypto.randomInt(0, 2 ** 31) });
+  }
+  if (msg.t === 'gym_finish') {
+    const r = p.gymRound;
+    if (!r || msg.round !== r.id) return;
+    p.gymRound = null;
+    const score = Math.max(0, Math.min(100, Math.round(Number(msg.score) || 0)));
+    const quick = now - r.started < GYM_MIN_MS;
+    const earned = quick ? 0 : Moves.roundPoints(score);
+    const price = LEARN.gym.moves.find((m) => m.move === r.move).cost;
+    const res = STORE.gymRound(p.pid, r.move, earned, price, LEARN.gym.dailyRounds);
+    if (!res.ok) return send(p, { t: 'notice', msg: res.msg });
+    log('gym round', p.pid.slice(0, 6), r.move, score, earned);
+    send(p, { t: 'gym_result', move: r.move, score, earned, points: res.points, price, roundsLeft: res.roundsLeft, quick });
+    return send(p, gymView(p));
+  }
+  if (msg.t === 'gym_teach') {
+    if (!entry || !entry.ready || entry.known) return;
+    if (entry.points < entry.price) return send(p, { t: 'notice', msg: `Train a little more first: ${entry.points} of ${entry.price} points.` });
+    const cid = Number(view.id.slice(1));
+    const r = STORE.learnMove(p.pid, cid, entry.id, typeof msg.forget === 'string' ? msg.forget : null, 'gym');
+    if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+    STORE.gymSpend(p.pid, entry.id, entry.price);
+    log('gym taught', p.pid.slice(0, 6), entry.id);
+    send(p, { t: 'notice', msg: `${view.name} learned ${entry.name}!` });
+    sendTeam(p);
+    return send(p, gymView(p));
+  }
+}
+
 // ---------- resident battles ----------
 // Residents battle each other where they stand, so the town feels alive around a trainer. A battle only starts
 // close to a trainer who is outdoors, uses the real battle engine with both sides picking for themselves, and can
@@ -1030,6 +1111,7 @@ const STATIC = {
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
   '/world.js': ['world.js', 'text/javascript; charset=utf-8'],
   '/battle-fx.js': ['battle-fx.js', 'text/javascript; charset=utf-8'],
+  '/gym.js': ['gym.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
   '/teacher': ['teacher.html', 'text/html; charset=utf-8'],
   '/teacher.js': ['teacher.js', 'text/javascript; charset=utf-8'],
@@ -1214,6 +1296,7 @@ function join(ws, ticket) {
         const times = c.days === 1 ? 'one check-in' : `${c.days} check-ins`;
         notes.push(c.after > c.before ? `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP and grew to level ${c.after}!` : `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP.`);
         if (c.evolved) notes.push(evolvedLine(c.nick, c.evolved));
+        for (const mv of c.learned || []) notes.push(`${label(c.species, c.nick)} learned ${RULES.moves[mv].name}!`);
       }
     } else {
       notes.push(TICKET_TROUBLE[checked.why] || TICKET_TROUBLE.default);
@@ -1242,6 +1325,7 @@ function join(ws, ticket) {
   });
   toRoom(p.room, { t: 'join', p: publicView(p) }, p.id);
   if (home) sendGhosts(p);
+  if (p.pid) setTimeout(() => { if (players.has(p.id)) sendOffer(p); }, 1500);
   sendPlots();
   if (!plot && !home) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
   // One card on arrival, so the welcome is not wiped by the growth line a moment later.
@@ -1456,6 +1540,22 @@ function handleMessage(p, msg, now) {
       return sendTeam(p);
     }
     case 'bus': return rideBus(p, msg.to);
+    case 'learn': {
+      if (!p.pid || p.battle || typeof msg.move !== 'string') return;
+      const cid = Number(String(msg.id || '').replace(/^k/, ''));
+      const row = STORE.get(p.pid, cid);
+      if (!row) return;
+      const r = STORE.learnMove(p.pid, cid, msg.move, typeof msg.forget === 'string' ? msg.forget : null, 'offer');
+      if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+      send(p, { t: 'notice', msg: r.skipped ? `${label(row.species, row.nick)} kept its moves.` : `${label(row.species, row.nick)} learned ${RULES.moves[msg.move].name}!` });
+      sendTeam(p);
+      return sendOffer(p);
+    }
+    case 'gym': case 'gym_start': case 'gym_finish': case 'gym_teach':
+      p.lastGym = p.lastGym || {};
+      if (now - (p.lastGym[msg.t] || 0) < 250) return;
+      p.lastGym[msg.t] = now;
+      return gymMessage(p, msg, now);
     case 'stone': if (now - (p.lastStone || 0) > 300) { p.lastStone = now; lookAtStone(p, Number(msg.x), Number(msg.y)); } return;
     case 'apothecary': if (now - (p.lastBrew || 0) > 400) { p.lastBrew = now; apothecary(p, Boolean(msg.brew)); } return;
     case 'hatch': {

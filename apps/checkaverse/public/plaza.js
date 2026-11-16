@@ -254,6 +254,10 @@
         break;
       case 'moss': graveMoss = m.moss; tipSoon('moss', 1500); break;
       case 'apothecary': showApothecary(m); break;
+      case 'learn_offer': showLearn(m); break;
+      case 'gym': showGym(m); break;
+      case 'gym_round': startGame(m); break;
+      case 'gym_result': gameResult(m); break;
       case 'npc_battle': {
         const now = performance.now(), old = spars.get(m.id) || { shots: [], flashes: [] };
         const shots = old.shots.concat((m.moves || []).map((mv) => ({ from: mv.side, type: mv.type, t: now }))).filter((x) => now - x.t < 1200);
@@ -376,6 +380,9 @@
   }
   window.addEventListener('keydown', (e) => {
     if (conversing()) return;
+    // The gym's mini games take the keyboard while they are open; only Escape leaves.
+    if (!$('gameOverlay').hidden) { if (e.code === 'Escape') quitGame(); return; }
+    if (!$('learnPop').hidden || !$('gymPop').hidden) { if (e.code === 'Escape') { $('learnPop').hidden = true; $('gymPop').hidden = true; } return; }
     // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
@@ -532,6 +539,7 @@
     if(key.startsWith('resident-home:')){const h=mapNow()?.residentHomes?.find(h=>h.id===key.slice(14));if(h)return walkTo([h.approach],'u');return;}
     if (key.startsWith('resident:')) return talkTo(key.slice(9));
     if (key === 'notice-board') return askRanks();
+    if (key === 'arena') { if (saved) return send({ t: 'gym' }); }
     if (key.startsWith('place:')) return openPlace(key.slice(6));
     if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) lookStone(st); return; }
     if (key === 'bus-stop-kc' && saved) return askBus('town');
@@ -882,6 +890,137 @@
     if (sway) ctx.restore();
     return py;
   }
+  // ---------- learning moves ----------
+  const moveRow = (mv, tag = 'div', cls = 'learn-move') => {
+    const row = document.createElement(tag); row.className = cls;
+    const icon = mv.type ? typeImg(mv.type) : document.createElement('span');
+    const name = document.createElement('b'); name.textContent = mv.name;
+    const small = document.createElement('small'); small.textContent = `${mv.cost ? `${mv.cost} stamina.` : 'Free.'} ${mv.detail}`;
+    row.append(icon, name, small);
+    return row;
+  };
+  // A Checkling wants a new move. With every slot full, the student picks one to forget or keeps what it has.
+  // onPick(forget) is called with the move to forget, or 'skip'.
+  function openLearn(title, note, move, known, onPick, skipLabel) {
+    closePops(); $('gymPop').hidden = true;
+    $('learnTitle').textContent = title;
+    $('learnNote').textContent = note;
+    const nw = $('learnNew'); nw.textContent = ''; nw.append(...moveRow(move).childNodes);
+    const box = $('learnForget'); box.textContent = '';
+    const free = known.filter((k) => k.free);
+    for (const k of known) {
+      const b = moveRow(k, 'button', 'ghost');
+      b.type = 'button';
+      b.firstChild.nextSibling.textContent = `Forget ${k.name}`;
+      // The last free move stays, so the Checkling can never get stuck with no stamina.
+      if (!move.free && k.free && free.length === 1) { b.disabled = true; b.title = 'It has to keep one free move.'; }
+      b.addEventListener('click', () => { $('learnPop').hidden = true; onPick(k.id); });
+      box.appendChild(b);
+    }
+    $('learnSkip').textContent = skipLabel;
+    $('learnSkip').onclick = () => { $('learnPop').hidden = true; onPick('skip'); };
+    $('learnPop').hidden = false;
+    (box.querySelector('button:not(:disabled)') || $('learnSkip')).focus();
+  }
+  let learnLater = null;
+  function showLearn(m) {
+    if (bt) { learnLater = m; return; }
+    learnLater = null;
+    openLearn(`${m.name} wants to learn ${m.move.name}!`, `It already knows ${m.known.length} moves. Forget one to make room, or keep the moves it has.`,
+      m.move, m.known, (forget) => send({ t: 'learn', id: m.id, move: m.move.id, forget }), `Do not learn ${m.move.name}`);
+  }
+  $('learnPop').addEventListener('pointerdown', (e) => e.stopPropagation());
+
+  // ---------- the gym ----------
+  let gymView = null, gameNow = null;
+  function showGym(m) {
+    if (bt) return;
+    gymView = m;
+    closePops();
+    if (m.none) { toast('You need a Checkling to train at the gym.'); return; }
+    $('gymImg').src = `/art/front-${m.species}.png`;
+    $('gymTitle').textContent = `The Gym · ${m.name}`;
+    $('gymSub').textContent = `Level ${m.level} · ${m.roundsLeft} training ${m.roundsLeft === 1 ? 'round' : 'rounds'} left today`;
+    const known = $('gymKnown'); known.textContent = '';
+    for (const k of m.known) known.appendChild(moveRow(k));
+    const list = $('gymMoves'); list.textContent = '';
+    for (const mv of m.moves) {
+      const row = document.createElement('div'); row.className = `gym-move${mv.known ? ' done' : ''}`;
+      const name = document.createElement('div'); name.className = 'gm-name'; if (mv.type) name.appendChild(typeImg(mv.type)); name.append(mv.name);
+      const detail = document.createElement('div'); detail.className = 'gm-detail'; detail.textContent = `${mv.cost ? `${mv.cost} stamina.` : 'Free.'} ${mv.detail}`;
+      const bar = document.createElement('div'); bar.className = 'gm-bar'; const fill = document.createElement('i'); fill.style.width = `${Math.min(100, (100 * mv.points) / mv.price)}%`; bar.appendChild(fill);
+      bar.setAttribute('role', 'meter'); bar.setAttribute('aria-label', `${mv.name} training`); bar.setAttribute('aria-valuenow', String(mv.points)); bar.setAttribute('aria-valuemax', String(mv.price));
+      const pts = document.createElement('div'); pts.className = 'gm-pts';
+      pts.textContent = mv.known ? 'Already knows it.' : !mv.ready ? `Reach level ${mv.minLevel} to train for it.` : `${mv.points} of ${mv.price} points · mini game: ${mv.gameName}`;
+      const btns = document.createElement('div'); btns.className = 'gm-btns';
+      if (!mv.known && mv.ready) {
+        if (mv.points >= mv.price) {
+          const teach = document.createElement('button'); teach.type = 'button'; teach.textContent = 'Learn it';
+          teach.addEventListener('click', () => teachMove(mv));
+          btns.appendChild(teach);
+        } else {
+          const train = document.createElement('button'); train.type = 'button'; train.className = 'ghost'; train.textContent = 'Train';
+          train.disabled = m.roundsLeft <= 0;
+          train.addEventListener('click', () => send({ t: 'gym_start', move: mv.id }));
+          btns.appendChild(train);
+        }
+      }
+      row.append(name, btns, detail, bar, pts);
+      list.appendChild(row);
+    }
+    $('gymNote').textContent = m.roundsLeft > 0 ? 'Each mini game round earns points toward its move. The better you play, the more you earn.' : 'That is all the training for today. Come back tomorrow.';
+    $('gymPop').hidden = false;
+  }
+  function teachMove(mv) {
+    const m = gymView;
+    if (m.known.length < m.slots) return send({ t: 'gym_teach', move: mv.id });
+    openLearn(`Teach ${m.name} ${mv.name}?`, 'Every move slot is full. Pick a move to forget.', mv, m.known,
+      (forget) => (forget === 'skip' ? send({ t: 'gym' }) : send({ t: 'gym_teach', move: mv.id, forget })), 'Not now');
+  }
+  $('gymClose').addEventListener('click', () => { $('gymPop').hidden = true; });
+  $('gymPop').addEventListener('pointerdown', (e) => e.stopPropagation());
+  // A mini game round: instructions first, then the game, then the score and points.
+  function startGame(m) {
+    $('gymPop').hidden = true;
+    gameNow = { round: m.round, game: m.game, seed: m.seed, move: m.move, playing: null, sent: false };
+    $('gameTitle').textContent = `${m.name} · ${m.move.name}`;
+    $('gameHow').textContent = m.how;
+    $('gameStage').textContent = '';
+    $('gameScore').textContent = '';
+    $('gameGo').hidden = false; $('gameGo').textContent = 'Start';
+    $('gameQuit').textContent = 'Back to the gym';
+    $('gameOverlay').hidden = false;
+    $('gameGo').focus();
+  }
+  $('gameGo').addEventListener('click', () => {
+    const g = gameNow;
+    if (!g || g.playing) return;
+    $('gameGo').hidden = true;
+    $('gameGo').blur();
+    g.playing = window.CheckaverseGym.play($('gameStage'), g.game, g.seed, (sc) => { $('gameScore').textContent = `Score ${sc}`; });
+    g.playing.done.then((score) => {
+      if (gameNow !== g || g.sent) return;
+      g.sent = true;
+      $('gameScore').textContent = `Score ${score}. Checking in with the coach...`;
+      send({ t: 'gym_finish', round: g.round, score });
+    });
+  });
+  function gameResult(m) {
+    if (!gameNow) return;
+    $('gameScore').textContent = m.quick ? 'That round was too quick to count.' : `Score ${m.score}: +${m.earned} points. ${m.points} of ${m.price} toward ${gameNow.move.name}.${m.points >= m.price ? ' Ready to learn it!' : ''}`;
+    $('gameQuit').textContent = 'Back to the gym';
+    gameNow.playing = null;
+  }
+  function quitGame() {
+    const g = gameNow;
+    if (g?.playing) g.playing.stop();
+    gameNow = null;
+    $('gameOverlay').hidden = true;
+    send({ t: 'gym' });
+  }
+  $('gameQuit').addEventListener('click', quitGame);
+  $('gameOverlay').addEventListener('pointerdown', (e) => e.stopPropagation());
+
   // ---------- residents battling each other ----------
   // Each resident's Checkling stands a step toward the other, with a small health bar. Moves fly across as a colored
   // shot, hits flash, and when it ends the winner gets a star for a moment.
@@ -1881,6 +2020,7 @@
     bt = null;
     bEl.hidden = true;
     buildPartners(); watchLine();
+    if (learnLater) setTimeout(() => learnLater && showLearn(learnLater), 300);
   }
   function bar(el, value, max, hp) {
     const pct = Math.max(0, Math.min(100, (100 * value) / Math.max(1, max)));

@@ -225,6 +225,8 @@ export function openStore(db, g, care, clock = {}) {
   if (!cols('trainers').includes('items')) db.exec("ALTER TABLE trainers ADD COLUMN items TEXT NOT NULL DEFAULT '{}'");
   // A caught ghost keeps its own small record: the school days it has spent out of the party, and its temperament.
   if (!cols('checklings').includes('ghost')) db.exec("ALTER TABLE checklings ADD COLUMN ghost TEXT NOT NULL DEFAULT ''");
+  // Moves a Checkling has learned or forgotten, and moves it has been offered on level up. Empty means its species' moves.
+  if (!cols('checklings').includes('moves')) db.exec("ALTER TABLE checklings ADD COLUMN moves TEXT NOT NULL DEFAULT ''");
   const q = {
     trainer: db.prepare('SELECT * FROM trainers WHERE pid = ?'),
     nameTaken: db.prepare('SELECT 1 FROM trainers WHERE name = ?'),
@@ -241,6 +243,7 @@ export function openStore(db, g, care, clock = {}) {
     addGhostRow: db.prepare('INSERT INTO ghosts (grave_id, pid, cid, caught) VALUES (?, ?, ?, ?) ON CONFLICT(grave_id) DO UPDATE SET pid = excluded.pid, cid = excluded.cid, caught = excluded.caught'),
     dropGhost: db.prepare('DELETE FROM ghosts WHERE cid = ?'),
     setGhost: db.prepare('UPDATE checklings SET ghost = ? WHERE id = ?'),
+    setMoves: db.prepare('UPDATE checklings SET moves = ? WHERE id = ?'),
     addGhostChk: db.prepare('INSERT INTO checklings (pid, species, nick, xp, party, hatched, origin, born, ghost) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)'),
     egg: db.prepare('UPDATE trainers SET egg = ? WHERE pid = ?'),
     items: db.prepare('UPDATE trainers SET items = ? WHERE pid = ?'),
@@ -298,6 +301,27 @@ export function openStore(db, g, care, clock = {}) {
   const saveItems = (pid, items) => q.items.run(JSON.stringify(items), pid);
   const ghostOf = (row) => { try { return JSON.parse(row?.ghost || '{}') || {}; } catch { return {}; } };
   const partyGhosts = (pid) => q.team.all(pid).filter((x) => x.party && isGhost(x)).length;
+  // ---------- moves ----------
+  const movesState = (row) => {
+    let m; try { m = JSON.parse(row?.moves || '{}') || {}; } catch { m = {}; }
+    const custom = Array.isArray(m.known) && m.known.length > 0;
+    return { known: custom ? m.known : (clock.speciesMoves ? clock.speciesMoves(row.species) : []), offers: Array.isArray(m.offers) ? m.offers : [], custom };
+  };
+  const saveMoves = (id, st) => q.setMoves.run(JSON.stringify({ known: st.known, offers: st.offers }), id);
+  // New levels can bring new moves. With a free slot the move is learned on the spot; otherwise it waits as an offer.
+  function offerMoves(pid, id, before, after) {
+    const out = { learned: [], offered: [] };
+    const row = q.one.get(pid, id);
+    if (!row || !clock.levelOffers || after <= before) return out;
+    const st = movesState(row);
+    for (const mv of clock.levelOffers(row.species, before, after)) {
+      if (st.known.includes(mv) || st.offers.includes(mv)) continue;
+      if (st.known.length < (clock.slots || 4)) { st.known = [...st.known, mv]; out.learned.push(mv); }
+      else { st.offers.push(mv); out.offered.push(mv); }
+    }
+    if (out.learned.length || out.offered.length) saveMoves(id, st);
+    return out;
+  }
   const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
   // The partner is always a living Checkling in the party, or nobody when every Checkling is gone.
   function repartner(pid) {
@@ -423,7 +447,8 @@ export function openStore(db, g, care, clock = {}) {
           q.addXp.run(gained * g.dayXp, partner.id);
           const after = level(q.one.get(t.pid, partner.id));
           const evolved = grow(partner.id, t.pid);
-          credit = { days: gained, xp: gained * g.dayXp, id: partner.id, species: partner.species, nick: partner.nick, before, after, evolved };
+          const moves = offerMoves(t.pid, partner.id, before, after);
+          credit = { days: gained, xp: gained * g.dayXp, id: partner.id, species: partner.species, nick: partner.nick, before, after, evolved, ...moves };
         }
         if (t.days !== tr.attendance) q.attendance.run(t.days, t.pid);
         return { created, credit, trainer: fresh(t.pid), reports: body.reports, deaths: body.deaths, faded: body.faded };
@@ -553,6 +578,53 @@ export function openStore(db, g, care, clock = {}) {
       });
     },
 
+    // ---------- moves (content/learnsets.json) ----------
+    moves(pid, id) { const row = q.one.get(pid, id); return row ? movesState(row) : null; },
+    // Learn a move from a level up offer or the gym, forgetting one if needed. forget 'skip' turns an offer down.
+    learnMove(pid, id, move, forget, source = 'offer') {
+      return tx(() => {
+        const row = q.one.get(pid, id);
+        if (!row) return { ok: false, msg: 'That Checkling is not here.' };
+        const st = movesState(row);
+        if (source === 'offer' && !st.offers.includes(move)) return { ok: false, msg: 'That move is not on offer.' };
+        if (forget === 'skip') { st.offers = st.offers.filter((m) => m !== move); saveMoves(id, st); return { ok: true, skipped: true, known: st.known }; }
+        const r = clock.learnMove ? clock.learnMove(st.known, move, forget || null) : { ok: false, msg: 'Moves cannot be learned right now.' };
+        if (!r.ok) return r;
+        st.known = r.known;
+        st.offers = st.offers.filter((m) => m !== move);
+        saveMoves(id, st);
+        return { ok: true, known: st.known };
+      });
+    },
+    offersWaiting(pid) { return q.team.all(pid).map((r) => ({ id: r.id, offers: movesState(r).offers })).filter((x) => x.offers.length); },
+    // Gym points toward each move, and the day's round count.
+    gym(pid, daily) {
+      const items = itemsOf(fresh(pid));
+      const rounds = items.gymDay === todayKey() ? items.gymRounds || 0 : 0;
+      return { points: items.gym || {}, roundsLeft: Math.max(0, daily - rounds) };
+    },
+    gymRound(pid, move, points, cost, daily) {
+      return tx(() => {
+        const items = itemsOf(fresh(pid));
+        if (items.gymDay !== todayKey()) { items.gymDay = todayKey(); items.gymRounds = 0; }
+        if (items.gymRounds >= daily) return { ok: false, msg: 'That is all the gym training for today. Come back tomorrow.' };
+        items.gym = items.gym || {};
+        items.gym[move] = Math.min(cost, (items.gym[move] || 0) + points);
+        items.gymRounds += 1;
+        saveItems(pid, items);
+        return { ok: true, points: items.gym[move], roundsLeft: daily - items.gymRounds };
+      });
+    },
+    gymSpend(pid, move, cost) {
+      return tx(() => {
+        const items = itemsOf(fresh(pid));
+        if (!items.gym || (items.gym[move] || 0) < cost) return false;
+        delete items.gym[move];
+        saveItems(pid, items);
+        return true;
+      });
+    },
+
     // ---------- ghosts (content/ghosts.json) ----------
     grave: (id) => q.graveById.get(id) || null,
     heldGhosts: () => new Set(q.heldGhosts.all().map((r) => r.grave_id)),
@@ -642,7 +714,8 @@ export function openStore(db, g, care, clock = {}) {
         if (xp) { q.addXp.run(xp, id); q.dayXp.run(xp, pid); }
         const after = level(q.one.get(pid, id));
         const evolved = xp ? grow(id, pid) : null;
-        return { xp, capped: xp < amount, before, after, species: r.species, nick: r.nick, evolved };
+        const moves = offerMoves(pid, id, before, after);
+        return { xp, capped: xp < amount, before, after, species: r.species, nick: r.nick, evolved, ...moves };
       });
     },
   };
