@@ -249,3 +249,22 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .b-mon.fading { animation: fade 900ms ease-in-out 1; }
 @keyframes fade { 0%, 100% { opacity: 0.66; } 40%, 60% { opacity: 0.08; } }
 @media (prefers-reduced-motion: reduce) { .b-mon.fading { animation: none; opacity: 0.2; } }
+/* Attack effects (battle-fx.js). Each piece is absolutely placed in the battle scene and removed when it ends. */
+.fx { position: absolute; pointer-events: none; z-index: 3; }
+.fx-orb { border-radius: 50%; background: radial-gradient(circle at 40% 40%, #fff 0 18%, var(--core) 34%, var(--glow) 70%, transparent 72%); box-shadow: 0 0 18px 6px var(--glow); }
+.fx-wisp { border-radius: 50% 50% 50% 0; background: radial-gradient(circle, var(--core) 0 20%, var(--glow) 60%, transparent 72%); filter: blur(2px); box-shadow: 0 0 22px 8px var(--glow); }
+.fx-star { background: var(--core); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); filter: drop-shadow(0 0 8px var(--glow)) drop-shadow(0 0 3px var(--glow)); }
+.fx-gear { border-radius: 50%; background: radial-gradient(circle, #0000 0 22%, var(--glow) 23% 48%, #0000 49%), repeating-conic-gradient(var(--core) 0 22deg, #0000 22deg 45deg); box-shadow: 0 0 12px 3px var(--glow); }
+.fx-leaves i { position: absolute; width: 55%; height: 30%; border-radius: 0 100% 0 100%; background: linear-gradient(135deg, var(--core), var(--glow)); box-shadow: 0 0 6px var(--glow); }
+.fx-leaves i:nth-child(1) { left: 0; top: 10%; transform: rotate(20deg); }
+.fx-leaves i:nth-child(2) { right: 0; top: 40%; transform: rotate(140deg); }
+.fx-leaves i:nth-child(3) { left: 20%; bottom: 0; transform: rotate(260deg); }
+.fx-rocks i { position: absolute; width: 45%; height: 45%; background: var(--core); clip-path: polygon(20% 0, 100% 20%, 80% 100%, 0 70%); box-shadow: inset -4px -4px 0 var(--glow); }
+.fx-rocks i:nth-child(2) { left: 55%; top: 10%; } .fx-rocks i:nth-child(3) { left: 25%; top: 55%; }
+.fx-shard { background: var(--core); clip-path: polygon(20% 0, 100% 25%, 75% 100%, 0 65%); filter: drop-shadow(2px 2px 0 var(--glow)); }
+.fx-bolt { width: 72px; background: linear-gradient(var(--core), #fff); clip-path: polygon(55% 0, 20% 48%, 48% 48%, 25% 100%, 82% 38%, 52% 38%, 78% 0); filter: drop-shadow(0 0 10px var(--glow)) drop-shadow(0 0 4px #fff); }
+.fx-ring { border-radius: 50%; border: 6px solid var(--core); box-shadow: 0 0 18px 4px var(--glow), inset 0 0 14px 2px var(--glow); }
+.fx-spark { width: 8px; height: 8px; border-radius: 2px; background: var(--core); box-shadow: 0 0 8px 2px var(--glow); }
+.fx-flash { inset: 0; }
+.fx-shield { border-radius: 50%; border: 3px solid rgba(200, 235, 255, 0.95); background: radial-gradient(circle, rgba(170, 220, 255, 0.05) 50%, rgba(170, 220, 255, 0.35)); box-shadow: 0 0 20px rgba(150, 210, 255, 0.8); }
+.fx-plus { width: 10px; height: 10px; background: var(--core); clip-path: polygon(38% 0, 62% 0, 62% 38%, 100% 38%, 100% 62%, 62% 62%, 62% 100%, 38% 100%, 38% 62%, 0 62%, 0 38%, 38% 38%); filter: drop-shadow(0 0 4px var(--core)); }

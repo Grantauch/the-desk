@@ -44,6 +44,9 @@
   let town = null, house = null, wilds = null, kettle = null, stones = [], phrases = [], myPlot = 0, signs = {}, rerolls = 0;
   // Ghosts on Kettle Creek's cemetery hill: frost on stones with a hidden ghost, and the ghosts while Spirit Sight lasts.
   let ghostView = { frost: [], ghosts: [], sightUntil: 0 }, graveMoss = 0, sightShown = -1;
+  // Residents battling each other nearby, drawn on the map. id -> { room, sides, shots, flashes, ended, winner, until }.
+  const spars = new Map();
+  const sparHere = (s) => s.room === room || (s.room === 'kettle' && roomKind === 'kettle');
   const sightMs = () => Math.max(0, ghostView.sightUntil - performance.now());
   // The outdoor map you are on right now: the town, the wilds or your own Kettle Creek. Houses use the house map.
   const mapNow = () => (roomKind === 'house' ? house : roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : town);
@@ -178,6 +181,7 @@
         world?.reset(roomKind,roomOwner?.resident);world?.sync(m.life,true);
         if (roomKind === 'kettle') stones = m.stones || [];
         else ghostView = { frost: [], ghosts: [], sightUntil: 0 };
+        spars.clear();
         busLine();
         stopWalk();
         setPlayers(m.players);
@@ -250,6 +254,19 @@
         break;
       case 'moss': graveMoss = m.moss; tipSoon('moss', 1500); break;
       case 'apothecary': showApothecary(m); break;
+      case 'npc_battle': {
+        const now = performance.now(), old = spars.get(m.id) || { shots: [], flashes: [] };
+        const shots = old.shots.concat((m.moves || []).map((mv) => ({ from: mv.side, type: mv.type, t: now }))).filter((x) => now - x.t < 1200);
+        const flashes = old.flashes.concat((m.hits || []).map((side) => ({ side, t: now + 380 }))).filter((x) => now - x.t < 1200);
+        spars.set(m.id, { room: m.room, sides: m.sides, shots, flashes, fades: m.fades || [], ended: false, winner: null, until: 0 });
+        break;
+      }
+      case 'npc_battle_end': {
+        const sp = spars.get(m.id);
+        if (sp) Object.assign(sp, { sides: m.sides, ended: true, winner: m.winner, until: performance.now() + 2600 });
+        if (lastNear && lastNear.id === m.id) { lastNear = null; watchLine(); }
+        break;
+      }
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'home': myPlot = m.myPlot; homeLine(); break;
@@ -865,6 +882,68 @@
     if (sway) ctx.restore();
     return py;
   }
+  // ---------- residents battling each other ----------
+  // Each resident's Checkling stands a step toward the other, with a small health bar. Moves fly across as a colored
+  // shot, hits flash, and when it ends the winner gets a star for a moment.
+  const SHOT = { ember: '#ff7a2a', tide: '#4aa8ff', meadow: '#7ccf4a', gear: '#e2bd3a', cosmic: '#b48cff', stone: '#a68f74', storm: '#bfe8ff', shade: '#7a4ab5' };
+  const SPAR_ART = {};
+  function sparArt(species) {
+    if (!SPAR_ART[species]) { const im = new Image(); im.src = `/art/front-${species}.png`; SPAR_ART[species] = im; }
+    const im = SPAR_ART[species];
+    return im.complete && im.naturalWidth > 0 ? im : null;
+  }
+  function sparSpots(sp) {
+    const at = sp.sides.map((sd) => { const n = world?.active().find((r) => r.id === sd.resident); return n ? { x: n.dx, y: n.dy } : { x: sd.x, y: sd.y }; });
+    return at.map((me, i) => {
+      const other = at[1 - i], dx = other.x - me.x, dy = other.y - me.y, d = Math.hypot(dx, dy) || 1;
+      const step = d > 1.6 ? 0.9 : 0;
+      return { x: me.x + (dx / d) * step + (step ? 0 : (i ? 0.6 : -0.6)), y: me.y + (dy / d) * step + (step ? 0 : 0.5) };
+    });
+  }
+  function sparThings(list, now) {
+    for (const [id, sp] of spars) {
+      if (sp.ended && now > sp.until) { spars.delete(id); continue; }
+      if (!sparHere(sp)) continue;
+      const spots = sparSpots(sp);
+      sp.sides.forEach((sd, i) => {
+        const at = spots[i];
+        list.push({ b: at.y + 1.02, draw: () => {
+          const im = sparArt(sd.species);
+          const flash = sp.flashes.find((f) => f.side === i && now > f.t && now - f.t < 260);
+          const shake = flash && !reduceMotion ? Math.sin(now / 25) * 2 : 0;
+          const lost = sp.ended && sp.winner !== i && sp.winner !== 'draw';
+          const w = 0.8 * TILE, h = im ? w * im.naturalHeight / im.naturalWidth : w;
+          const px = at.x * TILE + (TILE - w) / 2 + shake, base = (at.y + 0.95) * TILE;
+          ctx.save();
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.beginPath(); ctx.ellipse(at.x * TILE + TILE / 2, base - 2, w * 0.38, TILE * 0.1, 0, 0, Math.PI * 2); ctx.fill();
+          if (lost) ctx.globalAlpha = 0.45;
+          if (flash) ctx.filter = 'brightness(2.4)';
+          if (im) ctx.drawImage(im, px, base - h, w, h);
+          ctx.restore();
+          // Health bar.
+          const bw = TILE * 0.8, bx = at.x * TILE + (TILE - bw) / 2, by = base - h - 7, share = Math.max(0, sd.hp / sd.maxHp);
+          ctx.fillStyle = 'rgba(20,20,20,0.75)'; ctx.fillRect(bx - 1, by - 1, bw + 2, 6);
+          ctx.fillStyle = share > 0.5 ? '#5bd36b' : share > 0.2 ? '#f3c623' : '#e5533d'; ctx.fillRect(bx, by, bw * share, 4);
+          if (sp.ended && sp.winner === i) bubbles.push(['Winner!', at.x * TILE + TILE / 2, by - 6]);
+        } });
+      });
+      // Shots in flight, drawn above everything on the field.
+      for (const sh of sp.shots) {
+        const t = (now - sh.t) / 420;
+        if (t < 0 || t > 1 || reduceMotion) continue;
+        const a = spots[sh.from], c = spots[1 - sh.from];
+        list.push({ b: 9999, draw: () => {
+          const x = (a.x + (c.x - a.x) * t + 0.5) * TILE, y = (a.y + (c.y - a.y) * t + 0.4) * TILE - Math.sin(t * Math.PI) * TILE * 0.5;
+          ctx.save();
+          ctx.fillStyle = SHOT[sh.type] || '#ffffff';
+          ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 12;
+          ctx.beginPath(); ctx.arc(x, y, TILE * 0.16, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        } });
+      }
+    }
+  }
   // Frost creeping over a headstone whose ghost is out today.
   function frost(x, y) {
     const t = reduceMotion ? 0 : performance.now() / 900;
@@ -1310,6 +1389,7 @@
         }
       }
       for (const p of players.values()) things.push({ b: p.dy + 1, draw: () => trainer(p, now) });
+      sparThings(things, now);
       things.sort((a, b) => a.b - b.b);
       labels.length = 0; bubbles.length = 0;
       for (const t of things) t.draw();
@@ -1963,7 +2043,9 @@
         const el = monEl(e.side);
         el.classList.add(e.side === n ? 'lunge-me' : 'lunge-foe');
         drawSides(live);
-        await wait(650);
+        const mv = b.view.sides[e.side].moves.find((x) => x.id === e.move) || { type: e.type, hit: true };
+        await Promise.all([wait(650), window.CheckaverseBattleFx?.play(document.querySelector('.b-scene'), el, monEl(1 - e.side),
+          { type: mv.type, damage: mv.hit, guard: mv.guard, shield: mv.shield }, motionQuery.matches)]);
         el.classList.remove('lunge-me', 'lunge-foe');
       } else if (e.k === 'stamina') {
         live.sides[e.side].stamina = e.value; drawSides(live);
