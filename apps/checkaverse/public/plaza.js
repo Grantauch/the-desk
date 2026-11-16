@@ -46,6 +46,9 @@
   let ghostView = { frost: [], ghosts: [], sightUntil: 0 }, graveMoss = 0, sightShown = -1;
   // Residents battling each other nearby, drawn on the map. id -> { room, sides, shots, flashes, ended, winner, until }.
   const spars = new Map();
+  // The sky follows Mt. Morris (weather), and the teacher's reward events show in the status chip.
+  let sky = { kind: 'clear', label: '', tempF: null }, skyShown = '', events = [], eventsAt = 0;
+  const drops = [];
   const sparHere = (s) => s.room === room || (s.room === 'kettle' && roomKind === 'kettle');
   const sightMs = () => Math.max(0, ghostView.sightUntil - performance.now());
   // The outdoor map you are on right now: the town, the wilds or your own Kettle Creek. Houses use the house map.
@@ -79,7 +82,9 @@
     // Kettle Creek is every student's own private copy, so a live head count would always read 1.
     if (roomKind === 'kettle' || (roomKind === 'house' && roomOwner?.map === 'kettle')) return setStatus('Your home town · only you are here');
     const where = roomKind === 'house' ? 'in this house' : 'here';
-    setStatus(`Live · ${n} trainer${n === 1 ? '' : 's'} ${where}`);
+    const sk = sky.label ? ` · ${sky.label}${sky.tempF !== null ? ` ${sky.tempF}°F` : ''}` : '';
+    const ev = events.filter((e) => e.left - (performance.now() - eventsAt) > 0).map((e) => ` · ${e.label}!`).join('');
+    setStatus(`Live · ${n} trainer${n === 1 ? '' : 's'} ${where}${sk}${ev}`);
   }
   let zoneName = '';
   function placeLine() {
@@ -260,6 +265,13 @@
       case 'gym': showGym(m); break;
       case 'gym_round': startGame(m); break;
       case 'gym_result': gameResult(m); break;
+      case 'weather': {
+        sky = { kind: m.kind, label: m.label, tempF: m.tempF };
+        if (skyShown !== m.kind && m.kind !== 'clear' && m.kind !== 'cloudy') toast(m.line);
+        skyShown = m.kind; countLine();
+        break;
+      }
+      case 'events': events = m.events || []; eventsAt = performance.now(); countLine(); break;
       case 'npc_battle': {
         const now = performance.now(), old = spars.get(m.id) || { shots: [], flashes: [] };
         const shots = old.shots.concat((m.moves || []).map((mv) => ({ from: mv.side, type: mv.type, t: now }))).filter((x) => now - x.t < 1200);
@@ -900,7 +912,8 @@
     const p = m.paper;
     $('paperTitle').textContent = p.masthead;
     const [y, mo, d] = p.day.split('-').map(Number);
-    $('paperDate').textContent = new Date(Date.UTC(y, mo - 1, d, 12)).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+    $('paperDate').textContent = new Date(Date.UTC(y, mo - 1, d, 12)).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })
+      + (p.weather ? ` · ${p.weather.label}${p.weather.tempF !== null ? `, ${p.weather.tempF}°F` : ''} in Mt. Morris` : '');
     const box = $('paperStories'); box.textContent = '';
     for (const st of p.stories) {
       const a = document.createElement('article');
@@ -1071,6 +1084,51 @@
   }
   $('gameQuit').addEventListener('click', quitGame);
   $('gameOverlay').addEventListener('pointerdown', (e) => e.stopPropagation());
+
+  // ---------- the sky ----------
+  // Rain streaks, snowflakes, fog and storm flashes over the outdoor maps, in screen space. A handful of particles,
+  // so a Chromebook keeps up. Reduced motion keeps only the still tint.
+  function drawSky(now) {
+    const k = sky.kind;
+    if (k === 'clear') return;
+    ctx.save();
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    const tint = { cloudy: 'rgba(40,50,70,0.10)', fog: 'rgba(210,220,225,0.30)', rain: 'rgba(30,45,80,0.16)', snow: 'rgba(220,235,255,0.12)', storm: 'rgba(20,25,50,0.28)' }[k];
+    if (tint) { ctx.fillStyle = tint; ctx.fillRect(0, 0, VIEW_W, VIEW_H); }
+    if (!reduceMotion && (k === 'rain' || k === 'storm' || k === 'snow')) {
+      const want = k === 'snow' ? 90 : 130;
+      while (drops.length < want) drops.push({ x: Math.random() * VIEW_W, y: Math.random() * VIEW_H, v: 0.6 + Math.random() * 0.6, r: 1 + Math.random() * 2, ph: Math.random() * 6 });
+      drops.length = want;
+      if (k === 'snow') {
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        for (const d of drops) {
+          d.y += d.v * 0.9; d.x += Math.sin(now / 900 + d.ph) * 0.4;
+          if (d.y > VIEW_H) { d.y = -4; d.x = Math.random() * VIEW_W; }
+          ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+        }
+      } else {
+        ctx.strokeStyle = 'rgba(200,222,255,0.7)'; ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        for (const d of drops) {
+          d.y += d.v * 9; d.x -= d.v * 2.5;
+          if (d.y > VIEW_H) { d.y = -10; d.x = Math.random() * (VIEW_W + 100); }
+          ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 3, d.y + 11);
+        }
+        ctx.stroke();
+      }
+    }
+    if (k === 'fog' && !reduceMotion) {
+      for (let i = 0; i < 3; i++) {
+        const x = ((now / (60 + i * 25)) % (VIEW_W + 600)) - 300, y = VIEW_H * (0.2 + i * 0.28);
+        const g = ctx.createRadialGradient(x, y, 10, x, y, 260);
+        g.addColorStop(0, 'rgba(235,240,242,0.35)'); g.addColorStop(1, 'rgba(235,240,242,0)');
+        ctx.fillStyle = g; ctx.fillRect(x - 260, y - 260, 520, 520);
+      }
+    }
+    // A storm flashes now and then.
+    if (k === 'storm' && !reduceMotion && Math.floor(now / 7000) % 3 === 0 && now % 7000 < 140) { ctx.fillStyle = 'rgba(255,255,240,0.55)'; ctx.fillRect(0, 0, VIEW_W, VIEW_H); }
+    ctx.restore();
+  }
 
   // ---------- residents battling each other ----------
   // Each resident's Checkling stands a step toward the other, with a small health bar. Moves fly across as a colored
@@ -1605,6 +1663,7 @@
         bubble(text, x, ty);
       }
       ctx.restore();
+      if (roomKind !== 'house') drawSky(now);
     }
     const nb = roomKind !== 'house' && neighbor();
     challengeBtn.hidden = !nb || busyEl.checked || paused || Boolean(bt);

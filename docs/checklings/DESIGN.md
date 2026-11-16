@@ -342,11 +342,11 @@ These are the **approved biome identities and working names**, while exact layou
 
 | Feature | What happens | Limit |
 | --- | --- | --- |
-| Real weather | The Checkaverse pulls the day's weather for Mt. Morris. Snow outside means snow in game. A real snow day sets off a blizzard event. | School location only, never a student's |
+| Real weather | Shipped in 0.21.0. The Checkaverse pulls the weather for Mt. Morris every half hour. Rain, snow, fog and storms draw over the town, the status chip and the Gazette show the sky, and each kind makes some types more common in the grass. | School location only, never a student's |
 | Feral runaways | A Checkling that runs away moves into the wilds instead of vanishing. It turns wild tempered or mean and can be found and caught again. | Only its former owner can recatch it for the first ten school days |
 | Mail | NPCs send letters overnight. Opening the mailbox becomes the first stop each day. | Letters come from the vetted line bank |
 | Multi week mysteries | The director plants a mystery in pieces, spread across NPCs, mail and the Gazette until the class solves it. | One mystery running at a time |
-| Teacher events | Grant can start a festival, a double XP weekend or a rare spawn as a class reward from the teacher dashboard. | Rewards only, never a penalty |
+| Teacher events | Shipped in 0.21.0. From the teacher page: a Festival (better catching for an hour), Double XP (battle XP and the daily cap double for the rest of the day) and a Rare spawn (rare Checklings in the wilds for half an hour). | Rewards only, never a penalty |
 
 **Later list.** Seasonal calendar events, NPCs that age and retire, gossip about play style, a traveling merchant, rumors that can be false, town elections and legacy eggs.
 

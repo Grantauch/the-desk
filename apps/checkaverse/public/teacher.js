@@ -25,6 +25,15 @@
     noSchool = Boolean(state.noSchool);
     $('noSchool').textContent = noSchool ? 'Undo: there was school today' : 'No school today';
     $('noSchoolState').textContent = noSchool ? 'Checkling body clocks skip today, like a snow day.' : 'Body clocks count today as a school day if the calendar does.';
+    const evBox = $('events'); evBox.textContent = '';
+    for (const e of state.events || []) {
+      const on = e.until > Date.now();
+      const b = document.createElement('button'); b.type = 'button'; if (on) b.className = 'ghost';
+      b.textContent = on ? `Stop ${e.label} (until ${new Date(e.until).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })})` : `Start ${e.label}${e.minutes ? ` for ${e.minutes} minutes` : ' for the rest of today'}`;
+      b.addEventListener('click', async () => { try { await api('event', on ? { stop: e.kind } : { start: e.kind }); refresh(); } catch (err) { status(err.message, true); } });
+      evBox.appendChild(b);
+    }
+    if (state.weather) $('weatherLine').textContent = `Sky over the Checkaverse: ${state.weather.label}${state.weather.tempF !== null ? `, ${state.weather.tempF}°F` : ''}, from the Mt. Morris weather. Rewards pop up on every screen when they start.`;
     const dir = state.director || { paused: false, lines: [] };
     directorPaused = dir.paused;
     $('director').textContent = dir.paused ? 'Restart the director' : 'Pause the director';
