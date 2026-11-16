@@ -15,11 +15,12 @@ import { versionHtmlAssets } from './asset-versions.mjs';
 import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
 import * as Care from './care.mjs';
+import * as Ghosts from './ghosts.mjs';
 import { validateWorld } from './public/world.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.16.0';
+const VERSION = '0.17.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -66,6 +67,8 @@ const GROWTH = Accounts.loadGrowth(path.join(HERE, 'content', 'growth.json'));
 // The Checkling body (care, conditions, diseases, death) is content, checked here before anyone connects.
 const CARE = Care.loadCare(path.join(HERE, 'content'));
 for (const id of Object.keys(CARE.epitaphs)) if (!CARE.diseases[id] && !CARE.rare[id]) throw new Error(`epitaphs.json: ${id} is not a cause of death`);
+// Ghosts in the cemetery (content/ghosts.json), checked like everything else.
+const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HERE, 'content', 'ghosts.json'), CARE, RULES);
 const TURN_MS = Number(process.env.CHECKAVERSE_TURN_MS || RULES.settings.turnSeconds * 1000);
 // Wild encounter content is checked the same way: every zone is a real tile in the wilds and every species can battle.
 for (const [tile, z] of Object.entries(WILD.zones)) {
@@ -163,6 +166,8 @@ const STORE = Accounts.openStore(db, GROWTH, CARE, {
   speciesName: (id) => SPECIES[id]?.name || id,
   evolve: (id, level, body) => Battle.nextForm(RULES, id, level, body),
   root: (id) => Battle.lineRoot(RULES, id),
+  ghostKeep: GHOSTS.keepCloseSchoolDays,
+  ghostParty: GHOSTS.partyMax,
 });
 const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
@@ -339,6 +344,7 @@ function changeRoom(p, room, x, y, facing) {
   });
   toRoom(room, { t: 'join', p: publicView(p) }, p.id);
   if (room === 'wilds') p.grace = WILD.graceSteps;
+  if (isKettle(room)) sendGhosts(p); else { p.kcGhosts = null; clearTimeout(p.sightTimer); }
 }
 
 // The class cemetery's newest headstones, one per grave slot in this trainer's Kettle Creek.
@@ -346,8 +352,109 @@ function kettleStones(p) {
   const slots = KETTLE.graves || [];
   const stones = p.pid ? STORE.cemetery(p.hour, slots.length) : [];
   kcStones.set(p.room, new Set(stones.map((_, i) => `${slots[i][0]},${slots[i][1]}`)));
+  p.kcStones = stones.map((g, i) => ({ ...g, x: slots[i][0], y: slots[i][1] }));
   return stones.map((g, i) => ({ x: slots[i][0], y: slots[i][1], trainer: g.trainer, speciesName: SPECIES[g.species]?.name || g.species,
     epitaph: g.epitaph, cause: Care.causeName(CARE, g.cause), level: g.level, days: g.days, mine: g.pid === p.pid }));
+}
+
+// ---------- ghosts ----------
+// Which ghosts are out in this trainer's Kettle Creek today, and where they float. Hidden until the partner
+// drinks Spirit Sight. A ghost this trainer already knocked out, caught or lost today stays away until tomorrow.
+const sightLeft = (p) => (p.pid ? Math.max(0, (STORE.items(p.pid).sightUntil || 0) - Date.now()) : 0);
+function kettleGhosts(p) {
+  if (!p.pid || !KETTLE || !p.kcStones) return [];
+  const day = Accounts.todayKey();
+  const noSchool = (d) => Boolean(getMeta.get(`noschool:${d}`));
+  const done = STORE.ghostsDone(p.pid);
+  const out = Ghosts.presentToday(GHOSTS, CARE, p.kcStones, day, STORE.heldGhosts(), noSchool)
+    .filter((st) => !done.has(`g${st.id}`));
+  const free = (x, y) => walkable(p.room, x, y);
+  const placed = Ghosts.placeGhosts(out, free).map(({ st, x, y }) => ({
+    key: `g${st.id}`, kind: 'grave', x, y, stone: [st.x, st.y], graveId: st.id, species: st.species, level: st.level,
+    temper: Ghosts.temperOf(GHOSTS, st.cause, st.days), owner: st.pid, trainer: st.trainer,
+  }));
+  const w = !done.has('wander') && Ghosts.wandererToday(GHOSTS, CARE, p.pid, day, WILD.kettle?.G?.table || Object.values(WILD.zones)[0].table, noSchool);
+  if (w) {
+    const taken = new Set(placed.map((g) => `${g.x},${g.y}`));
+    const slot = (KETTLE.graves || []).find(([x, y]) => free(x, y) && !taken.has(`${x},${y}`))
+      || Ghosts.placeGhosts([{ x: KETTLE.graves[0][0], y: KETTLE.graves[0][1] }], (x, y) => free(x, y) && !taken.has(`${x},${y}`))[0];
+    if (slot) placed.push({ key: 'wander', kind: 'wander', x: slot.x ?? slot[0], y: slot.y ?? slot[1], species: w.species, level: w.level, temper: w.temper, owner: '' });
+  }
+  return placed;
+}
+// Tells the trainer's screen what it can see: frost on stones with a hidden ghost, and the ghosts themselves while
+// Spirit Sight lasts. Other trainers' names never travel with a ghost, only whether it was this trainer's own.
+function sendGhosts(p) {
+  if (!isKettle(p.room)) return;
+  p.kcGhosts = kettleGhosts(p);
+  const left = sightLeft(p);
+  clearTimeout(p.sightTimer);
+  if (left) p.sightTimer = setTimeout(() => { if (players.has(p.id)) sendGhosts(p); }, left + 250);
+  send(p, {
+    t: 'ghosts', sight: left, moss: STORE.items(p.pid).graveMoss || 0,
+    frost: p.kcGhosts.filter((g) => g.stone).map((g) => g.stone),
+    ghosts: left ? p.kcGhosts.map((g) => ({ key: g.key, x: g.x, y: g.y, species: g.species, temper: g.temper, mine: g.owner === p.pid, wander: g.kind === 'wander' })) : [],
+  });
+}
+// Looking at a headstone: its epitaph, a clue when its ghost is hidden nearby, and a little grave moss.
+function lookAtStone(p, x, y) {
+  if (!p.pid || !isKettle(p.room) || p.battle) return;
+  const st = (p.kcStones || []).find((s) => s.x === x && s.y === y);
+  if (!st || Math.abs(p.x - x) + Math.abs(p.y - y) > 2) return;
+  const parts = [`${st.trainer}'s ${SPECIES[st.species]?.name || st.species}. ${st.epitaph}`];
+  const ghost = (p.kcGhosts || []).find((g) => g.graveId === st.id);
+  if (ghost && !sightLeft(p)) parts.push(GHOSTS.clues[st.id % GHOSTS.clues.length]);
+  const moss = STORE.scrapeMoss(p.pid, `${x},${y}`, GHOSTS);
+  if (moss.msg) parts.push(moss.ok ? `${moss.msg} You have ${moss.moss}.` : moss.msg);
+  send(p, { t: 'notice', msg: parts.join(' ') });
+  if (moss.ok) send(p, { t: 'moss', moss: moss.moss });
+}
+// The apothecary: what Spirit Sight costs, and brewing it. The partner drinks it right there.
+function apothecary(p, brew) {
+  if (!p.pid || !isKettle(p.room) || p.battle) return;
+  const door = (KETTLE.doors || []).find((d) => d.place === 'apothecary');
+  if (!door || Math.abs(p.x - door.x) + Math.abs(p.y - door.y) > 2) return;
+  if (!brew) {
+    const it = STORE.items(p.pid);
+    return send(p, { t: 'apothecary', moss: it.graveMoss || 0, need: GHOSTS.sight.moss, minutes: GHOSTS.sight.minutes, sight: sightLeft(p) });
+  }
+  const r = STORE.brewSight(p.pid, GHOSTS);
+  if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+  log('spirit sight', p.pid.slice(0, 6));
+  send(p, { t: 'notice', msg: `Your partner drinks the Spirit Sight. Its eyes glow pale blue. For ${GHOSTS.sight.minutes} minutes it can see ghosts on the cemetery hill.` });
+  sendGhosts(p);
+}
+// Walking into a ghost you can see starts a battle with it.
+function startGhost(p, g) {
+  const t = GHOSTS.tempers[g.temper] || GHOSTS.tempers.restless;
+  const id = nextBattle++;
+  const seed = crypto.randomInt(0, 2 ** 31);
+  const mine = partnerSide(p);
+  const foe = { name: g.kind === 'wander' ? GHOSTS.wanderer.name : 'Ghost', species: g.species, level: g.level, ghost: Ghosts.ghostSide(GHOSTS, g.temper), mods: t.power !== 1 ? { power: t.power } : undefined };
+  const state = Battle.createBattle(RULES, [mine, foe], seed);
+  // Only the trainer who raised a Checkling can catch its ghost. Anyone can catch a wanderer.
+  const canCatch = g.kind === 'wander' || g.owner === p.pid;
+  const nick = g.graveId ? STORE.grave(g.graveId)?.nick || '' : '';
+  const bt = { id, wild: true, zone: 'the cemetery', ghost: { key: g.key, kind: g.kind, graveId: g.graveId || 0, temper: g.temper, canCatch, nick },
+    ids: [p.id, 0], names: [p.name, foe.name], cids: [mine.cid || 0, 0], pids: [p.pid || '', ''], state, picks: [null, null], log: [], timeouts: [0, 0],
+    deadline: Date.now() + TURN_MS, watchers: new Set(), started: new Date().toISOString(), room: p.room };
+  bt.picks[1] = wildPick(bt);
+  battles.set(id, bt);
+  p.battle = id; pending.delete(p.id);
+  const mineGhost = g.owner === p.pid;
+  send(p, { t: 'battle', id, you: 0, wild: true, zone: 'the cemetery', charms: charmsOf(p), view: battleView(bt), turnMs: TURN_MS, left: TURN_MS,
+    ghost: { temper: t.label, canCatch, mine: mineGhost, wander: g.kind === 'wander', rise: t.rise, name: mineGhost && nick ? nick : '' } });
+  setBattling(p, true);
+  log('ghost battle', id, p.name, g.key, g.species, `lv${g.level}`, g.temper, canCatch ? 'catchable' : 'not catchable');
+}
+// A ghost battle ends when the Spirit Sight wears off.
+function ghostSlipped(b) {
+  if (!b.ghost) return false;
+  const p = players.get(b.ids[0]);
+  if (p && sightLeft(p) > 0) return false;
+  Object.assign(b.state, { over: true, winner: 'draw', reason: 'slipped' });
+  finishBattle(b);
+  return true;
 }
 // The bus between Kettle Creek and the Checkaverse. Saved trainers only: visitors have no home town.
 function rideBus(p, to) {
@@ -482,6 +589,7 @@ function partnerSide(p) {
   if (p.pid) {
     const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
     if (!row) return { name: p.name, species: '', none: true };
+    if (Accounts.isGhost(row)) return { name: p.name, species: row.species, level: row.level, cid: row.id, ghost: { fadeEvery: GHOSTS.caughtFadeEvery, move: GHOSTS.ghostMove, replaces: GHOSTS.replaces } };
     return { name: p.name, species: row.species, level: row.level, cid: row.id, mods: STORE.mods(p.pid, row.id) };
   }
   const c = /^c(\d)$/.exec(p.partner);
@@ -500,7 +608,7 @@ function teamView(p) {
     return STORE.team(p.pid).map((r) => {
       const floor = Accounts.xpFor(GROWTH, r.level), top = Accounts.xpFor(GROWTH, Math.min(50, r.level + 1));
       return { v: `k${r.id}`, species: r.species, name: SPECIES[r.species].name, type: SPECIES[r.species].type, level: r.level, nick: r.nick,
-        den: !r.party, hatched: Boolean(r.hatched), xp: r.xp - floor, need: Math.max(0, top - floor), flag: careFlag(p.pid, r) };
+        den: !r.party, hatched: Boolean(r.hatched), xp: r.xp - floor, need: Math.max(0, top - floor), flag: careFlag(p.pid, r), ghost: Accounts.isGhost(r) };
     });
   }
   return [
@@ -513,7 +621,7 @@ function charmsOf(p) { return p.pid ? STORE.charmsLeft(p.pid) : p.charms; }
 function careFlag(pid, r) {
   if (!r.party) return '';
   const v = STORE.body(pid, r.id);
-  if (!v) return '';
+  if (!v || v.ghost) return '';
   if (v.disease) return 'sick';
   if (v.conditions.some((c) => ['obese', 'scrawny', 'grimy', 'bored', 'exhausted'].includes(c.id))) return 'needs care';
   if (v.stats.fullness <= 35) return 'hungry';
@@ -577,6 +685,7 @@ function handlePick(p, move) {
 }
 
 function playTurn(b) {
+  if (ghostSlipped(b)) return;
   const choices = b.picks.map((m, i) => m || Battle.fallbackMove(RULES, b.state, i));
   const { picks, events } = Battle.resolveTurn(RULES, b.state, choices);
   b.log.push(picks);
@@ -599,6 +708,14 @@ function finishBattle(b) {
     if (b.wild) {
       q.grace = WILD.graceSteps; setBattling(q, false);
       if (q.pid && b.cids[0]) STORE.noteBattle(q.pid, b.cids[0]);
+      if (b.ghost) {
+        // Knocked out, caught or slipped away: that ghost is gone for this trainer until tomorrow.
+        if (q.pid && (st.reason === 'caught' || st.reason === 'slipped' || st.winner === 0)) STORE.ghostDone(q.pid, b.ghost.key);
+        if (st.reason === 'caught') { payXp(q, b.cids[0], GROWTH.battleXp.caught); log('ghost caught', q.pid.slice(0, 6), b.ghost.key); }
+        else if (st.winner === 0) payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
+        if (q.pid) { sendTeam(q); sendGhosts(q); }
+        return;
+      }
       if (st.reason === 'caught') payXp(q, b.cids[0], GROWTH.battleXp.caught);
       else if (st.winner === 0) {
         payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
@@ -635,7 +752,7 @@ function finishBattle(b) {
 // party is full. A visitor keeps catches only for the visit.
 function wildPick(b) {
   const st = b.state, f = st.sides[1];
-  const moves = RULES.species.species[f.species].moves.filter((m) => Battle.canUse(RULES, st, 1, m));
+  const moves = (f.moves || RULES.species.species[f.species].moves).filter((m) => Battle.canUse(RULES, st, 1, m));
   const sig = moves.find((m) => !['strike', 'guard', 'recover'].includes(m));
   const r = Math.random();
   if (sig && r < 0.35) return sig;
@@ -678,6 +795,8 @@ function handleCharm(p) {
   const b = battles.get(p.battle);
   if (!b || !b.wild || b.state.over) return;
   if (b.picks[0]) return; // already used this turn
+  if (b.ghost && !b.ghost.canCatch) return send(p, { t: 'notice', msg: 'This ghost only answers to the trainer who raised it. You can battle it, but not catch it.' });
+  if (ghostSlipped(b)) return;
   // Saved trainers get a few charms each day, kept on the server so a reload does not refill them.
   if (p.pid) {
     if (STORE.denFull(p.pid)) return send(p, { t: 'notice', msg: 'Your Den is full, so there is no room for another Checkling.' });
@@ -688,12 +807,16 @@ function handleCharm(p) {
   }
   const left = charmsOf(p);
   const wildOne = b.state.sides[1];
-  const ok = Math.random() < catchChance(wildOne);
+  const bonus = b.ghost ? (GHOSTS.tempers[b.ghost.temper]?.catch || 0) : 0;
+  const ok = Math.random() < (CATCH_OVERRIDE !== null ? CATCH_OVERRIDE : Math.max(0.03, Math.min(0.97, catchChance(wildOne) + bonus)));
   const shakes = ok ? 3 : Math.floor(Math.random() * 3);
   const events = [{ k: 'charm', ok, shakes, left }];
   if (ok) {
     Object.assign(b.state, { over: true, winner: 0, reason: 'caught' });
-    if (p.pid) {
+    if (p.pid && b.ghost) {
+      const kept = STORE.addGhost(p.pid, { graveId: b.ghost.graveId, species: wildOne.species, level: wildOne.level, nick: b.ghost.nick, temper: b.ghost.temper });
+      b.kept = kept ? (kept.party ? 'party' : 'den') : '';
+    } else if (p.pid) {
       const kept = STORE.addCatch(p.pid, wildOne.species, wildOne.level, b.zone);
       b.kept = kept ? (kept.party ? 'party' : 'den') : '';
     } else if (p.caught.length < 6) p.caught.push({ species: wildOne.species, level: wildOne.level });
@@ -963,6 +1086,7 @@ function join(ws, ticket) {
       Object.assign(p, { pid: t.pid, hour: t.hour, name: tr.name, look: tr.look % LOOKS, partner: tr.partner ? `k${tr.partner}` : '',
         record: { w: tr.wins, l: tr.losses, d: tr.draws }, rerolls: STORE.renamesLeft(t.pid), attendance: t.days });
       p.arrival = { reports: linked.reports, deaths: linked.deaths };
+      for (const f of linked.faded || []) notes.push(`${label(f.species, f.nick)} spent too long out of your party and faded back to the cemetery. You might find it there again someday.`);
       const hatched = STORE.team(t.pid).find((r) => r.hatched);
       if (linked.created && hatched) notes.push(KETTLE ? `Welcome to Kettle Creek, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus home with you.` : `Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
       const c = linked.credit;
@@ -998,6 +1122,7 @@ function join(ws, ticket) {
     players: inRoom(p.room).map(publicView),
   });
   toRoom(p.room, { t: 'join', p: publicView(p) }, p.id);
+  if (home) sendGhosts(p);
   sendPlots();
   if (!plot && !home) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
   // One card on arrival, so the welcome is not wiped by the growth line a moment later.
@@ -1015,6 +1140,7 @@ function leave(p) {
   releaseResidents(p);saveResidentWorlds();
   if (p.battle) forfeitBattle(p, 'left');
   stopWatching(p);
+  clearTimeout(p.sightTimer);
   players.delete(p.id);
   pending.delete(p.id);
   kcStones.delete(p.room);
@@ -1052,6 +1178,12 @@ function handleMove(p, d) {
   if (stepped) { p.x = nx; p.y = ny; p.stats.moves++;checkResidentFinds(p); }
   // Facing changes even when the step is blocked, so everyone sees the turn.
   toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+  // On the cemetery hill: walking into a ghost you can see starts a battle. A hidden wanderer only leaves a chill.
+  if (stepped && isKettle(p.room) && !p.battle && p.kcGhosts?.length) {
+    const g = p.kcGhosts.find((q) => q.x === p.x && q.y === p.y);
+    if (g && sightLeft(p) && !partnerSide(p).none) return startGhost(p, g);
+    if (g && g.kind === 'wander' && !p.chilled) { p.chilled = true; send(p, { t: 'notice', msg: GHOSTS.wandererClue }); }
+  }
   // A step into terrain in the wilds can rouse a wild Checkling. Right after a battle there are a few free steps.
   // Kettle Creek's Route 1 has its own gentler zone (wild.json kettle).
   if (stepped && (p.room === 'wilds' || isKettle(p.room)) && !p.battle) {
@@ -1205,6 +1337,8 @@ function handleMessage(p, msg, now) {
       return sendTeam(p);
     }
     case 'bus': return rideBus(p, msg.to);
+    case 'stone': if (now - (p.lastStone || 0) > 300) { p.lastStone = now; lookAtStone(p, Number(msg.x), Number(msg.y)); } return;
+    case 'apothecary': if (now - (p.lastBrew || 0) > 400) { p.lastBrew = now; apothecary(p, Boolean(msg.brew)); } return;
     case 'hatch': {
       if (!p.pid || !STARTERS.includes(msg.species)) return;
       const got = STORE.hatchEgg(p.pid, msg.species, p.attendance || 0);

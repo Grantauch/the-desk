@@ -281,6 +281,14 @@
         "per": 7
       },
       "detail": "10 damage, plus 7 for each stick gathered by Recover (up to 2)."
+    },
+    "wail": {
+      "name": "Wail",
+      "type": "shade",
+      "cost": 4,
+      "damage": 13,
+      "restore": 1,
+      "detail": "13 damage and 1 stamina back. Only ghosts know it."
     }
   }
 }

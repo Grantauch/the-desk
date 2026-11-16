@@ -161,7 +161,10 @@ export function seeded(...parts) {
   };
 }
 
+export const isGhost = (row) => Boolean(row && String(row.origin || '').startsWith('ghost:'));
+
 // care: the rules from care.mjs. clock.wasUp(day) says the server ran that day, clock.noSchool(day) adds snow days.
+// clock.ghostKeep and clock.ghostParty come from content/ghosts.json.
 export function openStore(db, g, care, clock = {}) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS trainers (
@@ -207,6 +210,12 @@ export function openStore(db, g, care, clock = {}) {
       cid INTEGER NOT NULL
     );
     CREATE INDEX IF NOT EXISTS graves_hour ON graves(hour);
+    CREATE TABLE IF NOT EXISTS ghosts (
+      grave_id INTEGER PRIMARY KEY,
+      pid TEXT NOT NULL,
+      cid INTEGER NOT NULL,
+      caught TEXT NOT NULL
+    );
   `);
   // Columns added after the first saves. Old rows get a fresh body the first time they are seen.
   const cols = (t) => db.prepare(`PRAGMA table_info(${t})`).all().map((c) => c.name);
@@ -214,6 +223,8 @@ export function openStore(db, g, care, clock = {}) {
   if (!cols('checklings').includes('died')) db.exec("ALTER TABLE checklings ADD COLUMN died TEXT NOT NULL DEFAULT ''");
   if (!cols('trainers').includes('egg')) db.exec('ALTER TABLE trainers ADD COLUMN egg INTEGER NOT NULL DEFAULT 0');
   if (!cols('trainers').includes('items')) db.exec("ALTER TABLE trainers ADD COLUMN items TEXT NOT NULL DEFAULT '{}'");
+  // A caught ghost keeps its own small record: the school days it has spent out of the party, and its temperament.
+  if (!cols('checklings').includes('ghost')) db.exec("ALTER TABLE checklings ADD COLUMN ghost TEXT NOT NULL DEFAULT ''");
   const q = {
     trainer: db.prepare('SELECT * FROM trainers WHERE pid = ?'),
     nameTaken: db.prepare('SELECT 1 FROM trainers WHERE name = ?'),
@@ -225,6 +236,12 @@ export function openStore(db, g, care, clock = {}) {
     bury: db.prepare('UPDATE checklings SET died = ?, party = 0 WHERE id = ?'),
     grave: db.prepare('INSERT INTO graves (hour, trainer, species, level, days, cause, epitaph, died, pid, cid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'),
     graves: db.prepare('SELECT id, trainer, species, level, days, cause, epitaph, died, pid FROM graves WHERE hour = ? ORDER BY id DESC LIMIT ?'),
+    graveById: db.prepare("SELECT g.*, COALESCE(c.nick, '') AS nick FROM graves g LEFT JOIN checklings c ON c.id = g.cid WHERE g.id = ?"),
+    heldGhosts: db.prepare("SELECT g.grave_id FROM ghosts g JOIN checklings c ON c.id = g.cid WHERE c.died = ''"),
+    addGhostRow: db.prepare('INSERT INTO ghosts (grave_id, pid, cid, caught) VALUES (?, ?, ?, ?) ON CONFLICT(grave_id) DO UPDATE SET pid = excluded.pid, cid = excluded.cid, caught = excluded.caught'),
+    dropGhost: db.prepare('DELETE FROM ghosts WHERE cid = ?'),
+    setGhost: db.prepare('UPDATE checklings SET ghost = ? WHERE id = ?'),
+    addGhostChk: db.prepare('INSERT INTO checklings (pid, species, nick, xp, party, hatched, origin, born, ghost) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)'),
     egg: db.prepare('UPDATE trainers SET egg = ? WHERE pid = ?'),
     items: db.prepare('UPDATE trainers SET items = ? WHERE pid = ?'),
     hatched: db.prepare('SELECT * FROM checklings WHERE pid = ? AND hatched = 1'),
@@ -267,6 +284,7 @@ export function openStore(db, g, care, clock = {}) {
   const lineOf = (id) => (clock.root ? clock.root(id) : id);
   function grow(id, pid) {
     let row = q.one.get(pid, id);
+    if (isGhost(row)) return null; // ghosts never evolve
     const from = row?.species;
     for (let n = 0; row && n < 3; n++) {
       const into = clock.evolve ? clock.evolve(row.species, level(row), body(row)) : null;
@@ -277,6 +295,9 @@ export function openStore(db, g, care, clock = {}) {
     return row && row.species !== from ? { from, to: row.species } : null;
   }
   const itemsOf = (tr) => { try { return JSON.parse(tr?.items || '{}') || {}; } catch { return {}; } };
+  const saveItems = (pid, items) => q.items.run(JSON.stringify(items), pid);
+  const ghostOf = (row) => { try { return JSON.parse(row?.ghost || '{}') || {}; } catch { return {}; } };
+  const partyGhosts = (pid) => q.team.all(pid).filter((x) => x.party && isGhost(x)).length;
   const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
   // The partner is always a living Checkling in the party, or nobody when every Checkling is gone.
   function repartner(pid) {
@@ -305,7 +326,23 @@ export function openStore(db, g, care, clock = {}) {
     const reports = [], deaths = [];
     const rows = q.team.all(pid);
     const owed = new Map();
+    const faded = [];
     for (const row of rows) {
+      // A ghost has no body clock. It only counts the school days it spends out of the party, and fades back to the
+      // cemetery once that reaches keepCloseSchoolDays.
+      if (isGhost(row)) {
+        const gs = ghostOf(row);
+        const days = Care.owedDays(care, gs.clock || day, day, clock.wasUp, clock.noSchool).length;
+        gs.away = row.party ? 0 : (gs.away || 0) + days;
+        gs.clock = day;
+        if (clock.ghostKeep && gs.away >= clock.ghostKeep) {
+          q.bury.run('faded', row.id);
+          q.dropGhost.run(row.id);
+          faded.push({ id: row.id, species: row.species, nick: row.nick });
+          repartner(pid);
+        } else q.setGhost.run(JSON.stringify(gs), row.id);
+        continue;
+      }
       const b = body(row);
       // A body seen for the first time starts its clock today. The Den is paused, so its clock just keeps up, except
       // for a day it was out and active: a Checkling cared for or battled with faces that night even if it was sent to
@@ -342,7 +379,7 @@ export function openStore(db, g, care, clock = {}) {
         reports.push({ id: row.id, species: row.species, nick: row.nick, nights: days.length, lines: uniq.slice(0, 6) });
       }
     }
-    return { reports, deaths };
+    return { reports, deaths, faded };
   }
 
   return {
@@ -375,7 +412,7 @@ export function openStore(db, g, care, clock = {}) {
         tr = fresh(t.pid);
         const gained = Math.max(0, t.days - tr.attendance);
         // The body clock runs first, so XP goes to whoever is still standing this morning.
-        const body = created ? { reports: [], deaths: [] } : catchUp(t.pid, gained - (t.checkedIn ? 1 : 0));
+        const body = created ? { reports: [], deaths: [], faded: [] } : catchUp(t.pid, gained - (t.checkedIn ? 1 : 0));
         repartner(t.pid);
         tr = fresh(t.pid);
         if (tr.egg === -1 && (gained > 0 || t.checkedIn)) { q.egg.run(t.days + care.egg.hatchAfter, t.pid); tr = fresh(t.pid); }
@@ -389,7 +426,7 @@ export function openStore(db, g, care, clock = {}) {
           credit = { days: gained, xp: gained * g.dayXp, id: partner.id, species: partner.species, nick: partner.nick, before, after, evolved };
         }
         if (t.days !== tr.attendance) q.attendance.run(t.days, t.pid);
-        return { created, credit, trainer: fresh(t.pid), reports: body.reports, deaths: body.deaths };
+        return { created, credit, trainer: fresh(t.pid), reports: body.reports, deaths: body.deaths, faded: body.faded };
       });
     },
 
@@ -417,6 +454,7 @@ export function openStore(db, g, care, clock = {}) {
     body(pid, id) {
       const row = q.one.get(pid, id);
       if (!row) return null;
+      if (isGhost(row)) { const gs = ghostOf(row); return { ghost: true, temper: gs.temper || 'restless', away: gs.away || 0, keep: clock.ghostKeep || 0 }; }
       const v = Care.view(care, body(row), todayKey());
       const items = itemsOf(q.trainer.get(pid));
       v.rare = Object.entries(care.rare).filter(([k]) => items[k] > 0).map(([k, x]) => ({ id: k, label: x.label, count: items[k] }));
@@ -424,12 +462,14 @@ export function openStore(db, g, care, clock = {}) {
     },
     mods(pid, id) {
       const row = q.one.get(pid, id);
+      if (isGhost(row)) return null;
       return row ? Care.battleMods(care, body(row), todayKey()) : null;
     },
     care(pid, id, action, name) {
       return tx(() => {
         const row = q.one.get(pid, id);
         if (!row) return { ok: false, msg: 'That Checkling is not here.' };
+        if (isGhost(row)) return { ok: false, msg: 'Ghosts do not eat, nap or get sick. Keep it in your party so it stays close.' };
         if (!row.party) return { ok: false, msg: 'Bring it out of the Den first.' };
         const day = todayKey();
         const b = body(row);
@@ -449,7 +489,7 @@ export function openStore(db, g, care, clock = {}) {
     },
     noteBattle(pid, id) {
       const row = q.one.get(pid, id);
-      if (!row) return;
+      if (!row || isGhost(row)) return;
       const b = body(row);
       Care.noteBattle(b, todayKey());
       saveBody(id, b);
@@ -488,6 +528,7 @@ export function openStore(db, g, care, clock = {}) {
         if (toParty) {
           if (r.party) return { ok: false };
           if (inParty.length >= g.partyMax) return { ok: false, msg: `Your party is full. Send one to the Den first.` };
+          if (isGhost(r) && clock.ghostParty && inParty.filter(isGhost).length >= clock.ghostParty) return { ok: false, msg: 'Only one ghost can travel with you at a time.' };
           q.setParty.run(1, id);
           return { ok: true };
         }
@@ -511,6 +552,60 @@ export function openStore(db, g, care, clock = {}) {
         return { id, party: Boolean(party) };
       });
     },
+
+    // ---------- ghosts (content/ghosts.json) ----------
+    grave: (id) => q.graveById.get(id) || null,
+    heldGhosts: () => new Set(q.heldGhosts.all().map((r) => r.grave_id)),
+    // A caught ghost joins the party when there is room and no other ghost in it, otherwise it waits in the Den.
+    addGhost(pid, { graveId = 0, species, level, nick = '', temper }) {
+      return tx(() => {
+        const team = q.team.all(pid);
+        if (team.length >= g.partyMax + g.denMax) return null;
+        const inParty = team.filter((x) => x.party);
+        const party = inParty.length < g.partyMax && (!clock.ghostParty || inParty.filter(isGhost).length < clock.ghostParty) ? 1 : 0;
+        const gs = JSON.stringify({ temper, away: 0, clock: todayKey(), grave: graveId });
+        const id = Number(q.addGhostChk.run(pid, species, nick, xpFor(g, level), party, `ghost:${graveId || 'wander'}`, now(), gs).lastInsertRowid);
+        if (graveId) q.addGhostRow.run(graveId, pid, id, now());
+        return { id, party: Boolean(party) };
+      });
+    },
+    items(pid) { return itemsOf(fresh(pid)); },
+    // Grave moss comes off a headstone once a day per stone, a few times a day, and pockets only hold so much.
+    scrapeMoss(pid, stone, rules) {
+      return tx(() => {
+        const items = itemsOf(fresh(pid));
+        const day = todayKey();
+        if (items.mossDay !== day) { items.mossDay = day; items.mossStones = []; }
+        if ((items.graveMoss || 0) >= rules.moss.carry) return { ok: false, msg: rules.mossFull, moss: items.graveMoss };
+        if (items.mossStones.length >= rules.moss.perDay) return { ok: false, msg: rules.mossDone, moss: items.graveMoss || 0 };
+        if (items.mossStones.includes(stone)) return { ok: false, msg: '', moss: items.graveMoss || 0 };
+        items.mossStones.push(stone);
+        items.graveMoss = (items.graveMoss || 0) + 1;
+        saveItems(pid, items);
+        return { ok: true, msg: rules.mossLine, moss: items.graveMoss };
+      });
+    },
+    // The apothecary brews Spirit Sight and the partner drinks it on the spot.
+    brewSight(pid, rules, nowMs = Date.now()) {
+      return tx(() => {
+        const items = itemsOf(fresh(pid));
+        if ((items.sightUntil || 0) > nowMs) return { ok: false, msg: 'Your partner can already see ghosts.', until: items.sightUntil, moss: items.graveMoss || 0 };
+        if ((items.graveMoss || 0) < rules.sight.moss) return { ok: false, msg: `Spirit Sight needs ${rules.sight.moss} grave moss. Scrape it off the headstones on the cemetery hill.`, moss: items.graveMoss || 0 };
+        items.graveMoss -= rules.sight.moss;
+        items.sightUntil = nowMs + rules.sight.minutes * 60_000;
+        saveItems(pid, items);
+        return { ok: true, until: items.sightUntil, moss: items.graveMoss };
+      });
+    },
+    // A ghost a trainer knocked out, caught or chased off is gone for that trainer until tomorrow.
+    ghostDone(pid, key) {
+      const items = itemsOf(fresh(pid));
+      const day = todayKey();
+      if (items.ghostDay !== day) { items.ghostDay = day; items.ghostDone = []; }
+      if (!items.ghostDone.includes(key)) items.ghostDone.push(key);
+      saveItems(pid, items);
+    },
+    ghostsDone(pid) { const items = itemsOf(fresh(pid)); return new Set(items.ghostDay === todayKey() ? items.ghostDone || [] : []); },
 
     // A student names a Checkling they caught or hatched from an egg. The Check-In partner takes its name from Check-In.
     nickname(pid, id, nick) {

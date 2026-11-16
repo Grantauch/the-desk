@@ -42,6 +42,9 @@
   const pausedEl = document.getElementById('paused');
   function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } if (typeof movesLine === 'function') movesLine(); phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
   let town = null, house = null, wilds = null, kettle = null, stones = [], phrases = [], myPlot = 0, signs = {}, rerolls = 0;
+  // Ghosts on Kettle Creek's cemetery hill: frost on stones with a hidden ghost, and the ghosts while Spirit Sight lasts.
+  let ghostView = { frost: [], ghosts: [], sightUntil: 0 }, graveMoss = 0, sightShown = -1;
+  const sightMs = () => Math.max(0, ghostView.sightUntil - performance.now());
   // The outdoor map you are on right now: the town, the wilds or your own Kettle Creek. Houses use the house map.
   const mapNow = () => (roomKind === 'house' ? house : roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : town);
   let room = 'town', roomKind = 'town', roomOwner = null;
@@ -80,9 +83,9 @@
     // The title names the world you are in: your own Kettle Creek, or the shared Checkaverse the bus goes to.
     const home = roomKind === 'kettle' || (roomKind === 'house' && roomOwner?.map === 'kettle');
     $('placeTitle').textContent = home ? 'Kettle Creek' : 'Checkaverse';
-    placeEl.hidden = roomKind === 'kettle';
+    placeEl.hidden = roomKind === 'kettle' && !sightMs();
     if (roomKind === 'town') placeEl.textContent = 'Town';
-    else if (roomKind === 'kettle') placeEl.textContent = '';
+    else if (roomKind === 'kettle') placeEl.textContent = sightMs() ? `Spirit Sight · ${Math.ceil(sightMs() / 60000)} min` : '';
     else if (roomKind === 'wilds') placeEl.textContent = zoneName ? `The wilds · ${zoneName}` : 'The wilds';
     else if (roomOwner && roomOwner.owner === me) placeEl.textContent = 'Your house';
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
@@ -174,6 +177,7 @@
         room = m.room; roomKind = m.kind; roomOwner = m.owner;
         world?.reset(roomKind,roomOwner?.resident);world?.sync(m.life,true);
         if (roomKind === 'kettle') stones = m.stones || [];
+        else ghostView = { frost: [], ghosts: [], sightUntil: 0 };
         busLine();
         stopWalk();
         setPlayers(m.players);
@@ -238,6 +242,14 @@
       case 'report': showReport(m); break;
       case 'death': showDeath(m); break;
       case 'cemetery': showCemetery(m); break;
+      case 'ghosts':
+        ghostView = { frost: m.frost || [], ghosts: m.ghosts || [], sightUntil: performance.now() + (m.sight || 0) };
+        graveMoss = m.moss ?? graveMoss; placeLine();
+        if (ghostView.ghosts.length) tipSoon('ghost-seen', 600);
+        else if (ghostView.frost.length) tipSoon('frost', 4000);
+        break;
+      case 'moss': graveMoss = m.moss; tipSoon('moss', 1500); break;
+      case 'apothecary': showApothecary(m); break;
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'home': myPlot = m.myPlot; homeLine(); break;
@@ -504,7 +516,7 @@
     if (key.startsWith('resident:')) return talkTo(key.slice(9));
     if (key === 'notice-board') return askRanks();
     if (key.startsWith('place:')) return openPlace(key.slice(6));
-    if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`); return; }
+    if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) lookStone(st); return; }
     if (key === 'bus-stop-kc' && saved) return askBus('town');
     if (key === 'bus-stop' && saved && kettle) return askBus('kettle');
     if (signs[key]) toast(signs[key]);
@@ -613,18 +625,41 @@
       if (line) toast(line);
       return;
     }
+    if (place === 'apothecary' && saved) return send({ t: 'apothecary' });
     if (line) toast(line);
   }
-  let busTo = '';
-  function askBus(to) {
-    busTo = to;
-    $('busTitle').textContent = to === 'town' ? 'Ride the bus to the Checkaverse?' : 'Ride the bus home to Kettle Creek?';
-    $('busNote').textContent = to === 'town' ? 'Classmates are there to battle, plus the wilds and your house in the Neighborhood.' : 'Your Care panel, the clinic and Route 1 are at home.';
+  // A headstone: the town answers with its epitaph, a clue when a ghost is hiding nearby, and any grave moss.
+  function lookStone(st) {
+    if (!saved) return toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`);
+    send({ t: 'stone', x: st.x, y: st.y });
+  }
+  function showApothecary(m) {
+    if (m.sight > 0) return toast(`Your partner can already see ghosts for ${Math.ceil(m.sight / 60000)} more minutes. Head up the cemetery hill.`);
+    if (m.moss < m.need) return toast(`The apothecary can brew Spirit Sight from ${m.need} grave moss, and you have ${m.moss}. Look at the headstones on the cemetery hill to scrape some off.`);
+    confirmPop('Brew Spirit Sight?', `It takes ${m.need} grave moss, and you have ${m.moss}. Your partner drinks it here and can see ghosts on the cemetery hill for ${m.minutes} minutes.`,
+      'Brew it', 'Not now', () => send({ t: 'apothecary', brew: true }));
+  }
+  let busTo = '', confirmYes = null;
+  function confirmPop(title, note, yes, no, onYes) {
+    confirmYes = onYes;
+    $('busTitle').textContent = title;
+    $('busNote').textContent = note;
+    $('busYes').textContent = yes; $('busNo').textContent = no;
     closePops();
     $('busPop').hidden = false;
     $('busYes').focus();
   }
-  $('busYes').addEventListener('click', () => { $('busPop').hidden = true; send({ t: 'bus', to: busTo }); });
+  function askBus(to) {
+    busTo = to;
+    confirmYes = () => send({ t: 'bus', to: busTo });
+    $('busTitle').textContent = to === 'town' ? 'Ride the bus to the Checkaverse?' : 'Ride the bus home to Kettle Creek?';
+    $('busNote').textContent = to === 'town' ? 'Classmates are there to battle, plus the wilds and your house in the Neighborhood.' : 'Your Care panel, the clinic and Route 1 are at home.';
+    $('busYes').textContent = "Yes, let's go"; $('busNo').textContent = 'Not yet';
+    closePops();
+    $('busPop').hidden = false;
+    $('busYes').focus();
+  }
+  $('busYes').addEventListener('click', () => { $('busPop').hidden = true; const go = confirmYes; confirmYes = null; if (go) go(); });
   $('busNo').addEventListener('click', () => { $('busPop').hidden = true; });
   $('busPop').addEventListener('pointerdown', (e) => e.stopPropagation());
   function busLine() {
@@ -693,7 +728,7 @@
       const door = (kettle.doors || []).find((d) => d.x === self.x && d.y === self.y);
       if (door && self.f === 'u') { showSign(`place:${door.place}`); return true; }
       const st = stones.find((q) => q.x === self.x + ax && q.y === self.y + ay);
-      if (st) { toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`); return true; }
+      if (st) { lookStone(st); return true; }
     }
     const p = propAt(self.x + ax, self.y + ay);
     if (p) { showSign(p.sign); return true; }
@@ -829,6 +864,49 @@
     } else ctx.drawImage(im, px, py, dw, dh);
     if (sway) ctx.restore();
     return py;
+  }
+  // Frost creeping over a headstone whose ghost is out today.
+  function frost(x, y) {
+    const t = reduceMotion ? 0 : performance.now() / 900;
+    ctx.save();
+    ctx.globalAlpha = 0.5 + (reduceMotion ? 0 : Math.sin(t) * 0.12);
+    ctx.fillStyle = '#d8f1ff';
+    ctx.beginPath(); ctx.ellipse((x + 0.5) * TILE, (y + 0.93) * TILE, TILE * 0.42, TILE * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.85;
+    for (let i = 0; i < 3; i++) {
+      const sx = (x + 0.25 + ((hash(x, y + i) % 50) / 100)) * TILE, sy = (y + 0.35 + ((hash(y, x + i) % 40) / 100)) * TILE;
+      const tw = reduceMotion ? 1 : 0.6 + 0.4 * Math.sin(t * 2 + i * 2);
+      ctx.fillRect(sx - 1, sy - 3 * tw, 2, 6 * tw); ctx.fillRect(sx - 3 * tw, sy - 1, 6 * tw, 2);
+    }
+    ctx.restore();
+  }
+  // A ghost: its old self, pale and see through with a cold glow, bobbing over the grass with a faint trail.
+  const GHOST_ART = {};
+  function ghostArt(species) {
+    if (!GHOST_ART[species]) { const im = new Image(); im.src = `/art/front-${species}.png`; GHOST_ART[species] = im; }
+    const im = GHOST_ART[species];
+    return im.complete && im.naturalWidth > 0 ? im : null;
+  }
+  function ghostSprite(g) {
+    const im = ghostArt(g.species);
+    const t = reduceMotion ? 0 : performance.now() / 600;
+    const bob = reduceMotion ? 0 : Math.sin(t + g.x) * 0.08;
+    const w = 0.95 * TILE, h = im ? w * im.naturalHeight / im.naturalWidth : w;
+    const px = (g.x + 0.025) * TILE, base = (g.y + 0.85 - bob) * TILE;
+    ctx.save();
+    ctx.fillStyle = 'rgba(150, 210, 255, 0.25)';
+    ctx.beginPath(); ctx.ellipse((g.x + 0.5) * TILE, (g.y + 0.95) * TILE, TILE * 0.32, TILE * 0.09, 0, 0, Math.PI * 2); ctx.fill();
+    if (im) {
+      ctx.filter = 'grayscale(0.6) brightness(1.35) drop-shadow(0 0 6px rgba(140, 205, 255, 0.95))';
+      if (!reduceMotion) { ctx.globalAlpha = 0.14; ctx.drawImage(im, px, base - h + TILE * 0.18, w, h); }
+      ctx.globalAlpha = 0.62 + (reduceMotion ? 0 : Math.sin(t * 1.7) * 0.08);
+      ctx.drawImage(im, px, base - h, w, h);
+    } else {
+      ctx.globalAlpha = 0.6; ctx.fillStyle = '#e6f6ff';
+      ctx.beginPath(); ctx.ellipse((g.x + 0.5) * TILE, base - TILE * 0.4, TILE * 0.35, TILE * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+    labels.push([g.mine ? 'Your ghost' : g.wander ? 'Wandering ghost' : 'Ghost', (g.x + 0.5) * TILE, base - h - 4, '#bfe6ff', 2]);
   }
   const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; };
 
@@ -1067,8 +1145,10 @@
     if (roomKind === 'kettle') {
       for (const st of stones) {
         const art = `kc-headstone-${1 + ((st.trainer || '').length + (st.days || 0)) % 4}`;
-        list.push({ b: st.y + 1, draw: () => (has(art) ? sprite(art, st.x + 0.1, st.y + 1, 0.8) : boxShape(st.x + 0.2, st.y + 1, 0.6, 0.8, '#9a9a9a')) });
+        const frosty = ghostView.frost.some(([fx, fy]) => fx === st.x && fy === st.y);
+        list.push({ b: st.y + 1, draw: () => { (has(art) ? sprite(art, st.x + 0.1, st.y + 1, 0.8) : boxShape(st.x + 0.2, st.y + 1, 0.6, 0.8, '#9a9a9a')); if (frosty) frost(st.x, st.y); } });
       }
+      if (sightMs()) for (const g of ghostView.ghosts) list.push({ b: g.y + 1.01, draw: () => ghostSprite(g) });
     }
     for (const geo of roomKind === 'town' ? town.plots : []) {
       const state = live(geo.id);
@@ -1269,6 +1349,7 @@
     }
     if (lastNear && performance.now() > lastNear.until) { lastNear = null; watchLine(); }
     if (bt) clockTick();
+    if (roomKind === 'kettle') { const mins = Math.ceil(sightMs() / 60000); if (mins !== sightShown) { sightShown = mins; placeLine(); } }
     requestAnimationFrame(frame);
   }
 
@@ -1317,6 +1398,10 @@
     kettle: 'This is Kettle Creek, your home town. Your house, the clinic and Route 1 are here. The bus stop takes you to the Checkaverse to battle classmates.',
     care: 'Tap Care to feed, groom, play with and nap your Checkling. Too much or too little of anything has a cost.',
     visitor: 'You are visiting, so catches and wins are not saved. To keep them, ride the bus from your Check-In page.',
+    frost: 'Frost on a headstone means a ghost is out today. Face a headstone and press Space to look closer.',
+    moss: 'Grave moss! Take two to the apothecary to brew Spirit Sight, so your partner can see ghosts.',
+    'ghost-seen': 'Your partner can see ghosts now. Walk into one to battle it. You can only catch your own Checkling\'s ghost or a wandering one.',
+    'ghost-battle': 'Watch for the warning: on a fading turn your attacks pass right through the ghost. Guard on those turns.',
   };
   const FOLLOW = { walk: ['partner', 'say'] };
   const tipEl = $('tip'), tipText = $('tipText');
@@ -1388,7 +1473,8 @@
     b.setAttribute('role', 'radio');
     b.setAttribute('aria-checked', String(c.v === partner));
     const im = document.createElement('img'); im.src = `/art/front-${c.species}.png`; im.alt = '';
-    b.append(im, c.caught ? `${shortName(c)} ★` : shortName(c));
+    if (c.ghost) im.classList.add('ghostly');
+    b.append(im, c.caught ? `${shortName(c)} ★` : c.ghost ? `${shortName(c)} · Returned` : shortName(c));
     const toNext = c.need ? `, ${c.xp} of ${c.need} XP to level ${c.level + 1}` : '';
     b.title = `${c.nick ? `${c.nick}, a ` : ''}${c.name}, ${TYPE_NAMES[c.type] || ''} type, level ${c.level}${toNext}`;
     b.disabled = Boolean(bt);
@@ -1456,7 +1542,9 @@
   function renderCare() {
     const m = careView, b = m.body;
     $('careImg').src = `/art/front-${m.species}.png`;
+    $('careImg').classList.toggle('ghostly', Boolean(b.ghost));
     $('careName').textContent = m.name;
+    if (b.ghost) return renderGhostCare(m, b);
     $('careSub').textContent = `Level ${m.level}${m.den ? ' · resting in the Den, so its body clock is paused' : ''}`;
     const sw = $('careSwitch');
     sw.textContent = '';
@@ -1523,6 +1611,31 @@
       btn.addEventListener('click', () => send({ t: 'care', id: m.id, a: x.id }));
       acts.appendChild(btn);
     }
+  }
+  // A caught ghost has no body to care for. It only needs to stay in the party.
+  function renderGhostCare(m, b) {
+    $('careSub').textContent = `Level ${m.level} · Returned · ${b.temper}`;
+    const sw = $('careSwitch');
+    sw.textContent = '';
+    for (const c of team) {
+      const t = document.createElement('button');
+      t.type = 'button'; t.setAttribute('role', 'tab'); t.setAttribute('aria-selected', String(c.v === m.id));
+      t.textContent = shortName(c) + (c.den ? ' (Den)' : '');
+      t.addEventListener('click', () => askBody(c.v));
+      sw.appendChild(t);
+    }
+    sw.hidden = team.length < 2;
+    $('careBars').textContent = '';
+    const tags = $('careTags');
+    tags.textContent = '';
+    const d = document.createElement('div'); d.className = 'care-tag';
+    const h = document.createElement('b'); h.textContent = 'A ghost';
+    const left = Math.max(0, b.keep - b.away);
+    d.append(h, m.den
+      ? `It never eats, naps or gets sick, but it is drifting in the Den. It fades back to the cemetery after ${left} more school ${left === 1 ? 'day' : 'days'} out of your party.`
+      : 'It never eats, naps or gets sick, and it can never die again. It stays close as long as it travels in your party. It cannot evolve.');
+    tags.appendChild(d);
+    $('careActions').textContent = '';
   }
   const capital = (t) => t.charAt(0).toUpperCase() + t.slice(1);
   function stoneEl(st) {
@@ -1629,7 +1742,8 @@
       for (const c of den) {
         const row = document.createElement('div'); row.className = 'team-row den-row';
         const im = document.createElement('img'); im.src = `/art/front-${c.species}.png`; im.alt = '';
-        const name = document.createElement('span'); name.textContent = shortName(c);
+        const name = document.createElement('span'); name.textContent = c.ghost ? `${shortName(c)} · Returned` : shortName(c);
+        if (c.ghost) im.classList.add('ghostly');
         row.append(im, name);
         if (!c.hatched) row.append(nameButton(c, row));
         row.append(denButton(c, true, party.length < partyMax));
@@ -1661,7 +1775,7 @@
     closeConversation(); worldJournal.close();
     held.length = 0; stopWalk(); hideAsk();
     bt = { id: m.id, you: m.you, view: m.view, queue: [], playing: false, picked: '', foePicked: false, done: false,
-      turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null, wild: Boolean(m.wild), zone: m.zone || '' };
+      turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null, wild: Boolean(m.wild), zone: m.zone || '', ghost: m.ghost || null };
     closePops();
     lastNear = null; watchLine();
     bEl.hidden = false;
@@ -1673,6 +1787,10 @@
     drawSides(m.view, true);
     const n = nearSide(), foe = m.view.sides[1 - n], mine = m.view.sides[n];
     if (bt.watching) say(`You are watching ${m.view.sides[0].name} and ${m.view.sides[1].name}.`);
+    else if (bt.ghost) {
+      const who = bt.ghost.mine ? (bt.ghost.name ? ` It is ${bt.ghost.name}, back from the cemetery.` : ' It is a Checkling you once raised.') : bt.ghost.wander ? ' Nobody knows whose it was.' : ' It belonged to someone in your class.';
+      say(`${bt.ghost.rise}${who} Go, ${mine.speciesName}!`); tipSoon('ghost-battle', 1600);
+    }
     else if (bt.wild) { say(`A wild ${foe.speciesName} jumped out of ${/^route/i.test(bt.zone || '') ? bt.zone : `the ${(bt.zone || 'grass').toLowerCase()}`}! Go, ${mine.speciesName}!`); tipSoon('wild-battle', 1600); }
     else { say(`${foe.name} sent out ${foe.speciesName}! ${m.intro || ''} Go, ${mine.speciesName}!`); tipSoon('battle', 1600); }
     buildMoves(); buildPartners();
@@ -1719,8 +1837,11 @@
     const nameWith = (el, f) => { el.textContent = f.speciesName; el.prepend(typeImg(f.type)); };
     nameWith($('bFoeName'), foe); nameWith($('bMeName'), mine);
     $('bFoeLv').textContent = `Lv ${foe.level}`; $('bMeLv').textContent = `Lv ${mine.level}`;
-    $('bFoeTrainer').textContent = bt && bt.wild ? `Wild · ${bt.zone}` : foe.name;
-    if (bt && bt.wild) $('bFoeName').childNodes[1].textContent = `Wild ${foe.speciesName}`;
+    $('bFoeTrainer').textContent = bt && bt.ghost ? `Ghost · ${bt.ghost.temper}${foe.fadeNext ? ' · fading next turn' : ''}` : bt && bt.wild ? `Wild · ${bt.zone}` : `${foe.name}${foe.fadeNext ? ' · fading next turn' : ''}`;
+    if (bt && bt.ghost) $('bFoeName').childNodes[1].textContent = bt.ghost.name ? `${bt.ghost.name}'s ghost` : `Ghost ${foe.speciesName}`;
+    else if (bt && bt.wild) $('bFoeName').childNodes[1].textContent = `Wild ${foe.speciesName}`;
+    $('bFoeMon').classList.toggle('ghostly', Boolean(foe.ghost));
+    $('bMeMon').classList.toggle('ghostly', Boolean(mine.ghost));
     bar($('bFoeHp'), foe.hp, foe.maxHp, true); bar($('bFoeSt'), foe.stamina, foe.maxStamina);
     bar($('bMeHp'), mine.hp, mine.maxHp, true); bar($('bMeSt'), mine.stamina, mine.maxStamina);
     $('bMeHpNum').textContent = `${bt && bt.watching ? `${mine.name} · ` : ''}HP ${mine.hp} / ${mine.maxHp}`;
@@ -1757,8 +1878,9 @@
     });
     if (bt.wild) {
       const busy = paused || bt.playing || bt.done || Boolean(bt.picked);
-      bCharm.textContent = `5. Throw charm (${charms} left)`;
-      bCharm.disabled = busy || charms <= 0;
+      const notMine = bt.ghost && !bt.ghost.canCatch;
+      bCharm.textContent = notMine ? '5. Not yours to catch' : `5. Throw charm (${charms} left)`;
+      bCharm.disabled = busy || charms <= 0 || notMine;
       bRun.disabled = busy;
     }
   }
@@ -1857,6 +1979,11 @@
         pop.hidden = false;
         drawSides(live);
         await wait(700);
+      } else if (e.k === 'fade') {
+        const el = monEl(e.side);
+        el.classList.remove('fading'); void el.offsetWidth; el.classList.add('fading');
+        await wait(850);
+        el.classList.remove('fading');
       } else if (e.k === 'ko') {
         monEl(e.side).classList.add('down');
         (e.side === n ? $('bMeKo') : $('bFoeKo')).hidden = false;
@@ -1888,7 +2015,15 @@
     const n = nearSide();
     const why = { 'gave up': 'gave up', left: 'left the Checkaverse', timeout: 'ran out the clock' };
     let line;
-    if (b.wild) {
+    if (b.ghost) {
+      const g = b.ghost, mine = m.view.sides[0], who = g.name || `the ${m.view.sides[1].speciesName} ghost`;
+      if (m.reason === 'caught') line = m.kept === 'party' ? `${who[0].toUpperCase()}${who.slice(1)} is back with you as a ghost. It never eats or gets sick, but keep it in your party or it will fade away again.`
+        : `Caught! ${who[0].toUpperCase()}${who.slice(1)} went to your Den, since only one ghost can travel with you. Bring it into your party soon or it will fade away again.`;
+      else if (m.reason === 'slipped') line = 'The Spirit Sight wore off, and the ghost slipped away. Try again another day.';
+      else if (m.reason === 'ran') line = 'You backed away from the ghost.';
+      else if (m.winner === 0) line = `The ghost sinks back into the ground. It will not rise again until tomorrow. ${mine.speciesName} looks spooked but proud.`;
+      else line = `${mine.speciesName} is knocked out, but it recovers fully after the match. The ghost drifts back to its stone.`;
+    } else if (b.wild) {
       const wildOne = m.view.sides[1], mine = m.view.sides[0];
       if (m.reason === 'caught') line = m.kept === 'party' ? `Caught! ${wildOne.speciesName} (Lv ${wildOne.level}) joins your party. Pick it under the partner button any time.`
         : m.kept === 'den' ? `Caught! Your party is full, so ${wildOne.speciesName} (Lv ${wildOne.level}) went to rest in your Den.`
