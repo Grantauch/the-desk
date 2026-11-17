@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Situation Room · The Cuban Missile Crisis</title>
+<meta name="description" content="Work through six decisions from October 1962 and compare your reasoning with the historical record.">
+<link rel="canonical" href="https://grant-desk.com/hubs/situation-room.html">
+<style>
+:root {
+  color-scheme: dark;
+  --ink: #f6f7fb;
+  --muted: #c3c9db;
+  --cyan: #8ef5ff;
+  --gold: #ffda85;
+  --line: #656780;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #131324; color: var(--ink); font: 1rem/1.6 system-ui, sans-serif; }
+main { max-width: 52rem; margin: auto; padding: clamp(1rem, 4vw, 2.5rem); }
+h1, h2, h3 { line-height: 1.2; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.5rem); margin: .25em 0; }
+h2 { margin: .35em 0; }
+p, ul { margin: .65em 0; }
+a { color: var(--cyan); text-underline-offset: .2em; }
+.date { color: var(--gold); font-weight: 700; }
+.intro { color: var(--muted); max-width: 65ch; }
+.card { border: 1px solid var(--line); background: #202037; border-radius: 1rem; padding: clamp(1rem, 4vw, 1.5rem); margin-block: 1rem; }
+.choice { display: block; width: 100%; text-align: left; margin-top: .6rem; color: var(--ink); background: #30304c; }
+button { font: inherit; font-weight: 650; border: 1px solid var(--line); border-radius: .55rem; cursor: pointer; min-height: 44px; padding: .6rem .85rem; }
+button:hover { border-color: var(--cyan); }
+button:disabled { cursor: default; }
+.choice[aria-pressed="true"] { border: 2px solid var(--cyan); }
+.action { color: #111322; background: var(--cyan); }
+.feedback { border-inline-start: .2rem solid var(--gold); padding-inline-start: .85rem; margin-block: 1.2rem; }
+summary { cursor: pointer; padding-block: .5rem; font-weight: 700; }
+:focus-visible, [tabindex="-1"]:focus { outline: 3px solid var(--gold); outline-offset: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="date">U.S. History 9 · October 1962</p>
+    <h1>Situation Room</h1>
+    <p class="intro">U.S. photographs show Soviet missile sites under construction in Cuba. At six moments in the crisis, choose what you would advise President Kennedy to do. Then compare your reasoning with the historical record.</p>
+    <p class="intro">The choice feedback describes possible trade-offs in a classroom model. The dated records show what happened in 1962. This activity saves no work.</p>
+    <p><a href="/us-history/">U.S. History 9</a> · <a href="/games/">Games</a></p>
+  </header>
+
+  <section class="card" id="activity" aria-labelledby="decision" hidden>
+    <p class="date" id="progress"></p>
+    <h2 id="decision" tabindex="-1"></h2>
+    <p id="brief"></p>
+    <div id="choices"></div>
+    <section class="feedback" id="feedback" aria-labelledby="feedback-title" hidden>
+      <h3 id="feedback-title" tabindex="-1">Your choice and the record</h3>
+      <p id="tradeoff"></p>
+      <div id="record"></div>
+      <button class="action" id="advance" type="button"></button>
+    </section>
+  </section>
+
+  <section class="card" id="debrief" aria-labelledby="debrief-title" hidden>
+    <h2 id="debrief-title" tabindex="-1">Debrief</h2>
+    <p>You considered all six decisions. Discuss or write your response separately.</p>
+    <ul>
+      <li>Which action gave leaders more time to negotiate? Use one of the records below to support your answer.</li>
+      <li>Compare Kennedy’s public October 27 reply with the private account of that evening’s meeting. What did each audience get to hear?</li>
+      <li>Whose perspective is missing from the U.S. records? What source would you seek to learn more about Cuba’s position?</li>
+    </ul>
+    <button class="action" id="restart" type="button">Start again</button>
+  </section>
+
+  <section class="card" aria-labelledby="timeline-title">
+    <h2 id="timeline-title">Timeline and source documents</h2>
+    <noscript><p>Read the historical notes below. Enable JavaScript to try the six decisions.</p></noscript>
+    <details>
+      <summary>October 16 · The photographs</summary>
+      <p class="history">Photographs taken October 14 revealed missile site construction. Kennedy was briefed on October 16 and consulted a small group of advisers before announcing the discovery on October 22.</p>
+      <p class="source"><a href="https://www.archives.gov/milestone-documents/aerial-photograph-of-missiles-in-cuba">National Archives · October 14 aerial photograph</a></p>
+    </details>
+    <details>
+      <summary>October 22 · The quarantine</summary>
+      <p class="history">Kennedy announced a naval quarantine on offensive military shipments to Cuba. His televised address explained the scope of the measure and called for the missiles to be withdrawn.</p>
+      <p class="source"><a href="https://microsites.jfklibrary.org/cmc/oct22/doc5.html">JFK Library · Kennedy’s October 22 address</a></p>
+    </details>
+    <details>
+      <summary>October 25 · The tanker</summary>
+      <p class="history">The United States allowed the Soviet tanker Bucharest to pass. The JFK Library timeline describes its cargo as petroleum products.</p>
+      <p class="source"><a href="https://microsites.jfklibrary.org/cmc/oct25/">JFK Library · October 25 timeline and meeting records</a></p>
+    </details>
+    <details>
+      <summary>October 27 · The shootdown</summary>
+      <p class="history">A U-2 was shot down over Cuba, killing Major Rudolf Anderson Jr. Kennedy resisted calls for immediate retaliation while the administration continued to seek an agreement.</p>
+      <p class="source"><a href="https://microsites.jfklibrary.org/cmc/oct27/">JFK Library · October 27 timeline and meeting records</a></p>
+    </details>
+    <details>
+      <summary>October 27 · The two letters</summary>
+      <p class="history">The U.S. public reply offered a pledge against invading Cuba in exchange for removal of the Soviet missiles. In a private meeting with Soviet ambassador Anatoly Dobrynin, Robert Kennedy discussed the eventual removal of U.S. missiles from Turkey.</p>
+      <ul class="source">
+        <li><a href="https://history.state.gov/historicaldocuments/frus1961-63v06/d67">Office of the Historian · Kennedy’s public reply</a></li>
+        <li><a href="https://history.state.gov/historicaldocuments/frus1961-63v11/d96">Office of the Historian · Robert Kennedy’s account of the meeting</a></li>
+      </ul>
+    </details>
+    <details>
+      <summary>October 28 · The reply</summary>
+      <p class="history">Khrushchev announced that the Soviet weapons would be dismantled and returned. Negotiations over implementation continued, and the U.S. lifted the quarantine on November 20.</p>
+      <ul class="source">
+        <li><a href="https://history.state.gov/historicaldocuments/frus1961-63v06/d68">Office of the Historian · Khrushchev’s October 28 letter</a></li>
+        <li><a href="https://history.state.gov/historicaldocuments/frus1961-63v10-12mSupp/summary-xi">Office of the Historian · Negotiations and the end of the quarantine</a></li>
+      </ul>
+    </details>
+  </section>
+</main>
+<script>
+  const scenarios = [
+    {
+      prompt: 'Kennedy has just been briefed on the photographs. How should he handle the news while advisers weigh a response?',
+      options: [
+        ['Consult a small group before going public', 'Private deliberation gives advisers room to disagree. It also limits who can weigh in.'],
+        ['Tell the public immediately', 'Immediate disclosure gives the public information sooner. It commits the administration to responding before advisers settle on a plan.'],
+        ['Notify allies privately first', 'Early consultation shows respect for allies. Sharing the news more widely could shorten the time available for private deliberation.'],
+      ],
+    },
+    {
+      prompt: 'Advisers disagree about how to respond. Which approach would you recommend?',
+      options: [
+        ['Keep negotiations private for now', 'Private talks can test what the other side will accept. The missile sites could keep advancing while leaders talk.'],
+        ['Announce a limited quarantine', 'A limited quarantine signals opposition and leaves more room for diplomacy. It does little by itself about missiles already in Cuba.'],
+        ['Press for immediate military action', 'Military action might appear decisive, while the consequences and the other side’s response would be deeply uncertain.'],
+      ],
+    },
+    {
+      prompt: 'A Soviet tanker carrying petroleum approaches the quarantine line. How should the U.S. respond?',
+      options: [
+        ['Let the tanker pass under the announced rules', 'Following the announced limits signals that the measure has a specific purpose. It can draw criticism from people who want a broader response.'],
+        ['Seek a temporary U.N. pause', 'A pause could give both sides time to negotiate. It would also leave the missile issue unresolved during the pause.'],
+        ['Broaden the quarantine to include the tanker', 'A broader rule would put more pressure on Cuba. It would also widen the dispute beyond the terms the U.S. announced.'],
+      ],
+    },
+    {
+      prompt: 'An American pilot is killed when his plane is shot down. What should Kennedy do while the circumstances are still unclear?',
+      options: [
+        ['Raise the incident publicly before responding', 'A public statement can explain what is known. It could also narrow the options if leaders make commitments before facts are clear.'],
+        ['Support immediate retaliation', 'A quick response may satisfy demands for action. Leaders would have to act before they understood what the shootdown meant for negotiations.'],
+        ['Delay retaliation and continue talks', 'Waiting creates time to learn more and continue negotiations. Some advisers may see the delay as a lack of resolve.'],
+      ],
+    },
+    {
+      prompt: 'Khrushchev has offered to remove the missiles in return for a U.S. pledge against invading Cuba. In a second message, he also asks about U.S. missiles in Turkey. How do you respond?',
+      options: [
+        ['Answer the first offer publicly and discuss Turkey privately', 'Two channels let leaders discuss a sensitive issue and still make a public commitment. Allies and citizens have less visibility into the private terms.'],
+        ['Negotiate both issues in public', 'Public terms are easier for allies and citizens to scrutinize. They also make it harder for each side to change its position.'],
+        ['Reject both messages', 'Rejecting the terms preserves the current U.S. position. It leaves leaders without an agreed way to end the immediate crisis.'],
+      ],
+    },
+    {
+      prompt: 'Khrushchev says the missiles will be dismantled. What should the U.S. emphasize in its public response?',
+      options: [
+        ['Acknowledge the announcement and focus on implementation', 'A restrained response gives both sides room to follow through. It leaves questions about verification and remaining equipment to be resolved.'],
+        ['Declare the crisis over immediately', 'A declaration would reassure people quickly. It would also suggest the agreement had already been carried out.'],
+        ['Wait for implementation before commenting', 'Waiting avoids claiming an outcome too soon. The public receives less immediate information about what was agreed.'],
+      ],
+    },
+  ];
+
+  const activity = document.querySelector('#activity');
+  const progress = document.querySelector('#progress');
+  const decision = document.querySelector('#decision');
+  const brief = document.querySelector('#brief');
+  const choices = document.querySelector('#choices');
+  const feedback = document.querySelector('#feedback');
+  const feedbackTitle = document.querySelector('#feedback-title');
+  const tradeoff = document.querySelector('#tradeoff');
+  const record = document.querySelector('#record');
+  const advance = document.querySelector('#advance');
+  const debrief = document.querySelector('#debrief');
+  const timeline = document.querySelectorAll('#timeline-title ~ details');
+
+  let round = 0;
+  function showDecision(moveFocus) {
+    const scenario = scenarios[round];
+    const datedRecord = timeline[round];
+    progress.textContent = 'Decision ' + (round + 1) + ' of ' + scenarios.length;
+    decision.textContent = datedRecord.querySelector('summary').textContent;
+    brief.textContent = scenario.prompt;
+    feedback.hidden = true;
+
+    const buttons = scenario.options.map(([label, explanation]) => {
+      const choice = document.createElement('button');
+      choice.type = 'button';
+      choice.className = 'choice';
+      choice.textContent = label;
+      choice.setAttribute('aria-pressed', 'false');
+      choice.addEventListener('click', () => {
+        for (const button of choices.children) button.disabled = true;
+        choice.setAttribute('aria-pressed', 'true');
+        tradeoff.textContent = 'Classroom model · ' + explanation;
+        const history = datedRecord.querySelector('.history').cloneNode(true);
+        history.prepend('Historical record · ');
+        record.replaceChildren(history, datedRecord.querySelector('.source').cloneNode(true));
+        advance.textContent = round + 1 === scenarios.length ? 'Read the debrief' : 'Next decision';
+        feedback.hidden = false;
+        feedbackTitle.focus();
+      });
+      return choice;
+    });
+    choices.replaceChildren(...buttons);
+    if (moveFocus) decision.focus();
+  }
+
+  advance.addEventListener('click', () => {
+    if (feedback.hidden || activity.hidden) return;
+    round += 1;
+    if (round === scenarios.length) {
+      activity.hidden = true;
+      debrief.hidden = false;
+      document.querySelector('#debrief-title').focus();
+      return;
+    }
+    showDecision(true);
+  });
+
+  document.querySelector('#restart').addEventListener('click', () => {
+    round = 0;
+    debrief.hidden = true;
+    activity.hidden = false;
+    showDecision(true);
+  });
+  activity.hidden = false;
+  showDecision(false);
+</script>
+</body>
+</html>

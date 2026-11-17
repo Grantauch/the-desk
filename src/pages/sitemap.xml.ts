@@ -28,6 +28,7 @@ const paths = [
   '/games/',
   '/hubs/boss-fight-review.html',
   '/hubs/evidence-locker.html',
+  '/hubs/situation-room.html',
   '/checklings/',
   '/hubs/ush9-progressive-era-jeopardy-v3.html',
   '/hubs/the-league.html',

@@ -11,6 +11,19 @@
   # The database rules in docs/robber-barons-online/ protect the data, not this key.
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
 
+# Send legacy Situation Room links to the sourced student edition.
+[[redirects]]
+  from = "/hubs/situation_room.html"
+  to = "/hubs/situation-room.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/situation_room"
+  to = "/hubs/situation-room.html"
+  status = 302
+  force = true
+
 # Preserve the original Evidence Locker baseline and route old classroom links
 # to the corrected student edition.
 [[redirects]]
