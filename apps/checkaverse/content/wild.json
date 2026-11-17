@@ -19,7 +19,13 @@
         "mochi": 6,
         "zee": 2,
         "bolt": 1,
-        "ember": 1
+        "ember": 1,
+        "bramble": 3,
+        "flickit": 3,
+        "breezle": 2,
+        "rumblebee": 2,
+        "stumpkin": 2,
+        "skimlet": 1
       }
     },
     "C": {
@@ -32,7 +38,12 @@
       "table": {
         "zee": 6,
         "mochi": 2,
-        "bolt": 1
+        "bolt": 1,
+        "cloudlet": 3,
+        "glint": 3,
+        "hushmoth": 2,
+        "rumblebee": 1,
+        "peerlet": 1
       }
     },
     "R": {
@@ -45,7 +56,13 @@
       "table": {
         "bolt": 6,
         "ember": 2,
-        "zee": 1
+        "zee": 1,
+        "mossbit": 3,
+        "cobbit": 3,
+        "slabbit": 2,
+        "spindle": 2,
+        "clank": 2,
+        "breezle": 1
       }
     },
     "A": {
@@ -58,7 +75,11 @@
       "table": {
         "ember": 6,
         "bolt": 2,
-        "mochi": 1
+        "mochi": 1,
+        "lantern": 3,
+        "kindling": 3,
+        "duskit": 2,
+        "peerlet": 1
       }
     }
   },
@@ -74,7 +95,12 @@
         "mochi": 3,
         "zee": 3,
         "bolt": 2,
-        "ember": 2
+        "ember": 2,
+        "bramble": 2,
+        "reedling": 2,
+        "creekcap": 2,
+        "skimlet": 2,
+        "stumpkin": 1
       }
     }
   }

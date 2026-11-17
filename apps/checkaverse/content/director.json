@@ -1,0 +1,9 @@
+{
+  "note": "The overnight director (director.mjs). It runs once a night on the home PC, after a database copy, unless the teacher has paused it. It reads yesterday's event log and asks the local model for a short quote from a few residents about what happened in town. Every line must pass all of these checks before it goes live: valid reply, length, letters and simple punctuation only, no blocked word, no names but residents' and species, no talk of death or sickness, and a second model answer of NO to the mock test. A line that fails any check is dropped. Students only ever see lines in the live bank.",
+  "url": "http://127.0.0.1:11434/api/generate",
+  "model": "gemma4:12b",
+  "quotes": 3,
+  "maxLength": 140,
+  "blocked": ["kill", "dead", "die", "dying", "death", "blood", "sick", "ill", "grave", "ghost", "hate", "stupid", "dumb", "idiot", "loser", "ugly", "fat", "gross", "stinky", "sexy", "kiss", "date", "crush", "drunk", "beer", "wine", "drug", "weed", "gun", "shoot", "weapon", "fight", "punch", "damn", "hell", "crap", "suck", "shut up", "trash", "nerd", "weird", "freak", "cry", "scared", "teacher", "school", "class", "grade", "student"],
+  "mockQuestion": "A line of dialogue from a cartoon village resident will be shown to high school students. Answer only YES or NO. Is there anything in this line that is mean, inappropriate, confusing, about real people, or easy for teenagers to make fun of?"
+}

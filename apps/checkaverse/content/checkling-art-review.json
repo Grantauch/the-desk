@@ -1,0 +1,278 @@
+{
+  "note": "Hand review of every Sprite Book Checkling sheet by Claude, Nov 16, 2026. Grant set the bar the same day: the smooth, unpixelated look is preferred, and creatures may show every emotion, mean ones included. A sheet fails only if it cannot be cut cleanly or its poses cannot fill a front, front idle, back and back idle. layout action means front, action, hurt, back. The sha256 pins the exact sheet that was reviewed; a changed sheet waits for a new review.",
+  "sheets": {
+    "berryhold": {
+      "pass": true,
+      "sha256": "b95249d09bd6b8b5811ba20a336b1e5aba9214f9a67da8e2d23083136d234585"
+    },
+    "bolt": {
+      "pass": true,
+      "sha256": "224f2efb38a18b4eef602c2518b2ee4f3a884bc1be5418a60b1283d2432e5a70"
+    },
+    "boulderbud": {
+      "pass": true,
+      "sha256": "9fee849a13d7bd00fee6d6bf7880f182d56621b96faa5ce47ea448164842d6fd"
+    },
+    "bramble": {
+      "pass": true,
+      "sha256": "105d69738aba9ed53f7242698add95fccf9d9e66f4f62cfd4806cf2a63addf94"
+    },
+    "brassbright": {
+      "pass": true,
+      "sha256": "5f2d3cfcb4665a6cf1628c4c61c51719ac70d9bedc2f77d47b10b0b46e3bd607"
+    },
+    "breezle": {
+      "pass": true,
+      "sha256": "e38d60fdf1071d688f726a6eab2270e83eba8d4f7492fca2e9ecda8c996f21c3"
+    },
+    "briarwisp": {
+      "pass": true,
+      "sha256": "aaed097b17f2474f517a00ffffae0e4d82ed6907e1e85d137a9a7196c4c1833d"
+    },
+    "burlwood": {
+      "pass": true,
+      "sha256": "a3e4360981c4e4d18a6f868611e6b71f576efded3fb504252c989d73b0d89509",
+      "layout": "action"
+    },
+    "cinderkit": {
+      "pass": true,
+      "sha256": "d0dae8f2325aa501c0565a488637118ba2ace5854b94f90ab9b85f071450eebd"
+    },
+    "clank": {
+      "pass": true,
+      "sha256": "90757caa95e72685d45c444b18b64e1603590ccf3b361427b7cd9f81fb6c819a",
+      "layout": "action"
+    },
+    "cloudlet": {
+      "pass": true,
+      "sha256": "f29ebe1502c03ea2538bd46a3cce0f707b96287c5b84121ed1448955d0c7f82d"
+    },
+    "cobbit": {
+      "pass": true,
+      "sha256": "eda6d751d821752f0087ceb84330a9d9d3a2d034fece7b6485ddc10c5819ec6a"
+    },
+    "creekcap": {
+      "pass": true,
+      "sha256": "66582f423f0fc8b4d7df2cfc219bfbd63ab291b6a9767afc9ad79d14cf08dbf9",
+      "layout": "action"
+    },
+    "dewcrown": {
+      "pass": true,
+      "sha256": "f918d1e258690531f14a78a929bc44729fcfeae75be18bb12f0b1dff872f8391",
+      "layout": "action"
+    },
+    "dripcap": {
+      "pass": true,
+      "sha256": "fb09cd85f5fce1644668f1437f93b59da316d22d3729fbf2cb07f0126eeb9e14",
+      "layout": "action"
+    },
+    "duskit": {
+      "pass": true,
+      "sha256": "b8dea361127592eb16942e02be817b9baac0b62956b2d0088718efbed0cc1b53"
+    },
+    "elderbough": {
+      "pass": true,
+      "sha256": "b27b2647d48a1c6f09a338de5638b51c47ca624ee492e1f490a3e5cc03a3c9b3",
+      "layout": "action"
+    },
+    "ember": {
+      "pass": true,
+      "sha256": "e617288bbd32a5da070d410ef9db944dee55e7dc338d995e66271934eec7adee"
+    },
+    "flickit": {
+      "pass": true,
+      "sha256": "5f533f2da38b9323188555bc1fc6827b35d615a0007b674a01762fd4b070d9eb"
+    },
+    "flintling": {
+      "pass": true,
+      "sha256": "a1d40536c128f0e65f3ccd3c66bd27421a1048f4c03feed6a12b32ee3cf626b8"
+    },
+    "floodcap": {
+      "pass": true,
+      "sha256": "a01aa5700fb9f1a035786add1bef82f57ea66012211f5c184d60d6b2af1fbbf1",
+      "layout": "action"
+    },
+    "geodome": {
+      "pass": true,
+      "sha256": "59e91525c3060d7eef96c432bf1197aff5d713ed81c9d0c5a88fab49eaa062e1"
+    },
+    "glint": {
+      "pass": true,
+      "sha256": "322781e3abc0a301b914915d4339775d8263e3c1451e34c598b95c4188432b8c"
+    },
+    "gloamtail": {
+      "pass": true,
+      "sha256": "16fd0795ceeff0eec3a025ece7160cd4739e846b808ba2f07d3d4bddbf2f98b7"
+    },
+    "gustail": {
+      "pass": true,
+      "sha256": "39137a585eac47f4d5c82c0c8011091731717d806e8e1e667edb936b9dbb3784"
+    },
+    "hearthglow": {
+      "pass": true,
+      "sha256": "fe980e7522a957403844f4e104fe58ee820efb1a9a25322272068ca11429dfaa"
+    },
+    "hushmoth": {
+      "pass": true,
+      "sha256": "5ecce766b4762d4cc0f0e0ba782a29b25644bb726b90797a5a365278e73942c4"
+    },
+    "ironhull": {
+      "pass": true,
+      "sha256": "128c04aa2e7083d67a43ee248dd2f6cfa26ddd2d76857c551588c6d0be1e588d"
+    },
+    "kettledrake": {
+      "pass": true,
+      "sha256": "78572d0a5a0b198dd471414854ac97858578d0ee27001e00d6ea8c0dbc31c0c6",
+      "layout": "action"
+    },
+    "kilnback": {
+      "pass": true,
+      "sha256": "7c51a369c060b4720548d1967bbfd6432de7cc6274cf54c77f872fc74484bceb"
+    },
+    "kindling": {
+      "pass": true,
+      "sha256": "41c3ff0e7cea9f13e0c037ea30b5d5aceec50ea8010ba348db1b07cfa424af1a"
+    },
+    "lantern": {
+      "pass": true,
+      "sha256": "6051903cd834df5fa52b796e56a3d7988bf9ce3c10b98ef38a0a6ee71dc03c3f"
+    },
+    "lilyback": {
+      "pass": true,
+      "sha256": "83ed6bbe3c51fcf3c38b96ff6d002208217da178d827db96f187fbfe537a877f"
+    },
+    "longstride": {
+      "pass": true,
+      "sha256": "1eb412ee5a7cf2ecf3da639daedcde915691c9e9ef36396c636ef40ddc0f6d6c"
+    },
+    "marshreed": {
+      "pass": true,
+      "sha256": "46b674555e61c6e65e51e0a2f4cb33095b7878235b2cccec3f5ed0b9a4cf1a87"
+    },
+    "millwright": {
+      "pass": true,
+      "sha256": "db8c6bceaa52abcb119b3abd847fee15a906f2fa9075f1190779395e5c61df28",
+      "layout": "action"
+    },
+    "mochi": {
+      "pass": true,
+      "sha256": "a4744badf63bab26d961c5209da8a3ed91cd036e3c9eef32d8d45c0e3fa358d3"
+    },
+    "moonmantle": {
+      "pass": true,
+      "sha256": "c3424443cefdde1e871d2068e8d1df08384a6f49a2f37f253483a8697eb0a17d"
+    },
+    "mossbit": {
+      "pass": true,
+      "sha256": "e40594e087811b80ec7088f38e6a1126abb7be21a496b3a73fb4f57b054c4616"
+    },
+    "mossgard": {
+      "pass": true,
+      "sha256": "76e52b18866a617172aef6310d86274bb33cba56724fd70e05e854e69b7314f2"
+    },
+    "oakrise": {
+      "pass": true,
+      "sha256": "898f14bcbedd8e6a54c96ae0d626c73a29f4d575dd39a7fd2ee0a1eefff666be",
+      "layout": "action"
+    },
+    "peerlet": {
+      "pass": true,
+      "sha256": "cec55d2b54e29e9c03d86c38cf3093c166a86df9327dcf8b3bf0161ac08c9ba0"
+    },
+    "quasar": {
+      "pass": true,
+      "sha256": "5bf2f224b05263ff3d181e95ce679aaf83788054b2b5dd1121435434b54a7aae",
+      "layout": "action"
+    },
+    "rattlebit": {
+      "pass": true,
+      "sha256": "c64e98c4cd75ff2e5fee5263b82e3df16346c15fc1d0d6e47df67a28de278c76"
+    },
+    "reedling": {
+      "pass": true,
+      "sha256": "60ada677d02066b222e3781c8bfb41e56ee4b534fd57462c9bef2a20154ec37a"
+    },
+    "riptail": {
+      "pass": true,
+      "sha256": "6e3fe330d3433d2322ad4d71621e909a904ce7107694fba4862d038e1fcc2461"
+    },
+    "rivet": {
+      "pass": true,
+      "sha256": "3cc263e4d25af66a7f787ac90f047be4ec961cdcdc4369631a2d795065b9ed66",
+      "layout": "action"
+    },
+    "rumblebee": {
+      "pass": true,
+      "sha256": "81bf9713eadf21d2d299111103c5f7bc06d7758d26fec50e383b4a313a441d5c",
+      "layout": "action"
+    },
+    "skimlet": {
+      "pass": true,
+      "sha256": "75284178421e67452572382baf0291453a21373bacd2b40f5033877244554ecb"
+    },
+    "skimmer": {
+      "pass": true,
+      "sha256": "1f37f0224fda4e64c087cad3693f1199dddb5065c0ebd201089cf114e1e389d7"
+    },
+    "slabbit": {
+      "pass": true,
+      "sha256": "c2b62f024f187c5106ef46d4e05c93042a1ee0c729b6b6f58f0837378595f061"
+    },
+    "sparkwick": {
+      "pass": true,
+      "sha256": "aac228f083d1cab2f42a20e002c092ca487cebfb1bafd7953b770dc9094a5720"
+    },
+    "spindle": {
+      "pass": true,
+      "sha256": "549e744cdb79a60e19449ec4a498b79583499d416570817631f39eab598d7fe5"
+    },
+    "splitstone": {
+      "pass": true,
+      "sha256": "e2ffcf92a299a5cc78400294470fed015d4433541cd0b732aafeb9071b96c7d6"
+    },
+    "stormhum": {
+      "pass": true,
+      "sha256": "e71c071f7c0ed776b02dccd98dc4ea94dc0cfe28a8111001f1f34c1db791c70d"
+    },
+    "stormsail": {
+      "pass": true,
+      "sha256": "ee102723a4a7ed84858c96c30af052174751a7270675da2e6efe71711e4a6bc1"
+    },
+    "stumpkin": {
+      "pass": true,
+      "sha256": "2a7ba326ab04a2978f6d27304a5663590ed552ebbc6603e3c7509da4decb55d6",
+      "layout": "action"
+    },
+    "thicket": {
+      "pass": true,
+      "sha256": "6b8f6f157a6d4eaff885201eb2076878194f0fff88160d5d71b6d41680c05ae6",
+      "layout": "action"
+    },
+    "thornbloom": {
+      "pass": true,
+      "sha256": "c36f4baee86388615ccb46d63951381ce7f35fb112c8ef256f433711e5363c54"
+    },
+    "thunderdrum": {
+      "pass": true,
+      "sha256": "268ac58cb960fa0113ba9708b5c0cc2ae1573fe1e3d53c4f8263281c7e0ff32a"
+    },
+    "twigsnap": {
+      "pass": true,
+      "sha256": "b2cb63a8a439b8ae9a39eb27ead7e4f81a181031ec3af10f7e596d37ecb00d6c",
+      "layout": "action"
+    },
+    "zee": {
+      "pass": true,
+      "sha256": "39b4d5fe2361678a3c444b81b4339503fa58526765f080da1f5ae9ffaa7b65ae"
+    },
+    "zenith": {
+      "pass": true,
+      "sha256": "ee38db75e67154ec5ced89fe55908d22bf517867616f316ce80a79d14e5093d3",
+      "layout": "action"
+    },
+    "zipwing": {
+      "pass": true,
+      "sha256": "061f50058383256834e8a769b4cdec98d14745995ae301c71313d810ef155962"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "note": "Rewards the teacher can start from the teacher page for the whole Checkaverse. They are only ever good news, never a penalty. minutes is how long one lasts; 0 means the rest of the school day.",
+  "kinds": {
+    "festival": { "label": "Festival", "minutes": 60, "catchBonus": 0.15, "line": "A festival in the Checkaverse! Catching charms work better for the next hour." },
+    "doubleXp": { "label": "Double XP", "minutes": 0, "xp": 2, "line": "Double battle XP for the rest of the day, and the daily cap doubles too!" },
+    "rare": { "label": "Rare spawn", "minutes": 30, "weight": 6, "species": ["glint", "hushmoth", "peerlet", "slabbit", "spindle", "cloudlet"], "line": "Rare Checklings are out in the wilds and on Route 1 for the next half hour!" }
+  }
+}
