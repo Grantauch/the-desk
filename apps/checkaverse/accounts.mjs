@@ -52,6 +52,34 @@ export function loadShop(file, care) {
   return s;
 }
 
+// Forage spots and potion ingredients. Grave moss is listed here and still gathered from headstones.
+export function loadForage(file) {
+  const f = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const bad = (msg) => { throw new Error(`forage.json: ${msg}`); };
+  if (f.perSpot !== 1) bad('perSpot must be 1');
+  if (typeof f.already !== 'string' || !f.already) bad('already is missing');
+  if (typeof f.full !== 'string' || !f.full.includes('{name}')) bad('full must name the ingredient');
+  if (!f.ingredients || !f.spots) bad('ingredients and spots are required');
+  for (const [id, ing] of Object.entries(f.ingredients)) {
+    if (!/^[a-zA-Z]{2,20}$/.test(id)) bad(`bad id ${id}`);
+    if (typeof ing.name !== 'string' || !ing.name) bad(`${id} needs a name`);
+    if (!(Number.isInteger(ing.carry) && ing.carry >= 1 && ing.carry <= 30)) bad(`${id} carry`);
+    if (typeof ing.found !== 'string' || !ing.found) bad(`${id} found line`);
+  }
+  const spotIds = ['berry-patch', 'creek-bank', 'herb-garden', 'old-stump'];
+  if (Object.keys(f.spots).length !== spotIds.length || spotIds.some((id) => !f.spots[id])) bad('the four Kettle Creek spots must be berry-patch, creek-bank, herb-garden, and old-stump');
+  for (const [id, spot] of Object.entries(f.spots)) {
+    if (!Array.isArray(spot.finds) || spot.finds.length < 1) bad(`${id} needs finds`);
+    for (const find of spot.finds) {
+      const ing = f.ingredients[find];
+      if (!ing) bad(`${id} lists unknown ingredient ${find}`);
+      if (ing.source === 'headstone') bad(`${find} only grows on headstones`);
+    }
+  }
+  if (f.ingredients.graveMoss?.source !== 'headstone') bad('graveMoss must be a headstone ingredient');
+  return f;
+}
+
 // XP needed to stand at a level. Level 1 is free.
 export function xpFor(g, level) {
   let xp = 0, lv = 1;
@@ -518,6 +546,11 @@ export function openStore(db, g, care, clock = {}) {
       v.rare = Object.entries(care.rare).filter(([k]) => items[k] > 0).map(([k, x]) => ({ id: k, label: x.label, count: items[k] }));
       v.coins = items.coins || 0;
       v.bag = Object.fromEntries((clock.shop?.goods || []).map((g) => [g.id, items[g.id] || 0]));
+      v.foraged = {};
+      for (const [id, ing] of Object.entries(clock.forage?.ingredients || {})) {
+        if (ing.source === 'headstone' || !(items[id] > 0)) continue;
+        v.foraged[ing.name] = items[id];
+      }
       return v;
     },
     mods(pid, id) {
@@ -745,6 +778,25 @@ export function openStore(db, g, care, clock = {}) {
     coins: (pid) => itemsOf(fresh(pid)).coins || 0,
     bag: (pid) => itemsOf(fresh(pid)),
     // Buy one thing from the general store. The price and the carry limit come from shop.json.
+    // One find per forage spot per school day. The pick is seeded by the day and the spot, so every trainer gets the same ingredient.
+    gather(pid, spotId, forage) {
+      const spot = forage?.spots?.[spotId];
+      if (!spot) return { ok: false, msg: 'Nothing to gather here.' };
+      return tx(() => {
+        const items = itemsOf(fresh(pid));
+        const day = todayKey();
+        if (items.forageDay !== day) { items.forageDay = day; items.forageSpots = []; }
+        if ((items.forageSpots || []).includes(spotId)) return { ok: false, already: true, msg: forage.already };
+        const pick = spot.finds[Math.floor(seeded(day, spotId)() * spot.finds.length)];
+        const ing = forage.ingredients[pick];
+        const have = items[pick] || 0;
+        if (have >= ing.carry) return { ok: false, msg: forage.full.replaceAll('{name}', ing.name) };
+        items.forageSpots = [...(items.forageSpots || []), spotId];
+        items[pick] = have + 1;
+        saveItems(pid, items);
+        return { ok: true, id: pick, name: ing.name, count: items[pick], msg: ing.found.replaceAll('{count}', String(items[pick])).replaceAll('{name}', ing.name) };
+      });
+    },
     buy(pid, id) {
       const shop = clock.shop;
       const good = shop?.goods?.find((g) => g.id === id);

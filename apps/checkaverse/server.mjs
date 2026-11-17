@@ -79,6 +79,9 @@ if (SHOP.freeCharmsPerDay !== GROWTH.charmsPerDay) throw new Error('shop.json fr
 if (SHOP.visitCharms !== WILD.charms) throw new Error('shop.json visitCharms must match wild.json charms');
 // Ghosts in the cemetery (content/ghosts.json), checked like everything else.
 const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HERE, 'content', 'ghosts.json'), CARE, RULES);
+const FORAGE = Accounts.loadForage(path.join(HERE, 'content', 'forage.json'));
+if (FORAGE.ingredients.graveMoss.carry !== GHOSTS.moss.carry) throw new Error('forage.json grave moss carry must match ghosts.json');
+if (KETTLE?.forage) for (const spot of KETTLE.forage) if (!FORAGE.spots[spot.id]) throw new Error(`kettle.json forage spot ${spot.id} is not in forage.json`);
 // Learning and forgetting moves, and the gym's mini games (content/learnsets.json).
 const LEARN = Moves.loadLearnsets(path.join(HERE, 'content', 'learnsets.json'), RULES);
 const GYM_MIN_MS = Number(process.env.CHECKAVERSE_GYM_MIN_MS || LEARN.gym.minRoundMs); // tests only
@@ -214,6 +217,7 @@ const STORE = Accounts.openStore(db, GROWTH, CARE, {
   slots: LEARN.slots,
   learnMove: (known, move, forget) => Moves.learn(LEARN, RULES, known, move, forget),
   shop: SHOP,
+  forage: FORAGE,
 });
 // The town's memory and its news: the event log, the Gazette, residents' letters and the director's checked lines.
 const NEWS = openNews(db, () => Accounts.todayKey());
@@ -1751,6 +1755,18 @@ function handleMessage(p, msg, now) {
     case 'stone': if (now - (p.lastStone || 0) > 300) { p.lastStone = now; lookAtStone(p, Number(msg.x), Number(msg.y)); } return;
     case 'apothecary': if (now - (p.lastBrew || 0) > 400) { p.lastBrew = now; apothecary(p, Boolean(msg.brew)); } return;
     case 'shop': return send(p, shopView(p));
+    case 'forage': {
+      if (now - (p.lastForage || 0) < 300) return;
+      p.lastForage = now;
+      if (!p.pid || !KETTLE) return send(p, { t: 'forage', ok: false, msg: 'Ride the bus from Check-In to gather in Kettle Creek.' });
+      if (!isKettle(p.room)) return send(p, { t: 'forage', ok: false, msg: 'The forage spots are in Kettle Creek.' });
+      const spot = FORAGE.spots[msg.id];
+      const at = (KETTLE.forage || []).find((f) => f.id === msg.id);
+      if (!spot || !at) return send(p, { t: 'forage', ok: false, msg: 'Nothing to gather here.' });
+      if (Math.abs(p.x - at.x) + Math.abs(p.y - at.y) > 1) return send(p, { t: 'forage', ok: false, msg: 'Walk up to it first.' });
+      const got = STORE.gather(p.pid, msg.id, FORAGE);
+      return send(p, { t: 'forage', ...got });
+    }
     case 'buy': {
       if (now - (p.lastBuy || 0) < 200) return;
       p.lastBuy = now;
