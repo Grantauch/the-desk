@@ -286,7 +286,7 @@ Ship path for every code item: `npm test` in `apps/checkaverse`, then the browse
 
 Done when: a test covers Leave, then reload, then a second ticket in the same tab. A student with no ticket still cannot write a save. Existing ticket tests still pass.
 
-**A2. Idle return.** After a stretch with no walking, tapping, or battle input, do the same clear as Leave. Start at 20 minutes, matching the lesson hubs, unless the open question below picks another number. The turn clock and an open menu count as activity.
+**A2. Idle return.** After a stretch with no walking, tapping, or battle input, do the same clear as Leave. Grant answered on 17 November 2026: 20 minutes, the same as the lesson hubs. The turn clock and an open menu count as activity.
 
 Done when: a test clock fires the clear, and a battle that is still being picked does not fire it.
 
@@ -384,7 +384,7 @@ Issue 360 is a tracker of unpublished branches. Several of its Checklings rows s
 Only Grant can answer these. The roadmap does not guess.
 
 1. One shared town for every class hour, or a separate town per hour during the school day? Rankings are already per hour. The map is not. A split would stop hours from mixing, and it would also stop friends in different hours from meeting.
-2. How many minutes of no input should sign a Chromebook out of the Checkaverse? Twenty matches the lesson hubs. A class period is longer than that if the student is only reading.
+2. Answered 17 November 2026: idle sign-out is 20 minutes, the same as the lesson hubs. No walking, tapping, or battle input for that long does the same clear as Leave. An open menu, or a battle whose turn clock is still running, counts as activity.
 3. For "who is who," is the Check-In teacher view the right place, with real names staying out of the game server?
 4. Is Pixel Camp still part of class, or has Checkaverse replaced it? The camp is still linked from the site, and its bus link drops students in as visitors.
 5. What should streaks of 3, 7, 14, and 30 days pay in this game? Check-In already gives a habitat and a keepsake at each of those days (Lucky leaf, Pocket pearl, Sky feather, Your own star). Should the town add an egg, a phrase, or a decoration on top of that, or is the Check-In reward enough?
