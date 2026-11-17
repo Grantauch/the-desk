@@ -1087,12 +1087,13 @@ function deliverMail(p) {
   const day = Accounts.todayKey();
   const items = STORE.items(p.pid);
   if (items.mailDay !== day) {
+    const created = STORE.trainer(p.pid)?.created;
     const team = STORE.team(p.pid), partner = team.find((r) => `k${r.id}` === p.partner) || team.find((r) => r.party);
     const g = STORE.gym(p.pid, LEARN.gym.dailyRounds);
     const close = partner && LEARN.gym.moves.filter((m) => Moves.canLearn(LEARN, RULES, partner.species, m.move) && (g.points[m.move] || 0) >= m.cost / 2 && (g.points[m.move] || 0) < m.cost)[0];
     const ev = partner && SPECIES[partner.species].evolves?.[0];
     const ctx = {
-      firstDay: STORE.trainer(p.pid)?.created?.slice(0, 10) === day,
+      firstDay: Boolean(created) && Accounts.todayKey(new Date(created)) === day,
       flag: partner ? careFlag(p.pid, partner) : '', nick: partner ? (partner.nick || SPECIES[partner.species].name) : 'your Checkling', species: partner ? SPECIES[partner.species].name : '',
       gymClose: close ? { move: RULES.moves[close.move].name, points: g.points[close.move], price: close.cost } : null,
       gymNever: !Object.keys(g.points).length && g.roundsLeft === LEARN.gym.dailyRounds,
