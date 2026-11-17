@@ -55,7 +55,7 @@ export const TOWERS: Record<TowerKind, TowerDef> = {
     vsArmor: 0.2,
     splash: 0,
     shotSpeed: 760,
-    tone: "Rapid � light",
+    tone: "Rapid · light",
   },
   at: {
     kind: "at",
@@ -70,7 +70,7 @@ export const TOWERS: Record<TowerKind, TowerDef> = {
     vsArmor: 1.55,
     splash: 0,
     shotSpeed: 540,
-    tone: "Slow � armor-piercing",
+    tone: "Slow · armor-piercing",
   },
   mortar: {
     kind: "mortar",
@@ -85,7 +85,7 @@ export const TOWERS: Record<TowerKind, TowerDef> = {
     vsArmor: 0.82,
     splash: 64,
     shotSpeed: 0,
-    tone: "Lobbed � splash",
+    tone: "Lobbed · splash",
   },
   aa: {
     kind: "aa",
@@ -100,7 +100,7 @@ export const TOWERS: Record<TowerKind, TowerDef> = {
     vsArmor: 0.62,
     splash: 0,
     shotSpeed: 700,
-    tone: "Long � anti-air",
+    tone: "Long · anti-air",
   },
 };
 
@@ -263,7 +263,7 @@ export const WAVES: WaveDef[] = [
   },
   {
     name: "Combined column",
-    hint: "Armor and carriers now. Aircraft next wave. Save 190 zl for a Bofors.",
+    hint: "Armor and carriers now. Aircraft next wave. Save 190 zł for a Bofors.",
     groups: [
       { kind: "truck", n: 4, every: 1.1 },
       { kind: "panzer", n: 5, every: 1.45 },

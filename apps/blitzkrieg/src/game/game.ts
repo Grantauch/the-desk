@@ -562,7 +562,7 @@ export class Game {
     if (rank >= 3 || (rank === 2 && other === 3)) return false;
     const cost = upgradeCost(tower.kind, track, rank);
     if (this.gold < cost) {
-      this.floater(tower.x, tower.y - 20, "Not enough zloty", "primary");
+      this.floater(tower.x, tower.y - 20, "Not enough złoty", "primary");
       return false;
     }
     this.gold -= cost;
@@ -580,7 +580,7 @@ export class Game {
     const tower = this.towers[index]!;
     const refund = Math.floor(tower.spent * SELL_RATE);
     this.gold += refund;
-    this.floater(tower.x, tower.y, `+${refund} zl`, "accent");
+    this.floater(tower.x, tower.y, `+${refund} zł`, "accent");
     this.towers.splice(index, 1);
     if (this.selectedId === id) this.selectedId = null;
     if (this.mannedId === id) this.unman();
@@ -604,7 +604,7 @@ export class Game {
     }
     const cost = TOWERS[kind].cost;
     if (this.gold < cost) {
-      this.floater((c + 0.5) * CELL, (r + 0.5) * CELL, "Not enough zloty", "primary");
+      this.floater((c + 0.5) * CELL, (r + 0.5) * CELL, "Not enough złoty", "primary");
       this.dirty = true;
       return false;
     }
@@ -776,7 +776,7 @@ export class Game {
     this.lives -= loss;
     this.flash = 1;
     this.shake = Math.max(this.shake, this.reduce ? 0 : 7);
-    this.floater(e.x, e.y, `-${loss}`, "primary");
+    this.floater(e.x, e.y, `−${loss}`, "primary");
     this.audio.play("leak");
     this.dirty = true;
     if (this.lives <= 0) {

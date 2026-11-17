@@ -182,7 +182,7 @@ export function Blitzkrieg() {
           <p className="text-sm uppercase tracking-widest text-muted">1 September 1939</p>
         </div>
         <Stat icon={<Heart className="size-4" aria-hidden />} label="Garrison" value={String(hud.lives)} hot={hud.lives <= 6} />
-        <Stat icon={<Coins className="size-4" aria-hidden />} label="Zloty" value={String(hud.gold)} accent />
+        <Stat icon={<Coins className="size-4" aria-hidden />} label="Złoty" value={String(hud.gold)} accent />
         <Stat
           icon={<Crosshair className="size-4" aria-hidden />}
           label="Wave"
@@ -198,7 +198,7 @@ export function Blitzkrieg() {
             onClick={() => game.toggleSpeed()}
             disabled={!playing}
           >
-            {hud.speed}x
+            {hud.speed}×
           </button>
           <IconButton label={hud.muted ? "Unmute" : "Mute"} onClick={() => game.toggleMute()}>
             {hud.muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
@@ -250,7 +250,7 @@ export function Blitzkrieg() {
         {manned ? (
           <div className="pointer-events-none absolute right-3 bottom-3 left-3 flex justify-center lg:bottom-4">
             <p className="rounded-md border border-primary bg-surface px-3 py-2 text-center text-sm uppercase tracking-widest text-fg">
-              On the gun � aim and hold to fire � Esc releases � direct fire +{Math.round((MANUAL_BONUS - 1) * 100)}%
+              On the gun · aim and hold to fire · Esc releases · direct fire +{Math.round((MANUAL_BONUS - 1) * 100)}%
             </p>
           </div>
         ) : null}
@@ -273,14 +273,14 @@ export function Blitzkrieg() {
         ) : null}
         {hud.phase === "combat" ? (
           <p className="pointer-events-none absolute bottom-3 left-3 text-sm uppercase tracking-widest text-fg">
-            {hud.left} remaining in wave{hud.paused ? " � paused" : ""}
+            {hud.left} remaining in wave{hud.paused ? " · paused" : ""}
           </p>
         ) : null}
       </div>
 
       <aside className="dock flex min-h-0 flex-col border-t border-border bg-surface">
         <div className="dock-scroll min-h-0 flex-1 overflow-auto px-3 py-3">
-          <p className="mb-2 text-xs uppercase tracking-widest text-muted">{game.scenario.name} � Guns</p>
+          <p className="mb-2 text-xs uppercase tracking-widest text-muted">{game.scenario.name} · Guns</p>
           <div className="gun-grid">
             {TOWER_ORDER.map((kind) => {
               const def = TOWERS[kind];
@@ -290,7 +290,7 @@ export function Blitzkrieg() {
                 <button
                   key={kind}
                   type="button"
-                  aria-label={`${def.name}, ${def.cost} zloty`}
+                  aria-label={`${def.name}, ${def.cost} złoty`}
                   aria-pressed={armed}
                   disabled={!playing || poor}
                   onClick={() => {
@@ -315,8 +315,8 @@ export function Blitzkrieg() {
         </div>
         <div className="wave-panel border-t border-border p-3">
           <div className="wave-forecast">
-            <strong>Wave {hud.wave + 1} � {wave?.name}</strong>
-            <span>{wave?.groups.map(({ kind, n }) => `${n}x ${ENEMIES[kind].name}`).join(" � ")}</span>
+            <strong>Wave {hud.wave + 1} · {wave?.name}</strong>
+            <span>{wave?.groups.map(({ kind, n }) => `${n}× ${ENEMIES[kind].name}`).join(" · ")}</span>
             <small>{hud.phase === "deploy" ? wave?.hint : hud.hint}</small>
           </div>
           <button
@@ -336,11 +336,11 @@ export function Blitzkrieg() {
       {hud.phase === "briefing" ? (
         <dialog ref={dialogRef} className="mission-dialog" aria-labelledby="briefing-title" onCancel={(e) => e.preventDefault()}>
           <article className="overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 shadow-xl">
-            <p className="text-xs uppercase tracking-widest text-accent">Poland � the frontier road</p>
+            <p className="text-xs uppercase tracking-widest text-accent">Poland · the frontier road</p>
             <h1 id="briefing-title" className="mt-1 font-display text-5xl leading-none text-fg">Blitzkrieg</h1>
             <p className="mt-2 text-sm uppercase tracking-widest text-muted">1 September 1939</p>
             <p className="mt-4 text-lg leading-snug text-fg">
-              Columns are crossing the border at dawn. You have the guns on one road into the interior - nests, the 37mm, mortars, and a Bofors. Hold until night.
+              Columns are crossing the border at dawn. You have the guns on one road into the interior — nests, the 37mm, mortars, and a Bofors. Hold until night.
             </p>
             <ul className="mt-4 space-y-2 text-base leading-snug text-muted">
               <li>Set guns off the road. They crew themselves and fire on the first target in range.</li>
@@ -357,7 +357,7 @@ export function Blitzkrieg() {
               ))}
             </fieldset>
             <p className="mt-4 text-sm leading-snug text-muted">
-              This is a fictional road set during Nazi Germany's invasion of Poland.{" "}
+              This is a fictional road set during Nazi Germany’s invasion of Poland.{" "}
               <a className="text-accent underline" href={HISTORY_URL} target="_blank" rel="noreferrer">
                 Read the history at the U.S. Holocaust Memorial Museum.
               </a>
@@ -486,8 +486,8 @@ function Inspector({ hud, game, focusBoard }: { hud: Hud; game: Game; focusBoard
         </div>
       </div>
       <p className="mt-3 text-sm tabular-nums text-fg">
-        {Math.round(towerDamage(selected.kind, selected.dmgRank))} damage � {towerRate(selected.kind, selected.rateRank).toFixed(1)} /s
-        {crewed ? " � crewed" : ""}
+        {Math.round(towerDamage(selected.kind, selected.dmgRank))} damage · {towerRate(selected.kind, selected.rateRank).toFixed(1)} /s
+        {crewed ? " · crewed" : ""}
       </p>
       <div className="mt-3 flex flex-wrap gap-2" aria-label="Target priority" role="group">
         {PRIORITIES.map((item) => (
@@ -506,7 +506,7 @@ function Inspector({ hud, game, focusBoard }: { hud: Hud; game: Game; focusBoard
       </div>
       <div className="mt-3 grid gap-2">
         <Upgrade
-          label="Ordnance � damage"
+          label="Ordnance · damage"
           rank={selected.dmgRank}
           locked={selected.dmgRank === 2 && selected.rateRank === 3}
           cost={dmgCost}
@@ -514,7 +514,7 @@ function Inspector({ hud, game, focusBoard }: { hud: Hud; game: Game; focusBoard
           onClick={() => game.upgrade(selected.id, "dmg")}
         />
         <Upgrade
-          label="Drill � fire rate"
+          label="Drill · fire rate"
           rank={selected.rateRank}
           locked={selected.rateRank === 2 && selected.dmgRank === 3}
           cost={rateCost}
@@ -558,7 +558,7 @@ function Upgrade({
           ))}
         </span>
       </span>
-      <span className="text-accent">{maxed ? "Max" : locked ? "Locked" : `${cost} zl`}</span>
+      <span className="text-accent">{maxed ? "Max" : locked ? "Locked" : `${cost} zł`}</span>
     </button>
   );
 }
@@ -575,7 +575,7 @@ function EndCard({ hud, dialogRef, onRestart, onBriefing }: {
         <h2 id="result-title" className="mt-2 font-display text-4xl text-fg">{won ? "The line holds." : "The corridor breaks."}</h2>
         <p className="mt-3 text-lg leading-snug text-muted">
           {won
-            ? `You held through all ${hud.waveCount} waves with ${hud.lives} garrison and ${hud.gold} zl remaining.`
+            ? `You held through all ${hud.waveCount} waves with ${hud.lives} garrison and ${hud.gold} zł remaining.`
             : `The garrison fell on wave ${hud.wave + 1}${wave ? `, ${wave.name}` : ""}.`}
         </p>
         <p className="mt-4 text-sm leading-snug text-muted">

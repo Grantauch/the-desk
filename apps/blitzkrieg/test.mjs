@@ -46,7 +46,7 @@ for (const id of Object.keys(SCENARIOS)) {
   }
   const result = simulateAi(id);
   assert.equal(result.win, true, `${id} must be winnable with mixed towers without crew mode`);
-  console.log(`${id}: wave ${result.wave}/${WAVES.length}, ${result.lives} garrison, ${result.gold} zl`);
+  console.log(`${id}: wave ${result.wave}/${WAVES.length}, ${result.lives} garrison, ${result.gold} zł`);
 }
 assert.equal(new Set(Object.values(SCENARIOS).map((s) => s.road.size)).size, 3);
 

@@ -69,7 +69,7 @@
       vsArmor: 0.2,
       splash: 0,
       shotSpeed: 760,
-      tone: "Rapid � light"
+      tone: "Rapid · light"
     },
     at: {
       kind: "at",
@@ -84,7 +84,7 @@
       vsArmor: 1.55,
       splash: 0,
       shotSpeed: 540,
-      tone: "Slow � armor-piercing"
+      tone: "Slow · armor-piercing"
     },
     mortar: {
       kind: "mortar",
@@ -99,7 +99,7 @@
       vsArmor: 0.82,
       splash: 64,
       shotSpeed: 0,
-      tone: "Lobbed � splash"
+      tone: "Lobbed · splash"
     },
     aa: {
       kind: "aa",
@@ -114,7 +114,7 @@
       vsArmor: 0.62,
       splash: 0,
       shotSpeed: 700,
-      tone: "Long � anti-air"
+      tone: "Long · anti-air"
     }
   };
   var TOWER_ORDER = ["ckm", "at", "mortar", "aa"];
@@ -249,7 +249,7 @@
     },
     {
       name: "Combined column",
-      hint: "Armor and carriers now. Aircraft next wave. Save 190 zl for a Bofors.",
+      hint: "Armor and carriers now. Aircraft next wave. Save 190 zł for a Bofors.",
       groups: [
         { kind: "truck", n: 4, every: 1.1 },
         { kind: "panzer", n: 5, every: 1.45 },
@@ -1318,7 +1318,7 @@
       if (rank >= 3 || rank === 2 && other === 3) return false;
       const cost = upgradeCost(tower.kind, track, rank);
       if (this.gold < cost) {
-        this.floater(tower.x, tower.y - 20, "Not enough zloty", "primary");
+        this.floater(tower.x, tower.y - 20, "Not enough złoty", "primary");
         return false;
       }
       this.gold -= cost;
@@ -1335,7 +1335,7 @@
       const tower = this.towers[index];
       const refund = Math.floor(tower.spent * SELL_RATE);
       this.gold += refund;
-      this.floater(tower.x, tower.y, `+${refund} zl`, "accent");
+      this.floater(tower.x, tower.y, `+${refund} zł`, "accent");
       this.towers.splice(index, 1);
       if (this.selectedId === id) this.selectedId = null;
       if (this.mannedId === id) this.unman();
@@ -1357,7 +1357,7 @@
       }
       const cost = TOWERS[kind].cost;
       if (this.gold < cost) {
-        this.floater((c + 0.5) * CELL, (r + 0.5) * CELL, "Not enough zloty", "primary");
+        this.floater((c + 0.5) * CELL, (r + 0.5) * CELL, "Not enough złoty", "primary");
         this.dirty = true;
         return false;
       }
@@ -1516,7 +1516,7 @@
       this.lives -= loss;
       this.flash = 1;
       this.shake = Math.max(this.shake, this.reduce ? 0 : 7);
-      this.floater(e.x, e.y, `-${loss}`, "primary");
+      this.floater(e.x, e.y, `−${loss}`, "primary");
       this.audio.play("leak");
       this.dirty = true;
       if (this.lives <= 0) {
@@ -1989,7 +1989,7 @@
     };
     const wave = WAVES[hud.wave];
     const manned = hud.mannedId !== null;
-    return /* @__PURE__ */ React.createElement("div", { className: "app-shell relative" }, /* @__PURE__ */ React.createElement("header", { className: "app-header flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-border bg-surface px-4 py-2" }, /* @__PURE__ */ React.createElement("div", { className: "mr-auto min-w-0" }, /* @__PURE__ */ React.createElement("p", { className: "font-display text-xl leading-none tracking-wide" }, "Blitzkrieg"), /* @__PURE__ */ React.createElement("p", { className: "text-sm uppercase tracking-widest text-muted" }, "1 September 1939")), /* @__PURE__ */ React.createElement(Stat, { icon: /* @__PURE__ */ React.createElement(Heart, { className: "size-4", "aria-hidden": true }), label: "Garrison", value: String(hud.lives), hot: hud.lives <= 6 }), /* @__PURE__ */ React.createElement(Stat, { icon: /* @__PURE__ */ React.createElement(Coins, { className: "size-4", "aria-hidden": true }), label: "Zloty", value: String(hud.gold), accent: true }), /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { className: "app-shell relative" }, /* @__PURE__ */ React.createElement("header", { className: "app-header flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-border bg-surface px-4 py-2" }, /* @__PURE__ */ React.createElement("div", { className: "mr-auto min-w-0" }, /* @__PURE__ */ React.createElement("p", { className: "font-display text-xl leading-none tracking-wide" }, "Blitzkrieg"), /* @__PURE__ */ React.createElement("p", { className: "text-sm uppercase tracking-widest text-muted" }, "1 September 1939")), /* @__PURE__ */ React.createElement(Stat, { icon: /* @__PURE__ */ React.createElement(Heart, { className: "size-4", "aria-hidden": true }), label: "Garrison", value: String(hud.lives), hot: hud.lives <= 6 }), /* @__PURE__ */ React.createElement(Stat, { icon: /* @__PURE__ */ React.createElement(Coins, { className: "size-4", "aria-hidden": true }), label: "Złoty", value: String(hud.gold), accent: true }), /* @__PURE__ */ React.createElement(
       Stat,
       {
         icon: /* @__PURE__ */ React.createElement(Crosshair, { className: "size-4", "aria-hidden": true }),
@@ -2005,7 +2005,7 @@
         disabled: !playing
       },
       hud.speed,
-      "x"
+      "×"
     ), /* @__PURE__ */ React.createElement(IconButton, { label: hud.muted ? "Unmute" : "Mute", onClick: () => game.toggleMute() }, hud.muted ? /* @__PURE__ */ React.createElement(VolumeX, { className: "size-4" }) : /* @__PURE__ */ React.createElement(Volume2, { className: "size-4" })))), /* @__PURE__ */ React.createElement("div", { ref: stageRef, className: "battlefield relative min-h-0 bg-bg" }, /* @__PURE__ */ React.createElement(
       "canvas",
       {
@@ -2056,7 +2056,7 @@
           if (event.isPrimary) game.pointerUp();
         }
       }
-    ), /* @__PURE__ */ React.createElement("p", { id: "battlefield-controls", className: "sr-only" }, "Select a gun with 1 through 4. Move the cursor with arrow keys. Press Enter to place or select and M to crew. In crew mode, arrows aim and Space fires. Escape releases the gun."), /* @__PURE__ */ React.createElement("p", { className: "sr-only", role: "status" }, boardStatus), manned ? /* @__PURE__ */ React.createElement("div", { className: "pointer-events-none absolute right-3 bottom-3 left-3 flex justify-center lg:bottom-4" }, /* @__PURE__ */ React.createElement("p", { className: "rounded-md border border-primary bg-surface px-3 py-2 text-center text-sm uppercase tracking-widest text-fg" }, "On the gun � aim and hold to fire � Esc releases � direct fire +", Math.round((MANUAL_BONUS - 1) * 100), "%")) : null, manned ? /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("p", { id: "battlefield-controls", className: "sr-only" }, "Select a gun with 1 through 4. Move the cursor with arrow keys. Press Enter to place or select and M to crew. In crew mode, arrows aim and Space fires. Escape releases the gun."), /* @__PURE__ */ React.createElement("p", { className: "sr-only", role: "status" }, boardStatus), manned ? /* @__PURE__ */ React.createElement("div", { className: "pointer-events-none absolute right-3 bottom-3 left-3 flex justify-center lg:bottom-4" }, /* @__PURE__ */ React.createElement("p", { className: "rounded-md border border-primary bg-surface px-3 py-2 text-center text-sm uppercase tracking-widest text-fg" }, "On the gun · aim and hold to fire · Esc releases · direct fire +", Math.round((MANUAL_BONUS - 1) * 100), "%")) : null, manned ? /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
@@ -2072,7 +2072,7 @@
         onLostPointerCapture: () => game.setBtnFire(false)
       },
       "Fire"
-    ) : null, hud.phase === "combat" ? /* @__PURE__ */ React.createElement("p", { className: "pointer-events-none absolute bottom-3 left-3 text-sm uppercase tracking-widest text-fg" }, hud.left, " remaining in wave", hud.paused ? " � paused" : "") : null), /* @__PURE__ */ React.createElement("aside", { className: "dock flex min-h-0 flex-col border-t border-border bg-surface" }, /* @__PURE__ */ React.createElement("div", { className: "dock-scroll min-h-0 flex-1 overflow-auto px-3 py-3" }, /* @__PURE__ */ React.createElement("p", { className: "mb-2 text-xs uppercase tracking-widest text-muted" }, game.scenario.name, " � Guns"), /* @__PURE__ */ React.createElement("div", { className: "gun-grid" }, TOWER_ORDER.map((kind) => {
+    ) : null, hud.phase === "combat" ? /* @__PURE__ */ React.createElement("p", { className: "pointer-events-none absolute bottom-3 left-3 text-sm uppercase tracking-widest text-fg" }, hud.left, " remaining in wave", hud.paused ? " · paused" : "") : null), /* @__PURE__ */ React.createElement("aside", { className: "dock flex min-h-0 flex-col border-t border-border bg-surface" }, /* @__PURE__ */ React.createElement("div", { className: "dock-scroll min-h-0 flex-1 overflow-auto px-3 py-3" }, /* @__PURE__ */ React.createElement("p", { className: "mb-2 text-xs uppercase tracking-widest text-muted" }, game.scenario.name, " · Guns"), /* @__PURE__ */ React.createElement("div", { className: "gun-grid" }, TOWER_ORDER.map((kind) => {
       const def = TOWERS[kind];
       const armed = hud.armed === kind;
       const poor = hud.gold < def.cost;
@@ -2081,7 +2081,7 @@
         {
           key: kind,
           type: "button",
-          "aria-label": `${def.name}, ${def.cost} zloty`,
+          "aria-label": `${def.name}, ${def.cost} złoty`,
           "aria-pressed": armed,
           disabled: !playing || poor,
           onClick: () => {
@@ -2094,7 +2094,7 @@
         /* @__PURE__ */ React.createElement("span", { className: "min-w-0" }, /* @__PURE__ */ React.createElement("span", { className: "block text-base leading-tight text-fg" }, def.short), /* @__PURE__ */ React.createElement("span", { className: "gun-role block text-sm text-muted" }, def.tone)),
         /* @__PURE__ */ React.createElement("span", { className: "ml-auto text-sm text-accent" }, def.cost)
       );
-    })), /* @__PURE__ */ React.createElement(Inspector, { hud, game, focusBoard: () => canvasRef.current?.focus({ preventScroll: true }) })), /* @__PURE__ */ React.createElement("div", { className: "wave-panel border-t border-border p-3" }, /* @__PURE__ */ React.createElement("div", { className: "wave-forecast" }, /* @__PURE__ */ React.createElement("strong", null, "Wave ", hud.wave + 1, " � ", wave?.name), /* @__PURE__ */ React.createElement("span", null, wave?.groups.map(({ kind, n }) => `${n}x ${ENEMIES[kind].name}`).join(" � ")), /* @__PURE__ */ React.createElement("small", null, hud.phase === "deploy" ? wave?.hint : hud.hint)), /* @__PURE__ */ React.createElement(
+    })), /* @__PURE__ */ React.createElement(Inspector, { hud, game, focusBoard: () => canvasRef.current?.focus({ preventScroll: true }) })), /* @__PURE__ */ React.createElement("div", { className: "wave-panel border-t border-border p-3" }, /* @__PURE__ */ React.createElement("div", { className: "wave-forecast" }, /* @__PURE__ */ React.createElement("strong", null, "Wave ", hud.wave + 1, " · ", wave?.name), /* @__PURE__ */ React.createElement("span", null, wave?.groups.map(({ kind, n }) => `${n}× ${ENEMIES[kind].name}`).join(" · ")), /* @__PURE__ */ React.createElement("small", null, hud.phase === "deploy" ? wave?.hint : hud.hint)), /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
@@ -2106,7 +2106,7 @@
         }
       },
       hud.phase === "combat" ? "Column on the road" : `Send wave ${hud.wave + 1}`
-    ))), hud.phase === "briefing" ? /* @__PURE__ */ React.createElement("dialog", { ref: dialogRef, className: "mission-dialog", "aria-labelledby": "briefing-title", onCancel: (e) => e.preventDefault() }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 shadow-xl" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, "Poland � the frontier road"), /* @__PURE__ */ React.createElement("h1", { id: "briefing-title", className: "mt-1 font-display text-5xl leading-none text-fg" }, "Blitzkrieg"), /* @__PURE__ */ React.createElement("p", { className: "mt-2 text-sm uppercase tracking-widest text-muted" }, "1 September 1939"), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-lg leading-snug text-fg" }, "Columns are crossing the border at dawn. You have the guns on one road into the interior - nests, the 37mm, mortars, and a Bofors. Hold until night."), /* @__PURE__ */ React.createElement("ul", { className: "mt-4 space-y-2 text-base leading-snug text-muted" }, /* @__PURE__ */ React.createElement("li", null, "Set guns off the road. They crew themselves and fire on the first target in range."), /* @__PURE__ */ React.createElement("li", null, "Man a gun when a bend is failing. You aim. You fire. The others keep shooting."), /* @__PURE__ */ React.createElement("li", null, "Upgrade ordnance and drill. Every vehicle that slips through costs the garrison.")), /* @__PURE__ */ React.createElement("fieldset", { className: "map-picker" }, /* @__PURE__ */ React.createElement("legend", null, "Choose a battlefield"), Object.entries(SCENARIOS).map(([id, scenario2]) => /* @__PURE__ */ React.createElement("label", { key: id }, /* @__PURE__ */ React.createElement("input", { type: "radio", name: "scenario", checked: game.scenarioId === id, onChange: () => game.chooseScenario(id) }), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, scenario2.name), /* @__PURE__ */ React.createElement("small", null, scenario2.description))))), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "This is a fictional road set during Nazi Germany's invasion of Poland.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read the history at the U.S. Holocaust Memorial Museum.")), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm text-muted" }, hud.victories > 0 ? `This road has held ${hud.victories} ${hud.victories === 1 ? "time" : "times"}.` : hud.bestWave > 0 ? `Furthest hold: wave ${hud.bestWave} of ${hud.waveCount}.` : "No hold recorded on this road yet."), /* @__PURE__ */ React.createElement(
+    ))), hud.phase === "briefing" ? /* @__PURE__ */ React.createElement("dialog", { ref: dialogRef, className: "mission-dialog", "aria-labelledby": "briefing-title", onCancel: (e) => e.preventDefault() }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 shadow-xl" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, "Poland · the frontier road"), /* @__PURE__ */ React.createElement("h1", { id: "briefing-title", className: "mt-1 font-display text-5xl leading-none text-fg" }, "Blitzkrieg"), /* @__PURE__ */ React.createElement("p", { className: "mt-2 text-sm uppercase tracking-widest text-muted" }, "1 September 1939"), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-lg leading-snug text-fg" }, "Columns are crossing the border at dawn. You have the guns on one road into the interior — nests, the 37mm, mortars, and a Bofors. Hold until night."), /* @__PURE__ */ React.createElement("ul", { className: "mt-4 space-y-2 text-base leading-snug text-muted" }, /* @__PURE__ */ React.createElement("li", null, "Set guns off the road. They crew themselves and fire on the first target in range."), /* @__PURE__ */ React.createElement("li", null, "Man a gun when a bend is failing. You aim. You fire. The others keep shooting."), /* @__PURE__ */ React.createElement("li", null, "Upgrade ordnance and drill. Every vehicle that slips through costs the garrison.")), /* @__PURE__ */ React.createElement("fieldset", { className: "map-picker" }, /* @__PURE__ */ React.createElement("legend", null, "Choose a battlefield"), Object.entries(SCENARIOS).map(([id, scenario2]) => /* @__PURE__ */ React.createElement("label", { key: id }, /* @__PURE__ */ React.createElement("input", { type: "radio", name: "scenario", checked: game.scenarioId === id, onChange: () => game.chooseScenario(id) }), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, scenario2.name), /* @__PURE__ */ React.createElement("small", null, scenario2.description))))), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "This is a fictional road set during Nazi Germany’s invasion of Poland.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read the history at the U.S. Holocaust Memorial Museum.")), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm text-muted" }, hud.victories > 0 ? `This road has held ${hud.victories} ${hud.victories === 1 ? "time" : "times"}.` : hud.bestWave > 0 ? `Furthest hold: wave ${hud.bestWave} of ${hud.waveCount}.` : "No hold recorded on this road yet."), /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
@@ -2176,7 +2176,7 @@
       },
       "Sell ",
       Math.floor(selected.spent * SELL_RATE)
-    )), /* @__PURE__ */ React.createElement("div", { className: "flex items-start gap-3" }, /* @__PURE__ */ React.createElement("img", { src: ART_URLS[`tower-${selected.kind}`], alt: "", className: "h-14 w-14 object-contain" }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-lg leading-tight text-fg" }, def.name), /* @__PURE__ */ React.createElement("p", { className: "text-sm leading-snug text-muted" }, def.blurb))), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-sm tabular-nums text-fg" }, Math.round(towerDamage(selected.kind, selected.dmgRank)), " damage � ", towerRate(selected.kind, selected.rateRank).toFixed(1), " /s", crewed ? " � crewed" : ""), /* @__PURE__ */ React.createElement("div", { className: "mt-3 flex flex-wrap gap-2", "aria-label": "Target priority", role: "group" }, PRIORITIES.map((item) => /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ React.createElement("div", { className: "flex items-start gap-3" }, /* @__PURE__ */ React.createElement("img", { src: ART_URLS[`tower-${selected.kind}`], alt: "", className: "h-14 w-14 object-contain" }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-lg leading-tight text-fg" }, def.name), /* @__PURE__ */ React.createElement("p", { className: "text-sm leading-snug text-muted" }, def.blurb))), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-sm tabular-nums text-fg" }, Math.round(towerDamage(selected.kind, selected.dmgRank)), " damage · ", towerRate(selected.kind, selected.rateRank).toFixed(1), " /s", crewed ? " · crewed" : ""), /* @__PURE__ */ React.createElement("div", { className: "mt-3 flex flex-wrap gap-2", "aria-label": "Target priority", role: "group" }, PRIORITIES.map((item) => /* @__PURE__ */ React.createElement(
       "button",
       {
         key: item.id,
@@ -2189,7 +2189,7 @@
     ))), /* @__PURE__ */ React.createElement("div", { className: "mt-3 grid gap-2" }, /* @__PURE__ */ React.createElement(
       Upgrade,
       {
-        label: "Ordnance � damage",
+        label: "Ordnance · damage",
         rank: selected.dmgRank,
         locked: selected.dmgRank === 2 && selected.rateRank === 3,
         cost: dmgCost,
@@ -2199,7 +2199,7 @@
     ), /* @__PURE__ */ React.createElement(
       Upgrade,
       {
-        label: "Drill � fire rate",
+        label: "Drill · fire rate",
         rank: selected.rateRank,
         locked: selected.rateRank === 2 && selected.dmgRank === 3,
         cost: rateCost,
@@ -2226,13 +2226,13 @@
         className: "flex min-h-11 items-center justify-between rounded-md border border-border px-3 text-left text-sm disabled:opacity-40"
       },
       /* @__PURE__ */ React.createElement("span", { className: "text-fg" }, label2, /* @__PURE__ */ React.createElement("span", { className: "ml-2 inline-flex gap-1 align-middle" }, [0, 1, 2].map((i) => /* @__PURE__ */ React.createElement("span", { key: i, className: `inline-block size-2 rounded-full ${i < rank ? "bg-accent" : "bg-border"}` })))),
-      /* @__PURE__ */ React.createElement("span", { className: "text-accent" }, maxed ? "Max" : locked ? "Locked" : `${cost} zl`)
+      /* @__PURE__ */ React.createElement("span", { className: "text-accent" }, maxed ? "Max" : locked ? "Locked" : `${cost} zł`)
     );
   }
   function EndCard({ hud, dialogRef, onRestart, onBriefing }) {
     const won = hud.phase === "victory";
     const wave = WAVES[Math.min(hud.wave, WAVES.length - 1)];
-    return /* @__PURE__ */ React.createElement("dialog", { ref: dialogRef, className: "mission-dialog", "aria-labelledby": "result-title", onCancel: (e) => e.preventDefault() }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 text-center" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, won ? "Night, 1 September" : "The road is open"), /* @__PURE__ */ React.createElement("h2", { id: "result-title", className: "mt-2 font-display text-4xl text-fg" }, won ? "The line holds." : "The corridor breaks."), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-lg leading-snug text-muted" }, won ? `You held through all ${hud.waveCount} waves with ${hud.lives} garrison and ${hud.gold} zl remaining.` : `The garrison fell on wave ${hud.wave + 1}${wave ? `, ${wave.name}` : ""}.`), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "In the September Campaign, the Soviet Union invaded eastern Poland on September 17. German forces took Warsaw later that month.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read how the invasion unfolded.")), /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("dialog", { ref: dialogRef, className: "mission-dialog", "aria-labelledby": "result-title", onCancel: (e) => e.preventDefault() }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 text-center" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, won ? "Night, 1 September" : "The road is open"), /* @__PURE__ */ React.createElement("h2", { id: "result-title", className: "mt-2 font-display text-4xl text-fg" }, won ? "The line holds." : "The corridor breaks."), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-lg leading-snug text-muted" }, won ? `You held through all ${hud.waveCount} waves with ${hud.lives} garrison and ${hud.gold} zł remaining.` : `The garrison fell on wave ${hud.wave + 1}${wave ? `, ${wave.name}` : ""}.`), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "In the September Campaign, the Soviet Union invaded eastern Poland on September 17. German forces took Warsaw later that month.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read how the invasion unfolded.")), /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",

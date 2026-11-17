@@ -1,4 +1,4 @@
-# Blitzkrieg - September 1, 1939
+# Blitzkrieg — September 1, 1939
 
 Originally built in Grok App Builder. This edition has three fictional battlefields, twelve waves per battlefield, distinct flight paths, and a final specialization choice for each gun. The briefing and debrief link to the United States Holocaust Memorial Museum for background on the September Campaign.
 
