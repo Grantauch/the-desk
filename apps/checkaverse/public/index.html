@@ -26,6 +26,7 @@
       </button>
       <button id="careBtn" type="button" class="chip-btn care-btn" aria-expanded="false" aria-controls="carePop" hidden>Care<span id="careFlag" class="care-flag" hidden></span></button>
       <button id="sayBtn" type="button" class="chip-btn" aria-expanded="false" aria-controls="phrases">Say</button>
+      <button id="fenMapBtn" type="button" class="chip-btn" aria-controls="fenMapPop" hidden>Map</button>
       <span id="charmChip" class="chip charm-chip" hidden></span>
     </div>
 
@@ -106,6 +107,13 @@
       <div id="paperStories" class="paper-stories"></div>
       <div id="paperQuotes" class="paper-quotes" hidden></div>
       <button id="paperClose" type="button" class="ghost">Fold the paper</button>
+    </div>
+
+    <div id="fenMapPop" class="pop card-pop fen-map-pop" role="dialog" aria-labelledby="fenMapTitle" hidden>
+      <p class="fen-map-title" id="fenMapTitle">Bramblefen Basin</p>
+      <canvas id="fenMapCanvas" width="512" height="512" role="img" aria-label="Map of Bramblefen Basin showing its landmarks and where you are standing"></canvas>
+      <p class="fen-map-note">The gold dot is you. Press M to open or close the map.</p>
+      <button id="fenMapClose" type="button" class="ghost">Fold the map</button>
     </div>
 
     <div id="mailPop" class="pop card-pop mail-pop" role="dialog" aria-labelledby="mailTitle" hidden>
@@ -230,6 +238,7 @@
     </div>
   </main>
   <script type="module" src="/world.js"></script>
+  <script type="module" src="/fen.js"></script>
   <script type="module" src="/battle-fx.js"></script>
   <script type="module" src="/gym.js"></script>
   <script type="module" src="/plaza.js"></script>
