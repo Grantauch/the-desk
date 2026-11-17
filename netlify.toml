@@ -24,6 +24,19 @@
   status = 302
   force = true
 
+# Keep classroom bookmarks on the student-safe Roswell edition.
+[[redirects]]
+  from = "/hubs/roswell-signal.html"
+  to = "/hubs/hh-roswell-signal.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/roswell-signal"
+  to = "/hubs/hh-roswell-signal.html"
+  status = 302
+  force = true
+
 # Send legacy Situation Room links to the sourced student edition.
 [[redirects]]
   from = "/hubs/situation_room.html"

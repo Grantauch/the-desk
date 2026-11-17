@@ -30,6 +30,7 @@ const paths = [
   '/hubs/evidence-locker.html',
   '/hubs/situation-room.html',
   '/hubs/bts-bs-high-student.html',
+  '/hubs/hh-roswell-signal.html',
   '/checklings/',
   '/hubs/ush9-progressive-era-jeopardy-v3.html',
   '/hubs/ush9-wwi-jeopardy.html',
