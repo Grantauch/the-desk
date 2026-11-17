@@ -1341,6 +1341,27 @@ export const storyHubs: StoryHub[] = [
     ],
   },
   {
+    slug: 'ush9-s04-the-weavers-son',
+    href: '/hubs/ush9-s04-the-weavers-son.html',
+    title: "the weaver's son",
+    course: 'us history 9',
+    unit: 'industrialization / standalone',
+    period: 'England, 1811 to 1834',
+    status: 'ready to teach',
+    question: 'the machines came for the best paid workers in england. what happened to them, and to their children, after they lost?',
+    blurb:
+      'In 1811 skilled croppers and weavers started smashing the machines that were taking their trade. Students race a hand loom against a power loom, decode a letter signed Ned Ludd, walk the uprising on a map, watch a week of pay shrink in flour, and decide who really came out ahead. Then they hold the story up against AI.',
+    cover: '/storyhub/ush9/the-weavers-son/assets/leader-of-the-luddites-1812.webp',
+    coverAlt: 'The Leader of the Luddites, a hand colored London print from May 1812',
+    topics: ['luddites', 'industrial revolution', 'power loom', 'real wages', 'lord byron', 'technological unemployment', 'ai'],
+    inside: [
+      'A hand loom and a power loom side by side on video, and a race that shows the three and a half to one gap.',
+      'A Luddite letter from March 1812 to decode, and a map of the uprising from Arnold to the York gallows.',
+      'One weaver\'s pay in flour, 1797 against 1834, and a sort of who came out ahead.',
+      'Four AI scenarios, terms, note repair and four short responses with Turn In.',
+    ],
+  },
+  {
     slug: 'ush9-l014-unions',
     href: '/hubs/ush9-l014-unions.html',
     title: 'unions & collective bargaining',
