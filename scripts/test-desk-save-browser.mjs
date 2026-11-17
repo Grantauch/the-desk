@@ -609,6 +609,7 @@ await test('BS High restores complete investigations and clears shared-device wo
   const home = await chromebook(s, { hooks: { gate: true } });
   const hub = 'bts-bs-high-student.html';
   const legacy = 'bts_bs_high_review_board_v1';
+  const legacyHub = 'bs-high-system-behind-the-score';
   try {
     await school.context.addInitScript(key => localStorage.setItem(key, 'unowned test draft'), legacy);
     const page = await school.open(hub);
@@ -714,6 +715,19 @@ await test('BS High restores complete investigations and clears shared-device wo
       assert.equal(failures.length, 0, JSON.stringify({ step, failures }));
       await resumed.locator('#nextBtn').click();
     }
+
+    const legacyAccount = s.post({ action: 'signin', pin: s.pin(PEOPLE.katherine), hub: legacyHub, device: 'old-browser' });
+    assert.ok(legacyAccount.ok);
+    assert.ok(s.post({
+      action: 'save',
+      token: legacyAccount.token,
+      hub: legacyHub,
+      answers: [{ k: 'id:scoreTakeaway', q: 'One-sentence takeaway', a: 'Old account draft recovered.' }],
+    }).ok);
+    const legacyPage = await home.open(hub);
+    await passGate(legacyPage, s.pin(PEOPLE.katherine));
+    await legacyPage.locator('#nextBtn').click();
+    assert.equal(await legacyPage.locator('#scoreTakeaway').inputValue(), 'Old account draft recovered.');
   } finally {
     await school.context.close();
     await home.context.close();
