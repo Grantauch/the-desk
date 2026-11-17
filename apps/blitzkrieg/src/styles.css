@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #14110e;
+  --color-surface: #231e18;
+  --color-surface-2: #312a22;
+  --color-fg: #f4ead7;
+  --color-muted: #b5a48c;
+  --color-primary: #c8102e;
+  --color-accent: #d4a017;
+  --color-border: #3f362c;
+  --font-display: "Newsreader", Georgia, serif;
+  --font-sans: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  button,
+  input,
+  select {
+    font-family: inherit;
+  }
+}
+
+@keyframes callout-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-shell {
+  display: grid;
+  height: 100dvh;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.dock {
+  max-height: 42dvh;
+}
+
+.fire-hold {
+  display: none;
+}
+
+.callout {
+  animation: callout-in 200ms ease-out;
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .app-header {
+    grid-column: 1 / -1;
+  }
+
+  .dock {
+    max-height: none;
+    border-top-width: 0;
+    border-left: 1px solid var(--color-border);
+  }
+}
+
+@media (pointer: coarse) {
+  .fire-hold {
+    display: grid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .callout,
+  .overlay-card {
+    animation: none !important;
+  }
+}
