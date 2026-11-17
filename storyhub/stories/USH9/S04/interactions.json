@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-S04",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "s2",
+      "type": "video-compare",
+      "teaches": "What changed when weaving left the hand and went to the power loom, by sight and sound",
+      "studentAction": "Plays a hand loom and a power loom side by side, and opens a full weaving shed",
+      "feedback": "Two working looms, then three hundred",
+      "staticFallback": "Each video has a caption and a YouTube link, and the text carries the comparison",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "s2",
+      "type": "race-then-predict",
+      "teaches": "A power loom made about three and a half pieces to the weaver's one, and the price of hand weaving collapsed",
+      "studentAction": "Runs one hour at both looms, then predicts what happens to a hand weaver's pay per piece",
+      "feedback": "Two bolts of cloth grow at different speeds, then one weaver's pay appears in three periods",
+      "staticFallback": "Counts appear as numbers, the pay bars carry text labels, and reduced motion shows the result at once",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "s3",
+      "type": "annotated-source",
+      "teaches": "How a Luddite letter worked: a named target, a warning, military language and a made up signature",
+      "studentAction": "Taps phrases in the letter",
+      "feedback": "A note explains each phrase",
+      "staticFallback": "Every phrase is a button and the note is text",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "s6",
+      "type": "map-timeline",
+      "teaches": "Where and in what order the uprising spread, and how it ended at the gallows",
+      "studentAction": "Drags a slider through eleven events from 1811 to 1813, or picks one from the list",
+      "feedback": "Markers light up across the north, and an event card tells what happened there",
+      "staticFallback": "The full ordered list of events stays on the page and the slider announces each one",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "s7",
+      "type": "year-toggle",
+      "teaches": "Real wages: one weaver's week of pay bought 281 pounds of flour in 1797 and 81 in 1834, with more hours of work",
+      "studentAction": "Switches between 1797 and 1834",
+      "feedback": "Flour sacks fill and empty, and the ledger changes pay, flour and hours",
+      "staticFallback": "The ledger states every number in text",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "s9",
+      "type": "judge-then-reveal",
+      "teaches": "The gains from the machines went to owners and buyers while weavers and their children lost",
+      "studentAction": "Guesses better or worse off for six people",
+      "feedback": "The record for each person appears",
+      "staticFallback": "Guesses are buttons, records are text, nothing is scored",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I07",
+      "chapterId": "s10",
+      "type": "scenario-match",
+      "teaches": "Using AI like the mechanic instead of the boy at the frame or the weaver who refused",
+      "studentAction": "Matches four students to a worker from 1812",
+      "feedback": "An explanation tied to the 1812 story appears",
+      "staticFallback": "Scenarios and explanations are text, nothing is scored",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I08",
+      "chapterId": "repair",
+      "type": "note-repair",
+      "teaches": "Correct four common beliefs about the Luddites",
+      "studentAction": "Opens each fix",
+      "feedback": "The belief is struck through and the fix appears",
+      "staticFallback": "Plain buttons that show text",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    }
+  ]
+}

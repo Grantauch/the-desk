@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-10-29",
-  "catalogueCount": 72,
+  "catalogueCount": 73,
   "hubs": [
     {
       "hub": "hh-they-couldnt-stop.html",
@@ -359,6 +359,11 @@
     },
     {
       "hub": "ush9-s03-the-last-morning.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-s04-the-weavers-son.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }
