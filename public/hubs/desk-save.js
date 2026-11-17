@@ -85,7 +85,9 @@
   // does not ask for it again. It is never written to storage.
   var heldPin = '';
 
-  var hub = (location.pathname.replace(/\/+$/, '').split('/').pop() || 'hub').replace(/\.html?$/i, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'hub';
+  // Additive editions can keep the account identity of a previous classroom URL.
+  var assignment = document.body && document.body.getAttribute('data-desk-assignment');
+  var hub = ((assignment && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(assignment) ? assignment : '') || location.pathname.replace(/\/+$/, '').split('/').pop() || 'hub').replace(/\.html?$/i, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'hub';
   var course = (hub.match(/^(ush9|hh|bts)(?=-|$)/) || [])[1] || '';
   var STORE_KEY = 'desk-save:v1:' + hub;
 
@@ -538,10 +540,17 @@
     if (now) { writeJson('sessionStorage', TL_KEY, tl); return; }
     tlTimer = setTimeout(function () { writeJson('sessionStorage', TL_KEY, tl); }, 1000);
   }
+  // A page-generated choice record is saved with the work, without being
+  // recorded as student writing or flagged as pasted text.
+  function tlFields() {
+    var list = fields();
+    assignKeys(list);
+    return list.filter(function (el) { return !el.hasAttribute('data-desk-generated'); });
+  }
   // Programmatic changes: initial values, account loads, backups and undo.
   function tlSync(kind) {
     if (!tl) return;
-    var list = fields(); assignKeys(list);
+    var list = tlFields();
     list.forEach(function (el) {
       var key = keyOf.get(el), rec = tlField(key);
       if (rec.pending) tlFlush(key, rec.seen == null ? el.value : rec.seen);
@@ -559,9 +568,8 @@
 
   function tlInput(e) {
     var el = e.target;
-    if (!tl || applying || fields().indexOf(el) < 0) return;
+    if (!tl || applying || tlFields().indexOf(el) < 0) return;
     var key = keyOf.get(el);
-    if (!key) { assignKeys(fields()); key = keyOf.get(el); }
     var rec = tlField(key), now = Date.now(), type = e.inputType || '';
     var prev = rec.seen != null ? rec.seen : (tl.bases[key] || '');
     var d = tlDiff(prev, el.value);
@@ -598,7 +606,7 @@
   // Text that changed with no input event: set by the page or an extension.
   function tlTick() {
     if (!tl || applying) return;
-    var now = Date.now(), list = fields(); assignKeys(list);
+    var now = Date.now(), list = tlFields();
     list.forEach(function (el) {
       var key = keyOf.get(el), rec = tlField(key);
       if (rec.seen == null) rec.seen = tl.bases[key] || '';
@@ -652,7 +660,7 @@
       if (!tl) return undefined;
       tlTick(); tlFlushAll();
       var out = { v: 1, startedAt: tl.startedAt, sentAt: new Date().toISOString(), fields: {}, away: tl.away.slice(), marks: tl.marks.slice() };
-      var list = fields(); assignKeys(list);
+      var list = tlFields();
       list.forEach(function (el) {
         var key = keyOf.get(el), rec = tl.f[key];
         if (!rec || !rec.ops.length) return;

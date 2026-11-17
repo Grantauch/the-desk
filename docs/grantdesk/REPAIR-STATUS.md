@@ -1,3 +1,9 @@
+## November 17 BS High student publication
+
+Owner Codex, tracker #360 R02. The additive `bts-bs-high-student.html` edition keeps the existing Desk Save assignment ID and replaces the browser-wide draft with Desk Save. Written responses, choice and sequence work, safeguards, allocations, and source selections reach the same account draft and Turn In. The previous browser-wide draft is cleared because the browser cannot identify its owner. The original source remains available in Git. Beyond the Scoreboard, Games, the sitemap and old bookmarks lead to the corrected edition.
+
+Focused Chromium verified keyboard input, a fresh-device restore, Turn In through the Apps Script test harness, and a second synthetic student getting a blank case after sign-out. Protected CI, production routing and physical classroom acceptance are separate checks.
+
 ## November 16 Situation Room student publication
 
 Owner Codex, tracker #360 R07. The additive `situation-room.html` edition replaces numeric scoring with written trade-offs and pairs six decisions with October 1962 records. The chronology links to the National Archives, JFK Library, and Office of the Historian. A discussion debrief invites students to compare public and private accounts. Choices, feedback, debrief, and restart support keyboard navigation. The timeline also works without JavaScript. Games and Cold War America link to the corrected edition, and legacy bookmarks redirect there.
