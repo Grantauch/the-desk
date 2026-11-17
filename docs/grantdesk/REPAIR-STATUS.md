@@ -1,3 +1,9 @@
+## November 17 Reconstruction Case File student publication
+
+Owner Codex, issue #383 / tracker R05. The additive `reconstruction-case-file-student.html` edition uses the shared PIN gate and account saving. All six sections remain mounted, preserving 23 text fields and 26 choice groups across navigation, account restore and Turn In. The unowned browser-wide legacy draft is discarded. The original source is retained; old bookmarks redirect, and Games, U.S. History Unit 1 and the sitemap expose the student edition.
+
+Synthetic Chromium passed at 320, 390 and 1440 pixels for complete cloud restore in another browser context, same-tab reload, summary/download/Turn In, keyboard controls, shared-device sign-out and a different student's blank file. WCAG A/AA and width fit passed after feedback in every section. Five public references work without JavaScript. The land question acknowledges the Southern Homestead Act while distinguishing it from a general land guarantee. Canonical verification, protected CI, normal merge and production readback remain separate release checks; physical classroom acceptance remains pending.
+
 ## November 17 Blitzkrieg publication
 
 Codex recovered the original Blitzkrieg tower-defense game from Grant’s Grok export as an additive, standalone Games entry. This release includes the original twelve waves on one fictional road, input cleanup, a narrow-screen layout repair, sprite transparency cleanup, and historical context from the U.S. Holocaust Memorial Museum. Saves are local to the browser.
