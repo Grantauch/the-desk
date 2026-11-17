@@ -31,6 +31,7 @@ const paths = [
   '/hubs/situation-room.html',
   '/checklings/',
   '/hubs/ush9-progressive-era-jeopardy-v3.html',
+  '/hubs/ush9-wwi-jeopardy.html',
   '/hubs/the-league.html',
   '/hubs/tale-of-the-tape.html',
   '/hubs/blacktop-kings.html',
