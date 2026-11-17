@@ -1,0 +1,12 @@
+{
+  "project_id": "grantdesk-deployment",
+  "region": "us-central1",
+  "workload_identity_provider": "projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions/providers/grantdesk-the-desk",
+  "deploy_service_account": "grantdesk-sw-deploy@grantdesk-deployment.iam.gserviceaccount.com",
+  "artifact_repository": "grantdesk-schoolwide",
+  "cloud_run_service": "grantdesk-schoolwide-staging",
+  "migration_job": "grantdesk-schoolwide-staging-migrate",
+  "cloud_sql_connection": "grantdesk-deployment:us-central1:grantdesk-schoolwide-staging",
+  "runtime_service_account": "grantdesk-sw-runtime@grantdesk-deployment.iam.gserviceaccount.com",
+  "database_url_secret": "grantdesk-schoolwide-staging-db-url"
+}
