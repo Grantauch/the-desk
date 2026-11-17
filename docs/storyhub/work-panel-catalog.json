@@ -1,7 +1,12 @@
 {
   "checkedAt": "2026-10-29",
-  "catalogueCount": 72,
+  "catalogueCount": 73,
   "hubs": [
+    {
+      "hub": "bts-the-route-tree.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
     {
       "hub": "hh-they-couldnt-stop.html",
       "mode": "assignment",

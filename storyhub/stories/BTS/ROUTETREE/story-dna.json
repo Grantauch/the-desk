@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREE",
+  "title": "The Route Tree",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "comic multiverse",
+      "kinetic",
+      "fact dense"
+    ],
+    "paletteIntent": "Ink black and newsprint cream as the frame, with hot magenta and cyan print plates. Each universe takes its own palette from its treated photo: Ben-Day yellow for 1952, newsprint blue and red for 1955, olive and brass for 1969, neon grape for 1994, gold on purple for 2001, wrestling red, Kent navy and gold, rugby green and gold, glitch cyan for 2023.",
+    "typographyIntent": "Anton for headlines with slipped print plates, Bangers for sound effects, Permanent Marker for route notes and quotes, Alfa Slab One for the 1950s universes, Archivo for reading, Space Mono for data and labels.",
+    "textureLanguage": [
+      "halftone dots",
+      "offset print misregistration",
+      "comic panel borders",
+      "receipts, postcards and terminals as props"
+    ],
+    "shapeLanguage": "Tilted comic panels with hard offset shadows, numbered route badges, speech bubbles for real quotes only, starbursts for sound effects.",
+    "motionGrammar": [
+      "drawing: routes draw themselves off the line",
+      "glitch: the headline slips when you jump into a universe",
+      "driving: the delivery truck runs its route",
+      "growth: height bars rise"
+    ],
+    "interactionSignature": [
+      "sort Invincible claims into history, Hollywood or remixed",
+      "light up routes by the door that opened",
+      "count 1,000 players down to one draft pick",
+      "build your own route card"
+    ],
+    "densityRhythm": "A loud cover, a dense movie chapter, a stark odds grid, then nine short universes that each change look, a data board, two quick stories from other sports and a personal build at the end.",
+    "archivalBehavior": "Real places, not faces: openly licensed photos of stadiums, plants, fields and arenas, each recolored as a comic print and credited. Real people appear through embedded video only.",
+    "endingLanguage": "The student draws a route card for their own goal, ties it to one universe, and turns in."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Each section samples the gradient map used to colorize its photo.",
+    "edgeTreatment": "Five pixel ink borders with offset color shadows, the same plates as the photo misregistration.",
+    "controlLanguage": "Buttons look like stamps and play calls: square, inked, offset shadow when pressed.",
+    "spacingLanguage": "Wide gutters between panels like a comic page, tight stacks inside props.",
+    "transitionLanguage": "Short slides and glitch steps, all removed under reduced motion."
+  }
+}
