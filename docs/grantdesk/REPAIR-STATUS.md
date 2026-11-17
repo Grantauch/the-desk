@@ -1,3 +1,7 @@
+## November 17 Hall Pass teacher-audit retry
+
+A teacher retry after a pass, check-in, late review, or absence row has already committed now repairs the missing audit row and finishes queue cleanup instead of writing a second attendance row. A teacher check-in does not take credit for an arrival the student already recorded. Local Hall Pass runtime passed 452 checks. This does not deploy Apps Script.
+
 ## November 17 Blitzkrieg publication
 
 Codex recovered the original Blitzkrieg tower-defense game from Grant’s Grok export as an additive, standalone Games entry. This release includes the original twelve waves on one fictional road, input cleanup, a narrow-screen layout repair, sprite transparency cleanup, and historical context from the U.S. Holocaust Memorial Museum. Saves are local to the browser.
