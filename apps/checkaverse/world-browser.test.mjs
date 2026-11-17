@@ -38,6 +38,10 @@ try {
     await page.goto(`${origin}/?debug${saved?`#t=${ticket(id)}`:''}`);
     await page.waitForFunction(()=>window.__checkaverse?.players.size>0);
     await page.waitForFunction(()=>window.__checkaverse.world()?.active().length>0);
+    // A saved trainer's first visit of the day gets the Gazette 2.5 seconds
+    // after joining. It covers the town and closes other pops, so fold it
+    // before any sprite tap instead of racing it.
+    if(saved)await page.waitForSelector('#paperPop:not([hidden])',{timeout:8000}).then(()=>page.click('#paperClose')).catch(()=>{});
     return {page,context,life:()=>lastLife};
   }
   async function walk(page,x,y){
@@ -93,7 +97,7 @@ try {
   assert.deepEqual(await page.evaluate(()=>{const d=window.__checkaverse,p=d.players.get(d.me());return [p.x,p.y];}),before);
   await page.getByRole('button',{name:'Need a hand?',exact:true}).click();
   await page.getByRole('button',{name:"I'll have a look.",exact:true}).click();
-  await walk(page,9,9);assert.equal(await page.evaluate(()=>window.__checkaverse.world().status('rowan')),'found');
+  await walk(page,9,9);await page.waitForFunction(()=>window.__checkaverse.world().status('rowan')==='found',null,{timeout:10000});
   await walk(page,11,10);await clickResident(page,'rowan');
   assert.match(await page.locator('#residentText').textContent(),/There it is/);
   await page.waitForFunction(()=>window.__checkaverse.world().all().find(n=>n.id==='rowan').helped===1);
@@ -103,7 +107,7 @@ try {
   await page.keyboard.press('Escape');
   await walk(page,13,13);await clickResident(page,'pax');
   await page.getByRole('button',{name:'Lose something?',exact:true}).click();await page.getByRole('button',{name:"I'll have a look.",exact:true}).click();
-  await walk(page,15,22);assert.equal(await page.evaluate(()=>window.__checkaverse.world().status('pax')),'found');
+  await walk(page,15,22);await page.waitForFunction(()=>window.__checkaverse.world().status('pax')==='found',null,{timeout:10000});
   await walk(page,13,13);await clickResident(page,'pax');await page.keyboard.press('Escape');
   assert.equal(await page.evaluate(()=>window.__checkaverse.world().status('pax')),'done');
   await page.screenshot({path:path.join(out,'kettle-desktop.png')});
@@ -139,7 +143,7 @@ try {
   await findResident(visitor.page,'tess');
   await visitor.page.getByRole('button',{name:'Need help setting up?',exact:true}).click();await visitor.page.getByRole('button',{name:"I'll have a look.",exact:true}).click();
   await returnToTown(visitor.page);
-  await walk(visitor.page,10,15);assert.equal(await visitor.page.evaluate(()=>window.__checkaverse.world().status('tess')),'found');
+  await walk(visitor.page,10,15);await visitor.page.waitForFunction(()=>window.__checkaverse.world().status('tess')==='found',null,{timeout:10000});
   await findResident(visitor.page,'tess');await visitor.page.keyboard.press('Escape');
   assert.equal(await visitor.page.evaluate(()=>window.__checkaverse.world().status('tess')),'done');
   await returnToTown(visitor.page);
