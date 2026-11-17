@@ -1,4 +1,16 @@
 {
+  "hall-pass-active-pin-agreement-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Drafts #366 and #117. Signed Hall Pass actions require every active membership for that student to share the PIN hash that was just entered. Inactive historical hashes do not invalidate the current credential version.",
+    "verification_status": "LOCAL_RUNTIME_447_CHECKS_PASS_APPS_SCRIPT_NOT_DEPLOYED",
+    "deployment_status": "SOURCE_ONLY_APPS_SCRIPT_DEPLOY_NOT_AUTHORIZED",
+    "field_status": "NOT_DEPLOYED",
+    "evidence": [
+      "Synthetic runtime fixtures cover an inactive historical hash and two disagreeing active hashes. No proof is issued when active hashes disagree.",
+      "This does not deploy Apps Script, rotate PINs, or authorize production cutover."
+    ]
+  },
   "blitzkrieg-publication-2026-11-17": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
