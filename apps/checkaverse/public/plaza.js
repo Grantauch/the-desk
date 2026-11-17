@@ -264,6 +264,7 @@
       case 'ranks': showRanks(m); break;
       case 'body': showBody(m); break;
       case 'cared': $('careMsg').textContent = m.msg; if (m.body && careView) { careView.body = m.body; renderCare(); } break;
+      case 'shop': showStore(m); break;
       case 'report': showReport(m); break;
       case 'death': showDeath(m); break;
       case 'cemetery': showCemetery(m); break;
@@ -572,6 +573,7 @@
     if (key.startsWith('resident:')) return talkTo(key.slice(9));
     if (key === 'notice-board') return askRanks();
     if (key === 'arena') { if (saved) return send({ t: 'gym' }); }
+    if (key === 'market-stall') return send({ t: 'shop' });
     if (key.startsWith('place:')) return openPlace(key.slice(6));
     if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) lookStone(st); return; }
     if (key === 'bus-stop-kc' && saved) return askBus('town');
@@ -683,8 +685,31 @@
       return;
     }
     if (place === 'apothecary' && saved) return send({ t: 'apothecary' });
+    if (place === 'store') return send({ t: 'shop' });
     if (line) toast(line);
   }
+  function showStore(m) {
+    closePops();
+    $('storeLine').textContent = m.msg || m.line || '';
+    $('storeCoins').textContent = m.visit ? `Visiting purse: ${m.coins} coins. Nothing you buy is kept after you leave.` : `${m.coins} coins.`;
+    const box = $('storeGoods');
+    box.textContent = '';
+    for (const g of m.goods || []) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'ghost';
+      b.disabled = g.have >= g.carry || m.coins < g.price;
+      b.append(`${g.name} · ${g.price} coins`);
+      const small = document.createElement('small');
+      small.textContent = `${g.blurb} You have ${g.have}${g.keeps ? ', and it stays in your bag.' : '.'}`;
+      b.appendChild(small);
+      b.addEventListener('click', () => send({ t: 'buy', id: g.id }));
+      box.appendChild(b);
+    }
+    $('storePop').hidden = false;
+  }
+  $('storeClose').addEventListener('click', () => { $('storePop').hidden = true; });
+  $('storePop').addEventListener('pointerdown', (e) => e.stopPropagation());
+  $('storePop').addEventListener('keydown', (e) => e.stopPropagation());
   // A headstone: the town answers with its epitaph, a clue when a ghost is hiding nearby, and any grave moss.
   function lookStone(st) {
     if (!saved) return toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`);
@@ -1972,6 +1997,7 @@
   // ---------- floating buttons and their pop-ups ----------
   const pops = { partnerBtn: 'partnerPop', careBtn: 'carePop', sayBtn: 'phrases', menuBtn: 'menu' };
   function closePops(except) {
+    $('storePop').hidden = true;
     for (const [btn, pop] of Object.entries(pops)) {
       if (btn === except) continue;
       $(pop).hidden = true; $(btn).setAttribute('aria-expanded', 'false');
@@ -2218,7 +2244,10 @@
       const btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'ghost'; btn.disabled = a.left <= 0 || m.den;
       btn.append(a.label);
-      const small = document.createElement('small'); small.textContent = a.left > 0 ? `${a.left} left today` : 'done for today';
+      const bag = b.bag || {};
+      const fromBag = a.id === 'feed' ? bag.meal : a.id === 'treat' ? bag.treat : a.id === 'groom' ? bag.brush : 0;
+      const bagBit = a.id === 'groom' && fromBag ? ' · brush in your bag' : fromBag ? ` · ${fromBag} in your bag` : '';
+      const small = document.createElement('small'); small.textContent = (a.left > 0 ? `${a.left} left today` : 'done for today') + bagBit;
       btn.appendChild(small);
       btn.addEventListener('click', () => send({ t: 'care', id: m.id, a: a.id }));
       acts.appendChild(btn);
