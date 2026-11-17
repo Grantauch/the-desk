@@ -7,7 +7,6 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --spacing: 0.25rem;
-    --container-md: 28rem;
     --container-lg: 32rem;
     --text-xs: 0.75rem;
     --text-xs--line-height: calc(1 / 0.75);
@@ -32,14 +31,14 @@
     --radius-lg: 0.5rem;
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
-    --color-bg: #14110e;
-    --color-surface: #231e18;
-    --color-surface-2: #312a22;
-    --color-fg: #f4ead7;
-    --color-muted: #b5a48c;
-    --color-primary: #c8102e;
-    --color-accent: #d4a017;
-    --color-border: #3f362c;
+    --color-bg: #151916;
+    --color-surface: #202620;
+    --color-surface-2: #30382e;
+    --color-fg: #f6efd9;
+    --color-muted: #c1b9a5;
+    --color-primary: #a82534;
+    --color-accent: #ecc475;
+    --color-border: #525747;
     --font-display: "Newsreader", Georgia, serif;
   }
 }
@@ -195,17 +194,22 @@
   .pointer-events-none {
     pointer-events: none;
   }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
   .absolute {
     position: absolute;
   }
   .relative {
     position: relative;
-  }
-  .inset-0 {
-    inset: 0px;
-  }
-  .top-4 {
-    top: calc(var(--spacing) * 4);
   }
   .right-3 {
     right: calc(var(--spacing) * 3);
@@ -222,17 +226,8 @@
   .left-3 {
     left: calc(var(--spacing) * 3);
   }
-  .left-4 {
-    left: calc(var(--spacing) * 4);
-  }
   .z-10 {
     z-index: 10;
-  }
-  .z-20 {
-    z-index: 20;
-  }
-  .mx-auto {
-    margin-inline: auto;
   }
   .mt-1 {
     margin-top: var(--spacing);
@@ -309,9 +304,6 @@
   .min-h-11 {
     min-height: calc(var(--spacing) * 11);
   }
-  .min-h-16 {
-    min-height: calc(var(--spacing) * 16);
-  }
   .w-12 {
     width: calc(var(--spacing) * 12);
   }
@@ -321,17 +313,11 @@
   .w-20 {
     width: calc(var(--spacing) * 20);
   }
-  .w-44 {
-    width: calc(var(--spacing) * 44);
-  }
   .w-full {
     width: 100%;
   }
   .max-w-lg {
     max-width: var(--container-lg);
-  }
-  .max-w-md {
-    max-width: var(--container-md);
   }
   .min-w-0 {
     min-width: 0px;
@@ -341,9 +327,6 @@
   }
   .flex-1 {
     flex: 1;
-  }
-  .shrink-0 {
-    flex-shrink: 0;
   }
   .touch-none {
     touch-action: none;
@@ -395,12 +378,6 @@
   .overflow-auto {
     overflow: auto;
   }
-  .overflow-x-auto {
-    overflow-x: auto;
-  }
-  .overflow-y-auto {
-    overflow-y: auto;
-  }
   .rounded-full {
     border-radius: calc(infinity * 1px);
   }
@@ -437,12 +414,6 @@
   .bg-bg {
     background-color: var(--color-bg);
   }
-  .bg-bg\/80 {
-    background-color: color-mix(in srgb, #14110e 80%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-bg) 80%, transparent);
-    }
-  }
   .bg-border {
     background-color: var(--color-border);
   }
@@ -455,20 +426,11 @@
   .bg-surface-2 {
     background-color: var(--color-surface-2);
   }
-  .bg-surface\/95 {
-    background-color: color-mix(in srgb, #231e18 95%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-surface) 95%, transparent);
-    }
-  }
   .object-contain {
     object-fit: contain;
   }
   .p-3 {
     padding: calc(var(--spacing) * 3);
-  }
-  .p-4 {
-    padding: calc(var(--spacing) * 4);
   }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
@@ -493,9 +455,6 @@
   }
   .py-6 {
     padding-block: calc(var(--spacing) * 6);
-  }
-  .pb-2 {
-    padding-bottom: calc(var(--spacing) * 2);
   }
   .text-center {
     text-align: center;
@@ -602,15 +561,6 @@
     .lg\:bottom-4 {
       bottom: calc(var(--spacing) * 4);
     }
-    .lg\:grid {
-      display: grid;
-    }
-    .lg\:w-auto {
-      width: auto;
-    }
-    .lg\:overflow-visible {
-      overflow: visible;
-    }
   }
 }
 @layer base {
@@ -651,8 +601,145 @@
   background: var(--color-bg);
   color: var(--color-fg);
 }
+.app-header {
+  box-shadow: 0 1px 0 #080b08;
+  z-index: 1;
+}
+.battlefield {
+  background: #171c18;
+}
+canvas:focus-visible, button:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -3px;
+}
 .dock {
-  max-height: 42dvh;
+  height: clamp(154px, 38dvh, 286px);
+}
+.gun-grid {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.gun-card {
+  min-width: 0;
+  min-height: 44px;
+}
+.gun-actions {
+  margin-bottom: 10px;
+}
+.gun-card img {
+  width: 32px;
+  height: 32px;
+}
+.gun-role {
+  line-height: 1.1;
+}
+.wave-panel {
+  background: #242d24;
+}
+.wave-forecast {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 8px;
+  line-height: 1.14;
+}
+.wave-forecast strong {
+  color: var(--color-accent);
+}
+.wave-forecast span {
+  color: var(--color-fg);
+}
+.wave-forecast small {
+  color: var(--color-muted);
+}
+.wave-forecast small:empty {
+  display: none;
+}
+.mission-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(calc(100% - 26px), 560px);
+  max-height: calc(100dvh - 26px);
+  margin: auto;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-fg);
+}
+.mission-dialog article {
+  max-width: none;
+  border: 0;
+}
+.mission-dialog::backdrop {
+  background: rgba(9, 13, 10, .79);
+}
+.map-picker {
+  display: grid;
+  gap: 5px;
+  margin-top: 16px;
+}
+.map-picker legend {
+  margin-bottom: 5px;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+.map-picker label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 4px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.map-picker label:has(input:checked) {
+  border-color: var(--color-accent);
+  background: var(--color-surface-2);
+}
+.map-picker input {
+  accent-color: var(--color-accent);
+}
+.map-picker strong {
+  display: block;
+}
+.map-picker small {
+  display: block;
+  color: var(--color-muted);
+}
+.mission-back {
+  display: block;
+  margin: 12px auto 0;
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+@media (max-width: 660px) {
+  .gun-card {
+    gap: 4px;
+    padding: 4px;
+  }
+  .gun-card img {
+    width: 23px;
+    height: 23px;
+  }
+  .gun-role {
+    display: none;
+  }
+  .wave-panel {
+    padding: 6px 10px;
+  }
+}
+@media (max-width: 430px) {
+  .gun-card img {
+    display: none;
+  }
+  .app-header {
+    column-gap: 10px;
+  }
+  .gun-card {
+    flex-wrap: wrap;
+  }
 }
 .fire-hold {
   display: none;
@@ -662,16 +749,22 @@
 }
 @media (min-width: 1024px) {
   .app-shell {
-    grid-template-columns: minmax(0, 1fr) 22rem;
+    grid-template-columns: minmax(0, 1fr) clamp(18rem, 27vw, 23rem);
     grid-template-rows: auto minmax(0, 1fr);
   }
   .app-header {
     grid-column: 1 / -1;
   }
   .dock {
-    max-height: none;
+    height: auto;
     border-top-width: 0;
     border-left: 1px solid var(--color-border);
+  }
+  .gun-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gun-card {
+    min-height: 60px;
   }
 }
 @media (pointer: coarse) {
