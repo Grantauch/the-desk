@@ -105,7 +105,7 @@
       kind: "aa",
       name: "Bofors 40mm",
       short: "Bofors",
-      blurb: "The only gun that can touch aircraft. Honest against trucks.",
+      blurb: "Tracks aircraft first. Limited damage against ground targets.",
       cost: 190,
       range: 280,
       minRange: 0,
@@ -249,7 +249,7 @@
     },
     {
       name: "Combined column",
-      hint: "Armor and carriers together. Cover the second bend.",
+      hint: "Armor and carriers now. Aircraft next wave. Save 190 zł for a Bofors.",
       groups: [
         { kind: "truck", n: 4, every: 1.1 },
         { kind: "panzer", n: 5, every: 1.45 },
@@ -403,6 +403,32 @@
     x: (c + 0.5) * CELL,
     y: (r + 0.5) * CELL
   }));
+  function expandRoute(turns) {
+    const route = [turns[0]];
+    for (const [endC, endR] of turns.slice(1)) {
+      let [c, r] = route[route.length - 1];
+      if (c !== endC && r !== endR) throw new Error("Road segments must follow the grid");
+      while (c !== endC || r !== endR) {
+        c += Math.sign(endC - c);
+        r += Math.sign(endR - r);
+        route.push([c, r]);
+      }
+    }
+    return route;
+  }
+  function scenario(name, description, cells, tint) {
+    const road = new Set(cells.map(([c, r]) => cellKey(c, r)));
+    const props = PROPS.filter(({ c, r }) => !road.has(cellKey(c, r)));
+    const blocked = new Set([...BLOCK_SET].filter((key) => !road.has(key)));
+    const waypoints = cells.map(([c, r]) => ({ x: (c + 0.5) * CELL, y: (r + 0.5) * CELL }));
+    return { name, description, road, props, blocked, waypoints, tint };
+  }
+  var SCENARIOS = {
+    frontier: scenario("Frontier Road", "Long switchbacks let one emplacement cover several stretches of road.", PATH_CELLS, "rgba(55, 43, 23, .12)"),
+    orchard: scenario("Orchard Bend", "A compact opening approach gives way to a long, exposed exit.", expandRoute([[0, 3], [5, 3], [5, 1], [8, 1], [8, 4], [15, 4]]), "rgba(28, 54, 37, .20)"),
+    river: scenario("River Road", "A short riverbank route leaves less time to catch a breakthrough.", expandRoute([[0, 5], [4, 5], [4, 7], [11, 7], [11, 5], [15, 5]]), "rgba(32, 50, 67, .23)")
+  };
+  var AIR_ROUTE = [{ x: CELL / 2, y: 3.5 * CELL }, { x: WORLD_W - CELL / 2, y: 4.75 * CELL }];
   function upgradeCost(kind, track, rank) {
     const base = track === "dmg" ? [55, 95, 150] : [45, 80, 130];
     const scale = kind === "ckm" ? 0.75 : kind === "at" ? 1 : kind === "mortar" ? 1.05 : 1.15;
@@ -472,7 +498,7 @@
   var CREAM = "#f4ead7";
   var CRIMSON = "#c8102e";
   var BRASS = "#d4a017";
-  var INK = "#14110e";
+  var INK = "#171c18";
   function paint(game, ctx) {
     const { cssW, cssH, dpr, camX, camY, camZoom } = game;
     const viewW = WORLD_W / camZoom;
@@ -486,6 +512,9 @@
     ctx.fillStyle = INK;
     ctx.fillRect(0, 0, cssW, cssH);
     ctx.save();
+    ctx.beginPath();
+    ctx.rect(ox, oy, viewW * scale, viewH * scale);
+    ctx.clip();
     ctx.translate(ox + shake, oy);
     ctx.scale(scale, scale);
     ctx.translate(-(camX - viewW / 2), -(camY - viewH / 2));
@@ -495,11 +524,25 @@
       ctx.fillStyle = "#6a6238";
       ctx.fillRect(0, 0, WORLD_W, WORLD_H);
     }
-    ctx.fillStyle = "rgba(20, 16, 12, 0.12)";
+    ctx.fillStyle = game.scenario.tint;
     ctx.fillRect(0, 0, WORLD_W, WORLD_H);
-    drawRoad(ctx);
+    drawRoad(ctx, game.scenario.waypoints);
     drawProps(game, ctx);
+    if (WAVES[game.waveIndex]?.groups.some(({ kind }) => ENEMIES[kind].air)) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(220, 233, 218, .72)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([11, 9]);
+      strokePath(ctx, AIR_ROUTE.map(({ x, y }) => ({ x, y: y - 34 })));
+      ctx.restore();
+    }
     if (game.armed && game.phase !== "briefing") drawBuildGrid(game, ctx);
+    if (game.keyboardActive && game.mannedId === null) {
+      const { c, r } = game.keyboardCell;
+      ctx.strokeStyle = CREAM;
+      ctx.lineWidth = 5;
+      ctx.strokeRect(c * CELL + 5, r * CELL + 5, CELL - 10, CELL - 10);
+    }
     const manned = game.towers.find((t) => t.id === game.mannedId);
     const selected = game.towers.find((t) => t.id === game.selectedId);
     if (game.armed && game.hover && game.phase !== "briefing" && game.phase !== "victory" && game.phase !== "defeat") {
@@ -550,7 +593,7 @@
       ctx.stroke();
     }
     ctx.restore();
-    if (game.flash > 0 && game.phase !== "briefing") {
+    if (game.flash > 0 && !game.reduce && game.phase !== "briefing") {
       ctx.fillStyle = `rgba(200, 16, 46, ${Math.min(0.35, game.flash * 0.28)})`;
       ctx.fillRect(0, 0, cssW, cssH);
     }
@@ -562,23 +605,23 @@
       ctx.fillRect(0, 0, cssW, cssH);
     }
   }
-  function drawRoad(ctx) {
-    if (WAYPOINTS.length < 2) return;
+  function drawRoad(ctx, route) {
+    if (route.length < 2) return;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.strokeStyle = "#5a4328";
-    ctx.lineWidth = CELL * 0.78;
-    strokePath(ctx);
-    ctx.strokeStyle = "#b08958";
-    ctx.lineWidth = CELL * 0.56;
-    strokePath(ctx);
-    ctx.strokeStyle = "rgba(90, 67, 40, 0.35)";
-    ctx.lineWidth = CELL * 0.08;
-    strokePath(ctx);
-    ctx.fillStyle = "rgba(36, 24, 14, 0.55)";
-    for (let i = 2; i < WAYPOINTS.length - 1; i += 3) {
-      const a = WAYPOINTS[i - 1];
-      const b = WAYPOINTS[i];
+    ctx.strokeStyle = "rgba(70, 50, 32, .58)";
+    ctx.lineWidth = CELL * 0.71;
+    strokePath(ctx, route);
+    ctx.strokeStyle = "rgba(190, 157, 107, .72)";
+    ctx.lineWidth = CELL * 0.53;
+    strokePath(ctx, route);
+    ctx.strokeStyle = "rgba(95, 74, 47, .22)";
+    ctx.lineWidth = CELL * 0.22;
+    strokePath(ctx, route);
+    ctx.fillStyle = "rgba(250, 233, 192, .82)";
+    for (let i = 2; i < route.length - 1; i += 3) {
+      const a = route[i - 1];
+      const b = route[i];
       const ang = Math.atan2(b.y - a.y, b.x - a.x);
       ctx.save();
       ctx.translate(b.x, b.y);
@@ -591,20 +634,20 @@
       ctx.fill();
       ctx.restore();
     }
-    const start = WAYPOINTS[0];
-    const end = WAYPOINTS[WAYPOINTS.length - 1];
+    const start = route[0];
+    const end = route[route.length - 1];
     drawBanner(ctx, end.x + 8, end.y - 8);
     ctx.fillStyle = "rgba(20, 16, 12, 0.72)";
     ctx.beginPath();
     ctx.arc(start.x - 8, start.y, 7, 0, Math.PI * 2);
     ctx.fill();
-    label(ctx, start.x, start.y - 28, "BORDER");
-    label(ctx, end.x, end.y + 36, "HOLD");
+    label(ctx, start.x + 29, start.y - 35, "ENTRY");
+    label(ctx, end.x - 29, end.y + 38, "EXIT");
   }
-  function strokePath(ctx) {
+  function strokePath(ctx, route) {
     ctx.beginPath();
-    ctx.moveTo(WAYPOINTS[0].x, WAYPOINTS[0].y);
-    for (let i = 1; i < WAYPOINTS.length; i++) ctx.lineTo(WAYPOINTS[i].x, WAYPOINTS[i].y);
+    ctx.moveTo(route[0].x, route[0].y);
+    for (let i = 1; i < route.length; i++) ctx.lineTo(route[i].x, route[i].y);
     ctx.stroke();
   }
   function drawBanner(ctx, x, y) {
@@ -620,15 +663,18 @@
   }
   function label(ctx, x, y, text) {
     ctx.save();
-    ctx.font = "600 13px Barlow Condensed, sans-serif";
-    ctx.fillStyle = "rgba(244, 234, 215, 0.88)";
+    ctx.font = "700 23px Barlow Condensed, sans-serif";
+    ctx.strokeStyle = "#28241b";
+    ctx.lineWidth = 6;
+    ctx.fillStyle = CREAM;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.strokeText(text, x, y);
     ctx.fillText(text, x, y);
     ctx.restore();
   }
   function drawProps(game, ctx) {
-    for (const prop of PROPS) {
+    for (const prop of game.scenario.props) {
       const x = (prop.c + 0.5) * CELL;
       const y = (prop.r + 0.5) * CELL;
       shadow(ctx, x, y + 10, 26, 8);
@@ -686,9 +732,7 @@
     } else {
       shadow(ctx, visual.x, visual.y + 8, def.draw * 0.22, 7);
     }
-    if (e.flash > 0) ctx.globalAlpha = 0.65;
-    drawSprite(ctx, game, def.art, visual.x, visual.y, def.draw, e.angle, 1);
-    ctx.globalAlpha = 1;
+    drawSprite(ctx, game, def.art, visual.x, visual.y, def.draw, e.angle, !game.reduce && e.flash > 0 ? 0.65 : 1);
     const bw = 28;
     const bh = 4;
     const bx = visual.x - bw / 2;
@@ -697,6 +741,14 @@
     ctx.fillRect(bx, by, bw, bh);
     ctx.fillStyle = e.hp / e.maxHp > 0.45 ? BRASS : CRIMSON;
     ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), bh);
+    if (def.air) {
+      ctx.save();
+      ctx.translate(visual.x, by - 8);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = "#e1eedf";
+      ctx.fillRect(-3, -3, 6, 6);
+      ctx.restore();
+    }
     if (e.slow > 0) {
       ctx.fillStyle = CREAM;
       ctx.fillRect(bx, by + 5, bw * 0.45, 2);
@@ -791,20 +843,38 @@
   var Soundboard = class {
     muted = false;
     ctx = null;
+    master = null;
+    noiseBuffer = null;
     last = /* @__PURE__ */ new Map();
     unlock() {
       if (typeof window === "undefined") return;
       const Ctx = window.AudioContext || window.webkitAudioContext;
       if (!Ctx) return;
-      if (!this.ctx) this.ctx = new Ctx();
-      if (this.ctx.state === "suspended") void this.ctx.resume();
+      try {
+        if (!this.ctx) {
+          this.ctx = new Ctx();
+          this.master = this.ctx.createGain();
+          this.master.gain.value = this.muted ? 0 : 0.72;
+          const limiter = this.ctx.createDynamicsCompressor();
+          this.master.connect(limiter);
+          limiter.connect(this.ctx.destination);
+        }
+        this.resume();
+      } catch {
+        this.ctx = null;
+        this.master = null;
+      }
     }
     resume() {
-      if (this.ctx && this.ctx.state === "suspended") void this.ctx.resume();
+      if (this.ctx && this.ctx.state === "suspended") void this.ctx.resume().catch(() => {
+      });
     }
     toggle() {
       this.muted = !this.muted;
       if (!this.muted) this.unlock();
+      if (this.ctx && this.master) {
+        this.master.gain.setTargetAtTime(this.muted ? 0 : 0.72, this.ctx.currentTime, 0.012);
+      }
       return this.muted;
     }
     play(cue) {
@@ -813,11 +883,9 @@
       const ctx = this.ctx;
       if (!ctx) return;
       const now = ctx.currentTime;
-      if (cue === "ckm" || cue === "aa") {
-        const prev = this.last.get(cue) ?? -10;
-        if (now - prev < (cue === "ckm" ? 0.06 : 0.08)) return;
-        this.last.set(cue, now);
-      }
+      const minGap = cue === "boom" ? 0.095 : cue === "ckm" ? 0.06 : 0.075;
+      if (now - (this.last.get(cue) ?? -10) < minGap) return;
+      this.last.set(cue, now);
       if (cue === "ui") this.blip(ctx, 660, 0.04, 0.04);
       else if (cue === "place") this.blip(ctx, 220, 0.09, 0.06);
       else if (cue === "ckm") this.noise(ctx, 0.05, 1800, 0.05);
@@ -834,6 +902,7 @@
       } else if (cue === "lose") this.blip(ctx, 110, 0.4, 0.07);
     }
     blip(ctx, freq, dur, gain, delay = 0) {
+      if (!this.master) return;
       const t = ctx.currentTime + delay;
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
@@ -842,52 +911,64 @@
       g.gain.setValueAtTime(gain, t);
       g.gain.exponentialRampToValueAtTime(1e-3, t + dur);
       osc.connect(g);
-      g.connect(ctx.destination);
+      g.connect(this.master);
       osc.start(t);
       osc.stop(t + dur + 0.02);
     }
     noise(ctx, dur, cutoff, gain) {
-      const count = Math.floor(ctx.sampleRate * dur);
-      const buffer = ctx.createBuffer(1, count, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < count; i++) {
-        data[i] = (Math.random() * 2 - 1) * (1 - i / count);
+      if (!this.master) return;
+      if (!this.noiseBuffer) {
+        this.noiseBuffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+        const data = this.noiseBuffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
       }
       const src = ctx.createBufferSource();
-      src.buffer = buffer;
+      src.buffer = this.noiseBuffer;
       const filter = ctx.createBiquadFilter();
       filter.type = "lowpass";
       filter.frequency.value = cutoff;
       const g = ctx.createGain();
-      g.gain.value = gain;
+      const now = ctx.currentTime;
+      g.gain.setValueAtTime(gain, now);
+      g.gain.exponentialRampToValueAtTime(1e-3, now + dur);
       src.connect(filter);
       filter.connect(g);
-      g.connect(ctx.destination);
-      src.start();
+      g.connect(this.master);
+      src.start(now, Math.random() * (1 - dur), dur);
     }
   };
 
   // game/game.ts
   var SAVE_KEY = "blitzkrieg-save-v1";
+  var MAP_SAVE_KEY = "blitzkrieg-save-v2";
   var AIR_LIFT = 34;
+  function progress(value) {
+    return {
+      bestWave: Number.isFinite(value?.bestWave) ? Math.max(0, Math.min(WAVES.length, Math.floor(value.bestWave))) : 0,
+      victories: Number.isFinite(value?.victories) ? Math.max(0, Math.floor(value.victories)) : 0
+    };
+  }
   function loadSave() {
-    if (typeof localStorage === "undefined") return { v: 1, bestWave: 0, victories: 0 };
+    const empty = { frontier: progress(), orchard: progress(), river: progress() };
+    if (typeof localStorage === "undefined") return empty;
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) return { v: 1, bestWave: 0, victories: 0 };
-      const parsed = JSON.parse(raw);
-      if (parsed.v !== 1) return { v: 1, bestWave: 0, victories: 0 };
-      return {
-        v: 1,
-        bestWave: typeof parsed.bestWave === "number" ? parsed.bestWave : 0,
-        victories: typeof parsed.victories === "number" ? parsed.victories : 0
-      };
+      const raw = localStorage.getItem(MAP_SAVE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return { frontier: progress(parsed?.frontier), orchard: progress(parsed?.orchard), river: progress(parsed?.river) };
+      }
+      const legacy = JSON.parse(localStorage.getItem(SAVE_KEY) ?? "null");
+      if (legacy?.v === 1) empty.frontier = progress(legacy);
     } catch {
-      return { v: 1, bestWave: 0, victories: 0 };
+      return empty;
     }
+    return empty;
   }
   function aimOf(e) {
-    return { x: e.x, y: e.y - (ENEMIES[e.kind].air ? AIR_LIFT : 0) };
+    return {
+      x: e.x - Math.sin(e.angle) * e.lane,
+      y: e.y + Math.cos(e.angle) * e.lane - (ENEMIES[e.kind].air ? AIR_LIFT : 0)
+    };
   }
   function angDiff(a, b) {
     let d = a - b;
@@ -900,6 +981,10 @@
   }
   var Game = class {
     phase = "briefing";
+    scenarioId = "frontier";
+    get scenario() {
+      return SCENARIOS[this.scenarioId];
+    }
     gold = START_GOLD;
     lives = START_LIVES;
     waveIndex = 0;
@@ -916,6 +1001,8 @@
     mannedId = null;
     aim = { x: WORLD_W / 2, y: WORLD_H / 2 };
     hover = null;
+    keyboardCell = { c: 0, r: 1 };
+    keyboardActive = false;
     mouseFire = false;
     keyFire = false;
     btnFire = false;
@@ -934,7 +1021,7 @@
     clock = 0;
     spawnI = 0;
     schedule = [];
-    save = { v: 1, bestWave: 0, victories: 0 };
+    save = { frontier: progress(), orchard: progress(), river: progress() };
     audio;
     nextId = 1;
     acc = 0;
@@ -993,8 +1080,8 @@
           priority: selected.priority,
           spent: selected.spent
         } : null,
-        bestWave: this.save.bestWave,
-        victories: this.save.victories,
+        bestWave: this.save[this.scenarioId].bestWave,
+        victories: this.save[this.scenarioId].victories,
         left,
         flash: this.flash
       };
@@ -1019,15 +1106,22 @@
       }
     }
     tickView(dt) {
+      if (this.hintT > 0 && !this.paused) {
+        this.hintT -= dt;
+        if (this.hintT <= 0) {
+          this.hint = "";
+          this.dirty = true;
+        }
+      }
       const manned = this.towers.find((t) => t.id === this.mannedId);
-      const zoom = manned ? 1.62 : 1;
+      const zoom = manned && !this.reduce ? 1.36 : 1;
       let cx = manned ? manned.x : WORLD_W / 2;
       let cy = manned ? manned.y : WORLD_H / 2;
       const viewW = WORLD_W / zoom;
       const viewH = WORLD_H / zoom;
       cx = Math.max(viewW / 2, Math.min(WORLD_W - viewW / 2, cx));
       cy = Math.max(viewH / 2, Math.min(WORLD_H - viewH / 2, cy));
-      const k = 1 - Math.exp(-dt * 7);
+      const k = this.reduce ? 1 : 1 - Math.exp(-dt * 7);
       this.camZoom += (zoom - this.camZoom) * k;
       this.camX += (cx - this.camX) * k;
       this.camY += (cy - this.camY) * k;
@@ -1038,19 +1132,13 @@
     tick(dt) {
       if (this.phase !== "combat") return;
       this.clock += dt;
-      if (this.hintT > 0) {
-        this.hintT -= dt;
-        if (this.hintT <= 0) {
-          this.hint = "";
-          this.dirty = true;
-        }
-      }
       while (this.spawnI < this.schedule.length && this.schedule[this.spawnI].t <= this.clock) {
         if (this.phase !== "combat") break;
         this.spawn(this.schedule[this.spawnI].kind);
         this.spawnI++;
       }
       for (const e of this.creeps) this.moveCreep(e, dt);
+      if (this.phase !== "combat") return;
       for (const tower of this.towers) this.runTower(tower, dt);
       for (const shot of this.shots) this.moveShot(shot, dt);
       this.shots = this.shots.filter((s) => s.ttl > 0);
@@ -1082,7 +1170,7 @@
       this.noteCleared(cleared);
       if (this.waveIndex >= WAVES.length - 1) {
         this.phase = "victory";
-        this.save.victories += 1;
+        this.save[this.scenarioId].victories += 1;
         this.persist();
         this.audio.play("win");
         this.unman();
@@ -1091,21 +1179,23 @@
       }
       this.waveIndex += 1;
       this.phase = "deploy";
+      this.unman();
+      this.shots = [];
       this.audio.play("ui");
       this.hint = "Road clear. Reinforce, then send the next column.";
       this.hintT = 3.2;
       this.dirty = true;
     }
     noteCleared(n) {
-      if (n > this.save.bestWave) {
-        this.save.bestWave = n;
+      if (n > this.save[this.scenarioId].bestWave) {
+        this.save[this.scenarioId].bestWave = n;
         this.persist();
       }
     }
     persist() {
       if (typeof localStorage === "undefined") return;
       try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(this.save));
+        localStorage.setItem(MAP_SAVE_KEY, JSON.stringify(this.save));
       } catch {
       }
     }
@@ -1115,6 +1205,17 @@
       this.audio.unlock();
       this.audio.play("ui");
       this.dirty = true;
+    }
+    chooseScenario(id) {
+      if (this.phase !== "briefing") return;
+      this.scenarioId = id;
+      this.dirty = true;
+    }
+    returnToBriefing() {
+      this.restart();
+      this.phase = "briefing";
+      this.hint = "";
+      this.hintT = 0;
     }
     restart() {
       this.phase = "deploy";
@@ -1159,7 +1260,10 @@
     }
     arm(kind) {
       if (this.phase === "briefing" || this.phase === "victory" || this.phase === "defeat") return;
+      if (kind && this.gold < TOWERS[kind].cost) return;
+      if (kind) this.unman();
       this.armed = this.armed === kind ? null : kind;
+      if (this.armed) this.selectedId = null;
       if (this.armed) this.audio.play("ui");
       this.dirty = true;
     }
@@ -1187,7 +1291,7 @@
       this.mannedId = tower.id;
       this.selectedId = tower.id;
       this.armed = null;
-      const spot = nearestWaypoint(tower.x, tower.y);
+      const spot = nearestWaypoint(this.scenario.waypoints, tower.x, tower.y);
       this.aim = spot;
       this.audio.play("place");
       this.dirty = true;
@@ -1210,7 +1314,8 @@
       const tower = this.towers.find((t) => t.id === id);
       if (!tower) return false;
       const rank = track === "dmg" ? tower.dmgRank : tower.rateRank;
-      if (rank >= 3) return false;
+      const other = track === "dmg" ? tower.rateRank : tower.dmgRank;
+      if (rank >= 3 || rank === 2 && other === 3) return false;
       const cost = upgradeCost(tower.kind, track, rank);
       if (this.gold < cost) {
         this.floater(tower.x, tower.y - 20, "Not enough złoty", "primary");
@@ -1240,7 +1345,7 @@
     canBuild(c, r) {
       if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return false;
       const key = cellKey(c, r);
-      if (PATH_SET.has(key) || BLOCK_SET.has(key)) return false;
+      if (this.scenario.road.has(key) || this.scenario.blocked.has(key)) return false;
       return !this.towers.some((t) => t.c === c && t.r === r);
     }
     tryPlace(kind, c, r) {
@@ -1259,7 +1364,7 @@
       this.gold -= cost;
       const x = (c + 0.5) * CELL;
       const y = (r + 0.5) * CELL;
-      const face = nearestWaypoint(x, y);
+      const face = nearestWaypoint(this.scenario.waypoints, x, y);
       const tower = {
         id: this.nextId++,
         kind,
@@ -1281,7 +1386,32 @@
       this.dirty = true;
       return true;
     }
-    pointerDown(world, pointer, detail) {
+    crewAt(world) {
+      const tower = this.towerAt(world);
+      if (tower) this.man(tower.id);
+    }
+    moveKeyboard(dc, dr) {
+      this.keyboardActive = true;
+      if (this.mannedId !== null) {
+        this.aim = {
+          x: Math.max(0, Math.min(WORLD_W, this.aim.x + dc * 18)),
+          y: Math.max(0, Math.min(WORLD_H, this.aim.y + dr * 18))
+        };
+        return "Aim adjusted";
+      }
+      const c = Math.max(0, Math.min(COLS - 1, this.keyboardCell.c + dc));
+      const r = Math.max(0, Math.min(ROWS - 1, this.keyboardCell.r + dr));
+      this.keyboardCell = { c, r };
+      this.hover = this.keyboardCell;
+      const tower = this.towers.find((item) => item.c === c && item.r === r);
+      const status = tower ? TOWERS[tower.kind].name : this.canBuild(c, r) ? "open ground" : "unavailable";
+      return `Column ${c + 1}, row ${r + 1}, ${status}`;
+    }
+    selectKeyboard() {
+      const { c, r } = this.keyboardCell;
+      if (this.mannedId === null) this.pointerDown({ x: (c + 0.5) * CELL, y: (r + 0.5) * CELL }, "touch");
+    }
+    pointerDown(world, pointer) {
       if (this.phase === "briefing" || this.phase === "victory" || this.phase === "defeat") return;
       if (this.mannedId !== null) {
         this.aim = world;
@@ -1292,7 +1422,6 @@
       if (hit) {
         this.selectedId = hit.id;
         this.armed = null;
-        if (detail >= 2) this.man(hit.id);
         this.audio.play("ui");
         this.dirty = true;
         return;
@@ -1306,6 +1435,7 @@
       this.dirty = true;
     }
     pointerMove(world) {
+      this.keyboardActive = false;
       this.hover = cellAt(world.x, world.y);
       if (this.mannedId !== null) this.aim = world;
     }
@@ -1328,8 +1458,9 @@
     }
     spawn(kind) {
       const def = ENEMIES[kind];
-      const start = WAYPOINTS[0];
-      const next = WAYPOINTS[1] ?? start;
+      const route = def.air ? AIR_ROUTE : this.scenario.waypoints;
+      const start = route[0];
+      const next = route[1] ?? start;
       const creep = {
         id: this.nextId++,
         kind,
@@ -1352,7 +1483,8 @@
     moveCreep(e, dt) {
       if (!e.alive) return;
       if (e.slow > 0) e.slow -= dt;
-      const target = WAYPOINTS[e.wp];
+      const route = ENEMIES[e.kind].air ? AIR_ROUTE : this.scenario.waypoints;
+      const target = route[e.wp];
       if (!target) {
         this.leak(e);
         return;
@@ -1367,7 +1499,7 @@
         e.x = target.x;
         e.y = target.y;
         e.wp += 1;
-        if (e.wp >= WAYPOINTS.length) this.leak(e);
+        if (e.wp >= route.length) this.leak(e);
       } else {
         e.vx = dx / dist * speed;
         e.vy = dy / dist * speed;
@@ -1401,6 +1533,7 @@
       let tx = tower.x;
       let ty = tower.y;
       let want = false;
+      let target = null;
       if (manned) {
         tx = this.aim.x;
         ty = this.aim.y;
@@ -1408,7 +1541,7 @@
         if (dist < 12) return;
         want = this.firing() && dist <= def.range && dist >= def.minRange;
       } else {
-        const target = this.pickTarget(tower);
+        target = this.pickTarget(tower);
         if (!target) return;
         const p = aimOf(target);
         if (def.kind === "mortar") {
@@ -1428,7 +1561,14 @@
       if (def.kind === "mortar" && !aligned && Math.abs(angDiff(Math.atan2(ty - tower.y, tx - tower.x), tower.angle)) > 0.45) {
         return;
       }
-      this.fire(tower, tx, ty, manned);
+      if (def.kind === "mortar") {
+        const distance = hypot(tx - tower.x, ty - tower.y);
+        if (distance > def.range) {
+          tx = tower.x + (tx - tower.x) * def.range / distance;
+          ty = tower.y + (ty - tower.y) * def.range / distance;
+        }
+      }
+      this.fire(tower, tx, ty, manned, target);
     }
     pickTarget(tower) {
       const pool = this.creeps.filter((e) => e.alive && this.eligible(tower, e));
@@ -1459,7 +1599,7 @@
       }
       return best;
     }
-    fire(tower, tx, ty, manual) {
+    fire(tower, tx, ty, manual, target) {
       const def = TOWERS[tower.kind];
       const rate = towerRate(tower.kind, tower.rateRank);
       tower.cd = 1 / rate;
@@ -1490,11 +1630,6 @@
         });
       } else {
         const spd = def.shotSpeed;
-        let homing = null;
-        if (!manual) {
-          const target = this.pickTarget(tower);
-          if (target) homing = target.id;
-        }
         this.shots.push({
           id: this.nextId++,
           kind: tower.kind,
@@ -1506,7 +1641,9 @@
           vsArmor: def.vsArmor,
           splash: 0,
           ttl: 1.35,
-          homing,
+          homing: target?.id ?? null,
+          targetAir: target ? ENEMIES[target.kind].air : void 0,
+          remaining: manual ? def.range - 22 : void 0,
           mortar: false,
           age: 0,
           duration: 0,
@@ -1546,12 +1683,19 @@
           shot.vy = Math.sin(ang) * spd;
         }
       }
-      shot.x += shot.vx * dt;
-      shot.y += shot.vy * dt;
+      const distance = hypot(shot.vx, shot.vy) * dt;
+      const fraction = shot.remaining === void 0 ? 1 : Math.min(1, shot.remaining / distance);
+      shot.x += shot.vx * dt * fraction;
+      shot.y += shot.vy * dt * fraction;
       shot.ttl -= dt;
+      if (shot.remaining !== void 0) {
+        shot.remaining -= distance * fraction;
+        if (shot.remaining <= 0) shot.ttl = 0;
+      }
       for (const e of this.creeps) {
         if (!e.alive) continue;
-        if (ENEMIES[e.kind].air && shot.kind !== "aa") continue;
+        const air = ENEMIES[e.kind].air;
+        if (air && shot.kind !== "aa" || shot.targetAir !== void 0 && air !== shot.targetAir) continue;
         const p = aimOf(e);
         const r = shot.hitR + (ENEMIES[e.kind].air ? 16 : 14);
         if ((p.x - shot.x) ** 2 + (p.y - shot.y) ** 2 <= r * r) {
@@ -1645,10 +1789,10 @@
     if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return null;
     return { c, r };
   }
-  function nearestWaypoint(x, y) {
-    let best = WAYPOINTS[0];
+  function nearestWaypoint(route, x, y) {
+    let best = route[0];
     let bestD = Infinity;
-    for (const p of WAYPOINTS) {
+    for (const p of route) {
       const d = (p.x - x) ** 2 + (p.y - y) ** 2;
       if (d < bestD) {
         bestD = d;
@@ -1668,7 +1812,7 @@
   function mitigate(e, vsArmor, kind) {
     if (ENEMIES[e.kind].air) return kind === "aa" ? 1 : 0;
     const armor = ENEMIES[e.kind].armor;
-    return 1 - armor + armor * vsArmor;
+    return (1 - armor + armor * vsArmor) * (kind === "aa" ? 0.28 : 1);
   }
   function turnToward(tower, tx, ty, dt, rate) {
     const desired = Math.atan2(ty - tower.y, tx - tower.x);
@@ -1684,13 +1828,13 @@
     const p0 = aimOf(e);
     let t = hypot(p0.x - x, p0.y - y) / Math.max(40, shotSpeed);
     for (let i = 0; i < 3; i++) {
-      const px = e.x + e.vx * t;
-      const py = e.y + e.vy * t - (ENEMIES[e.kind].air ? AIR_LIFT : 0);
+      const px = p0.x + e.vx * t;
+      const py = p0.y + e.vy * t;
       t = hypot(px - x, py - y) / Math.max(40, shotSpeed);
     }
     return {
-      x: e.x + e.vx * t,
-      y: e.y + e.vy * t - (ENEMIES[e.kind].air ? AIR_LIFT : 0)
+      x: p0.x + e.vx * t,
+      y: p0.y + e.vy * t
     };
   }
   function screenToWorld(px, py, cssW, cssH, camX, camY, camZoom) {
@@ -1717,31 +1861,45 @@
   function Blitzkrieg() {
     const canvasRef = useRef(null);
     const stageRef = useRef(null);
+    const dialogRef = useRef(null);
     const gameRef = useRef(null);
     if (!gameRef.current) gameRef.current = new Game();
     const game = gameRef.current;
     const [hud, setHud] = useState(() => game.hud());
+    const [boardStatus, setBoardStatus] = useState("");
+    const playing = hud.phase === "deploy" || hud.phase === "combat";
+    useEffect(() => {
+      if (playing) canvasRef.current?.focus({ preventScroll: true });
+    }, [playing]);
+    useEffect(() => {
+      if (hud.phase !== "briefing" && hud.phase !== "victory" && hud.phase !== "defeat") return;
+      const dialog = dialogRef.current;
+      if (dialog && !dialog.open) dialog.showModal();
+    }, [hud.phase]);
     useEffect(() => {
       game.hydrateSave();
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      game.reduce = reduce;
-      return game.subscribe(() => setHud(game.hud()));
+      const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const syncMotion = () => {
+        game.reduce = motion.matches;
+      };
+      syncMotion();
+      motion.addEventListener("change", syncMotion);
+      const unsubscribe = game.subscribe(() => setHud(game.hud()));
+      return () => {
+        motion.removeEventListener("change", syncMotion);
+        unsubscribe();
+      };
     }, [game]);
     useEffect(() => {
-      let left = Object.keys(ART_URLS).length;
-      for (const [key, url] of Object.entries(ART_URLS)) {
+      const images = Object.entries(ART_URLS).map(([key, url]) => {
         const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          game.setImage(key, img);
-          left -= 1;
-          if (left === 0) game.markDirty();
-        };
-        img.onerror = () => {
-          left -= 1;
-        };
+        img.onload = () => game.setImage(key, img);
         img.src = url;
-      }
+        return img;
+      });
+      return () => {
+        for (const image of images) image.onload = null;
+      };
     }, [game]);
     useEffect(() => {
       const canvas = canvasRef.current;
@@ -1831,7 +1989,6 @@
     };
     const wave = WAVES[hud.wave];
     const manned = hud.mannedId !== null;
-    const playing = hud.phase === "deploy" || hud.phase === "combat";
     return /* @__PURE__ */ React.createElement("div", { className: "app-shell relative" }, /* @__PURE__ */ React.createElement("header", { className: "app-header flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-border bg-surface px-4 py-2" }, /* @__PURE__ */ React.createElement("div", { className: "mr-auto min-w-0" }, /* @__PURE__ */ React.createElement("p", { className: "font-display text-xl leading-none tracking-wide" }, "Blitzkrieg"), /* @__PURE__ */ React.createElement("p", { className: "text-sm uppercase tracking-widest text-muted" }, "1 September 1939")), /* @__PURE__ */ React.createElement(Stat, { icon: /* @__PURE__ */ React.createElement(Heart, { className: "size-4", "aria-hidden": true }), label: "Garrison", value: String(hud.lives), hot: hud.lives <= 6 }), /* @__PURE__ */ React.createElement(Stat, { icon: /* @__PURE__ */ React.createElement(Coins, { className: "size-4", "aria-hidden": true }), label: "Złoty", value: String(hud.gold), accent: true }), /* @__PURE__ */ React.createElement(
       Stat,
       {
@@ -1849,25 +2006,45 @@
       },
       hud.speed,
       "×"
-    ), /* @__PURE__ */ React.createElement(IconButton, { label: hud.muted ? "Unmute" : "Mute", onClick: () => game.toggleMute() }, hud.muted ? /* @__PURE__ */ React.createElement(VolumeX, { className: "size-4" }) : /* @__PURE__ */ React.createElement(Volume2, { className: "size-4" })))), /* @__PURE__ */ React.createElement("div", { ref: stageRef, className: "relative min-h-0 bg-bg" }, /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement(IconButton, { label: hud.muted ? "Unmute" : "Mute", onClick: () => game.toggleMute() }, hud.muted ? /* @__PURE__ */ React.createElement(VolumeX, { className: "size-4" }) : /* @__PURE__ */ React.createElement(Volume2, { className: "size-4" })))), /* @__PURE__ */ React.createElement("div", { ref: stageRef, className: "battlefield relative min-h-0 bg-bg" }, /* @__PURE__ */ React.createElement(
       "canvas",
       {
         ref: canvasRef,
         className: "h-full w-full touch-none",
-        "aria-label": "Polish road, 1 September 1939. Place guns off the road.",
+        tabIndex: playing ? 0 : -1,
+        "aria-label": `Battlefield, ${game.scenario.name}`,
+        "aria-describedby": "battlefield-controls",
+        onFocus: () => setBoardStatus(game.moveKeyboard(0, 0)),
+        onBlur: () => {
+          game.keyboardActive = false;
+        },
+        onKeyDown: (event) => {
+          const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+          const step = arrows[event.key];
+          if (step) {
+            event.preventDefault();
+            setBoardStatus(game.moveKeyboard(...step));
+          } else if (event.key === "Enter") {
+            event.preventDefault();
+            game.selectKeyboard();
+          }
+        },
+        onDoubleClick: (event) => {
+          if (!game.armed && !manned) game.crewAt(worldFromEvent(event));
+        },
         onContextMenu: (event) => {
           event.preventDefault();
           game.arm(null);
         },
         onPointerDown: (event) => {
-          if (!event.isPrimary || event.button !== 0) return;
+          if (!event.isPrimary && !manned || event.button !== 0) return;
           game.audio.unlock();
           const world = worldFromEvent(event);
-          game.pointerDown(world, event.pointerType === "touch" ? "touch" : "mouse", event.detail);
+          game.pointerDown(world, event.pointerType === "touch" ? "touch" : "mouse");
           event.currentTarget.setPointerCapture(event.pointerId);
         },
         onPointerMove: (event) => {
-          if (event.isPrimary) game.pointerMove(worldFromEvent(event));
+          if (event.isPrimary || manned) game.pointerMove(worldFromEvent(event));
         },
         onPointerUp: (event) => {
           if (event.isPrimary) game.pointerUp();
@@ -1879,7 +2056,7 @@
           if (event.isPrimary) game.pointerUp();
         }
       }
-    ), playing && hud.hint ? /* @__PURE__ */ React.createElement("div", { className: "callout pointer-events-none absolute top-4 right-4 left-4 mx-auto max-w-md rounded-md border border-border bg-surface/95 px-4 py-3 text-center" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, "Wave ", hud.wave + 1, " · ", hud.waveName), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-base text-fg" }, hud.hint)) : null, manned ? /* @__PURE__ */ React.createElement("div", { className: "pointer-events-none absolute right-3 bottom-3 left-3 flex justify-center lg:bottom-4" }, /* @__PURE__ */ React.createElement("p", { className: "rounded-md border border-primary bg-surface px-3 py-2 text-center text-sm uppercase tracking-widest text-fg" }, "On the gun · aim and hold to fire · Esc releases · direct fire +", Math.round((MANUAL_BONUS - 1) * 100), "%")) : null, manned ? /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("p", { id: "battlefield-controls", className: "sr-only" }, "Select a gun with 1 through 4. Move the cursor with arrow keys. Press Enter to place or select and M to crew. In crew mode, arrows aim and Space fires. Escape releases the gun."), /* @__PURE__ */ React.createElement("p", { className: "sr-only", role: "status" }, boardStatus), manned ? /* @__PURE__ */ React.createElement("div", { className: "pointer-events-none absolute right-3 bottom-3 left-3 flex justify-center lg:bottom-4" }, /* @__PURE__ */ React.createElement("p", { className: "rounded-md border border-primary bg-surface px-3 py-2 text-center text-sm uppercase tracking-widest text-fg" }, "On the gun · aim and hold to fire · Esc releases · direct fire +", Math.round((MANUAL_BONUS - 1) * 100), "%")) : null, manned ? /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
@@ -1895,7 +2072,7 @@
         onLostPointerCapture: () => game.setBtnFire(false)
       },
       "Fire"
-    ) : null, hud.phase === "combat" ? /* @__PURE__ */ React.createElement("p", { className: "pointer-events-none absolute bottom-3 left-3 text-sm uppercase tracking-widest text-fg" }, hud.left, " still on the road", hud.paused ? " · paused" : "") : null), /* @__PURE__ */ React.createElement("aside", { className: "dock flex min-h-0 flex-col border-t border-border bg-surface" }, /* @__PURE__ */ React.createElement("div", { className: "min-h-0 flex-1 overflow-auto px-3 py-3" }, /* @__PURE__ */ React.createElement("p", { className: "mb-2 text-xs uppercase tracking-widest text-muted" }, "Guns · 1–4 to arm"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-2 overflow-x-auto pb-2 lg:grid lg:overflow-visible" }, TOWER_ORDER.map((kind) => {
+    ) : null, hud.phase === "combat" ? /* @__PURE__ */ React.createElement("p", { className: "pointer-events-none absolute bottom-3 left-3 text-sm uppercase tracking-widest text-fg" }, hud.left, " remaining in wave", hud.paused ? " · paused" : "") : null), /* @__PURE__ */ React.createElement("aside", { className: "dock flex min-h-0 flex-col border-t border-border bg-surface" }, /* @__PURE__ */ React.createElement("div", { className: "dock-scroll min-h-0 flex-1 overflow-auto px-3 py-3" }, /* @__PURE__ */ React.createElement("p", { className: "mb-2 text-xs uppercase tracking-widest text-muted" }, game.scenario.name, " · Guns"), /* @__PURE__ */ React.createElement("div", { className: "gun-grid" }, TOWER_ORDER.map((kind) => {
       const def = TOWERS[kind];
       const armed = hud.armed === kind;
       const poor = hud.gold < def.cost;
@@ -1904,16 +2081,20 @@
         {
           key: kind,
           type: "button",
+          "aria-label": `${def.name}, ${def.cost} złoty`,
           "aria-pressed": armed,
           disabled: !playing || poor,
-          onClick: () => game.arm(kind),
-          className: `flex min-h-16 w-44 shrink-0 items-center gap-2 rounded-md border px-2 py-2 text-left lg:w-auto ${armed ? "border-primary bg-surface-2" : "border-border bg-bg"} disabled:opacity-40`
+          onClick: () => {
+            game.arm(kind);
+            canvasRef.current?.focus({ preventScroll: true });
+          },
+          className: `gun-card flex items-center gap-2 rounded-md border px-2 py-2 text-left ${armed ? "border-primary bg-surface-2" : "border-border bg-bg"} disabled:opacity-40`
         },
         /* @__PURE__ */ React.createElement("img", { src: ART_URLS[`tower-${kind}`], alt: "", className: "h-12 w-12 object-contain" }),
-        /* @__PURE__ */ React.createElement("span", { className: "min-w-0" }, /* @__PURE__ */ React.createElement("span", { className: "block text-base leading-tight text-fg" }, def.name), /* @__PURE__ */ React.createElement("span", { className: "block text-sm text-muted" }, def.tone)),
+        /* @__PURE__ */ React.createElement("span", { className: "min-w-0" }, /* @__PURE__ */ React.createElement("span", { className: "block text-base leading-tight text-fg" }, def.short), /* @__PURE__ */ React.createElement("span", { className: "gun-role block text-sm text-muted" }, def.tone)),
         /* @__PURE__ */ React.createElement("span", { className: "ml-auto text-sm text-accent" }, def.cost)
       );
-    })), /* @__PURE__ */ React.createElement(Inspector, { hud, game })), /* @__PURE__ */ React.createElement("div", { className: "border-t border-border p-3" }, /* @__PURE__ */ React.createElement(
+    })), /* @__PURE__ */ React.createElement(Inspector, { hud, game, focusBoard: () => canvasRef.current?.focus({ preventScroll: true }) })), /* @__PURE__ */ React.createElement("div", { className: "wave-panel border-t border-border p-3" }, /* @__PURE__ */ React.createElement("div", { className: "wave-forecast" }, /* @__PURE__ */ React.createElement("strong", null, "Wave ", hud.wave + 1, " · ", wave?.name), /* @__PURE__ */ React.createElement("span", null, wave?.groups.map(({ kind, n }) => `${n}× ${ENEMIES[kind].name}`).join(" · ")), /* @__PURE__ */ React.createElement("small", null, hud.phase === "deploy" ? wave?.hint : hud.hint)), /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
@@ -1925,7 +2106,7 @@
         }
       },
       hud.phase === "combat" ? "Column on the road" : `Send wave ${hud.wave + 1}`
-    ), /* @__PURE__ */ React.createElement("p", { className: "mt-2 text-center text-sm text-muted" }, wave ? wave.name : "", " · leaks cost the garrison"))), hud.phase === "briefing" ? /* @__PURE__ */ React.createElement("div", { className: "absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-bg/80 p-4" }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 shadow-xl" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, "Poland · the frontier road"), /* @__PURE__ */ React.createElement("h1", { className: "mt-1 font-display text-5xl leading-none text-fg" }, "Blitzkrieg"), /* @__PURE__ */ React.createElement("p", { className: "mt-2 text-sm uppercase tracking-widest text-muted" }, "1 September 1939"), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-lg leading-snug text-fg" }, "Columns are crossing the border at dawn. You have the guns on one road into the interior — nests, the 37mm, mortars, and a Bofors. Hold until night."), /* @__PURE__ */ React.createElement("ul", { className: "mt-4 space-y-2 text-base leading-snug text-muted" }, /* @__PURE__ */ React.createElement("li", null, "Set guns off the road. They crew themselves and fire on the first target in range."), /* @__PURE__ */ React.createElement("li", null, "Man a gun when a bend is failing. You aim. You fire. The others keep shooting."), /* @__PURE__ */ React.createElement("li", null, "Upgrade ordnance and drill. Every vehicle that slips through costs the garrison.")), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "This is a fictional road set during Nazi Germany’s invasion of Poland.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read the history at the U.S. Holocaust Memorial Museum.")), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm text-muted" }, hud.victories > 0 ? `This road has held ${hud.victories} ${hud.victories === 1 ? "time" : "times"}.` : hud.bestWave > 0 ? `Furthest hold: wave ${hud.bestWave} of ${hud.waveCount}.` : "No hold recorded on this road yet."), /* @__PURE__ */ React.createElement(
+    ))), hud.phase === "briefing" ? /* @__PURE__ */ React.createElement("dialog", { ref: dialogRef, className: "mission-dialog", "aria-labelledby": "briefing-title", onCancel: (e) => e.preventDefault() }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 shadow-xl" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, "Poland · the frontier road"), /* @__PURE__ */ React.createElement("h1", { id: "briefing-title", className: "mt-1 font-display text-5xl leading-none text-fg" }, "Blitzkrieg"), /* @__PURE__ */ React.createElement("p", { className: "mt-2 text-sm uppercase tracking-widest text-muted" }, "1 September 1939"), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-lg leading-snug text-fg" }, "Columns are crossing the border at dawn. You have the guns on one road into the interior — nests, the 37mm, mortars, and a Bofors. Hold until night."), /* @__PURE__ */ React.createElement("ul", { className: "mt-4 space-y-2 text-base leading-snug text-muted" }, /* @__PURE__ */ React.createElement("li", null, "Set guns off the road. They crew themselves and fire on the first target in range."), /* @__PURE__ */ React.createElement("li", null, "Man a gun when a bend is failing. You aim. You fire. The others keep shooting."), /* @__PURE__ */ React.createElement("li", null, "Upgrade ordnance and drill. Every vehicle that slips through costs the garrison.")), /* @__PURE__ */ React.createElement("fieldset", { className: "map-picker" }, /* @__PURE__ */ React.createElement("legend", null, "Choose a battlefield"), Object.entries(SCENARIOS).map(([id, scenario2]) => /* @__PURE__ */ React.createElement("label", { key: id }, /* @__PURE__ */ React.createElement("input", { type: "radio", name: "scenario", checked: game.scenarioId === id, onChange: () => game.chooseScenario(id) }), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, scenario2.name), /* @__PURE__ */ React.createElement("small", null, scenario2.description))))), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "This is a fictional road set during Nazi Germany’s invasion of Poland.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read the history at the U.S. Holocaust Memorial Museum.")), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm text-muted" }, hud.victories > 0 ? `This road has held ${hud.victories} ${hud.victories === 1 ? "time" : "times"}.` : hud.bestWave > 0 ? `Furthest hold: wave ${hud.bestWave} of ${hud.waveCount}.` : "No hold recorded on this road yet."), /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
@@ -1933,7 +2114,7 @@
         onClick: () => game.dismissBriefing()
       },
       "Take the road"
-    ))) : null, hud.phase === "victory" || hud.phase === "defeat" ? /* @__PURE__ */ React.createElement(EndCard, { hud, onRestart: () => game.restart() }) : null);
+    ))) : null, hud.phase === "victory" || hud.phase === "defeat" ? /* @__PURE__ */ React.createElement(EndCard, { hud, dialogRef, onRestart: () => game.restart(), onBriefing: () => game.returnToBriefing() }) : null);
   }
   function Stat({
     icon,
@@ -1963,48 +2144,27 @@
       children
     );
   }
-  function Inspector({ hud, game }) {
+  function Inspector({ hud, game, focusBoard }) {
     const selected = hud.selected;
     if (!selected) {
-      return /* @__PURE__ */ React.createElement("div", { className: "mt-3 rounded-md border border-border bg-bg px-3 py-3" }, /* @__PURE__ */ React.createElement("p", { className: "text-base text-fg" }, "Arm a gun, then tap open ground."), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-sm leading-snug text-muted" }, "Double-click a placed gun, or press M, to crew it. Direct fire hits harder. Sell returns ", Math.round(SELL_RATE * 100), "%."));
+      return /* @__PURE__ */ React.createElement("div", { className: "mt-3 rounded-md border border-border bg-bg px-3 py-3" }, /* @__PURE__ */ React.createElement("p", { className: "text-base text-fg" }, "Arm a gun, then tap open ground."), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-sm leading-snug text-muted" }, "Double-click a placed gun or press M to crew it. Use arrow keys and Enter to build from the keyboard."));
     }
     const def = TOWERS[selected.kind];
     const dmgCost = upgradeCost(selected.kind, "dmg", selected.dmgRank);
     const rateCost = upgradeCost(selected.kind, "rate", selected.rateRank);
     const crewed = hud.mannedId === selected.id;
-    return /* @__PURE__ */ React.createElement("div", { className: "mt-3 rounded-md border border-border bg-bg px-3 py-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-start gap-3" }, /* @__PURE__ */ React.createElement("img", { src: ART_URLS[`tower-${selected.kind}`], alt: "", className: "h-14 w-14 object-contain" }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-lg leading-tight text-fg" }, def.name), /* @__PURE__ */ React.createElement("p", { className: "text-sm leading-snug text-muted" }, def.blurb))), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-sm tabular-nums text-fg" }, Math.round(towerDamage(selected.kind, selected.dmgRank)), " damage · ", towerRate(selected.kind, selected.rateRank).toFixed(1), " /s", crewed ? " · crewed" : ""), /* @__PURE__ */ React.createElement("div", { className: "mt-3 flex flex-wrap gap-2" }, PRIORITIES.map((item) => /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        key: item.id,
-        type: "button",
-        onClick: () => game.setPriority(item.id),
-        className: `min-h-11 rounded-md border px-3 text-sm uppercase tracking-wider ${selected.priority === item.id ? "border-accent bg-surface-2 text-accent" : "border-border text-muted"}`
-      },
-      item.label
-    ))), /* @__PURE__ */ React.createElement("div", { className: "mt-3 grid gap-2" }, /* @__PURE__ */ React.createElement(
-      Upgrade,
-      {
-        label: "Ordnance",
-        rank: selected.dmgRank,
-        cost: dmgCost,
-        gold: hud.gold,
-        onClick: () => game.upgrade(selected.id, "dmg")
-      }
-    ), /* @__PURE__ */ React.createElement(
-      Upgrade,
-      {
-        label: "Drill",
-        rank: selected.rateRank,
-        cost: rateCost,
-        gold: hud.gold,
-        onClick: () => game.upgrade(selected.id, "rate")
-      }
-    )), /* @__PURE__ */ React.createElement("div", { className: "mt-3 grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { className: "gun-inspector mt-3 rounded-md border border-border bg-bg px-3 py-3" }, /* @__PURE__ */ React.createElement("div", { className: "gun-actions grid grid-cols-2 gap-2" }, /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
         className: "min-h-11 rounded-md bg-primary px-3 text-sm uppercase tracking-widest text-fg",
-        onClick: () => crewed ? game.unman() : game.man(selected.id)
+        onClick: () => {
+          if (crewed) game.unman();
+          else {
+            game.man(selected.id);
+            focusBoard();
+          }
+        }
       },
       crewed ? "Release gun" : "Man this gun"
     ), /* @__PURE__ */ React.createElement(
@@ -2016,11 +2176,42 @@
       },
       "Sell ",
       Math.floor(selected.spent * SELL_RATE)
-    )));
+    )), /* @__PURE__ */ React.createElement("div", { className: "flex items-start gap-3" }, /* @__PURE__ */ React.createElement("img", { src: ART_URLS[`tower-${selected.kind}`], alt: "", className: "h-14 w-14 object-contain" }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "text-lg leading-tight text-fg" }, def.name), /* @__PURE__ */ React.createElement("p", { className: "text-sm leading-snug text-muted" }, def.blurb))), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-sm tabular-nums text-fg" }, Math.round(towerDamage(selected.kind, selected.dmgRank)), " damage · ", towerRate(selected.kind, selected.rateRank).toFixed(1), " /s", crewed ? " · crewed" : ""), /* @__PURE__ */ React.createElement("div", { className: "mt-3 flex flex-wrap gap-2", "aria-label": "Target priority", role: "group" }, PRIORITIES.map((item) => /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        key: item.id,
+        type: "button",
+        "aria-pressed": selected.priority === item.id,
+        onClick: () => game.setPriority(item.id),
+        className: `min-h-11 rounded-md border px-3 text-sm uppercase tracking-wider ${selected.priority === item.id ? "border-accent bg-surface-2 text-accent" : "border-border text-muted"}`
+      },
+      item.label
+    ))), /* @__PURE__ */ React.createElement("div", { className: "mt-3 grid gap-2" }, /* @__PURE__ */ React.createElement(
+      Upgrade,
+      {
+        label: "Ordnance · damage",
+        rank: selected.dmgRank,
+        locked: selected.dmgRank === 2 && selected.rateRank === 3,
+        cost: dmgCost,
+        gold: hud.gold,
+        onClick: () => game.upgrade(selected.id, "dmg")
+      }
+    ), /* @__PURE__ */ React.createElement(
+      Upgrade,
+      {
+        label: "Drill · fire rate",
+        rank: selected.rateRank,
+        locked: selected.rateRank === 2 && selected.dmgRank === 3,
+        cost: rateCost,
+        gold: hud.gold,
+        onClick: () => game.upgrade(selected.id, "rate")
+      }
+    )), /* @__PURE__ */ React.createElement("p", { className: "mt-2 text-sm text-muted" }, "Choose one final specialization per gun."));
   }
   function Upgrade({
     label: label2,
     rank,
+    locked,
     cost,
     gold,
     onClick
@@ -2030,18 +2221,18 @@
       "button",
       {
         type: "button",
-        disabled: maxed || gold < cost,
+        disabled: maxed || locked || gold < cost,
         onClick,
         className: "flex min-h-11 items-center justify-between rounded-md border border-border px-3 text-left text-sm disabled:opacity-40"
       },
-      /* @__PURE__ */ React.createElement("span", { className: "text-fg" }, label2, /* @__PURE__ */ React.createElement("span", { className: "ml-2 inline-flex gap-1 align-middle" }, [0, 1, 2, 3].map((i) => /* @__PURE__ */ React.createElement("span", { key: i, className: `inline-block size-2 rounded-full ${i < rank ? "bg-accent" : "bg-border"}` })))),
-      /* @__PURE__ */ React.createElement("span", { className: "text-accent" }, maxed ? "Max" : `${cost} zł`)
+      /* @__PURE__ */ React.createElement("span", { className: "text-fg" }, label2, /* @__PURE__ */ React.createElement("span", { className: "ml-2 inline-flex gap-1 align-middle" }, [0, 1, 2].map((i) => /* @__PURE__ */ React.createElement("span", { key: i, className: `inline-block size-2 rounded-full ${i < rank ? "bg-accent" : "bg-border"}` })))),
+      /* @__PURE__ */ React.createElement("span", { className: "text-accent" }, maxed ? "Max" : locked ? "Locked" : `${cost} zł`)
     );
   }
-  function EndCard({ hud, onRestart }) {
+  function EndCard({ hud, dialogRef, onRestart, onBriefing }) {
     const won = hud.phase === "victory";
     const wave = WAVES[Math.min(hud.wave, WAVES.length - 1)];
-    return /* @__PURE__ */ React.createElement("div", { className: "absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-bg/80 p-4" }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 text-center" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, won ? "Night, 1 September" : "The road is open"), /* @__PURE__ */ React.createElement("h2", { className: "mt-2 font-display text-4xl text-fg" }, won ? "The line holds." : "The corridor breaks."), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-lg leading-snug text-muted" }, won ? "Twelve waves stopped on this road. It is one road. It held." : `The garrison failed on wave ${hud.wave + 1}${wave ? `, ${wave.name}` : ""}. Other roads are still fighting. This one is not.`), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "In the September Campaign, the Soviet Union invaded eastern Poland on September 17. German forces took Warsaw later that month.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read how the invasion unfolded.")), /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("dialog", { ref: dialogRef, className: "mission-dialog", "aria-labelledby": "result-title", onCancel: (e) => e.preventDefault() }, /* @__PURE__ */ React.createElement("article", { className: "overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 text-center" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs uppercase tracking-widest text-accent" }, won ? "Night, 1 September" : "The road is open"), /* @__PURE__ */ React.createElement("h2", { id: "result-title", className: "mt-2 font-display text-4xl text-fg" }, won ? "The line holds." : "The corridor breaks."), /* @__PURE__ */ React.createElement("p", { className: "mt-3 text-lg leading-snug text-muted" }, won ? `You held through all ${hud.waveCount} waves with ${hud.lives} garrison and ${hud.gold} zł remaining.` : `The garrison fell on wave ${hud.wave + 1}${wave ? `, ${wave.name}` : ""}.`), /* @__PURE__ */ React.createElement("p", { className: "mt-4 text-sm leading-snug text-muted" }, "In the September Campaign, the Soviet Union invaded eastern Poland on September 17. German forces took Warsaw later that month.", " ", /* @__PURE__ */ React.createElement("a", { className: "text-accent underline", href: HISTORY_URL, target: "_blank", rel: "noreferrer" }, "Read how the invasion unfolded.")), /* @__PURE__ */ React.createElement(
       "button",
       {
         type: "button",
@@ -2050,7 +2241,7 @@
       },
       /* @__PURE__ */ React.createElement(RotateCcw, { className: "size-4", "aria-hidden": true }),
       "Reform the line"
-    )));
+    ), /* @__PURE__ */ React.createElement("button", { type: "button", className: "mission-back", onClick: onBriefing }, "Choose another battlefield")));
   }
 
   // main.tsx
