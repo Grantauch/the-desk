@@ -1,3 +1,9 @@
+## November 16 Situation Room student publication
+
+Owner Codex, tracker #360 R07. The additive `situation-room.html` edition replaces numeric scoring with written trade-offs and pairs six decisions with October 1962 records. The chronology links to the National Archives, JFK Library, and Office of the Historian. A discussion debrief invites students to compare public and private accounts. Choices, feedback, debrief, and restart support keyboard navigation. The timeline also works without JavaScript. Games and Cold War America link to the corrected edition, and legacy bookmarks redirect there.
+
+Focused Chromium checks passed at 320, 390, and 1440 pixels for all 18 choices, keyboard focus, replay, WCAG A/AA, and page fit. The six timeline entries and eight source links passed the JavaScript-disabled check. Protected CI, merge, production readback, and classroom acceptance are separate release checks. The activity collects no student information or work.
+
 ## November 15 Evidence Locker student publication
 
 Owner Codex, issue #374. Native buttons replace mouse-only evidence selection and filing. Learners can revise cards before filing, receive status announcements and keep focus through selection, filing, report and reset. Four historical summaries link to the Church Committee report and Senate's committee history; the other four cards and claim B are explicitly invented practice examples. The report counts sorting matches and explains evidence quality instead of presenting invented certainty percentages. The additive evidence-locker.html edition preserves the original underscore-named baseline; existing classroom URLs redirect to the corrected edition. Games and the sitemap make it discoverable.
