@@ -60,9 +60,9 @@ jobs:
 
   deploy:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_dispatch' && github.actor == 'Grantauch' && github.triggering_actor == 'Grantauch') ||
       (github.event_name == 'issue_comment' &&
-       github.actor == 'Grantauch' &&
+       github.actor == 'Grantauch' && github.triggering_actor == 'Grantauch' &&
        github.event.issue.number == 28 &&
        (github.event.comment.body == '/preflight-hall-pass' || github.event.comment.body == '/deploy-hall-pass'))
     name: Hall Pass production release bridge
