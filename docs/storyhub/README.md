@@ -28,6 +28,7 @@ The fast lane is allowed only when the diff is limited to:
 - lesson-specific public assets under `public/storyhub/`, excluding the shared runtime
 - StoryHub manifests and public source notes under `storyhub/stories/`
 - the StoryHub catalog in `src/data/storyhubs.ts`
+- `docs/storyhub/work-panel-catalog.json`, when the only changes add or edit entries for hubs in the StoryHub catalog and `catalogueCount` matches that catalog
 - a course page change whose only semantic difference is its `storyhub: { ... }` block
 
 Those releases still run StoryHub manifest/provenance/asset validation, Astro/TypeScript checks, a production build, static-site/link validation, and focused browser/accessibility checks at 320 px, 390 px, desktop, and reduced motion for the changed StoryHub routes.
