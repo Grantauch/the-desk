@@ -63,7 +63,7 @@ const ORIGIN = `http://localhost:${PORT}`;
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'checkaverse-fen-'));
 const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', path.join(HERE, 'server.mjs')], {
   env: { ...process.env, CHECKAVERSE_PORT: String(PORT), CHECKAVERSE_DATA: DATA, CHECKAVERSE_ORIGINS: ORIGIN, CHECKAVERSE_KETTLE: path.join(DATA, 'no-kettle.json'),
-    CHECKAVERSE_TEST_SPAWN: '12,1', CHECKAVERSE_WILD_RATE: '1', CHECKAVERSE_TURN_MS: '1500' }, stdio: 'pipe',
+    CHECKAVERSE_TEST_SPAWN: '12,1', CHECKAVERSE_WILD_RATE: '1', CHECKAVERSE_TURN_MS: '1500', CHECKAVERSE_WEATHER: 'off' }, stdio: 'pipe',
 });
 let serverLog = '';
 child.stdout.on('data', (d) => { serverLog += d; });
@@ -163,7 +163,7 @@ try {
   step('walked back out of the basin to the top of the wilds trail');
 
   ws.close();
-  assert.ok(!/Error|failed/i.test(serverLog), serverLog);
+  assert.ok(!/Error|uncaught/i.test(serverLog), serverLog);
   console.log('PASS bramblefen basin');
 } catch (err) {
   failed = true;

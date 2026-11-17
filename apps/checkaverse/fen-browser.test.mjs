@@ -16,7 +16,7 @@ fs.mkdirSync(out, { recursive: true });
 const port = 23000 + Math.floor(Math.random() * 2000), origin = `http://127.0.0.1:${port}`;
 const data = fs.mkdtempSync(path.join(os.tmpdir(), 'checkaverse-fen-browser-'));
 const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', path.join(HERE, 'server.mjs')], { cwd: HERE,
-  env: { ...process.env, CHECKAVERSE_PORT: String(port), CHECKAVERSE_DATA: data, CHECKAVERSE_ORIGINS: origin, CHECKAVERSE_WILD_RATE: '0.000001', CHECKAVERSE_TEST_SPAWN: '12,1' }, stdio: 'pipe' });
+  env: { ...process.env, CHECKAVERSE_PORT: String(port), CHECKAVERSE_DATA: data, CHECKAVERSE_ORIGINS: origin, CHECKAVERSE_WILD_RATE: '0.000001', CHECKAVERSE_TEST_SPAWN: '12,1', CHECKAVERSE_WEATHER: 'off' }, stdio: 'pipe' });
 let log = ''; child.stdout.on('data', (d) => { log += d; }); child.stderr.on('data', (d) => { log += d; });
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const errors = [], warnings = [];
