@@ -714,6 +714,11 @@ await test('BS High restores complete investigations and clears shared-device wo
       const failures = result.violations.map(v => [v.id, v.nodes.map(n => n.target)]);
       assert.equal(failures.length, 0, JSON.stringify({ step, failures }));
       await resumed.locator('#nextBtn').click();
+      if (step === 0) {
+        await resumed.locator('#backBtn').click();
+        assert.ok(await resumed.locator('#studentName').isVisible());
+        await resumed.locator('#nextBtn').click();
+      }
     }
 
     const legacyAccount = s.post({ action: 'signin', pin: s.pin(PEOPLE.katherine), hub: legacyHub, device: 'old-browser' });
