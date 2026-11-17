@@ -26,7 +26,7 @@ A saved trainer wakes in their own Kettle Creek. A visitor wakes in the shared t
 
 One shared town: plaza, 24 neighborhood plots, arena, market stalls, notice board, Merge Stone, bus stop. Houses appear when that student is online and leave when they disconnect. The owner can lock the door. Visitors can walk through an unlocked house and look at the one shared interior picture. They cannot change it.
 
-Kettle Creek is a private copy per saved trainer (`kc:<player id>` in `server.mjs`). It has a house, general store, apothecary, clinic, day care, a fenced practice yard with three stumps, Route 1 tall grass, a cemetery hill, a bus stop, and four forage props. Doors open. Home and the clinic open the Care panel. The store, apothecary, and day care show a line of text (`content/places.json`).
+Kettle Creek is a private room per connection (`kc:` plus the connection id in `server.mjs`). Other players cannot choose that room. Resident history for a saved trainer is stored under the anonymous player id, so it survives a reconnect. It has a house, general store, apothecary, clinic, day care, a fenced practice yard with three stumps, Route 1 tall grass, a cemetery hill, a bus stop, and four forage props. Doors open. Home and the clinic open the Care panel. The store, apothecary, and day care show a line of text (`content/places.json`).
 
 The wilds sit north of the plaza gate: tall grass, starflower clearing, rocky ridge, scorched heath, one bridge. North of that is Bramblefen Basin, a 256 by 256 map built from a fixed seed (`content/fen.json`, `public/fen.js`). Server and browser build the same map and compare a hash. The ground is painted in chunks. Seven landmarks are reachable. Three encounter zones run levels 8 to 16, using species that already live in the wilds.
 
@@ -73,7 +73,7 @@ Status words: **built**, **partial**, **missing**, **diverges**.
 | Check in pays XP | Built | 100 XP per official check-in, paid on the next ride to the current partner (`growth.json`, `accounts.mjs` `link`). |
 | Check in pays coins | Missing | No coin field, wallet, or price anywhere under `apps/checkaverse`. |
 | Overnight card | Partial | The card exists and lists body changes, deaths, and an egg (`plaza.js` `showReport`, `care.mjs` summaries). It does not mention a restocked shop, a forage find, or a featured wild species. Those systems are not there to report. |
-| Care | Built | Six actions, ten conditions, nine diseases plus a cold, chance-based death. See the divergences below. |
+| Care | Built | Six actions, ten conditions, nine diseases plus a cold. Death is usually a rising chance. Health at 0 while a disease is active is certain death. See the divergences below. |
 | Choose a path | Partial | Both maps exist. Kettle Creek's jobs (shop, forage, brew, decorate) are signs. The shared town's jobs (battle, gym, wilds, basin) work. |
 | Leave, and the clock keeps going | Built | School calendar in `content/calendar.json`. Party only. Den paused. Outage days and no-school days do not tick. |
 | Kettle Creek works while the Checkaverse is down | Diverges | The bible says Kettle Creek always works, from grant-desk.com, even when the bus is not running. Both towns are the same process on the home PC. If that process is down, neither town loads. Pixel Camp still runs in the browser, as its own game, with its own save. |
@@ -91,6 +91,7 @@ Partial or different:
 - Out of shape lowers battle stats slightly and leads to no disease. The bible's training row sends "too little" toward torn muscle. In the game, torn muscle comes from overtraining.
 - Ghost temperament is only a partial match (`content/ghosts.json`). A glowing mushroom, or a life of 60 school days, leaves a calm ghost. Malnutrition, the Glooms, mange, collapse, and couch rot leave an angry one. Heart trouble, burnout, and torn muscle fall through to restless. The bible sorts "too much care" with restless and "a gamble or old age" with calm. Old age is not a cause yet.
 - Untested potions are missing, so that instant-death row and its epitaphs are not in `content/epitaphs.json`. The board already held those lines back on purpose.
+- A disease can also kill with no roll once health hits 0 (`care.mjs`: the death check is the day's chance, or health already at 0). Untreated illness cuts health by 8 a day, from 100. That hard stop is stronger than the bible's "chance drives every step." Leave it until the open question on care numbers is answered.
 - Old age is not a cause of death.
 - Day Care does not board a party. The door text says the teacher can send a party there (`places.json`). The teacher page has no such button. "No school today" pauses every body, which is a different tool.
 - Contagion is missing. A cold does not spread to a neighbor.
@@ -108,14 +109,14 @@ The live numbers are what the care tests balance against. Changing Bored, Primpe
 | Catch lines by place | Missing | The Depth Pack's throw, success, and fail lines are not in the client. A catch is one shared flow. |
 | Field guide | Missing | No dex, no silhouette for a seen species, no owned entry. The writing is already in `wave-one.md`. |
 | Eggs from foraging, rankings, or the Champion | Missing | The only egg is the one after a death. |
-| Streak milestones 3, 7, 14, 30 | Missing in this game | The ticket includes `s` and `b`. `verifyTicket` reads them. `join` in `server.mjs` never uses them. Check-In still has its own streak and habitat unlocks. |
+| Streak milestones 3, 7, 14, 30 | Missing in this game | The ticket includes `s` and `b`. `verifyTicket` reads them. `join` in `server.mjs` never uses them. Check-In already pays those days as habitats and keepsakes (`GD_CHECKLING_STAGES` in `apps-script/hall-pass/Code.gs`): Sprout and a Lucky leaf at 3, Buddy and a Pocket pearl at 7, Ace and a Sky feather at 14, Legend and Your own star at 30. The game does not grant an egg, a phrase, or a decoration for the same streak. |
 | Merge Stone | Missing as a machine | The prop, the sign, and the art are in the plaza. The sign says the spirals are quiet. No recipe, no merge action. Wave One says recipes stay out of this public repo. |
 | Notice board | Partial | It opens weekly battle rankings. It does not post merge recipes, because none can be found. |
 | Champion ladder and town-trainer fights | Missing | The arena is the gym. Residents battle each other for show and do not pay coins or items. There is no semester title and no rare egg. |
 | Training stumps | Missing as fights | Three stumps and a sign in Kettle Creek. They do not start a battle or give a badge. |
 | Nurture rankings | Missing | Longest life, best-kept home, and most species discovered are not counted. Battle rank is. |
 | Potions and two items in a battle | Missing | Spirit Sight is the one brew, hardcoded in the ghost flow, not a potion inventory. Strength tonic, stamina draught, clear tea, and slim broth are not items. |
-| Forage | Partial | Four spots are on the Kettle Creek map and have signs (`kettle.json` `forage`, `signs.json`). Nothing is picked up. The bible's seed gate, waterwheel, and star pond are not on this map. The spots that exist are a berry bush, the creek bank, an herb garden, and an old stump. |
+| Forage | Partial | Four spots are on the Kettle Creek map and have signs (`kettle.json` `forage`, `signs.json`). Nothing is picked up. `tools/gen-town.mjs` says forage is map data until the server grants items. The bible's seed gate, waterwheel, and star pond are not on this map. They still exist as daily curios in Pixel Camp (`public/hubs/checkling/camp/engine.js`). The spots in Kettle Creek are a berry bush, the creek bank, an herb garden, and an old stump. |
 | Decorating, trophies, furniture | Missing | Home's sign says "rest, decorate and visit the Den." There is no decorate mode. Interiors are one picture, `house-interior.png`. |
 | Unlockable phrases | Missing | `content/phrases.json` is the six starter lines. Nothing a student types is sent to another student. That part matches the bible. |
 | Merchant economy | Missing | Stalls are scenery. Players cannot sell into a shared stock. |
@@ -146,6 +147,9 @@ The battle engine, care clock, tickets, ranks, ghosts, gym, gazette, weather, ke
 - The server allows a ticket lifetime up to three hours (`MAX_LIFE_MS` in `accounts.mjs`). Check-In only prints two. A stolen signing key could mint a longer ticket. The key is not in this repo.
 - Cross-hour battles still add points. `weeklyRanks` shows each hour's own list, and a trainer's points follow the hour stored on their row. Fighting someone from another hour still scores.
 - Removing a saved trainer kicks the connection. The save, the Checklings, and the name remain.
+- A turned-down challenge waits three minutes on the connection id (`declined` in `server.mjs`), not on the player id. Reload closes that connection and opens a new one, so the wait is gone. The same-socket test still passes.
+- Wins, losses, and battle XP are written before the `battles` row (`finishBattle`). If that insert fails, the log says `battle save failed`, the trainer's record still moved, and the weekly board can miss the match. A catching charm is spent in its own write before the catch is stored. A crash in that gap can spend a charm without keeping the Checkling.
+- The picture of a step takes 180 ms (`STEP_MS` in `plaza.js`). The server accepts a step every 110 ms (`MOVE_GAP_MS`). The README describes one pace. A modified page could walk faster than the animation students see, up to about nine steps a second.
 
 ### Shared computers and tickets
 
@@ -159,7 +163,7 @@ The ticket is removed from the address bar so it is harder to copy off the scree
 
 What is in good shape:
 
-- Tickets have no real name, PIN, or email. The player id is a keyed hash of the Check-In membership, truncated, and it does not reverse to a name by itself.
+- Tickets have no real name, PIN, or email. The player id is an HMAC of `email::class period` under Check-In's `PIN_SALT`, cut to 22 characters (`rosterKey_` and `checkaversePlayerId_` in `Code.gs`). It does not reverse to a name by itself. The same student in the same class keeps the same id if the ticket key changes. A new class period, a changed email, or a new `PIN_SALT` is a new id. The old Checklings stay on the old id. Nothing in the game moves them over.
 - Nicknames go to the owner: the party menu, the overnight card, mail, and the owner's ghost. A classmate's ghost battle does not receive the nickname (`server.mjs` ghost payload).
 - The Gazette names a trainer only for good news. Deaths are counts without names.
 - The director is fed counts and resident names, not student names, and not deaths.
@@ -262,7 +266,7 @@ Wave 4: pine, hollow log, mushroom ring, ruined arch, thorn bush, pond plants, f
 
 Wave 8, all 44 sheets, missing as their own files. The basin recolors town grass, water, trees, and the Merge Stone. The missing set is: meadow grass, packed dirt, cobblestone, creek water, marsh mud, shallow fen water, deep fen water, moss carpet, reed beds, boardwalk planks, round oak, tall pine, birch pair, flowering hedge, stone well, plaza fountain, lamp post, crates and barrel, flower planter, boulder pile, charred tree, windmill, weeping willow, swamp cypress, old snag, cattail clump, lily pads, mossy log, bramble thicket, glowcap ring, stepping stones, boardwalk bridge, stilt hut, fishing dock, marsh lantern, trail marker, campfire ring, supply cache, basin gate, Sunken Arch, Old Mill, Hollow Giant, Leaning Tower, Heron Stone.
 
-The live landmarks in `content/fen.json` are the basin gate, the ranger's hut, the Sunken Arch, the Old Mill, the Hollow Giant, the Lantern Ring, and the Heron Stone. Wave 8 draws a Leaning Tower and does not name the ranger's hut or the Lantern Ring. Admit art against the live names, and decide the Leaning Tower before anyone draws it as a replacement.
+The live landmarks in `content/fen.json` are the basin gate, the ranger's hut, the Sunken Arch, the Old Mill, the Hollow Giant, the Lantern Ring, and the Heron Stone. Until Wave 8 arrives, `fen.js` stands in town art: the cemetery gate for the basin gate, a cottage for the ranger's hut, the Merge Stone for the Sunken Arch, the creekside house for the Old Mill, the stump house for the Hollow Giant, a rock for the Heron Stone, and a lantern for the Lantern Ring. Willows and cypresses are recolored `prop-tree`. Wave 8 draws a Leaning Tower and does not name the ranger's hut or the Lantern Ring. Admit art against the live names, and decide the Leaning Tower before anyone draws it as a replacement. Every prop name in `town.json` and `kettle.json` already has a PNG.
 
 Condition overlays for obese, scrawny, sick, and grimy are still an open art job on the AI Team Board (Gemini, not marked done). The bible wants those as overlays on the base sprite, not as a new sprite per species.
 
@@ -383,7 +387,7 @@ Only Grant can answer these. The roadmap does not guess.
 2. How many minutes of no input should sign a Chromebook out of the Checkaverse? Twenty matches the lesson hubs. A class period is longer than that if the student is only reading.
 3. For "who is who," is the Check-In teacher view the right place, with real names staying out of the game server?
 4. Is Pixel Camp still part of class, or has Checkaverse replaced it? The camp is still linked from the site, and its bus link drops students in as visitors.
-5. What should streaks of 3, 7, 14, and 30 days pay in this game: an egg, a phrase, a decoration, or something Check-In already gives?
+5. What should streaks of 3, 7, 14, and 30 days pay in this game? Check-In already gives a habitat and a keepsake at each of those days (Lucky leaf, Pocket pearl, Sky feather, Your own star). Should the town add an egg, a phrase, or a decoration on top of that, or is the Check-In reward enough?
 6. Should a cold spread to Checklings standing nearby? The bible includes contagion. It also creates a way for one student to sicken another.
 7. Is Day Care for a single absent student worth building, given "No school today" already pauses everybody?
 8. Who writes merge recipes, and do they stay only on the PC, out of GitHub, as Wave One says?
