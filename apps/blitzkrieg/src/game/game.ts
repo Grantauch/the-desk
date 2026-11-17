@@ -1,18 +1,18 @@
 import { Soundboard } from "./audio";
 import {
-  BLOCK_SET,
+  AIR_ROUTE,
   CELL,
   COLS,
   ENEMIES,
   MANUAL_BONUS,
-  PATH_SET,
+  SCENARIOS,
   ROWS,
   SELL_RATE,
   START_GOLD,
   START_LIVES,
   TOWERS,
   WAVES,
-  WAYPOINTS,
+  type ScenarioId,
   WORLD_H,
   WORLD_W,
   buildSchedule,
@@ -71,6 +71,8 @@ export interface Shot {
   splash: number;
   ttl: number;
   homing: number | null;
+  targetAir?: boolean;
+  remaining?: number;
   mortar: boolean;
   age: number;
   duration: number;
@@ -136,34 +138,45 @@ export interface Hud {
   flash: number;
 }
 
-interface Save {
-  v: 1;
+interface Progress {
   bestWave: number;
   victories: number;
 }
 
+type Save = Record<ScenarioId, Progress>;
 const SAVE_KEY = "blitzkrieg-save-v1";
+const MAP_SAVE_KEY = "blitzkrieg-save-v2";
 const AIR_LIFT = 34;
 
+function progress(value?: Partial<Progress>): Progress {
+  return {
+    bestWave: Number.isFinite(value?.bestWave) ? Math.max(0, Math.min(WAVES.length, Math.floor(value!.bestWave!))) : 0,
+    victories: Number.isFinite(value?.victories) ? Math.max(0, Math.floor(value!.victories!)) : 0,
+  };
+}
+
 function loadSave(): Save {
-  if (typeof localStorage === "undefined") return { v: 1, bestWave: 0, victories: 0 };
+  const empty = { frontier: progress(), orchard: progress(), river: progress() };
+  if (typeof localStorage === "undefined") return empty;
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return { v: 1, bestWave: 0, victories: 0 };
-    const parsed = JSON.parse(raw) as Partial<Save>;
-    if (parsed.v !== 1) return { v: 1, bestWave: 0, victories: 0 };
-    return {
-      v: 1,
-      bestWave: typeof parsed.bestWave === "number" ? parsed.bestWave : 0,
-      victories: typeof parsed.victories === "number" ? parsed.victories : 0,
-    };
+    const raw = localStorage.getItem(MAP_SAVE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<Save>;
+      return { frontier: progress(parsed?.frontier), orchard: progress(parsed?.orchard), river: progress(parsed?.river) };
+    }
+    const legacy = JSON.parse(localStorage.getItem(SAVE_KEY) ?? "null") as (Partial<Progress> & { v?: number }) | null;
+    if (legacy?.v === 1) empty.frontier = progress(legacy);
   } catch {
-    return { v: 1, bestWave: 0, victories: 0 };
+    return empty;
   }
+  return empty;
 }
 
 export function aimOf(e: Creep): { x: number; y: number } {
-  return { x: e.x, y: e.y - (ENEMIES[e.kind].air ? AIR_LIFT : 0) };
+  return {
+    x: e.x - Math.sin(e.angle) * e.lane,
+    y: e.y + Math.cos(e.angle) * e.lane - (ENEMIES[e.kind].air ? AIR_LIFT : 0),
+  };
 }
 
 export function angDiff(a: number, b: number): number {
@@ -179,6 +192,8 @@ function hypot(x: number, y: number): number {
 
 export class Game {
   phase: Phase = "briefing";
+  scenarioId: ScenarioId = "frontier";
+  get scenario() { return SCENARIOS[this.scenarioId]; }
   gold = START_GOLD;
   lives = START_LIVES;
   waveIndex = 0;
@@ -195,6 +210,8 @@ export class Game {
   mannedId: number | null = null;
   aim = { x: WORLD_W / 2, y: WORLD_H / 2 };
   hover: { c: number; r: number } | null = null;
+  keyboardCell = { c: 0, r: 1 };
+  keyboardActive = false;
   mouseFire = false;
   keyFire = false;
   btnFire = false;
@@ -213,7 +230,7 @@ export class Game {
   clock = 0;
   spawnI = 0;
   schedule: { t: number; kind: EnemyKind }[] = [];
-  save: Save = { v: 1, bestWave: 0, victories: 0 };
+  save: Save = { frontier: progress(), orchard: progress(), river: progress() };
   audio: Soundboard;
 
   private nextId = 1;
@@ -286,8 +303,8 @@ export class Game {
             spent: selected.spent,
           }
         : null,
-      bestWave: this.save.bestWave,
-      victories: this.save.victories,
+      bestWave: this.save[this.scenarioId].bestWave,
+      victories: this.save[this.scenarioId].victories,
       left,
       flash: this.flash,
     };
@@ -314,15 +331,22 @@ export class Game {
   }
 
   private tickView(dt: number): void {
+    if (this.hintT > 0 && !this.paused) {
+      this.hintT -= dt;
+      if (this.hintT <= 0) {
+        this.hint = "";
+        this.dirty = true;
+      }
+    }
     const manned = this.towers.find((t) => t.id === this.mannedId);
-    const zoom = manned ? 1.62 : 1;
+    const zoom = manned && !this.reduce ? 1.36 : 1;
     let cx = manned ? manned.x : WORLD_W / 2;
     let cy = manned ? manned.y : WORLD_H / 2;
     const viewW = WORLD_W / zoom;
     const viewH = WORLD_H / zoom;
     cx = Math.max(viewW / 2, Math.min(WORLD_W - viewW / 2, cx));
     cy = Math.max(viewH / 2, Math.min(WORLD_H - viewH / 2, cy));
-    const k = 1 - Math.exp(-dt * 7);
+    const k = this.reduce ? 1 : 1 - Math.exp(-dt * 7);
     this.camZoom += (zoom - this.camZoom) * k;
     this.camX += (cx - this.camX) * k;
     this.camY += (cy - this.camY) * k;
@@ -334,19 +358,13 @@ export class Game {
   tick(dt: number): void {
     if (this.phase !== "combat") return;
     this.clock += dt;
-    if (this.hintT > 0) {
-      this.hintT -= dt;
-      if (this.hintT <= 0) {
-        this.hint = "";
-        this.dirty = true;
-      }
-    }
     while (this.spawnI < this.schedule.length && this.schedule[this.spawnI]!.t <= this.clock) {
       if (this.phase !== "combat") break;
       this.spawn(this.schedule[this.spawnI]!.kind);
       this.spawnI++;
     }
     for (const e of this.creeps) this.moveCreep(e, dt);
+    if (this.phase !== "combat") return;
     for (const tower of this.towers) this.runTower(tower, dt);
     for (const shot of this.shots) this.moveShot(shot, dt);
     this.shots = this.shots.filter((s) => s.ttl > 0);
@@ -380,7 +398,7 @@ export class Game {
     this.noteCleared(cleared);
     if (this.waveIndex >= WAVES.length - 1) {
       this.phase = "victory";
-      this.save.victories += 1;
+      this.save[this.scenarioId].victories += 1;
       this.persist();
       this.audio.play("win");
       this.unman();
@@ -389,6 +407,8 @@ export class Game {
     }
     this.waveIndex += 1;
     this.phase = "deploy";
+    this.unman();
+    this.shots = [];
     this.audio.play("ui");
     this.hint = "Road clear. Reinforce, then send the next column.";
     this.hintT = 3.2;
@@ -396,8 +416,8 @@ export class Game {
   }
 
   private noteCleared(n: number): void {
-    if (n > this.save.bestWave) {
-      this.save.bestWave = n;
+    if (n > this.save[this.scenarioId].bestWave) {
+      this.save[this.scenarioId].bestWave = n;
       this.persist();
     }
   }
@@ -405,7 +425,7 @@ export class Game {
   private persist(): void {
     if (typeof localStorage === "undefined") return;
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(this.save));
+      localStorage.setItem(MAP_SAVE_KEY, JSON.stringify(this.save));
     } catch {
       /* ignore quota */
     }
@@ -417,6 +437,19 @@ export class Game {
     this.audio.unlock();
     this.audio.play("ui");
     this.dirty = true;
+  }
+
+  chooseScenario(id: ScenarioId): void {
+    if (this.phase !== "briefing") return;
+    this.scenarioId = id;
+    this.dirty = true;
+  }
+
+  returnToBriefing(): void {
+    this.restart();
+    this.phase = "briefing";
+    this.hint = "";
+    this.hintT = 0;
   }
 
   restart(): void {
@@ -466,7 +499,10 @@ export class Game {
 
   arm(kind: TowerKind | null): void {
     if (this.phase === "briefing" || this.phase === "victory" || this.phase === "defeat") return;
+    if (kind && this.gold < TOWERS[kind].cost) return;
+    if (kind) this.unman();
     this.armed = this.armed === kind ? null : kind;
+    if (this.armed) this.selectedId = null;
     if (this.armed) this.audio.play("ui");
     this.dirty = true;
   }
@@ -496,7 +532,7 @@ export class Game {
     this.mannedId = tower.id;
     this.selectedId = tower.id;
     this.armed = null;
-    const spot = nearestWaypoint(tower.x, tower.y);
+    const spot = nearestWaypoint(this.scenario.waypoints, tower.x, tower.y);
     this.aim = spot;
     this.audio.play("place");
     this.dirty = true;
@@ -522,10 +558,11 @@ export class Game {
     const tower = this.towers.find((t) => t.id === id);
     if (!tower) return false;
     const rank = track === "dmg" ? tower.dmgRank : tower.rateRank;
-    if (rank >= 3) return false;
+    const other = track === "dmg" ? tower.rateRank : tower.dmgRank;
+    if (rank >= 3 || (rank === 2 && other === 3)) return false;
     const cost = upgradeCost(tower.kind, track, rank);
     if (this.gold < cost) {
-      this.floater(tower.x, tower.y - 20, "Not enough złoty", "primary");
+      this.floater(tower.x, tower.y - 20, "Not enough zloty", "primary");
       return false;
     }
     this.gold -= cost;
@@ -543,7 +580,7 @@ export class Game {
     const tower = this.towers[index]!;
     const refund = Math.floor(tower.spent * SELL_RATE);
     this.gold += refund;
-    this.floater(tower.x, tower.y, `+${refund} zł`, "accent");
+    this.floater(tower.x, tower.y, `+${refund} zl`, "accent");
     this.towers.splice(index, 1);
     if (this.selectedId === id) this.selectedId = null;
     if (this.mannedId === id) this.unman();
@@ -554,7 +591,7 @@ export class Game {
   canBuild(c: number, r: number): boolean {
     if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return false;
     const key = cellKey(c, r);
-    if (PATH_SET.has(key) || BLOCK_SET.has(key)) return false;
+    if (this.scenario.road.has(key) || this.scenario.blocked.has(key)) return false;
     return !this.towers.some((t) => t.c === c && t.r === r);
   }
 
@@ -567,14 +604,14 @@ export class Game {
     }
     const cost = TOWERS[kind].cost;
     if (this.gold < cost) {
-      this.floater((c + 0.5) * CELL, (r + 0.5) * CELL, "Not enough złoty", "primary");
+      this.floater((c + 0.5) * CELL, (r + 0.5) * CELL, "Not enough zloty", "primary");
       this.dirty = true;
       return false;
     }
     this.gold -= cost;
     const x = (c + 0.5) * CELL;
     const y = (r + 0.5) * CELL;
-    const face = nearestWaypoint(x, y);
+    const face = nearestWaypoint(this.scenario.waypoints, x, y);
     const tower: Tower = {
       id: this.nextId++,
       kind,
@@ -597,7 +634,35 @@ export class Game {
     return true;
   }
 
-  pointerDown(world: { x: number; y: number }, pointer: "mouse" | "touch" | "pen", detail: number): void {
+  crewAt(world: { x: number; y: number }): void {
+    const tower = this.towerAt(world);
+    if (tower) this.man(tower.id);
+  }
+
+  moveKeyboard(dc: number, dr: number): string {
+    this.keyboardActive = true;
+    if (this.mannedId !== null) {
+      this.aim = {
+        x: Math.max(0, Math.min(WORLD_W, this.aim.x + dc * 18)),
+        y: Math.max(0, Math.min(WORLD_H, this.aim.y + dr * 18)),
+      };
+      return "Aim adjusted";
+    }
+    const c = Math.max(0, Math.min(COLS - 1, this.keyboardCell.c + dc));
+    const r = Math.max(0, Math.min(ROWS - 1, this.keyboardCell.r + dr));
+    this.keyboardCell = { c, r };
+    this.hover = this.keyboardCell;
+    const tower = this.towers.find((item) => item.c === c && item.r === r);
+    const status = tower ? TOWERS[tower.kind].name : this.canBuild(c, r) ? "open ground" : "unavailable";
+    return `Column ${c + 1}, row ${r + 1}, ${status}`;
+  }
+
+  selectKeyboard(): void {
+    const { c, r } = this.keyboardCell;
+    if (this.mannedId === null) this.pointerDown({ x: (c + 0.5) * CELL, y: (r + 0.5) * CELL }, "touch");
+  }
+
+  pointerDown(world: { x: number; y: number }, pointer: "mouse" | "touch" | "pen"): void {
     if (this.phase === "briefing" || this.phase === "victory" || this.phase === "defeat") return;
     if (this.mannedId !== null) {
       this.aim = world;
@@ -608,7 +673,6 @@ export class Game {
     if (hit) {
       this.selectedId = hit.id;
       this.armed = null;
-      if (detail >= 2) this.man(hit.id);
       this.audio.play("ui");
       this.dirty = true;
       return;
@@ -623,6 +687,7 @@ export class Game {
   }
 
   pointerMove(world: { x: number; y: number }): void {
+    this.keyboardActive = false;
     this.hover = cellAt(world.x, world.y);
     if (this.mannedId !== null) this.aim = world;
   }
@@ -651,8 +716,9 @@ export class Game {
 
   private spawn(kind: EnemyKind): void {
     const def = ENEMIES[kind];
-    const start = WAYPOINTS[0]!;
-    const next = WAYPOINTS[1] ?? start;
+    const route = def.air ? AIR_ROUTE : this.scenario.waypoints;
+    const start = route[0]!;
+    const next = route[1] ?? start;
     const creep: Creep = {
       id: this.nextId++,
       kind,
@@ -676,7 +742,8 @@ export class Game {
   private moveCreep(e: Creep, dt: number): void {
     if (!e.alive) return;
     if (e.slow > 0) e.slow -= dt;
-    const target = WAYPOINTS[e.wp];
+    const route = ENEMIES[e.kind].air ? AIR_ROUTE : this.scenario.waypoints;
+    const target = route[e.wp];
     if (!target) {
       this.leak(e);
       return;
@@ -691,7 +758,7 @@ export class Game {
       e.x = target.x;
       e.y = target.y;
       e.wp += 1;
-      if (e.wp >= WAYPOINTS.length) this.leak(e);
+      if (e.wp >= route.length) this.leak(e);
     } else {
       e.vx = (dx / dist) * speed;
       e.vy = (dy / dist) * speed;
@@ -709,7 +776,7 @@ export class Game {
     this.lives -= loss;
     this.flash = 1;
     this.shake = Math.max(this.shake, this.reduce ? 0 : 7);
-    this.floater(e.x, e.y, `−${loss}`, "primary");
+    this.floater(e.x, e.y, `-${loss}`, "primary");
     this.audio.play("leak");
     this.dirty = true;
     if (this.lives <= 0) {
@@ -727,6 +794,7 @@ export class Game {
     let tx = tower.x;
     let ty = tower.y;
     let want = false;
+    let target: Creep | null = null;
     if (manned) {
       tx = this.aim.x;
       ty = this.aim.y;
@@ -734,7 +802,7 @@ export class Game {
       if (dist < 12) return;
       want = this.firing() && dist <= def.range && dist >= def.minRange;
     } else {
-      const target = this.pickTarget(tower);
+      target = this.pickTarget(tower);
       if (!target) return;
       const p = aimOf(target);
       if (def.kind === "mortar") {
@@ -754,7 +822,14 @@ export class Game {
     if (def.kind === "mortar" && !aligned && Math.abs(angDiff(Math.atan2(ty - tower.y, tx - tower.x), tower.angle)) > 0.45) {
       return;
     }
-    this.fire(tower, tx, ty, manned);
+    if (def.kind === "mortar") {
+      const distance = hypot(tx - tower.x, ty - tower.y);
+      if (distance > def.range) {
+        tx = tower.x + ((tx - tower.x) * def.range) / distance;
+        ty = tower.y + ((ty - tower.y) * def.range) / distance;
+      }
+    }
+    this.fire(tower, tx, ty, manned, target);
   }
 
   private pickTarget(tower: Tower): Creep | null {
@@ -789,7 +864,7 @@ export class Game {
     return best;
   }
 
-  private fire(tower: Tower, tx: number, ty: number, manual: boolean): void {
+  private fire(tower: Tower, tx: number, ty: number, manual: boolean, target: Creep | null): void {
     const def = TOWERS[tower.kind];
     const rate = towerRate(tower.kind, tower.rateRank);
     tower.cd = 1 / rate;
@@ -820,11 +895,6 @@ export class Game {
       });
     } else {
       const spd = def.shotSpeed;
-      let homing: number | null = null;
-      if (!manual) {
-        const target = this.pickTarget(tower);
-        if (target) homing = target.id;
-      }
       this.shots.push({
         id: this.nextId++,
         kind: tower.kind,
@@ -836,7 +906,9 @@ export class Game {
         vsArmor: def.vsArmor,
         splash: 0,
         ttl: 1.35,
-        homing,
+        homing: target?.id ?? null,
+        targetAir: target ? ENEMIES[target.kind].air : undefined,
+        remaining: manual ? def.range - 22 : undefined,
         mortar: false,
         age: 0,
         duration: 0,
@@ -877,12 +949,19 @@ export class Game {
         shot.vy = Math.sin(ang) * spd;
       }
     }
-    shot.x += shot.vx * dt;
-    shot.y += shot.vy * dt;
+    const distance = hypot(shot.vx, shot.vy) * dt;
+    const fraction = shot.remaining === undefined ? 1 : Math.min(1, shot.remaining / distance);
+    shot.x += shot.vx * dt * fraction;
+    shot.y += shot.vy * dt * fraction;
     shot.ttl -= dt;
+    if (shot.remaining !== undefined) {
+      shot.remaining -= distance * fraction;
+      if (shot.remaining <= 0) shot.ttl = 0;
+    }
     for (const e of this.creeps) {
       if (!e.alive) continue;
-      if (ENEMIES[e.kind].air && shot.kind !== "aa") continue;
+      const air = ENEMIES[e.kind].air;
+      if ((air && shot.kind !== "aa") || (shot.targetAir !== undefined && air !== shot.targetAir)) continue;
       const p = aimOf(e);
       const r = shot.hitR + (ENEMIES[e.kind].air ? 16 : 14);
       if ((p.x - shot.x) ** 2 + (p.y - shot.y) ** 2 <= r * r) {
@@ -985,10 +1064,10 @@ function cellAt(x: number, y: number): { c: number; r: number } | null {
   return { c, r };
 }
 
-function nearestWaypoint(x: number, y: number): { x: number; y: number } {
-  let best = WAYPOINTS[0]!;
+function nearestWaypoint(route: readonly { x: number; y: number }[], x: number, y: number): { x: number; y: number } {
+  let best = route[0]!;
   let bestD = Infinity;
-  for (const p of WAYPOINTS) {
+  for (const p of route) {
     const d = (p.x - x) ** 2 + (p.y - y) ** 2;
     if (d < bestD) {
       bestD = d;
@@ -1010,7 +1089,7 @@ function preferred(tower: Tower, a: Creep, b: Creep): boolean {
 function mitigate(e: Creep, vsArmor: number, kind: TowerKind): number {
   if (ENEMIES[e.kind].air) return kind === "aa" ? 1 : 0;
   const armor = ENEMIES[e.kind].armor;
-  return 1 - armor + armor * vsArmor;
+  return (1 - armor + armor * vsArmor) * (kind === "aa" ? 0.28 : 1);
 }
 
 function turnToward(tower: Tower, tx: number, ty: number, dt: number, rate: number): boolean {
@@ -1029,13 +1108,13 @@ function leadPoint(x: number, y: number, e: Creep, shotSpeed: number): { x: numb
   const p0 = aimOf(e);
   let t = hypot(p0.x - x, p0.y - y) / Math.max(40, shotSpeed);
   for (let i = 0; i < 3; i++) {
-    const px = e.x + e.vx * t;
-    const py = e.y + e.vy * t - (ENEMIES[e.kind].air ? AIR_LIFT : 0);
+    const px = p0.x + e.vx * t;
+    const py = p0.y + e.vy * t;
     t = hypot(px - x, py - y) / Math.max(40, shotSpeed);
   }
   return {
-    x: e.x + e.vx * t,
-    y: e.y + e.vy * t - (ENEMIES[e.kind].air ? AIR_LIFT : 0),
+    x: p0.x + e.vx * t,
+    y: p0.y + e.vy * t,
   };
 }
 
@@ -1059,11 +1138,11 @@ export function screenToWorld(
   };
 }
 
-function coverage(c: number, r: number, range: number): number {
+function coverage(c: number, r: number, range: number, waypoints: readonly { x: number; y: number }[]): number {
   const x = (c + 0.5) * CELL;
   const y = (r + 0.5) * CELL;
   let n = 0;
-  for (const w of WAYPOINTS) {
+  for (const w of waypoints) {
     if ((w.x - x) ** 2 + (w.y - y) ** 2 <= range * range) n++;
   }
   return n;
@@ -1074,7 +1153,7 @@ function bestCell(game: Game, kind: TowerKind): { c: number; r: number } | null 
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       if (!game.canBuild(c, r)) continue;
-      const s = coverage(c, r, TOWERS[kind].range);
+      const s = coverage(c, r, TOWERS[kind].range, game.scenario.waypoints);
       if (!best || s > best.s) best = { c, r, s };
     }
   }
@@ -1082,7 +1161,7 @@ function bestCell(game: Game, kind: TowerKind): { c: number; r: number } | null 
 }
 
 /** Headless balance probe: a greedy uncrewed defense. Not used by the UI. */
-export function simulateAi(): {
+export function simulateAi(scenarioId: ScenarioId = "frontier"): {
   win: boolean;
   lives: number;
   wave: number;
@@ -1091,6 +1170,7 @@ export function simulateAi(): {
   trace: { wave: number; lives: number; gold: number; towers: string }[];
 } {
   const game = new Game(new Soundboard());
+  game.chooseScenario(scenarioId);
   game.audio.muted = true;
   game.dismissBriefing();
   const buy = (kind: TowerKind) => {
@@ -1125,7 +1205,7 @@ export function simulateAi(): {
     game.startWave();
     let guard = 0;
     while (game.phase === "combat" && guard < 25000) {
-      game.tick(1 / 30);
+      game.tick(1 / 60);
       guard++;
     }
     trace.push({
