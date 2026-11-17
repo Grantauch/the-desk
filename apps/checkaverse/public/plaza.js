@@ -183,6 +183,7 @@
         if (!saved) { const pick = savedPartner(); if (pick && pick !== partner && team.some((x) => x.v === pick && !x.caught)) send({ t: 'partner', v: pick }); }
         buildPartners();
         if (!saved) tipSoon('visitor', 2500); else tipSoon('care', 9000);
+        leaveLine();
         room = m.room || 'town'; roomKind = m.kind || 'town'; roomOwner = null;
         world?.reset(roomKind);world?.sync(m.life,true);world?.syncStories(m.stories);
         busLine();
@@ -259,7 +260,7 @@
       case 'battling': { const p = players.get(m.id); if (p) p.inb = m.v; break; }
       case 'record': recordLine(m.record); break;
       case 'partner': partner = m.v; buildPartners(); break;
-      case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner ?? partner; egg = m.egg || null; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
+      case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner ?? partner; egg = m.egg || null; charms = m.charms ?? charms; buildPartners(); charmLine(); leaveLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
       case 'elsewhere': elsewhere = true; break;
       case 'ranks': showRanks(m); break;
       case 'body': showBody(m); break;
@@ -356,6 +357,45 @@
   }
   // One request at a time, so a double click cannot spend two names. The server's answer turns it back on.
   renameBtn.addEventListener('click', () => { if (rerolls && !paused) { renameBtn.disabled = true; send({ t: 'reroll' }); setTimeout(renameLine, 3000); } });
+  // A shared Chromebook keeps the bus ticket in this tab. Leave drops it, closes this ride, and comes back as a visitor.
+  // A reload before Leave still has the ticket, so a refresh in class does not kick anyone out.
+  const leaveBtn = $('leaveBtn');
+  function leaveLine() { leaveBtn.hidden = !saved; }
+  leaveBtn.addEventListener('click', () => {
+    if (!saved) return;
+    if (!confirm('Leave this Chromebook? The next person on this screen will not be you. Your Checklings stay saved under your trainer name.')) return;
+    ticket = null;
+    try { sessionStorage.removeItem('checkaverse-ticket'); } catch { /* storage can be off on school machines */ }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch { /* fine */ }
+    toast('You left this Chromebook. This screen is a visitor until someone rides the bus from Check-In.');
+    reconnectFresh();
+  });
+  // Check-In opens this same tab with a new #t= when the next student rides the bus. A hash change does not
+  // reload the page, so the new ticket has to be picked up here or that student would stay a visitor.
+  function ticketInHash() {
+    const m = /[#&]t=([A-Za-z0-9_.-]{20,2000})/.exec(location.hash);
+    return m ? m[1] : '';
+  }
+  function reconnectFresh() {
+    clearTimeout(reconnectTimer);
+    const old = ws;
+    ws = null;
+    if (old) {
+      old.onclose = null;
+      old.onmessage = null;
+      old.onerror = null;
+      try { old.close(1000); } catch { /* already gone */ }
+    }
+    connect();
+  }
+  window.addEventListener('hashchange', () => {
+    const next = ticketInHash();
+    if (!next || next === ticket) return;
+    ticket = next;
+    try { sessionStorage.setItem('checkaverse-ticket', ticket); } catch { /* storage can be off on school machines */ }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch { /* fine */ }
+    reconnectFresh();
+  });
   // Four trainer outfits from the Sprite Book. The button steps through them.
   document.getElementById('outfit').addEventListener('click', () => {
     const p = players.get(me);

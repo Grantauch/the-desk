@@ -42,7 +42,7 @@ The overnight director (`director.mjs`, `npm run director`, settings in `content
 
 ## Screen and tips
 
-The map fills the whole screen, always 16 tiles tall and as wide as the screen. Everything else floats over it: where you are and the live count top left, your trainer name and record top right with a menu (Busy, new name, outfit, walk home, lock door, show tips again, bus home), your battle partner and Say bottom left, and a Challenge button bottom right that only appears when another trainer is next to you. Touch screens get a walking pad; keyboards do not. Instead of a wall of instructions, short tips pop up the first time each thing matters (walking, your partner, Say, challenging, signs, the gate, the wilds, battles, catching). Each shows once per browser tab, so the next student on a shared Chromebook sees them too. The tip text is the `TIPS` list in `public/plaza.js`.
+The map fills the whole screen, always 16 tiles tall and as wide as the screen. Everything else floats over it: where you are and the live count top left, your trainer name and record top right with a menu (Busy, new name, outfit, walk home, lock door, show tips again, Leave this Chromebook, bus home), your battle partner and Say bottom left, and a Challenge button bottom right that only appears when another trainer is next to you. Touch screens get a walking pad; keyboards do not. Instead of a wall of instructions, short tips pop up the first time each thing matters (walking, your partner, Say, challenging, signs, the gate, the wilds, battles, catching). Each shows once per browser tab, so the next student on a shared Chromebook sees them too. The tip text is the `TIPS` list in `public/plaza.js`.
 
 ## The wilds
 
@@ -112,7 +112,7 @@ Student and teacher pages include a content version in their script and styleshe
 
 ## Teacher controls
 
-Open https://game.grant-desk.com/teacher and enter the teacher key from `C:\Checklings\storage\teacher-key.txt` on the PC (made on first start, never in the repo; delete the file and restart to get a new one). The page lists every trainer here now and where they are, pauses and resumes the whole town (nobody can walk, talk or challenge while paused), sends a short message that pops up on every screen, and removes a trainer, which closes their connection until they reload. Every call is logged.
+Open https://game.grant-desk.com/teacher and enter the teacher key from `C:\Checklings\storage\teacher-key.txt` on the PC (made on first start, never in the repo; delete the file and restart to get a new one). The page lists every trainer here now and where they are, pauses and resumes the whole town (nobody can walk, talk or challenge while paused), sends a short message that pops up on every screen, and removes a trainer, which disconnects them. A saved trainer keeps their name and their Checklings and can reload as the same trainer. Every call is logged.
 
 ## Where it runs
 
