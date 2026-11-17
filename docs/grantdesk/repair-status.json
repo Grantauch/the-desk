@@ -1,4 +1,16 @@
 {
+  "roswell-signal-publication-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Tracker #360 R06. Release the Roswell Signal student edition with private tab-local practice, verified account saving for the field report, mobile matching, and student discovery.",
+    "verification_status": "SYNTHETIC_ACCOUNT_AND_BROWSER_FLOW_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "The complete activity, download, same-tab refresh, synthetic account recovery, Turn In, and sign-out are covered by the Desk Save browser suite.",
+      "The original source is preserved, both old classroom routes redirect, and the current edition is linked from Games and Hidden History Unit 1."
+    ]
+  },
   "situation-room-publication-2026-11-16": {
     "status": "IMPLEMENTED",
     "owner": "Codex",

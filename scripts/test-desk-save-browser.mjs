@@ -541,6 +541,151 @@ async function passGate(page, pin, { confirm = true } = {}) {
   }
 }
 
+await test('Roswell Signal keeps practice tab-local and saves all seven report answers to the verified account', async () => {
+  const s = world();
+  const school = await chromebook(s, { hooks: { gate: true } });
+  const home = await chromebook(s, { hooks: { gate: true } });
+  const hub = 'hh-roswell-signal.html';
+  const response = 'This is a synthetic field report for browser testing. It checks that the draft keeps the complete response after every step and on another device.';
+  const fields = ['finalClaim', 'reason1', 'reason2', 'finalLimit', 'reversalAnswer'];
+  try {
+    await school.context.addInitScript(() => {
+      if (sessionStorage.getItem('seeded')) return;
+      localStorage.setItem('hidden_history_roswell_signal_v1', JSON.stringify({
+        version: 1, page: 11, student: { name: 'Old synthetic student' },
+        p10: { claim: 'Old browser-wide answer' }
+      }));
+      sessionStorage.setItem('seeded', 'yes');
+    });
+    const page = await school.open(hub);
+    const runtimeErrors = [];
+    page.on('pageerror', error => runtimeErrors.push(error.message));
+    page.setDefaultTimeout(10000);
+    await page.setViewportSize({ width: 390, height: 850 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const act = async (selector) => {
+      const button = page.locator(selector).first();
+      await button.evaluate((element) => element.scrollIntoView({ block: 'center' }));
+      await button.click();
+    };
+    const pick = async (group, value) => act(`[data-pick="${group}"][data-value="${value}"]`);
+    const advance = () => act('#nextBtn');
+    const clickEach = async (selector) => {
+      const buttons = page.locator(selector);
+      const count = await buttons.count();
+      for (let i = 0; i < count; i++) await buttons.nth(i).click();
+    };
+
+    assert.equal(await gateOpen(page), true);
+    assert.equal(await page.evaluate(() => localStorage.getItem('hidden_history_roswell_signal_v1')), null);
+    assert.equal(await page.locator('#finalClaim').inputValue(), '');
+    await passGate(page, s.pin(PEOPLE.ada));
+    assert.equal(await gateOpen(page), false);
+    await act('[data-intake="undecided"]');
+    await advance();
+    await act('#tunePhrase');
+    const keyboardChoice = page.locator('[data-pick="p1"][data-value="category"]');
+    await keyboardChoice.press('Enter');
+    assert.equal(await keyboardChoice.getAttribute('aria-pressed'), 'true');
+    assert.equal(await keyboardChoice.evaluate(el => el === document.activeElement), true);
+    await act('#checkP1');
+    await advance();
+    for (let i = 0; i < 7; i++) await act('#revealTimeline');
+    await pick('p2', 'category');
+    await act('#checkP2');
+    await advance();
+    await clickEach('[data-node]');
+    await pick('p3', 'none');
+    await act('#checkP3');
+    await advance();
+    for (const [key, value] of Object.entries({ disc: 'established', bodies: 'notstated', why: 'unresolved', weather: 'established' })) {
+      await act(`[data-classify="${key}"][data-value="${value}"]`);
+    }
+    await act('#checkP4');
+    await advance();
+    await clickEach('[data-scan]');
+    await pick('p5', 'reporting');
+    await act('#checkP5');
+    await advance();
+    await pick('p6', 'evaluate');
+    await act('#checkP6');
+    await advance();
+    await clickEach('[data-mission]');
+    await clickEach('[data-component]');
+    await pick('p7', 'cover');
+    await act('#checkP7');
+    await advance();
+    for (const [left, right] of Object.entries({ rubber: 'neoprene', foil: 'reflector', sticks: 'balsa', patterns: 'novelty' })) {
+      await act(`[data-left="${left}"]`);
+      await act(`[data-right="${right}"]`);
+    }
+    await pick('p8', 'converge');
+    await act('#checkP8');
+    await advance();
+    await pick('p9', 'gap');
+    await act('#checkP9');
+    await advance();
+    for (const [key, value] of Object.entries({ program: 'confirmed', debris: 'best', flight: 'inference', cover: 'misleading', alien: 'unproven' })) {
+      await act(`[data-final-label="${key}"][data-value="${value}"]`);
+    }
+    await act('[data-change="material"]');
+    await act('[data-change="records"]');
+    await act('[data-post-hyp="mogul"]');
+    await page.locator('[name="evidence1"][value="paper"]').check();
+    await page.locator('[name="evidence2"][value="fbi"]').check();
+    for (const id of fields) await page.locator('#' + id).fill(response);
+    await act('#checkArgument');
+    assert.match(await page.locator('#toast').textContent(), /Field report cleared/);
+    await advance();
+    assert.match(await page.locator('#stage').innerText(), /CASE FILE COMPLETE/);
+    const downloadEvent = page.waitForEvent('download');
+    await act('#downloadReport');
+    const download = await downloadEvent;
+    assert.equal(download.suggestedFilename(), 'Roswell Signal Report.txt');
+    assert.match(await readFile(await download.path(), 'utf8'), /FINAL CHECK: CLEARED/);
+    for (const width of [320, 390, 1440]) {
+      await page.setViewportSize({ width, height: 850 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `report at ${width}px`);
+    }
+
+    await waitFor(() => s.rows('Drafts').some((r) => {
+      const answers = JSON.parse(r.Data).answers;
+      return answers?.length === 7 && answers.every(({ a }) => a);
+    }));
+    assert.equal(s.rows('Turn Ins').length, 0);
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForFunction(() => window.__deskSave?.ready);
+    assert.match(await page.locator('#stage').innerText(), /CASE FILE COMPLETE/);
+    assert.equal(await page.locator('#finalClaim').inputValue(), response);
+
+    const fresh = await home.open(hub);
+    fresh.on('pageerror', error => runtimeErrors.push(error.message));
+    assert.equal(await gateOpen(fresh), true);
+    assert.equal(await fresh.locator('#finalClaim').inputValue(), '');
+    await passGate(fresh, s.pin(PEOPLE.ada));
+    if (await fresh.locator('#resumeReport').isVisible()) await fresh.locator('#resumeReport').click();
+    for (const id of fields) assert.equal(await fresh.locator('#' + id).inputValue(), response);
+    assert.equal(await fresh.locator('[name="evidence1"][value="paper"]').isChecked(), true);
+    assert.equal(await fresh.locator('[name="evidence2"][value="fbi"]').isChecked(), true);
+    assert.equal(await fresh.locator('#finalClaim').isVisible(), true);
+    await panel(fresh).getByRole('button', { name: 'Turn In', exact: true }).click();
+    await waitFor(() => s.rows('Turn Ins').length === 1);
+    await fresh.locator('#desk-save-resume').getByRole('button', { name: 'Not you? Sign out' }).click();
+    await waitFor(() => gateOpen(fresh));
+    assert.equal(await fresh.locator('#finalClaim').inputValue(), '');
+    assert.equal(await fresh.locator('input[type="radio"]:checked').count(), 0);
+    assert.equal(await fresh.locator('#stepLabel').innerText(), 'Case intake');
+    await passGate(fresh, s.pin(PEOPLE.grace));
+    assert.equal(await gateOpen(fresh), false);
+    assert.equal(await fresh.locator('#resumeReport').isVisible(), false);
+    assert.equal(await fresh.locator('#finalClaim').inputValue(), '');
+    assert.deepEqual(runtimeErrors.concat(page.deskErrors, fresh.deskErrors), []);
+  } finally {
+    await school.context.close();
+    await home.context.close();
+  }
+});
+
 await test('every catalogue assignment uses the PIN gate, compact controls, autosave, fresh-device resume and final Turn In', async () => {
   const catalog = JSON.parse(await readFile(new URL('../docs/storyhub/work-panel-catalog.json', import.meta.url), 'utf8'));
   const problems = [];
