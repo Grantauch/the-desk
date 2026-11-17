@@ -1,3 +1,9 @@
+## November 17 Roswell Signal student publication
+
+Owner Codex, tracker #360 R06. The additive `hh-roswell-signal.html` edition uses the shared PIN gate and keeps five writing fields and two evidence selections mounted across all twelve screens. Practice choices and navigation stay in the current tab and reset at sign-out. The old browser-wide draft has no verified owner, so the student edition discards it without displaying or importing it. The original source is retained and classroom bookmarks redirect to the student edition. Games, Hidden History Unit 1 and the sitemap link to it.
+
+The synthetic browser walkthrough covers all ten evidence transmissions, the completed report download, same-tab refresh, another device's account recovery, Turn In and shared-device sign-out. The mobile match arrow no longer covers the material buttons, and answer rerenders preserve keyboard focus when the control remains available. Protected CI and the production readback are separate release checks. School-device acceptance uses the normal classroom rollout.
+
 ## November 16 Situation Room student publication
 
 Owner Codex, tracker #360 R07. The additive `situation-room.html` edition replaces numeric scoring with written trade-offs and pairs six decisions with October 1962 records. The chronology links to the National Archives, JFK Library, and Office of the Historian. A discussion debrief invites students to compare public and private accounts. Choices, feedback, debrief, and restart support keyboard navigation. The timeline also works without JavaScript. Games and Cold War America link to the corrected edition, and legacy bookmarks redirect there.
