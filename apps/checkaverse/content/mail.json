@@ -1,0 +1,14 @@
+{
+  "note": "Letters residents send overnight. On the first ride of a school day, each rule is checked against that trainer's own Checklings and progress, and up to perDay letters arrive in the mailbox. Letters only ever talk to their reader about their own things, so nothing private reaches anyone else. {nick} is the partner's name, {species} its species, {move} a gym move, {points} and {price} gym points.",
+  "perDay": 2,
+  "rules": [
+    { "id": "welcome", "from": "Orin", "when": "firstDay", "text": "Welcome aboard, trainer. The bus runs between Kettle Creek and the Checkaverse all day. Check your mailbox each morning. The residents like to write." },
+    { "id": "sick", "from": "Nell", "when": "partnerSick", "text": "{nick} did not look well yesterday. Medicine is in the Care panel, one dose a day. Do not wait on it." },
+    { "id": "hungry", "from": "Nell", "when": "partnerHungry", "text": "{nick} came by the clinic garden looking for snacks. A meal from the Care panel would go a long way." },
+    { "id": "gymClose", "from": "Bram", "when": "gymClose", "text": "You are {points} of {price} points toward {move}. One or two good rounds at the gym and it is yours." },
+    { "id": "gymInvite", "from": "Bram", "when": "gymNever", "text": "The gym at the arena is open. Play the mini games to earn new moves for {nick}. Face the arena and press Space." },
+    { "id": "frost", "from": "Mara", "when": "frost", "text": "There was frost on some of the headstones this morning, and it was not cold. Grave moss and the apothecary might help you see why." },
+    { "id": "evolveSoon", "from": "Ada", "when": "evolveSoon", "text": "{nick} is close to growing into something new. A few more check-ins should do it." },
+    { "id": "quietDay", "from": "Tess", "when": "always", "text": "The market is quiet today. If you head into the wilds, keep a charm or two handy." }
+  ]
+}

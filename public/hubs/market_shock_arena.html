@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, follow">
-<title>Market Shock Arena — LessonHub Lab</title>
+<title>Market Shock Arena — the desk</title>
 <meta name="description" content="An interactive economics market-shock classroom simulation from GrantDesk.">
 <link rel="canonical" href="https://grant-desk.com/hubs/market_shock_arena.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GrantDesk">
-<meta property="og:title" content="Market Shock Arena — LessonHub Lab">
+<meta property="og:title" content="Market Shock Arena — the desk">
 <meta property="og:description" content="An interactive economics market-shock classroom simulation from GrantDesk.">
 <meta property="og:url" content="https://grant-desk.com/hubs/market_shock_arena.html">
 <meta property="og:image" content="https://grant-desk.com/og-learning-hubs.png">
@@ -36,6 +36,9 @@ h2{font-size:19px;margin:14px 0 6px}
 .pick{display:block;width:100%;margin-top:7px;padding:11px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;font-size:14px;text-align:left}
 .pick:hover{border-color:var(--green)}
 .pick.on{border-color:var(--green);background:rgba(124,242,154,.13)}
+.pick:disabled{opacity:.65;cursor:default}
+.pick:focus-visible,.btn:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--cyan);outline-offset:4px}
+[hidden]{display:none!important}
 .btn{display:inline-block;font-weight:800;padding:12px 18px;border-radius:13px;border:1px solid var(--line);color:#071018;background:var(--green);cursor:pointer;font-size:15px;margin-top:16px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .result{margin-top:14px;border-radius:12px;padding:13px 15px;font-size:14px;line-height:1.6;border:1px solid var(--line);background:rgba(0,0,0,.25);display:none}
@@ -51,9 +54,11 @@ a{color:var(--cyan)}
 <main id="main-content">
 <div class="wrap">
   <div class="card">
-    <div class="eyebrow">LessonHub Lab · Econ game</div>
+    <p><a href="/games/">← Games and practice</a></p>
+    <div class="eyebrow">the desk · economics simulation</div>
     <h1>📈 Market Shock Arena</h1>
-    <p class="sub">You run a food truck for eight rounds. Each round: set your price, choose your inventory, then survive whatever the market throws at you. Unsold stock spoils. Sold-out means missed sales. Bankruptcy means the seagulls win. Supply, demand, and luck — mostly not luck.</p>
+    <p class="sub">You run a fictional food truck for eight rounds. Read the market news, set your price and choose your inventory. Unsold stock spoils. Selling out means missed sales. If you cannot fund the next round, the seagulls win.</p>
+    <details class="shock"><summary>How this classroom model works</summary><p>These are invented prices and rules for comparing choices, not real business forecasts. There are no wages, rent, taxes or loans. Every round starts with a $4 ingredient cost per meal, except the shortage round at $6. You pay for every meal you prep, including leftovers.</p><p>Expected customers = 22 × the round's demand multiplier × (1 + 0.1 × reputation above or below 3) × your price factor. Price factors: $6 → 1.35, $9 → 1, $13 → 0.62. A random multiplier from 0.9 up to 1.1 adds variation; customers are rounded to a whole number. When the $7 rival arrives, pricing above $7 multiplies your price factor by 0.55.</p><p>Demand multipliers, in round order: 1, 1.9, 1, 0.8, 0.5, 1.6, 0.75 and 2.2. Reputation starts at 3, gains 1 after the viral-review round and loses 1 whenever more than 8 customers cannot buy a meal; it stays between 1 and 5. Compare revenue with total prep cost before deciding what to change.</p></details>
   </div>
 
   <div class="card" id="game">
@@ -70,18 +75,19 @@ a{color:var(--cyan)}
         <button type="button" class="pick" data-g="price" data-v="9" onclick="pick(this)">$9 — market rate</button>
         <button type="button" class="pick" data-g="price" data-v="13" onclick="pick(this)">$13 — premium play</button>
       </div>
-      <div class="grp"><div class="lab">INVENTORY (COST $4/MEAL)</div>
+      <div class="grp"><div class="lab" id="inventoryLabel">INVENTORY (COST $4/MEAL)</div>
         <button type="button" class="pick" data-g="stock" data-v="15" onclick="pick(this)">Prep 15 meals — $60</button>
         <button type="button" class="pick" data-g="stock" data-v="25" onclick="pick(this)">Prep 25 meals — $100</button>
         <button type="button" class="pick" data-g="stock" data-v="40" onclick="pick(this)">Prep 40 meals — $160</button>
       </div>
     </div>
     <button type="button" class="btn" id="openBtn" onclick="openShop()" disabled>Open for business</button>
-    <div class="result" id="result"></div>
+    <div class="result" id="result" role="status" tabindex="-1"></div>
+    <button type="button" class="btn" id="nextBtn" onclick="nextRound()" hidden>Next round</button>
   </div>
 
   <div class="card end" id="endCard">
-    <h2 id="endTitle"></h2>
+    <h2 id="endTitle" tabindex="-1"></h2>
     <p class="sub" id="endText"></p>
     <button type="button" class="btn" onclick="location.reload()">New season</button>
   </div>
@@ -90,24 +96,27 @@ a{color:var(--cyan)}
 <script>
 const shocks=[
  {t:"<b>OPENING DAY.</b> Normal foot traffic downtown. No surprises — enjoy it while it lasts.",demand:1.0,note:"A calm market. Baseline supply and demand."},
- {t:"<b>SHOCK: MUSIC FESTIVAL</b> two blocks away. Foot traffic is doubled and hungry.",demand:1.9,note:"Demand shock (rightward shift): more buyers at every price. High prices barely dented sales today."},
+ {t:"<b>SHOCK: MUSIC FESTIVAL</b> two blocks away. Foot traffic is nearly doubled and hungry.",demand:1.9,note:"Demand shock (rightward shift): more buyers at every price. A higher price still reduces customers in this model."},
  {t:"<b>SHOCK: INGREDIENT SHORTAGE.</b> A frost ruined the tomato crop — your costs jump to $6/meal this round.",demand:1.0,cost:6,note:"Supply shock: production costs rose. Sellers who didn't raise prices ate the difference — literally."},
- {t:"<b>SHOCK: RIVAL TRUCK</b> parks across the street selling $7 meals.",demand:0.8,rival:9,note:"Competition: buyers compare. Pricing above the rival cost you customers; matching or undercutting kept them."},
+ {t:"<b>SHOCK: RIVAL TRUCK</b> parks across the street selling $7 meals.",demand:0.8,rival:7,note:"Competition: buyers compare. In this model, prices above $7 receive an extra demand penalty; $6 avoids it. Total prep cost still matters."},
  {t:"<b>SHOCK: RAINSTORM.</b> All-day drizzle. Only the devoted are out.",demand:0.5,note:"Demand shock (leftward): fewer buyers at every price. Big inventories became big spoilage."},
  {t:"<b>SHOCK: VIRAL REVIEW.</b> A food blogger posted your truck at golden hour. The line forms early.",demand:1.6,repBonus:true,note:"Reputation shifts demand too. Marketing is a demand-curve tool, not just noise."},
  {t:"<b>SHOCK: HEALTH INSPECTION.</b> Surprise visit at noon — you pass, but lose an hour of lunch rush.",demand:0.75,note:"Regulation has costs even when you're clean — and the market doesn't wait."},
- {t:"<b>FINALE: CHAMPIONSHIP PARADE.</b> The city won the title. Everyone is downtown, and money is burning holes in pockets.",demand:2.2,note:"Maximum demand. The only losers today were the trucks that under-stocked."}
+ {t:"<b>FINALE: CHAMPIONSHIP PARADE.</b> The city won the title. Everyone is downtown, and money is burning holes in pockets.",demand:2.2,note:"The strongest demand of the season. Stocking too little can miss sales, while price and prep cost still determine profit."}
 ];
-let round=0,cash=100,rep=3,price=null,stock=null;
-function pick(el){const g=el.dataset.g;document.querySelectorAll('.pick[data-g='+g+']').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+let round=0,cash=100,rep=3,price=null,stock=null,awaitingNext=false;
+function pick(el){if(awaitingNext)return;const g=el.dataset.g;document.querySelectorAll('.pick[data-g='+g+']').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});el.classList.add('on');el.setAttribute('aria-pressed','true');
  if(g==='price')price=+el.dataset.v;else stock=+el.dataset.v;
  document.getElementById('openBtn').disabled=!(price&&stock);}
-function paint(){document.getElementById('rnd').textContent=(round+1)+'/8';document.getElementById('cash').textContent='$'+cash;
- document.getElementById('rep').textContent='★'.repeat(rep)+'☆'.repeat(Math.max(0,5-rep));
- document.getElementById('shock').innerHTML=shocks[round].t;}
-function openShop(){const s=shocks[round];const cost=s.cost||4;const spend=stock*cost;
+function paintStats(){document.getElementById('cash').textContent='$'+cash;
+ document.getElementById('rep').textContent='★'.repeat(rep)+'☆'.repeat(Math.max(0,5-rep));}
+function paint(){document.getElementById('rnd').textContent=(round+1)+'/8';paintStats();
+ document.getElementById('shock').innerHTML=shocks[round].t;
+ const cost=shocks[round].cost||4;document.getElementById('inventoryLabel').textContent='INVENTORY (COST $'+cost+'/MEAL)';
+ document.querySelectorAll('.pick').forEach(b=>{b.disabled=false;b.setAttribute('aria-pressed','false');if(b.dataset.g==='stock')b.textContent='Prep '+b.dataset.v+' meals — $'+Number(b.dataset.v)*cost;});}
+function openShop(){if(awaitingNext||!price||!stock)return;const s=shocks[round];const cost=s.cost||4;const spend=stock*cost;
  if(spend>cash){document.getElementById('result').className='result show';
-  document.getElementById('result').innerHTML='<span class="bad">You can\'t afford that much inventory.</span> Pick a smaller prep.';return;}
+  document.getElementById('result').innerHTML='<span class="bad">That prep costs $'+spend+', but you have $'+cash+'.</span> Pick a smaller prep.';document.getElementById('result').focus();return;}
  let base=22*s.demand*(1+(rep-3)*.1);
  let priceFactor=price===6?1.35:price===9?1.0:0.62;
  if(s.rival&&price>s.rival)priceFactor*=0.55;
@@ -116,19 +125,22 @@ function openShop(){const s=shocks[round];const cost=s.cost||4;const spend=stock
  const revenue=sold*price,profit=revenue-spend;cash+=profit;
  if(s.repBonus)rep=Math.min(5,rep+1);
  if(missed>8)rep=Math.max(1,rep-1);
+ paintStats();
  document.getElementById('last').textContent=(profit>=0?'+$':'−$')+Math.abs(profit);
  const r=document.getElementById('result');r.className='result show';
  r.innerHTML='<b>'+customers+' customers showed up.</b> You sold <b>'+sold+'</b> at $'+price+' → $'+revenue+' revenue − $'+spend+' costs = <span class="'+(profit>=0?'good':'bad')+'">'+(profit>=0?'+':'−')+'$'+Math.abs(profit)+'</span>.'+
   (unsold?' <span class="bad">'+unsold+' meals spoiled.</span>':'')+(missed?' <span class="bad">'+missed+' customers walked away hungry'+(missed>8?' — reputation took a hit.':'.')+'</span>':'')+
   '<br><br><b>ECON NOTE:</b> '+s.note;
- round++;price=null;stock=null;document.querySelectorAll('.pick').forEach(b=>b.classList.remove('on'));
- if(cash<=0)return endGame(true);
- if(round>=shocks.length){document.getElementById('openBtn').textContent='See season results';document.getElementById('openBtn').disabled=false;
-  document.getElementById('openBtn').onclick=()=>endGame(false);}
- else{document.getElementById('openBtn').disabled=true;document.getElementById('openBtn').textContent='Open for business';paint();}}
+ awaitingNext=true;document.querySelectorAll('.pick').forEach(b=>b.disabled=true);document.getElementById('openBtn').disabled=true;
+ const next=document.getElementById('nextBtn');next.hidden=false;next.textContent=round===shocks.length-1?'See season results':cash<15*(shocks[round+1].cost||4)?'See season results':'Next round';r.focus();}
+function nextRound(){if(!awaitingNext)return;
+ if(round===shocks.length-1)return endGame(false);
+ if(cash<15*(shocks[round+1].cost||4))return endGame(true);
+ round++;price=null;stock=null;awaitingNext=false;document.querySelectorAll('.pick').forEach(b=>b.classList.remove('on'));
+ document.getElementById('result').className='result';document.getElementById('nextBtn').hidden=true;paint();document.querySelector('.pick').focus();}
 function endGame(broke){document.getElementById('game').style.display='none';const e=document.getElementById('endCard');e.style.display='block';
- const t=document.getElementById('endTitle'),x=document.getElementById('endText');
- if(broke){t.textContent='🦅 THE SEAGULLS WIN';x.textContent='Bankrupt. Autopsy: check whether you overstocked into weak demand or priced against the market. The arena forgives — refresh and rebuild.';return;}
+ const t=document.getElementById('endTitle'),x=document.getElementById('endText');t.focus();
+ if(broke){t.textContent='🦅 THE SEAGULLS WIN';x.textContent='Final cash: $'+cash+'. You cannot afford the next round\'s smallest prep. Review whether you overstocked into weak demand or priced against the market, then try a new season.';return;}
  const profit=cash-100;
  if(profit>=250){t.textContent='🏆 MARKET LEGEND';x.textContent='Final cash: $'+cash+' (+$'+profit+' on the season). You read every shock like a supply-and-demand diagram — because that\'s what they were.';}
  else if(profit>=120){t.textContent='💼 SOLID OPERATOR';x.textContent='Final cash: $'+cash+' (+$'+profit+'). Profitable and standing. Review the econ notes — the festival and the rainstorm are the same lesson pointing opposite directions.';}

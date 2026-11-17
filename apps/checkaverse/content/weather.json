@@ -1,0 +1,15 @@
+{
+  "note": "Real weather for Mt. Morris, the school's town, never a student's location. The server asks Open-Meteo (no key, no student data) every refreshMinutes and maps the weather code to a kind. Each kind draws its own sky over the outdoor maps and makes some types more common in the grass: a weight in boost multiplies that type's chance in every wild table. If the lookup fails, the sky stays as it was.",
+  "lat": 43.1186,
+  "lon": -83.6949,
+  "refreshMinutes": 30,
+  "codes": { "clear": [0, 1], "cloudy": [2, 3], "fog": [45, 48], "rain": [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82], "snow": [71, 73, 75, 77, 85, 86], "storm": [95, 96, 99] },
+  "kinds": {
+    "clear": { "label": "Sunny", "boost": { "ember": 1.5, "meadow": 1.3 }, "line": "Sunshine in Mt. Morris means sunshine here. Ember and Meadow Checklings are basking in the grass." },
+    "cloudy": { "label": "Cloudy", "boost": { "cosmic": 1.3, "gear": 1.3 }, "line": "Gray skies today. Cosmic and Gear Checklings like the cover." },
+    "fog": { "label": "Foggy", "boost": { "shade": 2.5 }, "line": "Fog is rolling through town. Shade Checklings love a foggy day." },
+    "rain": { "label": "Rainy", "boost": { "tide": 2.2 }, "line": "Rain in Mt. Morris, rain in the Checkaverse. Tide Checklings are splashing through the grass." },
+    "snow": { "label": "Snowy", "boost": { "tide": 1.6, "cosmic": 1.6 }, "line": "Snow is falling on the Checkaverse. Tide and Cosmic Checklings are out playing in it." },
+    "storm": { "label": "Stormy", "boost": { "storm": 2.8 }, "line": "Thunder over town! Storm Checklings are everywhere today." }
+  }
+}

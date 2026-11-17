@@ -24,6 +24,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'bts-the-route-tree',
+    href: '/hubs/bts-the-route-tree.html',
+    title: 'the route tree',
+    course: 'beyond the scoreboard',
+    unit: 'invincible / wild routes to the nfl',
+    period: '1952–2025',
+    status: 'ready to teach',
+    edition: 'special edition · invincible',
+    question: 'nobody drew these routes up. how did a bartender, a truck driver, a wrestler and a software engineer end up in the nfl?',
+    blurb: 'Start with Invincible and the real Vince Papale, then run ten routes into the NFL, each in its own comic universe. Sort the movie into history and Hollywood, count the odds, read the draft board and build your own route card.',
+    cover: '/storyhub/bts/route-tree/assets/vet-aerial.webp',
+    coverAlt: 'Overhead view of Veterans Stadium in Philadelphia, recolored like a printed comic',
+    topics: ['invincible', 'vince papale', 'undrafted players', 'nfl draft', 'kurt warner', 'antonio gates', 'jordan mailata'],
+    inside: [
+      'Watch the Invincible trailer beside real 1976 film of Papale and sort ten claims into history, Hollywood or remixed.',
+      'Run the route tree from Night Train Lane in 1952 to Brandon Aubrey in 2023 and light up the doors they came through.',
+      'Read the draft board, then meet a Zamboni driver and a science teacher from other sports.',
+      'Build your own route card and answer five questions to turn in.',
+    ],
+  },
+  {
     slug: 'ush9-bytesize-why-they-fought',
     href: '/hubs/ush9-bytesize-why-they-fought.html',
     title: 'why they fought',

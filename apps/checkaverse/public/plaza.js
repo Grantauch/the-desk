@@ -4,6 +4,7 @@
   const canvas = document.getElementById('town');
   const ctx = canvas.getContext('2d');
   const { createWorld, trainerFrame, paintPaths, paintMeadow, paintFlower } = window.CheckaverseWorld;
+  const { generateFen, FEN_SOLID } = window.CheckaverseFen;
   let world = null;
   const residentDialog = document.getElementById('residentDialog'), worldJournal = document.getElementById('worldJournal');
   const conversing = () => residentDialog.open || worldJournal.open;
@@ -42,8 +43,29 @@
   const pausedEl = document.getElementById('paused');
   function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } if (typeof movesLine === 'function') movesLine(); phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
   let town = null, house = null, wilds = null, kettle = null, stones = [], phrases = [], myPlot = 0, signs = {}, rerolls = 0;
+  // Ghosts on Kettle Creek's cemetery hill: frost on stones with a hidden ghost, and the ghosts while Spirit Sight lasts.
+  let ghostView = { frost: [], ghosts: [], sightUntil: 0 }, graveMoss = 0, sightShown = -1;
+  // Residents battling each other nearby, drawn on the map. id -> { room, sides, shots, flashes, ended, winner, until }.
+  const spars = new Map();
+  // The sky follows Mt. Morris (weather), and the teacher's reward events show in the status chip.
+  let sky = { kind: 'clear', label: '', tempF: null }, skyShown = '', events = [], eventsAt = 0;
+  const drops = [];
+  const sparHere = (s) => s.room === room || (s.room === 'kettle' && roomKind === 'kettle');
+  const sightMs = () => Math.max(0, ghostView.sightUntil - performance.now());
   // The outdoor map you are on right now: the town, the wilds or your own Kettle Creek. Houses use the house map.
-  const mapNow = () => (roomKind === 'house' ? house : roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : town);
+  const mapNow = () => (roomKind === 'house' ? house : roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : roomKind === 'fen' ? fenMap() : town);
+  // Bramblefen Basin is built here from the town's settings, the same way the town builds it, then checked against
+  // the town's hash. It is built once, a little after a trainer reaches the wilds, so walking in never stalls.
+  let fen = null, fenCfg = null, fenWant = '', fenMs = 0;
+  function fenMap() {
+    if (!fen && fenCfg) {
+      const t0 = performance.now();
+      fen = generateFen(fenCfg);
+      fenMs = Math.round(performance.now() - t0);
+      if (fen.hash !== fenWant) console.warn(`Bramblefen Basin did not match the town (${fen.hash} here, ${fenWant} there).`);
+    }
+    return fen;
+  }
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
   const players = new Map(); // id -> {id,name,x,y,f,c,busy, dx,dy, bubble, bubbleUntil}
@@ -73,17 +95,20 @@
     // Kettle Creek is every student's own private copy, so a live head count would always read 1.
     if (roomKind === 'kettle' || (roomKind === 'house' && roomOwner?.map === 'kettle')) return setStatus('Your home town · only you are here');
     const where = roomKind === 'house' ? 'in this house' : 'here';
-    setStatus(`Live · ${n} trainer${n === 1 ? '' : 's'} ${where}`);
+    const sk = sky.label ? ` · ${sky.label}${sky.tempF !== null ? ` ${sky.tempF}°F` : ''}` : '';
+    const ev = events.filter((e) => e.left - (performance.now() - eventsAt) > 0).map((e) => ` · ${e.label}!`).join('');
+    setStatus(`Live · ${n} trainer${n === 1 ? '' : 's'} ${where}${sk}${ev}`);
   }
   let zoneName = '';
   function placeLine() {
     // The title names the world you are in: your own Kettle Creek, or the shared Checkaverse the bus goes to.
     const home = roomKind === 'kettle' || (roomKind === 'house' && roomOwner?.map === 'kettle');
     $('placeTitle').textContent = home ? 'Kettle Creek' : 'Checkaverse';
-    placeEl.hidden = roomKind === 'kettle';
+    placeEl.hidden = roomKind === 'kettle' && !sightMs();
     if (roomKind === 'town') placeEl.textContent = 'Town';
-    else if (roomKind === 'kettle') placeEl.textContent = '';
+    else if (roomKind === 'kettle') placeEl.textContent = sightMs() ? `Spirit Sight · ${Math.ceil(sightMs() / 60000)} min` : '';
     else if (roomKind === 'wilds') placeEl.textContent = zoneName ? `The wilds · ${zoneName}` : 'The wilds';
+    else if (roomKind === 'fen') placeEl.textContent = zoneName ? `${fenCfg?.name || 'Bramblefen Basin'} · ${zoneName}` : fenCfg?.name || 'Bramblefen Basin';
     else if (roomOwner && roomOwner.owner === me) placeEl.textContent = 'Your house';
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
   }
@@ -146,7 +171,8 @@
         // A tab left open across a server update reconnects to new rules with old code. Load the new code instead.
         if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
         serverVersion = m.version;
-        me = m.you; town = m.town; house = m.house; wilds = m.wilds; kettle = m.kettle || null; stones = m.stones || []; phrases = m.phrases; myPlot = m.myPlot;
+        me = m.you; town = m.town; house = m.house; wilds = m.wilds; kettle = m.kettle || null;
+        if (m.fen && m.fen.hash !== fenWant) { fen = null; fenPicture = null; fenCfg = m.fen.config; fenWant = m.fen.hash; chunks.clear(); } stones = m.stones || []; phrases = m.phrases; myPlot = m.myPlot;
         if (m.world && !world) world = createWorld(m.world);
         team = m.team || []; saved = Boolean(m.saved); egg = m.egg || null; partyMax = m.partyMax || 3; charms = m.charms ?? 0; charmLine(); recordLine(m.record);
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
@@ -174,6 +200,8 @@
         room = m.room; roomKind = m.kind; roomOwner = m.owner;
         world?.reset(roomKind,roomOwner?.resident);world?.sync(m.life,true);
         if (roomKind === 'kettle') stones = m.stones || [];
+        else ghostView = { frost: [], ghosts: [], sightUntil: 0 };
+        spars.clear();
         busLine();
         stopWalk();
         setPlayers(m.players);
@@ -183,7 +211,8 @@
         if(residentNav)setTimeout(()=>requestResidentPath(),260);
         zoneName = ''; placeLine(); charmLine();
         if (roomKind === 'house') toast(roomOwner?.resident?`${roomOwner.name}'s home. ${roomOwner.description}`:roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
-        if (roomKind === 'wilds') { toast('You walked out into the wilds.'); tipSoon('wilds', 900); }
+        if (roomKind === 'wilds') { toast('You walked out into the wilds.'); tipSoon('wilds', 900); if (!fen) setTimeout(fenMap, 700); }
+        if (roomKind === 'fen') { toast(`You stepped into ${fenCfg?.name || 'Bramblefen Basin'}.`); tipSoon('fen', 900); }
         break;
       case 'residents':world?.sync(m,document.hidden||Boolean(bt));if(worldJournal.open)renderResidentDirectory();break;
       case 'resident_stories':world?.syncStories(m.stories);break;
@@ -238,6 +267,40 @@
       case 'report': showReport(m); break;
       case 'death': showDeath(m); break;
       case 'cemetery': showCemetery(m); break;
+      case 'ghosts':
+        ghostView = { frost: m.frost || [], ghosts: m.ghosts || [], sightUntil: performance.now() + (m.sight || 0) };
+        graveMoss = m.moss ?? graveMoss; placeLine();
+        if (ghostView.ghosts.length) tipSoon('ghost-seen', 600);
+        else if (ghostView.frost.length) tipSoon('frost', 4000);
+        break;
+      case 'moss': graveMoss = m.moss; tipSoon('moss', 1500); break;
+      case 'apothecary': showApothecary(m); break;
+      case 'learn_offer': showLearn(m); break;
+      case 'gazette': showPaper(m); break;
+      case 'mail': showMailLine(m); break;
+      case 'gym': showGym(m); break;
+      case 'gym_round': startGame(m); break;
+      case 'gym_result': gameResult(m); break;
+      case 'weather': {
+        sky = { kind: m.kind, label: m.label, tempF: m.tempF };
+        if (skyShown !== m.kind && m.kind !== 'clear' && m.kind !== 'cloudy') toast(m.line);
+        skyShown = m.kind; countLine();
+        break;
+      }
+      case 'events': events = m.events || []; eventsAt = performance.now(); countLine(); break;
+      case 'npc_battle': {
+        const now = performance.now(), old = spars.get(m.id) || { shots: [], flashes: [] };
+        const shots = old.shots.concat((m.moves || []).map((mv) => ({ from: mv.side, type: mv.type, t: now }))).filter((x) => now - x.t < 1200);
+        const flashes = old.flashes.concat((m.hits || []).map((side) => ({ side, t: now + 380 }))).filter((x) => now - x.t < 1200);
+        spars.set(m.id, { room: m.room, sides: m.sides, shots, flashes, fades: m.fades || [], ended: false, winner: null, until: 0 });
+        break;
+      }
+      case 'npc_battle_end': {
+        const sp = spars.get(m.id);
+        if (sp) Object.assign(sp, { sides: m.sides, ended: true, winner: m.winner, until: performance.now() + 2600 });
+        if (lastNear && lastNear.id === m.id) { lastNear = null; watchLine(); }
+        break;
+      }
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'home': myPlot = m.myPlot; homeLine(); break;
@@ -347,6 +410,10 @@
   }
   window.addEventListener('keydown', (e) => {
     if (conversing()) return;
+    // The gym's mini games take the keyboard while they are open; only Escape leaves.
+    if (!$('gameOverlay').hidden) { if (e.code === 'Escape') quitGame(); return; }
+    if (!$('fenMapPop').hidden && (e.code === 'Escape' || e.code === 'KeyM')) { $('fenMapPop').hidden = true; return; }
+    if (!$('learnPop').hidden || !$('gymPop').hidden || !$('paperPop').hidden || !$('mailPop').hidden) { if (e.code === 'Escape') { for (const id of ['learnPop', 'gymPop', 'paperPop', 'mailPop']) $(id).hidden = true; } return; }
     // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
@@ -355,6 +422,7 @@
     const d = KEYS[e.code];
     if (d) { e.preventDefault(); cancelResidentNav(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
+    if (e.code === 'KeyM' && !e.repeat && roomKind === 'fen') showFenMap();
     if ((e.code === 'Space' || e.code === 'Enter') && !e.repeat) { e.preventDefault(); lookAhead(true); }
   });
   window.addEventListener('keyup', (e) => { const i = held.indexOf(KEYS[e.code]); if (i >= 0) held.splice(i, 1); });
@@ -384,7 +452,7 @@
     const r = rows();
     if (y < 0 || y >= r.length || x < 0 || x >= r[0].length) return false;
     if (roomKind === 'house') return !HOUSE_SOLID.has(r[y][x]);
-    if (TOWN_SOLID.has(r[y][x])) return false;
+    if ((roomKind === 'fen' ? FEN_SOLID : TOWN_SOLID).has(r[y][x])) return false;
     if (roomKind === 'kettle') return !stones.some((st) => st.x === x && st.y === y);
     return roomKind !== 'town' || !plots.some((pl) => pl.owner && (() => { const g = town.plots.find((q) => q.id === pl.id); return g && x >= g.x && x < g.x + g.w && y >= g.y && y < g.y + g.h - 1; })());
   }
@@ -503,8 +571,9 @@
     if(key.startsWith('resident-home:')){const h=mapNow()?.residentHomes?.find(h=>h.id===key.slice(14));if(h)return walkTo([h.approach],'u');return;}
     if (key.startsWith('resident:')) return talkTo(key.slice(9));
     if (key === 'notice-board') return askRanks();
+    if (key === 'arena') { if (saved) return send({ t: 'gym' }); }
     if (key.startsWith('place:')) return openPlace(key.slice(6));
-    if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`); return; }
+    if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) lookStone(st); return; }
     if (key === 'bus-stop-kc' && saved) return askBus('town');
     if (key === 'bus-stop' && saved && kettle) return askBus('kettle');
     if (signs[key]) toast(signs[key]);
@@ -613,18 +682,41 @@
       if (line) toast(line);
       return;
     }
+    if (place === 'apothecary' && saved) return send({ t: 'apothecary' });
     if (line) toast(line);
   }
-  let busTo = '';
-  function askBus(to) {
-    busTo = to;
-    $('busTitle').textContent = to === 'town' ? 'Ride the bus to the Checkaverse?' : 'Ride the bus home to Kettle Creek?';
-    $('busNote').textContent = to === 'town' ? 'Classmates are there to battle, plus the wilds and your house in the Neighborhood.' : 'Your Care panel, the clinic and Route 1 are at home.';
+  // A headstone: the town answers with its epitaph, a clue when a ghost is hiding nearby, and any grave moss.
+  function lookStone(st) {
+    if (!saved) return toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`);
+    send({ t: 'stone', x: st.x, y: st.y });
+  }
+  function showApothecary(m) {
+    if (m.sight > 0) return toast(`Your partner can already see ghosts for ${Math.ceil(m.sight / 60000)} more minutes. Head up the cemetery hill.`);
+    if (m.moss < m.need) return toast(`The apothecary can brew Spirit Sight from ${m.need} grave moss, and you have ${m.moss}. Look at the headstones on the cemetery hill to scrape some off.`);
+    confirmPop('Brew Spirit Sight?', `It takes ${m.need} grave moss, and you have ${m.moss}. Your partner drinks it here and can see ghosts on the cemetery hill for ${m.minutes} minutes.`,
+      'Brew it', 'Not now', () => send({ t: 'apothecary', brew: true }));
+  }
+  let busTo = '', confirmYes = null;
+  function confirmPop(title, note, yes, no, onYes) {
+    confirmYes = onYes;
+    $('busTitle').textContent = title;
+    $('busNote').textContent = note;
+    $('busYes').textContent = yes; $('busNo').textContent = no;
     closePops();
     $('busPop').hidden = false;
     $('busYes').focus();
   }
-  $('busYes').addEventListener('click', () => { $('busPop').hidden = true; send({ t: 'bus', to: busTo }); });
+  function askBus(to) {
+    busTo = to;
+    confirmYes = () => send({ t: 'bus', to: busTo });
+    $('busTitle').textContent = to === 'town' ? 'Ride the bus to the Checkaverse?' : 'Ride the bus home to Kettle Creek?';
+    $('busNote').textContent = to === 'town' ? 'Classmates are there to battle, plus the wilds and your house in the Neighborhood.' : 'Your Care panel, the clinic and Route 1 are at home.';
+    $('busYes').textContent = "Yes, let's go"; $('busNo').textContent = 'Not yet';
+    closePops();
+    $('busPop').hidden = false;
+    $('busYes').focus();
+  }
+  $('busYes').addEventListener('click', () => { $('busPop').hidden = true; const go = confirmYes; confirmYes = null; if (go) go(); });
   $('busNo').addEventListener('click', () => { $('busPop').hidden = true; });
   $('busPop').addEventListener('pointerdown', (e) => e.stopPropagation());
   function busLine() {
@@ -693,7 +785,7 @@
       const door = (kettle.doors || []).find((d) => d.x === self.x && d.y === self.y);
       if (door && self.f === 'u') { showSign(`place:${door.place}`); return true; }
       const st = stones.find((q) => q.x === self.x + ax && q.y === self.y + ay);
-      if (st) { toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`); return true; }
+      if (st) { lookStone(st); return true; }
     }
     const p = propAt(self.x + ax, self.y + ay);
     if (p) { showSign(p.sign); return true; }
@@ -769,13 +861,21 @@
   function snapCamera() { cam = cameraTarget(); }
 
   // ---------- art ----------
-  // Most art uses the original 64px-per-tile files. These Wave 2 landmarks use
-  // versioned 32px exports. Keep the original URLs for cached pages and fallback.
+  // Most art uses the original 64px-per-tile files. These Wave 2 landmarks, houses
+  // and Kettle Creek buildings use versioned 32px exports. Keep the original URLs
+  // for cached pages and fallback.
   const LANDMARK_ART = {
     arena: 'arena-v2',
     'market-stall': 'market-stall-v2',
     'prop-bus': 'prop-bus-v2',
     'prop-notice-board': 'prop-notice-board-v2',
+    'house-cottage': 'house-cottage-v2',
+    'house-stump': 'house-stump-v2',
+    'house-creek': 'house-creek-v2',
+    'kc-store': 'kc-store-v2',
+    'kc-apothecary': 'kc-apothecary-v2',
+    'kc-clinic': 'kc-clinic-v2',
+    'kc-daycare': 'kc-daycare-v2',
   };
   const ART_NAMES = [
     'tile-grass', 'tile-path', 'tile-water', 'prop-tree', 'prop-bush', 'prop-rock', 'prop-lantern', 'prop-bench',
@@ -814,7 +914,7 @@
     const im = ART[name];
     const dw = w * TILE, dh = dw * im.naturalHeight / im.naturalWidth;
     const px = x * TILE, py = b * TILE - dh;
-    const sway = !reduceMotion && world && (name === 'prop-tree' || name === 'prop-bush') ? Math.sin(world.clock() / 1300 + x * 2) * .009 : 0;
+    const sway = !reduceMotion && world && (name === 'prop-tree' || name === 'prop-bush' || name === 'fen-tree' || name === 'fen-tree-rust') ? Math.sin(world.clock() / 1300 + x * 2) * .009 : 0;
     if (sway) { ctx.save(); ctx.translate(px + dw / 2, b * TILE); ctx.rotate(sway); ctx.translate(-px - dw / 2, -b * TILE); }
     if (flip) {
       ctx.save(); ctx.translate(px + dw, py); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, dw, dh); ctx.restore();
@@ -822,14 +922,416 @@
     if (sway) ctx.restore();
     return py;
   }
+  // ---------- the Gazette and the mailbox ----------
+  let mailBox = { letters: [], unread: 0 }, paperLater = null;
+  function showPaper(m) {
+    if (bt || !$('gameOverlay').hidden) { paperLater = m; return; }
+    paperLater = null;
+    const p = m.paper;
+    $('paperTitle').textContent = p.masthead;
+    const [y, mo, d] = p.day.split('-').map(Number);
+    $('paperDate').textContent = new Date(Date.UTC(y, mo - 1, d, 12)).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })
+      + (p.weather ? ` · ${p.weather.label}${p.weather.tempF !== null ? `, ${p.weather.tempF}°F` : ''} in Mt. Morris` : '');
+    const box = $('paperStories'); box.textContent = '';
+    for (const st of p.stories) {
+      const a = document.createElement('article');
+      const h = document.createElement('h3'); h.textContent = st.title;
+      const t = document.createElement('p'); t.textContent = st.body;
+      a.append(h, t); box.appendChild(a);
+    }
+    const q = $('paperQuotes'); q.textContent = '';
+    q.hidden = !p.quotes.length;
+    if (p.quotes.length) {
+      const h = document.createElement('h4'); h.textContent = p.aroundTown; q.appendChild(h);
+      for (const x of p.quotes) { const line = document.createElement('p'); const who = document.createElement('b'); who.textContent = `${x.who}: `; line.append(who, `"${x.text}"`); q.appendChild(line); }
+    }
+    closePops();
+    $('paperPop').hidden = false;
+    $('paperClose').focus();
+  }
+  function showMailLine(m) {
+    const more = m.unread > mailBox.unread;
+    mailBox = m;
+    $('mailBtn').hidden = !m.letters.length;
+    $('mailBtn').textContent = m.unread ? `Mail (${m.unread} new)` : 'Mail';
+    if (more && m.unread) toast(m.unread === 1 ? 'You have a letter in your mailbox. Open it from the menu.' : `You have ${m.unread} letters in your mailbox. Open them from the menu.`);
+    if (!$('mailPop').hidden) renderMail();
+  }
+  function renderMail() {
+    const list = $('mailList'); list.textContent = '';
+    for (const l of mailBox.letters) {
+      const el = document.createElement('div'); el.className = `letter${l.unread ? ' new' : ''}`;
+      const from = document.createElement('b'); from.textContent = `From ${l.sender}`;
+      const t = document.createElement('p'); t.textContent = l.text;
+      el.append(from, t); list.appendChild(el);
+    }
+  }
+  $('paperBtn').addEventListener('click', () => { closePops(); send({ t: 'gazette' }); });
+  $('paperClose').addEventListener('click', () => { $('paperPop').hidden = true; });
+  // ---------- Bramblefen Basin's map ----------
+  // The whole basin at two pixels a tile, drawn once, with the landmarks named and a dot for every trainer in it.
+  let fenPicture = null;
+  const FEN_COLORS = { T: '#22462a', '.': '#7aa05a', m: '#5e9648', M: '#6e5538', w: '#7d9a86', W: '#24525a', G: '#bfae5c', Q: '#58d6c2', P: '#e2c48c', B: '#a8784c', K: '#7a3b30', O: '#9a9a90', U: '#8c6a44', H: '#2b1a12', E: '#e2c48c' };
+  function showFenMap() {
+    const map = fenMap();
+    if (!map) return;
+    closePops();
+    const S = map.rows.length, k = 512 / S;
+    if (!fenPicture) {
+      fenPicture = document.createElement('canvas'); fenPicture.width = fenPicture.height = 512;
+      const g = fenPicture.getContext('2d');
+      map.rows.forEach((row, y) => { for (let x = 0; x < S; x++) { g.fillStyle = FEN_COLORS[row[x]] || '#000'; g.fillRect(x * k, y * k, k, k); } });
+    }
+    const g = $('fenMapCanvas').getContext('2d');
+    g.drawImage(fenPicture, 0, 0);
+    g.font = 'bold 13px ui-monospace, Consolas, monospace'; g.textAlign = 'center'; g.lineWidth = 3;
+    for (const m of map.marks) {
+      const name = fenCfg.landmarks[m.id]?.name || '', label = name ? name[0].toUpperCase() + name.slice(1) : '';
+      g.fillStyle = '#ffd166'; g.strokeStyle = '#2b1a12';
+      g.beginPath(); g.arc((m.x + 0.5) * k, (m.y + 0.5) * k, 5, 0, Math.PI * 2); g.fill(); g.stroke();
+      const ty = m.id === 'gate' || m.y * k <= 30 ? (m.y + 6) * k : (m.y - 3) * k;
+      g.strokeText(label, (m.x + 0.5) * k, ty); g.fillStyle = '#fff6dc'; g.fillText(label, (m.x + 0.5) * k, ty);
+    }
+    for (const p of players.values()) {
+      const mine = p.id === me;
+      g.fillStyle = mine ? '#ffd166' : '#ffffff'; g.strokeStyle = '#2b1a12'; g.lineWidth = 2;
+      g.beginPath(); g.arc((p.x + 0.5) * k, (p.y + 0.5) * k, mine ? 6 : 4, 0, Math.PI * 2); g.fill(); g.stroke();
+    }
+    $('fenMapTitle').textContent = fenCfg.name;
+    $('fenMapPop').hidden = false;
+  }
+  $('fenMapBtn').addEventListener('click', showFenMap);
+  $('fenMapClose').addEventListener('click', () => { $('fenMapPop').hidden = true; });
+  $('fenMapPop').addEventListener('pointerdown', (e) => e.stopPropagation());
+  $('mailBtn').addEventListener('click', () => { closePops(); renderMail(); $('mailPop').hidden = false; $('mailClose').focus(); if (mailBox.unread) send({ t: 'mail_read' }); });
+  $('mailClose').addEventListener('click', () => { $('mailPop').hidden = true; });
+  for (const id of ['paperPop', 'mailPop']) $(id).addEventListener('pointerdown', (e) => e.stopPropagation());
+
+  // ---------- learning moves ----------
+  const moveRow = (mv, tag = 'div', cls = 'learn-move') => {
+    const row = document.createElement(tag); row.className = cls;
+    const icon = mv.type ? typeImg(mv.type) : document.createElement('span');
+    const name = document.createElement('b'); name.textContent = mv.name;
+    const small = document.createElement('small'); small.textContent = `${mv.cost ? `${mv.cost} stamina.` : 'Free.'} ${mv.detail}`;
+    row.append(icon, name, small);
+    return row;
+  };
+  // A Checkling wants a new move. With every slot full, the student picks one to forget or keeps what it has.
+  // onPick(forget) is called with the move to forget, or 'skip'.
+  function openLearn(title, note, move, known, onPick, skipLabel) {
+    closePops(); $('gymPop').hidden = true;
+    $('learnTitle').textContent = title;
+    $('learnNote').textContent = note;
+    const nw = $('learnNew'); nw.textContent = ''; nw.append(...moveRow(move).childNodes);
+    const box = $('learnForget'); box.textContent = '';
+    const free = known.filter((k) => k.free);
+    for (const k of known) {
+      const b = moveRow(k, 'button', 'ghost');
+      b.type = 'button';
+      b.firstChild.nextSibling.textContent = `Forget ${k.name}`;
+      // The last free move stays, so the Checkling can never get stuck with no stamina.
+      if (!move.free && k.free && free.length === 1) { b.disabled = true; b.title = 'It has to keep one free move.'; }
+      b.addEventListener('click', () => { $('learnPop').hidden = true; onPick(k.id); });
+      box.appendChild(b);
+    }
+    $('learnSkip').textContent = skipLabel;
+    $('learnSkip').onclick = () => { $('learnPop').hidden = true; onPick('skip'); };
+    $('learnPop').hidden = false;
+    (box.querySelector('button:not(:disabled)') || $('learnSkip')).focus();
+  }
+  let learnLater = null;
+  function showLearn(m) {
+    if (bt) { learnLater = m; return; }
+    learnLater = null;
+    openLearn(`${m.name} wants to learn ${m.move.name}!`, `It already knows ${m.known.length} moves. Forget one to make room, or keep the moves it has.`,
+      m.move, m.known, (forget) => send({ t: 'learn', id: m.id, move: m.move.id, forget }), `Do not learn ${m.move.name}`);
+  }
+  $('learnPop').addEventListener('pointerdown', (e) => e.stopPropagation());
+
+  // ---------- the gym ----------
+  let gymView = null, gameNow = null;
+  function showGym(m) {
+    if (bt) return;
+    gymView = m;
+    closePops();
+    if (m.none) { toast('You need a Checkling to train at the gym.'); return; }
+    $('gymImg').src = `/art/front-${m.species}.png`;
+    $('gymTitle').textContent = `The Gym · ${m.name}`;
+    $('gymSub').textContent = `Level ${m.level} · ${m.roundsLeft} training ${m.roundsLeft === 1 ? 'round' : 'rounds'} left today`;
+    const known = $('gymKnown'); known.textContent = '';
+    for (const k of m.known) known.appendChild(moveRow(k));
+    const list = $('gymMoves'); list.textContent = '';
+    for (const mv of m.moves) {
+      const row = document.createElement('div'); row.className = `gym-move${mv.known ? ' done' : ''}`;
+      const name = document.createElement('div'); name.className = 'gm-name'; if (mv.type) name.appendChild(typeImg(mv.type)); name.append(mv.name);
+      const detail = document.createElement('div'); detail.className = 'gm-detail'; detail.textContent = `${mv.cost ? `${mv.cost} stamina.` : 'Free.'} ${mv.detail}`;
+      const bar = document.createElement('div'); bar.className = 'gm-bar'; const fill = document.createElement('i'); fill.style.width = `${Math.min(100, (100 * mv.points) / mv.price)}%`; bar.appendChild(fill);
+      bar.setAttribute('role', 'meter'); bar.setAttribute('aria-label', `${mv.name} training`); bar.setAttribute('aria-valuenow', String(mv.points)); bar.setAttribute('aria-valuemax', String(mv.price));
+      const pts = document.createElement('div'); pts.className = 'gm-pts';
+      pts.textContent = mv.known ? 'Already knows it.' : !mv.ready ? `Reach level ${mv.minLevel} to train for it.` : `${mv.points} of ${mv.price} points · mini game: ${mv.gameName}`;
+      const btns = document.createElement('div'); btns.className = 'gm-btns';
+      if (!mv.known && mv.ready) {
+        if (mv.points >= mv.price) {
+          const teach = document.createElement('button'); teach.type = 'button'; teach.textContent = 'Learn it';
+          teach.addEventListener('click', () => teachMove(mv));
+          btns.appendChild(teach);
+        } else {
+          const train = document.createElement('button'); train.type = 'button'; train.className = 'ghost'; train.textContent = 'Train';
+          train.disabled = m.roundsLeft <= 0;
+          train.addEventListener('click', () => send({ t: 'gym_start', move: mv.id }));
+          btns.appendChild(train);
+        }
+      }
+      row.append(name, btns, detail, bar, pts);
+      list.appendChild(row);
+    }
+    $('gymNote').textContent = m.roundsLeft > 0 ? 'Each mini game round earns points toward its move. The better you play, the more you earn.' : 'That is all the training for today. Come back tomorrow.';
+    $('gymPop').hidden = false;
+  }
+  function teachMove(mv) {
+    const m = gymView;
+    if (m.known.length < m.slots) return send({ t: 'gym_teach', move: mv.id });
+    openLearn(`Teach ${m.name} ${mv.name}?`, 'Every move slot is full. Pick a move to forget.', mv, m.known,
+      (forget) => (forget === 'skip' ? send({ t: 'gym' }) : send({ t: 'gym_teach', move: mv.id, forget })), 'Not now');
+  }
+  $('gymClose').addEventListener('click', () => { $('gymPop').hidden = true; });
+  $('gymPop').addEventListener('pointerdown', (e) => e.stopPropagation());
+  // A mini game round: instructions first, then the game, then the score and points.
+  function startGame(m) {
+    $('gymPop').hidden = true;
+    gameNow = { round: m.round, game: m.game, seed: m.seed, move: m.move, playing: null, sent: false };
+    $('gameTitle').textContent = `${m.name} · ${m.move.name}`;
+    $('gameHow').textContent = m.how;
+    $('gameStage').textContent = '';
+    $('gameScore').textContent = '';
+    $('gameGo').hidden = false; $('gameGo').textContent = 'Start';
+    $('gameQuit').textContent = 'Back to the gym';
+    $('gameOverlay').hidden = false;
+    $('gameGo').focus();
+  }
+  $('gameGo').addEventListener('click', () => {
+    const g = gameNow;
+    if (!g || g.playing) return;
+    $('gameGo').hidden = true;
+    $('gameGo').blur();
+    g.playing = window.CheckaverseGym.play($('gameStage'), g.game, g.seed, (sc) => { $('gameScore').textContent = `Score ${sc}`; });
+    g.playing.done.then((score) => {
+      if (gameNow !== g || g.sent) return;
+      g.sent = true;
+      $('gameScore').textContent = `Score ${score}. Checking in with the coach...`;
+      send({ t: 'gym_finish', round: g.round, score });
+    });
+  });
+  function gameResult(m) {
+    if (!gameNow) return;
+    $('gameScore').textContent = m.quick ? 'That round was too quick to count.' : `Score ${m.score}: +${m.earned} points. ${m.points} of ${m.price} toward ${gameNow.move.name}.${m.points >= m.price ? ' Ready to learn it!' : ''}`;
+    $('gameQuit').textContent = 'Back to the gym';
+    gameNow.playing = null;
+  }
+  function quitGame() {
+    const g = gameNow;
+    if (g?.playing) g.playing.stop();
+    gameNow = null;
+    $('gameOverlay').hidden = true;
+    send({ t: 'gym' });
+  }
+  $('gameQuit').addEventListener('click', quitGame);
+  $('gameOverlay').addEventListener('pointerdown', (e) => e.stopPropagation());
+
+  // ---------- the sky ----------
+  // Rain streaks, snowflakes, fog and storm flashes over the outdoor maps, in screen space. A handful of particles,
+  // so a Chromebook keeps up. Reduced motion keeps only the still tint.
+  function drawSky(now) {
+    const k = sky.kind;
+    if (k === 'clear') return;
+    ctx.save();
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    const tint = { cloudy: 'rgba(40,50,70,0.10)', fog: 'rgba(210,220,225,0.30)', rain: 'rgba(30,45,80,0.16)', snow: 'rgba(220,235,255,0.12)', storm: 'rgba(20,25,50,0.28)' }[k];
+    if (tint) { ctx.fillStyle = tint; ctx.fillRect(0, 0, VIEW_W, VIEW_H); }
+    if (!reduceMotion && (k === 'rain' || k === 'storm' || k === 'snow')) {
+      const want = k === 'snow' ? 90 : 130;
+      while (drops.length < want) drops.push({ x: Math.random() * VIEW_W, y: Math.random() * VIEW_H, v: 0.6 + Math.random() * 0.6, r: 1 + Math.random() * 2, ph: Math.random() * 6 });
+      drops.length = want;
+      if (k === 'snow') {
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        for (const d of drops) {
+          d.y += d.v * 0.9; d.x += Math.sin(now / 900 + d.ph) * 0.4;
+          if (d.y > VIEW_H) { d.y = -4; d.x = Math.random() * VIEW_W; }
+          ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+        }
+      } else {
+        ctx.strokeStyle = 'rgba(200,222,255,0.7)'; ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        for (const d of drops) {
+          d.y += d.v * 9; d.x -= d.v * 2.5;
+          if (d.y > VIEW_H) { d.y = -10; d.x = Math.random() * (VIEW_W + 100); }
+          ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 3, d.y + 11);
+        }
+        ctx.stroke();
+      }
+    }
+    if (k === 'fog' && !reduceMotion) {
+      for (let i = 0; i < 3; i++) {
+        const x = ((now / (60 + i * 25)) % (VIEW_W + 600)) - 300, y = VIEW_H * (0.2 + i * 0.28);
+        const g = ctx.createRadialGradient(x, y, 10, x, y, 260);
+        g.addColorStop(0, 'rgba(235,240,242,0.35)'); g.addColorStop(1, 'rgba(235,240,242,0)');
+        ctx.fillStyle = g; ctx.fillRect(x - 260, y - 260, 520, 520);
+      }
+    }
+    // A storm flashes now and then.
+    if (k === 'storm' && !reduceMotion && Math.floor(now / 7000) % 3 === 0 && now % 7000 < 140) { ctx.fillStyle = 'rgba(255,255,240,0.55)'; ctx.fillRect(0, 0, VIEW_W, VIEW_H); }
+    ctx.restore();
+  }
+
+  // ---------- residents battling each other ----------
+  // Each resident's Checkling stands a step toward the other, with a small health bar. Moves fly across as a colored
+  // shot, hits flash, and when it ends the winner gets a star for a moment.
+  const SHOT = { ember: '#ff7a2a', tide: '#4aa8ff', meadow: '#7ccf4a', gear: '#e2bd3a', cosmic: '#b48cff', stone: '#a68f74', storm: '#bfe8ff', shade: '#7a4ab5' };
+  const SPAR_ART = {};
+  function sparArt(species) {
+    if (!SPAR_ART[species]) { const im = new Image(); im.src = `/art/front-${species}.png`; SPAR_ART[species] = im; }
+    const im = SPAR_ART[species];
+    return im.complete && im.naturalWidth > 0 ? im : null;
+  }
+  function sparSpots(sp) {
+    const at = sp.sides.map((sd) => { const n = world?.active().find((r) => r.id === sd.resident); return n ? { x: n.dx, y: n.dy } : { x: sd.x, y: sd.y }; });
+    return at.map((me, i) => {
+      const other = at[1 - i], dx = other.x - me.x, dy = other.y - me.y, d = Math.hypot(dx, dy) || 1;
+      const step = d > 1.6 ? 0.9 : 0;
+      return { x: me.x + (dx / d) * step + (step ? 0 : (i ? 0.6 : -0.6)), y: me.y + (dy / d) * step + (step ? 0 : 0.5) };
+    });
+  }
+  function sparThings(list, now) {
+    for (const [id, sp] of spars) {
+      if (sp.ended && now > sp.until) { spars.delete(id); continue; }
+      if (!sparHere(sp)) continue;
+      const spots = sparSpots(sp);
+      sp.sides.forEach((sd, i) => {
+        const at = spots[i];
+        list.push({ b: at.y + 1.02, draw: () => {
+          const im = sparArt(sd.species);
+          const flash = sp.flashes.find((f) => f.side === i && now > f.t && now - f.t < 260);
+          const shake = flash && !reduceMotion ? Math.sin(now / 25) * 2 : 0;
+          const lost = sp.ended && sp.winner !== i && sp.winner !== 'draw';
+          const w = 0.8 * TILE, h = im ? w * im.naturalHeight / im.naturalWidth : w;
+          const px = at.x * TILE + (TILE - w) / 2 + shake, base = (at.y + 0.95) * TILE;
+          ctx.save();
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.beginPath(); ctx.ellipse(at.x * TILE + TILE / 2, base - 2, w * 0.38, TILE * 0.1, 0, 0, Math.PI * 2); ctx.fill();
+          if (lost) ctx.globalAlpha = 0.45;
+          if (flash) ctx.filter = 'brightness(2.4)';
+          if (im) ctx.drawImage(im, px, base - h, w, h);
+          ctx.restore();
+          // Health bar.
+          const bw = TILE * 0.8, bx = at.x * TILE + (TILE - bw) / 2, by = base - h - 7, share = Math.max(0, sd.hp / sd.maxHp);
+          ctx.fillStyle = 'rgba(20,20,20,0.75)'; ctx.fillRect(bx - 1, by - 1, bw + 2, 6);
+          ctx.fillStyle = share > 0.5 ? '#5bd36b' : share > 0.2 ? '#f3c623' : '#e5533d'; ctx.fillRect(bx, by, bw * share, 4);
+          if (sp.ended && sp.winner === i) bubbles.push(['Winner!', at.x * TILE + TILE / 2, by - 6]);
+        } });
+      });
+      // Shots in flight, drawn above everything on the field.
+      for (const sh of sp.shots) {
+        const t = (now - sh.t) / 420;
+        if (t < 0 || t > 1 || reduceMotion) continue;
+        const a = spots[sh.from], c = spots[1 - sh.from];
+        list.push({ b: 9999, draw: () => {
+          const x = (a.x + (c.x - a.x) * t + 0.5) * TILE, y = (a.y + (c.y - a.y) * t + 0.4) * TILE - Math.sin(t * Math.PI) * TILE * 0.5;
+          ctx.save();
+          ctx.fillStyle = SHOT[sh.type] || '#ffffff';
+          ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 12;
+          ctx.beginPath(); ctx.arc(x, y, TILE * 0.16, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        } });
+      }
+    }
+  }
+  // Frost creeping over a headstone whose ghost is out today.
+  function frost(x, y) {
+    const t = reduceMotion ? 0 : performance.now() / 900;
+    ctx.save();
+    ctx.globalAlpha = 0.5 + (reduceMotion ? 0 : Math.sin(t) * 0.12);
+    ctx.fillStyle = '#d8f1ff';
+    ctx.beginPath(); ctx.ellipse((x + 0.5) * TILE, (y + 0.93) * TILE, TILE * 0.42, TILE * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.85;
+    for (let i = 0; i < 3; i++) {
+      const sx = (x + 0.25 + ((hash(x, y + i) % 50) / 100)) * TILE, sy = (y + 0.35 + ((hash(y, x + i) % 40) / 100)) * TILE;
+      const tw = reduceMotion ? 1 : 0.6 + 0.4 * Math.sin(t * 2 + i * 2);
+      ctx.fillRect(sx - 1, sy - 3 * tw, 2, 6 * tw); ctx.fillRect(sx - 3 * tw, sy - 1, 6 * tw, 2);
+    }
+    ctx.restore();
+  }
+  // A ghost: its old self, pale and see through with a cold glow, bobbing over the grass with a faint trail.
+  const GHOST_ART = {};
+  function ghostArt(species) {
+    if (!GHOST_ART[species]) { const im = new Image(); im.src = `/art/front-${species}.png`; GHOST_ART[species] = im; }
+    const im = GHOST_ART[species];
+    return im.complete && im.naturalWidth > 0 ? im : null;
+  }
+  function ghostSprite(g) {
+    const im = ghostArt(g.species);
+    const t = reduceMotion ? 0 : performance.now() / 600;
+    const bob = reduceMotion ? 0 : Math.sin(t + g.x) * 0.08;
+    const w = 0.95 * TILE, h = im ? w * im.naturalHeight / im.naturalWidth : w;
+    const px = (g.x + 0.025) * TILE, base = (g.y + 0.85 - bob) * TILE;
+    ctx.save();
+    ctx.fillStyle = 'rgba(150, 210, 255, 0.25)';
+    ctx.beginPath(); ctx.ellipse((g.x + 0.5) * TILE, (g.y + 0.95) * TILE, TILE * 0.32, TILE * 0.09, 0, 0, Math.PI * 2); ctx.fill();
+    if (im) {
+      ctx.filter = 'grayscale(0.6) brightness(1.35) drop-shadow(0 0 6px rgba(140, 205, 255, 0.95))';
+      if (!reduceMotion) { ctx.globalAlpha = 0.14; ctx.drawImage(im, px, base - h + TILE * 0.18, w, h); }
+      ctx.globalAlpha = 0.62 + (reduceMotion ? 0 : Math.sin(t * 1.7) * 0.08);
+      ctx.drawImage(im, px, base - h, w, h);
+    } else {
+      ctx.globalAlpha = 0.6; ctx.fillStyle = '#e6f6ff';
+      ctx.beginPath(); ctx.ellipse((g.x + 0.5) * TILE, base - TILE * 0.4, TILE * 0.35, TILE * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+    labels.push([g.mine ? 'Your ghost' : g.wander ? 'Wandering ghost' : 'Ghost', (g.x + 0.5) * TILE, base - h - 4, '#bfe6ff', 2]);
+  }
   const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; };
 
   // ---------- ground, drawn once per map into its own canvas ----------
-  function buildGround() {
+  // Small maps are painted whole. Bramblefen Basin is far too big for one canvas, so it is painted in 16 tile chunks
+  // (win), each with a one tile margin so smoothing never shows a seam where two chunks meet.
+  // Tinted copies of the textures are kept until more art finishes loading.
+  const washes = new Map();
+  function washed(name, wash, opacity = 0, size = 1) {
+    if (!has(name)) return null;
+    const key = `${name}|${wash}|${opacity}|${size}`;
+    if (washes.has(key)) return washes.get(key);
+    const im = ART[name], tile = document.createElement('canvas');
+    tile.width = Math.max(1, Math.round(im.naturalWidth * size));
+    tile.height = Math.max(1, Math.round(im.naturalHeight * size));
+    const paint = tile.getContext('2d');
+    paint.imageSmoothingEnabled = false;
+    paint.drawImage(im, 0, 0, tile.width, tile.height);
+    if (wash) { paint.globalAlpha = opacity; paint.fillStyle = wash; paint.fillRect(0, 0, tile.width, tile.height); }
+    washes.set(key, tile);
+    return tile;
+  }
+  // Stand in art for the basin until the Wave 8 sheets arrive: the town's own pictures, recolored once.
+  function tinted(name, base, filter) {
+    if (ART[name]) return ART[name];
+    if (!has(base)) return null;
+    const im = ART[base], c = document.createElement('canvas');
+    c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const g = c.getContext('2d');
+    g.filter = filter;
+    g.drawImage(im, 0, 0);
+    Object.assign(c, { naturalWidth: c.width, naturalHeight: c.height, complete: true });
+    ART[name] = c;
+    return c;
+  }
+  const FEN_DEEP = ['#1f3b37', 0.7], FEN_SHALLOW = ['#6f7d45', 0.52];
+  function buildGround(win) {
     const r = rows();
+    const W = r[0].length, H = r.length;
+    const x0 = win ? Math.max(0, win.x0 - 1) : 0, y0 = win ? Math.max(0, win.y0 - 1) : 0;
+    const x1 = win ? Math.min(W, win.x1 + 1) : W, y1 = win ? Math.min(H, win.y1 + 1) : H;
     const c = document.createElement('canvas');
-    c.width = r[0].length * TILE * GROUND;
-    c.height = r.length * TILE * GROUND;
+    c.width = (x1 - x0) * TILE * GROUND;
+    c.height = (y1 - y0) * TILE * GROUND;
+    Object.assign(c, { x0, y0 });
     const g = c.getContext('2d');
     g.imageSmoothingEnabled = false;
     const T = TILE * GROUND;
@@ -845,97 +1347,271 @@
       }
       return c;
     }
+    // Every texture below is laid in map coordinates, so chunks line up.
+    g.translate(-x0 * T, -y0 * T);
+    const each = (fn) => { for (let y = y0; y < y1; y++) { const row = r[y]; for (let x = x0; x < x1; x++) fn(row[x], x, y); } };
     // Calm the ground without changing the original art or tinting buildings and trainers.
-    // These small textures are prepared only when the cached map ground is rebuilt.
-    const texture = (name, wash, opacity = 0, size = 1) => {
-      if (!has(name)) return null;
-      if (!wash) return g.createPattern(ART[name], 'repeat');
-      const im = ART[name], tile = document.createElement('canvas');
-      tile.width = Math.max(1, Math.round(im.naturalWidth * size));
-      tile.height = Math.max(1, Math.round(im.naturalHeight * size));
-      const paint = tile.getContext('2d');
-      paint.imageSmoothingEnabled = false;
-      paint.drawImage(im, 0, 0, tile.width, tile.height);
-      paint.globalAlpha = opacity;
-      paint.fillStyle = wash;
-      paint.fillRect(0, 0, tile.width, tile.height);
-      return g.createPattern(tile, 'repeat');
-    };
-    const grass = texture('tile-grass', '#829267', 0.66);
+    const texture = (name, wash, opacity = 0, size = 1) => { const t = washed(name, wash, opacity, size); return t && g.createPattern(t, 'repeat'); };
+    const fenRoom = roomKind === 'fen';
+    const grass = fenRoom ? texture('tile-grass', '#5f8250', 0.58) : texture('tile-grass', '#829267', 0.66);
     const path = texture('tile-path', '#b5aa8c', 0.52, 2 / 3);
-    const water = texture('tile-water');
+    const water = fenRoom ? texture('tile-water', ...FEN_DEEP) : texture('tile-water');
     if (!grass || !path || !water) {
-      g.setTransform(GROUND, 0, 0, GROUND, 0, 0);
-      r.forEach((row, y) => [...row].forEach((ch, x) => townTile(g, ch, x, y)));
+      g.setTransform(GROUND, 0, 0, GROUND, -x0 * TILE * GROUND, -y0 * TILE * GROUND);
+      each((ch, x, y) => townTile(g, ch, x, y));
       return c;
     }
     g.fillStyle = grass;
-    g.fillRect(0, 0, c.width, c.height);
+    g.fillRect(x0 * T, y0 * T, (x1 - x0) * T, (y1 - y0) * T);
     const at = (x, y) => (r[y] && r[y][x]) || 'T';
-    // Wilds terrain. Tall grass and starflowers use their Sprite Book tiles. Rocky ground and scorched heath tint
-    // the path and grass art, so every zone reads as its own place without new pictures.
-    const tall = texture('tile-tall-grass', '#9ccf55', 0.2);
-    const flowers = texture('tile-flowers', '#d8c75a', 0.12);
-    const rocky = texture('tile-path', '#77736b', 0.62, 2 / 3);
-    const heath = texture('tile-grass', '#5a3a22', 0.62);
-    r.forEach((row, y) => [...row].forEach((ch, x) => {
-      const fill = ch === 'W' ? water : ch === 'G' ? tall : ch === 'C' ? flowers : ch === 'R' ? rocky : ch === 'A' ? heath : null;
-      if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
-      const h = hash(x, y);
-      if (ch === 'R') {
-        // Loose stones.
-        for (let i = 0; i < 3; i++) { const k = hash(x * 3 + i, y * 7); g.fillStyle = OUTLINE; g.fillRect(x * T + 6 + (k % 46), y * T + 6 + ((k >>> 8) % 46), 10, 8); g.fillStyle = (k >>> 16) & 1 ? '#a39d90' : '#8c877c'; g.fillRect(x * T + 8 + (k % 46), y * T + 8 + ((k >>> 8) % 46), 6, 4); }
-      } else if (ch === 'A') {
-        // Glowing embers in the ash.
-        for (let i = 0; i < 2; i++) { const k = hash(x * 5 + i, y * 3 + 1); g.fillStyle = (k >>> 16) % 3 ? '#ff9a3c' : '#ffd166'; g.fillRect(x * T + 6 + (k % 50), y * T + 6 + ((k >>> 8) % 50), 4, 4); }
-      } else if (ch === 'C' && h % 4 === 0) {
-        // A starflower or two: tiny pale gold stars.
-        const sx = x * T + 10 + (h % 40), sy = y * T + 10 + ((h >>> 8) % 40);
-        g.fillStyle = '#fff6c2'; g.fillRect(sx, sy + 3, 10, 3); g.fillRect(sx + 3, sy, 3, 10);
-      }
-    }));
-    // Benches and the bus stop sit on a packed dirt pad instead of bare grass.
-    const pads = r.map((row) => [...row]);
-    for (const p of mapNow()?.props || []) {
-      if (!['prop-bench', 'prop-bus-stop'].includes(p.s) || !p.f) continue;
-      for (let y = p.f[1]; y < p.f[1] + p.f[3]; y++) for (let x = p.f[0]; x < p.f[0] + p.f[2]; x++) if (pads[y]) pads[y][x] = 'P';
+    if (fenRoom) {
+      paintFen(g, r, at, T, each, texture, grass);
+    } else {
+      // Wilds terrain. Tall grass and starflowers use their Sprite Book tiles. Rocky ground and scorched heath tint
+      // the path and grass art, so every zone reads as its own place without new pictures.
+      const tall = texture('tile-tall-grass', '#9ccf55', 0.2);
+      const flowers = texture('tile-flowers', '#d8c75a', 0.12);
+      const rocky = texture('tile-path', '#77736b', 0.62, 2 / 3);
+      const heath = texture('tile-grass', '#5a3a22', 0.62);
+      each((ch, x, y) => {
+        const fill = ch === 'W' ? water : ch === 'G' ? tall : ch === 'C' ? flowers : ch === 'R' ? rocky : ch === 'A' ? heath : null;
+        if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
+        const h = hash(x, y);
+        if (ch === 'R') {
+          // Loose stones.
+          for (let i = 0; i < 3; i++) { const k = hash(x * 3 + i, y * 7); g.fillStyle = OUTLINE; g.fillRect(x * T + 6 + (k % 46), y * T + 6 + ((k >>> 8) % 46), 10, 8); g.fillStyle = (k >>> 16) & 1 ? '#a39d90' : '#8c877c'; g.fillRect(x * T + 8 + (k % 46), y * T + 8 + ((k >>> 8) % 46), 6, 4); }
+        } else if (ch === 'A') {
+          // Glowing embers in the ash.
+          for (let i = 0; i < 2; i++) { const k = hash(x * 5 + i, y * 3 + 1); g.fillStyle = (k >>> 16) % 3 ? '#ff9a3c' : '#ffd166'; g.fillRect(x * T + 6 + (k % 50), y * T + 6 + ((k >>> 8) % 50), 4, 4); }
+        } else if (ch === 'C' && h % 4 === 0) {
+          // A starflower or two: tiny pale gold stars.
+          const sx = x * T + 10 + (h % 40), sy = y * T + 10 + ((h >>> 8) % 40);
+          g.fillStyle = '#fff6c2'; g.fillRect(sx, sy + 3, 10, 3); g.fillRect(sx + 3, sy, 3, 10);
+        }
+      });
     }
-    paintPaths(g, pads.map((row) => row.join('')), T);
-    paintMeadow(g, mapNow(), T);
+    // Benches and the bus stop sit on a packed dirt pad instead of bare grass.
+    const padProps = (mapNow()?.props || []).filter((p) => ['prop-bench', 'prop-bus-stop'].includes(p.s) && p.f);
+    let laneRows = r;
+    if (padProps.length) {
+      const pads = r.map((row) => [...row]);
+      for (const p of padProps) for (let y = p.f[1]; y < p.f[1] + p.f[3]; y++) for (let x = p.f[0]; x < p.f[0] + p.f[2]; x++) if (pads[y]) pads[y][x] = 'P';
+      laneRows = pads.map((row) => row.join(''));
+    }
+    const box = { x0, y0, x1, y1 };
+    paintPaths(g, laneRows, T, win ? box : undefined);
+    paintMeadow(g, mapNow(), T, win ? box : undefined);
+    if (fenRoom) return c;
     // A mossy water bank, kept below the residents and the animated ripples.
-    r.forEach((row, y) => [...row].forEach((ch, x) => {
+    each((ch, x, y) => {
       if (ch !== 'W') return;
       g.fillStyle = '#617c59';
       if (at(x, y - 1) !== 'W') g.fillRect(x * T, y * T, T, 6);
       if (at(x, y + 1) !== 'W') g.fillRect(x * T, y * T + T - 4, T, 4);
       if (at(x - 1, y) !== 'W') g.fillRect(x * T, y * T, 5, T);
       if (at(x + 1, y) !== 'W') g.fillRect(x * T + T - 5, y * T, 5, T);
-    }));
+    });
     // Flower patches: small clusters of real flowers, walkable like grass. A flower tile that bridges a lane
     // is painted as lane.
     const lane = (x, y) => 'PE'.includes(at(x, y));
-    r.forEach((row, y) => [...row].forEach((ch, x) => {
+    each((ch, x, y) => {
       if (ch !== 'F' || (lane(x - 1, y) && lane(x + 1, y)) || (lane(x, y - 1) && lane(x, y + 1))) return;
       const kind = hash(x, y) % 5;
       for (let i = 0; i < 4; i++) {
         const h = hash(x * 4 + i, y);
         paintFlower(g, x * T + 10 + (h % 40), y * T + 8 + ((h >>> 8) % 38), kind + (i === 3 ? 1 : 0), 4);
       }
-    }));
+    });
     return c;
+  }
+
+  // Bramblefen's own ground: wet mud, two depths of water, moss, reeds, glowcaps and boardwalks. Every detail is
+  // placed by a hash of its tile, so it is the same on every visit and every Chromebook.
+  function paintFen(g, r, at, T, each, texture, grass) {
+    const mud = texture('tile-path', '#4a3726', 0.66, 2 / 3);
+    const shallow = texture('tile-water', ...FEN_SHALLOW);
+    const deep = texture('tile-water', ...FEN_DEEP);
+    const moss = texture('tile-grass', '#79b04e', 0.42);
+    const reeds = texture('tile-tall-grass', '#c2a94e', 0.28);
+    const wet = (ch) => ch === 'W' || ch === 'w';
+    const dry = (ch) => !wet(ch) && ch !== 'B';
+    // Bushes, rocks and stumps stand on ordinary ground, so their tiles take part in the ragged edges as grass.
+    each((ch, x, y) => {
+      const fill = ch === 'W' ? deep : ch === 'w' ? shallow : ch === 'M' || ch === 'U' ? mud : ch === 'm' || ch === 'Q' ? moss : ch === 'G' ? reeds : null;
+      if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
+    });
+    softEdges(g, at, T, each, { '.': grass, K: grass, O: grass, m: moss, Q: moss, M: mud, U: mud, G: reeds });
+    each((ch, x, y) => {
+      const px = x * T, py = y * T, h = hash(x, y);
+      if (ch === 'M' && h % 3 === 0) {
+        // A puddle catching the sky.
+        const sx = px + 14 + (h % 26), sy = py + 18 + ((h >>> 8) % 26);
+        g.fillStyle = '#2b1a12'; g.fillRect(sx - 2, sy - 2, 20, 10);
+        g.fillStyle = '#5f7c78'; g.fillRect(sx, sy, 16, 6);
+        g.fillStyle = '#b9d3c9'; g.fillRect(sx + 2, sy, 6, 2);
+      }
+      if (ch === 'm' || ch === 'Q') {
+        // Moss flowers like tiny stars, and the odd fallen leaf.
+        for (let i = 0; i < 3; i++) { const k = hash(x * 3 + i, y * 5 + 2); g.fillStyle = '#e4f5a8'; g.fillRect(px + 6 + (k % 50), py + 6 + ((k >>> 8) % 50), 4, 4); }
+        if (h % 13 === 0) {
+          const lx = px + 14 + (h % 30), ly = py + 18 + ((h >>> 8) % 30);
+          g.fillStyle = '#2b1a12'; g.fillRect(lx, ly, 12, 6); g.fillRect(lx + 2, ly - 2, 8, 10);
+          g.fillStyle = h & 8 ? '#d9822b' : '#b8642a'; g.fillRect(lx + 2, ly + 2, 8, 2); g.fillRect(lx + 4, ly, 4, 6);
+          g.fillStyle = '#f2b45a'; g.fillRect(lx + 4, ly, 2, 2);
+        }
+      }
+      if (ch === 'Q') {
+        // Glowcaps: soft teal mushrooms that light the moss around them.
+        for (let i = 0; i < 3; i++) {
+          const k = hash(x * 7 + i, y * 3 + 1), mx = px + 10 + (k % 40), my = py + 16 + ((k >>> 8) % 36);
+          const glow = g.createRadialGradient(mx + 5, my, 1, mx + 5, my, 18); glow.addColorStop(0, '#8ffff066'); glow.addColorStop(1, '#8ffff000');
+          g.fillStyle = glow; g.fillRect(mx - 14, my - 18, 38, 36);
+          g.fillStyle = '#2b1a12'; g.fillRect(mx + 2, my, 6, 10); g.fillRect(mx - 2, my - 6, 14, 8);
+          g.fillStyle = '#f2ead2'; g.fillRect(mx + 4, my + 2, 2, 6);
+          g.fillStyle = '#4fd8c0'; g.fillRect(mx, my - 4, 10, 4);
+          g.fillStyle = '#b6fff2'; g.fillRect(mx + 2, my - 4, 4, 2);
+        }
+      }
+      if (ch === 'G' && h % 3 === 0) {
+        // Cattails standing up out of the reeds.
+        for (let i = 0; i < 2; i++) {
+          const k = hash(x * 5 + i, y * 9), sx = px + 10 + (k % 40), sy = py + 10 + ((k >>> 8) % 20);
+          g.fillStyle = '#4a6a30'; g.fillRect(sx + 2, sy + 10, 2, 26);
+          g.fillStyle = '#2b1a12'; g.fillRect(sx, sy - 2, 6, 14);
+          g.fillStyle = '#7a4a26'; g.fillRect(sx + 1, sy, 4, 10);
+          g.fillStyle = '#a06a3a'; g.fillRect(sx + 1, sy, 2, 4);
+        }
+      }
+      if (wet(ch)) {
+        // Banks: mossy where deep water meets land, muddy where the shallows do.
+        const bank = (ox, oy) => { const n = at(x + ox, y + oy); return ch === 'W' ? n !== 'W' && n !== 'B' : dry(n); };
+        g.fillStyle = ch === 'W' ? (at(x, y - 1) === 'w' ? '#4f6a4a' : '#4d6b44') : '#5d5236';
+        if (bank(0, -1)) g.fillRect(px, py, T, 6);
+        if (bank(0, 1)) g.fillRect(px, py + T - 4, T, 4);
+        if (bank(-1, 0)) g.fillRect(px, py, 5, T);
+        if (bank(1, 0)) g.fillRect(px + T - 5, py, 5, T);
+        // Lily pads in the shallows (deep water gets its own, drawn over the drifting water), and duckweed.
+        if (ch === 'w' && h % 9 === 0) lilyPad(g, px + 12 + (h % 24), py + 16 + ((h >>> 8) % 24), 1, h, '#5e6e3a');
+        if (ch === 'w') for (let i = 0; i < 4; i++) { const k = hash(x * 11 + i, y * 7); g.fillStyle = '#9cbc52'; g.fillRect(px + 4 + (k % 56), py + 4 + ((k >>> 8) % 56), 4, 2); }
+      }
+      if (ch === 'B') {
+        // Boardwalk planks laid across the way it runs, with a dark edge where it meets the water.
+        const lane2 = (n) => n === 'B' || n === 'P' || n === 'E';
+        const ns = lane2(at(x, y - 1)) || lane2(at(x, y + 1)), ew = lane2(at(x - 1, y)) || lane2(at(x + 1, y));
+        const across = ns && !ew; // a north south walk has boards lying east to west
+        g.fillStyle = '#3b2716'; g.fillRect(px, py, T, T);
+        for (let i = 0; i < 8; i++) {
+          const k = hash(x * 8 + i, y), tone = k % 3 === 0 ? '#9a7048' : k % 3 === 1 ? '#8b6440' : '#a57a50';
+          g.fillStyle = tone;
+          if (across) g.fillRect(px + 2, py + i * 8 + 1, T - 4, 6); else g.fillRect(px + i * 8 + 1, py + 2, 6, T - 4);
+          g.fillStyle = '#c9a27066';
+          if (across) g.fillRect(px + 2, py + i * 8 + 1, T - 4, 1); else g.fillRect(px + i * 8 + 1, py + 2, 1, T - 4);
+          g.fillStyle = '#2b1a12';
+          if (across) { g.fillRect(px + 6, py + i * 8 + 3, 2, 2); g.fillRect(px + T - 8, py + i * 8 + 3, 2, 2); }
+          else { g.fillRect(px + i * 8 + 3, py + 6, 2, 2); g.fillRect(px + i * 8 + 3, py + T - 8, 2, 2); }
+        }
+        if (h % 4 === 0) { g.fillStyle = '#6f9a4a'; g.fillRect(px + 8 + (h % 40), py + 10 + ((h >>> 8) % 40), 6, 4); }
+        g.fillStyle = '#2b1a12';
+        if (across) { g.fillRect(px, py, 3, T); g.fillRect(px + T - 3, py, 3, T); }
+        else { g.fillRect(px, py, T, 3); g.fillRect(px, py + T - 3, T, 3); }
+      }
+    });
+  }
+
+  // Where two kinds of ground meet, each pushes a few ragged tongues into the other, so the basin never shows the grid.
+  function softEdges(g, at, T, each, fills) {
+    each((ch, x, y) => {
+      const mine = fills[ch];
+      if (!mine) return;
+      for (const [dx, dy, side] of [[0, -1, 0], [1, 0, 1], [0, 1, 2], [-1, 0, 3]]) {
+        const n = at(x + dx, y + dy);
+        if (n === ch || !fills[n]) continue;
+        g.fillStyle = mine;
+        for (let i = 0; i < 3; i++) {
+          const k = hash(x * 13 + side * 5 + i, y * 7 + side), along = 4 + (k % (T - 20)), len = 10 + ((k >>> 8) % 10), deep = 4 + ((k >>> 16) % 8);
+          const px = x * T, py = y * T;
+          if (side === 0) g.fillRect(px + along, py - deep, len, deep);
+          else if (side === 2) g.fillRect(px + along, py + T, len, deep);
+          else if (side === 1) g.fillRect(px + T, py + along, deep, len);
+          else g.fillRect(px - deep, py + along, deep, len);
+        }
+      }
+    });
+  }
+  // A lily pad: a notched green disc, one in three with a white flower. u is pixels per art pixel pair.
+  function lilyPad(g, lx, ly, u, h, notch) {
+    g.fillStyle = '#2b1a12'; g.beginPath(); g.ellipse(lx, ly, 13 * u, 8 * u, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#4f8a3a'; g.beginPath(); g.ellipse(lx, ly, 11 * u, 6 * u, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#76b04e'; g.fillRect(lx - 6 * u, ly - 4 * u, 6 * u, 2 * u);
+    g.fillStyle = notch; g.fillRect(lx + 2 * u, ly - 1 * u, 10 * u, 2 * u);
+    if (h % 3 === 0) { g.fillStyle = '#fffaf0'; g.fillRect(lx - 4 * u, ly - 6 * u, 8 * u, 6 * u); g.fillStyle = '#ffd95a'; g.fillRect(lx - 2 * u, ly - 4 * u, 4 * u, 2 * u); }
+  }
+  // Pads on the basin's deep water ride on top of the drift and bob a little.
+  function fenPads(now, x0, y0, x1, y1) {
+    const r = rows();
+    for (let y = Math.max(0, y0); y <= Math.min(r.length - 1, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(r[0].length - 1, x1); x++) {
+      if (r[y][x] !== 'W') continue;
+      const h = hash(x, y);
+      if (h % 17) continue;
+      const bob = reduceMotion ? 0 : Math.sin(now / 1400 + (h % 50)) * 0.8;
+      lilyPad(ctx, x * TILE + 6 + (h % 12), y * TILE + 8 + ((h >>> 8) % 12) + bob, 0.5, h, '#1c4a46');
+    }
+  }
+
+  // Bramblefen chunks: built two at a time as they come into view, kept until a dozen newer ones push them out.
+  const CHUNK = 16, chunks = new Map();
+  let chunkBuilds = 0;
+  function chunkAt(cx, cy, build) {
+    const key = `${room}:${artWaiting}:${cx},${cy}`;
+    let c = chunks.get(key);
+    if (c) { chunks.delete(key); chunks.set(key, c); return c; }
+    if (!build) return null;
+    const r = rows();
+    c = buildGround({ x0: cx * CHUNK, y0: cy * CHUNK, x1: Math.min(r[0].length, (cx + 1) * CHUNK), y1: Math.min(r.length, (cy + 1) * CHUNK) });
+    chunks.set(key, c);
+    chunkBuilds++;
+    while (chunks.size > 12) chunks.delete(chunks.keys().next().value);
+    return c;
+  }
+  function drawChunks(cx, cy, vw, vh) {
+    const r = rows(), span = CHUNK * TILE;
+    const ax = Math.max(0, Math.floor(cx / span)), ay = Math.max(0, Math.floor(cy / span));
+    const bx = Math.min(Math.ceil(r[0].length / CHUNK) - 1, Math.floor((cx + vw) / span)), by = Math.min(Math.ceil(r.length / CHUNK) - 1, Math.floor((cy + vh) / span));
+    let budget = 2;
+    for (let y = ay; y <= by; y++) for (let x = ax; x <= bx; x++) {
+      let c = chunkAt(x, y, false);
+      if (!c && budget > 0) { c = chunkAt(x, y, true); budget--; }
+      const dx = x * span, dy = y * span, w = Math.min(span, r[0].length * TILE - dx), h = Math.min(span, r.length * TILE - dy);
+      if (!c) { ctx.fillStyle = '#3f5a3a'; ctx.fillRect(dx, dy, w, h); continue; }
+      // Copy the chunk without its margin. The margin pixels keep smoothing honest at the seam.
+      const sx = (dx / TILE - c.x0) * TILE * GROUND, sy = (dy / TILE - c.y0) * TILE * GROUND;
+      ctx.drawImage(c, sx, sy, w * GROUND, h * GROUND, dx, dy, w, h);
+    }
+    // Spare time goes to the chunks just outside the view, so walking on never waits. It only fills free room in the
+    // cache, so it never pushes out a chunk that is still on screen.
+    if (budget === 2 && chunks.size < 12) {
+      for (let y = Math.max(0, ay - 1); y <= Math.min(Math.ceil(r.length / CHUNK) - 1, by + 1) && budget === 2; y++) {
+        for (let x = Math.max(0, ax - 1); x <= Math.min(Math.ceil(r[0].length / CHUNK) - 1, bx + 1); x++) {
+          if (!chunkAt(x, y, false)) { chunkAt(x, y, true); budget--; break; }
+        }
+      }
+    }
   }
 
   // The pond drifts slowly: the water texture is redrawn over the water tiles a few pixels further along each frame.
   // The bank outline from the ground canvas is drawn back on top so the edge stays crisp.
-  let waterPattern = null;
+  // The basin's deep water drifts too, in its own darker teal.
+  let waterPattern = null, fenWaterPattern = null;
   function shimmer(now, x0, y0, x1, y1) {
     if (!has('tile-water') || reduceMotion) return;
     if (!waterPattern) waterPattern = ctx.createPattern(ART['tile-water'], 'repeat');
+    if (roomKind === 'fen' && !fenWaterPattern) fenWaterPattern = ctx.createPattern(washed('tile-water', ...FEN_DEEP), 'repeat');
+    const pattern = roomKind === 'fen' ? fenWaterPattern : waterPattern;
     const r = rows();
     const off = (now / 90) % 192;
     const m = new DOMMatrix().scale(1 / GROUND).translate(off, off * 0.4);
-    waterPattern.setTransform(m);
-    ctx.fillStyle = waterPattern;
+    pattern.setTransform(m);
+    ctx.fillStyle = pattern;
     const at = (x, y) => (r[y] && r[y][x]) || 'T';
     for (let y = Math.max(0, y0); y <= Math.min(r.length - 1, y1); y++) {
       for (let x = Math.max(0, x0); x <= Math.min(r[0].length - 1, x1); x++) {
@@ -1037,9 +1713,26 @@
   function townThings(x0, y0, x1, y1, list) {
     const map = mapNow();
     const r = map.rows;
+    const fenRoom = roomKind === 'fen';
+    if (fenRoom) {
+      // Willows, rusty cypress, brambles, mossy rocks and stumps, recolored from the town's art until Wave 8 lands.
+      tinted('fen-tree', 'prop-tree', 'hue-rotate(16deg) saturate(0.82) brightness(0.86)');
+      tinted('fen-tree-rust', 'prop-tree', 'hue-rotate(-42deg) saturate(1.05) brightness(0.9)');
+      tinted('fen-bramble', 'prop-bush', 'hue-rotate(28deg) saturate(1.15) brightness(0.78)');
+    }
     for (let y = Math.max(0, y0 - 1); y <= Math.min(r.length - 1, y1 + 3); y++) {
       for (let x = Math.max(0, x0 - 2); x <= Math.min(r[0].length - 1, x1 + 2); x++) {
         const ch = r[y][x];
+        if (fenRoom && 'TKOU'.includes(ch)) {
+          const h = hash(x, y);
+          if (ch === 'T') {
+            const art = h % 7 === 0 && has('fen-tree-rust') ? 'fen-tree-rust' : has('fen-tree') ? 'fen-tree' : 'prop-tree', k = 0.95 + (h % 17) / 100;
+            list.push({ b: y + 1, draw: () => (has(art) ? sprite(art, x + 0.5 - 1.05 * k, y + 1.05, 2.1 * k, h & 1) : boxShape(x + 0.1, y + 1, 0.8, 1, '#2f5b3a')) });
+          } else if (ch === 'K') list.push({ b: y + 1, draw: () => (has('fen-bramble') ? sprite('fen-bramble', x - 0.08, y + 1.04, 1.16, h & 1) : boxShape(x + 0.1, y + 1, 0.8, 0.7, '#5b3a2a')) });
+          else if (ch === 'O') list.push({ b: y + 1, draw: () => (has('prop-rock') ? sprite('prop-rock', x + 0.02, y + 1.02, 0.96, h & 1) : boxShape(x + 0.1, y + 1, 0.8, 0.6, '#8a8a80')) });
+          else list.push({ b: y + 1, draw: () => (has('prop-stump') ? sprite('prop-stump', x + 0.12, y + 1.02, 0.78, h & 1) : boxShape(x + 0.2, y + 1, 0.6, 0.6, '#7a5230')) });
+          continue;
+        }
         if (ch === 'T') {
           const h = hash(x, y);
           list.push({ b: y + 1, draw: () => (has('prop-tree')
@@ -1059,8 +1752,10 @@
     if (roomKind === 'kettle') {
       for (const st of stones) {
         const art = `kc-headstone-${1 + ((st.trainer || '').length + (st.days || 0)) % 4}`;
-        list.push({ b: st.y + 1, draw: () => (has(art) ? sprite(art, st.x + 0.1, st.y + 1, 0.8) : boxShape(st.x + 0.2, st.y + 1, 0.6, 0.8, '#9a9a9a')) });
+        const frosty = ghostView.frost.some(([fx, fy]) => fx === st.x && fy === st.y);
+        list.push({ b: st.y + 1, draw: () => { (has(art) ? sprite(art, st.x + 0.1, st.y + 1, 0.8) : boxShape(st.x + 0.2, st.y + 1, 0.6, 0.8, '#9a9a9a')); if (frosty) frost(st.x, st.y); } });
       }
+      if (sightMs()) for (const g of ghostView.ghosts) list.push({ b: g.y + 1.01, draw: () => ghostSprite(g) });
     }
     for (const geo of roomKind === 'town' ? town.plots : []) {
       const state = live(geo.id);
@@ -1114,7 +1809,7 @@
     }
     if(p.npc)world?.drawResident(ctx,p,reduceMotion);
     // Standing in tall grass hides your feet, the Red and Blue way.
-    if ((roomKind === 'wilds' || roomKind === 'kettle') && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
+    if ((roomKind === 'wilds' || roomKind === 'kettle' || roomKind === 'fen') && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
       ctx.drawImage(ART['tile-tall-grass'], 0, 30, 64, 34, px, py + 15, 32, 17);
     }
     const top = py + TILE - 50;
@@ -1192,7 +1887,8 @@
     const r = rows();
     if (r.length) {
       const key = `${room}:${artWaiting}`;
-      if (!ground || groundKey !== key) { ground = buildGround(); groundKey = key; }
+      const chunked = roomKind === 'fen';
+      if (!chunked && (!ground || groundKey !== key)) { ground = buildGround(); groundKey = key; }
       const target = cameraTarget();
       cam = target; // locked to your trainer, so the walk never wobbles
       const z = zoom(), vw = VIEW_W / z, vh = VIEW_H / z;
@@ -1201,10 +1897,14 @@
       ctx.scale(z, z);
       ctx.translate(-cx, -cy);
       // Copy only the part of the ground that is on screen; the whole town is far bigger than the view.
-      const gx = Math.max(0, cx), gy = Math.max(0, cy);
-      const gw = Math.min(ground.width / GROUND - gx, vw - (gx - cx)), gh = Math.min(ground.height / GROUND - gy, vh - (gy - cy));
-      if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * GROUND, gy * GROUND, gw * GROUND, gh * GROUND, gx, gy, gw, gh);
+      if (chunked) drawChunks(cx, cy, vw, vh);
+      else {
+        const gx = Math.max(0, cx), gy = Math.max(0, cy);
+        const gw = Math.min(ground.width / GROUND - gx, vw - (gx - cx)), gh = Math.min(ground.height / GROUND - gy, vh - (gy - cy));
+        if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * GROUND, gy * GROUND, gw * GROUND, gh * GROUND, gx, gy, gw, gh);
+      }
       if (roomKind !== 'house') shimmer(world?.clock() ?? now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
+      if (chunked) fenPads(world?.clock() ?? now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];
@@ -1222,6 +1922,7 @@
         }
       }
       for (const p of players.values()) things.push({ b: p.dy + 1, draw: () => trainer(p, now) });
+      sparThings(things, now);
       things.sort((a, b) => a.b - b.b);
       labels.length = 0; bubbles.length = 0;
       for (const t of things) t.draw();
@@ -1247,6 +1948,7 @@
         bubble(text, x, ty);
       }
       ctx.restore();
+      if (roomKind !== 'house') drawSky(now);
     }
     const nb = roomKind !== 'house' && neighbor();
     challengeBtn.hidden = !nb || busyEl.checked || paused || Boolean(bt);
@@ -1261,6 +1963,7 @@
     }
     if (lastNear && performance.now() > lastNear.until) { lastNear = null; watchLine(); }
     if (bt) clockTick();
+    if (roomKind === 'kettle') { const mins = Math.ceil(sightMs() / 60000); if (mins !== sightShown) { sightShown = mins; placeLine(); } }
     requestAnimationFrame(frame);
   }
 
@@ -1302,6 +2005,7 @@
     sign: 'Face a sign or landmark and press Space (or tap it) to read it.',
     gate: 'The trail north leads out of town into the wilds, where wild Checklings live.',
     wilds: 'Wild Checklings hide in tall grass, starflowers, rocky ground and scorched heath. Walk through to find one.',
+    fen: 'Bramblefen Basin is huge. Follow the trails and read the signposts. Wild Checklings hide in the reeds and the shallows, and the strongest live somewhere under the willows.',
     battle: 'Press 1 to 4 or tap a move. Both trainers pick, then the turn plays out.',
     'wild-battle': 'Wear it down first, then press 5 to throw a charm. Weaker Checklings are easier to catch. Press 6 to run.',
     caught: 'Your catch is yours to keep. Tap your partner button to battle with it, or to move Checklings between your party and your Den.',
@@ -1309,6 +2013,10 @@
     kettle: 'This is Kettle Creek, your home town. Your house, the clinic and Route 1 are here. The bus stop takes you to the Checkaverse to battle classmates.',
     care: 'Tap Care to feed, groom, play with and nap your Checkling. Too much or too little of anything has a cost.',
     visitor: 'You are visiting, so catches and wins are not saved. To keep them, ride the bus from your Check-In page.',
+    frost: 'Frost on a headstone means a ghost is out today. Face a headstone and press Space to look closer.',
+    moss: 'Grave moss! Take two to the apothecary to brew Spirit Sight, so your partner can see ghosts.',
+    'ghost-seen': 'Your partner can see ghosts now. Walk into one to battle it. You can only catch your own Checkling\'s ghost or a wandering one.',
+    'ghost-battle': 'Watch for the warning: on a fading turn your attacks pass right through the ghost. Guard on those turns.',
   };
   const FOLLOW = { walk: ['partner', 'say'] };
   const tipEl = $('tip'), tipText = $('tipText');
@@ -1353,6 +2061,12 @@
     if (roomKind === 'wilds') {
       const z = wilds.zones?.[rows()[self.y]?.[self.x]] || '';
       if (z !== zoneName) { zoneName = z; placeLine(); }
+    } else if (roomKind === 'fen') {
+      // Close to a landmark its name shows; anywhere else, the kind of ground underfoot.
+      const near = (fen?.marks || []).find((k) => Math.abs(k.x - self.x) + Math.abs(k.y - self.y) <= 7);
+      const name = near ? fenCfg.landmarks[near.id]?.name || '' : fenCfg?.zones?.[rows()[self.y]?.[self.x]]?.name || '';
+      const z = name ? name[0].toUpperCase() + name.slice(1) : '';
+      if (z !== zoneName) { zoneName = z; placeLine(); }
     } else {
       const gate = (town.exits || [])[0];
       if (gate && Math.abs(gate.x - self.x) + Math.abs(gate.y - self.y) <= 4) tipSoon('gate', 0);
@@ -1380,7 +2094,8 @@
     b.setAttribute('role', 'radio');
     b.setAttribute('aria-checked', String(c.v === partner));
     const im = document.createElement('img'); im.src = `/art/front-${c.species}.png`; im.alt = '';
-    b.append(im, c.caught ? `${shortName(c)} ★` : shortName(c));
+    if (c.ghost) im.classList.add('ghostly');
+    b.append(im, c.caught ? `${shortName(c)} ★` : c.ghost ? `${shortName(c)} · Returned` : shortName(c));
     const toNext = c.need ? `, ${c.xp} of ${c.need} XP to level ${c.level + 1}` : '';
     b.title = `${c.nick ? `${c.nick}, a ` : ''}${c.name}, ${TYPE_NAMES[c.type] || ''} type, level ${c.level}${toNext}`;
     b.disabled = Boolean(bt);
@@ -1389,6 +2104,30 @@
       if (bt || c.v === partner) return;
       if (!saved && !c.caught) { try { localStorage.setItem('checkaverse-partner', c.v); } catch { /* storage can be off on school machines */ } }
       send({ t: 'partner', v: c.v });
+    });
+    return b;
+  }
+  // Caught and egg Checklings can be named. The first Checkling keeps its Check-In name.
+  function nameButton(c, row) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'den-btn';
+    b.textContent = 'Name';
+    b.title = `Give ${c.nick || `your ${c.name}`} a name`;
+    b.disabled = Boolean(bt);
+    b.addEventListener('click', (e) => {
+      if (e.detail) b.blur();
+      const form = document.createElement('form'); form.className = 'name-form';
+      const input = document.createElement('input');
+      Object.assign(input, { type: 'text', maxLength: 14, value: c.nick || '', placeholder: c.name, autocomplete: 'off', spellcheck: false });
+      input.setAttribute('aria-label', `Name for your ${c.name}`);
+      input.setAttribute('data-desk-skip', '');
+      const ok = document.createElement('button'); ok.type = 'submit'; ok.className = 'den-btn'; ok.textContent = 'Save';
+      form.append(input, ok);
+      form.addEventListener('submit', (ev) => { ev.preventDefault(); send({ t: 'nick', v: c.v, name: input.value }); });
+      input.addEventListener('keydown', (ev) => { ev.stopPropagation(); if (ev.key === 'Escape') buildPartners(); });
+      row.replaceChildren(form);
+      input.focus();
+      input.select();
     });
     return b;
   }
@@ -1424,7 +2163,9 @@
   function renderCare() {
     const m = careView, b = m.body;
     $('careImg').src = `/art/front-${m.species}.png`;
+    $('careImg').classList.toggle('ghostly', Boolean(b.ghost));
     $('careName').textContent = m.name;
+    if (b.ghost) return renderGhostCare(m, b);
     $('careSub').textContent = `Level ${m.level}${m.den ? ' · resting in the Den, so its body clock is paused' : ''}`;
     const sw = $('careSwitch');
     sw.textContent = '';
@@ -1491,6 +2232,31 @@
       btn.addEventListener('click', () => send({ t: 'care', id: m.id, a: x.id }));
       acts.appendChild(btn);
     }
+  }
+  // A caught ghost has no body to care for. It only needs to stay in the party.
+  function renderGhostCare(m, b) {
+    $('careSub').textContent = `Level ${m.level} · Returned · ${b.temper}`;
+    const sw = $('careSwitch');
+    sw.textContent = '';
+    for (const c of team) {
+      const t = document.createElement('button');
+      t.type = 'button'; t.setAttribute('role', 'tab'); t.setAttribute('aria-selected', String(c.v === m.id));
+      t.textContent = shortName(c) + (c.den ? ' (Den)' : '');
+      t.addEventListener('click', () => askBody(c.v));
+      sw.appendChild(t);
+    }
+    sw.hidden = team.length < 2;
+    $('careBars').textContent = '';
+    const tags = $('careTags');
+    tags.textContent = '';
+    const d = document.createElement('div'); d.className = 'care-tag';
+    const h = document.createElement('b'); h.textContent = 'A ghost';
+    const left = Math.max(0, b.keep - b.away);
+    d.append(h, m.den
+      ? `It never eats, naps or gets sick, but it is drifting in the Den. It fades back to the cemetery after ${left} more school ${left === 1 ? 'day' : 'days'} out of your party.`
+      : 'It never eats, naps or gets sick, and it can never die again. It stays close as long as it travels in your party. It cannot evolve.');
+    tags.appendChild(d);
+    $('careActions').textContent = '';
   }
   const capital = (t) => t.charAt(0).toUpperCase() + t.slice(1);
   function stoneEl(st) {
@@ -1583,7 +2349,9 @@
     for (const c of party) {
       if (!saved) { box.appendChild(partnerButton(c)); continue; }
       const row = document.createElement('div'); row.className = 'team-row';
-      row.append(partnerButton(c), denButton(c, false, party.length > 1));
+      row.append(partnerButton(c));
+      if (!c.hatched) row.append(nameButton(c, row));
+      row.append(denButton(c, false, party.length > 1));
       box.appendChild(row);
     }
     const denBox = $('den');
@@ -1595,8 +2363,11 @@
       for (const c of den) {
         const row = document.createElement('div'); row.className = 'team-row den-row';
         const im = document.createElement('img'); im.src = `/art/front-${c.species}.png`; im.alt = '';
-        const name = document.createElement('span'); name.textContent = shortName(c);
-        row.append(im, name, denButton(c, true, party.length < partyMax));
+        const name = document.createElement('span'); name.textContent = c.ghost ? `${shortName(c)} · Returned` : shortName(c);
+        if (c.ghost) im.classList.add('ghostly');
+        row.append(im, name);
+        if (!c.hatched) row.append(nameButton(c, row));
+        row.append(denButton(c, true, party.length < partyMax));
         denBox.appendChild(row);
       }
     }
@@ -1612,7 +2383,9 @@
   function charmLine() {
     const chip = $('charmChip');
     const visitCatches = saved ? 0 : team.filter((c) => c.caught).length;
-    chip.hidden = roomKind !== 'wilds' && !visitCatches;
+    chip.hidden = roomKind !== 'wilds' && roomKind !== 'fen' && !visitCatches;
+    $('fenMapBtn').hidden = roomKind !== 'fen';
+    if (roomKind !== 'fen') $('fenMapPop').hidden = true;
     chip.textContent = `Charms ${charms}${visitCatches ? ` · Caught ${visitCatches}` : ''}`;
   }
   function recordLine(r) { $('record').textContent = r && (r.w || r.l || r.d) ? `${r.w}W ${r.l}L${r.d ? ` ${r.d}T` : ''}` : ''; }
@@ -1625,7 +2398,7 @@
     closeConversation(); worldJournal.close();
     held.length = 0; stopWalk(); hideAsk();
     bt = { id: m.id, you: m.you, view: m.view, queue: [], playing: false, picked: '', foePicked: false, done: false,
-      turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null, wild: Boolean(m.wild), zone: m.zone || '' };
+      turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null, wild: Boolean(m.wild), zone: m.zone || '', ghost: m.ghost || null };
     closePops();
     lastNear = null; watchLine();
     bEl.hidden = false;
@@ -1637,7 +2410,11 @@
     drawSides(m.view, true);
     const n = nearSide(), foe = m.view.sides[1 - n], mine = m.view.sides[n];
     if (bt.watching) say(`You are watching ${m.view.sides[0].name} and ${m.view.sides[1].name}.`);
-    else if (bt.wild) { say(`A wild ${foe.speciesName} jumped out of the ${(bt.zone || 'grass').toLowerCase()}! Go, ${mine.speciesName}!`); tipSoon('wild-battle', 1600); }
+    else if (bt.ghost) {
+      const who = bt.ghost.mine ? (bt.ghost.name ? ` It is ${bt.ghost.name}, back from the cemetery.` : ' It is a Checkling you once raised.') : bt.ghost.wander ? ' Nobody knows whose it was.' : ' It belonged to someone in your class.';
+      say(`${bt.ghost.rise}${who} Go, ${mine.speciesName}!`); tipSoon('ghost-battle', 1600);
+    }
+    else if (bt.wild) { say(`A wild ${foe.speciesName} jumped out of ${/^route/i.test(bt.zone || '') ? bt.zone : `the ${(bt.zone || 'grass').toLowerCase()}`}! Go, ${mine.speciesName}!`); tipSoon('wild-battle', 1600); }
     else { say(`${foe.name} sent out ${foe.speciesName}! ${m.intro || ''} Go, ${mine.speciesName}!`); tipSoon('battle', 1600); }
     buildMoves(); buildPartners();
     if (!bt.watching) setTimeout(() => bMoves.querySelector('button:not(:disabled)')?.focus({ preventScroll: true }), 50);
@@ -1647,23 +2424,20 @@
     bt = null;
     bEl.hidden = true;
     buildPartners(); watchLine();
+    if (learnLater) setTimeout(() => learnLater && showLearn(learnLater), 300);
+    else if (paperLater) setTimeout(() => paperLater && showPaper(paperLater), 300);
   }
   function bar(el, value, max, hp) {
     const pct = Math.max(0, Math.min(100, (100 * value) / Math.max(1, max)));
     el.style.width = `${pct}%`;
     if (hp) { el.classList.toggle('mid', pct <= 50 && pct > 20); el.classList.toggle('low', pct <= 20); }
   }
-  // Battle-only Wave 2 poses. The original front and back URLs still serve
+  // Battle-only Sprite Book poses, for every species. The original front and back URLs still serve
   // the map, partner screens, older clients, and the last image fallback.
-  const battlePoseSpecies = new Set(['mochi', 'bolt', 'ember']);
   function battlePose(image, species, face) {
     const original = `/art/${face}-${species}.png`;
     image.onerror = null;
-    image.classList.toggle('sprite-book-pose', battlePoseSpecies.has(species));
-    if (!battlePoseSpecies.has(species)) {
-      image.src = original;
-      return;
-    }
+    image.classList.add('sprite-book-pose');
     const still = `/art/${face}-${species}-v2.png`;
     image.onerror = () => {
       if (image.getAttribute('src') !== still) image.src = still;
@@ -1688,8 +2462,11 @@
     const nameWith = (el, f) => { el.textContent = f.speciesName; el.prepend(typeImg(f.type)); };
     nameWith($('bFoeName'), foe); nameWith($('bMeName'), mine);
     $('bFoeLv').textContent = `Lv ${foe.level}`; $('bMeLv').textContent = `Lv ${mine.level}`;
-    $('bFoeTrainer').textContent = bt && bt.wild ? `Wild · ${bt.zone}` : foe.name;
-    if (bt && bt.wild) $('bFoeName').childNodes[1].textContent = `Wild ${foe.speciesName}`;
+    $('bFoeTrainer').textContent = bt && bt.ghost ? `Ghost · ${bt.ghost.temper}${foe.fadeNext ? ' · fading next turn' : ''}` : bt && bt.wild ? `Wild · ${bt.zone}` : `${foe.name}${foe.fadeNext ? ' · fading next turn' : ''}`;
+    if (bt && bt.ghost) $('bFoeName').childNodes[1].textContent = bt.ghost.name ? `${bt.ghost.name}'s ghost` : `Ghost ${foe.speciesName}`;
+    else if (bt && bt.wild) $('bFoeName').childNodes[1].textContent = `Wild ${foe.speciesName}`;
+    $('bFoeMon').classList.toggle('ghostly', Boolean(foe.ghost));
+    $('bMeMon').classList.toggle('ghostly', Boolean(mine.ghost));
     bar($('bFoeHp'), foe.hp, foe.maxHp, true); bar($('bFoeSt'), foe.stamina, foe.maxStamina);
     bar($('bMeHp'), mine.hp, mine.maxHp, true); bar($('bMeSt'), mine.stamina, mine.maxStamina);
     $('bMeHpNum').textContent = `${bt && bt.watching ? `${mine.name} · ` : ''}HP ${mine.hp} / ${mine.maxHp}`;
@@ -1726,8 +2503,9 @@
     });
     if (bt.wild) {
       const busy = paused || bt.playing || bt.done || Boolean(bt.picked);
-      bCharm.textContent = `5. Throw charm (${charms} left)`;
-      bCharm.disabled = busy || charms <= 0;
+      const notMine = bt.ghost && !bt.ghost.canCatch;
+      bCharm.textContent = notMine ? '5. Not yours to catch' : `5. Throw charm (${charms} left)`;
+      bCharm.disabled = busy || charms <= 0 || notMine;
       bRun.disabled = busy;
     }
   }
@@ -1810,7 +2588,9 @@
         const el = monEl(e.side);
         el.classList.add(e.side === n ? 'lunge-me' : 'lunge-foe');
         drawSides(live);
-        await wait(650);
+        const mv = b.view.sides[e.side].moves.find((x) => x.id === e.move) || { type: e.type, hit: true };
+        await Promise.all([wait(650), window.CheckaverseBattleFx?.play(document.querySelector('.b-scene'), el, monEl(1 - e.side),
+          { type: mv.type, damage: mv.hit, guard: mv.guard, shield: mv.shield }, motionQuery.matches)]);
         el.classList.remove('lunge-me', 'lunge-foe');
       } else if (e.k === 'stamina') {
         live.sides[e.side].stamina = e.value; drawSides(live);
@@ -1826,6 +2606,11 @@
         pop.hidden = false;
         drawSides(live);
         await wait(700);
+      } else if (e.k === 'fade') {
+        const el = monEl(e.side);
+        el.classList.remove('fading'); void el.offsetWidth; el.classList.add('fading');
+        await wait(850);
+        el.classList.remove('fading');
       } else if (e.k === 'ko') {
         monEl(e.side).classList.add('down');
         (e.side === n ? $('bMeKo') : $('bFoeKo')).hidden = false;
@@ -1857,7 +2642,15 @@
     const n = nearSide();
     const why = { 'gave up': 'gave up', left: 'left the Checkaverse', timeout: 'ran out the clock' };
     let line;
-    if (b.wild) {
+    if (b.ghost) {
+      const g = b.ghost, mine = m.view.sides[0], who = g.name || `the ${m.view.sides[1].speciesName} ghost`;
+      if (m.reason === 'caught') line = m.kept === 'party' ? `${who[0].toUpperCase()}${who.slice(1)} is back with you as a ghost. It never eats or gets sick, but keep it in your party or it will fade away again.`
+        : `Caught! ${who[0].toUpperCase()}${who.slice(1)} went to your Den, since only one ghost can travel with you. Bring it into your party soon or it will fade away again.`;
+      else if (m.reason === 'slipped') line = 'The Spirit Sight wore off, and the ghost slipped away. Try again another day.';
+      else if (m.reason === 'ran') line = 'You backed away from the ghost.';
+      else if (m.winner === 0) line = `The ghost sinks back into the ground. It will not rise again until tomorrow. ${mine.speciesName} looks spooked but proud.`;
+      else line = `${mine.speciesName} is knocked out, but it recovers fully after the match. The ghost drifts back to its stone.`;
+    } else if (b.wild) {
       const wildOne = m.view.sides[1], mine = m.view.sides[0];
       if (m.reason === 'caught') line = m.kept === 'party' ? `Caught! ${wildOne.speciesName} (Lv ${wildOne.level}) joins your party. Pick it under the partner button any time.`
         : m.kept === 'den' ? `Caught! Your party is full, so ${wildOne.speciesName} (Lv ${wildOne.level}) went to rest in your Den.`
@@ -1896,7 +2689,7 @@
   });
 
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
-  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), talk: talkTo,visit:visitResident,navigating:()=>residentNav };
+  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), fen: () => ({ map: fen, ms: fenMs, want: fenWant, chunks: chunks.size, built: chunkBuilds }), talk: talkTo,visit:visitResident,navigating:()=>residentNav };
   connect();
   requestAnimationFrame(frame);
 })();

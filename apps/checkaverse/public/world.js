@@ -62,8 +62,13 @@ export function paintFlower(g, x, y, colour, u) {
 // All 16 neighbour masks join at full width across tile seams.
 const DIRT = { light: [226, 194, 138], mid: [210, 174, 118], dark: [190, 151, 98], shadow: [140, 106, 64], lip: [224, 192, 138],
   pebble: [239, 226, 194], pebbleDark: [150, 124, 86], tuft: [104, 140, 74], tuftLight: [140, 172, 96], outline: [62, 88, 48] };
-export function paintPaths(g, rows, T) {
+// win limits the work to a block of tiles, for maps too big to paint in one go. Noise still uses map coordinates, so
+// blocks painted separately meet without a seam.
+export function paintPaths(g, rows, T, win) {
   const A = 32, H = rows.length, W = rows[0]?.length || 0;
+  const bx0 = Math.max(0, (win?.x0 ?? 0) - 1), by0 = Math.max(0, (win?.y0 ?? 0) - 1);
+  const bx1 = Math.min(W, (win?.x1 ?? W) + 1), by1 = Math.min(H, (win?.y1 ?? H) + 1);
+  const OX = bx0 * A, OY = by0 * A;
   const base = (x, y) => 'PE'.includes(rows[y]?.[x] || '#');
   // A flower tile that bridges a lane is painted as lane.
   const path = (x, y) => base(x, y) || rows[y]?.[x] === 'F' && (base(x - 1, y) && base(x + 1, y) || base(x, y - 1) && base(x, y + 1));
@@ -91,14 +96,15 @@ export function paintPaths(g, rows, T) {
     const qx = Math.max(0, Math.abs(lx) - (HALF - R)), qy = Math.max(0, Math.abs(ly) - (HALF - R));
     return qx * qx + qy * qy <= R * R;
   };
-  const PW = W * A, PH = H * A, mask = new Uint8Array(PW * PH);
+  const PW = (bx1 - bx0) * A, PH = (by1 - by0) * A, mask = new Uint8Array(PW * PH);
   let any = false;
-  for (let ty = 0; ty < H; ty++) for (let tx = 0; tx < W; tx++) {
+  for (let ty = by0; ty < by1; ty++) for (let tx = bx0; tx < bx1; tx++) {
     if (!path(tx, ty)) continue; any = true;
-    for (let y = Math.max(0, ty * A - 3); y < Math.min(PH, ty * A + A + 3); y++) for (let x = Math.max(0, tx * A - 3); x < Math.min(PW, tx * A + A + 3); x++) {
+    for (let y = Math.max(0, ty * A - 3 - OY); y < Math.min(PH, ty * A + A + 3 - OY); y++) for (let x = Math.max(0, tx * A - 3 - OX); x < Math.min(PW, tx * A + A + 3 - OX); x++) {
       if (mask[y * PW + x]) continue;
-      const jx = smooth(x, y, 7) * 2.4 + smooth(x, y, 3) * 0.7, jy = smooth(x + 97, y + 31, 7) * 2.4 + smooth(x + 41, y + 9, 3) * 0.7;
-      if (inside(x + 0.5 + jx, y + 0.5 + jy)) mask[y * PW + x] = 1;
+      const X = x + OX, Y = y + OY;
+      const jx = smooth(X, Y, 7) * 2.4 + smooth(X, Y, 3) * 0.7, jy = smooth(X + 97, Y + 31, 7) * 2.4 + smooth(X + 41, Y + 9, 3) * 0.7;
+      if (inside(X + 0.5 + jx, Y + 0.5 + jy)) mask[y * PW + x] = 1;
     }
   }
   if (!any) return;
@@ -107,7 +113,7 @@ export function paintPaths(g, rows, T) {
   const m = (x, y) => x >= 0 && y >= 0 && x < PW && y < PH && mask[y * PW + x] === 1;
   const put = (i, [r, gg, b], a = 255) => { px[i * 4] = r; px[i * 4 + 1] = gg; px[i * 4 + 2] = b; px[i * 4 + 3] = a; };
   for (let y = 0; y < PH; y++) for (let x = 0; x < PW; x++) {
-    const i = y * PW + x, h = hash(x * 7 + 3, y * 13 + 5);
+    const i = y * PW + x, h = hash((x + OX) * 7 + 3, (y + OY) * 13 + 5);
     if (!mask[i]) {
       // A soft dark line on the grass side defines the lane without a hard border.
       if (m(x, y - 1) || m(x - 1, y) || m(x + 1, y)) put(i, DIRT.outline, 120);
@@ -117,33 +123,35 @@ export function paintPaths(g, rows, T) {
     const up = !m(x, y - 1), down = !m(x, y + 1), side = !m(x - 1, y) || !m(x + 1, y);
     const up2 = !m(x, y - 2), down2 = !m(x, y + 2);
     if ((up || side || down) && h < 0.22) { put(i, h < 0.11 ? DIRT.tuft : DIRT.tuftLight); continue; } // grass poking in
-    if (up && !m(x, y - 1) && hash(x, y - 3) < 0.18 && !m(x, y - 2)) { put(i, DIRT.tuft); continue; }
+    if (up && !m(x, y - 1) && hash(x + OX, y + OY - 3) < 0.18 && !m(x, y - 2)) { put(i, DIRT.tuft); continue; }
     if (up || (up2 && !side)) { put(i, up ? DIRT.shadow : DIRT.dark); continue; }
     if (down) { put(i, DIRT.lip); continue; }
     if (side) { put(i, DIRT.dark); continue; }
     if (down2) { put(i, DIRT.mid); continue; }
-    const tone = smooth(x, y, 6) + (h - 0.5) * 0.5;
+    const tone = smooth(x + OX, y + OY, 6) + (h - 0.5) * 0.5;
     put(i, tone > 0.5 ? DIRT.light : tone < -0.72 ? DIRT.dark : DIRT.mid);
   }
   // Pebbles: a pale top pixel over a dark bottom pixel, never on the edge.
-  for (let ty = 0; ty < H; ty++) for (let tx = 0; tx < W; tx++) {
+  for (let ty = by0; ty < by1; ty++) for (let tx = bx0; tx < bx1; tx++) {
     if (!path(tx, ty)) continue;
     for (let k = 0; k < 3; k++) {
-      const x = tx * A + 6 + Math.floor(hash(tx * 3 + k, ty * 5) * 20), y = ty * A + 6 + Math.floor(hash(tx * 5, ty * 3 + k) * 20);
+      const x = tx * A - OX + 6 + Math.floor(hash(tx * 3 + k, ty * 5) * 20), y = ty * A - OY + 6 + Math.floor(hash(tx * 5, ty * 3 + k) * 20);
       if (!m(x, y) || !m(x + 1, y + 1) || !m(x, y - 2) || !m(x, y + 2) || !m(x - 2, y) || !m(x + 2, y)) continue;
       put(y * PW + x, DIRT.pebble); put(y * PW + x + 1, DIRT.pebble); put((y + 1) * PW + x, DIRT.pebbleDark); put((y + 1) * PW + x + 1, DIRT.pebbleDark);
     }
   }
   cg.putImageData(img, 0, 0);
   const was = g.imageSmoothingEnabled; g.imageSmoothingEnabled = false;
-  g.drawImage(c, 0, 0, PW, PH, 0, 0, W * T, H * T);
+  g.drawImage(c, 0, 0, PW, PH, bx0 * T, by0 * T, (bx1 - bx0) * T, (by1 - by0) * T);
   g.imageSmoothingEnabled = was;
 }
 
-export function paintMeadow(g, map, T) {
+export function paintMeadow(g, map, T, win) {
   const rows = map.rows, at = (x,y) => rows[y]?.[x] || 'T';
-  rows.forEach((row,y) => [...row].forEach((ch,x) => {
-    if (!'.F'.includes(ch)) return;
+  const x0 = win?.x0 ?? 0, y0 = win?.y0 ?? 0, x1 = win?.x1 ?? (rows[0]?.length || 0), y1 = win?.y1 ?? rows.length;
+  for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+    const ch = rows[y]?.[x];
+    if (!ch || !'.F'.includes(ch)) continue;
     const h = ((x * 73856093) ^ (y * 19349663)) >>> 0, px = x * T, py = y * T;
     const verge = [[-1,0],[1,0],[0,-1],[0,1]].some(([ax,ay]) => 'PW'.includes(at(x+ax,y+ay)));
     // Low meadow detail stays visibly walkable. Broad tonal patches break up the
@@ -157,9 +165,9 @@ export function paintMeadow(g, map, T) {
       // A few small flowers along the lanes; flower patches get their own clusters in the ground painter.
       if (verge && k % 5 === 0) paintFlower(g, xx, yy - T / 16, k >>> 3, Math.max(2, Math.round(T / 22)));
     }
-  }));
+  }
   for (const p of map.props || []) {
-    if (p.flat) continue;
+    if (p.flat || p.x + p.w < x0 - 1 || p.x > x1 + 1 || p.b < y0 - 1 || p.b > y1 + 2) continue;
     const width = Math.min(p.w, 5) * T;
     g.fillStyle = '#233e2a22'; g.beginPath(); g.ellipse((p.x + p.w*.55)*T,p.b*T - T*.06,width*.48,T*.18,0,0,Math.PI*2); g.fill();
   }

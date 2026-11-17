@@ -1,0 +1,35 @@
+{
+  "note": "Ghosts in Kettle Creek's cemetery (design bible, Ghosts). A Checkling's ghost can return once it has been dead for waitSchoolDays school days. Each school day it is there with dailyChance, decided by a seed so every classmate sees the same ghosts that day, and at most maxPerDay stones have one. A wanderer is a ghost with no stone, one per trainer per day with wanderer.chance, and anyone can catch it. Ghosts are hidden until the partner drinks Spirit Sight, brewed at the apothecary from grave moss scraped off headstones. Temperament comes from how the Checkling died. A caught ghost never eats, never gets sick, never dies again and never evolves, and fades back to the cemetery after keepCloseSchoolDays school days out of the party.",
+  "waitSchoolDays": 5,
+  "dailyChance": 0.25,
+  "maxPerDay": 3,
+  "wanderer": { "chance": 0.5, "levels": [4, 8], "name": "Wandering ghost" },
+  "moss": { "perDay": 3, "carry": 6 },
+  "sight": { "moss": 2, "minutes": 10 },
+  "ghostMove": "wail",
+  "replaces": "recover",
+  "keepCloseSchoolDays": 10,
+  "partyMax": 1,
+  "tempers": {
+    "calm": { "label": "calm", "fadeEvery": 4, "catch": 0.15, "power": 1, "rise": "A calm ghost drifts up from its stone." },
+    "restless": { "label": "restless", "fadeEvery": 3, "catch": 0, "power": 1, "rise": "A restless ghost flickers up from its stone." },
+    "angry": { "label": "angry", "fadeEvery": 2, "catch": -0.15, "power": 1.15, "rise": "An angry ghost tears up out of its stone!" }
+  },
+  "caughtFadeEvery": 4,
+  "causes": {
+    "note": "Which temperament each cause of death leaves behind. Overcare and ordinary illness leave a restless ghost. Neglect leaves an angry one. A gamble leaves a calm one. A Checkling that lived calmAfterDays or longer is calm whatever took it.",
+    "calm": ["glowing_mushroom"],
+    "angry": ["malnutrition", "the_glooms", "mange", "collapse", "couch_rot"],
+    "calmAfterDays": 60
+  },
+  "clues": [
+    "Frost is creeping across this stone, and it is not even cold out.",
+    "A candle by this stone flickers, but there is no wind.",
+    "Tiny footprints stop right in front of this stone.",
+    "Your partner will not stop staring at this stone."
+  ],
+  "wandererClue": "Something cold brushes past you. Your partner growls at an empty patch of grass.",
+  "mossLine": "You scrape a little grave moss off the stone.",
+  "mossFull": "Your pockets are full of grave moss.",
+  "mossDone": "You have scraped all the grave moss you can for today."
+}
