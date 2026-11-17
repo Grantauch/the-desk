@@ -24,7 +24,7 @@ fs.writeFileSync(KETTLE, JSON.stringify({
 const RARE = JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'events.json'), 'utf8')).kinds.rare.species;
 const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', path.join(HERE, 'server.mjs')], {
   env: { ...process.env, CHECKAVERSE_PORT: String(PORT), CHECKAVERSE_DATA: DATA, CHECKAVERSE_ORIGINS: ORIGIN, CHECKAVERSE_KETTLE: KETTLE, CHECKAVERSE_WEATHER: 'rain',
-    CHECKAVERSE_WILD_RATE: '1', CHECKAVERSE_TURN_MS: '1500', CHECKAVERSE_TEACHER_KEY: 'test-key' }, stdio: 'pipe',
+    CHECKAVERSE_WILD_RATE: '1', CHECKAVERSE_TURN_MS: '1500', CHECKAVERSE_TEACHER_KEY: 'test-key', CHECKAVERSE_SPECIES_SEED: '1' }, stdio: 'pipe',
 });
 let serverLog = '';
 child.stdout.on('data', (d) => { serverLog += d; });
@@ -77,8 +77,9 @@ try {
   assert.ok(ann);
   assert.ok((await next('events')).events.some((e) => e.kind === 'rare' && e.left > 29 * 60_000));
   const during = await sample(90);
+  assert.deepEqual(during, ['spindle', 'creekcap', 'bramble', 'cloudlet', 'hushmoth', 'peerlet', 'spindle', 'reedling', 'mochi']);
   const rare = during.filter((s) => RARE.includes(s)).length;
-  assert.ok(rare >= 3, `a rare spawn brings rare Checklings into the grass (${rare} of ${during.length})`);
+  assert.equal(rare, 5, 'the seeded rare spawn puts five rare Checklings in these nine encounters');
   step(`a rare spawn changes the grass: ${rare} of ${during.length} encounters were rare`);
 
   await teacher('event', { stop: 'rare' });
