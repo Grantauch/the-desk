@@ -1,3 +1,7 @@
+## November 17 Hall Pass active PIN agreement
+
+Signed student actions now require every active class membership for that student to carry the same PIN hash that was just entered. An inactive historical hash no longer makes the current credential version look changed. Disagreeing active hashes fail before a one-use action proof is issued. The local Hall Pass runtime passed 447 checks. This is source only: it does not deploy Apps Script or rotate any PIN.
+
 ## November 17 Blitzkrieg publication
 
 Codex recovered the original Blitzkrieg tower-defense game from Grant’s Grok export as an additive, standalone Games entry. This release includes the original twelve waves on one fictional road, input cleanup, a narrow-screen layout repair, sprite transparency cleanup, and historical context from the U.S. Holocaust Memorial Museum. Saves are local to the browser.
