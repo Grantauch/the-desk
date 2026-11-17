@@ -91,7 +91,7 @@ export const TOWERS: Record<TowerKind, TowerDef> = {
     kind: "aa",
     name: "Bofors 40mm",
     short: "Bofors",
-    blurb: "The only gun that can touch aircraft. Honest against trucks.",
+    blurb: "Tracks aircraft first. Limited damage against ground targets.",
     cost: 190,
     range: 280,
     minRange: 0,
@@ -263,7 +263,7 @@ export const WAVES: WaveDef[] = [
   },
   {
     name: "Combined column",
-    hint: "Armor and carriers together. Cover the second bend.",
+    hint: "Armor and carriers now. Aircraft next wave. Save 190 zł for a Bofors.",
     groups: [
       { kind: "truck", n: 4, every: 1.1 },
       { kind: "panzer", n: 5, every: 1.45 },
@@ -429,6 +429,40 @@ export const WAYPOINTS = PATH_CELLS.map(([c, r]) => ({
   x: (c + 0.5) * CELL,
   y: (r + 0.5) * CELL,
 }));
+
+type Cell = readonly [number, number];
+type Point = { x: number; y: number };
+
+function expandRoute(turns: readonly Cell[]): Cell[] {
+  const route: Cell[] = [turns[0]!];
+  for (const [endC, endR] of turns.slice(1)) {
+    let [c, r] = route[route.length - 1]!;
+    if (c !== endC && r !== endR) throw new Error("Road segments must follow the grid");
+    while (c !== endC || r !== endR) {
+      c += Math.sign(endC - c);
+      r += Math.sign(endR - r);
+      route.push([c, r]);
+    }
+  }
+  return route;
+}
+
+function scenario(name: string, description: string, cells: readonly Cell[], tint: string) {
+  const road = new Set(cells.map(([c, r]) => cellKey(c, r)));
+  const props = PROPS.filter(({ c, r }) => !road.has(cellKey(c, r)));
+  const blocked = new Set([...BLOCK_SET].filter((key) => !road.has(key)));
+  const waypoints: Point[] = cells.map(([c, r]) => ({ x: (c + 0.5) * CELL, y: (r + 0.5) * CELL }));
+  return { name, description, road, props, blocked, waypoints, tint };
+}
+
+export const SCENARIOS = {
+  frontier: scenario("Frontier Road", "Long switchbacks let one emplacement cover several stretches of road.", PATH_CELLS, "rgba(55, 43, 23, .12)"),
+  orchard: scenario("Orchard Bend", "A compact opening approach gives way to a long, exposed exit.", expandRoute([[0, 3], [5, 3], [5, 1], [8, 1], [8, 4], [15, 4]]), "rgba(28, 54, 37, .20)"),
+  river: scenario("River Road", "A short riverbank route leaves less time to catch a breakthrough.", expandRoute([[0, 5], [4, 5], [4, 7], [11, 7], [11, 5], [15, 5]]), "rgba(32, 50, 67, .23)"),
+};
+export type ScenarioId = keyof typeof SCENARIOS;
+
+export const AIR_ROUTE: Point[] = [{ x: CELL / 2, y: 3.5 * CELL }, { x: WORLD_W - CELL / 2, y: 4.75 * CELL }];
 
 export function upgradeCost(kind: TowerKind, track: "dmg" | "rate", rank: number): number {
   const base = track === "dmg" ? [55, 95, 150] : [45, 80, 130];
