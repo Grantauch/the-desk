@@ -47,6 +47,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .menu .pop-note { margin: 0; }
 .busy { display: flex; gap: 8px; align-items: center; cursor: pointer; font-size: 15px; }
 .bus-home { color: #2b1a12; font-size: 14px; }
+.store-goods { display: grid; gap: 8px; }
+.store-goods button { text-align: left; }
+.store-goods small { display: block; font-weight: 400; }
 .partners { display: flex; gap: 6px; flex-wrap: wrap; }
 .partners button { display: flex; align-items: center; gap: 4px; padding: 4px 10px 4px 4px; background: #efe4c4; color: #2b1a12; border-bottom-color: #c9b98f; font-size: 14px; }
 .partners button img { object-fit: contain; width: 30px; height: 30px; }
