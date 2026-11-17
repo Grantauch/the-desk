@@ -1,4 +1,83 @@
 {
+  "blitzkrieg-publication-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Recover and publish Blitzkrieg, the fictional September 1939 tower-defense game, as a standalone Games entry.",
+    "verification_status": "DESKTOP_AND_MOBILE_CHROMIUM_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "The briefing, placement, direct control, wave start, pause and mute passed in two Chromium viewports. All 25 game images loaded.",
+      "The Games page and sitemap point to the standalone hub. The briefing and debrief link to the United States Holocaust Memorial Museum."
+    ]
+  },
+  "roswell-signal-publication-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Tracker #360 R06. Release the Roswell Signal student edition with private tab-local practice, verified account saving for the field report, mobile matching, and student discovery.",
+    "verification_status": "SYNTHETIC_ACCOUNT_AND_BROWSER_FLOW_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "The complete activity, download, same-tab refresh, synthetic account recovery, Turn In, and sign-out are covered by the Desk Save browser suite.",
+      "The original source is preserved, both old classroom routes redirect, and the current edition is linked from Games and Hidden History Unit 1."
+    ]
+  },
+  "situation-room-publication-2026-11-16": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Tracker #360 R07. Publish an additive, keyboard-accessible student edition with six documented decisions, qualitative classroom feedback, debrief, discovery and legacy redirects.",
+    "verification_status": "FOCUSED_CHROMIUM_320_390_1440_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "Students can read distinct explanations for 18 choices, compare the October 1962 records and replay. No scores or student work are stored.",
+      "The historical timeline includes eight public archival links and works without JavaScript. The original prototype remains in source."
+    ]
+  },
+  "evidence-locker-publication-2026-11-15": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Issue #374: keyboard evidence sorting, revisable filing, explicit invented examples, official source trail and additive student publication with baseline preservation and legacy redirects.",
+    "verification_status": "FOCUSED_CHROMIUM_320_390_1440_BUILD_AND_STATIC_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_EXACT_PRODUCTION_READBACK_PENDING",
+    "field_status": "SCHOOL_CHROMEBOOK_AND_SOURCE_ACCESS_PENDING",
+    "evidence": [
+      "Native buttons, selection state, status announcements and explicit focus support keyboard-only completion, revision, report and reset.",
+      "Four historical summaries cite the Senate report and Senate's committee history; four invented examples demonstrate unsupported claims. Sorting counts are explicitly not probabilities.",
+      "The focused browser suite covers all eight cards, corrected and inverted filing, reset, blank reload, no external activity requests, WCAG A/AA and page-width fit."
+    ]
+  },
+  "boss-fight-review-2026-11-15": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Issue #373: additive student edition with learner-paced feedback, keyboard focus, sourced historical review and Games discovery; original preserved.",
+    "verification_status": "FOCUSED_CHROMIUM_320_390_1440_PASS_CANONICAL_PENDING",
+    "deployment_status": "PROTECTED_CI_MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": ["Feedback has no automatic progression timer. Continue is consumed once and keyboard focus follows each transition.", "Historical examples link to FTC, NPS, Library of Congress, NCAA, USHMM and Department of Education references. The game has no identity, storage or classroom API."]
+  },
+  "market-shock-prices-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Issue #371: consistent ingredient/rival prices, learner-paced round feedback, cash-flow ending, explained classroom model and games discovery.",
+    "verification_status": "FOCUSED_CHROMIUM_320_390_1440_PASS_CANONICAL_PENDING",
+    "deployment_status": "PROTECTED_CI_MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": ["Shortage inventory quotes and charges share the $6 cost. Competition compares with the advertised $7. Round feedback remains until Next round.", "Synthetic Chromium passed eight rounds, all inventory quotes, $9 rival penalty and $6 undercut, keyboard selection, WCAG A/AA, cash updates, duplicate-open rejection, unaffordable prep and cash-flow ending at 320, 390 and 1440 pixels."]
+  },
+  "checklings-houses-kettle-creek-sprite-book-2026-11-13": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Recover three Wave 2 houses and four Kettle Creek buildings from draft PR #284 for the existing Checkaverse maps.",
+    "verification_status": "LOCAL_CHROMIUM_KETTLE_CREEK_RENDER_AND_FALLBACK_PASS",
+    "deployment_status": "INDEPENDENT_RELEASE_VERIFICATION_PENDING",
+    "field_status": "PHYSICAL_SCHOOL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "The seven versioned PNGs are byte-identical to the files in draft PR #284. Original files remain the fallback.",
+      "At 1366 by 768, a saved trainer's Kettle Creek drew the cottage and four buildings from the versioned files, then from the originals, then as shapes."
+    ]
+  },
   "checklings-plaza-sprite-book-2026-11-12": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
@@ -149,6 +228,23 @@
       "Main includes all 19 commits since the previous November 2 production baseline 3a3d0114a9655e485ea588df30fef1875fd86449 with no divergence. Superseded skipped builds do not need to be replayed.",
       "Production GET checks returned HTTP200 for home, StoryHubs, US History, both Michael Vick pages, The Arsenal, Over the Top and Over the Somme. Prior production browser verification loaded all ten Arsenal GLBs and the Blender trench sandbags without page errors or model warnings.",
       "The separate Checkaverse public health endpoint reports healthy version 0.15.0. This website release does not deploy that server, Apps Script or unfinished experimental pull requests."
+    ]
+  },
+  "hall-pass-approval-guard-2026-11-06": {
+    "status": "IMPLEMENTED_FIXTURE_TESTED_SOURCE_REVIEW_ONLY",
+    "owner": "Codex",
+    "scope": "Issue 329: fail-closed public Hall Pass ZIP and owner-only production-deploy approval guards; fixtures only.",
+    "branch": "work/hall-pass-329-approval-guard",
+    "verification_status": "OPTION_A_PUBLIC_RC1_MOVED_DISTRIBUTION_STILL_UNAPPROVED",
+    "deployment_status": "NONE_NO_WORKFLOW_DISPATCH_TEMPLATE_ZIP_PIN_OR_PRODUCTION_CHANGE",
+    "field_status": "NO_FIELD_CLAIM_GATE_REMAINS_CLOSED",
+    "evidence": [
+      "Public ZIP guard rejects false/missing/malformed approval; nested/case-varied names and renamed installer VERSION.json identities covered. Existing candidate builder still refuses public output.",
+      "Both deploy entrypoints require trusted owner/main/repository/event/exact confirmation and productionCutoverAuthorized true before credentials or network. Workflow jobs also restrict owner and rerun actor.",
+      "10/10 fixture groups pass, including copied deploy scripts with a network trap and no source/credentials, and copied npm verify/full/fast/build paths. Node syntax and three workflow YAML parses pass.",
+      "Source-review tree blocked canonical verify on the public rc.1 ZIP while distributionApproved is false. No RC1 exception or policy flag change.",
+      "November 13 Option A moved HallPass-Teacher-Installer-v1.0.0-rc.1.zip to distribution/archive/, outside public/ and outside the teacher-kit whitelist. The setup page download link is a paused note. distributionApproved and productionCutoverAuthorized stay false. The live rc.1 URL disappears on the next site deploy. No deploy workflow was run.",
+      "Source-review commit uses [skip ci]; no production deployment workflows dispatched or rerun. Technical flags do not verify written owner/district approval or the Batch 07 freeze SHA. See docs/hall-pass-approval-guard.md for scope and limitations."
     ]
   },
   "hall-pass-published-link-recovery-2026-11-05": {

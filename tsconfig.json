@@ -8,6 +8,8 @@
     "dist",
     "browser-results",
     "apps/pond",
+    "apps/blitzkrieg",
+    "public/hubs/blitzkrieg",
     "apps/over-the-somme",
     "public/hubs/pond"
   ]

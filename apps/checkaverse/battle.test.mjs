@@ -84,8 +84,29 @@ ok('signature moves work from their content entries');
 }
 ok('forfeits and the turn limit end a match');
 
-// Every matchup finishes, and no starter wins or loses everything.
-for (const a of S) for (const c of S) {
+// Evolution: level lines change at their level, morphs read the body, and every form knows its line.
+assert.equal(B.nextForm(R, 'mochi', 14, {}), null);
+assert.equal(B.nextForm(R, 'mochi', 15, {}), 'thicket');
+assert.equal(B.nextForm(R, 'thicket', 30, {}), 'elderbough');
+assert.equal(B.nextForm(R, 'elderbough', 50, {}), null);
+assert.equal(B.nextForm(R, 'bramble', 20, { weight: 50, mood: 70, health: 100 }), 'thornbloom');
+assert.equal(B.nextForm(R, 'bramble', 20, { weight: 85, mood: 70, health: 100 }), 'berryhold');
+assert.equal(B.nextForm(R, 'bramble', 20, { weight: 20, mood: 70, health: 100 }), 'briarwisp');
+assert.equal(B.nextForm(R, 'bramble', 20, { weight: 50, mood: 10, health: 100 }), 'briarwisp');
+assert.equal(B.lineRoot(R, 'elderbough'), 'mochi');
+assert.equal(B.lineRoot(R, 'riptail'), 'reedling');
+assert.deepEqual(R.species.starters, ['mochi', 'bolt', 'zee', 'ember']);
+broken((c) => { c.species.species.mochi.evolves = [{ level: 15, into: 'nope' }]; });
+broken((c) => { c.species.species.elderbough.evolves = [{ level: 40, into: 'mochi' }]; });
+broken((c) => { c.species.species.bramble.evolves.pop(); });
+broken((c) => { c.species.starters = ['plasma']; });
+ok('evolution follows levels and care');
+
+// Every matchup finishes, and no species wins or loses everything against another form at the same stage.
+const stage = (id) => { let n = 1; for (let at = id; B.lineRoot(R, at) !== at; n++) at = Object.keys(R.species.species).find((k) => (R.species.species[k].evolves || []).some((e) => e.into === at)); return n; };
+const pairs = [];
+for (const a of S) for (const c of S) if (stage(a) === stage(c)) pairs.push([a, c]);
+for (const [a, c] of pairs) {
   let w = 0;
   for (let k = 0; k < 200; k++) {
     const b = B.createBattle(R, [{ name: 'A', species: a }, { name: 'B', species: c }], 1000 + k);
@@ -98,5 +119,5 @@ for (const a of S) for (const c of S) {
   }
   assert.ok(w > 20 && w < 180, `${a} vs ${c} won ${w} of 200, too one sided`);
 }
-ok('no starter matchup is one sided');
+ok(`no matchup between forms at the same stage is one sided (${pairs.length} pairs)`);
 console.log('PASS battle rules');

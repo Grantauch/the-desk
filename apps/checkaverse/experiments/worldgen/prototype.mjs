@@ -100,6 +100,16 @@ function baseTerrain(spec, x, y) {
   }
 }
 
+// Base ecological terrain, without the early prototype's debug-cross path
+// and fixed five-point accessibility landmarks. Layer authored/procedural
+// routes on top of this result to avoid leaving artificial grid scars.
+export function terrainWithoutDebugPaths(spec, x, y) {
+  if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= spec.size || y >= spec.size) {
+    throw new RangeError("Tile coordinate outside region");
+  }
+  return baseTerrain(spec, x, y);
+}
+
 export function tileAt(spec, x, y) {
   if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= spec.size || y >= spec.size) {
     throw new RangeError("Tile coordinate outside region");

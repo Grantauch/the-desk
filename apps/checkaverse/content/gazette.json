@@ -1,0 +1,65 @@
+{
+  "note": "The Checkaverse Gazette, printed fresh on the first visit of each school day from the town's event log. Trainers are named only for good news: catches, evolutions, ghosts brought back, moves learned and battle wins. Deaths and sickness are counted without names. {n} is a count, {trainer} a trainer name, {species} a species, {move} a move. Every line here is written by hand; the overnight director only adds the Around town quotes, and only lines that passed its checks.",
+  "masthead": "The Checkaverse Gazette",
+  "quiet": {
+    "title": "A quiet day in the Checkaverse",
+    "body": "Nothing much happened yesterday. The tall grass is full, the gym is open and the residents are hard at work. Today is a good day to make some news."
+  },
+  "deaths": {
+    "title": [
+      "The cemetery hill grows by {n}",
+      "{n} Checklings laid to rest"
+    ],
+    "one": [
+      "A Checkling was laid to rest on the cemetery hill",
+      "The cemetery hill has a new headstone"
+    ],
+    "body": "The clinic reminds every trainer: check your Care panel every day, and treat sickness early. Too much of anything is as risky as too little."
+  },
+  "ghost": {
+    "title": [
+      "{trainer} brings a ghost back from the hill",
+      "A ghost returns with {trainer}"
+    ],
+    "body": "{trainer} caught the ghost of a {species} on the cemetery hill. Ghosts never eat and never get sick, but they fade if they are left out of the party."
+  },
+  "catches": {
+    "title": [
+      "{n} Checklings caught in the wilds",
+      "Busy day in the tall grass: {n} catches"
+    ],
+    "body": "The biggest catch was {trainer}'s level {level} {species}.",
+    "one": "A Checkling caught in the wilds"
+  },
+  "evolve": {
+    "title": [
+      "{trainer}'s Checkling grows into a {species}",
+      "Growth spurt: {n} Checklings evolve"
+    ],
+    "body": "Congratulations to {list}."
+  },
+  "learn": {
+    "title": [
+      "{n} new moves learned",
+      "The gym was busy"
+    ],
+    "body": "{list} learned new moves. Bram says the mini games get easier with practice.",
+    "one": "A new move learned at the gym"
+  },
+  "wins": {
+    "title": [
+      "{trainer} wins {n} battles",
+      "{trainer} tops the battle board"
+    ],
+    "body": "The most battle wins yesterday went to {trainer}. The weekly rankings are on the notice board in the plaza."
+  },
+  "spars": {
+    "title": [
+      "Residents battle {n} times",
+      "{resident} wins the residents' rivalry"
+    ],
+    "body": "{resident} won {w} of {n} resident battles around town.",
+    "one": "{resident} wins a resident battle"
+  },
+  "aroundTown": "Around town"
+}

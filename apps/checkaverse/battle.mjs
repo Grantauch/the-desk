@@ -73,6 +73,35 @@ export function checkRules(rules) {
       if (b && !(s.traits || []).some((tr) => tr.add === b.counter)) bad(`species ${id} move ${mv} spends ${b.counter} but nothing fills it`);
     }
   }
+  const all = species.species;
+  if (!Array.isArray(species.starters) || species.starters.length < 1) bad('starters must list at least one species');
+  for (const id of species.starters) if (!all[id]) bad(`starter ${id} is not a species`);
+  const CARE = ['kept', 'round', 'scrappy'];
+  for (const k of ['round', 'scrappy']) {
+    for (const r of species.careForms?.[k] || []) {
+      if (!['weight', 'mood', 'health', 'fullness', 'hygiene'].includes(r.stat)) bad(`careForms.${k} watches unknown stat ${r.stat}`);
+      if (!(Number.isFinite(r.atLeast) || Number.isFinite(r.atMost))) bad(`careForms.${k} needs atLeast or atMost`);
+    }
+  }
+  const from = new Map();
+  for (const [id, s] of Object.entries(all)) {
+    if (s.evolves === undefined) continue;
+    if (!Array.isArray(s.evolves) || !s.evolves.length) bad(`species ${id} evolves must be a list`);
+    const morph = s.evolves.some((e) => e.care);
+    if (morph && (s.evolves.length !== 3 || CARE.some((c) => !s.evolves.some((e) => e.care === c)))) bad(`species ${id} morph needs exactly one kept, round and scrappy form`);
+    if (!morph && s.evolves.length !== 1) bad(`species ${id} evolves into one form by level`);
+    if (new Set(s.evolves.map((e) => e.level)).size !== 1) bad(`species ${id} forms must share one change level`);
+    for (const e of s.evolves) {
+      if (!all[e.into] || e.into === id) bad(`species ${id} evolves into unknown species ${e.into}`);
+      if (!(Number.isInteger(e.level) && e.level >= 2 && e.level <= 50)) bad(`species ${id} evolves at level 2 to 50`);
+      if (from.has(e.into)) bad(`species ${e.into} grows from two species`);
+      from.set(e.into, id);
+    }
+  }
+  for (const id of Object.keys(all)) {
+    const seen = new Set([id]);
+    for (let at = from.get(id); at; at = from.get(at)) { if (seen.has(at)) bad(`species ${id} evolves in a circle`); seen.add(at); }
+  }
   if (!(settings.turnSeconds >= 5 && settings.turnSeconds <= 120)) bad('turnSeconds must be 5 to 120');
   if (!(settings.maxTurns >= 5)) bad('maxTurns must be at least 5');
   if (!(settings.roll[0] > 0 && settings.roll[0] <= settings.roll[1] && settings.roll[1] <= 1.2)) bad('roll must be a low and high multiplier');
@@ -99,6 +128,28 @@ export function statsAt(rules, speciesId, level) {
   return out;
 }
 
+// The first form of a line: Thicket and Elderbough both answer mochi.
+export function lineRoot(rules, speciesId) {
+  const all = rules.species.species;
+  let id = speciesId;
+  for (let n = 0; n < 10; n++) {
+    const prev = Object.keys(all).find((k) => (all[k].evolves || []).some((e) => e.into === id));
+    if (!prev) return id;
+    id = prev;
+  }
+  return id;
+}
+// What a Checkling becomes at this level, or null. A morph reads its body: round first, then scrappy, else kept.
+export function nextForm(rules, speciesId, level, body) {
+  const ev = rules.species.species[speciesId]?.evolves;
+  if (!ev || level < ev[0].level) return null;
+  if (!ev[0].care) return ev[0].into;
+  const hit = (r) => Number.isFinite(body?.[r.stat]) && (Number.isFinite(r.atLeast) ? body[r.stat] >= r.atLeast : body[r.stat] <= r.atMost);
+  const forms = rules.species.careForms || {};
+  const care = (forms.round || []).some(hit) ? 'round' : (forms.scrappy || []).some(hit) ? 'scrappy' : 'kept';
+  return ev.find((e) => e.care === care).into;
+}
+
 export function typeMultiplier(rules, moveType, defenderType) {
   if (!moveType) return 1;
   const T = rules.types.types;
@@ -107,8 +158,25 @@ export function typeMultiplier(rules, moveType, defenderType) {
   return 1;
 }
 
+// A ghost knows its line's moves with the ghost move in place of one of them (content/ghosts.json).
+function ghostMoves(rules, list, g) {
+  if (!rules.moves[g.move]) throw new Error(`unknown ghost move ${g.move}`);
+  if (list.includes(g.move)) return [...list];
+  const at = list.indexOf(g.replaces);
+  if (at >= 0) return list.map((m, i) => (i === at ? g.move : m));
+  return list.length < 4 ? [...list, g.move] : [...list.slice(0, 3), g.move];
+}
+const movesOf = (rules, f) => f.moves || rules.species.species[f.species].moves;
+// A side must always have a free move so it can never get stuck with no stamina.
+function ensureFree(rules, list) {
+  if (list.some((m) => rules.moves[m].cost === 0)) return list;
+  return list.length < 4 ? [...list, 'guard'] : [...list.slice(0, 3), 'guard'];
+}
+
 // ---------- a battle ----------
-// sides: [{ name, species, level, mods }, ...]. mods are optional stat multipliers from the Checkling's body.
+// sides: [{ name, species, level, mods, ghost }, ...]. mods are optional stat multipliers from the Checkling's body.
+// ghost ({ fadeEvery, move, replaces }) makes the side a Shade type ghost that fades on every fadeEvery-th turn,
+// when attacks pass right through it.
 export function createBattle(rules, sides, seed) {
   return {
     seed: seed >>> 0,
@@ -123,26 +191,38 @@ export function createBattle(rules, sides, seed) {
       const st = statsAt(rules, s.species, level);
       // The body carries into the fight: an obese, scrawny or sick Checkling plays differently (content/care.json).
       for (const k of STATS) st[k] = Math.max(1, Math.round(st[k] * (Number.isFinite(s.mods?.[k]) ? s.mods[k] : 1)));
-      return {
-        name: s.name, species: s.species, level, type: sp.type,
+      const side = {
+        name: s.name, species: s.species, level, type: s.ghost ? 'shade' : sp.type,
         hp: st.hp, maxHp: st.hp, stamina: st.stamina, maxStamina: st.stamina, power: st.power, speed: st.speed,
         counters: {}, phase: {},
       };
+      // A Checkling that has learned or forgotten moves battles with its own list.
+      let known = null;
+      if (Array.isArray(s.moves) && s.moves.length) {
+        if (s.moves.length > 4 || s.moves.some((m) => !rules.moves[m])) throw new Error(`bad move list for ${s.species}`);
+        known = ensureFree(rules, [...new Set(s.moves)]);
+        side.moves = known;
+      }
+      if (s.ghost) {
+        if (!(Number.isInteger(s.ghost.fadeEvery) && s.ghost.fadeEvery >= 2)) throw new Error('ghost fadeEvery must be 2 or more');
+        side.ghost = { fadeEvery: s.ghost.fadeEvery };
+        side.moves = ensureFree(rules, ghostMoves(rules, known || sp.moves, s.ghost));
+      }
+      return side;
     }),
   };
 }
 
 export function canUse(rules, battle, side, moveId) {
   const f = battle.sides[side];
-  const sp = rules.species.species[f.species];
-  if (!sp.moves.includes(moveId)) return false;
+  if (!movesOf(rules, f).includes(moveId)) return false;
   return f.stamina >= rules.moves[moveId].cost;
 }
 
 // The fallback when a trainer runs out the clock: the first free defensive move the species knows.
 export function fallbackMove(rules, battle, side) {
-  const sp = rules.species.species[battle.sides[side].species];
-  return sp.moves.find((m) => rules.moves[m].guard !== undefined) || sp.moves.find((m) => rules.moves[m].cost === 0);
+  const list = movesOf(rules, battle.sides[side]);
+  return list.find((m) => rules.moves[m].guard !== undefined) || list.find((m) => rules.moves[m].cost === 0);
 }
 
 function bump(rules, f, on) {
@@ -200,6 +280,12 @@ export function resolveTurn(rules, battle, choices) {
       if (a.m.restore) restore(i, a.m.restore);
     }
     if (!a.step.damage) continue;
+    // A ghost on its fading turn: the attack passes right through it.
+    if (foe.ghost && battle.turn % foe.ghost.fadeEvery === 0) {
+      events.push({ k: 'fade', side: 1 - i });
+      say(`${speciesName(rules, foe)} fades. The attack passes right through!`);
+      continue;
+    }
     let base = a.step.damage;
     if (a.m.bonus) {
       const c = me.counters[a.m.bonus.counter] || 0;
@@ -254,10 +340,13 @@ export function view(rules, battle) {
       return {
         name: f.name, species: f.species, speciesName: sp.name, type: f.type, level: f.level,
         hp: f.hp, maxHp: f.maxHp, stamina: f.stamina, maxStamina: f.maxStamina, counters: { ...f.counters },
-        moves: sp.moves.map((id) => {
+        ghost: Boolean(f.ghost), fadeNext: Boolean(f.ghost && !battle.over && (battle.turn + 1) % f.ghost.fadeEvery === 0),
+        moves: movesOf(rules, f).map((id) => {
           const m = rules.moves[id];
           const next = m.phases ? m.phases[(f.phase[id] || 0) % m.phases.length] : null;
-          return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, next: next ? next.damage : null, ok: f.stamina >= m.cost };
+          const parts = m.phases || [m];
+          return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, next: next ? next.damage : null, ok: f.stamina >= m.cost,
+            hit: parts.some((ph) => ph.damage > 0), guard: m.guard !== undefined, shield: parts.some((ph) => ph.shield > 0) };
         }),
       };
     }),

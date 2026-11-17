@@ -1,6 +1,35 @@
 {
-  "note": "Battle stats for each species at level 1, plus growth per level. Until Check-In hands the town a ticket with the real partner, every trainer battles with a starter at visitLevel.",
+  "note": "Battle stats for each species at level 1, plus growth per level. starters are the four a student can hatch and a visitor can borrow. evolves lists what a species becomes at a level: a plain entry evolves by level, entries with care are a morph whose form is picked by careForms. Every form keeps its line signature move.",
   "visitLevel": 10,
+  "starters": [
+    "mochi",
+    "bolt",
+    "zee",
+    "ember"
+  ],
+  "careForms": {
+    "note": "Which form a morpher takes at its change level, read from its body that day. round is checked first, then scrappy, and anything else is kept.",
+    "round": [
+      {
+        "stat": "weight",
+        "atLeast": 65
+      }
+    ],
+    "scrappy": [
+      {
+        "stat": "weight",
+        "atMost": 35
+      },
+      {
+        "stat": "mood",
+        "atMost": 30
+      },
+      {
+        "stat": "health",
+        "atMost": 50
+      }
+    ]
+  },
   "species": {
     "mochi": {
       "name": "Mochi",
@@ -24,7 +53,13 @@
         "comfort_blanket"
       ],
       "traits": [],
-      "line": "Mochi digs in its heels and smiles at the other side."
+      "line": "Mochi digs in its heels and smiles at the other side.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "thicket"
+        }
+      ]
     },
     "bolt": {
       "name": "Bolt",
@@ -54,7 +89,13 @@
           "max": 2
         }
       ],
-      "line": "Bolt inspects the other Checkling very closely."
+      "line": "Bolt inspects the other Checkling very closely.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "rivet"
+        }
+      ]
     },
     "zee": {
       "name": "Zee",
@@ -78,7 +119,13 @@
         "orbit"
       ],
       "traits": [],
-      "line": "Zee asks the other Checkling what its favorite moon is."
+      "line": "Zee asks the other Checkling what its favorite moon is.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "zenith"
+        }
+      ]
     },
     "ember": {
       "name": "Ember",
@@ -108,7 +155,1739 @@
           "max": 1
         }
       ],
-      "line": "Ember puffs up and smells faintly of toast."
+      "line": "Ember puffs up and smells faintly of toast.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "cinderkit"
+        }
+      ]
+    },
+    "bramble": {
+      "name": "Bramble",
+      "type": "meadow",
+      "base": {
+        "hp": 60,
+        "power": 8,
+        "stamina": 9,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "thorn_tangle"
+      ],
+      "traits": [],
+      "line": "Bramble rustles in place and checks whether anyone noticed.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "thornbloom",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "berryhold",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "briarwisp",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "reedling": {
+      "name": "Reedling",
+      "type": "tide",
+      "base": {
+        "hp": 62,
+        "power": 8,
+        "stamina": 10,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "ripple_count"
+      ],
+      "traits": [],
+      "line": "Reedling counts the ripples twice to be sure.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "marshreed",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "lilyback",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "riptail",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "lantern": {
+      "name": "Lantern",
+      "type": "ember",
+      "base": {
+        "hp": 53,
+        "power": 9,
+        "stamina": 10,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "steady_glow"
+      ],
+      "traits": [],
+      "line": "Lantern hums once the light is right.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "hearthglow",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "kilnback",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "sparkwick",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "mossbit": {
+      "name": "Mossbit",
+      "type": "stone",
+      "base": {
+        "hp": 67,
+        "power": 7,
+        "stamina": 9,
+        "speed": 4
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "moss_coat"
+      ],
+      "traits": [],
+      "line": "Mossbit sits so still the other side checks if it is awake.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "mossgard",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "boulderbud",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "flintling",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "spindle": {
+      "name": "Spindle",
+      "type": "gear",
+      "base": {
+        "hp": 58,
+        "power": 8,
+        "stamina": 10,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "wind_up"
+      ],
+      "traits": [
+        {
+          "on": "recover",
+          "add": "wind",
+          "max": 3
+        }
+      ],
+      "line": "Spindle winds itself up and forgets why."
+    },
+    "cloudlet": {
+      "name": "Cloudlet",
+      "type": "cosmic",
+      "base": {
+        "hp": 61,
+        "power": 7,
+        "stamina": 9,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "drift"
+      ],
+      "traits": [],
+      "line": "Cloudlet tries to sit on the air and mostly manages."
+    },
+    "flickit": {
+      "name": "Flickit",
+      "type": "storm",
+      "base": {
+        "hp": 34,
+        "power": 10,
+        "stamina": 8,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "static_snap"
+      ],
+      "traits": [],
+      "line": "Flickit startles at its own spark and pretends it meant to."
+    },
+    "hushmoth": {
+      "name": "Hushmoth",
+      "type": "shade",
+      "base": {
+        "hp": 45,
+        "power": 9,
+        "stamina": 9,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "quiet_wings"
+      ],
+      "traits": [],
+      "line": "Hushmoth is already there. Nobody saw it arrive."
+    },
+    "skimlet": {
+      "name": "Skimlet",
+      "type": "tide",
+      "base": {
+        "hp": 51,
+        "power": 8,
+        "stamina": 9,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "figure_eight"
+      ],
+      "traits": [],
+      "line": "Skimlet skates a perfect circle and gets a little dizzy.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "skimmer"
+        }
+      ]
+    },
+    "cobbit": {
+      "name": "Cobbit",
+      "type": "stone",
+      "base": {
+        "hp": 53,
+        "power": 8,
+        "stamina": 9,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "downhill_roll"
+      ],
+      "traits": [],
+      "line": "Cobbit rolls in from uphill and acts surprised.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "splitstone"
+        }
+      ]
+    },
+    "breezle": {
+      "name": "Breezle",
+      "type": "storm",
+      "base": {
+        "hp": 50,
+        "power": 9,
+        "stamina": 8,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "gust_leap"
+      ],
+      "traits": [],
+      "line": "Breezle jumps first and thinks about landing later.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "gustail"
+        }
+      ]
+    },
+    "duskit": {
+      "name": "Duskit",
+      "type": "shade",
+      "base": {
+        "hp": 50,
+        "power": 9,
+        "stamina": 9,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "finders_keepers"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "loot",
+          "max": 2
+        }
+      ],
+      "line": "Duskit is holding something that belongs to someone else.",
+      "evolves": [
+        {
+          "level": 15,
+          "into": "gloamtail"
+        }
+      ]
+    },
+    "stumpkin": {
+      "name": "Stumpkin",
+      "type": "meadow",
+      "base": {
+        "hp": 53,
+        "power": 8,
+        "stamina": 9,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "stump_stance"
+      ],
+      "traits": [],
+      "line": "Stumpkin pretends to be a training stump. Do not hit it.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "oakrise",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "burlwood",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "twigsnap",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "creekcap": {
+      "name": "Creekcap",
+      "type": "tide",
+      "base": {
+        "hp": 55,
+        "power": 8,
+        "stamina": 10,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "held_breath"
+      ],
+      "traits": [],
+      "line": "Creekcap holds its breath for no reason and keeps score.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "dewcrown",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "floodcap",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "dripcap",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "rumblebee": {
+      "name": "Rumblebee",
+      "type": "storm",
+      "base": {
+        "hp": 52,
+        "power": 9,
+        "stamina": 9,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "rumble"
+      ],
+      "traits": [],
+      "line": "Rumblebee buzzes louder and takes credit for the thunder.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "stormhum",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "thunderdrum",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "zipwing",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "clank": {
+      "name": "Clank",
+      "type": "gear",
+      "base": {
+        "hp": 57,
+        "power": 8,
+        "stamina": 10,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "spare_part"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "parts",
+          "max": 2
+        }
+      ],
+      "line": "Clank has one piece left over and looks very pleased.",
+      "evolves": [
+        {
+          "level": 20,
+          "into": "brassbright",
+          "care": "kept"
+        },
+        {
+          "level": 20,
+          "into": "ironhull",
+          "care": "round"
+        },
+        {
+          "level": 20,
+          "into": "rattlebit",
+          "care": "scrappy"
+        }
+      ]
+    },
+    "slabbit": {
+      "name": "Slabbit",
+      "type": "stone",
+      "base": {
+        "hp": 60,
+        "power": 7,
+        "stamina": 10,
+        "speed": 4
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "warm_rock"
+      ],
+      "traits": [],
+      "line": "Slabbit lies flat on a warm rock and insists it is helping."
+    },
+    "peerlet": {
+      "name": "Peerlet",
+      "type": "shade",
+      "base": {
+        "hp": 51,
+        "power": 8,
+        "stamina": 10,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "peekaboo"
+      ],
+      "traits": [],
+      "line": "Peerlet peeks out to see whether anyone noticed."
+    },
+    "glint": {
+      "name": "Glint",
+      "type": "cosmic",
+      "base": {
+        "hp": 41,
+        "power": 9,
+        "stamina": 9,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "falling_star"
+      ],
+      "traits": [],
+      "line": "Glint lands like it planned this all along."
+    },
+    "kindling": {
+      "name": "Kindling",
+      "type": "ember",
+      "base": {
+        "hp": 55,
+        "power": 9,
+        "stamina": 9,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "stick_pile"
+      ],
+      "traits": [
+        {
+          "on": "recover",
+          "add": "sticks",
+          "max": 2
+        }
+      ],
+      "line": "Kindling has gathered sticks and will not light a single one."
+    },
+    "thicket": {
+      "name": "Thicket",
+      "type": "meadow",
+      "base": {
+        "hp": 70,
+        "power": 9,
+        "stamina": 10,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "comfort_blanket"
+      ],
+      "traits": [],
+      "line": "Thicket plants its feet and smiles even wider.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "elderbough"
+        }
+      ]
+    },
+    "elderbough": {
+      "name": "Elderbough",
+      "type": "meadow",
+      "base": {
+        "hp": 68,
+        "power": 10,
+        "stamina": 11,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "comfort_blanket"
+      ],
+      "traits": [],
+      "line": "Elderbough stands tall and certain today is the best day yet."
+    },
+    "rivet": {
+      "name": "Rivet",
+      "type": "gear",
+      "base": {
+        "hp": 72,
+        "power": 9,
+        "stamina": 11,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "salvage_charge"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "charge",
+          "max": 2
+        }
+      ],
+      "line": "Rivet measures the other Checkling twice.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "millwright"
+        }
+      ]
+    },
+    "millwright": {
+      "name": "Millwright",
+      "type": "gear",
+      "base": {
+        "hp": 69,
+        "power": 10,
+        "stamina": 12,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "salvage_charge"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "charge",
+          "max": 2
+        }
+      ],
+      "line": "Millwright has an opinion about every bolt on the field."
+    },
+    "zenith": {
+      "name": "Zenith",
+      "type": "cosmic",
+      "base": {
+        "hp": 66,
+        "power": 9,
+        "stamina": 10,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "orbit"
+      ],
+      "traits": [],
+      "line": "Zenith asks the other side which star it is from.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "quasar"
+        }
+      ]
+    },
+    "quasar": {
+      "name": "Quasar",
+      "type": "cosmic",
+      "base": {
+        "hp": 61,
+        "power": 10,
+        "stamina": 11,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "orbit"
+      ],
+      "traits": [],
+      "line": "Quasar asks a question nobody has an answer to yet."
+    },
+    "cinderkit": {
+      "name": "Cinderkit",
+      "type": "ember",
+      "base": {
+        "hp": 65,
+        "power": 9,
+        "stamina": 9,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "banked_heat"
+      ],
+      "traits": [
+        {
+          "on": "recover",
+          "add": "heat",
+          "max": 1
+        }
+      ],
+      "line": "Cinderkit puffs up and smells like toast left too long.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "kettledrake"
+        }
+      ]
+    },
+    "kettledrake": {
+      "name": "Kettledrake",
+      "type": "ember",
+      "base": {
+        "hp": 63,
+        "power": 10,
+        "stamina": 10,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "banked_heat"
+      ],
+      "traits": [
+        {
+          "on": "recover",
+          "add": "heat",
+          "max": 1
+        }
+      ],
+      "line": "Kettledrake steams like a kettle and charges in anyway."
+    },
+    "skimmer": {
+      "name": "Skimmer",
+      "type": "tide",
+      "base": {
+        "hp": 68,
+        "power": 9,
+        "stamina": 10,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "figure_eight"
+      ],
+      "traits": [],
+      "line": "Skimmer crosses the field without a single ripple.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "longstride"
+        }
+      ]
+    },
+    "longstride": {
+      "name": "Longstride",
+      "type": "tide",
+      "base": {
+        "hp": 64,
+        "power": 10,
+        "stamina": 11,
+        "speed": 12
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "figure_eight"
+      ],
+      "traits": [],
+      "line": "Longstride walks straight across the deepest part to show it can."
+    },
+    "splitstone": {
+      "name": "Splitstone",
+      "type": "stone",
+      "base": {
+        "hp": 73,
+        "power": 9,
+        "stamina": 10,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "downhill_roll"
+      ],
+      "traits": [],
+      "line": "Splitstone lets the other side admire its crystals, then rolls.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "geodome"
+        }
+      ]
+    },
+    "geodome": {
+      "name": "Geodome",
+      "type": "stone",
+      "base": {
+        "hp": 67,
+        "power": 10,
+        "stamina": 11,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "downhill_roll"
+      ],
+      "traits": [],
+      "line": "Geodome glows faintly and does not move an inch."
+    },
+    "gustail": {
+      "name": "Gustail",
+      "type": "storm",
+      "base": {
+        "hp": 68,
+        "power": 10,
+        "stamina": 9,
+        "speed": 12
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "gust_leap"
+      ],
+      "traits": [],
+      "line": "Gustail rides a gust in and lands showing off.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "stormsail"
+        }
+      ]
+    },
+    "stormsail": {
+      "name": "Stormsail",
+      "type": "storm",
+      "base": {
+        "hp": 63,
+        "power": 11,
+        "stamina": 10,
+        "speed": 13
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "gust_leap"
+      ],
+      "traits": [],
+      "line": "Stormsail spreads its flaps and the wind leans its way."
+    },
+    "gloamtail": {
+      "name": "Gloamtail",
+      "type": "shade",
+      "base": {
+        "hp": 63,
+        "power": 10,
+        "stamina": 10,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.9,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "finders_keepers"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "loot",
+          "max": 2
+        }
+      ],
+      "line": "Gloamtail already found the thing you lost.",
+      "evolves": [
+        {
+          "level": 30,
+          "into": "moonmantle"
+        }
+      ]
+    },
+    "moonmantle": {
+      "name": "Moonmantle",
+      "type": "shade",
+      "base": {
+        "hp": 63,
+        "power": 11,
+        "stamina": 11,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 2,
+        "power": 0.25,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "finders_keepers"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "loot",
+          "max": 2
+        }
+      ],
+      "line": "Moonmantle arrives without a sound and waits."
+    },
+    "thornbloom": {
+      "name": "Thornbloom",
+      "type": "meadow",
+      "base": {
+        "hp": 78,
+        "power": 9,
+        "stamina": 11,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "thorn_tangle"
+      ],
+      "traits": [],
+      "line": "Thornbloom blooms bright and remembers every berry."
+    },
+    "berryhold": {
+      "name": "Berryhold",
+      "type": "meadow",
+      "base": {
+        "hp": 76,
+        "power": 10,
+        "stamina": 8,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "thorn_tangle"
+      ],
+      "traits": [],
+      "line": "Berryhold is round with berries and very proud of them."
+    },
+    "briarwisp": {
+      "name": "Briarwisp",
+      "type": "meadow",
+      "base": {
+        "hp": 69,
+        "power": 10,
+        "stamina": 10,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "thorn_tangle"
+      ],
+      "traits": [],
+      "line": "Briarwisp is all vines and quick, nervous rustling."
+    },
+    "marshreed": {
+      "name": "Marshreed",
+      "type": "tide",
+      "base": {
+        "hp": 83,
+        "power": 9,
+        "stamina": 12,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "ripple_count"
+      ],
+      "traits": [],
+      "line": "Marshreed counts every ripple and gets them all right."
+    },
+    "lilyback": {
+      "name": "Lilyback",
+      "type": "tide",
+      "base": {
+        "hp": 79,
+        "power": 10,
+        "stamina": 9,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "ripple_count"
+      ],
+      "traits": [],
+      "line": "Lilyback floats in like a lily pad and settles in."
+    },
+    "riptail": {
+      "name": "Riptail",
+      "type": "tide",
+      "base": {
+        "hp": 71,
+        "power": 10,
+        "stamina": 11,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "ripple_count"
+      ],
+      "traits": [],
+      "line": "Riptail cuts through the water with a grin."
+    },
+    "hearthglow": {
+      "name": "Hearthglow",
+      "type": "ember",
+      "base": {
+        "hp": 69,
+        "power": 10,
+        "stamina": 12,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "steady_glow"
+      ],
+      "traits": [],
+      "line": "Hearthglow hums steady and warm."
+    },
+    "kilnback": {
+      "name": "Kilnback",
+      "type": "ember",
+      "base": {
+        "hp": 67,
+        "power": 11,
+        "stamina": 9,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "steady_glow"
+      ],
+      "traits": [],
+      "line": "Kilnback glows from every hole and refuses to hurry."
+    },
+    "sparkwick": {
+      "name": "Sparkwick",
+      "type": "ember",
+      "base": {
+        "hp": 58,
+        "power": 11,
+        "stamina": 11,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "steady_glow"
+      ],
+      "traits": [],
+      "line": "Sparkwick flickers fast and never quite goes out."
+    },
+    "mossgard": {
+      "name": "Mossgard",
+      "type": "stone",
+      "base": {
+        "hp": 83,
+        "power": 8,
+        "stamina": 11,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "moss_coat"
+      ],
+      "traits": [],
+      "line": "Mossgard has grown a whole garden on its head."
+    },
+    "boulderbud": {
+      "name": "Boulderbud",
+      "type": "stone",
+      "base": {
+        "hp": 82,
+        "power": 9,
+        "stamina": 8,
+        "speed": 2
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "moss_coat"
+      ],
+      "traits": [],
+      "line": "Boulderbud sits down. The ground notices."
+    },
+    "flintling": {
+      "name": "Flintling",
+      "type": "stone",
+      "base": {
+        "hp": 74,
+        "power": 9,
+        "stamina": 10,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "moss_coat"
+      ],
+      "traits": [],
+      "line": "Flintling is all sharp edges and quick feet."
+    },
+    "oakrise": {
+      "name": "Oakrise",
+      "type": "meadow",
+      "base": {
+        "hp": 70,
+        "power": 9,
+        "stamina": 11,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "stump_stance"
+      ],
+      "traits": [],
+      "line": "Oakrise grew a tree and still wants to be called a stump."
+    },
+    "burlwood": {
+      "name": "Burlwood",
+      "type": "meadow",
+      "base": {
+        "hp": 70,
+        "power": 10,
+        "stamina": 8,
+        "speed": 3
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "stump_stance"
+      ],
+      "traits": [],
+      "line": "Burlwood walks in. The training stumps get nervous."
+    },
+    "twigsnap": {
+      "name": "Twigsnap",
+      "type": "meadow",
+      "base": {
+        "hp": 60,
+        "power": 10,
+        "stamina": 10,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "stump_stance"
+      ],
+      "traits": [],
+      "line": "Twigsnap is quick as a dry branch and twice as twitchy."
+    },
+    "dewcrown": {
+      "name": "Dewcrown",
+      "type": "tide",
+      "base": {
+        "hp": 74,
+        "power": 9,
+        "stamina": 12,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "held_breath"
+      ],
+      "traits": [],
+      "line": "Dewcrown holds its breath politely, for a very long time."
+    },
+    "floodcap": {
+      "name": "Floodcap",
+      "type": "tide",
+      "base": {
+        "hp": 74,
+        "power": 10,
+        "stamina": 9,
+        "speed": 5
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "held_breath"
+      ],
+      "traits": [],
+      "line": "Floodcap is soaked with half the creek and waiting to let it go."
+    },
+    "dripcap": {
+      "name": "Dripcap",
+      "type": "tide",
+      "base": {
+        "hp": 64,
+        "power": 10,
+        "stamina": 11,
+        "speed": 10
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "held_breath"
+      ],
+      "traits": [],
+      "line": "Dripcap always has one drop to spare."
+    },
+    "stormhum": {
+      "name": "Stormhum",
+      "type": "storm",
+      "base": {
+        "hp": 67,
+        "power": 10,
+        "stamina": 11,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "rumble"
+      ],
+      "traits": [],
+      "line": "Stormhum hums so steady the flowers open in time."
+    },
+    "thunderdrum": {
+      "name": "Thunderdrum",
+      "type": "storm",
+      "base": {
+        "hp": 65,
+        "power": 11,
+        "stamina": 8,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "rumble"
+      ],
+      "traits": [],
+      "line": "You can hear Thunderdrum coming. That is the point."
+    },
+    "zipwing": {
+      "name": "Zipwing",
+      "type": "storm",
+      "base": {
+        "hp": 58,
+        "power": 11,
+        "stamina": 10,
+        "speed": 11
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "rumble"
+      ],
+      "traits": [],
+      "line": "Zipwing is past before anyone hears the buzz."
+    },
+    "brassbright": {
+      "name": "Brassbright",
+      "type": "gear",
+      "base": {
+        "hp": 77,
+        "power": 9,
+        "stamina": 12,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "spare_part"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "parts",
+          "max": 2
+        }
+      ],
+      "line": "Brassbright keeps its leftover piece in a little pocket."
+    },
+    "ironhull": {
+      "name": "Ironhull",
+      "type": "gear",
+      "base": {
+        "hp": 74,
+        "power": 10,
+        "stamina": 9,
+        "speed": 4
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "spare_part"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "parts",
+          "max": 2
+        }
+      ],
+      "line": "Ironhull has never been dented. Many things have tried."
+    },
+    "rattlebit": {
+      "name": "Rattlebit",
+      "type": "gear",
+      "base": {
+        "hp": 67,
+        "power": 10,
+        "stamina": 11,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.7,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "spare_part"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "parts",
+          "max": 2
+        }
+      ],
+      "line": "Rattlebit built itself from spare parts and loves the result."
     }
   }
 }
