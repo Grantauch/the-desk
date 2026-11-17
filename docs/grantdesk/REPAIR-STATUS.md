@@ -1,3 +1,9 @@
+## November 17 Blitzkrieg publication
+
+Codex recovered the original Blitzkrieg tower-defense game from Grant’s Grok export as an additive, standalone Games entry. This release includes the original twelve waves on one fictional road, input cleanup, a narrow-screen layout repair, sprite transparency cleanup, and historical context from the U.S. Holocaust Memorial Museum. Saves are local to the browser.
+
+Desktop and mobile Chromium passed the first-wave workflow and all 25 game assets loaded. Protected CI, production readback, and physical classroom testing remain release evidence outside that local check.
+
 ## November 17 Roswell Signal student publication
 
 Owner Codex, tracker #360 R06. The additive `hh-roswell-signal.html` edition uses the shared PIN gate and keeps five writing fields and two evidence selections mounted across all twelve screens. Practice choices and navigation stay in the current tab and reset at sign-out. The old browser-wide draft has no verified owner, so the student edition discards it without displaying or importing it. The original source is retained and classroom bookmarks redirect to the student edition. Games, Hidden History Unit 1 and the sitemap link to it.
