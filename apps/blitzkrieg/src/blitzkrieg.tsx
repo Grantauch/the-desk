@@ -1,4 +1,4 @@
-import type { PointerEvent, ReactNode } from "react";
+import type { PointerEvent, ReactNode, RefObject } from "react";
 import {
   Coins,
   Crosshair,
@@ -11,6 +11,8 @@ import {
 } from "./icons";
 import {
   ART_URLS,
+  ENEMIES,
+  SCENARIOS,
   MANUAL_BONUS,
   SELL_RATE,
   TOWER_ORDER,
@@ -20,6 +22,7 @@ import {
   towerRate,
   upgradeCost,
   type Priority,
+  type ScenarioId,
   type TowerKind,
 } from "./game/data";
 import { paint } from "./game/draw";
@@ -38,33 +41,45 @@ const PRIORITIES: { id: Priority; label: string }[] = [
 export function Blitzkrieg() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const gameRef = useRef<Game | null>(null);
   if (!gameRef.current) gameRef.current = new Game();
   const game = gameRef.current;
   const [hud, setHud] = useState<Hud>(() => game.hud());
+  const [boardStatus, setBoardStatus] = useState("");
+  const playing = hud.phase === "deploy" || hud.phase === "combat";
+
+  useEffect(() => {
+    if (playing) canvasRef.current?.focus({ preventScroll: true });
+  }, [playing]);
+
+  useEffect(() => {
+    if (hud.phase !== "briefing" && hud.phase !== "victory" && hud.phase !== "defeat") return;
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) dialog.showModal();
+  }, [hud.phase]);
 
   useEffect(() => {
     game.hydrateSave();
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    game.reduce = reduce;
-    return game.subscribe(() => setHud(game.hud()));
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncMotion = () => { game.reduce = motion.matches; };
+    syncMotion();
+    motion.addEventListener("change", syncMotion);
+    const unsubscribe = game.subscribe(() => setHud(game.hud()));
+    return () => {
+      motion.removeEventListener("change", syncMotion);
+      unsubscribe();
+    };
   }, [game]);
 
   useEffect(() => {
-    let left = Object.keys(ART_URLS).length;
-    for (const [key, url] of Object.entries(ART_URLS)) {
+    const images = Object.entries(ART_URLS).map(([key, url]) => {
       const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        game.setImage(key, img);
-        left -= 1;
-        if (left === 0) game.markDirty();
-      };
-      img.onerror = () => {
-        left -= 1;
-      };
+      img.onload = () => game.setImage(key, img);
       img.src = url;
-    }
+      return img;
+    });
+    return () => { for (const image of images) image.onload = null; };
   }, [game]);
 
   useEffect(() => {
@@ -143,7 +158,7 @@ export function Blitzkrieg() {
     };
   }, [game]);
 
-  const worldFromEvent = (event: PointerEvent<HTMLCanvasElement>) => {
+  const worldFromEvent = (event: Pick<PointerEvent<HTMLCanvasElement>, "currentTarget" | "clientX" | "clientY">) => {
     const rect = event.currentTarget.getBoundingClientRect();
     return screenToWorld(
       event.clientX - rect.left,
@@ -158,7 +173,6 @@ export function Blitzkrieg() {
 
   const wave = WAVES[hud.wave];
   const manned = hud.mannedId !== null;
-  const playing = hud.phase === "deploy" || hud.phase === "combat";
 
   return (
     <div className="app-shell relative">
@@ -192,37 +206,47 @@ export function Blitzkrieg() {
         </div>
       </header>
 
-      <div ref={stageRef} className="relative min-h-0 bg-bg">
+      <div ref={stageRef} className="battlefield relative min-h-0 bg-bg">
         <canvas
           ref={canvasRef}
           className="h-full w-full touch-none"
-          aria-label="Polish road, 1 September 1939. Place guns off the road."
+          tabIndex={playing ? 0 : -1}
+          aria-label={`Battlefield, ${game.scenario.name}`}
+          aria-describedby="battlefield-controls"
+          onFocus={() => setBoardStatus(game.moveKeyboard(0, 0))}
+          onBlur={() => { game.keyboardActive = false; }}
+          onKeyDown={(event) => {
+            const arrows: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+            const step = arrows[event.key];
+            if (step) {
+              event.preventDefault();
+              setBoardStatus(game.moveKeyboard(...step));
+            } else if (event.key === "Enter") {
+              event.preventDefault();
+              game.selectKeyboard();
+            }
+          }}
+          onDoubleClick={(event) => { if (!game.armed && !manned) game.crewAt(worldFromEvent(event)); }}
           onContextMenu={(event) => {
             event.preventDefault();
             game.arm(null);
           }}
           onPointerDown={(event) => {
-            if (!event.isPrimary || event.button !== 0) return;
+            if ((!event.isPrimary && !manned) || event.button !== 0) return;
             game.audio.unlock();
             const world = worldFromEvent(event);
-            game.pointerDown(world, event.pointerType === "touch" ? "touch" : "mouse", event.detail);
+            game.pointerDown(world, event.pointerType === "touch" ? "touch" : "mouse");
             event.currentTarget.setPointerCapture(event.pointerId);
           }}
           onPointerMove={(event) => {
-            if (event.isPrimary) game.pointerMove(worldFromEvent(event));
+            if (event.isPrimary || manned) game.pointerMove(worldFromEvent(event));
           }}
           onPointerUp={(event) => { if (event.isPrimary) game.pointerUp(); }}
           onPointerCancel={(event) => { if (event.isPrimary) game.pointerUp(); }}
           onLostPointerCapture={(event) => { if (event.isPrimary) game.pointerUp(); }}
         />
-        {playing && hud.hint ? (
-          <div className="callout pointer-events-none absolute top-4 right-4 left-4 mx-auto max-w-md rounded-md border border-border bg-surface/95 px-4 py-3 text-center">
-            <p className="text-xs uppercase tracking-widest text-accent">
-              Wave {hud.wave + 1} · {hud.waveName}
-            </p>
-            <p className="mt-1 text-base text-fg">{hud.hint}</p>
-          </div>
-        ) : null}
+        <p id="battlefield-controls" className="sr-only">Select a gun with 1 through 4. Move the cursor with arrow keys. Press Enter to place or select and M to crew. In crew mode, arrows aim and Space fires. Escape releases the gun.</p>
+        <p className="sr-only" role="status">{boardStatus}</p>
         {manned ? (
           <div className="pointer-events-none absolute right-3 bottom-3 left-3 flex justify-center lg:bottom-4">
             <p className="rounded-md border border-primary bg-surface px-3 py-2 text-center text-sm uppercase tracking-widest text-fg">
@@ -249,15 +273,15 @@ export function Blitzkrieg() {
         ) : null}
         {hud.phase === "combat" ? (
           <p className="pointer-events-none absolute bottom-3 left-3 text-sm uppercase tracking-widest text-fg">
-            {hud.left} still on the road{hud.paused ? " · paused" : ""}
+            {hud.left} remaining in wave{hud.paused ? " · paused" : ""}
           </p>
         ) : null}
       </div>
 
       <aside className="dock flex min-h-0 flex-col border-t border-border bg-surface">
-        <div className="min-h-0 flex-1 overflow-auto px-3 py-3">
-          <p className="mb-2 text-xs uppercase tracking-widest text-muted">Guns · 1–4 to arm</p>
-          <div className="flex gap-2 overflow-x-auto pb-2 lg:grid lg:overflow-visible">
+        <div className="dock-scroll min-h-0 flex-1 overflow-auto px-3 py-3">
+          <p className="mb-2 text-xs uppercase tracking-widest text-muted">{game.scenario.name} · Guns</p>
+          <div className="gun-grid">
             {TOWER_ORDER.map((kind) => {
               const def = TOWERS[kind];
               const armed = hud.armed === kind;
@@ -266,26 +290,35 @@ export function Blitzkrieg() {
                 <button
                   key={kind}
                   type="button"
+                  aria-label={`${def.name}, ${def.cost} złoty`}
                   aria-pressed={armed}
                   disabled={!playing || poor}
-                  onClick={() => game.arm(kind)}
-                  className={`flex min-h-16 w-44 shrink-0 items-center gap-2 rounded-md border px-2 py-2 text-left lg:w-auto ${
+                  onClick={() => {
+                    game.arm(kind);
+                    canvasRef.current?.focus({ preventScroll: true });
+                  }}
+                  className={`gun-card flex items-center gap-2 rounded-md border px-2 py-2 text-left ${
                     armed ? "border-primary bg-surface-2" : "border-border bg-bg"
                   } disabled:opacity-40`}
                 >
                   <img src={ART_URLS[`tower-${kind}`]} alt="" className="h-12 w-12 object-contain" />
                   <span className="min-w-0">
-                    <span className="block text-base leading-tight text-fg">{def.name}</span>
-                    <span className="block text-sm text-muted">{def.tone}</span>
+                    <span className="block text-base leading-tight text-fg">{def.short}</span>
+                    <span className="gun-role block text-sm text-muted">{def.tone}</span>
                   </span>
                   <span className="ml-auto text-sm text-accent">{def.cost}</span>
                 </button>
               );
             })}
           </div>
-          <Inspector hud={hud} game={game} />
+          <Inspector hud={hud} game={game} focusBoard={() => canvasRef.current?.focus({ preventScroll: true })} />
         </div>
-        <div className="border-t border-border p-3">
+        <div className="wave-panel border-t border-border p-3">
+          <div className="wave-forecast">
+            <strong>Wave {hud.wave + 1} · {wave?.name}</strong>
+            <span>{wave?.groups.map(({ kind, n }) => `${n}× ${ENEMIES[kind].name}`).join(" · ")}</span>
+            <small>{hud.phase === "deploy" ? wave?.hint : hud.hint}</small>
+          </div>
           <button
             type="button"
             className="min-h-11 w-full rounded-md bg-primary px-4 text-base uppercase tracking-widest text-fg disabled:opacity-40"
@@ -297,17 +330,14 @@ export function Blitzkrieg() {
           >
             {hud.phase === "combat" ? "Column on the road" : `Send wave ${hud.wave + 1}`}
           </button>
-          <p className="mt-2 text-center text-sm text-muted">
-            {wave ? wave.name : ""} · leaks cost the garrison
-          </p>
         </div>
       </aside>
 
       {hud.phase === "briefing" ? (
-        <div className="absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-bg/80 p-4">
+        <dialog ref={dialogRef} className="mission-dialog" aria-labelledby="briefing-title" onCancel={(e) => e.preventDefault()}>
           <article className="overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 shadow-xl">
             <p className="text-xs uppercase tracking-widest text-accent">Poland · the frontier road</p>
-            <h1 className="mt-1 font-display text-5xl leading-none text-fg">Blitzkrieg</h1>
+            <h1 id="briefing-title" className="mt-1 font-display text-5xl leading-none text-fg">Blitzkrieg</h1>
             <p className="mt-2 text-sm uppercase tracking-widest text-muted">1 September 1939</p>
             <p className="mt-4 text-lg leading-snug text-fg">
               Columns are crossing the border at dawn. You have the guns on one road into the interior — nests, the 37mm, mortars, and a Bofors. Hold until night.
@@ -317,6 +347,15 @@ export function Blitzkrieg() {
               <li>Man a gun when a bend is failing. You aim. You fire. The others keep shooting.</li>
               <li>Upgrade ordnance and drill. Every vehicle that slips through costs the garrison.</li>
             </ul>
+            <fieldset className="map-picker">
+              <legend>Choose a battlefield</legend>
+              {Object.entries(SCENARIOS).map(([id, scenario]) => (
+                <label key={id}>
+                  <input type="radio" name="scenario" checked={game.scenarioId === id} onChange={() => game.chooseScenario(id as ScenarioId)} />
+                  <span><strong>{scenario.name}</strong><small>{scenario.description}</small></span>
+                </label>
+              ))}
+            </fieldset>
             <p className="mt-4 text-sm leading-snug text-muted">
               This is a fictional road set during Nazi Germany’s invasion of Poland.{" "}
               <a className="text-accent underline" href={HISTORY_URL} target="_blank" rel="noreferrer">
@@ -338,11 +377,11 @@ export function Blitzkrieg() {
               Take the road
             </button>
           </article>
-        </div>
+        </dialog>
       ) : null}
 
       {hud.phase === "victory" || hud.phase === "defeat" ? (
-        <EndCard hud={hud} onRestart={() => game.restart()} />
+        <EndCard hud={hud} dialogRef={dialogRef} onRestart={() => game.restart()} onBriefing={() => game.returnToBriefing()} />
       ) : null}
     </div>
   );
@@ -399,14 +438,14 @@ function IconButton({
   );
 }
 
-function Inspector({ hud, game }: { hud: Hud; game: Game }) {
+function Inspector({ hud, game, focusBoard }: { hud: Hud; game: Game; focusBoard: () => void }) {
   const selected = hud.selected;
   if (!selected) {
     return (
       <div className="mt-3 rounded-md border border-border bg-bg px-3 py-3">
         <p className="text-base text-fg">Arm a gun, then tap open ground.</p>
         <p className="mt-1 text-sm leading-snug text-muted">
-          Double-click a placed gun, or press M, to crew it. Direct fire hits harder. Sell returns {Math.round(SELL_RATE * 100)}%.
+          Double-click a placed gun or press M to crew it. Use arrow keys and Enter to build from the keyboard.
         </p>
       </div>
     );
@@ -416,53 +455,18 @@ function Inspector({ hud, game }: { hud: Hud; game: Game }) {
   const rateCost = upgradeCost(selected.kind, "rate", selected.rateRank);
   const crewed = hud.mannedId === selected.id;
   return (
-    <div className="mt-3 rounded-md border border-border bg-bg px-3 py-3">
-      <div className="flex items-start gap-3">
-        <img src={ART_URLS[`tower-${selected.kind}`]} alt="" className="h-14 w-14 object-contain" />
-        <div>
-          <h2 className="text-lg leading-tight text-fg">{def.name}</h2>
-          <p className="text-sm leading-snug text-muted">{def.blurb}</p>
-        </div>
-      </div>
-      <p className="mt-3 text-sm tabular-nums text-fg">
-        {Math.round(towerDamage(selected.kind, selected.dmgRank))} damage · {towerRate(selected.kind, selected.rateRank).toFixed(1)} /s
-        {crewed ? " · crewed" : ""}
-      </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {PRIORITIES.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => game.setPriority(item.id)}
-            className={`min-h-11 rounded-md border px-3 text-sm uppercase tracking-wider ${
-              selected.priority === item.id ? "border-accent bg-surface-2 text-accent" : "border-border text-muted"
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-      <div className="mt-3 grid gap-2">
-        <Upgrade
-          label="Ordnance"
-          rank={selected.dmgRank}
-          cost={dmgCost}
-          gold={hud.gold}
-          onClick={() => game.upgrade(selected.id, "dmg")}
-        />
-        <Upgrade
-          label="Drill"
-          rank={selected.rateRank}
-          cost={rateCost}
-          gold={hud.gold}
-          onClick={() => game.upgrade(selected.id, "rate")}
-        />
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+    <div className="gun-inspector mt-3 rounded-md border border-border bg-bg px-3 py-3">
+      <div className="gun-actions grid grid-cols-2 gap-2">
         <button
           type="button"
           className="min-h-11 rounded-md bg-primary px-3 text-sm uppercase tracking-widest text-fg"
-          onClick={() => (crewed ? game.unman() : game.man(selected.id))}
+          onClick={() => {
+            if (crewed) game.unman();
+            else {
+              game.man(selected.id);
+              focusBoard();
+            }
+          }}
         >
           {crewed ? "Release gun" : "Man this gun"}
         </button>
@@ -474,6 +478,51 @@ function Inspector({ hud, game }: { hud: Hud; game: Game }) {
           Sell {Math.floor(selected.spent * SELL_RATE)}
         </button>
       </div>
+      <div className="flex items-start gap-3">
+        <img src={ART_URLS[`tower-${selected.kind}`]} alt="" className="h-14 w-14 object-contain" />
+        <div>
+          <h2 className="text-lg leading-tight text-fg">{def.name}</h2>
+          <p className="text-sm leading-snug text-muted">{def.blurb}</p>
+        </div>
+      </div>
+      <p className="mt-3 text-sm tabular-nums text-fg">
+        {Math.round(towerDamage(selected.kind, selected.dmgRank))} damage · {towerRate(selected.kind, selected.rateRank).toFixed(1)} /s
+        {crewed ? " · crewed" : ""}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2" aria-label="Target priority" role="group">
+        {PRIORITIES.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-pressed={selected.priority === item.id}
+            onClick={() => game.setPriority(item.id)}
+            className={`min-h-11 rounded-md border px-3 text-sm uppercase tracking-wider ${
+              selected.priority === item.id ? "border-accent bg-surface-2 text-accent" : "border-border text-muted"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div className="mt-3 grid gap-2">
+        <Upgrade
+          label="Ordnance · damage"
+          rank={selected.dmgRank}
+          locked={selected.dmgRank === 2 && selected.rateRank === 3}
+          cost={dmgCost}
+          gold={hud.gold}
+          onClick={() => game.upgrade(selected.id, "dmg")}
+        />
+        <Upgrade
+          label="Drill · fire rate"
+          rank={selected.rateRank}
+          locked={selected.rateRank === 2 && selected.dmgRank === 3}
+          cost={rateCost}
+          gold={hud.gold}
+          onClick={() => game.upgrade(selected.id, "rate")}
+        />
+      </div>
+      <p className="mt-2 text-sm text-muted">Choose one final specialization per gun.</p>
     </div>
   );
 }
@@ -481,12 +530,14 @@ function Inspector({ hud, game }: { hud: Hud; game: Game }) {
 function Upgrade({
   label,
   rank,
+  locked,
   cost,
   gold,
   onClick,
 }: {
   label: string;
   rank: number;
+  locked: boolean;
   cost: number;
   gold: number;
   onClick: () => void;
@@ -495,35 +546,37 @@ function Upgrade({
   return (
     <button
       type="button"
-      disabled={maxed || gold < cost}
+      disabled={maxed || locked || gold < cost}
       onClick={onClick}
       className="flex min-h-11 items-center justify-between rounded-md border border-border px-3 text-left text-sm disabled:opacity-40"
     >
       <span className="text-fg">
         {label}
         <span className="ml-2 inline-flex gap-1 align-middle">
-          {[0, 1, 2, 3].map((i) => (
+          {[0, 1, 2].map((i) => (
             <span key={i} className={`inline-block size-2 rounded-full ${i < rank ? "bg-accent" : "bg-border"}`} />
           ))}
         </span>
       </span>
-      <span className="text-accent">{maxed ? "Max" : `${cost} zł`}</span>
+      <span className="text-accent">{maxed ? "Max" : locked ? "Locked" : `${cost} zł`}</span>
     </button>
   );
 }
 
-function EndCard({ hud, onRestart }: { hud: Hud; onRestart: () => void }) {
+function EndCard({ hud, dialogRef, onRestart, onBriefing }: {
+  hud: Hud; dialogRef: RefObject<HTMLDialogElement>; onRestart: () => void; onBriefing: () => void;
+}) {
   const won = hud.phase === "victory";
   const wave = WAVES[Math.min(hud.wave, WAVES.length - 1)];
   return (
-    <div className="absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-bg/80 p-4">
+    <dialog ref={dialogRef} className="mission-dialog" aria-labelledby="result-title" onCancel={(e) => e.preventDefault()}>
       <article className="overlay-card w-full max-w-lg rounded-lg border border-border bg-surface px-6 py-6 text-center">
         <p className="text-xs uppercase tracking-widest text-accent">{won ? "Night, 1 September" : "The road is open"}</p>
-        <h2 className="mt-2 font-display text-4xl text-fg">{won ? "The line holds." : "The corridor breaks."}</h2>
+        <h2 id="result-title" className="mt-2 font-display text-4xl text-fg">{won ? "The line holds." : "The corridor breaks."}</h2>
         <p className="mt-3 text-lg leading-snug text-muted">
           {won
-            ? "Twelve waves stopped on this road. It is one road. It held."
-            : `The garrison failed on wave ${hud.wave + 1}${wave ? `, ${wave.name}` : ""}. Other roads are still fighting. This one is not.`}
+            ? `You held through all ${hud.waveCount} waves with ${hud.lives} garrison and ${hud.gold} zł remaining.`
+            : `The garrison fell on wave ${hud.wave + 1}${wave ? `, ${wave.name}` : ""}.`}
         </p>
         <p className="mt-4 text-sm leading-snug text-muted">
           In the September Campaign, the Soviet Union invaded eastern Poland on September 17.
@@ -540,7 +593,8 @@ function EndCard({ hud, onRestart }: { hud: Hud; onRestart: () => void }) {
           <RotateCcw className="size-4" aria-hidden />
           Reform the line
         </button>
+        <button type="button" className="mission-back" onClick={onBriefing}>Choose another battlefield</button>
       </article>
-    </div>
+    </dialog>
   );
 }
