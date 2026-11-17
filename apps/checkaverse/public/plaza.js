@@ -184,6 +184,7 @@
         buildPartners();
         if (!saved) tipSoon('visitor', 2500); else tipSoon('care', 9000);
         leaveLine();
+        leavingRide = false;
         room = m.room || 'town'; roomKind = m.kind || 'town'; roomOwner = null;
         world?.reset(roomKind);world?.sync(m.life,true);world?.syncStories(m.stories);
         busLine();
@@ -364,12 +365,37 @@
   leaveBtn.addEventListener('click', () => {
     if (!saved) return;
     if (!confirm('Leave this Chromebook? The next person on this screen will not be you. Your Checklings stay saved under your trainer name.')) return;
+    leaveRide('You left this Chromebook. This screen is a visitor until someone rides the bus from Check-In.');
+  });
+  // 20 quiet minutes, the same as the lesson hubs. Walking, tapping, and battle input reset it.
+  // An open menu or a battle turn that is still on the clock counts as activity, so a pick in progress is not cut off.
+  const IDLE_MS = (() => {
+    const hook = window.__checkaverseIdleTest;
+    const n = hook && Number(hook.idleMs);
+    return n > 0 ? n : 20 * 60 * 1000;
+  })();
+  let lastActivity = Date.now();
+  let leavingRide = false;
+  function noteActivity() { lastActivity = Date.now(); }
+  function turnClockRunning() { return Boolean(bt && !bt.done); }
+  function idleCheck() {
+    if (!saved || leavingRide) return;
+    const menuOpen = $('menu') && !$('menu').hidden;
+    if (menuOpen || turnClockRunning()) { noteActivity(); return; }
+    if (Date.now() - lastActivity < IDLE_MS) return;
+    leaveRide('You were signed out after 20 quiet minutes. Your Checklings are saved. Ride the bus from Check-In to come back.');
+  }
+  function leaveRide(message) {
+    if (leavingRide || !saved) return;
+    leavingRide = true;
     ticket = null;
     try { sessionStorage.removeItem('checkaverse-ticket'); } catch { /* storage can be off on school machines */ }
     try { history.replaceState(null, '', location.pathname + location.search); } catch { /* fine */ }
-    toast('You left this Chromebook. This screen is a visitor until someone rides the bus from Check-In.');
+    toast(message);
     reconnectFresh();
-  });
+  }
+  window.addEventListener('pointerdown', noteActivity);
+  window.addEventListener('keydown', noteActivity);
   // Check-In opens this same tab with a new #t= when the next student rides the bus. A hash change does not
   // reload the page, so the new ticket has to be picked up here or that student would stay a visitor.
   function ticketInHash() {
@@ -2727,6 +2753,8 @@
     bGiveUp.dataset.sure = '1'; bGiveUp.textContent = 'Press again to give up';
     setTimeout(() => { if (bt && !bt.done) { bGiveUp.dataset.sure = ''; bGiveUp.textContent = 'Give up'; } }, 3000);
   });
+
+  setInterval(idleCheck, IDLE_MS < 5000 ? 50 : 15000);
 
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
   if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), fen: () => ({ map: fen, ms: fenMs, want: fenWant, chunks: chunks.size, built: chunkBuilds }), talk: talkTo,visit:visitResident,navigating:()=>residentNav };

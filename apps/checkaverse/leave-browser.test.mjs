@@ -21,7 +21,7 @@ const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', 
 let log = ''; child.stdout.on('data', (d) => { log += d; }); child.stderr.on('data', (d) => { log += d; });
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const errors = [];
-let browser, failed = false;
+let browser, childB, dataB, failed = false;
 
 const TIPS = ['walk', 'partner', 'say', 'visitor', 'care', 'kettle', 'sign', 'gate', 'challenge', 'wilds', 'fen', 'battle', 'wild-battle', 'caught', 'caught-visit', 'frost', 'moss', 'ghost-seen', 'ghost-battle'];
 
@@ -112,6 +112,85 @@ try {
   assert.ok(after.checklings.some((c) => c.pid === 'LeaveTrainerB000000002'), 'the second ticket in the same tab saves its own Checkling');
   console.log('  ok a second ticket in the same tab rides as that trainer');
 
+  async function idlePage(pid, nick) {
+    const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+    await context.addInitScript((tips) => {
+      window.__checkaverseIdleTest = { idleMs: 800 };
+      sessionStorage.setItem('checkaverse-tips', JSON.stringify(tips));
+    }, TIPS);
+    const idle = await context.newPage();
+    idle.on('pageerror', (e) => errors.push(e.message));
+    await idle.goto(`${origin}/#t=${encodeURIComponent(ticket(key, pid, nick))}`);
+    return idle;
+  }
+  const isSaved = (idle) => idle.waitForFunction(() => {
+    const care = document.getElementById('careBtn');
+    const note = document.getElementById('partnerNote');
+    return care && note && !care.hidden && /travel with you/.test(note.textContent);
+  });
+  const isVisiting = (idle) => idle.waitForFunction(() => {
+    const care = document.getElementById('careBtn');
+    const note = document.getElementById('partnerNote');
+    return care && note && care.hidden && /You are visiting/.test(note.textContent);
+  }, null, { timeout: 4000 });
+
+  const quiet = await idlePage('LeaveIdleQuiet00000001', 'Pip');
+  await isSaved(quiet);
+  await isVisiting(quiet);
+  assert.equal(await quiet.evaluate(() => sessionStorage.getItem('checkaverse-ticket')), null);
+  console.log('  ok 20 quiet minutes, on the test clock, leaves the Chromebook');
+
+  const menuPage = await idlePage('LeaveIdleMenu000000001', 'Moss');
+  await isSaved(menuPage);
+  await menuPage.click('#menuBtn');
+  await delay(1200);
+  assert.equal(await menuPage.locator('#careBtn').isHidden(), false, 'an open menu keeps the ride');
+  await menuPage.click('#town');
+  await isVisiting(menuPage);
+  console.log('  ok closing the menu lets the quiet time run out');
+
+  const portB = port + 7;
+  const originB = `http://127.0.0.1:${portB}`;
+  dataB = fs.mkdtempSync(path.join(os.tmpdir(), 'checkaverse-idle-battle-'));
+  childB = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', path.join(HERE, 'server.mjs')], { cwd: HERE,
+    env: { ...process.env, CHECKAVERSE_PORT: String(portB), CHECKAVERSE_DATA: dataB, CHECKAVERSE_ORIGINS: originB, CHECKAVERSE_WILD_RATE: '0', CHECKAVERSE_WEATHER: 'off', CHECKAVERSE_TURN_MS: '20000', CHECKAVERSE_KETTLE: path.join(dataB, 'no-kettle.json'), CHECKAVERSE_TEST_SPAWN: '14,13;15,13' }, stdio: 'pipe' });
+  childB.stdout.on('data', (d) => { log += d; });
+  childB.stderr.on('data', (d) => { log += d; });
+  for (let i = 0; i < 100; i++) { try { if ((await fetch(`${originB}/health`)).ok) break; } catch { /* starting */ } await delay(100); }
+  const keyB = fs.readFileSync(path.join(dataB, 'ticket-key.txt'), 'utf8').trim();
+  async function battlePage(pid, nick) {
+    const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+    await context.addInitScript((tips) => {
+      window.__checkaverseIdleTest = { idleMs: 8000 };
+      sessionStorage.setItem('checkaverse-tips', JSON.stringify(tips));
+    }, TIPS);
+    const p = await context.newPage();
+    p.on('pageerror', (e) => errors.push(e.message));
+    await p.goto(`${originB}/?debug#t=${encodeURIComponent(ticket(keyB, pid, nick))}`);
+    return p;
+  }
+  const fighter = await battlePage('LeaveIdleBattleA00001', 'Pip');
+  const foe = await battlePage('LeaveIdleBattleB00001', 'Moss');
+  await isSaved(fighter);
+  await isSaved(foe);
+  await fighter.waitForFunction(() => {
+    const api = window.__checkaverse;
+    const me = api && api.players.get(api.me());
+    if (!me) return false;
+    return [...api.players.values()].some((p) => p.id !== api.me() && Math.abs(p.x - me.x) + Math.abs(p.y - me.y) <= 1);
+  });
+  await fighter.keyboard.press('c');
+  await foe.waitForSelector('#ask:not([hidden])');
+  await delay(500);
+  await foe.click('#askYes');
+  await fighter.waitForSelector('#battle:not([hidden])');
+  await fighter.waitForSelector('#bMoves button');
+  await delay(9000);
+  assert.equal(await fighter.locator('#careBtn').isHidden(), false, 'a battle still being picked does not sign out');
+  assert.equal(await fighter.locator('#battle').isHidden(), false);
+  assert.ok(await fighter.evaluate(() => sessionStorage.getItem('checkaverse-ticket')));
+  console.log('  ok a battle that is still being picked does not sign out');
+
   const teacher = await (await browser.newContext()).newPage();
   await teacher.goto(`${origin}/teacher`);
   const help = await teacher.locator('#removeHelp').textContent();
@@ -121,16 +200,18 @@ try {
   console.log('  ok the teacher page says Remove keeps a saved trainer');
 
   assert.deepEqual(errors, []);
-  console.log('PASS leave and teacher copy');
+  console.log('PASS leave, idle, and teacher copy');
 } catch (err) {
   failed = true;
   console.error('FAIL', err.stack || err.message);
-  console.error(log.split('\n').slice(-20).join('\n'));
+  console.error(log.split('\n').slice(-30).join('\n'));
   console.error(errors);
 } finally {
   await browser?.close();
   child.kill();
+  childB?.kill();
   await delay(300);
   fs.rmSync(data, { recursive: true, force: true });
+  if (dataB) fs.rmSync(dataB, { recursive: true, force: true });
   process.exit(failed ? 1 : 0);
 }
