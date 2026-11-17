@@ -1,0 +1,32 @@
+{
+  "note": "Bramblefen Basin, the first giant region. public/fen.js builds the whole map from this file and the seed, the same way on the server and in every browser, so the basin never moves. Changing the seed, size, version or any landmark changes the geography for everyone: bump version when you do. Landmark x and y are tile positions on a size by size map with the gate at the bottom middle.",
+  "version": 1,
+  "seed": 20261116,
+  "size": 256,
+  "name": "Bramblefen Basin",
+  "exit": { "to": "wilds", "at": [28, 1], "f": "d" },
+  "zones": {
+    "G": { "name": "Reed beds", "rate": 0.1, "levels": [8, 13], "table": { "reedling": 6, "skimlet": 5, "creekcap": 4, "bramble": 3, "mochi": 2, "flickit": 2, "rumblebee": 2, "stumpkin": 2, "hushmoth": 1 } },
+    "w": { "name": "The shallows", "rate": 0.07, "levels": [9, 14], "table": { "skimlet": 5, "creekcap": 5, "reedling": 4, "mossbit": 2, "cobbit": 1 } },
+    "Q": { "name": "Glowcap hollow", "rate": 0.12, "levels": [11, 16], "table": { "hushmoth": 4, "duskit": 4, "peerlet": 3, "glint": 3, "cloudlet": 2, "stumpkin": 2, "kindling": 1 } }
+  },
+  "landmarks": {
+    "gate": { "name": "the basin gate", "x": 128, "y": 249 },
+    "ranger": { "name": "the ranger's hut", "x": 141, "y": 241 },
+    "arch": { "name": "the Sunken Arch", "x": 128, "y": 118 },
+    "mill": { "name": "the Old Mill", "x": 196, "y": 150 },
+    "hollow": { "name": "the Hollow Giant", "x": 52, "y": 78 },
+    "ring": { "name": "the Lantern Ring", "x": 160, "y": 32 },
+    "heron": { "name": "the Heron Stone", "x": 66, "y": 186 }
+  },
+  "signs": {
+    "fen-gate": "Bramblefen Basin. A wetland of slow rivers and flooded forest, bigger than the town and the wilds put together. Boardwalks cross the deep water. Wild Checklings hide in the reeds, the shallows and somewhere darker under the willows.",
+    "fen-ranger": "The ranger's hut. Nobody is home today, but the kettle on the porch is still warm.",
+    "fen-arch": "The Sunken Arch. Older than the town and older than the willows. The spirals match the ones on the merge stone in the plaza, and nobody knows why.",
+    "fen-mill": "The Old Mill. The wheel still turns when the river is high. Whoever ground grain here left in a hurry and never came back for the sacks.",
+    "fen-hollow": "The Hollow Giant. This stump was a tree so big it held up the sky, or so the reed sellers say. The mushrooms around it glow when something is watching.",
+    "fen-ring": "The Lantern Ring. Twelve lanterns on a rise above the basin, and every one of them is lit. Someone climbs up here every evening. Nobody has seen who.",
+    "fen-heron": "The Heron Stone. Rain and old carving made it into a heron asleep with its head tucked in. Trainers touch its beak for luck before they wade the reeds.",
+    "fen-lantern": "A boardwalk lantern. Fireflies sleep in the glass during the day."
+  }
+}

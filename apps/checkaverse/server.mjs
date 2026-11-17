@@ -19,10 +19,11 @@ import * as Ghosts from './ghosts.mjs';
 import * as Moves from './moves.mjs';
 import { openNews, loadNewsContent, composeGazette, composeMail } from './town-news.mjs';
 import { validateWorld } from './public/world.js';
+import { generateFen, FEN_SOLID } from './public/fen.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.21.0';
+const VERSION = '0.22.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -39,6 +40,10 @@ const TOWN = augmentResidentMap(readContent('town.json'), RESIDENT_LAYOUT, 'town
 const HOUSE = readContent('house.json');
 const WILDS = readContent('wilds.json');
 const WILD = readContent('wild.json');
+// Bramblefen Basin: a 256 by 256 wetland north of the wilds. public/fen.js builds it from content/fen.json, here and
+// in every browser, so only the settings and a hash go over the wire.
+const FEN_CFG = readContent('fen.json');
+const FEN = generateFen(FEN_CFG);
 // Kettle Creek: each saved trainer's own home town (content/kettle.json, drawn by tools/gen-town.mjs). Every trainer
 // gets a private copy of it, room 'kc:<player id>'. Until the map file exists, trainers arrive in the Checkaverse as before.
 const KETTLE_FILE = process.env.CHECKAVERSE_KETTLE || path.join(HERE, 'content', 'kettle.json');
@@ -56,7 +61,7 @@ const LIFE_PLANNER = validateLives(LIVES, WORLD, worldMaps, HOUSE);
 for (const k of PLACES) if (!PLACE_LINES[k]) throw new Error(`places.json: missing ${k}`);
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
-const SIGNS = readContent('signs.json');
+const SIGNS = { ...readContent('signs.json'), ...FEN.signs };
 const SAY_GAP_MS = 2000;
 const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 // Battle rules are content. A mistake in them stops the server here, before any student connects.
@@ -99,6 +104,15 @@ for (const [tile, z] of Object.entries(WILD.zones)) {
   if (!WILDS.rows.some((r) => r.includes(tile))) throw new Error(`wild.json: zone ${tile} has no tiles in wilds.json`);
   if (!(z.rate > 0 && z.rate < 0.5) || !(z.levels[0] >= 1 && z.levels[0] <= z.levels[1] && z.levels[1] <= 50)) throw new Error(`wild.json: zone ${tile} rate or levels out of range`);
   for (const sp of Object.keys(z.table)) if (!RULES.species.species[sp]) throw new Error(`wild.json: zone ${tile} lists unknown species ${sp}`);
+}
+for (const [tile, z] of Object.entries(FEN_CFG.zones)) {
+  if (!FEN.rows.some((r) => r.includes(tile))) throw new Error(`fen.json: zone ${tile} has no tiles in the basin`);
+  if (!(z.rate > 0 && z.rate < 0.5) || !(z.levels[0] >= 1 && z.levels[0] <= z.levels[1] && z.levels[1] <= 50)) throw new Error(`fen.json: zone ${tile} rate or levels out of range`);
+  for (const sp of Object.keys(z.table)) if (!RULES.species.species[sp]) throw new Error(`fen.json: zone ${tile} lists unknown species ${sp}`);
+}
+for (const e of [...FEN.exits, ...WILDS.exits.filter((x) => x.to === 'fen')]) {
+  const [x, y] = e.at, rows = e.to === 'fen' ? FEN.rows : WILDS.rows;
+  if (!rows[y]?.[x] || FEN_SOLID.has(rows[y][x])) throw new Error(`fen: the way between the wilds and the basin lands on a blocked tile at ${x},${y}`);
 }
 if (KETTLE) {
   const bad = (m) => { throw new Error(`kettle.json: ${m}`); };
@@ -213,8 +227,9 @@ const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_tr
 // ---------- the town and the houses ----------
 // Rooms: 'town' is the shared Checkaverse. 'h<plotId>' is the inside of the house on that plot.
 const TOWN_SOLID = new Set(['T', 'W', 'H', 'S']);
-// Outdoor maps share one tile set. 'town' is the Checkaverse, 'wilds' is the country north of the gate.
-const MAPS = { town: TOWN, wilds: WILDS };
+// Outdoor maps share one tile set. 'town' is the Checkaverse, 'wilds' is the country north of the gate and 'fen' is
+// Bramblefen Basin past the wilds, which adds bushes, rocks and stumps to the solid tiles.
+const MAPS = { town: TOWN, wilds: WILDS, fen: FEN };
 const isKettle = (room) => typeof room === 'string' && room.startsWith('kc:');
 const mapOf = (room) => (isKettle(room) ? KETTLE : MAPS[room]);
 const roomKind = (room) => (isKettle(room) ? 'kettle' : MAPS[room] ? room : 'house');
@@ -307,7 +322,7 @@ function walkable(room, x, y) {
   const map = mapOf(room);
   if (map) {
     const t = tileAt(map.rows, x, y);
-    if (t === null || TOWN_SOLID.has(t)) return false;
+    if (t === null || (room === 'fen' ? FEN_SOLID : TOWN_SOLID).has(t)) return false;
     if (isKettle(room)) return !kcStones.get(room)?.has(`${x},${y}`);
     return room !== 'town' || !plots.some((pl) => pl.owner && inHouse(pl, x, y));
   }
@@ -386,7 +401,7 @@ function changeRoom(p, room, x, y, facing) {
     ...(isKettle(room) ? { stones: kettleStones(p) } : {}),
   });
   toRoom(room, { t: 'join', p: publicView(p) }, p.id);
-  if (room === 'wilds') p.grace = WILD.graceSteps;
+  if (room === 'wilds' || room === 'fen') p.grace = WILD.graceSteps;
   if (isKettle(room)) sendGhosts(p); else { p.kcGhosts = null; clearTimeout(p.sightTimer); }
 }
 
@@ -1230,6 +1245,7 @@ const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
   '/world.js': ['world.js', 'text/javascript; charset=utf-8'],
+  '/fen.js': ['fen.js', 'text/javascript; charset=utf-8'],
   '/battle-fx.js': ['battle-fx.js', 'text/javascript; charset=utf-8'],
   '/gym.js': ['gym.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
@@ -1290,7 +1306,7 @@ function teacherApi(req, res, action) {
       weather: { kind: weather.kind, label: WEATHER.kinds[weather.kind].label, tempF: weather.tempF },
       events: Object.entries(EVENTS.kinds).map(([k, e]) => ({ kind: k, label: e.label, minutes: e.minutes, until: eventsNow()[k] || 0 })),
       director: { paused: directorPaused(), lines: NEWS.lines(Accounts.todayKey()).map((l) => ({ ...l, name: residentName(l.who) })) }, players: [...players.values()].map((p) => ({
-      id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : isKettle(p.room) ? 'Kettle Creek' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
+      id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : p.room === 'fen' ? FEN.name : isKettle(p.room) ? 'Kettle Creek' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
   }
@@ -1454,6 +1470,7 @@ function join(ws, ticket) {
     t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls, world: {...WORLD,authoritative:true}, life:residentSnapshot(p),stories:residentStories(p),
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [], residentHomes:TOWN.residentHomes,baseHeight:TOWN.baseHeight }, house: HOUSE,
     wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
+    fen: { config: FEN_CFG, hash: FEN.hash },
     charms: charmsOf(p), saved: Boolean(p.pid), record: p.record, partyMax: GROWTH.partyMax,
     ...(KETTLE ? { kettle: { rows: KETTLE.rows, props: KETTLE.props || [], doors: KETTLE.doors || [], fences: KETTLE.fences || [], gates: KETTLE.gates || [], exits: KETTLE.exits || [], places: PLACE_LINES,residentHomes:KETTLE.residentHomes,baseHeight:KETTLE.baseHeight } } : {}),
     room: p.room, kind: roomKind(p.room), myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p), egg: eggOf(p),
@@ -1533,9 +1550,9 @@ function handleMove(p, d) {
   }
   // A step into terrain in the wilds can rouse a wild Checkling. Right after a battle there are a few free steps.
   // Kettle Creek's Route 1 has its own gentler zone (wild.json kettle).
-  if (stepped && (p.room === 'wilds' || isKettle(p.room)) && !p.battle) {
+  if (stepped && (p.room === 'wilds' || p.room === 'fen' || isKettle(p.room)) && !p.battle) {
     const tile = tileAt(mapOf(p.room).rows, p.x, p.y);
-    const zone = isKettle(p.room) ? WILD.kettle?.[tile] : WILD.zones[tile];
+    const zone = isKettle(p.room) ? WILD.kettle?.[tile] : p.room === 'fen' ? FEN_CFG.zones[tile] : WILD.zones[tile];
     if (!zone) return;
     if (p.grace > 0) { p.grace--; return; }
     if (partnerSide(p).none) return;
