@@ -32,6 +32,19 @@
         <input id="msg" maxlength="140" autocomplete="off" placeholder="Two minutes left. Head back to your house.">
         <button type="submit">Send</button>
       </form>
+      <h2>Class rewards</h2>
+      <div id="events" class="row"></div>
+      <p class="help" id="weatherLine"></p>
+      <h2>Overnight director</h2>
+      <div class="row">
+        <button id="director" type="button">Pause the director</button>
+        <span id="directorState" class="status"></span>
+      </div>
+      <table>
+        <thead><tr><th>Resident</th><th>Today's line</th><th>Status</th><th></th></tr></thead>
+        <tbody id="lines"></tbody>
+      </table>
+      <p class="help">The director runs on the PC each night and writes a line for a few residents. Only lines that passed every check are live, and only live lines reach students, in the Gazette and in conversations. Remove takes a line down at once.</p>
       <h2>Trainers here now</h2>
       <table>
         <thead><tr><th>Trainer</th><th>Hour</th><th>Where</th><th>Minutes</th><th>Phrases</th><th>Challenges</th><th></th></tr></thead>

@@ -15,11 +15,14 @@ import { versionHtmlAssets } from './asset-versions.mjs';
 import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
 import * as Care from './care.mjs';
+import * as Ghosts from './ghosts.mjs';
+import * as Moves from './moves.mjs';
+import { openNews, loadNewsContent, composeGazette, composeMail } from './town-news.mjs';
 import { validateWorld } from './public/world.js';
 import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.15.0';
+const VERSION = '0.21.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -58,13 +61,38 @@ const SAY_GAP_MS = 2000;
 const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 // Battle rules are content. A mistake in them stops the server here, before any student connects.
 const RULES = Battle.loadRules(path.join(HERE, 'content', 'battle'));
-const STARTERS = Object.keys(RULES.species.species);
+// The four a student can hatch and a visitor can borrow. Every other species is caught or grown into.
+const STARTERS = RULES.species.starters;
 const SPECIES = RULES.species.species;
 // Growth is content too: XP per check-in, the level curve, battle XP and the daily limits.
 const GROWTH = Accounts.loadGrowth(path.join(HERE, 'content', 'growth.json'));
 // The Checkling body (care, conditions, diseases, death) is content, checked here before anyone connects.
 const CARE = Care.loadCare(path.join(HERE, 'content'));
 for (const id of Object.keys(CARE.epitaphs)) if (!CARE.diseases[id] && !CARE.rare[id]) throw new Error(`epitaphs.json: ${id} is not a cause of death`);
+// Ghosts in the cemetery (content/ghosts.json), checked like everything else.
+const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HERE, 'content', 'ghosts.json'), CARE, RULES);
+// Learning and forgetting moves, and the gym's mini games (content/learnsets.json).
+const LEARN = Moves.loadLearnsets(path.join(HERE, 'content', 'learnsets.json'), RULES);
+const GYM_MIN_MS = Number(process.env.CHECKAVERSE_GYM_MIN_MS || LEARN.gym.minRoundMs); // tests only
+// Real Mt. Morris weather and the teacher's reward events (content/weather.json, content/events.json).
+const WEATHER = readContent('weather.json');
+const EVENTS = readContent('events.json');
+for (const [k, w] of Object.entries(WEATHER.kinds)) for (const t of Object.keys(w.boost)) if (!RULES.types.types[t]) throw new Error(`weather.json: ${k} boosts unknown type ${t}`);
+for (const sp of EVENTS.kinds.rare.species) if (!RULES.species.species[sp]) throw new Error(`events.json: unknown rare species ${sp}`);
+// Residents battle each other around town (content/npc-battles.json).
+const SPARS = (() => {
+  const c = process.env.CHECKAVERSE_SPARS ? JSON.parse(fs.readFileSync(process.env.CHECKAVERSE_SPARS, 'utf8')) : readContent('npc-battles.json');
+  const bad = (m) => { throw new Error(`npc-battles.json: ${m}`); };
+  if (!(c.gapSeconds?.[0] >= 5 && c.gapSeconds[0] <= c.gapSeconds[1])) bad('gapSeconds needs a low and a high');
+  if (!(c.range >= 1 && c.seeRange >= c.range && c.turnMs >= 800 && c.maxTurns >= 3)) bad('range, seeRange, turnMs and maxTurns');
+  if (c.turnMs * c.maxTurns > 44_000) bad('a resident battle must fit in 44 seconds');
+  for (const [id, r] of Object.entries(c.residents)) {
+    if (!RULES.species.species[r.species]) bad(`${id} has unknown species ${r.species}`);
+    if (!(Number.isInteger(r.level) && r.level >= 1 && r.level <= 50)) bad(`${id} level must be 1 to 50`);
+  }
+  for (const k of ['start', 'win', 'loss']) if (!c.lines?.[k]?.length) bad(`lines.${k} is empty`);
+  return c;
+})();
 const TURN_MS = Number(process.env.CHECKAVERSE_TURN_MS || RULES.settings.turnSeconds * 1000);
 // Wild encounter content is checked the same way: every zone is a real tile in the wilds and every species can battle.
 for (const [tile, z] of Object.entries(WILD.zones)) {
@@ -160,7 +188,26 @@ const STORE = Accounts.openStore(db, GROWTH, CARE, {
   wasUp: (d) => Boolean(getMeta.get(`up:${d}`)),
   noSchool: (d) => Boolean(getMeta.get(`noschool:${d}`)),
   speciesName: (id) => SPECIES[id]?.name || id,
+  evolve: (id, level, body) => Battle.nextForm(RULES, id, level, body),
+  root: (id) => Battle.lineRoot(RULES, id),
+  ghostKeep: GHOSTS.keepCloseSchoolDays,
+  ghostParty: GHOSTS.partyMax,
+  speciesMoves: (id) => [...(SPECIES[id]?.moves || [])],
+  levelOffers: (id, from, to) => Moves.levelOffers(LEARN, RULES, id, from, to),
+  slots: LEARN.slots,
+  learnMove: (known, move, forget) => Moves.learn(LEARN, RULES, known, move, forget),
 });
+// The town's memory and its news: the event log, the Gazette, residents' letters and the director's checked lines.
+const NEWS = openNews(db, () => Accounts.todayKey());
+const NEWS_CONTENT = loadNewsContent(path.join(HERE, 'content'));
+const directorPaused = () => getMeta.get('director:paused')?.value === '1';
+// The director's live lines are read often (every resident snapshot), so they are kept for half a minute.
+let linesCache = { at: 0, day: '', lines: [] };
+function liveLines() {
+  const day = Accounts.todayKey();
+  if (Date.now() - linesCache.at > 30_000 || linesCache.day !== day) linesCache = { at: Date.now(), day, lines: NEWS.liveLines(day) };
+  return directorPaused() ? [] : linesCache.lines;
+}
 const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
 // ---------- the town and the houses ----------
@@ -204,7 +251,11 @@ function lifeFor(p) {
 }
 function residentSnapshot(p){
   const e=lifeFor(p);if(!e)return null;
-  return{residents:e.sim.view(),marks:[...e.sim.marks.values()],clock:e.sim.clock(),stepMs:LIVES.stepMs/residentRate};
+  const residents=e.sim.view();
+  // A resident in the middle of a battle says so.
+  for(const l of liveLines()){const r=residents.find(x=>x.id===l.who);if(r)r.memory=[...(r.memory||[]).slice(-2),l.text];}
+  for(const b of battles.values())if(b.npc&&b.npc.key===lifeKey(p))b.npc.res.forEach((id,i)=>{const r=residents.find(x=>x.id===id);if(r)r.activity={...r.activity,id:'battle',label:`Battling ${residentName(b.npc.res[1-i])}`,action:'idle',tool:'none',speech:`Hold on, I am in the middle of a battle with ${residentName(b.npc.res[1-i])}!`,progress:0};});
+  return{residents,marks:[...e.sim.marks.values()],clock:e.sim.clock(),stepMs:LIVES.stepMs/residentRate};
 }
 function saveResidentWorlds(){
   setMeta.run('resident-life-clock-v1',String(residentClock));
@@ -336,6 +387,7 @@ function changeRoom(p, room, x, y, facing) {
   });
   toRoom(room, { t: 'join', p: publicView(p) }, p.id);
   if (room === 'wilds') p.grace = WILD.graceSteps;
+  if (isKettle(room)) sendGhosts(p); else { p.kcGhosts = null; clearTimeout(p.sightTimer); }
 }
 
 // The class cemetery's newest headstones, one per grave slot in this trainer's Kettle Creek.
@@ -343,8 +395,109 @@ function kettleStones(p) {
   const slots = KETTLE.graves || [];
   const stones = p.pid ? STORE.cemetery(p.hour, slots.length) : [];
   kcStones.set(p.room, new Set(stones.map((_, i) => `${slots[i][0]},${slots[i][1]}`)));
+  p.kcStones = stones.map((g, i) => ({ ...g, x: slots[i][0], y: slots[i][1] }));
   return stones.map((g, i) => ({ x: slots[i][0], y: slots[i][1], trainer: g.trainer, speciesName: SPECIES[g.species]?.name || g.species,
     epitaph: g.epitaph, cause: Care.causeName(CARE, g.cause), level: g.level, days: g.days, mine: g.pid === p.pid }));
+}
+
+// ---------- ghosts ----------
+// Which ghosts are out in this trainer's Kettle Creek today, and where they float. Hidden until the partner
+// drinks Spirit Sight. A ghost this trainer already knocked out, caught or lost today stays away until tomorrow.
+const sightLeft = (p) => (p.pid ? Math.max(0, (STORE.items(p.pid).sightUntil || 0) - Date.now()) : 0);
+function kettleGhosts(p) {
+  if (!p.pid || !KETTLE || !p.kcStones) return [];
+  const day = Accounts.todayKey();
+  const noSchool = (d) => Boolean(getMeta.get(`noschool:${d}`));
+  const done = STORE.ghostsDone(p.pid);
+  const out = Ghosts.presentToday(GHOSTS, CARE, p.kcStones, day, STORE.heldGhosts(), noSchool)
+    .filter((st) => !done.has(`g${st.id}`));
+  const free = (x, y) => walkable(p.room, x, y);
+  const placed = Ghosts.placeGhosts(out, free).map(({ st, x, y }) => ({
+    key: `g${st.id}`, kind: 'grave', x, y, stone: [st.x, st.y], graveId: st.id, species: st.species, level: st.level,
+    temper: Ghosts.temperOf(GHOSTS, st.cause, st.days), owner: st.pid, trainer: st.trainer,
+  }));
+  const w = !done.has('wander') && Ghosts.wandererToday(GHOSTS, CARE, p.pid, day, WILD.kettle?.G?.table || Object.values(WILD.zones)[0].table, noSchool);
+  if (w) {
+    const taken = new Set(placed.map((g) => `${g.x},${g.y}`));
+    const slot = (KETTLE.graves || []).find(([x, y]) => free(x, y) && !taken.has(`${x},${y}`))
+      || Ghosts.placeGhosts([{ x: KETTLE.graves[0][0], y: KETTLE.graves[0][1] }], (x, y) => free(x, y) && !taken.has(`${x},${y}`))[0];
+    if (slot) placed.push({ key: 'wander', kind: 'wander', x: slot.x ?? slot[0], y: slot.y ?? slot[1], species: w.species, level: w.level, temper: w.temper, owner: '' });
+  }
+  return placed;
+}
+// Tells the trainer's screen what it can see: frost on stones with a hidden ghost, and the ghosts themselves while
+// Spirit Sight lasts. Other trainers' names never travel with a ghost, only whether it was this trainer's own.
+function sendGhosts(p) {
+  if (!isKettle(p.room)) return;
+  p.kcGhosts = kettleGhosts(p);
+  const left = sightLeft(p);
+  clearTimeout(p.sightTimer);
+  if (left) p.sightTimer = setTimeout(() => { if (players.has(p.id)) sendGhosts(p); }, left + 250);
+  send(p, {
+    t: 'ghosts', sight: left, moss: STORE.items(p.pid).graveMoss || 0,
+    frost: p.kcGhosts.filter((g) => g.stone).map((g) => g.stone),
+    ghosts: left ? p.kcGhosts.map((g) => ({ key: g.key, x: g.x, y: g.y, species: g.species, temper: g.temper, mine: g.owner === p.pid, wander: g.kind === 'wander' })) : [],
+  });
+}
+// Looking at a headstone: its epitaph, a clue when its ghost is hidden nearby, and a little grave moss.
+function lookAtStone(p, x, y) {
+  if (!p.pid || !isKettle(p.room) || p.battle) return;
+  const st = (p.kcStones || []).find((s) => s.x === x && s.y === y);
+  if (!st || Math.abs(p.x - x) + Math.abs(p.y - y) > 2) return;
+  const parts = [`${st.trainer}'s ${SPECIES[st.species]?.name || st.species}. ${st.epitaph}`];
+  const ghost = (p.kcGhosts || []).find((g) => g.graveId === st.id);
+  if (ghost && !sightLeft(p)) parts.push(GHOSTS.clues[st.id % GHOSTS.clues.length]);
+  const moss = STORE.scrapeMoss(p.pid, `${x},${y}`, GHOSTS);
+  if (moss.msg) parts.push(moss.ok ? `${moss.msg} You have ${moss.moss}.` : moss.msg);
+  send(p, { t: 'notice', msg: parts.join(' ') });
+  if (moss.ok) send(p, { t: 'moss', moss: moss.moss });
+}
+// The apothecary: what Spirit Sight costs, and brewing it. The partner drinks it right there.
+function apothecary(p, brew) {
+  if (!p.pid || !isKettle(p.room) || p.battle) return;
+  const door = (KETTLE.doors || []).find((d) => d.place === 'apothecary');
+  if (!door || Math.abs(p.x - door.x) + Math.abs(p.y - door.y) > 2) return;
+  if (!brew) {
+    const it = STORE.items(p.pid);
+    return send(p, { t: 'apothecary', moss: it.graveMoss || 0, need: GHOSTS.sight.moss, minutes: GHOSTS.sight.minutes, sight: sightLeft(p) });
+  }
+  const r = STORE.brewSight(p.pid, GHOSTS);
+  if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+  log('spirit sight', p.pid.slice(0, 6));
+  send(p, { t: 'notice', msg: `Your partner drinks the Spirit Sight. Its eyes glow pale blue. For ${GHOSTS.sight.minutes} minutes it can see ghosts on the cemetery hill.` });
+  sendGhosts(p);
+}
+// Walking into a ghost you can see starts a battle with it.
+function startGhost(p, g) {
+  const t = GHOSTS.tempers[g.temper] || GHOSTS.tempers.restless;
+  const id = nextBattle++;
+  const seed = crypto.randomInt(0, 2 ** 31);
+  const mine = partnerSide(p);
+  const foe = { name: g.kind === 'wander' ? GHOSTS.wanderer.name : 'Ghost', species: g.species, level: g.level, ghost: Ghosts.ghostSide(GHOSTS, g.temper), mods: t.power !== 1 ? { power: t.power } : undefined };
+  const state = Battle.createBattle(RULES, [mine, foe], seed);
+  // Only the trainer who raised a Checkling can catch its ghost. Anyone can catch a wanderer.
+  const canCatch = g.kind === 'wander' || g.owner === p.pid;
+  const nick = g.graveId ? STORE.grave(g.graveId)?.nick || '' : '';
+  const bt = { id, wild: true, zone: 'the cemetery', ghost: { key: g.key, kind: g.kind, graveId: g.graveId || 0, temper: g.temper, canCatch, nick },
+    ids: [p.id, 0], names: [p.name, foe.name], cids: [mine.cid || 0, 0], pids: [p.pid || '', ''], state, picks: [null, null], log: [], timeouts: [0, 0],
+    deadline: Date.now() + TURN_MS, watchers: new Set(), started: new Date().toISOString(), room: p.room };
+  bt.picks[1] = wildPick(bt);
+  battles.set(id, bt);
+  p.battle = id; pending.delete(p.id);
+  const mineGhost = g.owner === p.pid;
+  send(p, { t: 'battle', id, you: 0, wild: true, zone: 'the cemetery', charms: charmsOf(p), view: battleView(bt), turnMs: TURN_MS, left: TURN_MS,
+    ghost: { temper: t.label, canCatch, mine: mineGhost, wander: g.kind === 'wander', rise: t.rise, name: mineGhost && nick ? nick : '' } });
+  setBattling(p, true);
+  log('ghost battle', id, p.name, g.key, g.species, `lv${g.level}`, g.temper, canCatch ? 'catchable' : 'not catchable');
+}
+// A ghost battle ends when the Spirit Sight wears off.
+function ghostSlipped(b) {
+  if (!b.ghost) return false;
+  const p = players.get(b.ids[0]);
+  if (p && sightLeft(p) > 0) return false;
+  Object.assign(b.state, { over: true, winner: 'draw', reason: 'slipped' });
+  finishBattle(b);
+  return true;
 }
 // The bus between Kettle Creek and the Checkaverse. Saved trainers only: visitors have no home town.
 function rideBus(p, to) {
@@ -479,7 +632,9 @@ function partnerSide(p) {
   if (p.pid) {
     const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
     if (!row) return { name: p.name, species: '', none: true };
-    return { name: p.name, species: row.species, level: row.level, cid: row.id, mods: STORE.mods(p.pid, row.id) };
+    const moves = STORE.moves(p.pid, row.id)?.known;
+    if (Accounts.isGhost(row)) return { name: p.name, species: row.species, level: row.level, cid: row.id, moves, ghost: { fadeEvery: GHOSTS.caughtFadeEvery, move: GHOSTS.ghostMove, replaces: GHOSTS.replaces } };
+    return { name: p.name, species: row.species, level: row.level, cid: row.id, moves, mods: STORE.mods(p.pid, row.id) };
   }
   const c = /^c(\d)$/.exec(p.partner);
   const caught = c && p.caught[Number(c[1])];
@@ -497,7 +652,7 @@ function teamView(p) {
     return STORE.team(p.pid).map((r) => {
       const floor = Accounts.xpFor(GROWTH, r.level), top = Accounts.xpFor(GROWTH, Math.min(50, r.level + 1));
       return { v: `k${r.id}`, species: r.species, name: SPECIES[r.species].name, type: SPECIES[r.species].type, level: r.level, nick: r.nick,
-        den: !r.party, hatched: Boolean(r.hatched), xp: r.xp - floor, need: Math.max(0, top - floor), flag: careFlag(p.pid, r) };
+        den: !r.party, hatched: Boolean(r.hatched), xp: r.xp - floor, need: Math.max(0, top - floor), flag: careFlag(p.pid, r), ghost: Accounts.isGhost(r) };
     });
   }
   return [
@@ -510,7 +665,7 @@ function charmsOf(p) { return p.pid ? STORE.charmsLeft(p.pid) : p.charms; }
 function careFlag(pid, r) {
   if (!r.party) return '';
   const v = STORE.body(pid, r.id);
-  if (!v) return '';
+  if (!v || v.ghost) return '';
   if (v.disease) return 'sick';
   if (v.conditions.some((c) => ['obese', 'scrawny', 'grimy', 'bored', 'exhausted'].includes(c.id))) return 'needs care';
   if (v.stats.fullness <= 35) return 'hungry';
@@ -523,13 +678,24 @@ function sendTeam(p) {
   send(p, { t: 'team', team: teamView(p), partner: p.partner, charms: charmsOf(p), saved: Boolean(p.pid), partyMax: GROWTH.partyMax, egg: eggOf(p) });
 }
 const label = (species, nick) => (nick ? `${nick} the ${SPECIES[species].name}` : SPECIES[species].name);
+// A Checkling took its next form. The owner hears it, the team list updates, and the town sees the new partner.
+const evolvedLine = (nick, ev) => `${nick || `Your ${SPECIES[ev.from].name}`} grew into ${/^[aeiou]/i.test(SPECIES[ev.to].name) ? 'an' : 'a'} ${SPECIES[ev.to].name}!`;
+function evolvedNotice(p, nick, ev) {
+  if (p.pid) NEWS.record('evolve', { trainer: p.name, from: ev.from, to: ev.to });
+  send(p, { t: 'notice', msg: evolvedLine(nick, ev) });
+  sendTeam(p);
+  toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
+}
 // Battle XP for a saved trainer, with a line for the level up and one when the daily cap is reached.
 function payXp(p, cid, amount) {
   if (!p?.pid || !cid || !amount) return;
-  const got = STORE.battleXp(p.pid, cid, amount);
+  const double = eventsNow().doubleXp ? EVENTS.kinds.doubleXp.xp : 1;
+  const got = STORE.battleXp(p.pid, cid, amount * double, double);
   if (!got) return;
   const who = label(got.species, got.nick);
   if (got.xp) send(p, { t: 'notice', msg: got.after > got.before ? `${who} earned ${got.xp} XP and grew to level ${got.after}!` : `${who} earned ${got.xp} XP.` });
+  if (got.evolved) evolvedNotice(p, got.nick, got.evolved);
+  movesNotice(p, got, cid);
   if (got.capped) send(p, { t: 'notice', msg: "That is all the battle XP for today. Checking in tomorrow is the best way to grow." });
 }
 
@@ -566,19 +732,27 @@ function handlePick(p, move) {
 }
 
 function playTurn(b) {
+  if (ghostSlipped(b)) return;
   const choices = b.picks.map((m, i) => m || Battle.fallbackMove(RULES, b.state, i));
   const { picks, events } = Battle.resolveTurn(RULES, b.state, choices);
   b.log.push(picks);
   b.picks = [null, null];
   if (b.wild && !b.state.over) b.picks[1] = wildPick(b);
-  b.deadline = Date.now() + TURN_MS;
-  battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: TURN_MS });
+  if (b.npc && !b.state.over && b.state.turn >= SPARS.maxTurns) {
+    const share = b.state.sides.map((x) => x.hp / x.maxHp);
+    Object.assign(b.state, { over: true, winner: share[0] === share[1] ? 'draw' : share[0] > share[1] ? 0 : 1, reason: 'time' });
+  }
+  const turnMs = b.npc ? SPARS.turnMs : TURN_MS;
+  b.deadline = Date.now() + turnMs;
+  battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: turnMs });
+  if (b.npc) sparUpdate(b, events);
   if (b.state.over) finishBattle(b);
 }
 
 function finishBattle(b) {
   const st = b.state;
   battles.delete(b.id);
+  if (b.npc) return finishSpar(b);
   const winner = st.winner === 'draw' ? 'draw' : b.names[st.winner];
   battleSend(b, { t: 'battle_end', id: b.id, winner: st.winner, reason: st.reason, view: battleView(b), kept: b.kept || (b.wild && !b.pids[0] ? 'visit' : '') });
   b.ids.forEach((id, i) => {
@@ -588,6 +762,14 @@ function finishBattle(b) {
     if (b.wild) {
       q.grace = WILD.graceSteps; setBattling(q, false);
       if (q.pid && b.cids[0]) STORE.noteBattle(q.pid, b.cids[0]);
+      if (b.ghost) {
+        // Knocked out, caught or slipped away: that ghost is gone for this trainer until tomorrow.
+        if (q.pid && (st.reason === 'caught' || st.reason === 'slipped' || st.winner === 0)) STORE.ghostDone(q.pid, b.ghost.key);
+        if (st.reason === 'caught') { payXp(q, b.cids[0], GROWTH.battleXp.caught); log('ghost caught', q.pid.slice(0, 6), b.ghost.key); NEWS.record('ghost', { trainer: q.name, species: st.sides[1].species }); }
+        else if (st.winner === 0) payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
+        if (q.pid) { sendTeam(q); sendGhosts(q); }
+        return;
+      }
       if (st.reason === 'caught') payXp(q, b.cids[0], GROWTH.battleXp.caught);
       else if (st.winner === 0) {
         payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
@@ -601,6 +783,7 @@ function finishBattle(b) {
     q.record[r]++;
     if (q.pid && st.reason !== 'restart') {
       STORE.result(q.pid, r);
+      if (r === 'w' && b.pids[1 - i]) NEWS.record('win', { trainer: q.name });
       if (b.cids[i]) STORE.noteBattle(q.pid, b.cids[i]);
       // Two trainers who both walked away earn nothing.
       if (!(r === 'd' && st.reason === 'timeout')) payXp(q, b.cids[i], GROWTH.battleXp[{ w: 'win', l: 'loss', d: 'draw' }[r]]);
@@ -622,9 +805,9 @@ function finishBattle(b) {
 // zone's table. The wild one picks its move the moment the turn starts. Trainers can weaken it and throw a catching
 // charm, or run. A trainer who rode the bus from Check-In keeps every catch: it joins the party, or the Den when the
 // party is full. A visitor keeps catches only for the visit.
-function wildPick(b) {
-  const st = b.state, f = st.sides[1];
-  const moves = RULES.species.species[f.species].moves.filter((m) => Battle.canUse(RULES, st, 1, m));
+function wildPick(b, side = 1) {
+  const st = b.state, f = st.sides[side];
+  const moves = (f.moves || RULES.species.species[f.species].moves).filter((m) => Battle.canUse(RULES, st, side, m));
   const sig = moves.find((m) => !['strike', 'guard', 'recover'].includes(m));
   const r = Math.random();
   if (sig && r < 0.35) return sig;
@@ -639,7 +822,7 @@ function rollSpecies(table) {
   return Object.keys(table)[0];
 }
 function startWild(p, zone) {
-  const species = rollSpecies(zone.table);
+  const species = rollSpecies(wildTable(zone.table));
   const level = zone.levels[0] + Math.floor(Math.random() * (zone.levels[1] - zone.levels[0] + 1));
   const id = nextBattle++;
   const seed = crypto.randomInt(0, 2 ** 31);
@@ -667,6 +850,8 @@ function handleCharm(p) {
   const b = battles.get(p.battle);
   if (!b || !b.wild || b.state.over) return;
   if (b.picks[0]) return; // already used this turn
+  if (b.ghost && !b.ghost.canCatch) return send(p, { t: 'notice', msg: 'This ghost only answers to the trainer who raised it. You can battle it, but not catch it.' });
+  if (ghostSlipped(b)) return;
   // Saved trainers get a few charms each day, kept on the server so a reload does not refill them.
   if (p.pid) {
     if (STORE.denFull(p.pid)) return send(p, { t: 'notice', msg: 'Your Den is full, so there is no room for another Checkling.' });
@@ -677,14 +862,19 @@ function handleCharm(p) {
   }
   const left = charmsOf(p);
   const wildOne = b.state.sides[1];
-  const ok = Math.random() < catchChance(wildOne);
+  const bonus = (b.ghost ? (GHOSTS.tempers[b.ghost.temper]?.catch || 0) : 0) + (eventsNow().festival ? EVENTS.kinds.festival.catchBonus : 0);
+  const ok = Math.random() < (CATCH_OVERRIDE !== null ? CATCH_OVERRIDE : Math.max(0.03, Math.min(0.97, catchChance(wildOne) + bonus)));
   const shakes = ok ? 3 : Math.floor(Math.random() * 3);
   const events = [{ k: 'charm', ok, shakes, left }];
   if (ok) {
     Object.assign(b.state, { over: true, winner: 0, reason: 'caught' });
-    if (p.pid) {
+    if (p.pid && b.ghost) {
+      const kept = STORE.addGhost(p.pid, { graveId: b.ghost.graveId, species: wildOne.species, level: wildOne.level, nick: b.ghost.nick, temper: b.ghost.temper });
+      b.kept = kept ? (kept.party ? 'party' : 'den') : '';
+    } else if (p.pid) {
       const kept = STORE.addCatch(p.pid, wildOne.species, wildOne.level, b.zone);
       b.kept = kept ? (kept.party ? 'party' : 'den') : '';
+      if (kept) NEWS.record('catch', { trainer: p.name, species: wildOne.species, level: wildOne.level });
     } else if (p.caught.length < 6) p.caught.push({ species: wildOne.species, level: wildOne.level });
     sendTeam(p);
     b.log.push(['charm', 'caught']);
@@ -721,8 +911,8 @@ function handleWatch(p, battleId) {
   const b = battles.get(battleId);
   if (!b) return send(p, { t: 'notice', msg: 'That battle already ended.' });
   if (p.battle) return;
-  const fighters = b.ids.map((id) => players.get(id)).filter(Boolean);
-  if (!fighters.some((f) => f.room === p.room && dist(f, p) <= RULES.settings.watchDistance + 2)) return send(p, { t: 'notice', msg: 'Walk closer to watch that battle.' });
+  const fighters = b.npc ? sparFighters(b, p) : b.ids.map((id) => players.get(id)).filter(Boolean);
+  if (!fighters.some((f) => f.room === (b.npc ? residentScene(p) : p.room) && dist(f, p) <= RULES.settings.watchDistance + 2)) return send(p, { t: 'notice', msg: 'Walk closer to watch that battle.' });
   if (p.watching) battles.get(p.watching)?.watchers.delete(p.id);
   b.watchers.add(p.id);
   p.watching = b.id;
@@ -734,6 +924,268 @@ function stopWatching(p) {
   p.watching = 0;
 }
 
+// ---------- learning moves and the gym ----------
+const moveInfo = (id) => { const m = RULES.moves[id]; return { id, name: m.name, type: m.type, cost: m.cost, detail: m.detail, free: m.cost === 0 }; };
+// After a level up: a line for each move learned on the spot, and the learn card for one that needs a slot.
+function movesNotice(p, got, cid) {
+  if (!got) return;
+  const who = label(got.species, got.nick);
+  for (const mv of got.learned || []) send(p, { t: 'notice', msg: `${who} learned ${RULES.moves[mv].name}!` });
+  if (got.offered?.length) sendOffer(p);
+}
+function sendOffer(p) {
+  if (!p.pid) return;
+  const w = STORE.offersWaiting(p.pid)[0];
+  if (!w) return;
+  const row = STORE.get(p.pid, w.id), st = STORE.moves(p.pid, w.id);
+  send(p, { t: 'learn_offer', source: 'offer', id: `k${w.id}`, name: label(row.species, row.nick), species: row.species, move: moveInfo(w.offers[0]), known: st.known.map(moveInfo) });
+}
+// The gym is the arena in the Checkaverse. A trainer standing by it can train.
+const ARENA = TOWN.props.find((pr) => pr.sign === 'arena');
+const nearArena = (p) => p.room === 'town' && ARENA && p.x >= ARENA.f[0] - 3 && p.x < ARENA.f[0] + ARENA.f[2] + 3 && p.y >= ARENA.f[1] - 3 && p.y < ARENA.f[1] + ARENA.f[3] + 3;
+function gymView(p) {
+  const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
+  const g = STORE.gym(p.pid, LEARN.gym.dailyRounds);
+  if (!row) return { t: 'gym', open: true, none: true, roundsLeft: g.roundsLeft };
+  const known = STORE.moves(p.pid, row.id).known;
+  const moves = LEARN.gym.moves.filter((m) => Moves.canLearn(LEARN, RULES, row.species, m.move)).map((m) => ({
+    ...moveInfo(m.move), cost: RULES.moves[m.move].cost, price: m.cost, points: g.points[m.move] || 0, game: m.game, gameName: LEARN.games[m.game].name,
+    minLevel: m.minLevel, known: known.includes(m.move), ready: row.level >= m.minLevel,
+  }));
+  return { t: 'gym', open: true, id: `k${row.id}`, name: label(row.species, row.nick), species: row.species, level: row.level, known: known.map(moveInfo), moves, roundsLeft: g.roundsLeft, slots: LEARN.slots };
+}
+function gymMessage(p, msg, now) {
+  if (!p.pid) return send(p, { t: 'notice', msg: 'Ride the bus from your Check-In page to train at the gym. Visitors can battle, but training is not saved.' });
+  if (!nearArena(p) || p.battle) return;
+  const view = gymView(p);
+  if (msg.t === 'gym') return send(p, view);
+  const entry = typeof msg.move === 'string' && view.moves?.find((m) => m.id === msg.move);
+  if (msg.t === 'gym_start') {
+    if (!entry || !entry.ready) return send(p, { t: 'notice', msg: 'Your partner is not ready to train for that move yet.' });
+    if (entry.known) return send(p, { t: 'notice', msg: 'Your partner already knows that move.' });
+    if (!view.roundsLeft) return send(p, { t: 'notice', msg: 'That is all the gym training for today. Come back tomorrow.' });
+    p.gymRound = { id: crypto.randomUUID(), move: entry.id, game: entry.game, started: now };
+    return send(p, { t: 'gym_round', round: p.gymRound.id, move: entry, game: entry.game, name: LEARN.games[entry.game].name, how: LEARN.games[entry.game].how, seed: crypto.randomInt(0, 2 ** 31) });
+  }
+  if (msg.t === 'gym_finish') {
+    const r = p.gymRound;
+    if (!r || msg.round !== r.id) return;
+    p.gymRound = null;
+    const score = Math.max(0, Math.min(100, Math.round(Number(msg.score) || 0)));
+    const quick = now - r.started < GYM_MIN_MS;
+    const earned = quick ? 0 : Moves.roundPoints(score);
+    const price = LEARN.gym.moves.find((m) => m.move === r.move).cost;
+    const res = STORE.gymRound(p.pid, r.move, earned, price, LEARN.gym.dailyRounds);
+    if (!res.ok) return send(p, { t: 'notice', msg: res.msg });
+    log('gym round', p.pid.slice(0, 6), r.move, score, earned);
+    send(p, { t: 'gym_result', move: r.move, score, earned, points: res.points, price, roundsLeft: res.roundsLeft, quick });
+    return send(p, gymView(p));
+  }
+  if (msg.t === 'gym_teach') {
+    if (!entry || !entry.ready || entry.known) return;
+    if (entry.points < entry.price) return send(p, { t: 'notice', msg: `Train a little more first: ${entry.points} of ${entry.price} points.` });
+    const cid = Number(view.id.slice(1));
+    const r = STORE.learnMove(p.pid, cid, entry.id, typeof msg.forget === 'string' ? msg.forget : null, 'gym');
+    if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+    STORE.gymSpend(p.pid, entry.id, entry.price);
+    log('gym taught', p.pid.slice(0, 6), entry.id);
+    NEWS.record('learn', { trainer: p.name, species: view.species, move: entry.id });
+    send(p, { t: 'notice', msg: `${view.name} learned ${entry.name}!` });
+    sendTeam(p);
+    return send(p, gymView(p));
+  }
+}
+
+// ---------- weather ----------
+// The sky over the Checkaverse follows Mt. Morris. CHECKAVERSE_WEATHER=off keeps it clear, and naming a kind
+// (rain, snow, ...) pins it, for tests.
+let weather = { kind: 'clear', tempF: null, at: 0 };
+const kindOfCode = (code) => Object.entries(WEATHER.codes).find(([, list]) => list.includes(code))?.[0] || 'cloudy';
+const weatherView = () => ({ t: 'weather', kind: weather.kind, label: WEATHER.kinds[weather.kind].label, tempF: weather.tempF, line: WEATHER.kinds[weather.kind].line });
+async function refreshWeather() {
+  const pin = process.env.CHECKAVERSE_WEATHER;
+  if (pin === 'off') return;
+  let next;
+  if (pin && WEATHER.kinds[pin]) next = { kind: pin, tempF: 40, at: Date.now() };
+  else {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER.lat}&longitude=${WEATHER.lon}&current=weather_code,temperature_2m&temperature_unit=fahrenheit&timezone=America%2FDetroit`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      const j = await res.json();
+      next = { kind: kindOfCode(j.current.weather_code), tempF: Math.round(j.current.temperature_2m), at: Date.now() };
+    } catch (err) { log('weather lookup failed', err.message); return; }
+  }
+  const changed = next.kind !== weather.kind || next.tempF !== weather.tempF;
+  weather = next;
+  if (changed) { log('weather', weather.kind, weather.tempF ?? ''); toAll(weatherView()); }
+}
+refreshWeather();
+setInterval(refreshWeather, WEATHER.refreshMinutes * 60_000).unref();
+
+// ---------- teacher events ----------
+// Rewards the teacher starts for everyone: a festival, double XP, a rare spawn. Kept in meta so a restart keeps them.
+function eventsNow() {
+  const now = Date.now(), out = {};
+  for (const k of Object.keys(EVENTS.kinds)) {
+    const until = Number(getMeta.get(`event:${k}`)?.value || 0);
+    if (until > now) out[k] = until;
+  }
+  return out;
+}
+const eventsView = () => ({ t: 'events', events: Object.entries(eventsNow()).map(([k, until]) => ({ kind: k, label: EVENTS.kinds[k].label, left: until - Date.now() })) });
+function startEvent(kind) {
+  const e = EVENTS.kinds[kind];
+  if (!e) return false;
+  let until;
+  if (e.minutes) until = Date.now() + e.minutes * 60_000;
+  else { const end = new Date(); end.setHours(23, 59, 0, 0); until = end.getTime(); }
+  setMeta.run(`event:${kind}`, String(until));
+  toAll({ t: 'teacher', msg: e.line });
+  toAll(eventsView());
+  log('teacher event', kind, new Date(until).toISOString());
+  return true;
+}
+function stopEvent(kind) { db.prepare('DELETE FROM meta WHERE key = ?').run(`event:${kind}`); toAll(eventsView()); log('teacher event stopped', kind); }
+// A wild table with today's weather and any rare spawn folded in.
+function wildTable(table) {
+  const boost = WEATHER.kinds[weather.kind]?.boost || {};
+  const out = {};
+  for (const [sp, w] of Object.entries(table)) out[sp] = w * (boost[SPECIES[sp]?.type] || 1);
+  if (eventsNow().rare) for (const sp of EVENTS.kinds.rare.species) out[sp] = (out[sp] || 0) + EVENTS.kinds.rare.weight;
+  return out;
+}
+
+// ---------- the Gazette and the mailbox ----------
+// Today's paper, printed from the event log on the first request of the day. The director's checked quotes are
+// added when it is sent, so pausing the director takes them off the page at once.
+function todayPaper() {
+  const day = Accounts.todayKey();
+  const paper = NEWS.paper(day) || NEWS.savePaper(day, composeGazette(NEWS_CONTENT.gazette, NEWS.sinceLastPaper(day), [], { day, speciesName: (s) => SPECIES[s]?.name || s }));
+  linesCache.at = 0;
+  const quotes = liveLines().map((l) => ({ who: residentName(l.who), text: l.text }));
+  return { ...paper, quotes, weather: { label: WEATHER.kinds[weather.kind].label, tempF: weather.tempF } };
+}
+function sendPaper(p, fresh) { send(p, { t: 'gazette', paper: todayPaper(), fresh }); }
+// The first ride of a school day: residents' letters arrive, written from this trainer's own Checklings only.
+function deliverMail(p) {
+  if (!p.pid) return;
+  const day = Accounts.todayKey();
+  const items = STORE.items(p.pid);
+  if (items.mailDay !== day) {
+    const created = STORE.trainer(p.pid)?.created;
+    const team = STORE.team(p.pid), partner = team.find((r) => `k${r.id}` === p.partner) || team.find((r) => r.party);
+    const g = STORE.gym(p.pid, LEARN.gym.dailyRounds);
+    const close = partner && LEARN.gym.moves.filter((m) => Moves.canLearn(LEARN, RULES, partner.species, m.move) && (g.points[m.move] || 0) >= m.cost / 2 && (g.points[m.move] || 0) < m.cost)[0];
+    const ev = partner && SPECIES[partner.species].evolves?.[0];
+    const ctx = {
+      firstDay: Boolean(created) && Accounts.todayKey(new Date(created)) === day,
+      flag: partner ? careFlag(p.pid, partner) : '', nick: partner ? (partner.nick || SPECIES[partner.species].name) : 'your Checkling', species: partner ? SPECIES[partner.species].name : '',
+      gymClose: close ? { move: RULES.moves[close.move].name, points: g.points[close.move], price: close.cost } : null,
+      gymNever: !Object.keys(g.points).length && g.roundsLeft === LEARN.gym.dailyRounds,
+      frost: Boolean(KETTLE && STORE.cemetery(p.hour, 1).length && (p.kcGhosts || []).some((x) => x.kind === 'grave')),
+      evolveSoon: Boolean(ev && partner.level < ev.level && ev.level - partner.level <= 2),
+    };
+    for (const letter of composeMail(NEWS_CONTENT.mail, ctx, (rule) => NEWS.sentBefore(p.pid, rule))) NEWS.addMail(p.pid, day, letter);
+    STORE.setItem(p.pid, 'mailDay', day);
+  }
+  const box = NEWS.mail(p.pid);
+  send(p, { t: 'mail', letters: box.letters, unread: box.unread });
+}
+
+// ---------- resident battles ----------
+// Residents battle each other where they stand, so the town feels alive around a trainer. A battle only starts
+// close to a trainer who is outdoors, uses the real battle engine with both sides picking for themselves, and can
+// be watched on the battle screen. Residents are held still for the length of the battle, then go back to work.
+const sparNext = new Map(); // life world key -> time the next resident battle may start
+const pickLine = (list, vars) => list[Math.floor(Math.random() * list.length)].replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+const residentName = (id) => WORLD.residents.find((r) => r.id === id)?.name || id;
+function sparViewers(key, room) { return [...players.values()].filter((q) => lifeKey(q) === key && residentScene(q) === room && !q.battle); }
+function sparFighters(b, p) {
+  const e = residentWorlds.get(b.npc.key);
+  if (!e || lifeKey(p) !== b.npc.key) return [];
+  return b.npc.res.map((id) => e.sim.byId.get(id)).filter(Boolean);
+}
+function sparSides(b) {
+  const e = residentWorlds.get(b.npc.key);
+  return b.npc.res.map((id, i) => {
+    const n = e?.sim.byId.get(id), f = b.state.sides[i];
+    return { resident: id, name: residentName(id), x: n?.x ?? 0, y: n?.y ?? 0, species: f.species, level: f.level, hp: f.hp, maxHp: f.maxHp };
+  });
+}
+function sparUpdate(b, events = []) {
+  const hits = events.filter((e) => e.k === 'hit').map((e) => e.side);
+  const fades = events.filter((e) => e.k === 'fade').map((e) => e.side);
+  const msg = { t: 'npc_battle', id: b.id, room: b.npc.room, sides: sparSides(b), hits, fades, moves: events.filter((e) => e.k === 'use').map((e) => ({ side: e.side, type: e.type })) };
+  for (const q of sparViewers(b.npc.key, b.npc.room)) send(q, msg);
+}
+function startSpar(key, e, a, bRes) {
+  const owner = `spar:${nextBattle}`;
+  if (!e.sim.reserve(a.id, owner, 45)) return;
+  if (!e.sim.reserve(bRes.id, owner, 45)) { e.sim.release(owner); return; }
+  // Face each other.
+  a.f = Math.abs(bRes.x - a.x) >= Math.abs(bRes.y - a.y) ? (bRes.x > a.x ? 'r' : 'l') : (bRes.y > a.y ? 'd' : 'u');
+  bRes.f = { r: 'l', l: 'r', u: 'd', d: 'u' }[a.f];
+  const id = nextBattle++;
+  const names = [residentName(a.id), residentName(bRes.id)];
+  const sides = [a, bRes].map((n, i) => ({ name: names[i], species: SPARS.residents[n.id].species, level: SPARS.residents[n.id].level }));
+  const state = Battle.createBattle(RULES, sides, crypto.randomInt(0, 2 ** 31));
+  const b = { id, npc: { key, room: a.room, res: [a.id, bRes.id], owner }, ids: [0, 0], names, cids: [0, 0], pids: ['', ''], state, picks: [null, null], log: [], timeouts: [0, 0],
+    deadline: Date.now() + SPARS.turnMs, watchers: new Set(), started: new Date().toISOString(), room: a.room };
+  battles.set(id, b);
+  const line = pickLine(SPARS.lines.start, { a: names[0], b: names[1] });
+  for (const q of sparViewers(key, a.room)) {
+    send(q, { t: 'npc_battle', id, room: a.room, sides: sparSides(b), hits: [], fades: [], moves: [], start: true });
+    if ([a, bRes].some((n) => dist(n, q) <= RULES.settings.watchDistance + 2)) send(q, { t: 'battle_near', id, names, line });
+  }
+}
+function finishSpar(b) {
+  const e = residentWorlds.get(b.npc.key), st = b.state;
+  battleSend(b, { t: 'battle_end', id: b.id, winner: st.winner, reason: st.reason, view: battleView(b) });
+  for (const w of b.watchers) { const q = players.get(w); if (q) q.watching = 0; }
+  if (e) {
+    e.sim.release(b.npc.owner);
+    // The residents remember how it went, and say so when a trainer talks to them.
+    if (st.winner === 0 || st.winner === 1) b.npc.res.forEach((rid, i) => {
+      const n = e.sim.byId.get(rid);
+      if (!n) return;
+      const text = pickLine(st.winner === i ? SPARS.lines.win : SPARS.lines.loss, { other: residentName(b.npc.res[1 - i]) });
+      n.memory.push(text); if (n.memory.length > 6) n.memory.shift(); n.lastCompleted = text;
+    });
+  }
+  NEWS.record('spar', { a: residentName(b.npc.res[0]), b: residentName(b.npc.res[1]), winner: st.winner === 0 || st.winner === 1 ? residentName(b.npc.res[st.winner]) : '' });
+  const end = { t: 'npc_battle_end', id: b.id, room: b.npc.room, winner: st.winner, sides: sparSides(b) };
+  for (const q of sparViewers(b.npc.key, b.npc.room)) send(q, end);
+}
+// Every few seconds: in each resident world with a trainer outdoors, maybe start one battle near that trainer.
+setInterval(() => {
+  if (paused) return;
+  const now = Date.now();
+  const busy = new Set([...battles.values()].filter((x) => x.npc).map((x) => x.npc.key));
+  for (const [key, e] of residentWorlds) {
+    if (busy.has(key)) continue;
+    const next = sparNext.get(key);
+    if (next === undefined) { sparNext.set(key, now + 1000 * (SPARS.gapSeconds[0] / 2)); continue; }
+    if (now < next) continue;
+    const [lo, hi] = SPARS.gapSeconds;
+    sparNext.set(key, now + 1000 * (lo + Math.random() * (hi - lo)));
+    const watchers = [...players.values()].filter((q) => lifeKey(q) === key && MAPS[residentScene(q)] !== undefined || (lifeKey(q) === key && isKettle(q.room)));
+    if (!watchers.length) continue;
+    const clock = e.sim.clock();
+    const free = e.sim.states.filter((n) => SPARS.residents[n.id] && !n.carry && n.holdUntil <= clock && n.resumeAfter <= clock && !n.room.startsWith('home:'));
+    const pairs = [];
+    for (let i = 0; i < free.length; i++) for (let j = i + 1; j < free.length; j++) {
+      const a = free[i], c = free[j];
+      if (a.room !== c.room || dist(a, c) > SPARS.range || dist(a, c) < 1) continue;
+      const seen = Math.min(...watchers.filter((q) => residentScene(q) === a.room).map((q) => Math.min(dist(q, a), dist(q, c))));
+      if (seen <= SPARS.seeRange) pairs.push({ a, c, seen });
+    }
+    if (!pairs.length) continue;
+    pairs.sort((x, y) => x.seen - y.seen);
+    const pick = pairs[Math.floor(Math.random() * Math.min(3, pairs.length))];
+    startSpar(key, e, pick.a, pick.c);
+  }
+}, 3000).unref();
+
 // The turn clock. While the teacher has the town paused, every clock stands still.
 let lastTick = Date.now();
 setInterval(() => {
@@ -743,6 +1195,7 @@ setInterval(() => {
   for (const b of [...battles.values()]) {
     if (paused) { b.deadline += gap; continue; }
     if (now < b.deadline) continue;
+    if (b.npc) { b.picks = [wildPick(b, 0), wildPick(b, 1)]; playTurn(b); continue; }
     const gone = [];
     b.picks.forEach((m, i) => { if (!m) { b.timeouts[i]++; if (b.timeouts[i] >= RULES.settings.timeoutsToForfeit) gone.push(i); } });
     if (gone.length) {
@@ -777,6 +1230,8 @@ const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
   '/world.js': ['world.js', 'text/javascript; charset=utf-8'],
+  '/battle-fx.js': ['battle-fx.js', 'text/javascript; charset=utf-8'],
+  '/gym.js': ['gym.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
   '/teacher': ['teacher.html', 'text/html; charset=utf-8'],
   '/teacher.js': ['teacher.js', 'text/javascript; charset=utf-8'],
@@ -831,7 +1286,10 @@ function teacherApi(req, res, action) {
   const reply = (code, body) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...SECURITY_HEADERS }); res.end(JSON.stringify(body)); };
   if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
-    return reply(200, { ok: true, paused, noSchool: Boolean(getMeta.get(`noschool:${Accounts.todayKey()}`)), version: VERSION, players: [...players.values()].map((p) => ({
+    return reply(200, { ok: true, paused, noSchool: Boolean(getMeta.get(`noschool:${Accounts.todayKey()}`)), version: VERSION,
+      weather: { kind: weather.kind, label: WEATHER.kinds[weather.kind].label, tempF: weather.tempF },
+      events: Object.entries(EVENTS.kinds).map(([k, e]) => ({ kind: k, label: e.label, minutes: e.minutes, until: eventsNow()[k] || 0 })),
+      director: { paused: directorPaused(), lines: NEWS.lines(Accounts.todayKey()).map((l) => ({ ...l, name: residentName(l.who) })) }, players: [...players.values()].map((p) => ({
       id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : isKettle(p.room) ? 'Kettle Creek' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
@@ -862,6 +1320,19 @@ function teacherApi(req, res, action) {
       if (body.v) setMeta.run(`noschool:${day}`, '1'); else db.prepare('DELETE FROM meta WHERE key = ?').run(`noschool:${day}`);
       log('teacher', body.v ? 'no school today' : 'school today after all');
       return reply(200, { ok: true, noSchool: Boolean(body.v) });
+    }
+    if (action === 'event') {
+      if (typeof body.start === 'string') return reply(startEvent(body.start) ? 200 : 404, { ok: true, events: eventsNow() });
+      if (typeof body.stop === 'string' && EVENTS.kinds[body.stop]) { stopEvent(body.stop); return reply(200, { ok: true, events: eventsNow() }); }
+      return reply(400, { ok: false });
+    }
+    if (action === 'director') {
+      // Pause or restart the overnight director. Paused, it writes nothing and its lines leave the Gazette at once.
+      if (body.v === true) setMeta.run('director:paused', '1'); else if (body.v === false) db.prepare('DELETE FROM meta WHERE key = ?').run('director:paused');
+      if (Number.isInteger(body.drop)) NEWS.setLine(body.drop, 'removed');
+      linesCache.at = 0;
+      log('teacher director', directorPaused() ? 'paused' : 'running', Number.isInteger(body.drop) ? `removed line ${body.drop}` : '');
+      return reply(200, { ok: true, paused: directorPaused(), lines: NEWS.lines(Accounts.todayKey()) });
     }
     if (action === 'say') {
       const msg = String(body.msg || '').replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -952,6 +1423,8 @@ function join(ws, ticket) {
       Object.assign(p, { pid: t.pid, hour: t.hour, name: tr.name, look: tr.look % LOOKS, partner: tr.partner ? `k${tr.partner}` : '',
         record: { w: tr.wins, l: tr.losses, d: tr.draws }, rerolls: STORE.renamesLeft(t.pid), attendance: t.days });
       p.arrival = { reports: linked.reports, deaths: linked.deaths };
+      for (const d of linked.deaths) NEWS.record('death', { species: d.species, hour: t.hour });
+      for (const f of linked.faded || []) notes.push(`${label(f.species, f.nick)} spent too long out of your party and faded back to the cemetery. You might find it there again someday.`);
       const hatched = STORE.team(t.pid).find((r) => r.hatched);
       if (linked.created && hatched) notes.push(KETTLE ? `Welcome to Kettle Creek, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus home with you.` : `Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
       const c = linked.credit;
@@ -959,6 +1432,8 @@ function join(ws, ticket) {
         const who = label(c.species, c.nick);
         const times = c.days === 1 ? 'one check-in' : `${c.days} check-ins`;
         notes.push(c.after > c.before ? `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP and grew to level ${c.after}!` : `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP.`);
+        if (c.evolved) { notes.push(evolvedLine(c.nick, c.evolved)); NEWS.record('evolve', { trainer: tr.name, from: c.evolved.from, to: c.evolved.to }); }
+        for (const mv of c.learned || []) notes.push(`${label(c.species, c.nick)} learned ${RULES.moves[mv].name}!`);
       }
     } else {
       notes.push(TICKET_TROUBLE[checked.why] || TICKET_TROUBLE.default);
@@ -986,6 +1461,15 @@ function join(ws, ticket) {
     players: inRoom(p.room).map(publicView),
   });
   toRoom(p.room, { t: 'join', p: publicView(p) }, p.id);
+  if (home) sendGhosts(p);
+  send(p, weatherView());
+  send(p, eventsView());
+  if (p.pid) setTimeout(() => { if (players.has(p.id)) sendOffer(p); }, 1500);
+  if (p.pid) {
+    deliverMail(p);
+    // The paper opens by itself on the first ride of the day.
+    if (STORE.items(p.pid).paperDay !== Accounts.todayKey()) { STORE.setItem(p.pid, 'paperDay', Accounts.todayKey()); setTimeout(() => { if (players.has(p.id)) sendPaper(p, true); }, 2500); }
+  }
   sendPlots();
   if (!plot && !home) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
   // One card on arrival, so the welcome is not wiped by the growth line a moment later.
@@ -1003,6 +1487,7 @@ function leave(p) {
   releaseResidents(p);saveResidentWorlds();
   if (p.battle) forfeitBattle(p, 'left');
   stopWatching(p);
+  clearTimeout(p.sightTimer);
   players.delete(p.id);
   pending.delete(p.id);
   kcStones.delete(p.room);
@@ -1040,6 +1525,12 @@ function handleMove(p, d) {
   if (stepped) { p.x = nx; p.y = ny; p.stats.moves++;checkResidentFinds(p); }
   // Facing changes even when the step is blocked, so everyone sees the turn.
   toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+  // On the cemetery hill: walking into a ghost you can see starts a battle. A hidden wanderer only leaves a chill.
+  if (stepped && isKettle(p.room) && !p.battle && p.kcGhosts?.length) {
+    const g = p.kcGhosts.find((q) => q.x === p.x && q.y === p.y);
+    if (g && sightLeft(p) && !partnerSide(p).none) return startGhost(p, g);
+    if (g && g.kind === 'wander' && !p.chilled) { p.chilled = true; send(p, { t: 'notice', msg: GHOSTS.wandererClue }); }
+  }
   // A step into terrain in the wilds can rouse a wild Checkling. Right after a battle there are a few free steps.
   // Kettle Creek's Route 1 has its own gentler zone (wild.json kettle).
   if (stepped && (p.room === 'wilds' || isKettle(p.room)) && !p.battle) {
@@ -1157,6 +1648,15 @@ function handleMessage(p, msg, now) {
       if (was !== p.partner) toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
       return;
     }
+    case 'nick': {
+      // Students name Checklings they caught or hatched from an egg. Names only ever go to their owner's screen.
+      if (!p.pid || typeof msg.v !== 'string' || !/^k\d+$/.test(msg.v) || typeof msg.name !== 'string') return;
+      const nick = msg.name.replace(/[^A-Za-z0-9 '\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
+      const done = STORE.nickname(p.pid, Number(msg.v.slice(1)), nick);
+      if (done.msg) send(p, { t: 'notice', msg: done.msg });
+      if (done.ok) sendTeam(p);
+      return;
+    }
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));
     case 'body': {
       // The Care panel for one Checkling in the party or Den.
@@ -1176,6 +1676,7 @@ function handleMessage(p, msg, now) {
       const r = STORE.care(p.pid, id, msg.a, row.nick || SPECIES[row.species].name);
       if (r.death) {
         log('death', p.pid.slice(0, 6), row.species, r.death.cause);
+        NEWS.record('death', { species: row.species, hour: p.hour });
         send(p, { t: 'death', name: label(row.species, row.nick), cause: r.death.cause, epitaph: r.death.epitaph, msg: r.msg, egg: eggOf(p) });
         sendTeam(p);
         return toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
@@ -1184,6 +1685,27 @@ function handleMessage(p, msg, now) {
       return sendTeam(p);
     }
     case 'bus': return rideBus(p, msg.to);
+    case 'learn': {
+      if (!p.pid || p.battle || typeof msg.move !== 'string') return;
+      const cid = Number(String(msg.id || '').replace(/^k/, ''));
+      const row = STORE.get(p.pid, cid);
+      if (!row) return;
+      const r = STORE.learnMove(p.pid, cid, msg.move, typeof msg.forget === 'string' ? msg.forget : null, 'offer');
+      if (!r.ok) return send(p, { t: 'notice', msg: r.msg });
+      send(p, { t: 'notice', msg: r.skipped ? `${label(row.species, row.nick)} kept its moves.` : `${label(row.species, row.nick)} learned ${RULES.moves[msg.move].name}!` });
+      if (!r.skipped) NEWS.record('learn', { trainer: p.name, species: row.species, move: msg.move });
+      sendTeam(p);
+      return sendOffer(p);
+    }
+    case 'gym': case 'gym_start': case 'gym_finish': case 'gym_teach':
+      p.lastGym = p.lastGym || {};
+      if (now - (p.lastGym[msg.t] || 0) < 250) return;
+      p.lastGym[msg.t] = now;
+      return gymMessage(p, msg, now);
+    case 'gazette': if (now - (p.lastPaper || 0) > 1000) { p.lastPaper = now; sendPaper(p, false); } return;
+    case 'mail_read': if (p.pid) { NEWS.readAll(p.pid); const box = NEWS.mail(p.pid); send(p, { t: 'mail', letters: box.letters, unread: box.unread }); } return;
+    case 'stone': if (now - (p.lastStone || 0) > 300) { p.lastStone = now; lookAtStone(p, Number(msg.x), Number(msg.y)); } return;
+    case 'apothecary': if (now - (p.lastBrew || 0) > 400) { p.lastBrew = now; apothecary(p, Boolean(msg.brew)); } return;
     case 'hatch': {
       if (!p.pid || !STARTERS.includes(msg.species)) return;
       const got = STORE.hatchEgg(p.pid, msg.species, p.attendance || 0);

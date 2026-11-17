@@ -1,3 +1,31 @@
+## November 17 Roswell Signal student publication
+
+Owner Codex, tracker #360 R06. The additive `hh-roswell-signal.html` edition uses the shared PIN gate and keeps five writing fields and two evidence selections mounted across all twelve screens. Practice choices and navigation stay in the current tab and reset at sign-out. The old browser-wide draft has no verified owner, so the student edition discards it without displaying or importing it. The original source is retained and classroom bookmarks redirect to the student edition. Games, Hidden History Unit 1 and the sitemap link to it.
+
+The synthetic browser walkthrough covers all ten evidence transmissions, the completed report download, same-tab refresh, another device's account recovery, Turn In and shared-device sign-out. The mobile match arrow no longer covers the material buttons, and answer rerenders preserve keyboard focus when the control remains available. Protected CI and the production readback are separate release checks. School-device acceptance uses the normal classroom rollout.
+
+## November 16 Situation Room student publication
+
+Owner Codex, tracker #360 R07. The additive `situation-room.html` edition replaces numeric scoring with written trade-offs and pairs six decisions with October 1962 records. The chronology links to the National Archives, JFK Library, and Office of the Historian. A discussion debrief invites students to compare public and private accounts. Choices, feedback, debrief, and restart support keyboard navigation. The timeline also works without JavaScript. Games and Cold War America link to the corrected edition, and legacy bookmarks redirect there.
+
+Focused Chromium checks passed at 320, 390, and 1440 pixels for all 18 choices, keyboard focus, replay, WCAG A/AA, and page fit. The six timeline entries and eight source links passed the JavaScript-disabled check. Protected CI, merge, production readback, and classroom acceptance are separate release checks. The activity collects no student information or work.
+
+## November 15 Evidence Locker student publication
+
+Owner Codex, issue #374. Native buttons replace mouse-only evidence selection and filing. Learners can revise cards before filing, receive status announcements and keep focus through selection, filing, report and reset. Four historical summaries link to the Church Committee report and Senate's committee history; the other four cards and claim B are explicitly invented practice examples. The report counts sorting matches and explains evidence quality instead of presenting invented certainty percentages. The additive evidence-locker.html edition preserves the original underscore-named baseline; existing classroom URLs redirect to the corrected edition. Games and the sitemap make it discoverable.
+
+Focused Chromium passes complete keyboard journeys, corrected and deliberately inverted filing, reset, reload, no external requests, WCAG A/AA and viewport fit at 320, 390 and 1440 pixels. Build and static validation pass (174 HTML files, 5779 local references, 35 releases and 264 sealed assets). The source trail is also readable without JavaScript. Protected full CI, merge and exact production readback are separate pending release checks at this source checkpoint. Physical school Chromebook and school-network source access remain field checks. No student service is used.
+
+## November 15 Boss Fight Review student publication
+
+Owner Codex, issue #373. The additive `boss-fight-review.html` edition keeps answer explanations until Continue, consumes each transition once, and moves keyboard focus to feedback, the next question and the ending. The original underscore-named baseline is preserved in source; existing classroom URLs redirect to the corrected edition. The corrected edition adds source links, qualifies monopoly/scrip/strike claims, replaces unsupported Title IX word-count and participation claims, dates the NCAA NIL question to July 2021, distinguishes invented scores from grades, and appears in Games and the sitemap. The game stores and transmits no work.
+
+The original timeout and BODY focus defects reproduce on source byte-identical to the live baseline. Focused Chromium passes win/loss, all 12 explanations, persistent feedback, duplicate activation, focus/keyboard, WCAG A/AA, viewport fit and stateless play at 320, 390 and 1440 pixels; references remain readable with JavaScript disabled. Canonical verification, protected CI and exact production readback are separate release checks. Physical classroom acceptance remains pending.
+
+## November 13 Market Shock Arena prices and student publication
+
+Owner Codex, issue #371. Inventory quotes now use each round's ingredient cost, and the rival comparison uses the advertised $7. Learners keep each round's news, choices and economics note until pressing Next round. Insufficient cash for the next minimum prep ends the season instead of trapping the player. The page explains its invented demand, price, reputation and cost rules and appears in games. Focused browser acceptance, canonical verification, protected CI and production readback are separate release checks; physical classroom acceptance remains pending.
+
 ## November 13 Checkaverse houses and Kettle Creek buildings
 
 Codex recovered the Gemini Sprite Book cottage, stump and creek houses and the Kettle Creek store, apothecary, clinic and daycare from draft PR #284. They use the same versioned-file fallback as the plaza landmarks (original PNGs, then the existing shapes). Local Chromium loaded a saved trainer's Kettle Creek, drew the cottage and all four buildings, and repeated the walk with the versioned and then both generations missing. The stump and creek houses appear only on claimed Neighborhood plots; their delivery and fallback requests are checked but not drawn. Independent release verification and physical Chromebook use are pending.

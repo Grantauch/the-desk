@@ -1,0 +1,27 @@
+{
+  "note": "Residents battle each other. Every resident has a Checkling. While a trainer is outdoors, every gapSeconds (a random number between the two) two residents within range tiles of each other, and within seeRange of a trainer, stop and battle where they stand. Turns play every turnMs, the battle ends at maxTurns with more health winning, and trainers nearby can watch it on the battle screen. Nothing a student owns is ever touched.",
+  "gapSeconds": [35, 80],
+  "range": 7,
+  "seeRange": 14,
+  "turnMs": 2600,
+  "maxTurns": 14,
+  "residents": {
+    "rowan": { "species": "bramble", "level": 8, "nick": "Burr" },
+    "nell": { "species": "mossbit", "level": 7, "nick": "Sprig" },
+    "ivo": { "species": "reedling", "level": 9, "nick": "Ripple" },
+    "pax": { "species": "breezle", "level": 8, "nick": "Zip" },
+    "mara": { "species": "duskit", "level": 9, "nick": "Hush" },
+    "orin": { "species": "clank", "level": 14, "nick": "Fare" },
+    "tess": { "species": "kindling", "level": 12, "nick": "Coal" },
+    "bram": { "species": "cinderkit", "level": 20, "nick": "Captain" },
+    "ada": { "species": "cloudlet", "level": 13, "nick": "Puff" },
+    "fern": { "species": "stumpkin", "level": 18, "nick": "Root" },
+    "sol": { "species": "cobbit", "level": 17, "nick": "Plumb" },
+    "wren": { "species": "glint", "level": 18, "nick": "Twinkle" }
+  },
+  "lines": {
+    "start": ["{a} and {b} square off for a quick battle.", "{a} challenges {b} to a practice match.", "{b} accepts a battle from {a}."],
+    "win": ["I beat {other} in a battle today.", "Won a close one against {other}.", "{other} put up a good fight, but I won."],
+    "loss": ["{other} beat me in a battle today.", "Lost a battle to {other}. Next time.", "{other} got the better of me today."]
+  }
+}

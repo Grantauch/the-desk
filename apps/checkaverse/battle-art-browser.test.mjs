@@ -71,11 +71,10 @@ try {
     // The dialog ignores input for 400 ms so a sign tap cannot accept a battle.
     await new Promise(resolve => setTimeout(resolve, 450));
     await other.locator('#askYes').click();
-    const updated = opponent !== 'zee';
     await pose(player, '#bMeMon', 'back-mochi-v2-idle.png');
-    await pose(player, '#bFoeMon', updated ? `front-${opponent}-v2-idle.png` : 'front-zee.png');
+    await pose(player, '#bFoeMon', `front-${opponent}-v2-idle.png`);
     await pose(other, '#bFoeMon', 'front-mochi-v2-idle.png');
-    await pose(other, '#bMeMon', updated ? `back-${opponent}-v2-idle.png` : 'back-zee.png');
+    await pose(other, '#bMeMon', `back-${opponent}-v2-idle.png`);
     if (opponent === 'bolt') {
       if (process.env.CHECKAVERSE_BATTLE_SCREENSHOT) await player.screenshot({ path: process.env.CHECKAVERSE_BATTLE_SCREENSHOT });
       await player.route('**/art/back-mochi-v2.png', route => route.fulfill({ status: 404 }));
