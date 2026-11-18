@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "storyId": "BTS-ROUTETREE",
-  "checkedAt": "2026-11-17",
-  "scope": "Four-scene Cinematic Ink pilot plus ten authentic player photographic anchors.",
+  "checkedAt": "2026-11-18",
+  "scope": "Six Cinematic Ink scenes, ten authentic player anchors and dated historical context photography across two balanced alternative assignments and the preserved full edition.",
   "policy": "Original files retained separately; only optimized derivatives deploy. Sources are not evidence for reconstructed environments or invented gestures. No noncommercial-only or unknown-license source is newly integrated.",
   "sources": [
     {
@@ -101,7 +101,9 @@
       "checked": "2026-11-17",
       "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
       "deployPaths": [
-        "/storyhub/bts/route-tree/assets/ci-lane-anchor.webp"
+        "/storyhub/bts/route-tree/assets/ci-lane-anchor.webp",
+        "/storyhub/bts/route-tree/assets/ci-lane-photo-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-lane-photo-1024.webp"
       ]
     },
     {
@@ -345,6 +347,63 @@
         "accuracyLimit": "Generated surface detail and exact likeness are interpretive. Original photography controls historical inference."
       },
       "commercialStatus": "Copyright source permits reuse under stated basis; brand, personality and territory-specific clearances have not been represented as blanket approval for advertising or merchandise."
+    },
+    {
+      "id": "C05",
+      "stem": "unitas-sandlot",
+      "classification": "artistic reconstruction",
+      "sourceIds": [
+        "P05"
+      ],
+      "license": "CC BY-SA 2.0; adapted from the John Mathew Smith / Kingkongphoto likeness photograph. This derivative is shared under CC BY-SA 2.0.",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "modifications": "AI-assisted younger likeness and imagined Pittsburgh sideline, 1955. Pose, clothing, teammate, bench and field are reconstructed. Resized WebP variants.",
+      "historicalReview": "Packers historian Cliff Christl and the Unitas family biography support Steelers release, construction work, Bloomfield Rams and a February 1956 Colts invitation. Accounts differ on sandlot pay, so no exact wage is asserted here. A 1996 portrait is a likeness reference, not proof of the imagined 1955 moment.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1024.webp",
+        "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1536.webp"
+      ],
+      "review": {
+        "anatomy": "Reviewed source and final optimized frame: plausible posture, hands and directed attention. Generated small detail remains interpretation.",
+        "lighting": "Ordinary diffuse outdoor light; monochrome Lane source retains its tonal structure.",
+        "style": "Selective hand ink, localized halftone and controlled dimensional rendering; the source photograph remains independently available.",
+        "accuracyLimit": "Exact young likeness, gestures and surface details are interpretive. No generated detail becomes new historical evidence."
+      },
+      "commercialStatus": "Source license permits commercial reuse with attribution and share-alike. No blanket personality, endorsement or merchandise clearance claimed.",
+      "optimizedSha256": {
+        "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-640.webp": "5efcf172c95675cd0068e262955e0eacafad64d6ecfc8bbf1c86a439927efef4",
+        "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1024.webp": "b14753428c739b867a7b3ac5e3c67b639429cee82540642cc91357a11135967d",
+        "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1536.webp": "ad6eb7cd135da6b4dc044a8bd4248c05438a53b8d02b3db4f0b8e1b26a660536"
+      }
+    },
+    {
+      "id": "C06",
+      "stem": "lane-recovery-ink",
+      "classification": "source-derived overpainting",
+      "sourceIds": [
+        "P04"
+      ],
+      "license": "Public domain in the United States: Los Angeles Daily News publication without copyright notice. AI-assisted ink interpretation of that source.",
+      "modifications": "AI-assisted monochrome ink rendering of the September 3, 1953 composition. Fine face, hand and ball details are interpreted; unmodified resized source is separately available.",
+      "historicalReview": "Original caption identifies Lane as number 81 at center right in Rams–49ers preseason play, September 3, 1953, Los Angeles Coliseum. This is not the 1952 office visit. Original source governs inference; illustration cannot establish new detail.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1024.webp",
+        "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1536.webp"
+      ],
+      "review": {
+        "anatomy": "Reviewed source and final optimized frame: plausible posture, hands and directed attention. Generated small detail remains interpretation.",
+        "lighting": "Ordinary diffuse outdoor light; monochrome Lane source retains its tonal structure.",
+        "style": "Selective hand ink, localized halftone and controlled dimensional rendering; the source photograph remains independently available.",
+        "accuracyLimit": "Exact young likeness, gestures and surface details are interpretive. No generated detail becomes new historical evidence."
+      },
+      "commercialStatus": "US public-domain basis recorded. International commercial redistribution requires territorial review; no blanket worldwide clearance claimed.",
+      "optimizedSha256": {
+        "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-640.webp": "d37ccd67043491e25273db53d2bb563ab00e470a6dc21249429c002076bbd58c",
+        "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1024.webp": "9db8bcafda9f938fd2cc0b1d4d190c9053d3636828f14d7ba39bbca16d848609",
+        "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1536.webp": "970b926f49241539fd292cbb06a0781676ffc21220b22978c7d00baa25c13a4a"
+      }
     }
   ],
   "commercialFlags": [
@@ -359,7 +418,17 @@
     "https://www.philadelphiaeagles.com/news/vince-papale-forty-years-of-invincible-17774810",
     "https://www.philadelphiaeagles.com/news/countdown-to-the-draft-83-days-14888698",
     "https://www.profootballhof.com/news/top-10-artifacts-of-inspiration",
-    "https://www.steelers.com/history/bios/bleier_rocky"
+    "https://www.steelers.com/history/bios/bleier_rocky",
+    {
+      "id": "UNITAS-CHRISTL",
+      "url": "https://www.packers.com/news/1955-nfl-draft-oral-history-end-of-around-the-clock-marathon-drafts",
+      "role": "Packers historian oral history: 1955 draft/cut, sandlot work, February 1956 Colts signing."
+    },
+    {
+      "id": "UNITAS-FAMILY",
+      "url": "https://www.johnnyunitas.com/about",
+      "role": "Family biography: construction work, Bloomfield Rams and the Colts invitation; pay differs from the earlier page, so the split edition avoids an exact amount."
+    }
   ],
   "fonts": [
     {
@@ -451,7 +520,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Municipal_Stadium,_Philadelphia,_Pa_(65080).jpg",
       "displayStatus": "retained",
       "reviewLimit": "US public-domain basis from publication without copyright notice. International commercial redistribution requires territorial review.",
-      "licenseUrl": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Municipal_Stadium,_Philadelphia,_Pa_(65080).jpg"
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Municipal_Stadium,_Philadelphia,_Pa_(65080).jpg",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a03-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a03-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A05",
@@ -470,7 +544,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:Riveter_at_work_at_the_Douglas_Aircraft_Corporation_plant_in_Long_Beach,_Calif._LOC_2179136411.jpg",
       "displayStatus": "retained",
       "reviewLimit": "US federal-government public-domain basis. No endorsement or blanket international clearance claimed.",
-      "licenseUrl": "https://commons.wikimedia.org/wiki/File:Riveter_at_work_at_the_Douglas_Aircraft_Corporation_plant_in_Long_Beach,_Calif._LOC_2179136411.jpg"
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:Riveter_at_work_at_the_Douglas_Aircraft_Corporation_plant_in_Long_Beach,_Calif._LOC_2179136411.jpg",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a05-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a05-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A07",
@@ -489,7 +568,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:US-NJ-LAkewood2697-bell-system-telephone-number-rotary-dial-1940.jpg",
       "displayStatus": "retained",
       "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license.",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/"
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a07-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a07-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A08",
@@ -508,7 +592,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:A_Company,_1st_Battalion,_8th_Cavalry_soldiers_move_through_rice_paddies.jpg",
       "displayStatus": "retained",
       "reviewLimit": "US federal-government public-domain basis. No endorsement or blanket international clearance claimed.",
-      "licenseUrl": "https://commons.wikimedia.org/wiki/File:A_Company,_1st_Battalion,_8th_Cavalry_soldiers_move_through_rice_paddies.jpg"
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:A_Company,_1st_Battalion,_8th_Cavalry_soldiers_move_through_rice_paddies.jpg",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a08-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a08-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A09",
@@ -527,7 +616,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:Wheatland_Iowa_20090712_Grocery_Store.JPG",
       "displayStatus": "retained",
       "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license.",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a09-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a09-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A10",
@@ -546,7 +640,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:Kent_State_Wrestling1.JPG",
       "displayStatus": "retained",
       "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license.",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/"
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a10-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a10-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A12",
@@ -565,7 +664,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:SLNSW_50876_Rugby_League_at_Sydney_Cricket_Ground.jpg",
       "displayStatus": "retained",
       "reviewLimit": "Australian public-domain term basis stated by the repository. No blanket territorial clearance claimed.",
-      "licenseUrl": "https://commons.wikimedia.org/wiki/File:SLNSW_50876_Rugby_League_at_Sydney_Cricket_Ground.jpg"
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:SLNSW_50876_Rugby_League_at_Sydney_Cricket_Ground.jpg",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a12-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a12-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A13",
@@ -584,7 +688,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:AT%26T_Stadium_2022-08-24.jpg",
       "displayStatus": "retained",
       "reviewLimit": "Author-applied Public Domain Mark. Status may be undetermined where dedication of own work to the public domain is not recognized; review before international commercial redistribution.",
-      "licenseUrl": "https://commons.wikimedia.org/wiki/File:AT%26T_Stadium_2022-08-24.jpg"
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:AT%26T_Stadium_2022-08-24.jpg",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a13-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a13-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A14",
@@ -603,7 +712,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:Zamboni_at_Hobey_Baker_Memorial_Rink.jpg",
       "displayStatus": "retained",
       "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license.",
-      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a14-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a14-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A15",
@@ -622,7 +736,12 @@
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_in_Tampa,_Florida_2024.jpg",
       "displayStatus": "retained",
       "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license.",
-      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "naturalDeployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-context-a15-640.webp",
+        "/storyhub/bts/route-tree/assets/ci-context-a15-1100.webp"
+      ],
+      "naturalModifications": "Resized and encoded as WebP; original photographic color or monochrome retained. No AI editing."
     },
     {
       "id": "A11",
@@ -699,7 +818,7 @@
       "checkedAt": "2026-11-17",
       "rightsRecord": "https://commons.wikimedia.org/wiki/File:MACC_interior_1.jpg",
       "displayStatus": "superseded-and-held",
-      "reviewLimit": "Exact legacy source page could not be independently read during the audit. Replaced by JonRidinger\u2019s directly verified MACC1.jpg under CC BY 3.0.",
+      "reviewLimit": "Exact legacy source page could not be independently read during the audit. Replaced by JonRidinger’s directly verified MACC1.jpg under CC BY 3.0.",
       "licenseUrl": "https://creativecommons.org/licenses/by/3.0/"
     }
   ]

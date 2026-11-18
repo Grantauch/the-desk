@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-10-29",
-  "catalogueCount": 75,
+  "checkedAt": "2026-11-18",
+  "catalogueCount": 77,
   "hubs": [
     {
       "hub": "bts-who-pays-for-friday-night.html",
@@ -9,7 +9,7 @@
     },
     {
       "hub": "bts-the-route-tree.html",
-      "mode": "assignment",
+      "mode": "reading",
       "legacyStorageMovedToTab": false
     },
     {
@@ -374,6 +374,16 @@
     },
     {
       "hub": "ush9-s04-the-weavers-son.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-route-tree-a.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-route-tree-b.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }

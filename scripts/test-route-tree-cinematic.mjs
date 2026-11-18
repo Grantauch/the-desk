@@ -26,6 +26,84 @@ const results = [];
 // The separate viewport captures retain the untouched live navigation and tools.
 const sectionCapture = { quality:90, style:'.nav{position:static!important}' };
 try {
+  // A and B are alternatives with equal output, disjoint cases and separate drafts.
+  for (const width of [320,390,1440]) {
+    for (const reducedMotion of ['no-preference','reduce']) {
+      const context=await browser.newContext({viewport:{width,height:1000},reducedMotion});
+      await context.addInitScript(()=>{window.__deskSaveTest={gate:false,endpoint:''};});
+      await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
+      const page=await context.newPage(),errors=[],missing=[],groups=[];
+      page.on('pageerror',e=>errors.push(e.message));
+      page.on('response',r=>{if(r.url().startsWith(origin)&&r.status()>=400)missing.push(r.url());});
+      const name=`split-${width}-${reducedMotion}`;
+      try {
+        for (const variant of ['a','b']) {
+          await page.goto(`${origin}/hubs/bts-route-tree-${variant}.html`);
+          await page.waitForFunction(()=>window.__deskSave?.mode==='assignment');
+          assert.equal(await page.locator('.case-section').count(),5);
+          assert.equal(await page.locator('.bonus-case').count(),1);
+          assert.equal(await page.locator('textarea').count(),3);
+          assert.equal(await page.locator('textarea').first().inputValue(),'','A/B begin with separate blank drafts');
+          assert.equal(await page.locator('.claim-card').count(),5);
+          groups.push(await page.locator('.case-section').evaluateAll(nodes=>nodes.map(n=>n.id)));
+          await page.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>{i.loading='eager';return i.decode();}));});
+          await page.screenshot({path:resolve(output,`${name}-${variant}-hero.jpg`),quality:85});
+          await page.locator('.funnel button[data-step="draft"]').click();
+          assert.equal(await page.locator('.funnel').getAttribute('data-step'),'draft');
+          assert.match(await page.locator('.funnel output').textContent(),/cohort comparisons/);
+          for(const card of await page.locator('.claim-card').all())await card.locator('button').first().click();
+          assert.match(await page.locator('#claim-progress').textContent(),/^5 of 5/);
+          for(const range of await page.locator('.ink-controls input').all()){
+            await range.focus();await page.keyboard.press('Home');
+            assert.match(await range.getAttribute('aria-valuetext'),/^0% ink/);
+            await page.keyboard.press('End');
+            assert.match(await range.getAttribute('aria-valuetext'),/^100% ink/);
+          }
+          for(const summary of await page.locator('.context-packet summary').all()){
+            await summary.focus();await page.keyboard.press('Enter');
+            assert.equal(await summary.evaluate(e=>e.parentElement.open),true);
+          }
+          assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Fits viewport');
+          const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+          await writeFile(resolve(output,`${name}-${variant}-axe.json`),JSON.stringify(axe,null,2));
+          assert.deepEqual(axe.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))})),[]);
+          await page.locator(variant==='a'?'#case-unitas':'#case-lane').screenshot({path:resolve(output,`${name}-${variant}-case.jpg`),quality:85,style:'.topbar{position:static!important}'});
+          await page.locator('textarea').first().fill(`Synthetic ${variant.toUpperCase()} response for draft-isolation verification.`);
+          await page.waitForFunction(()=>document.querySelector('textarea').value.length>0);
+          await page.locator('#responses').screenshot({path:resolve(output,`${name}-${variant}-responses.jpg`),quality:85});
+          if(variant==='a')assert.equal(await page.locator('#rt-a-1-count').textContent(),'6 words · target 90–110 words');
+        }
+        assert.equal(new Set([...groups[0],...groups[1]]).size,10);
+        await page.goto(origin+'/hubs/bts-route-tree-a.html');
+        await page.waitForFunction(()=>document.querySelector('textarea')?.value.startsWith('Synthetic A'));
+        assert.match(await page.locator('textarea').first().inputValue(),/^Synthetic A/);
+        await page.goto(origin+'/hubs/bts-the-route-tree.html');
+        await page.waitForFunction(()=>window.__deskSave?.mode==='reading');
+        assert.equal(await page.locator('textarea').count(),0);
+        assert.equal(await page.getByRole('link',{name:'Open Assignment A',exact:true}).count(),1);
+        assert.equal(await page.getByRole('link',{name:'Open Assignment B',exact:true}).count(),1);
+        const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+        assert.deepEqual(axe.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.failureSummary)})),[]);
+        await page.screenshot({path:resolve(output,`${name}-chooser.jpg`),quality:85});
+        assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+        results.push({name,status:'passed',groups});
+        console.log(`PASS ${name}: equal workload, claims, image controls, WCAG, fit and isolated drafts`);
+      } catch(error){results.push({name,status:'failed',message:error.message});console.error(`FAIL ${name}: ${error.message}`);await page.screenshot({path:resolve(output,`${name}-failed.jpg`),quality:85}).catch(()=>{});}
+      finally{await context.close();}
+    }
+  }
+  {
+    const context=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),page=await context.newPage();
+    await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
+    for(const v of ['a','b']){
+      await page.goto(`${origin}/hubs/bts-route-tree-${v}.html`);
+      assert.equal(await page.locator('textarea').count(),3);
+      const disclosure=page.locator('.claim-card details').first();await disclosure.locator('summary').click();
+      assert.equal(await disclosure.evaluate(el=>el.open),true);
+      if(v==='b')assert.match(await page.locator('#case-lane .ink-stage').getAttribute('style'),/0%/);
+    }
+    await context.close();
+  }
   for (const width of [320, 390, 1440]) {
     for (const reducedMotion of ['no-preference', 'reduce']) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion });
@@ -37,7 +115,7 @@ try {
       page.on('response', r => { if (r.url().startsWith(origin) && r.status() >= 400) missing.push(r.url()); });
       const name = `${width}-${reducedMotion}`;
       try {
-        assert.equal((await page.goto(origin + '/hubs/bts-the-route-tree.html')).status(), 200);
+        assert.equal((await page.goto(origin + '/hubs/bts-route-tree-full-reference.html')).status(), 200);
         await page.locator('.cover h1').waitFor();
         const landing = await page.evaluate(async () => {
           await document.fonts.ready;
@@ -133,7 +211,7 @@ try {
   const context = await browser.newContext({ javaScriptEnabled:false, viewport:{width:390,height:844} });
   const page = await context.newPage();
   await context.route('**/*', r => new URL(r.request().url()).origin === origin ? r.continue() : r.abort());
-  await page.goto(origin + '/hubs/bts-the-route-tree.html');
+  await page.goto(origin + '/hubs/bts-route-tree-full-reference.html');
   assert.equal(await page.locator('.source-note summary').count(), 2);
   assert.equal(await page.locator('#cast li:not([hidden])').count(), 10);
   await page.locator('.source-note summary').first().click();
