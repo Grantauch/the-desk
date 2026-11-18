@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FNL",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Cover",
+      "sourceMode": "source-first-place",
+      "subject": "A Texas high school stadium under the lights on a Friday night, Celina, 2021",
+      "rightsStatus": "Heidi Knapp, CC BY SA 4.0",
+      "provenance": "Wikimedia Commons (File:Celina High School, Friday Night Football.jpg), printed with a sodium amber gradient map, film grain and a lamp vignette, WebP. Credited in caption.",
+      "htmlSafeZone": "Shown as a wide strip under the title. Type sits on the black field below it, never over the lights.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/friday-lights.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Boom and Bust chapter",
+      "sourceMode": "source-first-place",
+      "subject": "Oil pumpjack in a West Texas field, 2014",
+      "rightsStatus": "Carol M. Highsmith, Library of Congress, public domain",
+      "provenance": "Wikimedia Commons (File:Colorful \"pumpjack,\" a type of small oil pump that's a common sight in West Texas, along U.S. 83 near the town of Winters in Runnels County, Texas LCCN2014631353.tif), printed with a sodium amber gradient map, film grain and a lamp vignette, WebP. Credited in caption.",
+      "htmlSafeZone": "Beside the oil chart, caption below.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/pumpjack.webp"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Odessa skyline for the boom and the backlash",
+      "sourceMode": "source-first-place",
+      "subject": "Odessa, Texas skyline, 2022",
+      "rightsStatus": "Vasiliymeshko, CC BY 4.0",
+      "provenance": "Wikimedia Commons (File:Odessa, Texas.jpg), printed with a sodium amber gradient map, film grain and a lamp vignette, WebP. Credited in caption.",
+      "htmlSafeZone": "Wide band image, caption below.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/odessa.webp"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Mojo chapter",
+      "sourceMode": "source-first-place",
+      "subject": "Ratliff Stadium at sunset, 2009",
+      "rightsStatus": "Zorin09, CC BY 3.0",
+      "provenance": "Wikimedia Commons (File:Ratliff stadium.JPG), printed with a sodium amber gradient map, film grain and a lamp vignette, WebP. Credited in caption.",
+      "htmlSafeZone": "Large image beside the stadium numbers, caption below.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/ratliff.webp"
+    },
+    {
+      "id": "A05",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "One Scrimmage chapter",
+      "sourceMode": "source-first-place",
+      "subject": "Jones Stadium at Texas Tech in Lubbock, 2010",
+      "rightsStatus": "John McStravick, CC BY 2.0",
+      "provenance": "Wikimedia Commons (File:Jones AT&T Stadium wide shot.jpg), printed with a sodium amber gradient map, film grain and a lamp vignette, WebP. Credited in caption.",
+      "htmlSafeZone": "Band image above the injury story, caption below.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/jones-stadium.webp"
+    },
+    {
+      "id": "A06",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Heads or Tails chapter",
+      "sourceMode": "source-first-place",
+      "subject": "Downtown Midland, Texas, 2026",
+      "rightsStatus": "Quintin Soloviev, CC BY 4.0",
+      "provenance": "Wikimedia Commons (File:Midland, TX skyline.jpg), printed with a sodium amber gradient map, film grain and a lamp vignette, WebP. Credited in caption.",
+      "htmlSafeZone": "Background band behind the coin table with a dark scrim.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/midland.webp"
+    },
+    {
+      "id": "A07",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "No Pass, No Play chapter",
+      "sourceMode": "source-first-place",
+      "subject": "Memorial Stadium in Austin at night, 2011",
+      "rightsStatus": "Brint03, CC BY SA 3.0",
+      "provenance": "Wikimedia Commons (File:Darrell K Royal-Texas Memorial Stadium at Night.jpg), printed with a sodium amber gradient map, film grain and a lamp vignette, WebP. Credited in caption.",
+      "htmlSafeZone": "Beside the semifinal story, caption below.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/austin-memorial.webp"
+    },
+    {
+      "id": "A08",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Hollywood or History chapter",
+      "sourceMode": "source-first-place",
+      "subject": "The Houston Astrodome, 2014",
+      "rightsStatus": "EricEnfermero, CC BY SA 3.0",
+      "provenance": "Wikimedia Commons (File:Reliant Astrodome in January 2014.jpg), printed with a sodium amber gradient map, film grain and a lamp vignette in projector teal, WebP. Credited in caption.",
+      "htmlSafeZone": "Beside the claim cards, printed in reel teal, caption below.",
+      "responsiveCrop": "Shown at its own aspect ratio with object fit cover only on the cover strip.",
+      "deployPath": "/storyhub/bts/friday-night/assets/astrodome.webp"
+    }
+  ]
+}
