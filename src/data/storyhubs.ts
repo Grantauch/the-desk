@@ -24,6 +24,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'bts-who-pays-for-friday-night',
+    href: '/hubs/bts-who-pays-for-friday-night.html',
+    title: 'who pays for friday night?',
+    course: 'beyond the scoreboard',
+    unit: 'friday night lights / the money game',
+    period: '1982–1991',
+    status: 'ready to teach',
+    edition: 'special edition · friday night lights',
+    question: 'odessa was an oil town in a bust that hung its hopes on a team of 17 year olds. who paid for friday night?',
+    blurb: 'The real 1988 Permian Panthers behind Friday Night Lights. Scrub the oil bust, guess the budget, run the midnight coin flip, step through the Dallas Carter court case and sort the movie into history and Hollywood. Every chapter adds a line to the tab.',
+    cover: '/storyhub/bts/friday-night/assets/friday-lights.webp',
+    coverAlt: 'A Texas high school football field at night under stadium lights, printed in amber',
+    topics: ['friday night lights', 'permian panthers', 'odessa', 'boobie miles', 'no pass no play', 'dallas carter', 'hollywood vs history'],
+    inside: [
+      'The trailer beside the 60 Minutes return to Odessa, and a decade of oil prices to scrub through.',
+      'Guess how many English budgets one season of chartered jets cost, then see it to scale.',
+      'Run the three coin tiebreaker yourself and watch the real 1988 flip.',
+      'Step through the Carter docket, call nine movie claims, rank the tab and answer five questions to turn in.',
+    ],
+  },
+  {
     slug: 'bts-the-route-tree',
     href: '/hubs/bts-the-route-tree.html',
     title: 'the route tree',
@@ -1338,6 +1359,27 @@ export const storyHubs: StoryHub[] = [
       'A clock you drag from 5:00 to 11:00 as the last morning happens in order.',
       'The last four soldiers killed, and the reasons on the record for attacking at all.',
       'From Armistice Day to Veterans Day, and three short responses with Turn In.',
+    ],
+  },
+  {
+    slug: 'ush9-s04-the-weavers-son',
+    href: '/hubs/ush9-s04-the-weavers-son.html',
+    title: "the weaver's son",
+    course: 'us history 9',
+    unit: 'industrialization / standalone',
+    period: 'England, 1811 to 1834',
+    status: 'ready to teach',
+    question: 'the machines came for the best paid workers in england. what happened to them, and to their children, after they lost?',
+    blurb:
+      'In 1811 skilled croppers and weavers started smashing the machines that were taking their trade. Students race a hand loom against a power loom, decode a letter signed Ned Ludd, walk the uprising on a map, watch a week of pay shrink in flour, and decide who really came out ahead. Then they hold the story up against AI.',
+    cover: '/storyhub/ush9/the-weavers-son/assets/leader-of-the-luddites-1812.webp',
+    coverAlt: 'The Leader of the Luddites, a hand colored London print from May 1812',
+    topics: ['luddites', 'industrial revolution', 'power loom', 'real wages', 'lord byron', 'technological unemployment', 'ai'],
+    inside: [
+      'A hand loom and a power loom side by side on video, and a race that shows the three and a half to one gap.',
+      'A Luddite letter from March 1812 to decode, and a map of the uprising from Arnold to the York gallows.',
+      'One weaver\'s pay in flour, 1797 against 1834, and a sort of who came out ahead.',
+      'Four AI scenarios, terms, note repair and four short responses with Turn In.',
     ],
   },
   {

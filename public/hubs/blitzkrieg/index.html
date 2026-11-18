@@ -1,24 +1,229 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#151916">
-  <meta name="description" content="Defend three fictional battlefields in a twelve-wave strategy game set during the September 1939 invasion of Poland.">
-  <meta property="og:title" content="Blitzkrieg — September 1, 1939">
-  <meta property="og:image" content="https://grant-desk.com/hubs/blitzkrieg/og.jpg">
-  <title>Blitzkrieg — September 1, 1939 · The Desk</title>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&amp;family=Newsreader:wght@500;600&amp;display=swap">
-  <link rel="stylesheet" href="./game.css?v=2">
-  <script defer src="./vendor/react-18.3.1.js"></script>
-  <script defer src="./vendor/react-dom-18.3.1.js"></script>
-  <script defer src="./game.js?v=2"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="theme-color" content="#14130f">
+<title>Blitzkrieg: Hold the Road</title>
+<meta name="description" content="Hold the road in September 1939. A tower defense game on seven battlefields of the invasion of Poland, with guns that grow, crews that earn rank, and ground that breaks.">
+<meta property="og:title" content="Blitzkrieg: Hold the Road">
+<meta property="og:image" content="https://grant-desk.com/hubs/blitzkrieg/og.jpg">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
-  <main id="game-root"></main>
-  <noscript>Blitzkrieg requires JavaScript. <a href="/games/">Return to The Desk games.</a></noscript>
+<div id="stage">
+  <canvas id="game" width="1280" height="720"></canvas>
+
+  <!-- in game HUD -->
+  <div id="hud" class="hidden">
+    <div class="topbar">
+      <div class="stat" id="st-gar" title="Garrison. Every unit that breaks through costs some.">
+        <i data-ic="heart"></i><b id="v-gar">20</b>
+      </div>
+      <div class="stat money" id="st-money" title="Złoty">
+        <i data-ic="coin"></i><b id="v-money">0</b><small>zł</small>
+      </div>
+      <div class="stat" title="Wave">
+        <span class="lab">Wave</span><b id="v-wave">1</b><small id="v-wavemax">/15</small>
+      </div>
+      <div class="combo" id="combo">
+        <div class="combo-n"><b id="v-combo">0</b><span>combo</span></div>
+        <div class="combo-bar"><i id="combo-fill"></i></div>
+        <div class="combo-mult" id="v-mult">pay x1.0</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="stat score" title="Score"><span class="lab">Score</span><b id="v-score">0</b></div>
+      <button class="ib wide" id="b-inv" title="Inventory (I)"><i data-ic="crate"></i><span id="v-inv">0</span></button>
+      <button class="ib" id="b-speed" title="Speed (F)"><span id="v-speed">1x</span></button>
+      <button class="ib" id="b-pause" title="Pause (P)"><i data-ic="pause"></i></button>
+    </div>
+
+    <div id="bossbar" class="hidden">
+      <div class="boss-name" id="boss-name">Command Tank</div>
+      <div class="boss-track"><i id="boss-fill"></i></div>
+    </div>
+
+    <div id="buffs"></div>
+    <div id="toasts"></div>
+
+    <div class="bottombar">
+      <div class="buildbox">
+        <div class="buildtabs"><button id="tab-guns" class="on">Guns</button><button id="tab-forts">Defenses <small>G</small></button></div>
+        <div id="guns"></div>
+        <div id="forts" class="hidden"></div>
+      </div>
+      <div id="abils"></div>
+      <button id="b-send" class="send">
+        <span class="send-main">Send wave <b id="v-sendwave">1</b></span>
+        <span class="send-sub" id="v-sendsub">Place guns first</span>
+        <span class="send-preview" id="v-preview"></span>
+        <i class="send-timer" id="send-timer"></i>
+      </button>
+    </div>
+
+    <div id="panel" class="hidden"></div>
+    <div id="crewbar" class="hidden">
+      <span><b>Crewing</b> <span id="crew-name">MG Nest</span></span>
+      <span class="hint">Aim and hold to fire. Weak spots glow gold.</span>
+      <button id="b-leave">Leave gun</button>
+    </div>
+  </div>
+
+  <div id="cine"><i class="bar top"></i><i class="bar bot"></i><div class="plate" id="plate"></div></div>
+  <div id="banner"></div>
+  <div id="grain"></div>
+  <div id="reels"></div>
+
+  <!-- title -->
+  <div id="title" class="screen">
+    <div class="title-wrap">
+      <div class="kicker">1 September 1939</div>
+      <h1>BLITZKRIEG</h1>
+      <div class="tag">Hold the road</div>
+      <div class="menu">
+        <button class="big" id="b-play">Play</button>
+        <button id="b-command"><i data-ic="star"></i> Command <span class="pill" id="v-medals">0</span></button>
+        <button id="b-notes"><i data-ic="book"></i> Field notes</button>
+      </div>
+      <div class="title-foot">
+        <button class="ib" id="b-sound" title="Sound"><i data-ic="sound"></i></button>
+        <button class="ib" id="b-music" title="Music"><i data-ic="music"></i></button>
+        <button class="ib wide" id="b-gore" title="Blood and bodies"><i data-ic="drop"></i><span>Blood on</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- battlefield select -->
+  <div id="maps" class="screen hidden">
+    <div class="screen-head">
+      <button class="back" data-go="title">Back</button>
+      <h2>Choose a battlefield</h2>
+      <div class="pill big" title="Medals"><i data-ic="star"></i><span class="v-medals">0</span></div>
+    </div>
+    <div class="map-grid" id="map-grid"></div>
+    <label class="endless hidden" id="endless-wrap"><input type="checkbox" id="endless"> Endless mode: keep fighting past wave 15</label>
+  </div>
+
+  <!-- unlocks -->
+  <div id="command" class="screen hidden">
+    <div class="screen-head">
+      <button class="back" data-go="title">Back</button>
+      <h2>Command</h2>
+      <div class="pill big" title="Medals"><i data-ic="star"></i><span class="v-medals">0</span></div>
+    </div>
+    <p class="screen-sub">Spend medals earned in battle. Unlocks last forever.</p>
+    <div class="unlock-grid" id="unlock-grid"></div>
+  </div>
+
+  <!-- notes -->
+  <div id="notes" class="screen hidden">
+    <div class="screen-head">
+      <button class="back" data-go="title">Back</button>
+      <h2>Field notes</h2>
+    </div>
+    <div class="notes" id="notes-body"></div>
+  </div>
+
+  <!-- card pick -->
+  <div id="cards" class="overlay hidden">
+    <div class="cards-head">
+      <div class="kicker" id="cards-kicker">Wave 1 held</div>
+      <h2>Supplies Inbound!</h2>
+      <div class="cards-pay" id="cards-pay"></div>
+    </div>
+    <div class="card-row" id="card-row"></div>
+    <button id="b-reroll" class="ghost"><i data-ic="dice"></i> Reroll <span id="v-rerolls">1</span></button>
+  </div>
+
+  <!-- inventory after each wave, and on demand -->
+  <div id="inv" class="overlay hidden">
+    <div class="inv-box">
+      <div class="kicker" id="inv-kicker">Wave 1 held</div>
+      <h2 id="inv-title">The haul</h2>
+      <div class="inv-mvp" id="inv-mvp"></div>
+      <div class="inv-loot" id="inv-loot"></div>
+      <div class="inv-grid hidden" id="inv-grid"></div>
+      <div class="menu row">
+        <button id="b-inv-expand" class="ghost">Show full inventory</button>
+        <button class="big" id="b-inv-go">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- battle briefing -->
+  <div id="brief" class="overlay hidden">
+    <div class="brief-box">
+      <div class="kicker" id="brief-kicker">1 September 1939</div>
+      <h2 id="brief-title">Mokra</h2>
+      <div class="brief-meta" id="brief-meta"></div>
+      <p class="typed" id="brief-text"></p>
+      <p class="brief-tip" id="brief-tip"></p>
+      <div class="menu"><button class="big" id="b-brief-go">To the guns</button></div>
+    </div>
+  </div>
+
+  <!-- pause -->
+  <div id="pause" class="overlay hidden">
+    <h2>Paused</h2>
+    <div class="menu">
+      <button class="big" id="b-resume">Resume</button>
+      <button id="b-restart">Restart battle</button>
+      <button id="b-quit">Quit to menu</button>
+    </div>
+    <div class="pause-help">
+      <div><kbd>1</kbd>-<kbd>6</kbd> build · <kbd>G</kbd> guns or defenses</div>
+      <div><kbd>E</kbd> or double click a gun to crew it</div>
+      <div><kbd>Z</kbd> <kbd>X</kbd> <kbd>C</kbd> <kbd>V</kbd> <kbd>B</kbd> abilities</div>
+      <div><kbd>WASD</kbd> or drag to pan · wheel to zoom</div>
+      <div><kbd>I</kbd> inventory · <kbd>R</kbd> move a gun</div>
+      <div><kbd>Space</kbd> send wave</div>
+      <div><kbd>F</kbd> speed</div>
+      <div>Right click or <kbd>Esc</kbd> to cancel</div>
+    </div>
+    <div class="title-foot">
+      <button class="ib" id="b-sound2" title="Sound"><i data-ic="sound"></i></button>
+      <button class="ib" id="b-music2" title="Music"><i data-ic="music"></i></button>
+      <button class="ib wide" id="b-gore2" title="Blood and bodies"><i data-ic="drop"></i><span>Blood on</span></button>
+    </div>
+  </div>
+
+  <!-- result -->
+  <div id="result" class="overlay hidden">
+    <div class="kicker" id="res-kicker">Frontier Road</div>
+    <h2 id="res-title">The road held</h2>
+    <div class="res-stats" id="res-stats"></div>
+    <div class="res-medals"><i data-ic="star"></i> <b id="res-medals">0</b> medals earned</div>
+    <div class="res-next" id="res-next"></div>
+    <div class="menu row">
+      <button class="big" id="b-again">Fight again</button>
+      <button id="b-res-command">Command</button>
+      <button id="b-res-menu">Menu</button>
+    </div>
+  </div>
+
+  <div id="rotate" class="hidden"><div>Turn your device sideways to play.</div></div>
+  <div id="loading">Loading</div>
+</div>
+
+<script src="js/util.js?v=5"></script>
+<script src="js/data.js?v=5"></script>
+<script src="js/content.js?v=5"></script>
+<script src="js/art.js?v=5"></script>
+<script src="js/art2.js?v=5"></script>
+<script src="js/fx.js?v=5"></script>
+<script src="js/audio.js?v=5"></script>
+<script src="js/sfx.js?v=5"></script>
+<script src="js/game.js?v=5"></script>
+<script src="js/game2.js?v=5"></script>
+<script src="js/terrain.js?v=5"></script>
+<script src="js/scenery.js?v=5"></script>
+<script src="js/life.js?v=5"></script>
+<script src="js/bot.js?v=5"></script>
+<script src="js/render.js?v=5"></script>
+<script src="js/render2.js?v=5"></script>
+<script src="js/ui.js?v=5"></script>
+<script src="js/ui2.js?v=5"></script>
+<script src="js/main.js?v=5"></script>
 </body>
 </html>

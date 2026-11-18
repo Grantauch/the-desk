@@ -85,7 +85,7 @@ try {
       await enter(p,s.pin(PEOPLE.ada));
       await section(p,0); await audit(p,width,0);
       await p.locator('#nm').fill('Synthetic investigator'); await p.locator('#hr').fill('Period 1');
-      const expected={};
+      const expected={}, feedback={};
       for(let n=1;n<=6;n++) {
         await section(p,n);
         assert.equal(await p.evaluate(()=>document.activeElement.id),`section-heading-${n}`);
@@ -99,9 +99,20 @@ try {
           const radios=set.locator('input[type=radio]'); await radios.last().check();
         }
         for(const button of await pane.getByRole('button',{name:/Check my/}).all()) await button.click();
+        if(n===3) feedback.markup=await pane.evaluate(node=>{
+          const wrong=getComputedStyle(node.querySelector('.graded-no'));
+          const right=getComputedStyle(node.querySelector('.graded-ok'));
+          return wrong.outlineStyle==='dashed'&&parseFloat(wrong.outlineWidth)>=2&&right.outlineStyle==='solid';
+        });
+        if(n===4) feedback.table=await pane.evaluate(node=>{
+          const wrong=getComputedStyle(node.querySelector('.g-no input'));
+          const right=getComputedStyle(node.querySelector('.g-ok input'));
+          return wrong.outlineStyle==='dashed'&&parseFloat(wrong.outlineWidth)>=2&&wrong.borderColor!==right.borderColor;
+        });
         await audit(p,width,n);
         console.log(`checked ${width} section ${n}`);
       }
+      assert.deepEqual(feedback,{markup:true,table:true},'wrong answers have visible dashed feedback, distinct from correct answers');
       // Keyboard selection and a later-section writing bookmark.
       await section(p,3);
       const first=p.locator('[data-token=t1] input').first();await first.focus();await p.keyboard.press('ArrowRight');

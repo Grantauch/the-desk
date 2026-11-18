@@ -748,6 +748,148 @@ await test('every catalogue assignment uses the PIN gate, compact controls, auto
   assert.deepEqual(problems, []);
 });
 
+await test('BS High restores complete investigations and clears shared-device work', async () => {
+  const s = world();
+  const school = await chromebook(s, { hooks: { gate: true } });
+  const home = await chromebook(s, { hooks: { gate: true } });
+  const hub = 'bts-bs-high-student.html';
+  const legacy = 'bts_bs_high_review_board_v1';
+  const legacyHub = 'bs-high-system-behind-the-score';
+  try {
+    await school.context.addInitScript(key => localStorage.setItem(key, 'unowned test draft'), legacy);
+    const page = await school.open(hub);
+    const next = page.locator('#nextBtn');
+    await passGate(page, s.pin(PEOPLE.ada));
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), legacy), null);
+    await page.locator('#studentName').fill('Synthetic Review');
+    await page.locator('#studentHour').fill('1');
+    await next.click();
+    assert.equal(await page.locator('#app').evaluate(el => document.activeElement === el), true);
+    const choice = page.locator('[data-score-choice="proves"]').first();
+    await choice.press('Enter');
+    assert.equal(await choice.getAttribute('aria-pressed'), 'true');
+    assert.equal(await choice.evaluate(el => document.activeElement === el), true);
+    await page.locator('#scoreTakeaway').fill('A score establishes the result.');
+    await next.click();
+    await page.locator('[data-thread-choice]').first().click();
+    await page.locator('#threadReason').fill('Check which institutions verified the school record.');
+    await next.click();
+    await page.locator('[data-audit-choice]').first().click();
+    await next.click();
+    for (const item of ['demand','claim','gap','gate','amp','scrutiny']) {
+      await page.locator('[data-chain="' + item + '"]').press('Enter');
+    }
+    await page.locator('[data-mech-answer="choices"]').click();
+    await next.click();
+    await page.locator('[data-alloc]').first().press('ArrowRight');
+    await page.locator('#allocEvidence').selectOption('schedule');
+    await page.locator('#allocThread').selectOption({ index: 1 });
+    await page.locator('#allocReason').fill('Verification could have changed the schedule.');
+    await next.click();
+    await page.locator('[data-safe]').first().click();
+    await page.locator('#safeReason').fill('Verify player safety before approving the matchup.');
+    await next.click();
+    await page.locator('[data-position="both"]').click();
+    await page.locator('#finalEvidence1').selectOption('finding');
+    await page.locator('#finalEvidence2').selectOption('film');
+    for (const id of ['finalClaim','finalReason1','finalReason2','finalLimit','finalPrevent']) {
+      await page.locator('#' + id).fill('Synthetic written response for ' + id);
+    }
+    await page.locator('#checkArgument').click();
+    await next.click();
+    await page.locator('#finalClaimText').getByText('Synthetic written response for finalClaim').waitFor();
+    assert.ok(await page.evaluate(() => window.__deskSave.saveCloud()), 'confirmed account save');
+    const captured = await page.locator('#case-choices').inputValue();
+    assert.ok(!captured.includes('Synthetic'), 'choices record excludes identifying and written work');
+    const decisions = JSON.parse(captured);
+    assert.equal(decisions.s1.answers.result, 'proves');
+    assert.equal(decisions.s5.evidence, 'schedule');
+    assert.equal(decisions.s7.evidence2, 'film');
+    assert.equal(decisions.step, 8);
+    const generated = await page.evaluate(() => window.__deskSave.timeline().fields['id:case-choices']);
+    assert.equal(generated.typed, 0);
+    assert.equal(generated.pasted, 0);
+    assert.deepEqual(generated.ops.map(op => [op[3], op[4]]), [[captured, 'i']], 'generated choices are starting text, not student writing');
+
+    const resumed = await home.open(hub);
+    await passGate(resumed, s.pin(PEOPLE.ada));
+    await resumed.locator('#finalClaimText').getByText('Synthetic written response for finalClaim').waitFor();
+    assert.equal(await resumed.locator('#case-choices').inputValue(), captured);
+    for (const [id, value] of Object.entries({
+      studentName: 'Synthetic Review',
+      scoreTakeaway: 'A score establishes the result.',
+      threadReason: 'Check which institutions verified the school record.',
+      allocReason: 'Verification could have changed the schedule.',
+      safeReason: 'Verify player safety before approving the matchup.',
+      finalPrevent: 'Synthetic written response for finalPrevent',
+    })) {
+      assert.equal(await resumed.locator('#' + id).inputValue(), value, id);
+    }
+    await resumed.reload({ waitUntil: 'load' });
+    await resumed.locator('#finalClaimText').getByText('Synthetic written response for finalClaim').waitFor();
+    const turn = panel(resumed).getByRole('button', { name: 'Turn In', exact: true });
+    await turn.click();
+    await waitFor(() => s.rows('Turn Ins').length === 1);
+    const submission = s.rows('Turn Ins')[0].Answers;
+    for (const text of ['A score establishes the result.', 'Synthetic written response for finalPrevent', '"evidence2":"film"']) {
+      assert.ok(submission.includes(text), 'complete submission contains ' + text);
+    }
+    const writing = s.rows('Writing Timeline')[0];
+    assert.ok(writing, 'Turn In records the teacher writing summary');
+    assert.ok(!writing.Flags.includes('Case investigation choices'), 'generated choices do not create a writing flag');
+
+    for (const width of [320, 390, 1440]) {
+      await resumed.setViewportSize({ width, height: 900 });
+      assert.equal(await resumed.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, width + 'px viewport');
+      const result = await new AxeBuilder({ page: resumed }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      const failures = result.violations.map(v => [v.id, v.nodes.map(n => n.target)]);
+      assert.equal(failures.length, 0, JSON.stringify({ width, failures }));
+    }
+    await resumed.evaluate(() => {
+      const roots = [...document.querySelectorAll('[id^="desk-save"]')].map(el => el.shadowRoot).filter(Boolean);
+      roots.flatMap(root => [...root.querySelectorAll('button')])
+        .find(button => button.textContent.trim() === 'Not you? Sign out').click();
+    });
+    await resumed.waitForFunction(() => window.__deskSave.gate());
+    await passGate(resumed, s.pin(PEOPLE.grace));
+    assert.equal(await resumed.locator('#studentName').inputValue(), '');
+    assert.equal(await resumed.locator('#scoreTakeaway').inputValue(), '');
+    assert.equal(await resumed.locator('#finalClaim').inputValue(), '');
+    assert.equal(await resumed.locator('#case-choices').inputValue(), '');
+    assert.ok(await resumed.locator('#studentName').isVisible());
+    await resumed.setViewportSize({ width: 320, height: 900 });
+    for (let step = 0; step < 8; step++) {
+      const widthFits = await resumed.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+      assert.ok(widthFits, 'viewport fits on screen ' + step);
+      const result = await new AxeBuilder({ page: resumed }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      const failures = result.violations.map(v => [v.id, v.nodes.map(n => n.target)]);
+      assert.equal(failures.length, 0, JSON.stringify({ step, failures }));
+      await resumed.locator('#nextBtn').click();
+      if (step === 0) {
+        await resumed.locator('#backBtn').click();
+        assert.ok(await resumed.locator('#studentName').isVisible());
+        await resumed.locator('#nextBtn').click();
+      }
+    }
+
+    const legacyAccount = s.post({ action: 'signin', pin: s.pin(PEOPLE.katherine), hub: legacyHub, device: 'old-browser' });
+    assert.ok(legacyAccount.ok);
+    assert.ok(s.post({
+      action: 'save',
+      token: legacyAccount.token,
+      hub: legacyHub,
+      answers: [{ k: 'id:scoreTakeaway', q: 'One-sentence takeaway', a: 'Old account draft recovered.' }],
+    }).ok);
+    const legacyPage = await home.open(hub);
+    await passGate(legacyPage, s.pin(PEOPLE.katherine));
+    await legacyPage.locator('#nextBtn').click();
+    assert.equal(await legacyPage.locator('#scoreTakeaway').inputValue(), 'Old account draft recovered.');
+  } finally {
+    await school.context.close();
+    await home.context.close();
+  }
+});
+
 await test('the gate covers an answer page until a PIN is entered, confirms the name, then saves from the first answer', async () => {
   const s = world();
   const cb = await chromebook(s, { hooks: { gate: true } });

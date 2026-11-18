@@ -146,8 +146,8 @@ p.lead{margin:0 0 20px;color:var(--ink-soft);font-size:16.5px;max-width:64ch}
 .tk.ban{background:rgba(192,138,46,.55);box-shadow:none}
 .tk.exception{background:rgba(140,29,24,.28);box-shadow:inset 0 0 0 2px var(--stamp)}
 .tk.enforcer{background:rgba(27,74,107,.24);box-shadow:inset 0 0 0 2px var(--rule)}
-.tk.graded-ok{outline:2px solid var(--good);outline-offset:1px}
-.tk.graded-no{outline:2px dashed var(--stamp);outline-offset:1px}
+.tk.graded-ok,.markup-choice.graded-ok{outline:2px solid var(--good);outline-offset:1px}
+.tk.graded-no,.markup-choice.graded-no{outline:2px dashed var(--stamp);outline-offset:1px}
 
 /* ---------- table ---------- */
 table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:16px}
@@ -161,8 +161,8 @@ select{
   font:inherit;font-size:15px;width:100%;
   padding:7px 9px;border:1.5px solid #B6B2A0;background:#F2F0E7;color:var(--ink);border-radius:2px;
 }
-td.g-ok select{border-color:var(--good);background:#E6F0EA}
-td.g-no select{border-color:var(--stamp);background:#F4E3DE}
+td.g-ok select,td.g-ok input{border-color:var(--good);background:#E6F0EA}
+td.g-no select,td.g-no input{border-color:var(--stamp);background:#F4E3DE;outline:2px dashed var(--stamp);outline-offset:1px}
 
 /* ---------- writing ---------- */
 textarea,input[type=text]{

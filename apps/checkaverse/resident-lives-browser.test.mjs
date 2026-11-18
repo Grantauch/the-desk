@@ -17,7 +17,10 @@ async function makePage(width,height,saved=false,quiet=false){
   const context=await browser.newContext({viewport:{width,height},hasTouch:width<600,isMobile:width<600,reducedMotion:quiet?'reduce':'no-preference'}),page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>sessionStorage.setItem('checkaverse-tips',JSON.stringify(['walk','partner','say','care','kettle','visitor','sign','gate','wilds','challenge'])));
   let hash='';if(saved){const now=Date.now();hash='#t='+signTicket(fs.readFileSync(path.join(DATA,'ticket-key.txt'),'utf8').trim(),{v:1,p:'syntheticResidentBrowser001',h:'Synthetic residents',d:'2026-11-02',c:true,n:12,s:4,b:9,k:{s:'mochi',n:''},iat:now,exp:now+7200000,j:'browser'});}
-  await page.goto(origin+'/?debug'+hash);await page.waitForFunction(()=>window.__checkaverse?.world()?.all().some(n=>n.activity));return{page,context};
+  await page.goto(origin+'/?debug'+hash);await page.waitForFunction(()=>window.__checkaverse?.world()?.all().some(n=>n.activity));
+  // The day's Gazette lands 2.5 seconds after a saved trainer joins and closes other pops. Fold it first.
+  if(saved)await page.waitForSelector('#paperPop:not([hidden])',{timeout:8000}).then(()=>page.click('#paperClose')).catch(()=>{});
+  return{page,context};
 }
 async function directory(page,id,home=false){
   await page.keyboard.press('Escape');await page.locator('#menuBtn').click();await page.locator('#journalBtn').click();

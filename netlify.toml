@@ -25,6 +25,19 @@
   status = 302
   force = true
 
+# Retain old Bishop Sycamore bookmarks and their assignment identity.
+[[redirects]]
+  from = "/hubs/bs-high-system-behind-the-score.html"
+  to = "/hubs/bts-bs-high-student.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/bs-high-system-behind-the-score"
+  to = "/hubs/bts-bs-high-student.html"
+  status = 302
+  force = true
+
 # Keep classroom bookmarks on the student-safe Roswell edition.
 [[redirects]]
   from = "/hubs/roswell-signal.html"
