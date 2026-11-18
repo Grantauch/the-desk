@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-the-route-tree.html",
-      "bytes": 140491,
-      "sha256": "448d47494bb8ee9521a4fc14c6cfd401e360874908e7871d9c9055a12eeb03f4"
+      "bytes": 139646,
+      "sha256": "fac3f765555fc75bdbccbb5e25f226885a953bb56df6e11a833ae6791f70788f"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
@@ -30,14 +30,6 @@
       "height": 729
     },
     {
-      "path": "/storyhub/bts/route-tree/assets/bloomfield.webp",
-      "assetId": "A06",
-      "bytes": 134360,
-      "sha256": "3bf8bcd68d6bbfe5a998a58859129a42e1d6d6280367b4dd5f170501c8d2588f",
-      "width": 1100,
-      "height": 825
-    },
-    {
       "path": "/storyhub/bts/route-tree/assets/grocery.webp",
       "assetId": "A09",
       "bytes": 159854,
@@ -54,14 +46,6 @@
       "height": 706
     },
     {
-      "path": "/storyhub/bts/route-tree/assets/macc.webp",
-      "assetId": "A11",
-      "bytes": 185776,
-      "sha256": "7c03e56f164d9f7b2a53b2c30c1247fa01f8121c9af90d3c3e674ea3a6a017e4",
-      "width": 1100,
-      "height": 825
-    },
-    {
       "path": "/storyhub/bts/route-tree/assets/paddy.webp",
       "assetId": "A08",
       "bytes": 143670,
@@ -76,14 +60,6 @@
       "sha256": "dadac75ed7201a73e9c43a9136a098988014913b7fd670bb925599af51799398",
       "width": 800,
       "height": 800
-    },
-    {
-      "path": "/storyhub/bts/route-tree/assets/rowhouses.webp",
-      "assetId": "A02",
-      "bytes": 58480,
-      "sha256": "d438416f72623e678be4c75ebe2be10ca23583a93c5fd64a960135987a954f64",
-      "width": 640,
-      "height": 480
     },
     {
       "path": "/storyhub/bts/route-tree/assets/rugby.webp",
@@ -186,8 +162,8 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-cinematic.css",
-      "bytes": 11634,
-      "sha256": "ca5c36230e5f62348c041db5013d2373ce2adb212a0ace3b76ec03059ac137f4"
+      "bytes": 11793,
+      "sha256": "537b30a06246c028284e4517c1144057c1cbf5a011d383fef50299d7f94239d5"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-cinematic.js",
@@ -273,8 +249,8 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-rights.json",
-      "bytes": 26040,
-      "sha256": "330fa1187d9a66de5ee8689aec128aa7c9be67ce6b674d4aa3da04e885764f6b"
+      "bytes": 47047,
+      "sha256": "e7fcdfedf324756ad9ea59be4a5bb37714c8c5188fff5a77fbcdd90553265d68"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp",
@@ -400,8 +376,23 @@
       "path": "/storyhub/bts/route-tree/assets/ci-font-space-mono-normal-700.woff2",
       "bytes": 16724,
       "sha256": "2d46bd159b53f55c41167a4f1540a074649464194fd1e416f5b4694a6c0f282c"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-gates-arena-640.webp",
+      "bytes": 60600,
+      "sha256": "2c54e59d13c089407a29aa6fc0dff5219cd89ee2313756aa3abafe67af64ad6c",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-gates-arena-1100.webp",
+      "assetId": "A11",
+      "bytes": 128564,
+      "sha256": "2a35dae94c5af402593cc2d46fb65a289bca52b41ea693b939cdeef773327a81",
+      "width": 1100,
+      "height": 825
     }
   ],
-  "totalBytes": 7134769,
+  "totalBytes": 6965638,
   "sealedAt": "2026-11-18"
 }

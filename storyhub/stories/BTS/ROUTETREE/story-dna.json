@@ -19,9 +19,9 @@
     ],
     "shapeLanguage": "Wide cinematic frames, fine rules, numbered playbook markers. Historical evidence remains visibly separate from reconstructions.",
     "motionGrammar": [
-      "comparison: reveal the photograph under its overpainting",
+      "comparison: uncover the photograph beneath its overpainting",
       "branching: illuminate shared routes",
-      "reveal: short purposeful chapter entrances"
+      "reading: keep text and evidence immediately visible"
     ],
     "interactionSignature": [
       "sort Invincible claims into history, Hollywood or remixed",
@@ -38,6 +38,6 @@
     "edgeTreatment": "Fine ivory or charcoal rules around images, small offset details on evidence only.",
     "controlLanguage": "Readable playbook labels and native buttons; image comparison controls describe source and interpretation.",
     "spacingLanguage": "Wide gutters between panels like a comic page, tight stacks inside props.",
-    "transitionLanguage": "Short opacity transitions without glitch or parallax, none under reduced motion."
+    "transitionLanguage": "Reading content is immediately visible. Controlled evidence reveals and route drawing carry meaning; reduced motion retains static content."
   }
 }

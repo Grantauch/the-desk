@@ -161,3 +161,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 #u-lane{--vbg:#e7e3d3;--vfg:#192522;--va:#8b3e2d;--vb:#6f8777}
 button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,.dscroll:focus-visible{outline:3px solid #e4bf78;outline-offset:4px}
 .reel :focus-visible,.odds :focus-visible,.cast :focus-visible,.ask :focus-visible,#u-lane :focus-visible{outline-color:#854300}
+/* Anchor jumps and keyboard exploration never leave reading text translucent. */
+.rv,.rv.in{opacity:1;transform:none;transition:none}
+.term .c{color:#94a3b8}

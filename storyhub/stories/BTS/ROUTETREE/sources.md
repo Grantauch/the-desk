@@ -25,3 +25,6 @@ The NASA view is 2002, not 1976, and shows baseball configuration. The overpaint
 Historical checks: [Eagles training-camp account](https://www.philadelphiaeagles.com/news/vince-papale-forty-years-of-invincible-17774810), [Eagles private-workout account](https://www.philadelphiaeagles.com/news/countdown-to-the-draft-83-days-14888698), [Hall of Fame Warner account](https://www.profootballhof.com/news/top-10-artifacts-of-inspiration), [Steelers Bleier record](https://www.steelers.com/history/bios/bleier_rocky).
 
 Remaining scene expansion: Lane, Unitas, Lewis, Neal, Gates, Mailata and Aubrey retain their existing contextual images and footage, with new authentic photographs. Ayres and Morris retain footage-based identity anchors. No invented archival clipping or unlicensed movie still is introduced.
+
+
+The inherited contextual images were audited too. Two images with unresolved bot-transfer notices (rowhouses and Bloomfield Bridge) are held outside the public edition. The unreadable legacy arena source is replaced by JonRidinger’s directly verified MACC1.jpg (December30,2006), CC BY3.0, displayed photographically. All thirteen legacy originals are preserved separately, including the three held images. The rights manifest distinguishes retained context, newly sourced venue photography and held legacy material, with original hashes and territorial limitations.
