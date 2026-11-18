@@ -275,6 +275,9 @@ const first = curiosityItems[0];
               });
               if (functionResponse.ok) {
                 const functionPayload = await functionResponse.json();
+                // The function already tried LOC. Keep the reviewed local artifact
+                // during an outage instead of repeating the same failed request.
+                if (functionPayload?.mode === 'archive' && functionPayload.collection === collection) return false;
                 const resolved = (Array.isArray(functionPayload?.items) ? functionPayload.items : [])
                   .map((item) => normalizeResolvedItem(item, collection))
                   .filter(Boolean);

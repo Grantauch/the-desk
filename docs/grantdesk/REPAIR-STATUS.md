@@ -1,3 +1,9 @@
+## November 18 Curiosity Desk catalog outage repair
+
+Owner Codex, issue #411. The catalog function now returns one explicitly labeled selected archive record from the existing reviewed data for each collection when the Library of Congress is unavailable, empty, malformed or restricted. Live records remain preferred. Archive responses are not cached, allowing the next request to recover. The browser retains its selected artifact and source links without repeating the upstream request after an explicit server fallback. Live-data validation still reports degraded catalog health when selected records are served.
+
+Handler regressions passed for all five collections, live preference, recovery and invalid collection names. Built Chromium checks passed at 320, 390 and 1440 pixels for collection switching, loaded archive images, context reveal with the keyboard, source links, artifact cycling, reduced motion, WCAG A/AA and page fit. Live-result loading, the development-only direct catalog path and the initial no-JavaScript source link also passed. Canonical verification, protected CI, normal merge, production readback and actual school-device acceptance remain separate release evidence.
+
 ## November 17 Reconstruction Case File student publication
 
 Owner Codex, issue #383 / tracker R05. The additive `reconstruction-case-file-student.html` edition uses the shared PIN gate and account saving. All six sections remain mounted, preserving 23 text fields and 26 choice groups across navigation, account restore and Turn In. The unowned browser-wide legacy draft is discarded. The original source is retained; old bookmarks redirect, and Games, U.S. History Unit 1 and the sitemap expose the student edition.
