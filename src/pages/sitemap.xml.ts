@@ -29,6 +29,7 @@ const paths = [
   '/hubs/blitzkrieg/',
   '/hubs/boss-fight-review.html',
   '/hubs/evidence-locker.html',
+  '/hubs/reconstruction-case-file-student.html',
   '/hubs/situation-room.html',
   '/hubs/bts-bs-high-student.html',
   '/hubs/hh-roswell-signal.html',
