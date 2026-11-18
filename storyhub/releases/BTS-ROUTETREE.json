@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREE",
+  "title": "The Route Tree",
+  "route": "/hubs/bts-the-route-tree.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/ROUTETREE/story.json",
+    "note": "Invincible companion. Openly licensed place photos with a comic color treatment. Real people appear in character cards from teacher supplied photos listed in people/people.json, and through YouTube embeds."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-the-route-tree.html",
+      "bytes": 125326,
+      "sha256": "2d0c17ee345c7213f971075c3a068bf9c239806717a7d04f895b2f5541851b45"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
+      "assetId": "A05",
+      "bytes": 136174,
+      "sha256": "f4bb42322719373318e418ba95e3c3d29e0b0c777353a565283e4a7b7008546f",
+      "width": 960,
+      "height": 772
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/att.webp",
+      "assetId": "A13",
+      "bytes": 284642,
+      "sha256": "a028c3d3f3e9357ddd6bbb8697cb91246978bd56cb7766e85212541f4ca71fdf",
+      "width": 1100,
+      "height": 729
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/bloomfield.webp",
+      "assetId": "A06",
+      "bytes": 134360,
+      "sha256": "3bf8bcd68d6bbfe5a998a58859129a42e1d6d6280367b4dd5f170501c8d2588f",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/grocery.webp",
+      "assetId": "A09",
+      "bytes": 159854,
+      "sha256": "c4b4e5641d692f45924d0241341efb186f26291b2d1ead36f22ec681c9ed7fa3",
+      "width": 1100,
+      "height": 733
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/jfk-aerial.webp",
+      "assetId": "A03",
+      "bytes": 285960,
+      "sha256": "9a0de38c7d8393a5bf1ed3bbaed8714b2d87da5f83ad5632f9797cd24c8d9020",
+      "width": 1100,
+      "height": 706
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/macc.webp",
+      "assetId": "A11",
+      "bytes": 185776,
+      "sha256": "7c03e56f164d9f7b2a53b2c30c1247fa01f8121c9af90d3c3e674ea3a6a017e4",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/paddy.webp",
+      "assetId": "A08",
+      "bytes": 143670,
+      "sha256": "016b3781e1c947cb4700b2df93db95504e5878b1a2b61a996266a2424ac208f3",
+      "width": 1100,
+      "height": 759
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/rotary.webp",
+      "assetId": "A07",
+      "bytes": 126244,
+      "sha256": "dadac75ed7201a73e9c43a9136a098988014913b7fd670bb925599af51799398",
+      "width": 800,
+      "height": 800
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/rowhouses.webp",
+      "assetId": "A02",
+      "bytes": 58480,
+      "sha256": "d438416f72623e678be4c75ebe2be10ca23583a93c5fd64a960135987a954f64",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/rugby.webp",
+      "assetId": "A12",
+      "bytes": 138534,
+      "sha256": "0878e989834133e036b6a1f72487e139b7d0584a9f52de81214e6aa85473385b",
+      "width": 1100,
+      "height": 810
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/tropicana.webp",
+      "assetId": "A15",
+      "bytes": 277006,
+      "sha256": "59e00f2a102241265e95d61345691dc6f4ee0b3f58da7dcbb8546125478f4c83",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/vet-aerial.webp",
+      "assetId": "A01",
+      "bytes": 259588,
+      "sha256": "f432f29de1c8aa446a532ddc037d065ec7297ab2964daa4eeb26e8b25a814109",
+      "width": 1024,
+      "height": 722
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/wrestling.webp",
+      "assetId": "A10",
+      "bytes": 202900,
+      "sha256": "9fc99b0075b9d40b6d75a7ae4ae07f21241aaf12a7deedda00a4116d851dc38d",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/zamboni.webp",
+      "assetId": "A14",
+      "bytes": 162786,
+      "sha256": "cc728ab0cca5ccf7fe3687dc5c825ffef84a798210cbf04f7f9be7b0496354a2",
+      "width": 1100,
+      "height": 686
+    }
+  ],
+  "totalBytes": 2681300,
+  "sealedAt": "2026-11-17"
+}

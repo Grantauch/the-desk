@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>the weaver's son | U.S. History 9 | the desk</title>
+<meta name="description" content="In 1811 the best paid textile workers in England started smashing the machines that were taking their trade. What happened to them, and to their children, after they lost?">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-s04-the-weavers-son.html">
+<meta property="og:title" content="The Weaver's Son">
+<meta property="og:description" content="The Luddites fought the machines. What happened to them, and to their children, after they lost?">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://grant-desk.com/storyhub/ush9/the-weavers-son/assets/leader-of-the-luddites-1812.webp">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=IBM+Plex+Mono:wght@400;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --soot:#1C1A17; --soot-2:#25221E; --soot-3:#302C26; --wool:#EFE5D0; --wool-2:#F8F2E4; --ink:#2A2620;
+  --mute:#B9AE96; --mute-d:#62584A; --madder:#A9352A; --madder-l:#E36F55; --indigo:#2D3E70; --indigo-l:#A9BAE6; --weld:#D9AE45;
+  --rule:rgba(239,229,208,.16); --rule-d:rgba(42,38,32,.22); --focus:#7FB2FF;
+  --fat:"Abril Fatface","Bodoni Moda",Didot,Georgia,serif;
+  --body:"Libre Caslon Text",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+  --weave:repeating-linear-gradient(0deg,rgba(42,38,32,.04) 0 1px,transparent 1px 5px),repeating-linear-gradient(90deg,rgba(42,38,32,.035) 0 1px,transparent 1px 5px);
+  --warp:repeating-linear-gradient(90deg,rgba(239,229,208,.025) 0 1px,transparent 1px 7px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:3.6rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--soot);background-image:var(--warp);color:var(--wool);font-family:var(--body);font-size:1.08rem;line-height:1.65}
+a{color:inherit;text-underline-offset:.2em}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+img{display:block;max-width:100%;height:auto}
+h1,h2,h3,h4{margin:0;font-weight:400;text-wrap:balance}
+p{margin:0}
+.wrap{width:min(1120px,100% - 2.5rem);margin-inline:auto}
+.mono{font-family:var(--mono);font-size:.84rem;line-height:1.55}
+
+/* strip with a thread that weaves across as you read */
+.strip{position:sticky;top:0;z-index:30;background:#141310;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:.78rem}
+.strip .wrap{display:flex;align-items:center;gap:.2rem;min-height:3rem;overflow-x:auto;scrollbar-width:thin}
+.strip a{text-decoration:none;padding:.3rem .5rem;white-space:nowrap;color:var(--mute)}
+.strip a:hover,.strip a[aria-current="true"]{color:var(--wool);background:var(--soot-3)}
+.strip .home{font-family:var(--fat);color:var(--wool);font-size:1.05rem;margin-right:.6rem}
+.thread{position:absolute;left:0;bottom:-1px;height:3px;width:100%;transform-origin:left;transform:scaleX(var(--p,0));background:repeating-linear-gradient(90deg,var(--madder-l) 0 10px,var(--weld) 10px 14px)}
+
+/* hero: a broadside over the weaving shed */
+.hero{min-height:90vh;display:grid;align-items:end;position:relative;overflow:hidden;padding:6rem 0 3rem;background:#0d0c0a}
+.hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) sepia(.35) contrast(1.1) brightness(.4)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,12,10,.2),rgba(13,12,10,.94) 80%)}
+.hero .wrap{position:relative;z-index:2}
+.kicker{font-family:var(--mono);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.hero h1{font-family:var(--fat);font-size:clamp(3.4rem,13vw,9.5rem);line-height:.88;color:var(--wool);margin:.6rem 0 .4rem;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--madder-l)}
+.hero .dek{font-size:clamp(1.2rem,2.4vw,1.55rem);max-width:36ch;margin-top:1rem}
+.hero .note{margin-top:1.4rem;color:var(--mute);max-width:62ch}
+.hero figcaption{position:absolute;right:1rem;bottom:.8rem;z-index:2;font-family:var(--mono);font-size:.7rem;color:var(--mute);max-width:42ch;text-align:right}
+
+/* pieces of cloth: alternating wool and soot */
+.piece{padding:clamp(2.8rem,7vw,5.2rem) 0;border-top:1px solid var(--rule)}
+.piece.wool{background-color:var(--wool);background-image:var(--weave);color:var(--ink)}
+.piece.wool .kicker{color:var(--mute-d)}
+.tag{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem 0;margin-bottom:1.2rem;border-top:3px double currentColor;border-bottom:1px dashed currentColor;opacity:.9}
+.piece h2{font-family:var(--fat);font-size:clamp(2.3rem,6.2vw,4.3rem);line-height:.98;margin-bottom:1.4rem;max-width:18ch}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:start}
+.cols.flip{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+.read p{font-size:clamp(1.12rem,1.9vw,1.3rem);line-height:1.55;margin-bottom:.95rem;max-width:42ch}
+.read p.key{font-family:var(--fat);font-size:clamp(1.45rem,2.9vw,2.05rem);line-height:1.15;margin-top:.4rem}
+.wool .read p.key{color:var(--madder)}
+.read p.key.hot{color:var(--madder-l)}
+
+/* figures: a plate stitched onto cloth */
+.plate{background:var(--wool-2);padding:.65rem .65rem 0;color:var(--ink);outline:1px dashed rgba(42,38,32,.35);outline-offset:-6px;box-shadow:0 16px 34px rgba(0,0,0,.35)}
+.plate img{width:100%}
+.plate figcaption{font-family:var(--mono);font-size:.72rem;line-height:1.45;padding:.55rem .1rem .7rem}
+.plate.mute img{filter:sepia(.25) contrast(1.03)}
+
+/* big numbers */
+.stat{margin-top:1.6rem;display:grid;grid-template-columns:auto 1fr;gap:.2rem 1rem;align-items:center;max-width:36rem}
+.stat b{font-family:var(--fat);font-weight:400;font-size:clamp(3rem,7vw,4.6rem);line-height:1;color:var(--madder-l)}
+.wool .stat b{color:var(--madder)}
+.stat span{font-family:var(--mono);font-size:.84rem;line-height:1.45}
+
+details.more{margin-top:1.4rem;border:1px dashed currentColor;max-width:64ch}
+details.more summary{font-family:var(--mono);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;padding:.7rem .9rem;cursor:pointer;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"+ "}
+details.more[open] summary::before{content:"\2212 "}
+details.more .body{padding:0 1rem 1rem}
+details.more .body p{margin-top:.75rem}
+
+/* instruments are panels on the loom */
+.inst{margin-top:2.2rem;background:var(--soot-2);border:1px solid var(--rule);padding:clamp(1rem,3vw,1.7rem);color:var(--wool)}
+.wool .inst{background:var(--wool-2);border-color:var(--rule-d);color:var(--ink)}
+.inst h3{font-family:var(--fat);font-size:clamp(1.5rem,3vw,2rem);line-height:1.05;margin-bottom:.4rem}
+.inst .how{font-family:var(--mono);font-size:.8rem;color:var(--mute);margin-bottom:1rem;max-width:70ch}
+.wool .inst .how{color:var(--mute-d)}
+.btn{font-family:var(--mono);font-size:.82rem;letter-spacing:.04em;padding:.55rem .85rem;border:1.5px solid currentColor;background:transparent;border-radius:0}
+.btn:hover{background:rgba(127,127,127,.15)}
+.btn[aria-pressed="true"]{background:var(--madder);border-color:var(--madder);color:#fff}
+.btn.solid{background:var(--madder);border-color:var(--madder);color:#fff}
+.btn.solid:hover{background:#8f2c22}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.status{font-family:var(--mono);font-size:.84rem;margin-top:.9rem;min-height:1.5em}
+
+/* videos */
+.vids{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.vbox h4{font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;color:var(--madder-l)}
+.video{position:relative;aspect-ratio:16/9;background:#000}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vmeta{display:flex;justify-content:space-between;gap:1rem;font-family:var(--mono);font-size:.7rem;color:var(--mute);padding-top:.45rem}
+
+/* the race: cloth grows off the loom */
+.race{display:grid;gap:1rem;margin:1.2rem 0}
+.lane{display:grid;grid-template-columns:9.5rem 1fr 6.5rem;gap:.8rem;align-items:center}
+.lane .who{font-family:var(--mono);font-size:.8rem}
+.lane .bolt{height:2.4rem;background:var(--soot-3);position:relative;overflow:hidden;border:1px solid var(--rule)}
+.lane .cloth{position:absolute;inset:0 auto 0 0;width:0;background:repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 2px,transparent 2px 6px),repeating-linear-gradient(0deg,rgba(255,255,255,.18) 0 2px,transparent 2px 6px),var(--wool)}
+.lane.power .cloth{background:repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 2px,transparent 2px 6px),repeating-linear-gradient(0deg,rgba(255,255,255,.14) 0 2px,transparent 2px 6px),var(--madder-l)}
+.lane .tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(239,229,208,.35)}
+.lane .count{font-family:var(--fat);font-size:1.5rem;text-align:right}
+.predict{margin-top:1.4rem;border-top:1px dashed var(--rule);padding-top:1.1rem}
+.predict p.q{font-size:1.15rem;margin-bottom:.7rem;max-width:60ch}
+.paybars{display:grid;gap:.7rem;margin-top:1rem}
+.pb{display:grid;grid-template-columns:8.5rem 1fr;gap:.8rem;align-items:center}
+.pb .yr{font-family:var(--mono);font-size:.8rem}
+.pb .track{position:relative;height:1.9rem;background:var(--soot-3)}
+.pb .rng{position:absolute;top:0;bottom:0;background:var(--weld);transition:width .7s ease,left .7s ease}
+.pb .lbl{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:.78rem;color:var(--ink);background:var(--weld);padding:.1rem .5rem;white-space:nowrap}
+.pb .lbl:empty{display:none}
+
+/* letter */
+.letter{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:1.6rem;align-items:start}
+.paper{background:#F4ECD8;color:#2b241b;padding:clamp(1.2rem,3.5vw,2.2rem);box-shadow:0 20px 40px rgba(0,0,0,.4);position:relative;background-image:radial-gradient(ellipse at 20% 10%,rgba(170,130,70,.12),transparent 60%),radial-gradient(ellipse at 90% 90%,rgba(120,90,50,.14),transparent 55%)}
+.paper p{font-family:var(--body);font-style:italic;font-size:clamp(1.15rem,2.2vw,1.4rem);line-height:1.6}
+.paper .sig{font-style:normal;font-family:var(--mono);font-size:.82rem;margin-top:1.2rem;line-height:1.5}
+.hl{font:inherit;font-style:inherit;background:linear-gradient(transparent 58%,rgba(169,53,42,.28) 58%);border:0;padding:0 .1em;color:inherit;text-decoration:none;cursor:pointer}
+.hl:hover,.hl[aria-pressed="true"]{background:rgba(169,53,42,.28)}
+.gloss{background:var(--soot-2);border:1px solid var(--rule);padding:1.1rem;position:sticky;top:4.2rem}
+.gloss h4{font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--madder-l);margin-bottom:.5rem}
+.gloss p{font-size:1.02rem}
+
+/* map */
+.mapbox{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:1.4rem;align-items:start}
+.map svg{width:100%;height:auto;display:block;background:#23303d}
+.map .land{fill:#E7DCC3;stroke:#8d7f62;stroke-width:.8}
+.map .region{font-family:var(--mono);font-size:11px;letter-spacing:.18em;fill:#8a7b5d}
+.map .sea{font-family:var(--mono);font-size:10px;letter-spacing:.2em;fill:#9FB3C8}
+.map .pin circle{fill:#E7DCC3;stroke:#7c705a;stroke-width:1.5;transition:fill .3s,r .3s}
+.map .pin.past circle{fill:var(--madder);stroke:#5b1d16}
+.map .pin.now circle{fill:var(--madder);stroke:#fff;stroke-width:2.5}
+.map .pin text{font-family:var(--mono);font-size:11.5px;fill:#3a3227;paint-order:stroke;stroke:#E7DCC3;stroke-width:3px}
+.map .pin.now text{font-weight:600;fill:#000}
+.map .ring{fill:none;stroke:var(--madder);stroke-width:2;opacity:0}
+.map .pin.now .ring{animation:ring 1.6s ease-out infinite}
+@keyframes ring{0%{r:7;opacity:.9}100%{r:22;opacity:0}}
+.map .london{font-family:var(--mono);font-size:11px;fill:#E7DCC3}
+.map .london.now rect{fill:var(--madder)}
+.slide-ctl{margin-top:.9rem}
+.slide-ctl input{width:100%;accent-color:var(--madder)}
+.evcard{background:var(--soot-2);border:1px solid var(--rule);padding:1.1rem 1.2rem}
+.evcard .when{font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--weld)}
+.evcard h3{font-family:var(--fat);font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.05;margin:.3rem 0 .6rem}
+.evlist{list-style:none;margin:1rem 0 0;padding:0;font-family:var(--mono);font-size:.76rem;line-height:1.5}
+.evlist li{padding:.32rem 0;border-top:1px dashed var(--rule);color:var(--mute)}
+.evlist li.past{color:var(--wool)}
+.evlist li.now{color:var(--madder-l);font-weight:600}
+.evlist button{all:unset;cursor:pointer}
+.evlist button:focus-visible{outline:2px solid var(--focus)}
+
+/* flour */
+.flour{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4rem;align-items:center}
+.sacks{display:grid;grid-template-columns:repeat(10,1fr);gap:.35rem;max-width:30rem}
+.sacks svg{width:100%;height:auto}
+.sacks .s path{fill:transparent;stroke:rgba(42,38,32,.35);stroke-width:1.5;transition:fill .35s}
+.sacks .s.full path{fill:var(--weld);stroke:#7a5e1c}
+.ledger{font-family:var(--mono);font-size:.9rem;border-top:3px double currentColor}
+.ledger div{display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px dashed var(--rule-d)}
+.ledger b{font-family:var(--fat);font-weight:400;font-size:1.5rem;line-height:1}
+
+/* who came out ahead */
+.ahead{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.who-card{background:var(--wool-2);border:1px solid var(--rule-d);padding:1rem;display:flex;flex-direction:column;gap:.6rem}
+.who-card h4{font-family:var(--fat);font-size:1.35rem;line-height:1.1}
+.who-card .row .btn{font-size:.74rem;padding:.4rem .6rem}
+.who-card .rec{font-size:.98rem;border-top:1px dashed var(--rule-d);padding-top:.6rem}
+.verdict{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.verdict.up{color:#2f6b3a}.verdict.down{color:var(--madder)}.verdict.mixed{color:#8a6510}
+.quote{margin-top:2rem;background:var(--soot);color:var(--wool);padding:clamp(1.2rem,3vw,2rem);display:grid;grid-template-columns:8rem 1fr;gap:1.4rem;align-items:center}
+.quote img{filter:sepia(.2)}
+.quote blockquote{margin:0;font-style:italic;font-size:clamp(1.15rem,2.2vw,1.45rem);line-height:1.5}
+.quote cite{display:block;font-style:normal;font-family:var(--mono);font-size:.76rem;color:var(--weld);margin-top:.7rem}
+
+/* now */
+.nums{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.4rem}
+.num{background:var(--soot-2);border:1px solid var(--rule);padding:1.3rem}
+.num b{font-family:var(--fat);font-weight:400;font-size:clamp(3.2rem,8vw,5rem);line-height:1;color:var(--madder-l);display:block}
+.num p{margin-top:.6rem;font-size:1.05rem}
+.num small{display:block;font-family:var(--mono);font-size:.7rem;color:var(--mute);margin-top:.7rem}
+.scen{display:grid;gap:1rem}
+.sc{border:1px solid var(--rule);padding:1rem 1.1rem;background:var(--soot)}
+.sc p.s{font-size:1.08rem;margin-bottom:.7rem}
+.sc .row .btn{font-size:.74rem;padding:.42rem .6rem}
+.sc .why{margin-top:.7rem;font-size:1rem;color:var(--weld)}
+
+/* glossary and note repair */
+.vocab{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.vocab div{border-top:3px double var(--rule);padding-top:.6rem}
+.vocab b{display:block;font-family:var(--fat);font-weight:400;font-size:1.3rem;color:var(--madder-l)}
+.vocab small{display:block;font-family:var(--mono);font-size:.72rem;color:var(--mute);margin-top:.35rem}
+.repair{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fix{background:var(--wool-2);border:1px solid var(--rule-d);padding:1rem 1.1rem}
+.fix .wrong{font-size:1.12rem;text-decoration:line-through;text-decoration-color:rgba(169,53,42,.0);transition:text-decoration-color .3s}
+.fix.done .wrong{text-decoration-color:var(--madder)}
+.fix .right{margin-top:.6rem;font-size:1.02rem;border-left:3px solid var(--madder);padding-left:.8rem}
+.fix .btn{margin-top:.7rem;font-size:.74rem;padding:.4rem .6rem}
+
+/* your turn */
+.response{background:var(--wool);background-image:var(--weave);color:var(--ink);padding:clamp(2.8rem,7vw,5rem) 0;border-top:1px solid var(--rule)}
+.response h2{font-family:var(--fat);font-size:clamp(2.3rem,6vw,4rem);line-height:1;margin:.3rem 0 .9rem}
+.qblock{margin-top:1.4rem;max-width:72ch}
+.qblock label{display:block;font-size:1.12rem;margin-bottom:.5rem}
+.qblock textarea{width:100%;font:inherit;font-size:1.05rem;padding:.8rem;border:1.5px solid var(--ink);background:#fffdf7;color:var(--ink);border-radius:0}
+.sources{padding:3rem 0 4rem;border-top:1px solid var(--rule);font-size:.98rem}
+.sources h2{font-family:var(--fat);font-size:2rem;margin-bottom:1rem}
+.sources ol{padding-left:1.2rem;max-width:80ch}
+.sources li{margin-bottom:.45rem}
+.sources p{max-width:80ch;margin-top:.8rem}
+
+@media (max-width:880px){
+  .cols,.cols.flip,.letter,.mapbox,.flour,.nums,.vids{grid-template-columns:1fr}
+  .ahead{grid-template-columns:1fr 1fr}
+  .vocab{grid-template-columns:1fr 1fr}
+  .repair{grid-template-columns:1fr}
+  .gloss{position:static}
+  .quote{grid-template-columns:5.5rem 1fr}
+}
+@media (max-width:520px){
+  .ahead{grid-template-columns:1fr}
+  .lane{grid-template-columns:1fr 4.5rem}
+  .lane .who{grid-column:1/-1}
+  .pb{grid-template-columns:1fr}
+  .stat{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<nav class="strip" aria-label="Sections">
+  <div class="wrap">
+    <a class="home" href="/us-history/">the desk</a>
+    <a href="#s1">the trade</a><a href="#s2">the machine</a><a href="#s3">the letter</a><a href="#s4">the hammers</a><a href="#s5">the law</a><a href="#s6">the map</a><a href="#s7">the pay</a><a href="#s8">the son</a><a href="#s9">who won</a><a href="#s10">now</a><a href="#vocab">words</a><a href="#repair">fix it</a><a href="#your-turn">your turn</a>
+  </div>
+  <span class="thread" aria-hidden="true"></span>
+</nav>
+
+<header class="hero">
+  <img class="bg" src="/storyhub/ush9/the-weavers-son/assets/power-loom-shed-1835.webp" width="1600" height="1033" alt="" fetchpriority="high">
+  <div class="wrap">
+    <p class="kicker">U.S. History 9 · England, 1811 to 1834</p>
+    <h1>the weaver's <em>son</em></h1>
+    <p class="dek">They were the best paid workers in their towns. Then the machines came, and they fought back with hammers. What happened to them, and to their children, after they lost?</p>
+    <p class="note mono">About 40 minutes. Ten sections, two looms you can watch side by side, a letter to decode, a map of the uprising, and four questions at the end.</p>
+  </div>
+  <figcaption>Power loom weaving in a Lancashire mill. Engraving by Thomas Allom, 1835. Public domain.</figcaption>
+</header>
+
+<main>
+<!-- 1 -->
+<section class="piece wool" id="s1" aria-labelledby="s1-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 1</span><span>Yorkshire and Lancashire</span><span>About 1806</span></p>
+    <h2 id="s1-t">The best paid workers in town</h2>
+    <div class="cols">
+      <div class="read">
+        <p>Around 1806, two kinds of cloth workers in northern England were doing very well.</p>
+        <p><b>Croppers</b> in Yorkshire finished wool cloth by hand. They trimmed the fuzzy surface smooth with shears that weighed 40 to 50 pounds. Learning to do it right took years.</p>
+        <p><b>Handloom weavers</b> in Lancashire wove cloth at home on looms they owned. They set their own hours. Many kept their loom in an upstairs room with big windows for light.</p>
+        <p class="key">These were proud, skilled men. Their families lived well on what they made.</p>
+      </div>
+      <figure class="plate mute">
+        <img src="/storyhub/ush9/the-weavers-son/assets/weavers-hogarth-1747.webp" width="1058" height="740" loading="lazy" decoding="async" alt="An engraving of two young men working side by side at large wooden hand looms inside a weaving shop.">
+        <figcaption>Weavers at their hand looms. William Hogarth, Industry and Idleness, Plate 1, 1747. Wellcome Collection, public domain.</figcaption>
+      </figure>
+    </div>
+    <div class="stat"><b>2×</b><span>In 1806 a handloom weaver earned about twice what a cotton factory worker made.</span></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="piece" id="s2" aria-labelledby="s2-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 2</span><span>Lancashire</span><span>1800 to 1845</span></p>
+    <h2 id="s2-t">Then the machines arrived</h2>
+    <div class="cols flip">
+      <figure class="plate mute">
+        <img src="/storyhub/ush9/the-weavers-son/assets/power-loom-watercolor.webp" width="1000" height="801" loading="lazy" decoding="async" alt="A watercolor of an iron power loom, with a man in a cap standing nearby and a woman kneeling beside the machine reaching toward it.">
+        <figcaption>Crompton's power loom and the people who ran it. Watercolor, 1800s. Wellcome Collection, public domain.</figcaption>
+      </figure>
+      <div class="read">
+        <p>A <b>power loom</b> is a weaving machine driven by water or steam. It does not need a skilled weaver. It needs someone to watch it and fix broken threads.</p>
+        <p>In Yorkshire, <b>shearing frames</b> did the croppers' job. The cloth came out rougher, but it cost much less to make.</p>
+        <p class="key hot">Word spread that an untrained boy on a power loom could weave three and a half pieces of cloth in the time a skilled weaver made one.</p>
+      </div>
+    </div>
+
+    <div class="inst" id="looms">
+      <h3>Watch both looms</h3>
+      <p class="how">Play the hand loom first, then the power loom. Listen to the sound and count how often the shuttle crosses.</p>
+      <div class="vids">
+        <div class="vbox"><h4>By hand</h4><div class="video" data-yt="4nFC0AeEPvc" data-title="Weaving with a Flying Shuttle Loom, demonstration at Monticello"></div><div class="vmeta"><span>Flying shuttle hand loom · Monticello · 51 sec</span><a href="https://www.youtube.com/watch?v=4nFC0AeEPvc" target="_blank" rel="noopener">YouTube</a></div></div>
+        <div class="vbox"><h4>By power</h4><div class="video" data-yt="SDGId18ONzU" data-title="Lancashire Loom at Two Temple Place, Cotton to Gold"></div><div class="vmeta"><span>Lancashire power loom · Two Temple Place · 2 min</span><a href="https://www.youtube.com/watch?v=SDGId18ONzU" target="_blank" rel="noopener">YouTube</a></div></div>
+      </div>
+      <details class="more"><summary>Now imagine three hundred of them</summary><div class="body"><div class="video" data-yt="_lQUA9YQgC0" data-title="Queen Street Mill weaving shed running, Burnley"></div><p class="mono" style="color:var(--mute)">The weaving shed at Queen Street Mill in Burnley, the last steam powered weaving shed in the world. Visitors are handed ear protection. Mill workers learned to read lips because nobody could hear a voice over the looms.</p></div></details>
+    </div>
+
+    <div class="inst" id="race">
+      <h3>One hour at the loom</h3>
+      <p class="how">Run the hour. Each line on the bolt marks one piece of cloth.</p>
+      <div class="race" role="group" aria-label="Cloth woven in the same amount of time">
+        <div class="lane"><span class="who">Skilled hand weaver</span><div class="bolt" id="bolt-hand"><div class="cloth"></div></div><span class="count" id="c-hand">0</span></div>
+        <div class="lane power"><span class="who">Untrained boy, power loom</span><div class="bolt" id="bolt-power"><div class="cloth"></div></div><span class="count" id="c-power">0</span></div>
+      </div>
+      <div class="row"><button type="button" class="btn solid" id="race-go">Run the hour</button><button type="button" class="btn" id="race-reset">Reset</button></div>
+      <p class="status" id="race-status" aria-live="polite"></p>
+
+      <div class="predict" id="predict" hidden>
+        <p class="q">A mill owner can now get three and a half pieces for the wages of one boy. What happens to the price a hand weaver gets paid for each piece he weaves?</p>
+        <div class="row" role="group" aria-label="Your prediction">
+          <button type="button" class="btn" data-guess="up" aria-pressed="false">It goes up</button>
+          <button type="button" class="btn" data-guess="same" aria-pressed="false">It stays the same</button>
+          <button type="button" class="btn" data-guess="down" aria-pressed="false">It goes down</button>
+        </div>
+        <div id="pay-reveal" hidden>
+          <p class="status" id="guess-note" aria-live="polite"></p>
+          <p class="mono" style="color:var(--mute);margin-top:.6rem">One cambric weaver's weekly pay, in shillings</p>
+          <div class="paybars">
+            <div class="pb"><span class="yr">1798 to 1803</span><div class="track"><div class="rng" data-lo="20" data-hi="24"></div><span class="lbl" data-for="0"></span></div></div>
+            <div class="pb"><span class="yr">1804 to 1816</span><div class="track"><div class="rng" data-lo="12" data-hi="16"></div><span class="lbl" data-for="1"></span></div></div>
+            <div class="pb"><span class="yr">After 1816</span><div class="track"><div class="rng" data-lo="6" data-hi="7"></div><span class="lbl" data-for="2"></span></div></div>
+          </div>
+          <p class="mono" style="color:var(--mute);margin-top:.8rem">Cambric is a fine cotton cloth. Figures from Mark Hovell, The Chartist Movement, 1918. Some prices for weaving fell as much as 80 percent.</p>
+        </div>
+      </div>
+    </div>
+    <div class="stat"><b>5% → 95%</b><span>Share of British cotton cloth woven by machine, from about 1815 to about 1845.</span></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="piece" id="s3" aria-labelledby="s3-t" style="background:var(--soot-2)">
+  <div class="wrap">
+    <p class="tag"><span>Piece 3</span><span>Hill End, near Leeds</span><span>March 1812</span></p>
+    <h2 id="s3-t">A warning signed "Ned Ludd"</h2>
+    <div class="read" style="margin-bottom:1.6rem"><p>In 1811 and 1812, owners of the new machines started getting letters like this one. Mr. Smith owned shearing frames near Leeds. Tap the marked words to read the letter the way he would have.</p></div>
+    <div class="letter">
+      <div class="paper">
+        <p>"Information has just been given to me that you are the holder of those <button type="button" class="hl" data-n="0" aria-pressed="false">detestable Shearing Frames</button>, and I was <button type="button" class="hl" data-n="1" aria-pressed="false">desired by my Men</button> to write to you and give you <button type="button" class="hl" data-n="2" aria-pressed="false">fair Warning</button> to pull them down . . . if they are not taken down by the end of next Week, I will detach <button type="button" class="hl" data-n="3" aria-pressed="false">one of my Lieutenants with at least 300 Men</button> to destroy them . . . <button type="button" class="hl" data-n="4" aria-pressed="false">your misfortune by burning your Buildings down to Ashes</button>."</p>
+        <p class="sig">Signed by the General of the Army of <button type="button" class="hl" data-n="5" aria-pressed="false">Redressers</button>,<br><button type="button" class="hl" data-n="6" aria-pressed="false">Ned Ludd Clerk</button></p>
+      </div>
+      <aside class="gloss" aria-live="polite">
+        <h4 id="gl-h">Primary source</h4>
+        <p id="gl-p">A threatening letter sent to Mr. Smith, a shearing frame owner at Hill End, near Leeds, in March 1812. Tap a marked phrase.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="piece wool" id="s4" aria-labelledby="s4-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 4</span><span>Nottinghamshire and Yorkshire</span><span>1811 to 1812</span></p>
+    <h2 id="s4-t">Hammers in the night</h2>
+    <div class="cols">
+      <div class="read">
+        <p>It started on March 11, 1811, in Arnold, a village near Nottingham. Stocking knitters broke into workshops and smashed the frames.</p>
+        <p>Masked men came after dark and were gone before anyone could stop them. Between March 1811 and February 1812 they wrecked about 1,000 machines.</p>
+        <p>In Yorkshire the croppers carried huge hammers they nicknamed <b>Enoch</b>, after Enoch Taylor, the Marsden blacksmith who built many of the shearing frames. They shouted, "Enoch made them, and Enoch shall break them."</p>
+        <p class="key">They were not smashing every machine they saw. Around Nottingham, frames owned by employers who paid fair rates were often left alone.</p>
+      </div>
+      <figure class="plate">
+        <img src="/storyhub/ush9/the-weavers-son/assets/leader-of-the-luddites-1812.webp" width="820" height="1082" loading="lazy" decoding="async" alt="A hand colored cartoon of a large man in a spotted dress and hat waving a crowd of men forward past a burning building.">
+        <figcaption>"The Leader of the Luddites." A London print sold in May 1812. The artist pictured "General Ludd" as a man in a woman's gown. Public domain.</figcaption>
+      </figure>
+    </div>
+    <details class="more"><summary>Who was Ned Ludd?</summary><div class="body"><p>Nobody. The story said an apprentice named Ned Ludd smashed two stocking frames in 1779 after being scolded. Whenever a frame broke, people joked that Ned Ludd did it.</p><p>By 1812 the name was a mask. Letters came from General Ludd, King Ludd, and Ned Ludd Clerk. No real leader by that name ever existed, which made the movement very hard to catch.</p><p>Trade unions were illegal in Britain from 1799 to 1824. Workers had no legal way to bargain as a group, so they swore secret oaths instead.</p></div></details>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="piece" id="s5" aria-labelledby="s5-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 5</span><span>Parliament, London</span><span>February 1812</span></p>
+    <h2 id="s5-t">Machine breaking becomes a hanging crime</h2>
+    <div class="cols flip">
+      <figure class="plate" style="max-width:340px">
+        <img src="/storyhub/ush9/the-weavers-son/assets/byron-westall.webp" width="640" height="836" loading="lazy" decoding="async" alt="A painted portrait of a young man with dark curly hair, his chin resting on his hand, wearing a dark red jacket and white open collar.">
+        <figcaption>Lord Byron, the poet, in 1813. Portrait by Richard Westall. Public domain.</figcaption>
+      </figure>
+      <div class="read">
+        <p>Parliament answered with the <b>Frame Breaking Act</b> in February 1812. A man caught smashing a machine could now be put to death.</p>
+        <p>The government sent 12,000 soldiers into the textile districts of northern England.</p>
+        <p>One lord stood up against the law. Lord Byron was 24 years old, a famous poet, and he had seen the hungry towns near his family home in Nottinghamshire. It was his first speech in the House of Lords.</p>
+        <div class="quote" style="grid-template-columns:1fr;margin-top:1rem;background:var(--soot-2)"><blockquote>"Can you commit a whole country to their own prisons? Will you erect a gibbet in every field, and hang up men like scarecrows?"<cite>Lord Byron, House of Lords, February 27, 1812. A gibbet is a gallows.</cite></blockquote></div>
+        <p style="margin-top:1rem" class="key hot">The law passed anyway.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="piece" id="s6" aria-labelledby="s6-t" style="background:var(--soot-2)">
+  <div class="wrap">
+    <p class="tag"><span>Piece 6</span><span>Northern England</span><span>1811 to 1813</span></p>
+    <h2 id="s6-t">Twenty two months</h2>
+    <div class="read" style="margin-bottom:1.2rem"><p>Drag the slider to move through the uprising. Every stop on the map is a real place.</p></div>
+    <div class="mapbox">
+      <div>
+        <div class="map">
+          <svg viewBox="0 0 600 560" role="img" aria-labelledby="map-title map-desc">
+            <title id="map-title">Map of northern England showing where the Luddite uprising happened</title>
+            <desc id="map-desc">Nottinghamshire in the south, the West Riding of Yorkshire in the middle, and Lancashire in the west. Markers light up as the slider moves forward in time.</desc>
+            <path class="land" d="M0,311.4L3.0,312.7L6.6,315.5L7.8,318.3L10.2,320.6L31.0,334.7L33.4,337.5L35.8,340.7L37.0,342.1L37.6,341.2L37.6,335.6L37.6,330.9L35.8,327.6L32.8,323.4L29.3,314.5L23.3,306.6L20.9,302.8L20.3,298.1L22.1,295.3L25.1,293.9L32.2,293.0L35.8,291.5L41.8,286.4L45.4,286.8L49.5,291.5L59.1,317.3L62.1,321.6L66.2,324.8L71.0,327.2L76.4,327.2L76.4,326.7L76.4,325.3L77.0,323.9L78.2,323.4L80.0,323.4L82.3,324.8L83.5,324.8L86.5,324.8L88.9,323.9L93.1,321.6L92.5,317.8L92.5,315.5L94.3,313.1L95.5,311.7L96.7,312.2L98.5,312.2L99.6,311.2L101.4,309.8L99.0,309.4L90.7,311.7L88.9,312.7L87.7,316.9L84.7,318.3L82.9,317.8L77.6,317.3L70.4,314.5L63.9,310.3L58.5,304.7L54.9,298.1L35.2,256.3L34.6,252.0L35.2,248.3L37.0,244.0L47.7,225.6L56.7,214.3L57.9,213.3L59.7,210.5L66.2,205.8L68.0,202.5L53.7,202.5L47.7,199.6L43.6,193.0L42.4,183.5L44.2,162.7L41.8,154.6L44.8,149.8L48.3,147.5L63.9,141.8L66.2,141.3L68.6,143.2L69.8,143.7L70.4,142.2L71.0,140.3L72.2,138.9L74.0,138.0L75.2,137.5L72.8,134.2L78.8,128.4L79.4,123.7L77.0,126.1L74.0,127.0L68.6,127.5L68.0,127.0L65.0,120.8L65.0,118.4L66.2,117.0L68.0,115.6L69.2,114.2L72.8,108.0L74.6,105.6L80.0,103.2L82.3,100.3L85.3,93.2L82.3,88.9L78.8,80.7L76.4,76.0L75.8,73.6L79.4,72.1L82.9,68.3L85.3,63.5L85.3,57.8L84.1,57.8L83.5,62.1L81.2,65.4L76.4,69.7L70.4,73.1L67.4,75.5L65.6,78.3L64.4,82.7L61.5,84.6L54.3,85.0L51.9,83.1L49.5,79.3L48.3,74.5L50.1,71.7L48.9,68.3L47.1,65.9L45.4,64.5L43.6,65.4L44.2,69.3L43.6,73.6L42.4,76.9L41.8,80.3L41.2,82.7L36.4,88.9L33.4,95.1L31.6,97.5L27.5,99.8L26.9,103.2L27.5,107.0L27.5,110.3L21.5,102.2L19.7,100.8L17.3,100.3L14.9,99.8L13.1,98.4L11.4,96.5L11.9,92.2L13.1,87.4L12.5,83.1L10.2,81.2L10.2,79.3L15.5,77.4L17.3,69.3L16.7,59.7L17.3,53.9L14.3,55.4L13.1,58.3L11.4,65.4L13.1,71.2L10.8,72.6L6.6,72.1L4.2,72.6L0.6,74.0L0,73.4L0,0L461.0,0L461.8,1.6L462.4,4.0L461.8,6.4L462.4,9.3L464.2,11.7L469.5,16.0L471.9,18.0L474.3,22.8L477.3,29.5L479.1,36.7L479.1,42.4L479.7,44.4L480.9,46.3L482.1,47.7L483.8,48.2L483.2,51.1L482.6,52.0L483.8,53.5L487.4,58.3L488.6,59.7L495.2,61.6L497.0,63.0L498.8,65.0L502.9,66.9L504.1,69.7L505.3,76.9L505.3,78.3L510.1,83.1L530.4,91.2L536.3,96.5L521.4,104.6L516.1,110.8L512.5,121.8L516.1,129.9L520.8,148.4L523.8,156.5L541.1,184.0L570.9,228.5L573.3,237.9L571.5,246.9L570.3,247.8L566.8,251.1L570.3,242.1L570.9,237.4L568.6,235.5L565.0,234.1L557.8,228.9L554.2,227.5L551.3,228.5L544.7,232.7L541.1,233.2L536.9,233.2L533.4,231.8L529.8,229.9L526.8,227.5L511.3,207.2L505.3,202.5L499.4,201.5L498.2,201.5L477.3,208.6L474.3,208.6L464.2,208.6L458.2,210.0L457.0,209.6L452.8,205.3L452.8,204.8L443.3,203.4L439.7,204.8L428.4,212.4L429.6,212.9L431.3,213.8L432.5,214.8L433.7,216.2L436.1,211.9L440.9,209.6L445.7,209.1L449.8,210.5L456.4,215.2L458.2,217.1L460.6,219.0L463.6,217.6L467.7,214.3L497.6,208.6L502.3,210.5L505.3,216.2L517.3,235.1L524.4,238.8L529.8,245.0L532.8,246.9L538.7,247.8L541.1,248.7L548.9,258.6L564.4,271.8L567.4,273.2L570.9,273.7L573.9,275.1L576.3,278.4L576.9,280.3L577.5,283.1L577.5,285.9L578.7,286.8L579.9,287.3L584.7,291.1L583.5,293.0L586.5,294.8L589.4,298.6L591.2,303.3L591.8,307.0L600,329.3L600,384.1L600,384.1L598.4,384.6L595.4,386.5L580.5,401.4L577.5,402.8L575.1,404.6L562.0,423.7L558.4,427.4L554.8,429.2L552.4,431.1L550.1,434.8L550.1,438.1L555.4,438.5L563.8,436.7L566.2,437.1L570.9,441.3L572.7,442.2L576.9,445.0L585.3,458.0L589.4,463.1L592.4,460.8L596.0,460.3L600,460.9L600,560L0,560Z"/>
+            <text class="sea" x="16" y="220" transform="rotate(-90 16 220)">IRISH SEA</text>
+            <text class="sea" x="560" y="120">NORTH</text><text class="sea" x="566" y="134">SEA</text>
+            <text class="region" x="70" y="335">LANCASHIRE</text>
+            <text class="region" x="300" y="290">WEST RIDING</text><text class="region" x="300" y="304">OF YORKSHIRE</text>
+            <text class="region" x="400" y="470">NOTTINGHAMSHIRE</text>
+            <g id="pins"></g>
+            <g class="london" id="london" transform="translate(470 512)"><rect x="0" y="0" width="112" height="30" fill="#2D3E70"/><text x="10" y="19">TO LONDON ↓</text></g>
+          </svg>
+        </div>
+        <div class="slide-ctl"><label for="map-step" class="mono">Move through time</label><input type="range" id="map-step" min="0" max="10" step="1" value="0" data-desk-skip aria-describedby="ev-when"></div>
+      </div>
+      <div>
+        <div class="evcard" aria-live="polite">
+          <p class="when" id="ev-when"></p>
+          <h3 id="ev-title"></h3>
+          <p id="ev-text"></p>
+        </div>
+        <ol class="evlist" id="evlist"></ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="piece wool" id="s7" aria-labelledby="s7-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 7</span><span>Testimony to Parliament</span><span>1834</span></p>
+    <h2 id="s7-t">What a week's pay could buy</h2>
+    <div class="read"><p>The hangings ended the uprising. They did not save the trade. In 1834 a handloom weaver described his life to a committee of Parliament. Switch between the two years.</p></div>
+    <div class="inst">
+      <div class="row" role="group" aria-label="Pick a year"><button type="button" class="btn" data-yr="1797" aria-pressed="true">1797</button><button type="button" class="btn" data-yr="1834" aria-pressed="false">1834</button></div>
+      <div class="flour" style="margin-top:1.2rem">
+        <div>
+          <div class="sacks" id="sacks" role="img" aria-label=""></div>
+          <p class="mono" style="color:var(--mute-d);margin-top:.6rem">Each sack is 10 pounds of flour.</p>
+        </div>
+        <div class="ledger" aria-live="polite">
+          <div><span>Weekly pay</span><b id="f-pay"></b></div>
+          <div><span>Flour that pay could buy</span><b id="f-lb"></b></div>
+          <div><span>Hours at the loom</span><b id="f-hr"></b></div>
+          <p class="mono" style="margin-top:.8rem;color:var(--mute-d)">12 pence made 1 shilling.</p>
+        </div>
+      </div>
+    </div>
+    <div class="stat"><b>25% less</b><span>By 1820, handloom weavers were earning about 25 percent less than factory workers. In 1806 they had earned twice as much.</span></div>
+    <p class="mono" style="margin-top:1.2rem;color:var(--mute-d)">Source: House of Commons debate on handloom weavers, July 28, 1835, quoting the weaver's evidence to the 1834 committee.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="piece" id="s8" aria-labelledby="s8-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 8</span><span>Lancashire and Leeds</span><span>1820 to 1841</span></p>
+    <h2 id="s8-t">The weaver's son</h2>
+    <div class="cols">
+      <div class="read">
+        <p>Why didn't the weavers just switch jobs? There were not enough jobs to switch to. Some men found work fixing power looms, but far fewer than the number who lost their trade.</p>
+        <p>Handloom weavers still outnumbered factory workers in Britain until 1833. Hundreds of thousands stayed at the loom while their pay kept falling.</p>
+        <p class="key hot">Many families were so poor they put their own children to work at the hand loom. A new generation learned a trade that was already dying.</p>
+        <p>In 1838, Manchester weavers surveyed 856 of their own families. The average family member lived on about 2 shillings a week.</p>
+      </div>
+      <figure class="plate mute">
+        <img src="/storyhub/ush9/the-weavers-son/assets/spinning-mill.webp" width="1100" height="851" loading="lazy" decoding="async" alt="An engraving of a long factory floor lined with spinning machines, belts running up to shafts in the ceiling, and a few workers tending the machines.">
+        <figcaption>Inside a cotton spinning mill. Engraving, 1800s. Wellcome Collection, public domain.</figcaption>
+      </figure>
+    </div>
+    <div class="cols flip" style="margin-top:2.6rem">
+      <figure class="plate">
+        <img src="/storyhub/ush9/the-weavers-son/assets/carding-children.webp" width="1065" height="929" loading="lazy" decoding="async" alt="A colored print of a mill floor with large orange carding machines, and women and children standing beside them working.">
+        <figcaption>Women and children working carding machines in a cotton mill. Lithograph after J. R. Barfoot, about 1840. Wellcome Collection, public domain.</figcaption>
+      </figure>
+      <div class="read">
+        <p>The croppers fell even faster. Leeds had 1,733 croppers in 1814. A report from 1841 said the cloth there was now finished by a small number of workers, chiefly boys aged five to eight.</p>
+        <p>Former croppers took whatever work they could find. Some became bailiffs, water carriers, or scavengers. Others sold oranges and cakes in the street.</p>
+        <p class="key hot">The children at the machines did not win either. Factory pay was low, the hours were long, and the machines could take a hand.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="piece wool" id="s9" aria-labelledby="s9-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 9</span><span>Britain</span><span>1815 to 1850</span></p>
+    <h2 id="s9-t">So who came out ahead?</h2>
+    <div class="read"><p>Britain made far more cloth than ever before. Somebody got richer. For each person, decide what you think happened, then check the record.</p></div>
+    <div class="ahead" id="ahead"></div>
+    <div class="quote">
+      <img src="/storyhub/ush9/the-weavers-son/assets/ricardo-phillips.webp" width="560" height="722" loading="lazy" decoding="async" alt="A painted portrait of David Ricardo, a man in a black coat and white collar holding papers.">
+      <blockquote>"I am convinced, that the substitution of machinery for human labour, is often very injurious to the interests of the class of labourers."<cite>David Ricardo, economist, 1821. He had believed machines always helped workers. After watching weavers' pay collapse, he added a new chapter to his famous book admitting he was wrong. Portrait by Thomas Phillips, public domain.</cite></blockquote>
+    </div>
+    <div class="read" style="margin-top:1.6rem"><p class="key">Pay for most British workers did not clearly rise until about 1850. That is a full generation after the hammers.</p></div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="piece" id="s10" aria-labelledby="s10-t">
+  <div class="wrap">
+    <p class="tag"><span>Piece 10</span><span>Your school</span><span>Now</span></p>
+    <h2 id="s10-t">Now it's your trade</h2>
+    <div class="read"><p>Today the new machine writes, summarizes, and answers questions. People are making the same choices the weavers made. Here is what the newest research says.</p></div>
+    <div class="nums">
+      <div class="num"><b>62%</b><p>Extra pay, on average, for jobs that require AI skills. Those jobs grew 69 percent in a year, while all jobs grew 9 percent.</p><small>PwC Global AI Jobs Barometer, 2026. More than 1 billion job ads in 27 countries.</small></div>
+      <div class="num"><b>83%</b><p>People in an MIT study who wrote an essay with ChatGPT and then could not quote a single sentence of it. In the groups that wrote without it, 11 percent could not.</p><small>Kosmyna and others, MIT Media Lab, 2025. A small study of 54 people, not yet peer reviewed when released.</small></div>
+    </div>
+    <div class="inst" style="margin-top:2rem">
+      <h3>Which worker from 1812?</h3>
+      <p class="how">Read each student. Pick the worker from this story they are acting most like. Nothing here is graded.</p>
+      <div class="scen" id="scen"></div>
+    </div>
+    <div class="read" style="margin-top:1.8rem"><p class="key hot">The people who did well after 1812 understood the work well enough to direct the machines and fix them.</p></div>
+  </div>
+</section>
+
+<!-- vocab -->
+<section class="piece" id="vocab" aria-labelledby="vocab-t" style="background:var(--soot-2)">
+  <div class="wrap">
+    <p class="tag"><span>Glossary</span></p>
+    <h2 id="vocab-t">Words you already met</h2>
+    <div class="vocab">
+      <div><b>Luddite</b>A textile worker who smashed machines in protest from 1811 to 1816. Today the word means someone who refuses new technology.<small>Named for the made up Ned Ludd</small></div>
+      <div><b>cropper</b>A skilled worker who finished wool cloth by trimming it with heavy hand shears.<small>1,733 in Leeds in 1814</small></div>
+      <div><b>handloom weaver</b>A worker who wove cloth by hand on a loom, usually at home.<small>Twice a factory worker's pay in 1806</small></div>
+      <div><b>power loom</b>A weaving machine driven by water or steam that an untrained worker could run.<small>3.5 pieces to the weaver's 1</small></div>
+      <div><b>shearing frame</b>A machine that held cropping shears and did the cropper's job.<small>Mr. Smith's "detestable" frames</small></div>
+      <div><b>Frame Breaking Act</b>The 1812 law that made smashing machines a crime punishable by death.<small>Byron spoke against it</small></div>
+      <div><b>real wages</b>What your pay can actually buy, not just the number of coins.<small>281 pounds of flour, then 81</small></div>
+      <div><b>technological unemployment</b>Losing a job because a machine now does the work.<small>Ricardo's new chapter, 1821</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- note repair -->
+<section class="piece wool" id="repair" aria-labelledby="repair-t">
+  <div class="wrap">
+    <p class="tag"><span>Note repair</span></p>
+    <h2 id="repair-t">Fix the notes</h2>
+    <div class="read"><p>Each of these is something people often believe about the Luddites. Fix it, then check your own notes.</p></div>
+    <div class="repair" id="fixes"></div>
+  </div>
+</section>
+</main>
+
+<section class="response" id="your-turn" aria-labelledby="yt-t">
+  <div class="wrap">
+    <p class="kicker" style="color:var(--mute-d)">your turn</p>
+    <h2 id="yt-t">Report back</h2>
+    <p class="mono">Answer in your own words. Use names, dates, or numbers from the page. Keep each answer under 150 words. Your work saves as you type.</p>
+    <div class="qblock"><label for="answer-1">1. In 1797 one weaver's weekly pay bought 281 pounds of flour. In 1834 it bought 81, and he was working two more hours a day. Explain what happened to him and why. Use at least one number from the page.</label><textarea id="answer-1" name="answer-1" data-desk-label="In 1797 one weaver's weekly pay bought 281 pounds of flour. In 1834 it bought 81, and he was working two more hours a day. Explain what happened to him and why. Use at least one number from the page." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-2">2. Many weavers kept working at the hand loom and raised their children to do the same, even while pay kept falling. Why do you think they did that? Use one fact from the page.</label><textarea id="answer-2" name="answer-2" data-desk-label="Many weavers kept working at the hand loom and raised their children to do the same, even while pay kept falling. Why do you think they did that? Use one fact from the page." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-3">3. Parliament made breaking a machine a hanging crime, and Lord Byron spoke against it. Who was right? Back up your answer with evidence from the page.</label><textarea id="answer-3" name="answer-3" data-desk-label="Parliament made breaking a machine a hanging crime, and Lord Byron spoke against it. Who was right? Back up your answer with evidence from the page." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-4">4. Look back at the workers in "Which worker from 1812?" Which one are you closest to with AI right now, and which one do you want to be? Explain why.</label><textarea id="answer-4" name="answer-4" data-desk-label="Look back at the workers in Which worker from 1812. Which one are you closest to with AI right now, and which one do you want to be? Explain why." rows="5"></textarea></div>
+    <div data-desk-turnin></div>
+  </div>
+</section>
+
+<footer class="sources" id="sources" aria-labelledby="src-t">
+  <div class="wrap">
+    <h2 id="src-t">Sources and limits</h2>
+    <ol>
+      <li>Daron Acemoglu and Simon Johnson, "Learning from Ricardo and Thompson: Machinery and Labor in the Early Industrial Revolution, and in the Age of AI," MIT, 2024, and the MIT Stone Center summary of that research, for weaver and factory wages from 1806 to 1846 and the employment crossover in 1833.</li>
+      <li>Robert C. Allen, "The Hand Loom Weaver and the Power Loom," 2017, for the share of cloth woven by power.</li>
+      <li>Hansard, House of Commons debates on handloom weavers, June 11, 1834, and July 28, 1835, for the weaver's wages and flour in 1797 and 1834.</li>
+      <li>Mark Hovell, <i>The Chartist Movement</i>, 1918, for the cambric weaver's pay, the 1838 Manchester survey, and weavers raising their children to the loom.</li>
+      <li>E. P. Thompson, <i>The Making of the English Working Class</i>, 1963, quoting the 1841 report on Leeds croppers.</li>
+      <li>Kevin Binfield, <i>Writings of the Luddites</i>, and his Luddite history at Murray State University, and Adrian Randall, for the letter to Mr. Smith and the events of 1811 and 1812.</li>
+      <li>Lord Byron, speech in the House of Lords, February 27, 1812. David Ricardo, <i>On the Principles of Political Economy and Taxation</i>, third edition, 1821.</li>
+      <li>Luddite Bicentenary and Lancaster Castle records, for Middleton, Westhoughton, and the Lancaster executions of June 13, 1812.</li>
+      <li>PwC, Global AI Jobs Barometer, 2026. Nataliya Kosmyna and others, "Your Brain on ChatGPT," MIT Media Lab, 2025.</li>
+    </ol>
+    <p><b>Limits.</b> Wage figures from the 1830s come from testimony and surveys given to Parliament, often by people arguing for the weavers, and they vary by town and type of cloth. The boy who wove three and a half pieces was a claim that spread through the weaving districts, not a measured experiment. Historians disagree about exactly when average pay began to rise. Abraham Charlson's age is listed as 16 in court records, and his family claimed he was younger. The MIT study was small and had not been peer reviewed when it was released.</p>
+    <p class="mono" style="margin-top:1rem;color:var(--mute)">Images: Thomas Allom, power loom weaving, 1835. William Hogarth, Industry and Idleness, 1747. A power loom, watercolor. "The Leader of the Luddites," 1812. Lord Byron by Richard Westall. Mule spinning engraving. J. R. Barfoot, Progress of Cotton: Carding. David Ricardo by Thomas Phillips. Public domain via Wikimedia Commons and the Wellcome Collection. Map coastline from Natural Earth, public domain. Videos are embedded from YouTube and not rehosted.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(id){return document.getElementById(id);}
+
+  /* videos */
+  document.querySelectorAll('.video[data-yt]').forEach(function(box){
+    var f=document.createElement('iframe');
+    f.src='https://www.youtube-nocookie.com/embed/'+box.getAttribute('data-yt')+'?rel=0&playsinline=1';
+    f.title=box.getAttribute('data-title');f.loading='lazy';
+    f.allow='encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
+    box.appendChild(f);
+  });
+
+  /* the race */
+  var MAXP=4;
+  ['bolt-hand','bolt-power'].forEach(function(id){var b=$(id);for(var i=1;i<MAXP;i++){var t=document.createElement('span');t.className='tick';t.style.left=(i/MAXP*100)+'%';b.appendChild(t);}});
+  var hand=$('bolt-hand').querySelector('.cloth'),power=$('bolt-power').querySelector('.cloth');
+  function setRace(p){
+    hand.style.width=(p*1/MAXP*100)+'%';power.style.width=(p*3.5/MAXP*100)+'%';
+    $('c-hand').textContent=(Math.round(p*1*10)/10).toString();$('c-power').textContent=(Math.round(p*3.5*10)/10).toString();
+  }
+  var raf=null;
+  $('race-go').addEventListener('click',function(){
+    if(raf)cancelAnimationFrame(raf);
+    var done=function(){setRace(1);$('race-status').textContent='One hour: the weaver made 1 piece. The boy on the power loom made 3.5.';$('predict').hidden=false;};
+    if(reduce){done();return;}
+    var t0=null;$('race-status').textContent='Weaving...';
+    function step(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/3200);setRace(p);if(p<1)raf=requestAnimationFrame(step);else done();}
+    raf=requestAnimationFrame(step);
+  });
+  $('race-reset').addEventListener('click',function(){if(raf)cancelAnimationFrame(raf);setRace(0);$('race-status').textContent='';});
+  var guessNotes={up:'The record says the opposite. The price for weaving fell, and kept falling.',same:'Not even close. The price for weaving fell, and kept falling.',down:'That is what happened. Look how far.'};
+  $('predict').addEventListener('click',function(e){
+    var b=e.target.closest('[data-guess]');if(!b)return;
+    [].forEach.call(this.querySelectorAll('[data-guess]'),function(x){x.setAttribute('aria-pressed',String(x===b));});
+    $('pay-reveal').hidden=false;$('guess-note').textContent=guessNotes[b.dataset.guess];
+    var MAXS=26;
+    [].forEach.call(document.querySelectorAll('.pb .rng'),function(r,i){
+      var lo=+r.dataset.lo,hi=+r.dataset.hi;r.style.left='0';r.style.width='0';
+      var lbl=document.querySelector('.pb .lbl[data-for="'+i+'"]');
+      setTimeout(function(){r.style.width=(hi/MAXS*100)+'%';lbl.textContent=lo+' to '+hi+' shillings';lbl.style.left='0';},reduce?0:120+i*250);
+    });
+  });
+
+  /* letter */
+  var GL=[
+    ['Shearing Frames','A machine that held the heavy shears and cropped cloth without a skilled cropper. "Detestable" means hateful. The writer knew exactly which machine he meant.'],
+    ['desired by my Men','The writer claims to speak for a group, not himself. Luddites swore secret oaths and drilled at night on the moors.'],
+    ['fair Warning','Luddites often warned owners first. The goal was to get the machines gone, and many owners took them down after a letter.'],
+    ['Lieutenants and 300 Men','Military words on purpose. Britain was at war with Napoleon, and the letter makes the Luddites sound like an army. A raid on a mill near Wakefield in April 1812 drew 300 to 600 armed men.'],
+    ['Burning to ashes','The full letter threatens to burn his buildings if he fires on the Luddites. Most raids smashed machines. A few mills were burned.'],
+    ['Redressers','To redress a wrong is to put it right. The Luddites saw themselves as fixing an injustice, not committing a crime.'],
+    ['Ned Ludd Clerk','A made up name. The signature is a joke and a disguise at the same time. Nobody could arrest Ned Ludd.']
+  ];
+  document.querySelectorAll('.hl').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('.hl').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
+    var g=GL[+b.dataset.n];$('gl-h').textContent=g[0];$('gl-p').textContent=g[1];
+  });});
+
+  /* map */
+  var TOWNS={Arnold:[361.8,406.9,'r'],Nottingham:[358,420.7,'r'],Leeds:[291.7,184.6,'r'],Horbury:[291.7,223.8,'r'],Rawfolds:[266.9,208.4,'l'],Middleton:[184,253.1,'r'],Westhoughton:[131,254.5,'l'],Huddersfield:[253.6,228,'l'],Lancaster:[84.6,114.6,'r'],York:[369.6,139.6,'r']};
+  var EV=[
+    ['March 11, 1811','Arnold','The first frames fall','Stocking knitters smash frames in Arnold, near Nottingham. It is the first attack made under the name of Ned Ludd.'],
+    ['November 1811','Nottingham','Officials beg for troops','Letters to the government report 2,000 men, many of them armed, marching across Nottinghamshire.'],
+    ['February 1812','London','A hanging crime','Parliament passes the Frame Breaking Act. On February 27, Lord Byron speaks against it in his first speech. It passes anyway.'],
+    ['March 1812','Leeds','Letters and raids','Mr. Smith at Hill End gets his warning from Ned Ludd. Workshops around Leeds are attacked and cloth is destroyed.'],
+    ['April 9, 1812','Horbury','300 to 600 armed men','A crowd wrecks Joseph Foster\'s mill near Wakefield, smashing gig mills, shears, and frames.'],
+    ['April 11, 1812','Rawfolds','The attack on Rawfolds Mill','About 150 men attack William Cartwright\'s mill after midnight. Guards inside open fire. Samuel Hartley and John Booth die of their wounds.'],
+    ['April 20, 1812','Middleton','Soldiers fire on the crowd','Thousands attack Burton\'s power loom mill. Soldiers guarding it kill four of the attackers.'],
+    ['April 24, 1812','Westhoughton','A mill burns','Weavers break into a mill full of power looms and set it on fire.'],
+    ['April 28, 1812','Huddersfield','A mill owner is shot','William Horsfall had bragged he would ride up to his saddle in Luddite blood. He is shot dead on his way home. Cropper George Mellor and two others will hang for it.'],
+    ['June 13, 1812','Lancaster','The Lancaster hangings','Eight people are hanged at Lancaster Castle, four of them for the Westhoughton fire. One, Abraham Charlson, was listed as 16. His family said he was younger.'],
+    ['January 1813','York','The York hangings','Seventeen men are hanged at York and seven are shipped to Australia. In Yorkshire, the uprising is over.']
+  ];
+  var NS='http://www.w3.org/2000/svg',pins=$('pins'),pinEls={};
+  Object.keys(TOWNS).forEach(function(k){
+    var t=TOWNS[k],g=document.createElementNS(NS,'g');g.setAttribute('class','pin');
+    var ring=document.createElementNS(NS,'circle');ring.setAttribute('class','ring');ring.setAttribute('cx',t[0]);ring.setAttribute('cy',t[1]);ring.setAttribute('r','7');
+    var c=document.createElementNS(NS,'circle');c.setAttribute('cx',t[0]);c.setAttribute('cy',t[1]);c.setAttribute('r','6');
+    var tx=document.createElementNS(NS,'text');tx.textContent=k;tx.setAttribute('y',t[1]+4);
+    if(t[2]==='l'){tx.setAttribute('x',t[0]-10);tx.setAttribute('text-anchor','end');}else{tx.setAttribute('x',t[0]+10);}
+    g.appendChild(ring);g.appendChild(c);g.appendChild(tx);pins.appendChild(g);pinEls[k]=g;
+  });
+  var list=$('evlist');
+  list.innerHTML=EV.map(function(e,i){return '<li><button type="button" data-i="'+i+'">'+e[0]+' · '+e[1]+'</button></li>';}).join('');
+  var slider=$('map-step');
+  function showEv(i){
+    var e=EV[i];$('ev-when').textContent=e[0]+' · '+e[1];$('ev-title').textContent=e[2];$('ev-text').textContent=e[3];
+    var past={};for(var j=0;j<i;j++)past[EV[j][1]]=1;
+    Object.keys(pinEls).forEach(function(k){pinEls[k].setAttribute('class','pin'+(k===e[1]?' now':(past[k]?' past':'')));});
+    $('london').setAttribute('class','london'+(e[1]==='London'?' now':''));
+    [].forEach.call(list.children,function(li,j){li.className=j<i?'past':(j===i?'now':'');});
+    slider.value=i;slider.setAttribute('aria-valuetext',e[0]+', '+e[1]+': '+e[2]);
+  }
+  slider.addEventListener('input',function(){showEv(+slider.value);});
+  list.addEventListener('click',function(ev){var b=ev.target.closest('[data-i]');if(b)showEv(+b.dataset.i);});
+  showEv(0);
+
+  /* flour */
+  var SACK='<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M8 3h8l-1.5 4c4 2 6.5 6 6.5 11 0 5-3.5 8-9 8s-9-3-9-8c0-5 2.5-9 6.5-11z"/></svg>';
+  var sacks=$('sacks');for(var s=0;s<30;s++){var d=document.createElement('span');d.className='s';d.innerHTML=SACK;sacks.appendChild(d);}
+  var FY={'1797':{lb:281,pay:'26 to 27s',hr:'his normal day'},'1834':{lb:81,pay:'5s 6d',hr:'2 more hours a day'}};
+  function setYear(y){
+    var f=FY[y],n=Math.round(f.lb/10);
+    [].forEach.call(sacks.children,function(el,i){el.className='s'+(i<n?' full':'');});
+    sacks.setAttribute('aria-label',y+': about '+n+' sacks of flour, '+f.lb+' pounds');
+    $('f-pay').textContent=f.pay;$('f-lb').textContent=f.lb+' lb';$('f-hr').textContent=f.hr;
+    document.querySelectorAll('[data-yr]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.yr===y));});
+  }
+  document.querySelectorAll('[data-yr]').forEach(function(b){b.addEventListener('click',function(){setYear(b.dataset.yr);});});
+  setYear('1797');
+
+  /* who came out ahead */
+  var AH=[
+    ['The mill owner','up','Better off','Cotton output and profits boomed. Owners who kept their machines, like William Cartwright at Rawfolds, kept their mills and grew richer.'],
+    ['The handloom weaver','down','Worse off','His real wages fell to about a quarter of their peak and kept falling into the 1830s.'],
+    ['The weaver\'s child','down','Worse off','Raised at the loom in a trade that paid less every year. In 1838 Manchester weaver families lived on about 2 shillings a week per person.'],
+    ['The boy at the power loom','mixed','A job, but a poor one','He had work, but it paid less than the old craft had. The hours were long and the machines were dangerous.'],
+    ['The loom mechanic','up','Better off, but rare','Building and fixing machines was new, skilled work. There were far fewer of these jobs than the jobs that were lost.'],
+    ['People buying cloth','up','Better off','Cotton cloth became much cheaper, so ordinary families could afford more of it.']
+  ];
+  var ah=$('ahead');
+  ah.innerHTML=AH.map(function(a,i){return '<div class="who-card"><h4>'+a[0]+'</h4><div class="row" role="group" aria-label="Your guess for '+a[0].replace(/'/g,'&#39;')+'"><button type="button" class="btn" data-a="'+i+'" data-v="up" aria-pressed="false">Better off</button><button type="button" class="btn" data-a="'+i+'" data-v="down" aria-pressed="false">Worse off</button></div><div class="rec" id="ah-'+i+'" hidden aria-live="polite"><p class="verdict '+a[1]+'">On the record: '+a[2]+'</p><p>'+a[3]+'</p></div></div>';}).join('');
+  ah.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var i=b.dataset.a;[].forEach.call(ah.querySelectorAll('[data-a="'+i+'"]'),function(x){x.setAttribute('aria-pressed',String(x===b));});$('ah-'+i).hidden=false;});
+
+  /* which worker */
+  var W=['The weaver who stayed at the hand loom','The boy who only ran the machine','The mechanic who knew how it worked'];
+  var SC=[
+    ['Maya won\'t open any AI tool. She says it is all cheating, so she has no idea what it can or can\'t do.',0,'Like the weaver who stayed at the hand loom, she is protecting a skill, but she is not learning anything about the machine that is changing the work around her.'],
+    ['Jordan pastes the assignment into a chatbot and turns in whatever comes out. He couldn\'t explain one paragraph of it.',1,'Like the boy at the frame, the machine does the work and he only runs it. Anybody could take his place.'],
+    ['Sam writes her own draft first, then asks AI to find holes in her argument and checks every claim it makes against the reading.',2,'Like the mechanic, she understands the work well enough to direct the machine and catch it when it is wrong.'],
+    ['Chris has AI turn his notes into 40 flash cards, then finds and fixes the three cards that were wrong.',2,'Like the mechanic, he uses the machine for speed but knows the material well enough to fix its mistakes.']
+  ];
+  var sc=$('scen');
+  sc.innerHTML=SC.map(function(s,i){return '<div class="sc"><p class="s">'+s[0]+'</p><div class="row" role="group" aria-label="Which worker">'+W.map(function(w,j){return '<button type="button" class="btn" data-s="'+i+'" data-w="'+j+'" aria-pressed="false">'+w+'</button>';}).join('')+'</div><p class="why" id="sc-'+i+'" hidden aria-live="polite"></p></div>';}).join('');
+  sc.addEventListener('click',function(e){var b=e.target.closest('[data-s]');if(!b)return;var i=+b.dataset.s,s=SC[i];[].forEach.call(sc.querySelectorAll('[data-s="'+i+'"]'),function(x){x.setAttribute('aria-pressed',String(x===b));});var p=$('sc-'+i);p.hidden=false;p.textContent=(+b.dataset.w===s[1]?'Most people would agree. ':'Most people would pick '+W[s[1]].toLowerCase()+'. ')+s[2];});
+
+  /* note repair */
+  var FX=[
+    ['The Luddites hated all technology.','They used machines every day. A hand loom and a stocking frame are machines. They went after the frames that cut their pay, and often left fair employers alone.'],
+    ['The Luddites were lazy or unskilled.','Croppers and weavers were some of the best paid skilled workers in their towns. In 1806 a handloom weaver earned about twice a factory worker\'s pay.'],
+    ['The machines made everyone richer right away.','Cloth got cheaper and owners grew rich. Pay for most workers did not clearly rise until about 1850, a full generation later.'],
+    ['Weavers who never broke a machine were fine.','Hundreds of thousands of weavers never joined a raid. Their pay collapsed anyway, and many raised their children at the same dying trade.']
+  ];
+  var fx=$('fixes');
+  fx.innerHTML=FX.map(function(f,i){return '<div class="fix" id="fx-'+i+'"><p class="wrong">'+f[0]+'</p><p class="right" id="fxr-'+i+'" hidden>'+f[1]+'</p><button type="button" class="btn" data-f="'+i+'" aria-expanded="false" aria-controls="fxr-'+i+'">Fix it</button></div>';}).join('');
+  fx.addEventListener('click',function(e){var b=e.target.closest('[data-f]');if(!b)return;var i=b.dataset.f,open=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',String(open));$('fxr-'+i).hidden=!open;$('fx-'+i).classList.toggle('done',open);b.textContent=open?'Hide the fix':'Fix it';});
+
+  /* strip: current section and the thread */
+  var links=[].slice.call(document.querySelectorAll('.strip a[href^="#"]'));
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)links.forEach(function(a){if(a.hash==='#'+e.target.id)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('main section[id],#your-turn').forEach(function(s){io.observe(s);});}
+  var thread=document.querySelector('.thread'),ticking=false;
+  function prog(){var h=document.documentElement,max=h.scrollHeight-h.clientHeight;thread.style.setProperty('--p',max>0?Math.min(1,h.scrollTop/max):0);ticking=false;}
+  window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(prog);}},{passive:true});prog();
+})();
+</script>
+<script src="/hubs/desk-save.js" defer></script>
+</body></html>

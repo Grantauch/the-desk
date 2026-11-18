@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-S04",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "engraving",
+      "role": "Hero",
+      "sourceMode": "source-first-archival",
+      "subject": "Power loom weaving in a Lancashire mill, Thomas Allom, 1835",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wikimedia Commons, Powerloom_weaving_in_1835.jpg. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Darkened full bleed behind the title, with the title in the lower left.",
+      "responsiveCrop": "Covers the hero at every width; the loom rows stay readable at the center.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/power-loom-shed-1835.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "engraving",
+      "role": "The trade",
+      "sourceMode": "source-first-archival",
+      "subject": "William Hogarth, Industry and Idleness, Plate 1, weavers at their looms, 1747",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wellcome Collection image V0049196. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/weavers-hogarth-1747.webp"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "watercolor",
+      "role": "The machine",
+      "sourceMode": "source-first-archival",
+      "subject": "Crompton's power loom with workers, watercolor",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wellcome Collection image V0024094. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/power-loom-watercolor.webp"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "print",
+      "role": "The Luddites",
+      "sourceMode": "source-first-archival",
+      "subject": "The Leader of the Luddites, hand colored print, May 1812",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wikimedia Commons, Luddite.jpg. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/leader-of-the-luddites-1812.webp"
+    },
+    {
+      "id": "A05",
+      "status": "shipped",
+      "type": "portrait",
+      "role": "Lord Byron",
+      "sourceMode": "source-first-archival",
+      "subject": "Lord Byron by Richard Westall, 1813",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wikimedia Commons, George_Gordon_Byron,_6th_Baron_Byron_by_Richard_Westall_(2).jpg. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/byron-westall.webp"
+    },
+    {
+      "id": "A06",
+      "status": "shipped",
+      "type": "engraving",
+      "role": "The mill",
+      "sourceMode": "source-first-archival",
+      "subject": "Mule spinning inside a cotton mill, engraving",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wellcome Collection image V0024077. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/spinning-mill.webp"
+    },
+    {
+      "id": "A07",
+      "status": "shipped",
+      "type": "lithograph",
+      "role": "The children",
+      "sourceMode": "source-first-archival",
+      "subject": "J. R. Barfoot, Progress of Cotton: Carding, about 1840",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wellcome Collection image V0039848. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/carding-children.webp"
+    },
+    {
+      "id": "A08",
+      "status": "shipped",
+      "type": "portrait",
+      "role": "David Ricardo",
+      "sourceMode": "source-first-archival",
+      "subject": "David Ricardo by Thomas Phillips, about 1821",
+      "rightsStatus": "Public domain; reproduced with credit on the page.",
+      "provenance": "Wikimedia Commons, Portrait_of_David_Ricardo_by_Thomas_Phillips.jpg. Resized and converted to WebP November 17, 2026.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/ush9/the-weavers-son/assets/ricardo-phillips.webp"
+    }
+  ]
+}

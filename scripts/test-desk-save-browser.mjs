@@ -806,7 +806,10 @@ await test('BS High restores complete investigations and clears shared-device wo
     assert.equal(decisions.s5.evidence, 'schedule');
     assert.equal(decisions.s7.evidence2, 'film');
     assert.equal(decisions.step, 8);
-    assert.equal(await page.evaluate(() => Boolean(window.__deskSave.timeline().fields['id:case-choices'])), false);
+    const generated = await page.evaluate(() => window.__deskSave.timeline().fields['id:case-choices']);
+    assert.equal(generated.typed, 0);
+    assert.equal(generated.pasted, 0);
+    assert.deepEqual(generated.ops.map(op => [op[3], op[4]]), [[captured, 'i']], 'generated choices are starting text, not student writing');
 
     const resumed = await home.open(hub);
     await passGate(resumed, s.pin(PEOPLE.ada));
@@ -831,6 +834,9 @@ await test('BS High restores complete investigations and clears shared-device wo
     for (const text of ['A score establishes the result.', 'Synthetic written response for finalPrevent', '"evidence2":"film"']) {
       assert.ok(submission.includes(text), 'complete submission contains ' + text);
     }
+    const writing = s.rows('Writing Timeline')[0];
+    assert.ok(writing, 'Turn In records the teacher writing summary');
+    assert.ok(!writing.Flags.includes('Case investigation choices'), 'generated choices do not create a writing flag');
 
     for (const width of [320, 390, 1440]) {
       await resumed.setViewportSize({ width, height: 900 });

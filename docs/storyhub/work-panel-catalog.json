@@ -1,7 +1,12 @@
 {
   "checkedAt": "2026-10-29",
-  "catalogueCount": 72,
+  "catalogueCount": 74,
   "hubs": [
+    {
+      "hub": "bts-the-route-tree.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
     {
       "hub": "hh-they-couldnt-stop.html",
       "mode": "assignment",
@@ -359,6 +364,11 @@
     },
     {
       "hub": "ush9-s03-the-last-morning.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-s04-the-weavers-son.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }

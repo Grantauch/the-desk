@@ -24,6 +24,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'bts-the-route-tree',
+    href: '/hubs/bts-the-route-tree.html',
+    title: 'the route tree',
+    course: 'beyond the scoreboard',
+    unit: 'invincible / wild routes to the nfl',
+    period: '1952–2025',
+    status: 'ready to teach',
+    edition: 'special edition · invincible',
+    question: 'nobody drew these routes up. how did a bartender, a truck driver, a wrestler and a software engineer end up in the nfl?',
+    blurb: 'Start with Invincible and the real Vince Papale, then run ten routes into the NFL, each in its own comic universe. Sort the movie into history and Hollywood, count the odds, read the draft board and build your own route card.',
+    cover: '/storyhub/bts/route-tree/assets/vet-aerial.webp',
+    coverAlt: 'Overhead view of Veterans Stadium in Philadelphia, recolored like a printed comic',
+    topics: ['invincible', 'vince papale', 'undrafted players', 'nfl draft', 'kurt warner', 'antonio gates', 'jordan mailata'],
+    inside: [
+      'Watch the Invincible trailer beside real 1976 film of Papale and sort ten claims into history, Hollywood or remixed.',
+      'Run the route tree from Night Train Lane in 1952 to Brandon Aubrey in 2023 and light up the doors they came through.',
+      'Read the draft board, then meet a Zamboni driver and a science teacher from other sports.',
+      'Build your own route card and answer five questions to turn in.',
+    ],
+  },
+  {
     slug: 'ush9-bytesize-why-they-fought',
     href: '/hubs/ush9-bytesize-why-they-fought.html',
     title: 'why they fought',
@@ -1317,6 +1338,27 @@ export const storyHubs: StoryHub[] = [
       'A clock you drag from 5:00 to 11:00 as the last morning happens in order.',
       'The last four soldiers killed, and the reasons on the record for attacking at all.',
       'From Armistice Day to Veterans Day, and three short responses with Turn In.',
+    ],
+  },
+  {
+    slug: 'ush9-s04-the-weavers-son',
+    href: '/hubs/ush9-s04-the-weavers-son.html',
+    title: "the weaver's son",
+    course: 'us history 9',
+    unit: 'industrialization / standalone',
+    period: 'England, 1811 to 1834',
+    status: 'ready to teach',
+    question: 'the machines came for the best paid workers in england. what happened to them, and to their children, after they lost?',
+    blurb:
+      'In 1811 skilled croppers and weavers started smashing the machines that were taking their trade. Students race a hand loom against a power loom, decode a letter signed Ned Ludd, walk the uprising on a map, watch a week of pay shrink in flour, and decide who really came out ahead. Then they hold the story up against AI.',
+    cover: '/storyhub/ush9/the-weavers-son/assets/leader-of-the-luddites-1812.webp',
+    coverAlt: 'The Leader of the Luddites, a hand colored London print from May 1812',
+    topics: ['luddites', 'industrial revolution', 'power loom', 'real wages', 'lord byron', 'technological unemployment', 'ai'],
+    inside: [
+      'A hand loom and a power loom side by side on video, and a race that shows the three and a half to one gap.',
+      'A Luddite letter from March 1812 to decode, and a map of the uprising from Arnold to the York gallows.',
+      'One weaver\'s pay in flour, 1797 against 1834, and a sort of who came out ahead.',
+      'Four AI scenarios, terms, note repair and four short responses with Turn In.',
     ],
   },
   {

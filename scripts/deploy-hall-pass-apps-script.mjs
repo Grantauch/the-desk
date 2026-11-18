@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { assertProductionAuthorization } from './lib/hall-pass-approval.mjs';
 
 const ROOT = process.cwd();
 const SOURCE_DIR = path.join(ROOT, 'apps-script', 'hall-pass');
@@ -330,6 +331,7 @@ async function main() {
   const modeArg = process.argv.find((value) => value.startsWith('--mode='));
   const mode = modeArg ? modeArg.split('=')[1] : String(process.env.GAS_DEPLOY_MODE || 'preflight').trim();
   if (!['preflight', 'deploy'].includes(mode)) fail(`Unsupported mode: ${mode}. Use preflight or deploy.`);
+  await assertProductionAuthorization('hall-pass', mode);
 
   const scriptId = required('GAS_SCRIPT_ID');
   const deploymentId = required('GAS_DEPLOYMENT_ID');

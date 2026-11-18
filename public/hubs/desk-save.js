@@ -540,8 +540,8 @@
     if (now) { writeJson('sessionStorage', TL_KEY, tl); return; }
     tlTimer = setTimeout(function () { writeJson('sessionStorage', TL_KEY, tl); }, 1000);
   }
-  // A page-generated choice record is saved with the work, without being
-  // recorded as student writing or flagged as pasted text.
+  // Page-generated choice records are not student writing. Their final values
+  // are included as starting text in tlPayload for older server summaries.
   function tlFields() {
     var list = fields();
     assignKeys(list);
@@ -665,6 +665,13 @@
         var key = keyOf.get(el), rec = tl.f[key];
         if (!rec || !rec.ops.length) return;
         out.fields[key] = { ops: rec.ops.slice(), typed: rec.typed, del: rec.del, pasted: rec.pasted, big: rec.big, hist: rec.hist.slice(), ms: rec.ms };
+      });
+      fields().forEach(function (el) {
+        if (!el.hasAttribute('data-desk-generated') || !el.value) return;
+        // The deployed summary flags long answers absent from the timeline.
+        // Starting text records the generated value with zero writing counts,
+        // using the existing protocol without inventing typing or paste events.
+        out.fields[keyOf.get(el)] = { ops: [[tlSec(), 0, 0, el.value, 'i']], typed: 0, del: 0, pasted: 0, big: 0, hist: [0, 0, 0, 0, 0, 0, 0], ms: 0 };
       });
       var guard = 0;
       while (JSON.stringify(out).length > TL_MAX_CHARS && guard++ < 12) {

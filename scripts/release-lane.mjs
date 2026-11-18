@@ -37,7 +37,7 @@ const readAt = (projectRoot, ref, path, { index = false } = {}) => {
 };
 
 const catalogRoutes = source => new Set(
-  [...String(source || '').matchAll(/\bhref:\s*['"](\/hubs\/[^'"]+\.html)['"]/g)].map(match => match[1]),
+  [...String(source || '').matchAll(/(?:\bhref|["']href["'])\s*:\s*['"](\/hubs\/[^'"]+\.html)['"]/g)].map(match => match[1]),
 );
 
 const findMatchingBrace = (source, openIndex) => {
@@ -121,6 +121,45 @@ const safeCoursePageChange = ({ baseText, targetText, targetCatalog }) => {
   return true;
 };
 
+const workPanelPath = 'docs/storyhub/work-panel-catalog.json';
+
+// The Turn In work panel catalog lists every catalogued StoryHub. A release may
+// add or edit entries for hubs that are in the target StoryHub catalog and keep
+// catalogueCount equal to that catalog. Anything else, including removals,
+// fails closed. The fast lane still runs turn-in:test, which checks the file.
+const safeWorkPanelChange = ({ baseText, targetText, targetCatalog }) => {
+  let before;
+  let after;
+  try {
+    before = JSON.parse(baseText);
+    after = JSON.parse(targetText);
+  } catch {
+    return false;
+  }
+  if (!before || !after || !Array.isArray(before.hubs) || !Array.isArray(after.hubs)) return false;
+  const keys = object => Object.keys(object).filter(key => !['hubs', 'catalogueCount', 'checkedAt'].includes(key)).sort();
+  if (JSON.stringify(keys(before)) !== JSON.stringify(keys(after))) return false;
+  if (keys(before).some(key => JSON.stringify(before[key]) !== JSON.stringify(after[key]))) return false;
+  if (after.catalogueCount !== targetCatalog.size) return false;
+  const byHub = list => {
+    const map = new Map();
+    for (const entry of list) {
+      if (!entry || typeof entry.hub !== 'string' || map.has(entry.hub)) return null;
+      map.set(entry.hub, JSON.stringify(entry));
+    }
+    return map;
+  };
+  const oldEntries = byHub(before.hubs);
+  const newEntries = byHub(after.hubs);
+  if (!oldEntries || !newEntries) return false;
+  for (const hub of oldEntries.keys()) if (!newEntries.has(hub)) return false;
+  for (const [hub, entry] of newEntries) {
+    if (oldEntries.get(hub) === entry) continue;
+    if (!targetCatalog.has(`/hubs/${hub}`)) return false;
+  }
+  return true;
+};
+
 const routeForHubPath = path => path.startsWith('public/hubs/') ? `/${path.slice('public/'.length)}` : null;
 
 export function classifyRelease({ projectRoot = root, baseRef, headRef = 'HEAD', index = false } = {}) {
@@ -150,6 +189,11 @@ export function classifyRelease({ projectRoot = root, baseRef, headRef = 'HEAD',
       const route = routeForHubPath(path);
       if (route && targetCatalog.has(route)) routes.add(route);
       continue;
+    }
+    if (path === workPanelPath) {
+      const baseText = readAt(projectRoot, baseRef, path);
+      const targetText = readAt(projectRoot, headRef, path, targetOptions);
+      if (safeWorkPanelChange({ baseText, targetText, targetCatalog })) continue;
     }
     if (courseRoutes.has(path)) {
       const baseText = readAt(projectRoot, baseRef, path);
