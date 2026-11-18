@@ -607,8 +607,8 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/assignments.css",
-      "bytes": 13425,
-      "sha256": "fd19465a8bf1d0605153a15a0afca849c8b4c4755c126593a5b723476537b2d6"
+      "bytes": 13492,
+      "sha256": "225c523e35af24b3e25062581debbc29a8f98175f53d2a68236c4374e612e9be"
     },
     {
       "path": "/hubs/bts-route-tree-a.html",
@@ -626,7 +626,7 @@
       "sha256": "861828e1571460bf8503e2b414ed98bc357e106493d03eb88abfe36ecb4aec0f"
     }
   ],
-  "totalBytes": 10814052,
+  "totalBytes": 10814119,
   "sealedAt": "2026-11-18",
   "assignmentRoutes": [
     "/hubs/bts-route-tree-a.html",
