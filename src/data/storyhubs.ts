@@ -24,6 +24,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'bts-who-pays-for-friday-night',
+    href: '/hubs/bts-who-pays-for-friday-night.html',
+    title: 'who pays for friday night?',
+    course: 'beyond the scoreboard',
+    unit: 'friday night lights / the money game',
+    period: '1982–1991',
+    status: 'ready to teach',
+    edition: 'special edition · friday night lights',
+    question: 'odessa was an oil town in a bust that hung its hopes on a team of 17 year olds. who paid for friday night?',
+    blurb: 'The real 1988 Permian Panthers behind Friday Night Lights. Scrub the oil bust, guess the budget, run the midnight coin flip, step through the Dallas Carter court case and sort the movie into history and Hollywood. Every chapter adds a line to the tab.',
+    cover: '/storyhub/bts/friday-night/assets/friday-lights.webp',
+    coverAlt: 'A Texas high school football field at night under stadium lights, printed in amber',
+    topics: ['friday night lights', 'permian panthers', 'odessa', 'boobie miles', 'no pass no play', 'dallas carter', 'hollywood vs history'],
+    inside: [
+      'The trailer beside the 60 Minutes return to Odessa, and a decade of oil prices to scrub through.',
+      'Guess how many English budgets one season of chartered jets cost, then see it to scale.',
+      'Run the three coin tiebreaker yourself and watch the real 1988 flip.',
+      'Step through the Carter docket, call nine movie claims, rank the tab and answer five questions to turn in.',
+    ],
+  },
+  {
     slug: 'bts-the-route-tree',
     href: '/hubs/bts-the-route-tree.html',
     title: 'the route tree',
