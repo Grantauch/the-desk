@@ -8,7 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 const output = resolve('browser-results/route-tree');
 await mkdir(output, { recursive: true });
 const baseline = execFileSync('git', ['show', '5a580d1a5939eee6d6f0b78f4d41edcdad43cde5:public/hubs/bts-the-route-tree.html']);
-const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.webp':'image/webp' };
+const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.webp':'image/webp', '.woff2':'font/woff2' };
 const server = createServer(async (req, res) => {
   try {
     const path = new URL(req.url, 'http://test').pathname;
@@ -36,6 +36,12 @@ try {
       try {
         assert.equal((await page.goto(origin + '/hubs/bts-the-route-tree.html')).status(), 200);
         await page.locator('.cover h1').waitFor();
+        await page.evaluate(async () => {
+          await document.fonts.ready;
+          const images = [...document.querySelectorAll('img[src]')].filter(img => img.getAttribute('src'));
+          images.forEach(img => { img.loading = 'eager'; });
+          await Promise.all(images.map(img => img.decode()));
+        });
         assert.equal(await page.locator('.cinema-scene').count(), 4);
         assert.equal(await page.locator('.art-kind').filter({ hasText: 'Artistic reconstruction' }).count(), 2);
         assert.equal(await page.locator('#cast li:not([hidden])').count(), 10);
@@ -53,7 +59,7 @@ try {
         }
         // Existing classroom interactions retain their behavior.
         await page.locator('#claims .claim').first().getByRole('button', { name:'History', exact:true }).click();
-        assert.match(await page.locator('#hoh-score').innerText(), /^1 of 10 called/);
+        assert.match(await page.locator('#hoh-score').innerText(), /^1 of 10 called/i);
         await page.locator('#oddsctl button[data-step="2"]').click();
         assert.equal(await page.locator('#oddsctl button[data-step="2"]').getAttribute('aria-pressed'), 'true');
         await page.locator('#doors button').first().click();
@@ -61,7 +67,7 @@ try {
         await page.locator('#dctl button[data-view="undrafted"]').click();
         assert.equal(await page.locator('#dctl button[data-view="undrafted"]').getAttribute('aria-pressed'), 'true');
         await page.locator('#card-name').fill('The Test Route');
-        assert.equal(await page.locator('#cc-name').innerText(), 'The Test Route');
+        assert.equal(await page.locator('#cc-name').textContent(), 'The Test Route');
         assert.equal(await page.locator('textarea').count(), 5);
         for (const scene of await page.locator('.cinema-scene').all()) {
           await scene.scrollIntoViewIfNeeded();
@@ -69,25 +75,25 @@ try {
         }
         const overflow = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth }));
         assert.ok(overflow.scroll <= overflow.width + 1, `Page width: ${JSON.stringify(overflow)}`);
-        const axe = await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+        const axe = await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
         await writeFile(resolve(output, `axe-${name}.json`), JSON.stringify(axe, null, 2));
         assert.deepEqual(axe.violations.map(v => ({ id:v.id, nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary})) })), []);
         assert.deepEqual(errors, []); assert.deepEqual(missing, []);
-        await page.locator('.cover').screenshot({ path: resolve(output, `after-cover-${name}.png`) });
+        await page.locator('.cover').screenshot({ path: resolve(output, `after-cover-${name}.jpg`), quality:90 });
         for (const id of ['reel', 'u-bleier', 'u-warner', 'tree']) {
-          await page.locator('#' + id).screenshot({ path: resolve(output, `after-${id}-${name}.png`) });
+          await page.locator('#' + id).screenshot({ path: resolve(output, `after-${id}-${name}.jpg`), quality:90 });
         }
         // Native source disclosures and full photographic anchors still exist without JS.
         const staticPage = await context.newPage();
         await staticPage.goto(origin + '/__baseline.html');
-        await staticPage.locator('.cover').screenshot({ path: resolve(output, `before-cover-${name}.png`) });
+        await staticPage.locator('.cover').screenshot({ path: resolve(output, `before-cover-${name}.jpg`), quality:90 });
         await staticPage.close();
         results.push({ width, reducedMotion, status:'passed', errors, missing });
         console.log(`PASS Route Tree: keyboard comparison, existing interactions, source labels, WCAG and fit at ${name}`);
       } catch (error) {
         results.push({ width, reducedMotion, status:'failed', message:error.message });
         console.error(`FAIL ${name}: ${error.message}`);
-        await page.screenshot({ path: resolve(output, `failed-${name}.png`), fullPage:true }).catch(()=>{});
+        await page.screenshot({ path: resolve(output, `failed-${name}.jpg`), fullPage:true, quality:85 }).catch(()=>{});
       } finally { await context.close(); }
     }
   }

@@ -23,7 +23,11 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-papale-anchor.webp",
       "originalSha256": "3a31a7a0c006357f2af4711f96d0571ccd8798f8327fa0da4be8de7b9d0c5b0e",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-papale-anchor.webp",
+        "/storyhub/bts/route-tree/assets/ci-papale-photo-275.webp"
+      ]
     },
     {
       "key": "warner",
@@ -43,7 +47,13 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-warner-anchor.webp",
       "originalSha256": "06d69850bc2fa1098dfda4f7152858c2ab04be96f4fc28119a29abd45b1112ad",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-warner-anchor.webp",
+        "/storyhub/bts/route-tree/assets/ci-warner-photo-1024.webp",
+        "/storyhub/bts/route-tree/assets/ci-warner-photo-1536.webp",
+        "/storyhub/bts/route-tree/assets/ci-warner-photo-640.webp"
+      ]
     },
     {
       "key": "bleier",
@@ -63,7 +73,13 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-bleier-anchor.webp",
       "originalSha256": "fb0c7a3039f2912b45bca109db89fb440345b73d57962af9f3b69ff169d2c1e4",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-bleier-anchor.webp",
+        "/storyhub/bts/route-tree/assets/ci-bleier-photo-1024.webp",
+        "/storyhub/bts/route-tree/assets/ci-bleier-photo-1536.webp",
+        "/storyhub/bts/route-tree/assets/ci-bleier-photo-640.webp"
+      ]
     },
     {
       "key": "lane",
@@ -83,7 +99,10 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-lane-anchor.webp",
       "originalSha256": "e71db1aa19c68771640d21e8c9060d22b670ac28ea2d0de060b47e893495e7e4",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-lane-anchor.webp"
+      ]
     },
     {
       "key": "unitas",
@@ -103,7 +122,10 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp",
       "originalSha256": "19c12ed2f758394eb959e99eca7b535773829bce14c46ca61be8733a84d98fed",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp"
+      ]
     },
     {
       "key": "lewis",
@@ -123,7 +145,10 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-lewis-anchor.webp",
       "originalSha256": "c343ddb3fad53be50894df0e5b8ff395b990bf465679eca8770b9ed3cd740c1b",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-lewis-anchor.webp"
+      ]
     },
     {
       "key": "neal",
@@ -143,7 +168,10 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-neal-anchor.webp",
       "originalSha256": "75dc6f30d127c1e3e2808fc1a6e64c94e2f641ddff6daf6b646bba420ff97c01",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-neal-anchor.webp"
+      ]
     },
     {
       "key": "gates",
@@ -163,7 +191,10 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-gates-anchor.webp",
       "originalSha256": "4a44391476f1353df44406a297e5b64267dd20bc69fa4b25c9f75a3892f185ef",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-gates-anchor.webp"
+      ]
     },
     {
       "key": "mailata",
@@ -183,13 +214,16 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-mailata-anchor.webp",
       "originalSha256": "af8e2bb528167ad345f17e5c2cd05033caf332ff9cf72f9bbc97579b032ae3e8",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-mailata-anchor.webp"
+      ]
     },
     {
       "key": "aubrey",
       "name": "Brandon Aubrey",
       "file": "CINvBST 2018-06-13 - Brandon Aubrey (43565763110) (cropped).jpg",
-      "author": "Hayden Schiff; Commons crop by Arbor to SJ",
+      "author": "Hayden Schiff; Commons crop by IagoQnsi",
       "date": "2018-06-13",
       "license": "CC BY 2.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
@@ -203,7 +237,10 @@
       "deployPath": "/storyhub/bts/route-tree/assets/ci-aubrey-anchor.webp",
       "originalSha256": "ef42d1b064120075e10ca100f3b1e9180d88ed2fdb9d3838891763694e8bf591",
       "checked": "2026-11-17",
-      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions."
+      "rightsStatus": "Copyright reuse basis recorded; contextual documentary use, no endorsement. See commercial field for territory and conditions.",
+      "deployPaths": [
+        "/storyhub/bts/route-tree/assets/ci-aubrey-anchor.webp"
+      ]
     },
     {
       "id": "NASA2002",
@@ -321,5 +358,77 @@
     "https://www.philadelphiaeagles.com/news/countdown-to-the-draft-83-days-14888698",
     "https://www.profootballhof.com/news/top-10-artifacts-of-inspiration",
     "https://www.steelers.com/history/bios/bleier_rocky"
+  ],
+  "fonts": [
+    {
+      "family": "Anton",
+      "style": "normal",
+      "weight": "400",
+      "sourceUrl": "https://fonts.gstatic.com/s/anton/v27/1Ptgg87LROyAm3Kz-C8.woff2",
+      "license": "SIL Open Font License 1.1",
+      "licenseSource": "https://github.com/google/fonts/blob/main/ofl/anton/OFL.txt",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-font-anton-normal-400.woff2",
+      "sha256": "d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b"
+    },
+    {
+      "family": "Archivo",
+      "style": "italic",
+      "weight": "400",
+      "sourceUrl": "https://fonts.gstatic.com/s/archivo/v25/k3k8o8UDI-1M0wlSfdzyIEkpwTM29hr-8mTYIRyOSVz60_PG_HCBsydrD08.woff2",
+      "license": "SIL Open Font License 1.1",
+      "licenseSource": "https://github.com/google/fonts/blob/main/ofl/archivo/OFL.txt",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-font-archivo-italic-400.woff2",
+      "sha256": "aff750193376fa0cc7299242c3847f3c1189a78a23d526bfc205dbfc526a5403"
+    },
+    {
+      "family": "Archivo",
+      "style": "normal",
+      "weight": "400",
+      "sourceUrl": "https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxI.woff2",
+      "license": "SIL Open Font License 1.1",
+      "licenseSource": "https://github.com/google/fonts/blob/main/ofl/archivo/OFL.txt",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-font-archivo-normal-400.woff2",
+      "sha256": "8f704806dbedeaaeca334b11ec348bc3ac3a439d6431544b3afb54f534ee4967"
+    },
+    {
+      "family": "Archivo",
+      "style": "normal",
+      "weight": "600",
+      "sourceUrl": "https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxI.woff2",
+      "license": "SIL Open Font License 1.1",
+      "licenseSource": "https://github.com/google/fonts/blob/main/ofl/archivo/OFL.txt",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-font-archivo-normal-400.woff2",
+      "sha256": "8f704806dbedeaaeca334b11ec348bc3ac3a439d6431544b3afb54f534ee4967"
+    },
+    {
+      "family": "Archivo",
+      "style": "normal",
+      "weight": "800",
+      "sourceUrl": "https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxI.woff2",
+      "license": "SIL Open Font License 1.1",
+      "licenseSource": "https://github.com/google/fonts/blob/main/ofl/archivo/OFL.txt",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-font-archivo-normal-400.woff2",
+      "sha256": "8f704806dbedeaaeca334b11ec348bc3ac3a439d6431544b3afb54f534ee4967"
+    },
+    {
+      "family": "Space Mono",
+      "style": "normal",
+      "weight": "400",
+      "sourceUrl": "https://fonts.gstatic.com/s/spacemono/v17/i7dPIFZifjKcF5UAWdDRYEF8RQ.woff2",
+      "license": "SIL Open Font License 1.1",
+      "licenseSource": "https://github.com/google/fonts/blob/main/ofl/spacemono/OFL.txt",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-font-space-mono-normal-400.woff2",
+      "sha256": "fb4a81a2d0a893e5c38c394a7e716a1cef0b24610a0af49c96f6d529bd66bf2b"
+    },
+    {
+      "family": "Space Mono",
+      "style": "normal",
+      "weight": "700",
+      "sourceUrl": "https://fonts.gstatic.com/s/spacemono/v17/i7dMIFZifjKcF5UAWdDRaPpZUFWaHg.woff2",
+      "license": "SIL Open Font License 1.1",
+      "licenseSource": "https://github.com/google/fonts/blob/main/ofl/spacemono/OFL.txt",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-font-space-mono-normal-700.woff2",
+      "sha256": "2d46bd159b53f55c41167a4f1540a074649464194fd1e416f5b4694a6c0f282c"
+    }
   ]
 }

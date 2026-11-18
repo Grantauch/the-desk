@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-the-route-tree.html",
-      "bytes": 140699,
-      "sha256": "cbb2c5148f22898c65e92d6994b434bab49a6c2b7b068029c6751d7621f017f7"
+      "bytes": 140396,
+      "sha256": "3aa8ebb42eaf75d50b841a7d13d64ae1ee058840a7192c811a0ae9ee0f0e7f5e"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
@@ -186,8 +186,8 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-cinematic.css",
-      "bytes": 8206,
-      "sha256": "8f7b8bdbbf7c35dee7304169739711ba78e997e5c8d0a174a294813e96dd008d"
+      "bytes": 11098,
+      "sha256": "29f268369276308ae2a66c6cfeebbc7ed35494e653ef294e7f008973707fcb94"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-cinematic.js",
@@ -273,8 +273,8 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-rights.json",
-      "bytes": 21094,
-      "sha256": "f9c261883964d0ddfece3e8a4fd483fd4403ec29e8be4e5ff0588779d1cdd243"
+      "bytes": 26040,
+      "sha256": "330fa1187d9a66de5ee8689aec128aa7c9be67ce6b674d4aa3da04e885764f6b"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp",
@@ -370,8 +370,38 @@
       "sha256": "9c8fdeb06f46bd3850e81d87c3f0db8749cb413d884a315b2137eca55e61fcb8",
       "width": 640,
       "height": 533
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-anton-normal-400.woff2",
+      "bytes": 18612,
+      "sha256": "d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-archivo-italic-400.woff2",
+      "bytes": 15820,
+      "sha256": "aff750193376fa0cc7299242c3847f3c1189a78a23d526bfc205dbfc526a5403"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-archivo-normal-400.woff2",
+      "bytes": 34928,
+      "sha256": "8f704806dbedeaaeca334b11ec348bc3ac3a439d6431544b3afb54f534ee4967"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-licenses.txt",
+      "bytes": 13256,
+      "sha256": "d1f5b94746d54ecb1fa4b203b6d61748d8433ae94024233c0d04f30c5a6d7f3b"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-space-mono-normal-400.woff2",
+      "bytes": 16520,
+      "sha256": "fb4a81a2d0a893e5c38c394a7e716a1cef0b24610a0af49c96f6d529bd66bf2b"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-space-mono-normal-700.woff2",
+      "bytes": 16724,
+      "sha256": "2d46bd159b53f55c41167a4f1540a074649464194fd1e416f5b4694a6c0f282c"
     }
   ],
-  "totalBytes": 7010743,
+  "totalBytes": 7134138,
   "sealedAt": "2026-11-18"
 }
