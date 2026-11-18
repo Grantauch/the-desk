@@ -340,6 +340,43 @@ figure{margin:0}
 .turnwrap{max-width:860px;margin-top:2.4rem}
 
 /* reveal */
+/* ---------- the cast strip ---------- */
+.cast{padding:3.4rem 0 3rem;background:var(--paper);color:var(--ink);border-bottom:6px solid var(--ink)}
+.cast[hidden],.cast li[hidden]{display:none}
+.cast h2{color:var(--ink);text-shadow:4px 4px 0 var(--mag);font-size:clamp(2.4rem,6vw,4rem);margin:0 0 1.6rem}
+.cast-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1.4rem 1.1rem}
+.cast-grid li:nth-child(odd){transform:rotate(-1.5deg)}.cast-grid li:nth-child(even){transform:rotate(1.2deg)}
+.cast-grid a{display:block;color:var(--ink);text-decoration:none}
+.cast-ph{display:block;position:relative;aspect-ratio:1/1;border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);overflow:hidden;background:radial-gradient(circle,rgba(11,10,26,.3) 1.3px,transparent 1.8px) 0 0/8px 8px,var(--mc);transition:transform .2s,box-shadow .2s}
+.cast-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.cast-ph.cut img{object-fit:contain;object-position:50% 100%;filter:drop-shadow(-4px 0 0 var(--cyan)) drop-shadow(4px 3px 0 var(--mag))}
+.cast-grid b{display:block;font-family:var(--sfx);font-weight:400;font-size:1.35rem;line-height:1;letter-spacing:.03em;text-transform:uppercase;margin-top:.6rem}
+.cast-grid a>span:last-child{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
+.cast-grid a:hover .cast-ph,.cast-grid a:focus-visible .cast-ph{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--mag)}
+/* ---------- character cards: the real people ---------- */
+.mug{position:relative;margin:0 0 2.6rem;--mc:var(--va,var(--yel));--mb:var(--vb,var(--mag))}
+.mug[hidden]{display:none}
+.mug-art{position:relative;aspect-ratio:4/5}
+.ocard .mug-art{aspect-ratio:1/1}
+.mug-bg{position:absolute;inset:0;overflow:hidden;border:5px solid var(--ink);box-shadow:10px 10px 0 var(--mb),-5px -5px 0 var(--cyan);background:radial-gradient(circle,rgba(11,10,26,.34) 1.5px,transparent 2px) 0 0/9px 9px,repeating-conic-gradient(from 0deg at 50% 64%,rgba(255,255,255,.2) 0 4deg,transparent 4deg 12deg),var(--mc)}
+.mug-art img{position:absolute;inset:5px;width:calc(100% - 10px);height:calc(100% - 10px);object-fit:cover;object-position:50% 22%;filter:contrast(1.1) saturate(1.2)}
+.mug-art::after{content:"";position:absolute;inset:5px;pointer-events:none;background:radial-gradient(circle,rgba(11,10,26,.5) .9px,transparent 1.5px) 0 0/5px 5px;mix-blend-mode:multiply;opacity:.3}
+.mug.cut .mug-art::after{display:none}
+.mug.cut .mug-art img{inset:auto 0 5px 0;width:100%;height:114%;object-fit:contain;object-position:50% 100%;filter:contrast(1.1) saturate(1.2) drop-shadow(-6px 0 0 var(--cyan)) drop-shadow(6px 4px 0 var(--mag))}
+.mug-earth{position:absolute;top:-.9rem;right:-.6rem;z-index:2;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--yel);color:var(--ink);border:3px solid var(--ink);padding:.3rem .6rem;transform:rotate(4deg);box-shadow:3px 3px 0 var(--ink)}
+.mug-id{position:relative;z-index:2;margin:-3.4rem 0 0 -.7rem;max-width:88%;background:var(--ink);color:var(--paper);border:3px solid var(--paper);padding:.55rem .8rem .6rem;transform:rotate(-2deg);box-shadow:6px 6px 0 var(--mc)}
+.mug-id b{display:block;font-family:var(--sfx);font-weight:400;font-size:clamp(1.7rem,3.6vw,2.4rem);line-height:1;letter-spacing:.03em;text-transform:uppercase;color:var(--mc);text-shadow:-2px 0 0 var(--cyan),2px 2px 0 var(--mag)}
+.mug-id span{display:block;font-family:var(--marker);font-size:.98rem;line-height:1.3;margin-top:.3rem}
+.mug figcaption{margin-top:1rem;font-size:.84rem;line-height:1.42;opacity:.9}
+.mug figcaption:empty,.mug figcaption:has(.mug-cap:empty):has(.credit:empty){display:none}
+.mug .credit a{color:inherit}
+.mug.in .mug-art img{animation:mugGlitch .55s steps(1) 1}
+@keyframes mugGlitch{0%{clip-path:inset(0 0 62% 0);transform:translateX(-9px)}20%{clip-path:inset(38% 0 24% 0);transform:translateX(9px)}40%{clip-path:inset(70% 0 0 0);transform:translateX(-5px)}60%{clip-path:inset(12% 0 50% 0);transform:translateX(6px)}80%{clip-path:none;transform:translateX(-2px)}100%{clip-path:none;transform:none}}
+.mug-slot{display:none}
+.mug.slot .mug-bg{border-style:dashed}
+.mug.slot .mug-slot{display:grid;place-items:center;height:100%;font-family:var(--mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-align:center;padding:1rem}
+.mug.slot img{display:none}
+@media (max-width:900px){.mug[data-m]{max-width:440px;margin-top:2rem}}
 .rv{opacity:0;transform:translateY(22px);transition:opacity .6s,transform .6s}
 .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.heights.pre .bar{transform:none}}
@@ -412,6 +449,26 @@ figure{margin:0}
   </div>
 </header>
 
+<section class="cast" id="cast" aria-labelledby="cast-h" hidden>
+  <div class="shell">
+    <h2 id="cast-h" class="print">The Cast</h2>
+    <ul class="cast-grid">
+      <li data-cast="papale" style="--mc:#22d3ee" hidden><a href="#reel"><span class="cast-ph"><img alt="" decoding="async"></span><b>Vince Papale</b><span>Earth 1976</span></a></li>
+      <li data-cast="lane" style="--mc:#ff3b30" hidden><a href="#u-lane"><span class="cast-ph"><img alt="" decoding="async"></span><b>Night Train Lane</b><span>Earth 1952</span></a></li>
+      <li data-cast="unitas" style="--mc:#c8102e" hidden><a href="#u-unitas"><span class="cast-ph"><img alt="" decoding="async"></span><b>Johnny Unitas</b><span>Earth 1955</span></a></li>
+      <li data-cast="bleier" style="--mc:#c9a646" hidden><a href="#u-bleier"><span class="cast-ph"><img alt="" decoding="async"></span><b>Rocky Bleier</b><span>Earth 1969</span></a></li>
+      <li data-cast="warner" style="--mc:#fde047" hidden><a href="#u-warner"><span class="cast-ph"><img alt="" decoding="async"></span><b>Kurt Warner</b><span>Earth 1994</span></a></li>
+      <li data-cast="lewis" style="--mc:#e7b84a" hidden><a href="#u-lewis"><span class="cast-ph"><img alt="" decoding="async"></span><b>Michael Lewis</b><span>Earth 2001</span></a></li>
+      <li data-cast="neal" style="--mc:#ef4444" hidden><a href="#u-neal"><span class="cast-ph"><img alt="" decoding="async"></span><b>Stephen Neal</b><span>Earth 2001</span></a></li>
+      <li data-cast="gates" style="--mc:#f2b705" hidden><a href="#u-gates"><span class="cast-ph"><img alt="" decoding="async"></span><b>Antonio Gates</b><span>Earth 2003</span></a></li>
+      <li data-cast="mailata" style="--mc:#f2c230" hidden><a href="#u-mailata"><span class="cast-ph"><img alt="" decoding="async"></span><b>Jordan Mailata</b><span>Earth 2018</span></a></li>
+      <li data-cast="aubrey" style="--mc:#22d3ee" hidden><a href="#u-aubrey"><span class="cast-ph"><img alt="" decoding="async"></span><b>Brandon Aubrey</b><span>Earth 2023</span></a></li>
+      <li data-cast="ayres" style="--mc:#7dd3fc" hidden><a href="#other"><span class="cast-ph"><img alt="" decoding="async"></span><b>Dave Ayres</b><span>Earth 2020</span></a></li>
+      <li data-cast="morris" style="--mc:#fb923c" hidden><a href="#other"><span class="cast-ph"><img alt="" decoding="async"></span><b>Jim Morris</b><span>Earth 1999</span></a></li>
+    </ul>
+  </div>
+</section>
+
 <!-- ====================== CHAPTER 1: THE MOVIE ====================== -->
 <section class="chapter reel" id="reel" aria-labelledby="reel-h">
   <div class="shell">
@@ -426,6 +483,11 @@ figure{margin:0}
         <p>In 1976 the Eagles hired a new coach, Dick Vermeil. General manager Jim Murray invited Papale to a workout. He made the team at 30, the oldest rookie in NFL history who was not a kicker and had never played college football. He played in 41 of 44 games over three seasons, mostly on special teams. His teammates voted him special teams captain. A shoulder injury ended his career, and he retired in 1979.</p>
       </div>
       <div class="stack rv">
+        <figure class="mug rv" data-photo="papale" data-m="grid1" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 1976</span></div>
+          <div class="mug-id"><b>Vince Papale</b><span>Teacher at Interboro High. Eagles rookie at 30.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel">
           <img src="/storyhub/bts/route-tree/assets/rowhouses.webp" width="640" height="480" loading="lazy" alt="A row of brick rowhouses with cars parked on a South Philadelphia street, colored orange and brown">
           <figcaption>Rowhouses in South Philadelphia, the neighborhood world the movie puts Papale in.
@@ -560,6 +622,11 @@ figure{margin:0}
         <blockquote class="quote rv"><p>"Lane came out here to make the ball club. Well, last night he got himself a job."</p><cite>Rams coach Joe Stydahar, after Lane's first scrimmage, August 1952</cite></blockquote>
       </div>
       <div>
+        <figure class="mug rv" data-photo="lane" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 1952</span></div>
+          <div class="mug-id"><b>Night Train Lane</b><span>Aircraft plant worker with a scrapbook.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv">
           <img src="/storyhub/bts/route-tree/assets/aircraft.webp" width="960" height="772" loading="lazy" alt="A worker riveting an aircraft part inside a factory, recolored in bright yellow, red and blue comic tones">
           <figcaption>Inside a Douglas Aircraft plant in Long Beach, California, early 1940s. Lane worked in a Los Angeles plant like this one a decade later.
@@ -595,6 +662,11 @@ figure{margin:0}
         <blockquote class="quote rv"><p>"We sort of made up the plays as we went along."</p><cite>Johnny Unitas on the Bloomfield Rams, as told to NFL Films</cite></blockquote>
       </div>
       <div>
+        <figure class="mug rv" data-photo="unitas" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 1955</span></div>
+          <div class="mug-id"><b>Johnny Unitas</b><span>Pile driver. Six dollars a game on the sandlot.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv" style="max-width:420px">
           <img src="/storyhub/bts/route-tree/assets/rotary.webp" width="800" height="800" loading="lazy" alt="Close view of an old rotary telephone dial with letters and numbers, in red and cream">
           <figcaption>A Bell System rotary dial from the 1940s. The call that brought Unitas to Baltimore cost about 80 cents.
@@ -627,6 +699,11 @@ figure{margin:0}
         </div>
       </div>
       <div>
+        <figure class="mug rv" data-photo="bleier" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 1969</span></div>
+          <div class="mug-id"><b>Rocky Bleier</b><span>Wounded in Vietnam. Four Super Bowl rings.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv">
           <img src="/storyhub/bts/route-tree/assets/paddy.webp" width="1100" height="759" loading="lazy" alt="American soldiers in helmets wading through a flooded rice paddy beside jungle, in olive and gold tones">
           <figcaption>Soldiers of the 1st Cavalry Division cross a rice paddy in Vietnam, October 1966. Bleier's brigade patrolled ground like this three years later.
@@ -655,6 +732,11 @@ figure{margin:0}
         <span class="tag" aria-label="Pay at the grocery store: five dollars fifty an hour">$5.50/HR</span>
       </div>
       <div>
+        <figure class="mug rv" data-photo="warner" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 1994</span></div>
+          <div class="mug-id"><b>Kurt Warner</b><span>Night shift at Hy-Vee. NFL MVP.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv">
           <img src="/storyhub/bts/route-tree/assets/grocery.webp" width="1100" height="733" loading="lazy" alt="Front of a small town grocery store with a painted sign reading Wheatland Grocery, in neon purple, teal and yellow">
           <figcaption>A small grocery in Wheatland, Iowa, 2009. Warner worked nights at a much bigger Hy-Vee in Cedar Falls.
@@ -691,6 +773,11 @@ figure{margin:0}
         <blockquote class="quote rv"><p>"I took the long route to get here."</p><cite>Michael Lewis, Saints training camp, August 2006</cite></blockquote>
       </div>
       <div>
+        <figure class="mug rv" data-photo="lewis" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 2001</span></div>
+          <div class="mug-id"><b>Michael Lewis</b><span>The Beer Man. Drove a delivery route past the Superdome.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <div class="truck rv" role="img" aria-label="Comic drawing of a delivery truck speeding down a road past a domed stadium">
           <svg viewBox="0 0 600 300" aria-hidden="true">
             <defs>
@@ -746,6 +833,11 @@ figure{margin:0}
         </div>
       </div>
       <div>
+        <figure class="mug rv" data-photo="neal" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 2001</span></div>
+          <div class="mug-id"><b>Stephen Neal</b><span>Beat Brock Lesnar for an NCAA title. Never played college football.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv">
           <img src="/storyhub/bts/route-tree/assets/wrestling.webp" width="1100" height="825" loading="lazy" alt="A college wrestling match on a mat in the middle of a crowded arena, in red, black and cream">
           <figcaption>A college wrestling dual at Kent State, 2009. Neal won his titles on mats like this one.
@@ -775,6 +867,11 @@ figure{margin:0}
         <blockquote class="quote rv"><p>"NFL teams and scouts will never look at college basketball players the same again."</p><cite>Antonio Gates, Hall of Fame speech, August 2, 2025</cite></blockquote>
       </div>
       <div>
+        <figure class="mug rv" data-photo="gates" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 2003</span></div>
+          <div class="mug-id"><b>Antonio Gates</b><span>Kent State basketball. Zero college football snaps.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv">
           <img src="/storyhub/bts/route-tree/assets/macc.webp" width="1100" height="825" loading="lazy" alt="A college basketball game inside a packed arena, in navy and gold">
           <figcaption>Kent State's Memorial Athletic and Convocation Center, 2010. Gates played basketball here from 2001 to 2003.
@@ -806,6 +903,11 @@ figure{margin:0}
         <blockquote class="quote rv"><p>"I thought it was an instruction manual to build a spaceship."</p><cite>Mailata on his first NFL playbook, The Ringer, 2023</cite></blockquote>
       </div>
       <div>
+        <figure class="mug rv" data-photo="mailata" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 2018</span></div>
+          <div class="mug-id"><b>Jordan Mailata</b><span>Rugby league kid from Bankstown. Never played a down.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv">
           <img src="/storyhub/bts/route-tree/assets/rugby.webp" width="1100" height="810" loading="lazy" alt="An old photo of a rugby league scrum on a grass field in front of a grandstand, recolored green and gold">
           <figcaption>Rugby league at the Sydney Cricket Ground in the 1930s. The game Mailata grew up on is about a century older in Sydney than he is.
@@ -849,6 +951,11 @@ figure{margin:0}
         </div>
       </div>
       <div>
+        <figure class="mug rv" data-photo="aubrey" data-m="vgrid" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 2023</span></div>
+          <div class="mug-id"><b>Brandon Aubrey</b><span>Software engineer who bought a kicking tee.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel rv">
           <img src="/storyhub/bts/route-tree/assets/att.webp" width="1100" height="729" loading="lazy" alt="Inside AT and T Stadium, the Dallas Cowboys home field, shown in glitchy cyan and magenta">
           <figcaption>AT&amp;T Stadium in Arlington, Texas, home of the Cowboys, 2022.
@@ -908,6 +1015,11 @@ figure{margin:0}
       <article class="ocard ice rv" aria-labelledby="h-ayres">
         <span class="earth">Earth 2020 · Hockey</span>
         <h3 id="h-ayres">The Zamboni Driver</h3>
+        <figure class="mug rv" data-photo="ayres" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 2020</span></div>
+          <div class="mug-id"><b>Dave Ayres</b><span>Zamboni driver. Emergency goalie at 42.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel">
           <img src="/storyhub/bts/route-tree/assets/zamboni.webp" width="1100" height="686" loading="lazy" alt="An ice resurfacing machine smoothing a hockey rink inside an arena, in icy blue with red dots">
           <figcaption>An ice resurfacer at work between periods, Princeton, 2024.
@@ -920,6 +1032,11 @@ figure{margin:0}
       <article class="ocard dome rv" aria-labelledby="h-morris">
         <span class="earth">Earth 1999 · Baseball</span>
         <h3 id="h-morris">The Science Teacher</h3>
+        <figure class="mug rv" data-photo="morris" hidden>
+          <div class="mug-art"><div class="mug-bg"><span class="mug-slot"></span></div><img alt="" decoding="async"><span class="mug-earth" aria-hidden="true">Earth 1999</span></div>
+          <div class="mug-id"><b>Jim Morris</b><span>Science teacher. Threw 98 at 35.</span></div>
+          <figcaption><span class="mug-cap"></span> <span class="credit"></span></figcaption>
+        </figure>
         <figure class="panel">
           <img src="/storyhub/bts/route-tree/assets/tropicana.webp" width="1100" height="825" loading="lazy" alt="Inside Tropicana Field, a domed baseball stadium with a slanted roof, in teal and orange">
           <figcaption>Tropicana Field, home of the Tampa Bay Rays, 2024. It was the Devil Rays' park when Morris debuted.
@@ -1269,6 +1386,60 @@ figure{margin:0}
   renderCard();
 
   /* ---------- reveal, route drawing, nav state ---------- */
+  /* ---------- character cards: photos listed in people.json ---------- */
+  (function () {
+    var cards = [].slice.call(document.querySelectorAll('.mug[data-photo]'));
+    if (!cards.length || !window.fetch) return;
+    var base = '/storyhub/bts/route-tree/people/';
+    var teacher = /[?&]slots=on\b/.test(location.search);
+    var mq = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
+    function place() {
+      cards.forEach(function (f) {
+        var m = f.getAttribute('data-m');
+        if (!m) return;
+        if (!f._home) f._home = { p: f.parentNode, n: f.nextSibling };
+        var sec = f._home.p.closest('section');
+        var target = sec && sec.querySelector('.' + m);
+        if (mq && mq.matches && target) { if (f.nextSibling !== target) target.parentNode.insertBefore(f, target); }
+        else if (f.parentNode !== f._home.p) f._home.p.insertBefore(f, f._home.n);
+      });
+    }
+    place();
+    if (mq) { if (mq.addEventListener) mq.addEventListener('change', place); else if (mq.addListener) mq.addListener(place); }
+    fetch(base + 'people.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (d) {
+      cards.forEach(function (f) {
+        var p = d[f.getAttribute('data-photo')] || {};
+        if (!p.file) {
+          if (teacher) { f.classList.add('slot'); f.querySelector('.mug-slot').textContent = 'Photo slot: ' + f.getAttribute('data-photo'); f.hidden = false; f.classList.add('in'); }
+          return;
+        }
+        var img = f.querySelector('img');
+        if (p.cutout) f.classList.add('cut');
+        if (p.position) img.style.objectPosition = p.position;
+        f.querySelector('.mug-cap').textContent = p.caption || '';
+        var cr = f.querySelector('.credit');
+        if (p.credit) {
+          cr.textContent = p.credit + (p.creditUrl ? ' ' : '');
+          if (p.creditUrl) { var a = document.createElement('a'); a.href = p.creditUrl; a.textContent = 'Source'; a.rel = 'noopener'; cr.appendChild(a); }
+        }
+        img.onload = function () { f.hidden = false; };
+        img.onerror = function () { f.hidden = true; };
+        img.alt = p.alt || '';
+        img.src = base + p.file;
+      });
+      var cast = document.getElementById('cast');
+      if (cast) [].slice.call(cast.querySelectorAll('li[data-cast]')).forEach(function (li) {
+        var p = d[li.getAttribute('data-cast')] || {};
+        if (!p.file) return;
+        var im = li.querySelector('img');
+        if (p.cutout) li.querySelector('.cast-ph').classList.add('cut');
+        if (p.position) im.style.objectPosition = p.position;
+        im.onload = function () { li.hidden = false; cast.hidden = false; };
+        im.src = base + p.file;
+      });
+    }).catch(function () {});
+  })();
+
   if ('IntersectionObserver' in window && !reduce) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
