@@ -1,3 +1,9 @@
+## November 17 BS High student publication
+
+Owner Codex, tracker #360 R02. The additive `bts-bs-high-student.html` edition keeps the existing Desk Save assignment ID and replaces the browser-wide draft with Desk Save. Written responses, choice and sequence work, safeguards, allocations, and source selections reach the same account draft and Turn In. The previous browser-wide draft is cleared because the browser cannot identify its owner. The original source remains available in Git. Beyond the Scoreboard, Games, the sitemap and old bookmarks lead to the corrected edition.
+
+Focused Chromium verified keyboard input, a fresh-device restore, Turn In through the Apps Script test harness, and a second synthetic student getting a blank case after sign-out. Protected CI, production routing and physical classroom acceptance are separate checks.
+
 ## November 17 Blitzkrieg publication
 
 Codex recovered the original Blitzkrieg tower-defense game from Grant’s Grok export as an additive, standalone Games entry. This release includes the original twelve waves on one fictional road, input cleanup, a narrow-screen layout repair, sprite transparency cleanup, and historical context from the U.S. Holocaust Memorial Museum. Saves are local to the browser.

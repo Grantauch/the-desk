@@ -1,4 +1,16 @@
 {
+  "bs-high-student-publication-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Tracker #360 R02. Publish the Bishop Sycamore investigation with shared-device privacy, complete account saving, keyboard access, and course and Games discovery.",
+    "verification_status": "FOCUSED_SYNTHETIC_ACCOUNT_AND_TURN_IN_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All written prompts remain available to Desk Save across screens. A generated record carries interaction choices, allocations, checks, source selections and progress. Its starting-text snapshot has zero typing/paste counts and creates no false writing flag in the existing Turn In service.",
+      "The corrected edition retains the previous account assignment ID. The original curriculum source is preserved and the former public URLs redirect to the corrected edition."
+    ]
+  },
   "blitzkrieg-publication-2026-11-17": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
