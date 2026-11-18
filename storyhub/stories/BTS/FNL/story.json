@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FNL",
+  "course": "BTS",
+  "lessonCode": "FNL",
+  "title": "Who Pays for Friday Night?",
+  "audience": "students",
+  "narrativeQuestion": "When an oil town in a bust hung its hopes on a team of teenagers in 1988, who ended up paying for Friday night, and what did the 2004 film change about the bill?",
+  "chapters": [
+    {
+      "id": "00-kickoff",
+      "title": "Kickoff",
+      "claim": "Friday Night Lights is built on a real season: the 1988 Permian Panthers of Odessa, Texas, followed for a year by reporter H.G. Bissinger.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A01"],
+      "interactionIds": []
+    },
+    {
+      "id": "01-reporter",
+      "title": "The Reporter",
+      "claim": "Bissinger moved his family to Odessa in September 1988. His 1990 book sold about 2 million copies and became the 2004 film and the NBC series.",
+      "namedPeople": [
+        {
+          "name": "H.G. Bissinger",
+          "role": "Author of Friday Night Lights",
+          "anchorStatus": "planned",
+          "anchorNote": "Photo slot listed in /storyhub/bts/friday-night/people/people.json for a teacher supplied photo. He also appears in the embedded 60 Minutes segment."
+        },
+        {
+          "name": "Peter Berg",
+          "role": "Director of the 2004 film",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": ["I01"]
+    },
+    {
+      "id": "02-boom",
+      "title": "Boom and Bust",
+      "claim": "Ratliff Stadium opened in 1982 near the top of the oil boom. By 1988 the average price of a barrel had fallen from $37.42 in 1980 to $14.87.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A02", "A03"],
+      "interactionIds": ["I02"]
+    },
+    {
+      "id": "03-stadium",
+      "title": "Mojo",
+      "claim": "A $5.6 million stadium with 19,302 seats and four state titles behind them meant every Permian season was expected to end with a title run.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A04"],
+      "interactionIds": []
+    },
+    {
+      "id": "04-budget",
+      "title": "The Budget",
+      "claim": "In 1988 the English department got $5,040 for materials while football spent $6,400 on game film, $6,750 on medical supplies and about $70,000 on chartered jets.",
+      "namedPeople": [
+        {
+          "name": "LaRue Moore",
+          "role": "Permian English teacher",
+          "anchorStatus": "not-available",
+          "anchorNote": "No openly licensed likeness. Her account is reported in Bissinger's text."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": ["I03"]
+    },
+    {
+      "id": "05-knee",
+      "title": "One Scrimmage",
+      "claim": "Boobie Miles, recruited by major programs after 1,385 yards in 1987, hurt his knee in an August 1988 scrimmage in Lubbock and never got his career back.",
+      "namedPeople": [
+        {
+          "name": "James \"Boobie\" Miles",
+          "role": "Permian fullback",
+          "anchorStatus": "planned",
+          "anchorNote": "Photo slot listed in /storyhub/bts/friday-night/people/people.json. He also appears in the embedded 60 Minutes segment."
+        },
+        {
+          "name": "L.V. Miles",
+          "role": "Boobie's uncle and guardian",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Chris Comer",
+          "role": "Permian running back",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": ["A05"],
+      "interactionIds": []
+    },
+    {
+      "id": "06-coin",
+      "title": "Heads or Tails",
+      "claim": "After a 22 to 21 loss to Midland Lee, Permian's playoff life came down to a three coin flip at a truck stop just after midnight on November 5, 1988.",
+      "namedPeople": [
+        {
+          "name": "Gary Gaines",
+          "role": "Permian head coach",
+          "anchorStatus": "planned",
+          "anchorNote": "Photo slot listed in /storyhub/bts/friday-night/people/people.json. He appears in the embedded coin flip footage."
+        }
+      ],
+      "visualAnchorIds": ["A06"],
+      "interactionIds": ["I04", "I09"]
+    },
+    {
+      "id": "07-docket",
+      "title": "No Pass, No Play",
+      "claim": "Texas made grades a condition of play in 1984. A disputed algebra grade let Dallas Carter keep playing, beat Permian 14 to 9 in Austin, and then lose its title in court on January 10, 1991.",
+      "namedPeople": [
+        {
+          "name": "Ross Perot",
+          "role": "Chair of the 1984 Texas school reform committee",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Gary Edwards",
+          "role": "Dallas Carter player",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": ["A07"],
+      "interactionIds": ["I05", "I10"]
+    },
+    {
+      "id": "08-reel",
+      "title": "Hollywood or History",
+      "claim": "The film keeps the big shape of the season but moves Boobie's injury, invents an easy win over Marshall and turns a rainy semifinal in Austin into a state final at the Astrodome.",
+      "namedPeople": [
+        {
+          "name": "Charlie Billingsley",
+          "role": "Father of fullback Don Billingsley",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": ["A08"],
+      "interactionIds": ["I06"]
+    },
+    {
+      "id": "09-backlash",
+      "title": "The Town Fought Back",
+      "claim": "Threats at an Odessa bookstore in 1990 made Bissinger cancel his signing there. He came back for the 25th anniversary in 2015.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A03"],
+      "interactionIds": []
+    },
+    {
+      "id": "10-tab",
+      "title": "The Tab",
+      "claim": "Adding up the season shows the costs fell on people who never got a vote: a player's body, a classroom, a rival team, a school's title and the town's own story.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": ["I07", "I08"]
+    }
+  ]
+}
