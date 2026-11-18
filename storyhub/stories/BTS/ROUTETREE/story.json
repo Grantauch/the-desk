@@ -5,7 +5,7 @@
   "lessonCode": "ROUTETREE",
   "title": "The Route Tree",
   "audience": "students",
-  "narrativeQuestion": "How did people the NFL never planned for find their way onto rosters, and what does Invincible change about Vince Papale's real route?",
+  "narrativeQuestion": "How did people the NFL never planned for find their way onto rosters, and what does Invincible change about Vince Papale's real route? How does this illustrated documentary distinguish evidence from interpretation?",
   "chapters": [
     {
       "id": "01-reel",
@@ -15,8 +15,9 @@
         {
           "name": "Vince Papale",
           "role": "Eagles special teams",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Vince Papale in January 2009, more than thirty years after his rookie season. Photo: Philip Nelson, Live Streaming Expert (philipnelson.org).",
+          "visualAnchorId": "P01"
         },
         {
           "name": "Dick Vermeil",
@@ -30,8 +31,9 @@
         }
       ],
       "visualAnchorIds": [
-        "A02",
-        "A03"
+        "A03",
+        "P01",
+        "C02"
       ],
       "interactionIds": [
         "I01",
@@ -55,10 +57,11 @@
       "claim": "Ten routes into the NFL share a few doors: a walk in, a call, a tryout, another league, another sport, a cut, an injury, a program.",
       "namedPeople": [],
       "visualAnchorIds": [
-        "A01"
+        "C01"
       ],
       "interactionIds": [
-        "I04"
+        "I04",
+        "I09"
       ]
     },
     {
@@ -69,12 +72,14 @@
         {
           "name": "Dick Lane",
           "role": "Cornerback",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Lane is number 81, center right, recovering a fumble against the 49ers, September 3, 1953. Full frame retained; his identity is established by the source caption.",
+          "visualAnchorId": "P04"
         }
       ],
       "visualAnchorIds": [
-        "A05"
+        "A05",
+        "P04"
       ],
       "interactionIds": [
         "I08"
@@ -88,13 +93,14 @@
         {
           "name": "Johnny Unitas",
           "role": "Quarterback",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Johnny Unitas at Harborplace, Maryland, January 20, 1996. Later portrait, not his 1955 sandlot season.",
+          "visualAnchorId": "P05"
         }
       ],
       "visualAnchorIds": [
-        "A06",
-        "A07"
+        "A07",
+        "P05"
       ],
       "interactionIds": [
         "I08"
@@ -108,8 +114,9 @@
         {
           "name": "Rocky Bleier",
           "role": "Running back",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Rocky Bleier (left) with Doug Larsen at the National Guard conference in Bismarck, January 24, 2009.",
+          "visualAnchorId": "P03"
         },
         {
           "name": "Art Rooney",
@@ -118,10 +125,13 @@
         }
       ],
       "visualAnchorIds": [
-        "A08"
+        "A08",
+        "P03",
+        "C04"
       ],
       "interactionIds": [
-        "I08"
+        "I08",
+        "I09"
       ]
     },
     {
@@ -132,12 +142,15 @@
         {
           "name": "Kurt Warner",
           "role": "Quarterback",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Kurt Warner speaking in April 2007. Later identity photograph, not a photograph of his grocery work.",
+          "visualAnchorId": "P02"
         }
       ],
       "visualAnchorIds": [
-        "A09"
+        "A09",
+        "P02",
+        "C03"
       ],
       "interactionIds": [
         "I08"
@@ -151,12 +164,14 @@
         {
           "name": "Michael Lewis",
           "role": "Return specialist",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Michael Lewis, the wide receiver and return specialist, with San Francisco on November 18, 2007. This is his later 49ers season, not his Saints debut.",
+          "visualAnchorId": "P06"
         }
       ],
       "visualAnchorIds": [
-        "A16"
+        "A16",
+        "P06"
       ],
       "interactionIds": [
         "I08"
@@ -170,8 +185,9 @@
         {
           "name": "Stephen Neal",
           "role": "Guard",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Stephen Neal with New England against Washington, August 28, 2009. Later NFL photograph, not the 1999 wrestling final.",
+          "visualAnchorId": "P07"
         },
         {
           "name": "Brock Lesnar",
@@ -180,7 +196,8 @@
         }
       ],
       "visualAnchorIds": [
-        "A10"
+        "A10",
+        "P07"
       ],
       "interactionIds": [
         "I08"
@@ -194,12 +211,14 @@
         {
           "name": "Antonio Gates",
           "role": "Tight end",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Antonio Gates before a San Diego Chargers game, October 30, 2016. Later NFL photograph, not his college basketball years.",
+          "visualAnchorId": "P08"
         }
       ],
       "visualAnchorIds": [
-        "A11"
+        "A11",
+        "P08"
       ],
       "interactionIds": [
         "I08"
@@ -213,12 +232,14 @@
         {
           "name": "Jordan Mailata",
           "role": "Left tackle",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Jordan Mailata visiting Arlington National Cemetery, April 28, 2025. Later portrait, not a scene from his 2018 draft.",
+          "visualAnchorId": "P09"
         }
       ],
       "visualAnchorIds": [
-        "A12"
+        "A12",
+        "P09"
       ],
       "interactionIds": [
         "I08"
@@ -232,12 +253,14 @@
         {
           "name": "Brandon Aubrey",
           "role": "Kicker",
-          "anchorStatus": "planned",
-          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+          "anchorStatus": "anchored",
+          "anchorNote": "Brandon Aubrey playing soccer for Bethlehem Steel FC against Cincinnati, June 13, 2018. A photograph from the sport he left before becoming an NFL kicker.",
+          "visualAnchorId": "P10"
         }
       ],
       "visualAnchorIds": [
-        "A13"
+        "A13",
+        "P10"
       ],
       "interactionIds": [
         "I08"
@@ -289,6 +312,21 @@
       ],
       "interactionIds": [
         "I08"
+      ]
+    },
+    {
+      "id": "16-making-of",
+      "title": "Behind the ink",
+      "claim": "The Route Tree itself moved from comic universes to a source-led illustrated documentary. Photographs, overpaintings and reconstructions support different kinds of historical claims.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "P02",
+        "P03",
+        "C02"
+      ],
+      "interactionIds": [
+        "I09",
+        "I10"
       ]
     },
     {
