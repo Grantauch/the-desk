@@ -5,7 +5,7 @@
   "lessonCode": "ROUTETREE",
   "title": "The Route Tree",
   "audience": "students",
-  "narrativeQuestion": "How did people the NFL never planned for find their way onto rosters, and what does Invincible change about Vince Papale's real route?",
+  "narrativeQuestion": "How did people the NFL never planned for find their way onto rosters, and what does Invincible change about Vince Papale's real route? How does this illustrated documentary distinguish evidence from interpretation?",
   "chapters": [
     {
       "id": "01-reel",
@@ -312,6 +312,21 @@
       ],
       "interactionIds": [
         "I08"
+      ]
+    },
+    {
+      "id": "16-making-of",
+      "title": "Behind the ink",
+      "claim": "The Route Tree itself moved from comic universes to a source-led illustrated documentary. Photographs, overpaintings and reconstructions support different kinds of historical claims.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "P02",
+        "P03",
+        "C02"
+      ],
+      "interactionIds": [
+        "I09",
+        "I10"
       ]
     },
     {

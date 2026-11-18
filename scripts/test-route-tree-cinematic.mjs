@@ -70,6 +70,14 @@ try {
           assert.equal(await summary.evaluate(el => el.parentElement.open), true);
           await page.keyboard.press('Enter');
         }
+        // The page tells its own making-of story and tests each kind of evidence.
+        assert.equal(await page.locator('#making-of h2').textContent(), 'Behind the ink');
+        assert.equal(await page.locator('#making-of .method-check').count(), 3);
+        for (const summary of await page.locator('.method-check summary').all()) {
+          await summary.focus(); await page.keyboard.press('Enter');
+          assert.equal(await summary.evaluate(el => el.parentElement.open), true);
+          await page.keyboard.press('Enter');
+        }
         // Existing classroom interactions retain their behavior.
         await page.locator('#claims .claim').first().getByRole('button', { name:'History', exact:true }).click();
         assert.match(await page.locator('#hoh-score').innerText(), /^1 of 10 called/i);
@@ -101,7 +109,7 @@ try {
         assert.deepEqual(axe.violations.map(v => ({ id:v.id, nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary})) })), []);
         assert.deepEqual(errors, []); assert.deepEqual(missing, []);
         await page.locator('.cover').screenshot({ ...sectionCapture, path: resolve(output, `after-cover-${name}.jpg`) });
-        for (const id of ['reel', 'u-bleier', 'u-warner', 'tree']) {
+        for (const id of ['reel', 'u-bleier', 'u-warner', 'tree', 'making-of']) {
           await page.locator('#' + id).screenshot({ ...sectionCapture, path: resolve(output, `after-${id}-${name}.jpg`) });
         }
         // Native source disclosures and full photographic anchors still exist without JS.
@@ -130,6 +138,9 @@ try {
   assert.equal(await page.locator('#cast li:not([hidden])').count(), 10);
   await page.locator('.source-note summary').first().click();
   assert.equal(await page.locator('.source-note').first().evaluate(el=>el.open), true);
+  assert.equal(await page.locator('.method-check summary').count(), 3);
+  await page.locator('.method-check summary').last().click();
+  assert.equal(await page.locator('.method-check').last().evaluate(el=>el.open), true);
   await context.close();
 } finally {
   await writeFile(resolve(output, 'results.json'), JSON.stringify(results, null, 2));

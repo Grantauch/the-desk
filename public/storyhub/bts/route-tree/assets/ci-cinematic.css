@@ -164,3 +164,27 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,.
 /* Anchor jumps and keyboard exploration never leave reading text translucent. */
 .rv,.rv.in{opacity:1;transform:none;transition:none}
 .term .c{color:#94a3b8}
+
+/* The page's own route: evidence literacy before the personal route. */
+.making-of{background:#e7e3d3;color:#192522;padding:5rem 0}
+.making-of h2{font-family:var(--display);font-size:clamp(2.8rem,7vw,5.5rem);line-height:1.08;text-transform:uppercase;margin:1rem 0}
+.making-of .chap-tag{background:#192522;color:#e4bf78;border-color:#192522}
+.making-story{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2rem;margin:2.5rem 0 3.5rem}
+.making-of h3{font-family:var(--body);font-size:1.1rem;margin:0 0 .8rem;font-weight:800}
+.making-of p{line-height:1.75}
+.making-subhead{border-top:1px solid #798579;padding-top:1.5rem}
+.method-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem;margin:1.5rem 0 2rem}
+.method-card{border:1px solid #78887c;background:#f8f5ed;min-width:0}
+.method-card>img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;background:#14251f}
+.method-body{padding:1.4rem}
+.method-kind{display:block;font-family:var(--mono);font-size:.66rem;line-height:1.6;text-transform:uppercase;letter-spacing:.06em;color:#3c5549}
+.method-card h4{font-family:var(--body);font-size:1.15rem;line-height:1.45;margin:.75rem 0;font-weight:800}
+.method-check{margin:1.5rem 0;border-block:1px solid #8a968e}
+.method-check summary{padding:1rem .15rem;cursor:pointer;font-weight:800;line-height:1.6}
+.method-check p{margin:.25rem 0 1.25rem}
+.making-of a{color:#704211;text-decoration:underline;text-underline-offset:3px}
+.method-credit{font-size:.76rem}
+.making-takeaway{border-left:4px solid #80602c;padding:1rem 1.5rem;background:#f8f5ed;max-width:850px}
+.making-takeaway p:last-child{margin-bottom:0}
+.making-of :focus-visible{outline:3px solid #854300;outline-offset:4px}
+@media(max-width:900px){.making-story,.method-grid{grid-template-columns:1fr}.making-story{gap:1.25rem}.method-card>img{max-height:360px}.making-of{padding:3rem 0}}

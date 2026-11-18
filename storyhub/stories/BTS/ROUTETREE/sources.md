@@ -28,3 +28,8 @@ Remaining scene expansion: Lane, Unitas, Lewis, Neal, Gates, Mailata and Aubrey 
 
 
 The inherited contextual images were audited too. Two images with unresolved bot-transfer notices (rowhouses and Bloomfield Bridge) are held outside the public edition. The unreadable legacy arena source is replaced by JonRidinger’s directly verified MACC1.jpg (December30,2006), CC BY3.0, displayed photographically. All thirteen legacy originals are preserved separately, including the three held images. The rights manifest distinguishes retained context, newly sourced venue photography and held legacy material, with original hashes and territorial limitations.
+
+
+## Publication revision — November 18, 2026
+
+The on-page Behind the ink chapter now tells the Route Tree's own development story: the first comic-universe edition, the player/coach documentary benchmark, the four-scene Cinematic Ink pilot, and source-led editing. Three native evidence questions distinguish Warner's later identity photograph, the Bleier source/overpainting and the Papale reconstruction. No conversation in the reconstruction is authenticated. The StoryHub catalog now uses the Cinematic Ink art and revised description. Grant explicitly requested publication; the release targets main and the existing Netlify production pipeline. Originals, territorial rights limitations and held-source decisions remain as previously recorded.

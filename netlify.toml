@@ -11,6 +11,33 @@
   # The database rules in docs/robber-barons-online/ protect the data, not this key.
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
 
+# Preserve the Reconstruction source baseline while old bookmarks use the
+# student edition with private saving and complete answer recovery.
+[[redirects]]
+  from = "/hubs/reconstruction-case-file.html"
+  to = "/hubs/reconstruction-case-file-student.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/reconstruction-case-file"
+  to = "/hubs/reconstruction-case-file-student.html"
+  status = 302
+  force = true
+
+# Retain old Bishop Sycamore bookmarks and their assignment identity.
+[[redirects]]
+  from = "/hubs/bs-high-system-behind-the-score.html"
+  to = "/hubs/bts-bs-high-student.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/bs-high-system-behind-the-score"
+  to = "/hubs/bts-bs-high-student.html"
+  status = 302
+  force = true
+
 # Keep classroom bookmarks on the student-safe Roswell edition.
 [[redirects]]
   from = "/hubs/roswell-signal.html"

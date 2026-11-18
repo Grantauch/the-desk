@@ -1,3 +1,17 @@
+## November 17 Reconstruction Case File student publication
+
+Owner Codex, issue #383 / tracker R05. The additive `reconstruction-case-file-student.html` edition uses the shared PIN gate and account saving. All six sections remain mounted, preserving 23 text fields and 26 choice groups across navigation, account restore and Turn In. The unowned browser-wide legacy draft is discarded. The original source is retained; old bookmarks redirect, and Games, U.S. History Unit 1 and the sitemap expose the student edition.
+
+Synthetic Chromium passed at 320, 390 and 1440 pixels for complete cloud restore in another browser context, same-tab reload, summary/download/Turn In, keyboard controls, shared-device sign-out and a different student's blank file. WCAG A/AA and width fit passed after feedback in every section. Five public references work without JavaScript. The land question acknowledges the Southern Homestead Act while distinguishing it from a general land guarantee. Canonical verification, protected CI, normal merge and production readback remain separate release checks; physical classroom acceptance remains pending.
+
+November 18 integration preserves the newer releases on main. Independent review reproduced missing wrong-answer feedback because styles still targeted the old controls. The corrected selectors restore distinct correct and dashed incorrect feedback for markup fieldsets and table inputs. A failing browser regression now passes at every supported width; re-review found no blocking issues. Build, static validation and built Games/course navigation pass.
+
+## November 17 BS High student publication
+
+Owner Codex, tracker #360 R02. The additive `bts-bs-high-student.html` edition keeps the existing Desk Save assignment ID and replaces the browser-wide draft with Desk Save. Written responses, choice and sequence work, safeguards, allocations, and source selections reach the same account draft and Turn In. The previous browser-wide draft is cleared because the browser cannot identify its owner. The original source remains available in Git. Beyond the Scoreboard, Games, the sitemap and old bookmarks lead to the corrected edition.
+
+Focused Chromium verified keyboard input, a fresh-device restore, Turn In through the Apps Script test harness, and a second synthetic student getting a blank case after sign-out. Protected CI, production routing and physical classroom acceptance are separate checks.
+
 ## November 17 Blitzkrieg publication
 
 Codex recovered the original Blitzkrieg tower-defense game from Grant’s Grok export as an additive, standalone Games entry. This release includes the original twelve waves on one fictional road, input cleanup, a narrow-screen layout repair, sprite transparency cleanup, and historical context from the U.S. Holocaust Memorial Museum. Saves are local to the browser.

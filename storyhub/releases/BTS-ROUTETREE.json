@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-the-route-tree.html",
-      "bytes": 139646,
-      "sha256": "fac3f765555fc75bdbccbb5e25f226885a953bb56df6e11a833ae6791f70788f"
+      "bytes": 145881,
+      "sha256": "7c6db5ac9afa279d9158bdacdde611bc85d9efe4f267952b70c02d99b1cb3e95"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
@@ -162,8 +162,8 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-cinematic.css",
-      "bytes": 11793,
-      "sha256": "537b30a06246c028284e4517c1144057c1cbf5a011d383fef50299d7f94239d5"
+      "bytes": 13688,
+      "sha256": "1f3dbccc4dd9db47f9da6ed521c315bb560558cd19e578869d1ffed4bb81a70d"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-cinematic.js",
@@ -393,6 +393,6 @@
       "height": 825
     }
   ],
-  "totalBytes": 6965638,
+  "totalBytes": 6973768,
   "sealedAt": "2026-11-18"
 }
