@@ -299,6 +299,9 @@
     [392, 370, 349, 262].forEach((f, i) => tone({ f0: f, dur: 0.5, vol: 0.14, wave: "sawtooth", delay: i * 0.3 }));
   };
 
+  // Internals for sfx.js, which layers recorded sounds over these synth fallbacks.
+  Au._int = function () { init(); return { ctx, sfx, master, musicBus, ok, noiseHit, tone }; };
+
   // A stand-in with every sound call as a no-op, for the silent title battle.
   Au.silent = new Proxy({}, { get: () => () => {} });
 

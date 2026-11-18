@@ -156,7 +156,22 @@
     const fx = this.fx, g = this.g;
     const au = this.quiet ? BK.Audio.silent : BK.Audio;
     const say = (str, col, size, x, y) => fx.text(x == null ? ev.x : x, (y == null ? ev.y : y) - 24, str, col, size || 18, { life: 1.6, pop: 1.5, vy: -24 });
+    // Sounds are placed where the event happened, relative to the camera.
+    BK.Audio.pos = ev.x != null ? [ev.x, ev.y] : null;
+    if (this.cam) BK.Audio.listener = { x: this.cam.x, y: this.cam.y, r: BK.W / (2 * this.cam.z) };
     switch (ev.type) {
+      case "eshot":
+        fx.muzzle(ev.x, ev.y, ev.ang, true);
+        au.shot(ev.mortar ? "emortar" : ev.polish ? "train" : ev.big ? "etank" : "enemy", false);
+        if (this.ui && !this.quiet) this.ui.onEvent(ev);
+        BK.Audio.pos = null;
+        return;
+      case "hit":
+        if (ev.kind === "flak" && au.flak) au.flak();
+        break;
+      case "kill":
+        if (!ev.air && BK.ENEMIES[ev.kind] && BK.ENEMIES[ev.kind].kind !== "foot" && au.vehicleBoom) au.vehicleBoom();
+        break;
       case "leak":
         fx.red = 1;
         fx.shake(0.45);
@@ -257,6 +272,7 @@
         break;
     }
     baseHandle.call(this, ev);
+    BK.Audio.pos = null;
   };
 
   // Coins live in screen space so they can fly to the purse wherever the camera is.
