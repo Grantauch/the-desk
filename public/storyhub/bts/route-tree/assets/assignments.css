@@ -21,3 +21,5 @@
 .hero-art .source-credit a{color:#e4bf78}
 
 .portrait{color:#172a24}.portrait .source-credit a{color:#714612}
+
+@media(max-width:620px){[data-variant="B"] h1{font-size:clamp(2.85rem,16vw,4rem)}}
