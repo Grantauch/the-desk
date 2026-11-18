@@ -276,8 +276,24 @@
     if (s.camo) tags.push(`<span>Camouflaged</span>`);
     if (t.supT > 0) tags.push(`<span class="bad">Pinned down</span>`);
     if (tags.length) h += `<div class="cover">${tags.join("")}</div>`;
-    h += `<div class="stats"><div><span>Damage</span><b>${fmt(s.dmg)}</b></div><div><span>Shots/s</span><b>${s.rate.toFixed(1)}</b></div><div><span>Range</span><b>${Math.round(s.range)}</b></div></div>`;
-    h += `<button class="pbtn crew" data-a="crew" ${t.ko > 0 ? "disabled" : ""}>${svg("crosshair").replace("<svg", '<svg width="18" height="18"')} ${t.manned ? "Leave gun" : "Crew this gun"} <small style="opacity:.7">E</small></button>`;
+    // Support work done by the newer guns.
+    const pct = (v) => "+" + Math.round((v - 1) * 100) + "%";
+    const help = [];
+    if (s.aura && s.aura.range) help.push(`<span>Guns nearby: range ${pct(s.aura.range)}</span>`);
+    if (s.aura && s.aura.rate) help.push(`<span>Guns nearby: fire rate ${pct(s.aura.rate)}</span>`);
+    if (s.aura && s.aura.dmg) help.push(`<span>Guns nearby: damage ${pct(s.aura.dmg)}</span>`);
+    if (s.aura && s.aura.xp) help.push(`<span>Guns nearby: experience ${pct(s.aura.xp)}</span>`);
+    if (s.aura && s.aura.repair) help.push(`<span>Repairs guns nearby</span>`);
+    if (s.mark) help.push(`<span>Marked enemies take ${pct(s.mark)}</span>`);
+    if (s.callFire) help.push(`<span>Fire mission every ${s.callFire} s</span>`);
+    if (s.chargeBoost) help.push(`<span>Abilities charge ${pct(1 + s.chargeBoost)} faster</span>`);
+    if (s.income) help.push(`<span>Pays ${s.income} zł a wave</span>`);
+    if (s.grenade) help.push(`<span>Grenades every ${s.grenade} s</span>`);
+    if (s.slowAura) help.push(`<span>Slows the column in range</span>`);
+    if (d.support) h += `<div class="stats"><div><span>Reach</span><b>${Math.round(s.range)}</b></div><div><span>Health</span><b>${Math.round(t.maxHp)}</b></div><div><span>Rank</span><b>${rk.short}</b></div></div>`;
+    else h += `<div class="stats"><div><span>Damage</span><b>${fmt(s.dmg)}</b></div><div><span>Shots/s</span><b>${s.rate.toFixed(1)}</b></div><div><span>Range</span><b>${Math.round(s.range)}</b></div></div>`;
+    if (help.length) h += `<div class="cover">${help.join("")}</div>`;
+    if (!d.support) h += `<button class="pbtn crew" data-a="crew" ${t.ko > 0 ? "disabled" : ""}>${svg("crosshair").replace("<svg", '<svg width="18" height="18"')} ${t.manned ? "Leave gun" : "Crew this gun"} <small style="opacity:.7">E</small></button>`;
     // The next forms this gun can take.
     const opts = g.upgradeOptions(t);
     for (const n of opts) {
@@ -290,7 +306,7 @@
     }
     if (!opts.length) h += `<div class="role" style="margin-top:.4em">Final form. This crew has nothing left to learn but the enemy.</div>`;
     const pr = ["first", "last", "strong", "near"];
-    h += `<div class="prio">${pr.map((p) => `<button data-a="prio" data-p="${p}" class="${t.priority === p ? "on" : ""}">${p}</button>`).join("")}</div>`;
+    if (!d.support) h += `<div class="prio">${pr.map((p) => `<button data-a="prio" data-p="${p}" class="${t.priority === p ? "on" : ""}">${p}</button>`).join("")}</div>`;
     h += `<div class="prow">${g.phase === "deploy" ? `<button class="pbtn small" data-a="move"><b>Move</b><small>R</small></button>` : ""}<button class="pbtn sell small" data-a="sell"><b>Sell</b><span class="cost">${g.sellValue(t)} zł</span></button><button class="pbtn small" data-a="close"><b>Close</b></button></div>`;
     const el = $("panel");
     el.innerHTML = h;
@@ -361,6 +377,7 @@
     let h = `<h3>New orders</h3>`;
     h += `<p><b>Battlefields.</b> Seven fields from Smaller to Gigantic. The bigger ones are real battles of September 1939, with more roads in, rivers, bridges and railways. Drag the field, use WASD, or click the corner map to move. Scroll or pinch to zoom.</p>`;
     h += `<p><b>Guns grow.</b> Every gun earns experience from kills and from time under fire. Each promotion opens a new tier, and each upgrade turns the gun into something new: an MG nest can become a quad flak mount, a concrete pillbox, a 20mm casemate or a flamethrower bunker. Higher tiers also need supplies from the field.</p>`;
+    h += `<p><b>More guns.</b> Keys 7, 8, 9, 0 and T build the RKM wz.28 team, the Granatnik, the TKS tankette, the 100mm howitzer and the Observation Post. The tankette and the howitzer are bought with medals in Command. The Observation Post never fires. It makes the guns around it reach farther, and its branches mark targets, call fire missions, charge abilities or train crews faster. One tankette branch carries supplies that pay after every wave and repair the guns nearby.</p>`;
     h += `<p><b>Supplies.</b> Trucks, tanks, officers and specialists drop ammunition, plate, optics, parts, radios and more. Click or mouse over them. Between waves, click a wreck to strip it. After each wave the inventory shows the haul, then Supplies Inbound brings your card.</p>`;
     h += `<p><b>Ground and cover.</b> Blasts leave craters and knock buildings down. A machine gun in a crater is safer but sees less. A mortar in a crater fires faster with a bigger blast. Ruins and sandbags shelter guns too. Enemy vehicles steer around craters and wrecks, and infantry dive into them.</p>`;
     h += `<p><b>Defenses.</b> Between waves, the Defenses tab lays sandbag walls, barbed wire, roadblocks, tank traps and gun pits. Engineers will try to clear them.</p>`;

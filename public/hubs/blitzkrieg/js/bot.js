@@ -40,22 +40,48 @@
       const counts = {};
       for (const t of g.towers) counts[t.kind] = (counts[t.kind] || 0) + 1;
       const c = (k) => counts[k] || 0;
+      const has = (k) => g.gunAvailable(k);
       const w = g.wave + (g.phase === "deploy" ? 1 : 0);
       if (c("mg") < 2) return "mg";
+      if (has("rkm") && c("rkm") < 1) return "rkm";
+      if (w >= 2 && has("gran") && c("gran") < 1) return "gran";
       if (w >= 3 && c("at37") < 1) return "at37";
+      if (w >= 4 && has("obs") && c("obs") < 1 && g.towers.length >= 5) return "obs";
       if (w >= 5 && c("mortar") < 1) return "mortar";
+      if (w >= 5 && has("tks") && c("tks") < 1) return "tks";
       if (w >= 6 && c("aa") < 1) return "aa";
       if (w >= 5 && c("at37") < 2) return "at37";
       if (g.gunAvailable("atr") && c("atr") < Math.floor(w / 4)) return "atr";
+      if (w >= 7 && has("how100") && c("how100") < 1) return "how100";
       if (w >= 8 && c("aa") < 2) return "aa";
       if (g.gunAvailable("f75") && w >= 9 && c("f75") < 2) return "f75";
+      if (w >= 9 && has("obs") && c("obs") < 2 && g.towers.length >= 14) return "obs";
+      if (w >= 10 && has("how100") && c("how100") < 2) return "how100";
       if (c("at37") < Math.floor(w / 3)) return "at37";
+      if (has("gran") && c("gran") < Math.floor(w / 4)) return "gran";
       if (c("mg") < 3 + Math.floor(w / 5)) return "mg";
+      if (has("rkm") && c("rkm") < 1 + Math.floor(w / 5)) return "rkm";
+      if (has("tks") && w >= 10 && c("tks") < 2) return "tks";
       return g.rng() < 0.5 ? "mortar" : "at37";
     }
     tryBuild(kind) {
       const g = this.g;
       if (g.money < BK.GUNS[kind].cost) return false;
+      if (BK.GUNS[kind].support) {
+        // An observer goes where its circle covers the most guns.
+        const r = BK.GUNS[kind].range * 0.85;
+        let best = null;
+        for (const t of g.towers) {
+          for (let a = 0; a < 6.28; a += 0.7) {
+            const x = t.x + Math.cos(a) * 60, y = t.y + Math.sin(a) * 60;
+            if (g.canPlace(x, y, kind)) continue;
+            let n = 0;
+            for (const o of g.towers) if (!BK.GUNS[o.kind].support && Math.hypot(o.x - x, o.y - y) < r) n++;
+            if (!best || n > best.n) best = { x, y, n };
+          }
+        }
+        if (best) return !!g.build(kind, best.x, best.y);
+      }
       for (const s of this.plan(kind)) {
         if (!g.canPlace(s.x, s.y, kind)) return !!g.build(kind, s.x, s.y);
       }
@@ -64,6 +90,14 @@
     spend() {
       const g = this.g;
       for (let i = 0; i < 6; i++) {
+        // A good commander grows the guns he has before adding more: take any earned tier 2 or 3 form first.
+        if (g.wave >= 3) {
+          let up = null;
+          for (const t of g.towers) {
+            for (const n of g.upgradeOptions(t)) if (n.tier >= 2 && !g.upgradeBlock(t, n) && (!up || n.tier > up.n.tier)) up = { t, n };
+          }
+          if (up && g.upgrade(up.t, up.n.id)) continue;
+        }
         const k = this.want();
         if (g.money >= BK.GUNS[k].cost) { if (!this.tryBuild(k)) break; continue; }
         // Otherwise take the cheapest upgrade the gun has earned, picking a random branch.
@@ -120,10 +154,10 @@
           this.crewT = 2;
           let best = null;
           for (const tw of g.towers) {
-            if (tw.ko > 0 || tw.kind === "mortar") continue;
+            if (tw.ko > 0 || BK.GUNS[tw.kind].shot === "lob" || BK.GUNS[tw.kind].support) continue;
             const r = g.towerStats(Object.assign({}, tw, { manned: true })).range;
             for (const e of g.enemies) {
-              if (e.gone || e.x < 0 || (e.air && tw.kind !== "aa" && tw.kind !== "mg")) continue;
+              if (e.gone || e.x < 0 || (e.air && tw.kind !== "aa" && tw.kind !== "mg" && tw.kind !== "rkm")) continue;
               const d = Math.hypot(e.x - tw.x, e.y - tw.y);
               if (d > r * 0.95) continue;
               const sc = e.maxHp * (BK.GUNS[tw.kind].dmg / 10) * (e.def.weak ? 2 : 1) + e.dist * 0.1;

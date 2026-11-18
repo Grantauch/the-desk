@@ -141,7 +141,7 @@
         const d = BK.GUNS[k];
         const b = document.createElement("button");
         b.className = "gunb";
-        b.innerHTML = `<span class="k">${d.key}</span><img alt="" src="${BK.Art.gunIcon(k, 48)}"><span class="n">${d.short}</span><span class="c">${d.cost}</span>`;
+        b.innerHTML = `<span class="k">${d.key.toUpperCase()}</span><img alt="" src="${BK.Art.gunIcon(k, 48)}"><span class="n">${d.short}</span><span class="c">${d.cost}</span>`;
         b.title = `${d.name}. ${d.role}.`;
         b.onclick = () => this.app.armBuild(k);
         box.appendChild(b);
@@ -167,6 +167,7 @@
     startRun() {
       const g = this.g;
       for (const k of BK.GUN_ORDER) this.gunBtns[k].classList.toggle("locked", !g.gunAvailable(k));
+      $("guns").classList.toggle("two", BK.GUN_ORDER.filter((k) => g.gunAvailable(k)).length > 6);
       for (const id in this.abilBtns) this.abilBtns[id].classList.toggle("hidden", !g.abil[id]);
       $("hud").classList.remove("hidden");
       $("v-wavemax").textContent = g.endless ? "" : "/" + BK.WAVE_COUNT;
