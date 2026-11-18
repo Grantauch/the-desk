@@ -5,13 +5,13 @@
   "route": "/hubs/bts-the-route-tree.html",
   "derivedFrom": {
     "source": "storyhub/stories/BTS/ROUTETREE/story.json",
-    "note": "Invincible companion. Openly licensed place photos with a comic color treatment; real people appear through YouTube embeds."
+    "note": "Invincible companion. Openly licensed place photos with a comic color treatment. Real people appear in character cards from teacher supplied photos listed in people/people.json, and through YouTube embeds."
   },
   "files": [
     {
       "path": "/hubs/bts-the-route-tree.html",
-      "bytes": 109774,
-      "sha256": "ca0c48c0321538a6b4e9a39cd5eea5a68a1a326f9652938429c33999bc86e31e"
+      "bytes": 125326,
+      "sha256": "2d0c17ee345c7213f971075c3a068bf9c239806717a7d04f895b2f5541851b45"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
@@ -126,6 +126,6 @@
       "height": 686
     }
   ],
-  "totalBytes": 2665748,
+  "totalBytes": 2681300,
   "sealedAt": "2026-11-17"
 }
