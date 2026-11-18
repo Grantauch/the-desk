@@ -305,9 +305,9 @@
   // The soundtrack: Grant's three recorded marches in shuffled rotation, played through the music
   // bus so the music button and mute both work. The synthesized drums below are the fallback.
   Au.TRACKS = [
-    { src: "assets/music/march-of-the-iron-engines.m4a", name: "March of the Iron Engines" },
-    { src: "assets/music/iron-line-advance.m4a", name: "Iron Line Advance" },
-    { src: "assets/music/the-long-advance.m4a", name: "The Long Advance" },
+    { src: "assets/music/march-of-the-iron-engines.mp3", name: "March of the Iron Engines" },
+    { src: "assets/music/iron-line-advance.mp3", name: "Iron Line Advance" },
+    { src: "assets/music/the-long-advance.mp3", name: "The Long Advance" },
   ];
   let player = null, trackGain = null, order = [], trackI = -1, trackFailed = false;
   Au.onTrack = null;
