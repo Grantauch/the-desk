@@ -216,8 +216,8 @@
     const n = t.path && BK.TREES[t.kind][t.path[t.path.length - 1]];
     return (BASE_R[(n && n.look && n.look.base) || "sandbag"] || 30) * BK.GS;
   };
-  // Bases and weapons are cached at 4x so they stay crisp at zoom 1.7 on dense screens.
-  const SC = 4;
+  // Cache resolution follows the screen: sharp at zoom 1.7 on a high density display, lighter on a plain Chromebook screen.
+  const SC = typeof devicePixelRatio === "number" && devicePixelRatio >= 1.5 ? 4 : 3;
   const baseCache = {};
   A.BASES = {};
   function pitFloor(c, R) {
