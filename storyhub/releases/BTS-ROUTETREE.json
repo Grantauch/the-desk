@@ -5,13 +5,13 @@
   "route": "/hubs/bts-the-route-tree.html",
   "derivedFrom": {
     "source": "storyhub/stories/BTS/ROUTETREE/story.json",
-    "note": "Invincible companion. Openly licensed place photos with a comic color treatment. Real people appear in character cards from teacher supplied photos listed in people/people.json, and through YouTube embeds."
+    "note": "Cinematic Ink pilot and ten licensed player photographs; authentic sources, source-derived interpretations and reconstructions are explicitly differentiated."
   },
   "files": [
     {
       "path": "/hubs/bts-the-route-tree.html",
-      "bytes": 125326,
-      "sha256": "2d0c17ee345c7213f971075c3a068bf9c239806717a7d04f895b2f5541851b45"
+      "bytes": 140699,
+      "sha256": "cbb2c5148f22898c65e92d6994b434bab49a6c2b7b068029c6751d7621f017f7"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
@@ -124,8 +124,254 @@
       "sha256": "cc728ab0cca5ccf7fe3687dc5c825ffef84a798210cbf04f7f9be7b0496354a2",
       "width": 1100,
       "height": 686
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-aubrey-anchor.webp",
+      "bytes": 63040,
+      "sha256": "c99b58705b72881dcd3f6ceebbc65456da67a49ddcbfd56de5ede389ce2e3a0b",
+      "width": 640,
+      "height": 973,
+      "assetId": "P10"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-anchor.webp",
+      "bytes": 31926,
+      "sha256": "b077155aa4bf10b26f39b964f40e65ee71160442607408438374fbad308a4931",
+      "width": 640,
+      "height": 428,
+      "assetId": "P03"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-photo-1024.webp",
+      "bytes": 58996,
+      "sha256": "8211c67e5f3dcfa0f6e7bfaf83ff77042df5b7c31a89b0e4b898993e3c1250bd",
+      "width": 1024,
+      "height": 685
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-photo-1536.webp",
+      "bytes": 100826,
+      "sha256": "26d67287fc54661f50ef15f0286e3811e28105151ea8584a07ff2b0b2ca174dd",
+      "width": 1536,
+      "height": 1028
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-photo-640.webp",
+      "bytes": 30000,
+      "sha256": "01e524f0056c5d5ace54b334fabb11bcf71bf51835ec3f08d8eff494fe215c7e",
+      "width": 640,
+      "height": 428
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-rings-ink-1024.webp",
+      "bytes": 164350,
+      "sha256": "d6c52f6193cb9980d7611f09dc2dd1a4d472e0640fcd28cbaefeecbf95b1cfba",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-rings-ink-1536.webp",
+      "bytes": 331650,
+      "sha256": "7a3be6dddc40575c5daaa22218b9453c47819e80e8ea30712dbf053eefec6d3d",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C04"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-rings-ink-640.webp",
+      "bytes": 62988,
+      "sha256": "9590ec530a476c0db738c108ade40c17881941160bee97c6969b022f5fac9e71",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-cinematic.css",
+      "bytes": 8206,
+      "sha256": "8f7b8bdbbf7c35dee7304169739711ba78e997e5c8d0a174a294813e96dd008d"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-cinematic.js",
+      "bytes": 702,
+      "sha256": "a7206744eceea8cc6ba979e226c0eb5dd92e608154b91dbfec3ff28a8440bfa1"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-gates-anchor.webp",
+      "bytes": 72880,
+      "sha256": "01d5cea356dfb28c9ae767eca050f88b2116e25afd5847ecc9cf30bd046ceeaf",
+      "width": 640,
+      "height": 879,
+      "assetId": "P08"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-anchor.webp",
+      "bytes": 75836,
+      "sha256": "fed87a6d16e9727f8a7474830e59a3a8161b203f65aa665a29be8a88e78fed44",
+      "width": 640,
+      "height": 450,
+      "assetId": "P04"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lewis-anchor.webp",
+      "bytes": 30874,
+      "sha256": "095a4d29734dc2ff76a32be98ad78f4084d8694dcefe2c7c61fc747bc16daaa7",
+      "width": 640,
+      "height": 582,
+      "assetId": "P06"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-mailata-anchor.webp",
+      "bytes": 53784,
+      "sha256": "cc35bd1d18259e7e196bba12d77f0d9d73296d0b5edfaa7c67b33c74ffe2d85a",
+      "width": 640,
+      "height": 798,
+      "assetId": "P09"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-neal-anchor.webp",
+      "bytes": 31544,
+      "sha256": "1f466072208d056861592ca6c15fe20c5b484ce36f51871d3a86601421f8c06a",
+      "width": 640,
+      "height": 427,
+      "assetId": "P07"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-anchor.webp",
+      "bytes": 9116,
+      "sha256": "bc0124d905ac79b8a16c4bdba2901f7d7f069879fdce9a16335c72059dec9ad3",
+      "width": 275,
+      "height": 358,
+      "assetId": "P01"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-camp-1024.webp",
+      "bytes": 227968,
+      "sha256": "33e5e333cee937555ec120e937f2baa8c02a4c539ad6622474171cd109bdeacb",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-camp-1536.webp",
+      "bytes": 448204,
+      "sha256": "123a7a51c0da5968e6bd7580311ce8c8e8802325d9915875f6790218e070da99",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C02"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-camp-640.webp",
+      "bytes": 94742,
+      "sha256": "505a7e0d2d4a3128108bb67d77d6df55a60085beb19468ff1e81c678b6e3e73f",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-photo-275.webp",
+      "bytes": 11760,
+      "sha256": "7b08aacc59466d0f847440a884915a7990c76dd903aaf19a2d16665e91c5689f",
+      "width": 275,
+      "height": 358
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-rights.json",
+      "bytes": 21094,
+      "sha256": "f9c261883964d0ddfece3e8a4fd483fd4403ec29e8be4e5ff0588779d1cdd243"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp",
+      "bytes": 149000,
+      "sha256": "503a27eac20f770add91b7c9102b404c88ad734a15408e53e3f71de650af9c6a",
+      "width": 640,
+      "height": 812,
+      "assetId": "P05"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-ink-1024.webp",
+      "bytes": 308576,
+      "sha256": "4ca572b8b07c12567352a25cab21d3ac449a255ebe2b593e18a256269f346dec",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-ink-1536.webp",
+      "bytes": 683412,
+      "sha256": "bdeb861bf7b18a301931e081eae51080513263fca305e7751d4880a5a8c0d209",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C01"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-ink-640.webp",
+      "bytes": 117568,
+      "sha256": "b27a146149690031af11ae4ed6bca44ad2b538d60a0a6260bc0b322c8b09223e",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-photo-1024.webp",
+      "bytes": 206234,
+      "sha256": "40ba73838d03c84feffd258a98cb1a8d7f6f0ee2520b19f90a8cd2e2c9e98f33",
+      "width": 1024,
+      "height": 722
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-photo-640.webp",
+      "bytes": 91628,
+      "sha256": "70caa16b19fe7fe14ef2b397aa88ac943a885d55d3c37066b830c40f8836c444",
+      "width": 640,
+      "height": 451
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-anchor.webp",
+      "bytes": 28050,
+      "sha256": "c3a5ba2584103ccb8a7ffbc01c3b845f569af0788d705d75f393609bdf55f8d6",
+      "width": 640,
+      "height": 533,
+      "assetId": "P02"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-night-1024.webp",
+      "bytes": 181434,
+      "sha256": "79d8a899adadc026754dba73419b75e2a25fa3e9e37931ca4c54219714bb9f21",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-night-1536.webp",
+      "bytes": 369624,
+      "sha256": "828f8140d7378a0de6a5470200de67a07fc3800610b47730a7acc8836eeb9088",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C03"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-night-640.webp",
+      "bytes": 73082,
+      "sha256": "63e6476174fcaa559418c1579b9d7171c736d7627936c6ec73e309520b160b55",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-photo-1024.webp",
+      "bytes": 50492,
+      "sha256": "bc69437106eefdefd8a065a61386f24049463527c5363063547d77fc9cd95a5d",
+      "width": 1024,
+      "height": 852
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-photo-1536.webp",
+      "bytes": 97800,
+      "sha256": "6157a32842d78c413be1f85f01b145fba417eca13ce4ea05bbd394f0dd630c7e",
+      "width": 1536,
+      "height": 1279
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-photo-640.webp",
+      "bytes": 26684,
+      "sha256": "9c8fdeb06f46bd3850e81d87c3f0db8749cb413d884a315b2137eca55e61fcb8",
+      "width": 640,
+      "height": 533
     }
   ],
-  "totalBytes": 2681300,
-  "sealedAt": "2026-11-17"
+  "totalBytes": 7010743,
+  "sealedAt": "2026-11-18"
 }

@@ -89,6 +89,17 @@
       "staticFallback": "Each universe stands alone in text.",
       "identityFit": "Dotted projector frames in the universe palette.",
       "status": "implemented"
+    },
+    {
+      "id": "I09",
+      "chapterId": "03-tree",
+      "type": "source-to-ink-reveal",
+      "teaches": "Distinguish original photographic evidence from the surface details invented during overpainting.",
+      "studentAction": "Use the native keyboard/touch range to uncover the original source, or open its source disclosure.",
+      "feedback": "The original photograph replaces the illustration with a percent description; a dated note identifies what the source can establish.",
+      "staticFallback": "Native details always exposes the source photograph and limits without JavaScript; reduced motion uses identical instant reveal.",
+      "identityFit": "Two visual layers of the same evidence frame, real captions and fine ink rules.",
+      "status": "implemented"
     }
   ]
 }
