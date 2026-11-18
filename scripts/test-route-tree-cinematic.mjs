@@ -22,6 +22,9 @@ await new Promise(ok => server.listen(0, '127.0.0.1', ok));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 const results = [];
+// Tall element captures otherwise stitch sticky navigation into the artwork.
+// The separate viewport captures retain the untouched live navigation and tools.
+const sectionCapture = { quality:90, style:'.nav{position:static!important}' };
 try {
   for (const width of [320, 390, 1440]) {
     for (const reducedMotion of ['no-preference', 'reduce']) {
@@ -36,6 +39,16 @@ try {
       try {
         assert.equal((await page.goto(origin + '/hubs/bts-the-route-tree.html')).status(), 200);
         await page.locator('.cover h1').waitFor();
+        const landing = await page.evaluate(async () => {
+          await document.fonts.ready;
+          await document.querySelector('.cover .ink-layer img').decode();
+          return {
+            scope:'Unthrottled local Chromium; loaded resources before screenshot-only eager decoding',
+            loadedResourceBytes:performance.getEntriesByType('resource').reduce((sum,r)=>sum+r.encodedBodySize,0),
+            heroSources:[...document.querySelectorAll('.cover .ink-stage img')].map(img=>({source:new URL(img.currentSrc).pathname,renderedWidth:img.getBoundingClientRect().width})),
+          };
+        });
+        await page.screenshot({ path:resolve(output, `after-viewport-${name}.jpg`), quality:90 });
         await page.evaluate(async () => {
           await document.fonts.ready;
           const images = [...document.querySelectorAll('img[src]')].filter(img => img.getAttribute('src'));
@@ -87,9 +100,9 @@ try {
         await writeFile(resolve(output, `axe-${name}.json`), JSON.stringify(axe, null, 2));
         assert.deepEqual(axe.violations.map(v => ({ id:v.id, nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary})) })), []);
         assert.deepEqual(errors, []); assert.deepEqual(missing, []);
-        await page.locator('.cover').screenshot({ path: resolve(output, `after-cover-${name}.jpg`), quality:90 });
+        await page.locator('.cover').screenshot({ ...sectionCapture, path: resolve(output, `after-cover-${name}.jpg`) });
         for (const id of ['reel', 'u-bleier', 'u-warner', 'tree']) {
-          await page.locator('#' + id).screenshot({ path: resolve(output, `after-${id}-${name}.jpg`), quality:90 });
+          await page.locator('#' + id).screenshot({ ...sectionCapture, path: resolve(output, `after-${id}-${name}.jpg`) });
         }
         // Native source disclosures and full photographic anchors still exist without JS.
         const staticPage = await context.newPage();
@@ -97,9 +110,10 @@ try {
         await staticPage.route('https://fonts.gstatic.com/**', r => r.continue());
         await staticPage.goto(origin + '/__baseline.html');
         await staticPage.evaluate(() => document.fonts.ready);
-        await staticPage.locator('.cover').screenshot({ path: resolve(output, `before-cover-${name}.jpg`), quality:90 });
+        await staticPage.screenshot({ path:resolve(output, `before-viewport-${name}.jpg`), quality:90 });
+        await staticPage.locator('.cover').screenshot({ ...sectionCapture, path: resolve(output, `before-cover-${name}.jpg`) });
         await staticPage.close();
-        results.push({ width, reducedMotion, status:'passed', errors, missing });
+        results.push({ width, reducedMotion, status:'passed', errors, missing, landing });
         console.log(`PASS Route Tree: keyboard comparison, existing interactions, source labels, WCAG and fit at ${name}`);
       } catch (error) {
         results.push({ width, reducedMotion, status:'failed', message:error.message });
