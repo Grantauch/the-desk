@@ -1,4 +1,4 @@
-// All sound is synthesized with Web Audio, so there are no audio files to load.
+// Sound effects are synthesized with Web Audio. The soundtrack is three recorded marches.
 (function (root) {
   const BK = root.BK;
   const Au = (BK.Audio = {});
@@ -302,10 +302,56 @@
   // A stand-in with every sound call as a no-op, for the silent title battle.
   Au.silent = new Proxy({}, { get: () => () => {} });
 
+  // The soundtrack: Grant's three recorded marches in shuffled rotation, played through the music
+  // bus so the music button and mute both work. The synthesized drums below are the fallback.
+  Au.TRACKS = [
+    { src: "assets/music/march-of-the-iron-engines.m4a", name: "March of the Iron Engines" },
+    { src: "assets/music/iron-line-advance.m4a", name: "Iron Line Advance" },
+    { src: "assets/music/the-long-advance.m4a", name: "The Long Advance" },
+  ];
+  let player = null, trackGain = null, order = [], trackI = -1, trackFailed = false;
+  Au.onTrack = null;
+  function nextTrack() {
+    if (!order.length || trackI >= order.length - 1) {
+      const last = order[trackI];
+      order = Au.TRACKS.map((_, i) => i).sort(() => Math.random() - 0.5);
+      if (order[0] === last && order.length > 1) order.push(order.shift());
+      trackI = -1;
+    }
+    trackI++;
+    const t = Au.TRACKS[order[trackI]];
+    player.src = t.src;
+    const p = player.play();
+    if (p && p.catch) p.catch(() => {});
+    if (Au.onTrack) Au.onTrack(t);
+  }
+  function startTracks() {
+    if (player || trackFailed || !root.Audio || !ctx.createMediaElementSource) return !!player;
+    try {
+      player = new root.Audio();
+      player.preload = "auto";
+      trackGain = ctx.createGain();
+      trackGain.gain.value = 0.85;
+      ctx.createMediaElementSource(player).connect(trackGain);
+      trackGain.connect(musicBus);
+      player.addEventListener("ended", nextTrack);
+      player.addEventListener("error", () => { trackFailed = true; player = null; Au.startDrums(); });
+      nextTrack();
+      return true;
+    } catch (e) { trackFailed = true; player = null; return false; }
+  }
+  Au.trackName = function () { return player && trackI >= 0 ? Au.TRACKS[order[trackI]].name : null; };
+
   // A low snare and timpani march under the battle. It thickens as the wave goes on.
   let musicTimer = null, beat = 0;
   Au.intensity = 0;
   Au.startMusic = function () {
+    if (!init()) return;
+    if (player) { if (player.paused && ctx.state === "running") player.play().catch(() => {}); return; }
+    if (startTracks()) return;
+    Au.startDrums();
+  };
+  Au.startDrums = function () {
     if (!init() || musicTimer) return;
     const tempo = 0.25;
     musicTimer = setInterval(() => {

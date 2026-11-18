@@ -39,6 +39,8 @@
     $("b-inv-go").onclick = () => this.closeInventory();
     $("b-brief-go").onclick = () => this.closeBriefing();
     this.buildForts();
+    // Name each track as it starts, during a battle.
+    BK.Audio.onTrack = (t) => { if (this.app.inRun && BK.Audio.musicOn && !BK.Audio.muted) this.toast("Now playing", t.name, null, 0, 3); };
   };
   UP.setBuildTab = function (tab) {
     this.buildTab = tab;
@@ -364,6 +366,7 @@
     h += `<p><b>Defenses.</b> Between waves, the Defenses tab lays sandbag walls, barbed wire, roadblocks, tank traps and gun pits. Engineers will try to clear them.</p>`;
     h += `<p><b>The enemy fights back.</b> Flamethrower pioneers leave the road to burn out your guns. Snipers pin crews down. Mortar teams set up and shell you. Kill an officer and his squad may surrender, and prisoners sometimes carry maps.</p>`;
     h += `<p><b>Help from your own side.</b> On rail maps, armored train Śmiały shells the column. A squadron of Uhlans can ride down a road, as the 18th Pomeranian Uhlans did at Krojanty on 1 September.</p>`;
+    h += `<p><b>Soundtrack.</b> Iron Line Advance, March of the Iron Engines and The Long Advance, made for this game by Grant Auch. The music button on the title and pause screens turns it off.</p>`;
     b.insertAdjacentHTML("afterbegin", h);
     b.innerHTML = b.innerHTML.replace("Double click any gun, or press C, to crew it yourself.", "Double click any gun, or press E, to crew it yourself.");
   };
