@@ -60,12 +60,20 @@ try {
         // Existing classroom interactions retain their behavior.
         await page.locator('#claims .claim').first().getByRole('button', { name:'History', exact:true }).click();
         assert.match(await page.locator('#hoh-score').innerText(), /^1 of 10 called/i);
+        await page.locator('#claims .claim').nth(1).getByRole('button', {name:'History', exact:true}).click();
+        await page.locator('#claims .claim').nth(7).getByRole('button', {name:'History', exact:true}).click();
+        for (const verdict of ['history', 'hollywood', 'remixed']) assert.equal(await page.locator('.stamp.' + verdict).count(), 1);
+        assert.match(await page.locator('#hoh-score').innerText(), /^3 of 10 called/i);
         await page.locator('#oddsctl button[data-step="2"]').click();
         assert.equal(await page.locator('#oddsctl button[data-step="2"]').getAttribute('aria-pressed'), 'true');
         await page.locator('#doors button').first().click();
         assert.equal(await page.locator('#routes .dim').count() > 0, true);
         await page.locator('#dctl button[data-view="undrafted"]').click();
         assert.equal(await page.locator('#dctl button[data-view="undrafted"]').getAttribute('aria-pressed'), 'true');
+        if (width < 960) {
+          await page.locator('.dscroll').focus(); await page.keyboard.press('ArrowRight');
+          await page.waitForFunction(() => document.querySelector('.dscroll').scrollLeft > 0);
+        }
         await page.locator('#card-name').fill('The Test Route');
         assert.equal(await page.locator('#cc-name').textContent(), 'The Test Route');
         assert.equal(await page.locator('textarea').count(), 5);
@@ -85,7 +93,10 @@ try {
         }
         // Native source disclosures and full photographic anchors still exist without JS.
         const staticPage = await context.newPage();
+        await staticPage.route('https://fonts.googleapis.com/**', r => r.continue());
+        await staticPage.route('https://fonts.gstatic.com/**', r => r.continue());
         await staticPage.goto(origin + '/__baseline.html');
+        await staticPage.evaluate(() => document.fonts.ready);
         await staticPage.locator('.cover').screenshot({ path: resolve(output, `before-cover-${name}.jpg`), quality:90 });
         await staticPage.close();
         results.push({ width, reducedMotion, status:'passed', errors, missing });

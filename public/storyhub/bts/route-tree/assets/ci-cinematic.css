@@ -155,3 +155,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.ink-layer{transition:none}}
 
 .mug-art img{object-fit:contain;background:#0e1b18}.mug[data-photo="lane"],.mug[data-photo="bleier"]{grid-template-columns:1fr}.mug[data-photo="lane"] .mug-art,.mug[data-photo="bleier"] .mug-art{grid-row:auto;aspect-ratio:3/2}.mug[data-photo="lane"] figcaption,.mug[data-photo="bleier"] figcaption{grid-column:1}.mug[data-photo="bleier"]{display:none}
+/* Evidence labels stay readable at ordinary text sizes. */
+.stamp.history{background:#21664d}.stamp.hollywood{background:#8b3045}.stamp.remixed{background:#83510c}
+.odds .chap-tag{color:#e4bf78}
+#u-lane{--vbg:#e7e3d3;--vfg:#192522;--va:#8b3e2d;--vb:#6f8777}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,.dscroll:focus-visible{outline:3px solid #e4bf78;outline-offset:4px}
+.reel :focus-visible,.odds :focus-visible,.cast :focus-visible,.ask :focus-visible,#u-lane :focus-visible{outline-color:#854300}
