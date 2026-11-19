@@ -11,7 +11,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { world, PEOPLE, CODE } = require('./lib/turn-in-harness.cjs');
+const { world, crowd, PEOPLE, CODE } = require('./lib/turn-in-harness.cjs');
 
 const MANIFEST = path.join(__dirname, '..', 'apps-script', 'turn-in', 'appsscript.json');
 
@@ -69,6 +69,46 @@ test('a PIN made by Hall Pass signs a student in to Turn In', () => {
   assert.deepEqual(result.classes, ['Period 1']);
   assert.equal(result.draft, null);
   assert.ok(result.token);
+});
+
+test('35 students sign in, save and turn in with one roster read per request', () => {
+  const students = crowd(35);
+  const w = world({ memberships: students });
+  const open = w.sandbox.SpreadsheetApp.openById;
+  let rosterOpens = 0;
+  w.sandbox.SpreadsheetApp.openById = id => {
+    if (id === 'roster-book') rosterOpens += 1;
+    return open(id);
+  };
+  const hub = 'class-load';
+  const accounts = students.map(([student]) => w.post({ action: 'signin', pin: w.pin(student), hub }));
+  assert.ok(accounts.every(account => account.ok));
+  const drafts = accounts.map(account => w.post({ action: 'save', token: account.token, hub, answers: ONE,
+    classPeriod: 'Period 3', writeProtocol: 1, baseRevision: '' }));
+  assert.ok(drafts.every(draft => draft.ok));
+  accounts.forEach((account, i) => {
+    const result = w.post({ action: 'turnin', accountToken: account.token, hub, answers: ONE, classPeriod: 'Period 3',
+      submissionId: 'class-load-' + i, writeProtocol: 1, baseRevision: drafts[i].revision });
+    assert.equal(result.ok, true);
+  });
+  assert.equal(w.rows('Turn Ins').length, 35);
+  assert.equal(rosterOpens, 105, 'one roster open for each of the 105 requests');
+});
+
+test('a slow request logs phase timings without including student data', () => {
+  const w = world();
+  const open = w.sandbox.SpreadsheetApp.openById;
+  w.sandbox.SpreadsheetApp.openById = id => {
+    if (id === 'roster-book') w.clock.advanceSeconds(12);
+    return open(id);
+  };
+  const result = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'synthetic-hub' });
+  assert.equal(result.ok, true);
+  const entry = w.logs.find(line => line.includes('turn_in_slow_request'));
+  assert.ok(entry);
+  assert.deepEqual(JSON.parse(entry), { event: 'turn_in_slow_request',
+    version: JSON.parse(w.sandbox.doGet().text).version, action: 'signin', totalMs: 12000,
+    rosterMs: 12000, draftMs: 0, lockWaitMs: 0 });
 });
 
 test('exact lunch numbers work in Turn In, unassigned numbers fail, and corrections invalidate sessions', () => {
@@ -245,9 +285,27 @@ test('a busy sheet refuses cleanly, writes nothing, and the same press works on 
 
 test('every sheet write happens under the script lock', () => {
   const source = fs.readFileSync(CODE, 'utf8');
-  const body = source.slice(source.indexOf('function saveDraft_'), source.indexOf('/* --------------------------------------------------------------- identity'));
-  assert.ok(body.indexOf('tryLock') < body.indexOf('drafts.appendRow'), 'draft write is locked');
-  assert.ok(body.indexOf('tryLock(TI_TURNIN_LOCK_MS)') < body.indexOf('turnInRow_(sheet,'), 'turn in write is locked');
+  const w = world();
+  const appendUnderLock = tab => {
+    const sheet = w.book().getSheetByName(tab);
+    const append = sheet.appendRow.bind(sheet);
+    sheet.appendRow = row => {
+      assert.equal(w.h.state.lock.held, true, tab + ' append must hold the script lock');
+      return append(row);
+    };
+  };
+  appendUnderLock('Drafts');
+  appendUnderLock('Turn Ins');
+  w.sandbox.SpreadsheetApp.flush = () => assert.equal(w.h.state.lock.held, true, 'flush must hold the script lock');
+  const hub = 'lock-check';
+  const signIn = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub });
+  const draft = w.post({ action: 'save', token: signIn.token, hub, classPeriod: 'Period 1',
+    answers: ONE, writeProtocol: 1, baseRevision: '' });
+  assert.equal(draft.ok, true);
+  assert.equal(w.post({ action: 'turnin', accountToken: signIn.token, hub, classPeriod: 'Period 1',
+    answers: ONE, submissionId: 'checked-lock', writeProtocol: 1, baseRevision: draft.revision }).ok, true);
+  assert.equal(w.rows('Drafts').length, 1);
+  assert.equal(w.rows('Turn Ins').length, 1);
   assert.match(source, /function turnInRow_[^}]*SpreadsheetApp\.flush\(\)/);
 });
 
@@ -460,7 +518,6 @@ test('only enrolled classes produce progress and each class has its own row', ()
 });
 
 test('35 students update current progress without duplicate rows after interrupted writes', () => {
-  const { crowd } = require('./lib/turn-in-harness.cjs');
   const students = crowd(35);
   const w = world({ memberships: students });
   students.forEach(([person]) => savedDraft(w, person));
