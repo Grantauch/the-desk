@@ -2,7 +2,7 @@ import { PondSim, isPondSize, type PondSize } from "./sim.ts";
 import { validateResidents, type ResidentSave } from "./ecosystem.ts";
 
 export const WORLD_KEY = "grantdesk-pond-world-v1";
-export const MAX_SAVE_BYTES = 520_000;
+export const MAX_SAVE_BYTES = 3_000_000;
 
 /**
  * V2 adds optional resident specimens alongside the unchanged V1 particle
@@ -54,7 +54,7 @@ export function decodePondFile(text: string, sim: PondSim): { particles: Uint8Ar
 
 /**
  * Decode an import against its own approved stage size before changing the
- * current pond. Older 192px saves and expanded 256/320px ponds both round-trip.
+ * current pond. Older 192px saves and expanded worlds through 768px both round-trip.
  */
 export function decodePondAnySize(text: string): { size: PondSize; particles: Uint8Array; residents: ResidentSave[] } {
   if (text.length > MAX_SAVE_BYTES) throw new Error("That save is too large.");
