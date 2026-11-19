@@ -35,25 +35,25 @@ export const ROWS = 192;
 export type Rgb = readonly [number, number, number];
 
 export const RGB: Rgb[] = [
-  [14, 12, 11], // empty dish
+  [14, 18, 21], // empty dish: slate-black
   [42, 38, 34], // wall
-  [226, 184, 106], // sand
-  [64, 146, 198], // water
+  [207, 178, 125], // sand: mineral ochre
+  [45, 137, 186], // water: deep teal
   [232, 228, 220], // salt
-  [120, 118, 112], // stone
-  [132, 92, 58], // wood
-  [186, 224, 236], // ice
+  [116, 128, 135], // stone: weathered slate
+  [144, 101, 70], // wood: warm timber
+  [181, 222, 235], // ice: frost blue
   [214, 74, 32], // lava
   [58, 48, 40], // oil
   [132, 196, 62], // acid
   [86, 168, 122], // slime
   [168, 140, 72], // seed
-  [62, 140, 78], // plant
+  [69, 141, 93], // plant: fern green
   [80, 140, 130], // fungus
-  [72, 70, 68], // powder
+  [82, 79, 81], // powder: charcoal
   [232, 92, 42], // fire
   [200, 214, 222], // steam
-  [90, 88, 86], // smoke
+  [98, 110, 119], // smoke: cool gray
   [198, 92, 108], // critter
   [236, 240, 244], // snow
 ];
