@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PondCanvas } from "@/components/pond/pond-canvas";
 import { DiscoveryGlyph } from "@/components/pond/discovery-glyph";
-import { PondEcosystem, MAX_RESIDENTS, type ResidentSave } from "@/lib/pond/ecosystem";
+import { PondEcosystem, MAX_RESIDENTS, residentProfile, type ResidentSave } from "@/lib/pond/ecosystem";
 import {
   STARTERS, OUTCOME_SPACE, MAX_DISCOVERIES, DISCOVERY_STORAGE_KEY,
   combine, getOutcome, paintMaterial, restoreDiscoveries,
@@ -311,6 +311,7 @@ export function PondApp() {
 
   const chooseMix = (id: string) => {
     if (!firstMix) {
+      setFeaturedId(id);
       setFirstMix(id);
       setLastMix("Choose a second discovery to combine with " + (getOutcome(id)?.name ?? id) + ".");
       return;
@@ -346,6 +347,7 @@ export function PondApp() {
       .slice(0, 72);
   }, [discovered, mixSearch]);
   const featured = featuredId ? getOutcome(featuredId) : null;
+  const featuredProfile = featured ? residentProfile(featured) : null;
 
   const selected = toolById(tool);
 
@@ -536,7 +538,11 @@ export function PondApp() {
                 >
                   Place in pond
                 </button>
-                <p className="text-xs text-muted">Specimens have behavior based on form, habitat, and energy.</p>
+                {featuredProfile ? (
+                  <p className="text-xs text-muted">
+                    {featuredProfile.mode} · {featuredProfile.influence} · Size {featuredProfile.size}
+                  </p>
+                ) : null}
               </div>
             ) : null}
             <div className="mb-2 flex items-center gap-2">
@@ -608,7 +614,7 @@ export function PondApp() {
             <Button variant="quiet" size="icon" aria-label="Undo" disabled={!canUndo} onClick={undo}>
               <Undo2 className="size-4" />
             </Button>
-            <Button variant="quiet" className="h-11 px-3" onClick={shake}>
+            <Button variant="quiet" className="h-11 px-3" title="Shake the pond" onClick={shake}>
               Shake
             </Button>
             <Button variant="quiet" size="icon" className="size-11" aria-label="Clear dish" onClick={clear}>
@@ -617,6 +623,17 @@ export function PondApp() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-2">
+            <Button
+              variant="quiet"
+              size="sm"
+              disabled={residentCount === 0}
+              onClick={() => {
+                checkpoint();
+                if (ecosystem.removeLast()) setResidentCount(ecosystem.count);
+              }}
+            >
+              Remove last resident
+            </Button>
             <Button variant="quiet" size="sm" onClick={exportWorld}>Export world</Button>
             <Button variant="quiet" size="sm" onClick={() => fileRef.current?.click()}>Import world</Button>
             <a href="/games/" className="inline-flex min-h-11 items-center px-3 text-sm text-muted underline">Back to games</a>
