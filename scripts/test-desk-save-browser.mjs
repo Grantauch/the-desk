@@ -78,7 +78,7 @@ async function chromebook(server, options = {}) {
   // driving the tab-only and optional sign in paths that still exist behind it.
   const hooks = { endpoint: options.endpoint === false ? '' : ENDPOINT, debounceMs: 300, snapshotMs: 300, gate: false, ...(options.hooks || {}) };
   await context.addInitScript((h) => { window.__deskSaveTest = h; }, hooks);
-  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0 };
+  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0, legacySignIn: false };
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url());
     if (url.origin === new URL(BASE).origin) return route.continue();
@@ -94,6 +94,7 @@ async function chromebook(server, options = {}) {
         return route.abort('connectionreset');
       }
       const out = server.post(body);
+      if (net.legacySignIn && JSON.parse(body).action === 'signin') delete out.supportId;
       return route.fulfill({ status: 200, headers: { ...cors(), 'content-type': 'application/json' }, body: JSON.stringify(out) });
     }
     return route.abort('blockedbyclient');
@@ -909,6 +910,11 @@ await test('the gate covers an answer page until a PIN is entered, confirms the 
     'the support ID leads to the reason in the service log');
   assert.equal(await gateOpen(page), true, 'a wrong PIN never unlocks');
   assert.equal(await gate(page).getByRole('button', { name: 'Start without saving to my account' }).isHidden(), true);
+
+  cb.net.legacySignIn = true;
+  await passGate(page, wrong);
+  assert.match(await gate(page).locator('.status').textContent(), /Support code: TI-PIN\b/);
+  cb.net.legacySignIn = false;
 
   await passGate(page, s.pin(PEOPLE.ada), { confirm: false });
   assert.equal(await gate(page).locator('.who').textContent(), 'Ada');
