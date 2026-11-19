@@ -1,3 +1,7 @@
+## November 19 assignment sign-in diagnostics
+
+The shared assignment client displays an opaque support code for a server-rejected sign-in and separate codes for browser-side failures. The matching private Apps Script log records the assignment, version, stage, and failure reason without credentials or student work. The editor health function checks actual dependencies without using the roster cache or writing to Sheets. Source verification uses synthetic accounts. Protected CI, the website release, the existing Apps Script deployment, and classroom sign-in are separate checks.
+
 ## November 17 Reconstruction Case File student publication
 
 Owner Codex, issue #383 / tracker R05. The additive `reconstruction-case-file-student.html` edition uses the shared PIN gate and account saving. All six sections remain mounted, preserving 23 text fields and 26 choice groups across navigation, account restore and Turn In. The unowned browser-wide legacy draft is discarded. The original source is retained; old bookmarks redirect, and Games, U.S. History Unit 1 and the sitemap expose the student edition.

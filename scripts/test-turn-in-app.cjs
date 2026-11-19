@@ -99,6 +99,64 @@ test('exact lunch numbers work in Turn In, unassigned numbers fail, and correcti
   assert.equal(w.post({ action:'signin', pin:'023456', hub:'x', device:'disabled' }).ok,false);
 });
 
+test('a sign-in failure returns a support ID that matches a private, redacted log', () => {
+  const w = world();
+  const pin = w.pin(PEOPLE.ada) === '746203' ? '871642' : '746203';
+  const request = { action: 'signin', pin, hub: 'bts-route-tree-a', device: 'private-device',
+    token: 'private-token', email: PEOPLE.ada.email, answers: ONE };
+  const result = w.post(request);
+  assert.equal(result.code, 'bad_pin');
+  assert.match(result.supportId, /^TI-[A-F0-9]{16}$/);
+  assert.equal(result.reason, undefined);
+  assert.notEqual(result.supportId, w.post(request).supportId);
+  const entry = w.logs.map((line) => {
+    try { return JSON.parse(line); } catch (error) { return null; }
+  }).find((value) => value && value.supportId === result.supportId);
+  assert.ok(entry, 'the ID on the assignment can be found in Apps Script logs');
+  assert.deepEqual(Object.keys(entry).sort(), ['event', 'hub', 'reason', 'stage', 'supportId', 'version']);
+  assert.equal(entry.event, 'turn_in_signin_failed');
+  assert.equal(entry.hub, request.hub);
+  assert.equal(entry.reason, 'pin_no_match');
+  assert.equal(entry.stage, 'pin_lookup');
+  assert.doesNotMatch(JSON.stringify(entry), new RegExp([pin, request.device, request.token, request.email, 'Three years'].join('|')));
+});
+
+test('sign-in diagnostics distinguish PIN format, roster access and a malformed directory', () => {
+  const w = world();
+  const badFormat = w.post({ action: 'signin', pin: 'bad', hub: 'bts-route-tree-a' });
+  assert.equal(badFormat.code, 'bad_pin');
+  assert.ok(w.logs.some((line) => line.includes(badFormat.supportId) && line.includes('pin_format')));
+  const pin = w.pin(PEOPLE.ada);
+  w.h.properties.setProperty('ROSTER_SPREADSHEET_ID', 'unreadable-private-id');
+  const badRoster = w.post({ action: 'signin', pin, hub: 'bts-route-tree-a' });
+  assert.equal(badRoster.code, 'not_ready');
+  assert.ok(w.logs.some((line) => line.includes(badRoster.supportId) && line.includes('roster_unreadable')));
+  w.h.properties.setProperty('ROSTER_SPREADSHEET_ID', 'roster-book');
+  w.school.harness.call('setSettingValue_', 'SCHOOL_DIRECTORY_SOURCE_ID', 'directory-without-access');
+  const inaccessible = w.post({ action: 'signin', pin, hub: 'bts-route-tree-a' });
+  assert.equal(inaccessible.code, 'not_ready');
+  assert.ok(w.logs.some((line) => line.includes(inaccessible.supportId) && line.includes('directory_unreadable')));
+  const directory = w.sandbox.SpreadsheetApp.create('Synthetic invalid directory');
+  directory.insertSheet('School Directory').getRange(1, 1).setValue('Wrong header');
+  w.school.harness.call('setSettingValue_', 'SCHOOL_DIRECTORY_SOURCE_ID', directory.getId());
+  const badDirectory = w.post({ action: 'signin', pin, hub: 'bts-route-tree-a' });
+  assert.equal(badDirectory.code, 'not_ready');
+  assert.ok(w.logs.some((line) => line.includes(badDirectory.supportId) && line.includes('directory_schema')));
+  assert.equal(w.logs.some((line) => line.includes('unreadable-private-id') || line.includes(directory.getId())), false);
+});
+
+test('the editor health check reads actual dependencies even with a warm roster cache', () => {
+  const w = world();
+  assert.equal(w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'bts-route-tree-a' }).ok, true);
+  assert.equal(w.sandbox.checkTurnInSignInHealth().ready, true);
+  const rosterBook = w.school.harness.spreadsheet;
+  rosterBook.deleteSheet(rosterBook.getSheetByName('Roster'));
+  assert.equal(JSON.parse(w.sandbox.doGet().text).ready, true, 'public readiness still reports configuration presence');
+  const diagnosis = w.sandbox.checkTurnInSignInHealth();
+  assert.equal(diagnosis.ready, false);
+  assert.equal(diagnosis.reason, 'roster_sheet_missing');
+});
+
 test('a wrong PIN is refused, and repeated misses slow that Chromebook only', () => {
   const w = world();
   const real = w.pin(PEOPLE.ada);
@@ -109,6 +167,7 @@ test('a wrong PIN is refused, and repeated misses slow that Chromebook only', ()
   for (let i = 0; i < 7; i += 1) w.post({ action: 'signin', pin: wrong, hub: 'x', device: 'cb-9' });
   const locked = w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-9' });
   assert.equal(locked.code, 'slow_down');
+  assert.ok(w.logs.some((line) => line.includes(locked.supportId) && line.includes('device_throttled')));
   assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-2' }).ok, true);
   w.clock.advanceMinutes(11);
   assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-9' }).ok, true, 'the pause ends');
@@ -119,7 +178,9 @@ test('a flood of wrong PINs across devices pauses Turn In for everyone', () => {
   const real = w.pin(PEOPLE.grace);
   const wrong = real === '333333' ? '444444' : '333333';
   for (let i = 0; i < 60; i += 1) w.post({ action: 'signin', pin: wrong, hub: 'x', device: `d${i}` });
-  assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'fresh' }).code, 'slow_down');
+  const locked = w.post({ action: 'signin', pin: real, hub: 'x', device: 'fresh' });
+  assert.equal(locked.code, 'slow_down');
+  assert.ok(w.logs.some((line) => line.includes(locked.supportId) && line.includes('service_throttled')));
 });
 
 test('a student marked inactive on the roster cannot turn in', () => {

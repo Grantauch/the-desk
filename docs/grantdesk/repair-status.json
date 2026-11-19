@@ -1,4 +1,9 @@
 {
+  "turn-in-signin-diagnostics-2026-11-19": {
+    "scope": "Reportable assignment sign-in support codes, private redacted failure logs, and an editor-only dependency check.",
+    "verification_status": "FOCUSED_SYNTHETIC_RUNTIME_CHECKS_PASSED_PROTECTED_CI_PENDING",
+    "deployment_status": "PENDING_WEBSITE_AND_TURN_IN_V14"
+  },
   "route-tree-alternative-assignment-publication-2026-11-19": {
     "status": "LOCAL_FULL_AND_FOCUSED_VERIFIED",
     "owner": "Codex",
