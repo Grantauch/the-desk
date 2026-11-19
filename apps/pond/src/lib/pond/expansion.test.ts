@@ -13,7 +13,7 @@ test("expansion increases real playable cells without erasing central particles"
     [120, 70, E.FIRE], [31, 95, E.STONE],
   ] as const;
   for (const [x, y, element] of points) sim.setCell(sim.idx(x, y), element, 8);
-  assert.deepEqual(POND_SIZES, [192, 256, 320]);
+  assert.deepEqual(POND_SIZES, [192, 256, 320, 448, 576, 768]);
   const oldInterior = [...sim.locked].filter((v) => v === 0).length;
   assert.equal(sim.resize(256), 32);
   assert.equal(sim.w, 256);
@@ -73,7 +73,7 @@ test("expanded pond worlds export, validate, and restore their size", () => {
   sim.resize(320);
   inhabitants.translate(32, 32, sim);
   const large = encodeWorld(sim, inhabitants.snapshot());
-  assert.ok(large.length < MAX_SAVE_BYTES, "largest stage fits save limit");
+  assert.ok(large.length < MAX_SAVE_BYTES, "expanded stage fits save limit");
   const grown = decodePondAnySize(large);
   assert.equal(grown.size, 320);
   assert.equal(grown.particles.length, 320 * 320 * 3);
