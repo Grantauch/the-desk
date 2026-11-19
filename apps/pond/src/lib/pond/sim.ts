@@ -12,6 +12,13 @@ import {
 } from "./elements.ts";
 import { validateSnapshot } from "./save.ts";
 
+/** Fixed, tested simulation sizes. Each expansion grants usable new cells. */
+export const POND_SIZES = [192, 256, 320] as const;
+export type PondSize = (typeof POND_SIZES)[number];
+export function isPondSize(size: number): size is PondSize {
+  return POND_SIZES.some((allowed) => allowed === size);
+}
+
 const OX = [-1, 0, 1, -1, 1, -1, 0, 1];
 const OY = [-1, -1, -1, 0, 0, 1, 1, 1];
 
@@ -30,12 +37,12 @@ export type ReactionId =
   | "oilfire";
 
 export class PondSim {
-  readonly w: number;
-  readonly h: number;
-  readonly grid: Uint8Array;
-  readonly aux: Uint8Array;
-  readonly tint: Uint8Array;
-  readonly locked: Uint8Array;
+  w: number;
+  h: number;
+  grid: Uint8Array;
+  aux: Uint8Array;
+  tint: Uint8Array;
+  locked: Uint8Array;
   readonly counts = new Uint32Array(21);
   frame = 0;
   trauma = 0;
@@ -62,6 +69,45 @@ export class PondSim {
     const r = Math.min(this.cx, this.cy) - 0.35;
     this.r2 = r * r;
     this.buildBowl();
+  }
+
+  /**
+   * Resize the actual cellular universe. Contents are centered, new territory
+   * starts empty, and the old bowl's glass rim is not copied into the interior.
+   * Returns the coordinate offset to apply to independent living residents.
+   */
+  resize(size: PondSize): number {
+    if (!isPondSize(size)) throw new RangeError("Unsupported Pond size");
+    if (this.w !== this.h || !isPondSize(this.w)) throw new Error("Only square Pond stages can be resized");
+    if (size === this.w) return 0;
+    const offset = (size - this.w) / 2;
+    const next = new PondSim(size, size);
+    for (let y = 0; y < this.h; y++) {
+      for (let x = 0; x < this.w; x++) {
+        const oldIndex = this.idx(x, y);
+        if (this.locked[oldIndex]) continue;
+        const nx = x + offset, ny = y + offset;
+        if (!next.inDish(nx, ny)) continue;
+        const newIndex = next.idx(nx, ny);
+        next.grid[newIndex] = this.grid[oldIndex]!;
+        next.aux[newIndex] = this.aux[oldIndex]!;
+        next.tint[newIndex] = this.tint[oldIndex]!;
+      }
+    }
+    this.w = size;
+    this.h = size;
+    this.grid = next.grid;
+    this.aux = next.aux;
+    this.tint = next.tint;
+    this.locked = next.locked;
+    this.moved = next.moved;
+    this.cx = next.cx;
+    this.cy = next.cy;
+    this.r2 = next.r2;
+    this.counts.fill(0);
+    this.trauma = 0;
+    this.lastReaction = null;
+    return offset;
   }
 
   inDish(x: number, y: number) {
