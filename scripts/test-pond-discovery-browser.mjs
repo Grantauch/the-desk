@@ -101,9 +101,9 @@ async function run(viewport) {
     // of scaling all 768 cells into the original circular canvas.
     await page.getByRole("button", { name: /Expand pond to 448/ }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
-    await page.getByRole("button", { name: "Zoom +" }).click();
+    await page.getByRole("button", { name: "Zoom in" }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 192);
-    await page.getByRole("button", { name: "Zoom −" }).click();
+    await page.getByRole("button", { name: "Zoom out" }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
     await page.getByRole("button", { name: /Expand pond to 576/ }).click();
     await page.getByRole("button", { name: /Expand pond to 768/ }).click();
