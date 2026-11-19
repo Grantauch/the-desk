@@ -79,8 +79,8 @@
   // Automatic weapons play a slice of a recorded burst, so a long stream of shots reads as fire, not clicks.
   Au.shot = function (gun, manned, vol) {
     const v = vol || 1;
-    const k = { mg: "mg", atr: "atr", at37: "at37", f75: "f75", mortar: "mortar", aa: "aa", enemy: "e20", etank: "e75", emortar: "mortar", flame: "flame", train: "f75" }[gun];
-    if (!k || !has(k)) return synth.shot(gun === "etank" || gun === "train" ? "f75" : gun === "emortar" ? "mortar" : gun === "flame" ? "aa" : gun, manned, vol);
+    const k = { mg: "mg", atr: "atr", at37: "at37", f75: "f75", mortar: "mortar", aa: "aa", enemy: "e20", etank: "e75", emortar: "mortar", flame: "flame", train: "f75", rkm: "rifle", gran: "mortar", tks: "mg", tks20: "e20", how100: "f75" }[gun];
+    if (!k || !has(k)) return synth.shot({ rkm: "mg", gran: "mortar", tks: "mg", tks20: "aa", how100: "f75" }[gun] || (gun === "etank" || gun === "train" ? "f75" : gun === "emortar" ? "mortar" : gun === "flame" ? "aa" : gun), manned, vol);
     switch (gun) {
       case "mg":
         if (!ready("mg", 0.24)) return;
@@ -116,6 +116,27 @@
       case "etank":
         if (!ready("etank", 0.12)) return;
         play(pick(["e75", "e75b", "e50"]), { vol: 0.6 * v, jit: 0.05 });
+        break;
+      // The newer guns reuse the recorded samples, pitched and paced to fit.
+      case "rkm":
+        if (!ready("rkm", 0.16)) return;
+        play(has("mg") && Math.random() < 0.6 ? "mg" : "rifle", { vol: 0.32 * v, off: Math.random() * 0.45, dur: 0.22, rate: 1.12, jit: 0.06 });
+        break;
+      case "gran":
+        if (!ready("gran", 0.1)) return;
+        play("mortar", { vol: 0.38 * v, rate: 1.3, jit: 0.05 });
+        break;
+      case "tks":
+        if (!ready("tks", 0.24)) return;
+        play("mg", { vol: 0.36 * v, off: Math.random() * 0.45, dur: 0.3, rate: 0.94, jit: 0.05 });
+        break;
+      case "tks20":
+        if (!ready("tks20", 0.12)) return;
+        play("e20", { vol: 0.5 * v, rate: 1.05, jit: 0.05 });
+        break;
+      case "how100":
+        if (!ready("how100", 0.15)) return;
+        play("f75", { vol: 0.9 * v, rate: 0.78, jit: 0.03 });
         break;
       case "flame":
         if (!ready("flame", 0.3)) return;

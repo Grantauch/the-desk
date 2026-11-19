@@ -240,12 +240,14 @@
       const au = this.quiet ? BK.Audio.silent : BK.Audio;
       switch (ev.type) {
         case "shot": {
+          // Newer guns borrow the flash and sound of the old gun they fire like.
+          if (BK.GUNS[ev.gun] && BK.GUNS[ev.gun].fx) ev = Object.assign({}, ev, { gun: BK.GUNS[ev.gun].fx, from: ev.gun });
           const big = ev.gun === "at37" || ev.gun === "f75" || ev.gun === "atr";
           fx.muzzle(ev.x, ev.y, ev.ang, big || ev.gun === "aa");
           if (ev.gun === "mg") { if (R() < 0.5) fx.casing(ev.x, ev.y, ev.ang); }
           if (ev.gun === "f75") { fx.dust(ev.x - Math.cos(ev.ang) * 10, ev.y - Math.sin(ev.ang) * 10, 6, 14); fx.shake(0.08); }
           if (ev.gun === "mortar") fx.add({ kind: "smoke", x: ev.x, y: ev.y, vy: -20, life: 1, size: 8, grow: 18, a: 0.5 });
-          au.shot(ev.gun, ev.manned);
+          au.shot(ev.from === "tks" && ev.round === "shell" ? "tks20" : ev.from || ev.gun, ev.manned);
           break;
         }
         case "eshot":

@@ -1,14 +1,111 @@
 {
-  "papale": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "lane": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "unitas": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "bleier": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "warner": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "lewis": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "neal": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "gates": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "mailata": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "aubrey": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "ayres": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false },
-  "morris": { "file": "", "alt": "", "caption": "", "credit": "", "creditUrl": "", "cutout": false }
+  "papale": {
+    "file": "../assets/ci-papale-anchor.webp",
+    "alt": "Vince Papale in January 2009, more than thirty years after his rookie season. Photo: Philip Nelson, Live Streaming Expert (philipnelson.org).",
+    "caption": "Vince Papale in January 2009, more than thirty years after his rookie season. Photo: Philip Nelson, Live Streaming Expert (philipnelson.org).",
+    "credit": "Philip Nelson, Live Streaming Expert (philipnelson.org). CC BY-SA 2.0. Resized WebP; display crop only. Adaptation shared under the same license. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Vince_Papale_January_2009.jpg",
+    "cutout": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
+  },
+  "lane": {
+    "file": "../assets/ci-lane-anchor.webp",
+    "alt": "Lane is number 81, center right, recovering a fumble against the 49ers, September 3, 1953. Full frame retained; his identity is established by the source caption.",
+    "caption": "Lane is number 81, center right, recovering a fumble against the 49ers, September 3, 1953. Full frame retained; his identity is established by the source caption.",
+    "credit": "Unknown photographer / Los Angeles Daily News. Public domain in the United States (published without copyright notice). Resized WebP; display crop only. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Night_Train_Lane_fumble_recovery_1953.jpg",
+    "cutout": false,
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Commons:Copyright_rules_by_territory/United_States",
+    "position": "50% 50%"
+  },
+  "unitas": {
+    "file": "../assets/ci-unitas-anchor.webp",
+    "alt": "Johnny Unitas at Harborplace, Maryland, January 20, 1996. Later portrait, not his 1955 sandlot season.",
+    "caption": "Johnny Unitas at Harborplace, Maryland, January 20, 1996. Later portrait, not his 1955 sandlot season.",
+    "credit": "John Mathew Smith / Kingkongphoto. CC BY-SA 2.0. Resized WebP; display crop only. Adaptation shared under the same license. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Johnny_Unitas.jpg",
+    "cutout": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
+  },
+  "bleier": {
+    "file": "../assets/ci-bleier-anchor.webp",
+    "alt": "Rocky Bleier (left) with Doug Larsen at the National Guard conference in Bismarck, January 24, 2009.",
+    "caption": "Rocky Bleier (left) with Doug Larsen at the National Guard conference in Bismarck, January 24, 2009.",
+    "credit": "Bill Prokopyk / U.S. Army. Public domain in the United States (U.S. Army official photograph). Resized WebP; display crop only. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Rocky_Bleier_-_Super_Bowl_Rings_-_Jan_24_2009.jpg",
+    "cutout": false,
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-USGov-Military-Army",
+    "position": "50% 50%"
+  },
+  "warner": {
+    "file": "../assets/ci-warner-anchor.webp",
+    "alt": "Kurt Warner speaking in April 2007. Later identity photograph, not a photograph of his grocery work.",
+    "caption": "Kurt Warner speaking in April 2007. Later identity photograph, not a photograph of his grocery work.",
+    "credit": "John Trainor. CC BY 2.0. Resized WebP; display crop only. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Kurt_Warner.jpg",
+    "cutout": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+  },
+  "lewis": {
+    "file": "../assets/ci-lewis-anchor.webp",
+    "alt": "Michael Lewis, the wide receiver and return specialist, with San Francisco on November 18, 2007. This is his later 49ers season, not his Saints debut.",
+    "caption": "Michael Lewis, the wide receiver and return specialist, with San Francisco on November 18, 2007. This is his later 49ers season, not his Saints debut.",
+    "credit": "John Pavliga; source crop by Arbor to SJ. CC BY 2.0. Resized WebP; display crop only. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:49ers_WR_Michael_Lewis_in_2007.jpg",
+    "cutout": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "position": "50% 50%"
+  },
+  "neal": {
+    "file": "../assets/ci-neal-anchor.webp",
+    "alt": "Stephen Neal with New England against Washington, August 28, 2009. Later NFL photograph, not the 1999 wrestling final.",
+    "caption": "Stephen Neal with New England against Washington, August 28, 2009. Later NFL photograph, not the 1999 wrestling final.",
+    "credit": "Keith Allison. CC BY-SA 2.0. Resized WebP; display crop only. Adaptation shared under the same license. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Stephen-Neal_8-28-09_Patriots-vs-Redskins.jpg",
+    "cutout": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
+  },
+  "gates": {
+    "file": "../assets/ci-gates-anchor.webp",
+    "alt": "Antonio Gates before a San Diego Chargers game, October 30, 2016. Later NFL photograph, not his college basketball years.",
+    "caption": "Antonio Gates before a San Diego Chargers game, October 30, 2016. Later NFL photograph, not his college basketball years.",
+    "credit": "Jeffrey Beall. CC BY 4.0. Resized WebP; display crop only. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Antonio_Gates.JPG",
+    "cutout": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "mailata": {
+    "file": "../assets/ci-mailata-anchor.webp",
+    "alt": "Jordan Mailata visiting Arlington National Cemetery, April 28, 2025. Later portrait, not a scene from his 2018 draft.",
+    "caption": "Jordan Mailata visiting Arlington National Cemetery, April 28, 2025. Later portrait, not a scene from his 2018 draft.",
+    "credit": "Elizabeth Fraser / U.S. Army / Arlington National Cemetery; Commons crop by Diddykong1130. Public domain in the United States (U.S. Army official photograph). Resized WebP; display crop only. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:2025_Philadelphia_Eagles_Visit_ANC_-_Jordan_Mailata_(cropped).jpg",
+    "cutout": false,
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-USGov-Military-Army"
+  },
+  "aubrey": {
+    "file": "../assets/ci-aubrey-anchor.webp",
+    "alt": "Brandon Aubrey playing soccer for Bethlehem Steel FC against Cincinnati, June 13, 2018. A photograph from the sport he left before becoming an NFL kicker.",
+    "caption": "Brandon Aubrey playing soccer for Bethlehem Steel FC against Cincinnati, June 13, 2018. A photograph from the sport he left before becoming an NFL kicker.",
+    "credit": "Hayden Schiff; Commons crop by IagoQnsi. CC BY 2.0. Resized WebP; display crop only. ",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:CINvBST_2018-06-13_-_Brandon_Aubrey_(43565763110)_(cropped).jpg",
+    "cutout": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+  },
+  "ayres": {
+    "file": "",
+    "alt": "",
+    "caption": "",
+    "credit": "",
+    "creditUrl": "",
+    "cutout": false
+  },
+  "morris": {
+    "file": "",
+    "alt": "",
+    "caption": "",
+    "credit": "",
+    "creditUrl": "",
+    "cutout": false
+  }
 }

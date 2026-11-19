@@ -4,20 +4,21 @@
   "assets": [
     {
       "id": "A01",
-      "status": "shipped",
+      "status": "superseded",
       "type": "photograph",
-      "role": "Hero cover",
+      "role": "Previous edition cover, retained for old references",
       "sourceMode": "source-first-archival",
       "subject": "Veterans Stadium from above, 2002",
       "rightsStatus": "Public domain, NASA",
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/vet-aerial.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/vet-aerial.webp",
+      "deploymentNote": "The current opening uses C01 and the separately exposed NASA source photograph."
     },
     {
       "id": "A02",
-      "status": "shipped",
+      "status": "archived",
       "type": "photograph",
       "role": "Philadelphia, 1976 chapter",
       "sourceMode": "source-first-archival",
@@ -26,7 +27,12 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/rowhouses.webp"
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:SouthPhillyRowhouses.JPG",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:SouthPhillyRowhouses.JPG",
+      "originalSha256": "a799337bf92911ac37835675db10278f3871a63b1e7d16f8064d584bf296cae5",
+      "reviewLimit": "Commons carries an unresolved bot-transfer review notice. Original retained for reference; the derivative is excluded from this edition pending provenance review.",
+      "deploymentStatus": "held-for-provenance-review",
+      "deploymentNote": "Excluded from this public edition; source original preserved in the separate reference archive pending transfer/provenance review."
     },
     {
       "id": "A03",
@@ -39,7 +45,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/jfk-aerial.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/jfk-aerial.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Municipal_Stadium,_Philadelphia,_Pa_(65080).jpg",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Municipal_Stadium,_Philadelphia,_Pa_(65080).jpg",
+      "originalSha256": "f6237952821d82405d545ef295c094e3e3b1370ec6888a02fd4dcebea7c8115b",
+      "reviewLimit": "US public-domain basis from publication without copyright notice. International commercial redistribution requires territorial review."
     },
     {
       "id": "A05",
@@ -52,11 +62,15 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/aircraft.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/aircraft.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Riveter_at_work_at_the_Douglas_Aircraft_Corporation_plant_in_Long_Beach,_Calif._LOC_2179136411.jpg",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:Riveter_at_work_at_the_Douglas_Aircraft_Corporation_plant_in_Long_Beach,_Calif._LOC_2179136411.jpg",
+      "originalSha256": "a8b7a8d183534f21b66db0e9e1e6ac7b73a49920306192792e6cb38a19951f16",
+      "reviewLimit": "US federal-government public-domain basis. No endorsement or blanket international clearance claimed."
     },
     {
       "id": "A06",
-      "status": "shipped",
+      "status": "archived",
       "type": "photograph",
       "role": "Unitas universe",
       "sourceMode": "source-first-archival",
@@ -65,7 +79,12 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/bloomfield.webp"
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bloomfield_Bridge_PGH.jpg",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:Bloomfield_Bridge_PGH.jpg",
+      "originalSha256": "2cd308481a805a314f872096973eacda19a4afc1183b23e46aea110fb0164c43",
+      "reviewLimit": "Commons carries an unresolved bot-transfer review notice. Original retained for reference; the derivative is excluded from this edition pending provenance review.",
+      "deploymentStatus": "held-for-provenance-review",
+      "deploymentNote": "Excluded from this public edition; source original preserved in the separate reference archive pending transfer/provenance review."
     },
     {
       "id": "A07",
@@ -78,7 +97,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/rotary.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/rotary.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:US-NJ-LAkewood2697-bell-system-telephone-number-rotary-dial-1940.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "originalSha256": "0de58d3da334119c289798d58d95cf178d0311f048124a4c1304d76d9678791b",
+      "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license."
     },
     {
       "id": "A08",
@@ -91,7 +114,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/paddy.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/paddy.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_Company,_1st_Battalion,_8th_Cavalry_soldiers_move_through_rice_paddies.jpg",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:A_Company,_1st_Battalion,_8th_Cavalry_soldiers_move_through_rice_paddies.jpg",
+      "originalSha256": "e8614e997d62e9e8fb7486671fb4db73de60ca50d0776ea4ed26ad0c763d6487",
+      "reviewLimit": "US federal-government public-domain basis. No endorsement or blanket international clearance claimed."
     },
     {
       "id": "A09",
@@ -104,7 +131,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/grocery.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/grocery.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wheatland_Iowa_20090712_Grocery_Store.JPG",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "originalSha256": "b6c104b1e0f6fef723e8ae8bcf72fc68ee3877c9e03ff417957fad88f3727d53",
+      "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license."
     },
     {
       "id": "A10",
@@ -117,7 +148,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/wrestling.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/wrestling.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kent_State_Wrestling1.JPG",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "originalSha256": "d56672aa4e3958d202891377c698bd6bbb702ad9a720bb94fe992b4ea4ef30b9",
+      "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license."
     },
     {
       "id": "A11",
@@ -125,12 +160,16 @@
       "type": "photograph",
       "role": "Gates universe",
       "sourceMode": "source-first-archival",
-      "subject": "Kent State MAC Center, 2010",
+      "subject": "Kent State MAC Center, December30,2006",
       "rightsStatus": "CC BY 3.0, JonRidinger",
-      "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
+      "provenance": "JonRidinger\u2019s MACC1.jpg, December30,2006. Direct license record checked. Resized and encoded as WebP with photographic color retained.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/macc.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-gates-arena-1100.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:MACC1.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "originalSha256": "8375f67ac7718542670047d0cad6705243aabc944fa04cf78b917f28e70e3592",
+      "reviewLimit": "Later venue image, explicitly not a photograph of Gates playing."
     },
     {
       "id": "A12",
@@ -143,7 +182,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/rugby.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/rugby.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:SLNSW_50876_Rugby_League_at_Sydney_Cricket_Ground.jpg",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:SLNSW_50876_Rugby_League_at_Sydney_Cricket_Ground.jpg",
+      "originalSha256": "4f7cc6e9906a757e8c455439e9841d99fcf907b7b61fa4357a652c30ac711170",
+      "reviewLimit": "Australian public-domain term basis stated by the repository. No blanket territorial clearance claimed."
     },
     {
       "id": "A13",
@@ -156,7 +199,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/att.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/att.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:AT%26T_Stadium_2022-08-24.jpg",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/File:AT%26T_Stadium_2022-08-24.jpg",
+      "originalSha256": "8ae7e36e1e8c2ab45d1ffb944b3886f86e62f435646bfb60993d82f12c994738",
+      "reviewLimit": "Author-applied Public Domain Mark. Status may be undetermined where dedication of own work to the public domain is not recognized; review before international commercial redistribution."
     },
     {
       "id": "A14",
@@ -169,7 +216,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/zamboni.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/zamboni.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zamboni_at_Hobey_Baker_Memorial_Rink.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "originalSha256": "90fc86c1da8e99588abd40ebb213f11b317b9c901ca6b950a75e71eb0dadf4e6",
+      "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license."
     },
     {
       "id": "A15",
@@ -182,7 +233,11 @@
       "provenance": "Wikimedia Commons, recolored with a comic gradient map, halftone screen, ink edges and offset plates, WebP. Credited in caption.",
       "htmlSafeZone": "Caption sits below the image in a cream strip, text never on the image.",
       "responsiveCrop": "Shown uncropped at its own aspect ratio.",
-      "deployPath": "/storyhub/bts/route-tree/assets/tropicana.webp"
+      "deployPath": "/storyhub/bts/route-tree/assets/tropicana.webp",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_in_Tampa,_Florida_2024.jpg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "originalSha256": "3d83592e557d4aa07d502c28c3aa8b7779e812c3a23c7d12e0b784f99d92452a",
+      "reviewLimit": "Retain author credit, source, license link and modification disclosure; BY-SA adaptations remain under the same license."
     },
     {
       "id": "A16",
@@ -197,6 +252,188 @@
       "responsiveCrop": "Scales with its container.",
       "deploymentStatus": "inline",
       "deploymentNote": "Inline SVG inside the page HTML, so there is no separate file to deploy."
+    },
+    {
+      "id": "C01",
+      "status": "shipped",
+      "type": "illustration",
+      "role": "veterans-ink",
+      "sourceMode": "source-derived illustration",
+      "subject": "Keep 2002 date and baseball layout explicit. Bowl, roads and parking inform composition; detail drift is acknowledged in caption.",
+      "rightsStatus": "Project-produced AI-assisted interpretation of public-domain source; no third-party copyrighted imagery embedded.",
+      "provenance": "Detailed source, license, modifications and review: /storyhub/bts/route-tree/assets/ci-rights.json",
+      "htmlSafeZone": "Captions, dates and controls are real HTML outside artwork.",
+      "responsiveCrop": "Responsive 640,1024,1536px variants; 3:2 frame retained.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-veterans-ink-1536.webp"
+    },
+    {
+      "id": "C02",
+      "status": "shipped",
+      "type": "illustration",
+      "role": "papale-camp",
+      "sourceMode": "artistic reconstruction",
+      "subject": "Widener camp and 1976 context researched from Eagles account. No claim to depict an observed exchange. No period photograph used.",
+      "rightsStatus": "Project-produced AI-assisted reconstruction; owner-supplied generated benchmark used for style guidance only.",
+      "provenance": "Detailed source, license, modifications and review: /storyhub/bts/route-tree/assets/ci-rights.json",
+      "htmlSafeZone": "Captions, dates and controls are real HTML outside artwork.",
+      "responsiveCrop": "Responsive 640,1024,1536px variants; 3:2 frame retained.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-papale-camp-1536.webp"
+    },
+    {
+      "id": "C03",
+      "status": "shipped",
+      "type": "illustration",
+      "role": "warner-night",
+      "sourceMode": "artistic reconstruction",
+      "subject": "Grocery work after 1994 cut corroborated by Pro Football Hall of Fame. Interior and face at younger age are interpreted.",
+      "rightsStatus": "Derivative likeness reference credited to John Trainor, CC BY 2.0. Project interpretation distributed with the same attribution.",
+      "provenance": "Detailed source, license, modifications and review: /storyhub/bts/route-tree/assets/ci-rights.json",
+      "htmlSafeZone": "Captions, dates and controls are real HTML outside artwork.",
+      "responsiveCrop": "Responsive 640,1024,1536px variants; 3:2 frame retained.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-warner-night-1536.webp"
+    },
+    {
+      "id": "C04",
+      "status": "shipped",
+      "type": "illustration",
+      "role": "bleier-rings-ink",
+      "sourceMode": "photographic overpainting",
+      "subject": "Original identifies Bleier at left and Capt. Doug Larsen at right on January24,2009. Four rings and motivated pose retained. Photograph remains the evidence.",
+      "rightsStatus": "Public-domain U.S. Army source; project-produced AI-assisted overpainting.",
+      "provenance": "Detailed source, license, modifications and review: /storyhub/bts/route-tree/assets/ci-rights.json",
+      "htmlSafeZone": "Captions, dates and controls are real HTML outside artwork.",
+      "responsiveCrop": "Responsive 640,1024,1536px variants; 3:2 frame retained.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-bleier-rings-ink-1536.webp"
+    },
+    {
+      "id": "P01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Vince Papale identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Vince Papale in January 2009, more than thirty years after his rookie season. Photo: Philip Nelson, Live Streaming Expert (philipnelson.org).",
+      "rightsStatus": "CC BY-SA 2.0",
+      "provenance": "https://commons.wikimedia.org/wiki/File:Vince_Papale_January_2009.jpg; Philip Nelson, Live Streaming Expert (philipnelson.org); resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-papale-anchor.webp"
+    },
+    {
+      "id": "P02",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Kurt Warner identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Kurt Warner speaking in April 2007. Later identity photograph, not a photograph of his grocery work.",
+      "rightsStatus": "CC BY 2.0",
+      "provenance": "https://commons.wikimedia.org/wiki/File:Kurt_Warner.jpg; John Trainor; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-warner-anchor.webp"
+    },
+    {
+      "id": "P03",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Rocky Bleier identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Rocky Bleier (left) with Doug Larsen at the National Guard conference in Bismarck, January 24, 2009.",
+      "rightsStatus": "Public domain in the United States (U.S. Army official photograph)",
+      "provenance": "https://commons.wikimedia.org/wiki/File:Rocky_Bleier_-_Super_Bowl_Rings_-_Jan_24_2009.jpg; Bill Prokopyk / U.S. Army; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-bleier-anchor.webp"
+    },
+    {
+      "id": "P04",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Night Train Lane identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Lane is number 81, center right, recovering a fumble against the 49ers, September 3, 1953. Full frame retained; his identity is established by the source caption.",
+      "rightsStatus": "Public domain in the United States (published without copyright notice)",
+      "provenance": "https://commons.wikimedia.org/wiki/File:Night_Train_Lane_fumble_recovery_1953.jpg; Unknown photographer / Los Angeles Daily News; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-lane-anchor.webp"
+    },
+    {
+      "id": "P05",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Johnny Unitas identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Johnny Unitas at Harborplace, Maryland, January 20, 1996. Later portrait, not his 1955 sandlot season.",
+      "rightsStatus": "CC BY-SA 2.0",
+      "provenance": "https://commons.wikimedia.org/wiki/File:Johnny_Unitas.jpg; John Mathew Smith / Kingkongphoto; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp"
+    },
+    {
+      "id": "P06",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Michael Lewis identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Michael Lewis, the wide receiver and return specialist, with San Francisco on November 18, 2007. This is his later 49ers season, not his Saints debut.",
+      "rightsStatus": "CC BY 2.0",
+      "provenance": "https://commons.wikimedia.org/wiki/File:49ers_WR_Michael_Lewis_in_2007.jpg; John Pavliga; source crop by Arbor to SJ; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-lewis-anchor.webp"
+    },
+    {
+      "id": "P07",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Stephen Neal identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Stephen Neal with New England against Washington, August 28, 2009. Later NFL photograph, not the 1999 wrestling final.",
+      "rightsStatus": "CC BY-SA 2.0",
+      "provenance": "https://commons.wikimedia.org/wiki/File:Stephen-Neal_8-28-09_Patriots-vs-Redskins.jpg; Keith Allison; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-neal-anchor.webp"
+    },
+    {
+      "id": "P08",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Antonio Gates identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Antonio Gates before a San Diego Chargers game, October 30, 2016. Later NFL photograph, not his college basketball years.",
+      "rightsStatus": "CC BY 4.0",
+      "provenance": "https://commons.wikimedia.org/wiki/File:Antonio_Gates.JPG; Jeffrey Beall; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-gates-anchor.webp"
+    },
+    {
+      "id": "P09",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Jordan Mailata identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Jordan Mailata visiting Arlington National Cemetery, April 28, 2025. Later portrait, not a scene from his 2018 draft.",
+      "rightsStatus": "Public domain in the United States (U.S. Army official photograph)",
+      "provenance": "https://commons.wikimedia.org/wiki/File:2025_Philadelphia_Eagles_Visit_ANC_-_Jordan_Mailata_(cropped).jpg; Elizabeth Fraser / U.S. Army / Arlington National Cemetery; Commons crop by Diddykong1130; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-mailata-anchor.webp"
+    },
+    {
+      "id": "P10",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Brandon Aubrey identity anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Brandon Aubrey playing soccer for Bethlehem Steel FC against Cincinnati, June 13, 2018. A photograph from the sport he left before becoming an NFL kicker.",
+      "rightsStatus": "CC BY 2.0",
+      "provenance": "https://commons.wikimedia.org/wiki/File:CINvBST_2018-06-13_-_Brandon_Aubrey_(43565763110)_(cropped).jpg; Hayden Schiff; Commons crop by Arbor to SJ; resized WebP. Detailed rights.json preserves source hashes.",
+      "htmlSafeZone": "All identity and license information is HTML.",
+      "responsiveCrop": "Compact directory crops for navigation; complete frame in identity evidence card.",
+      "deployPath": "/storyhub/bts/route-tree/assets/ci-aubrey-anchor.webp"
     }
   ]
 }

@@ -229,7 +229,7 @@ h1 { font-family: Oswald, sans-serif; font-weight: 700; font-size: 7.2em; line-h
 .endless { margin-top: 1em; font-size: 1.1em; display: flex; gap: 0.5em; align-items: center; }
 .endless input { width: 1.2em; height: 1.2em; accent-color: var(--gold); }
 
-.unlock-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7em; width: 100%; max-width: 70em; }
+.unlock-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6em; width: 100%; max-width: 70em; }
 .unl { text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 0.5em; padding: 0.7em 0.8em; display: flex; flex-direction: column; gap: 0.3em; min-height: 9em; }
 .unl .ty { font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.12em; color: var(--mute); }
 .unl h4 { margin: 0; font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 1.15em; letter-spacing: 0.04em; }
@@ -354,3 +354,10 @@ kbd { font-family: Oswald, sans-serif; background: rgba(255,255,255,0.1); border
 .res-honors span { font-size: 0.85em; background: rgba(0,0,0,0.35); border: 1px solid var(--line); border-radius: 0.3em; padding: 0.1em 0.5em; }
 .res-honors.gold span { color: var(--gold); border-color: rgba(255,207,74,0.45); font-family: Oswald, sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
 .res-vets { font-size: 0.9em; color: var(--mute); margin-bottom: 0.4em; }
+
+/* More guns than fit on one row: two compact rows. */
+#guns.two { display: grid; grid-template-columns: repeat(6, 4.7em); gap: 0.25em; flex-shrink: 0; }
+#guns.two .gunb { width: 4.7em; padding: 0.15em 0.15em 0.2em; }
+#guns.two .gunb img { width: 2.5em; height: 2.5em; margin-bottom: -0.1em; }
+#guns.two .gunb .n { font-size: 0.72em; }
+#guns.two .gunb .c { font-size: 0.85em; }

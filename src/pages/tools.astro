@@ -19,6 +19,7 @@ import PageHeader from '../components/PageHeader.astro';
     <a href="#dice-card"><span>05</span> dice</a>
     <a href="#scoreboard-card"><span>06</span> scoreboard</a>
     <a href="#topics-card"><span>07</span> topics</a>
+    <a href="#margin-card"><span>08</span> margin</a>
   </nav>
   {passConfig.enabled && (
     <a href="/pass/" class="surface-link mt-8 flex items-center justify-between gap-5 rounded-xl border border-line bg-accent-soft p-5">
@@ -30,6 +31,29 @@ import PageHeader from '../components/PageHeader.astro';
       <span class="shrink-0 font-mono text-lg text-accent" aria-hidden="true">→</span>
     </a>
   )}
+
+  <!-- Margin runs in a separate authenticated pilot app. No student information is passed by this page. -->
+  <section class="pop mt-8 rounded-md border border-line bg-white p-6" id="margin-card" aria-labelledby="margin-title">
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+      <div class="max-w-2xl">
+        <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-accent">classroom workspace · pilot</p>
+        <h2 class="mt-1 font-display text-2xl font-bold lowercase" id="margin-title">margin<span class="text-accent">.</span></h2>
+        <p class="mt-2 text-sm text-ink-soft">
+          Teach on the shared lesson stage while students take Cornell notes, answer questions, and submit their work.
+        </p>
+        <p class="mt-2 text-xs text-ink-soft">
+          Pilot access: individual sign-in and teacher-approved classroom enrollment. The app opens in a new tab.
+        </p>
+      </div>
+      <a
+        href="https://margin-pilot-private-git-feature-margin-phase-b9d61a-grant-desk.vercel.app/pilot"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Open Margin classroom pilot in a new tab"
+        class="pop-ink inline-flex shrink-0 items-center justify-center bg-accent px-5 py-3 font-mono text-sm font-bold text-white hover:bg-ink"
+      >open margin ↗</a>
+    </div>
+  </section>
 
   <!-- ============ timer ============ -->
   <section class="pop mt-10 rounded-md bg-white p-6" id="timer-card">
