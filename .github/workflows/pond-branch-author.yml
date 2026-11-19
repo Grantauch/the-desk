@@ -1,0 +1,41 @@
+name: Pond branch author build
+on:
+  pull_request:
+permissions:
+  contents: write
+jobs:
+  build-pond:
+    if: github.repository == 'Grantauch/the-desk' && github.event.pull_request.head.repo.full_name == 'Grantauch/the-desk' && github.head_ref == 'feat/pond-discovery-workbench'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the working branch
+        uses: actions/checkout@v7
+        with:
+          ref: feat/pond-discovery-workbench
+          fetch-depth: 0
+      - name: Use the site Node version
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/pond/package-lock.json
+      - name: Install the Pond's locked dependencies
+        run: npm ci --prefix apps/pond --include=dev
+      - name: Run Pond unit tests
+        run: npm --prefix apps/pond test
+      - name: Build and publish versioned Pond assets
+        run: npm run pond:build
+      - name: Check source and generated assets
+        run: npm run pond:test
+      - name: Commit generated Pond assets to working branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A public/hubs/pond
+          if git diff --cached --quiet; then
+            echo "Pond assets already match sources."
+          else
+            git commit -m "Build living Pond discovery experience"
+            git push origin HEAD:feat/pond-discovery-workbench
+          fi
