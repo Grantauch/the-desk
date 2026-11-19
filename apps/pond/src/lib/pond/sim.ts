@@ -13,7 +13,10 @@ import {
 import { validateSnapshot } from "./save.ts";
 
 /** Fixed, tested simulation sizes. Each expansion grants usable new cells. */
-export const POND_SIZES = [192, 256, 320] as const;
+export const POND_SIZES = [192, 256, 320, 448, 576, 768] as const;
+
+/** For the large stages, only nearby cells run a physics tick. */
+export type PondRegion = Readonly<{ x: number; y: number; width: number; height: number }>;
 export type PondSize = (typeof POND_SIZES)[number];
 export function isPondSize(size: number): size is PondSize {
   return POND_SIZES.some((allowed) => allowed === size);
@@ -377,27 +380,34 @@ export class PondSim {
     this.tryMove(x, y, i, -dir, 0);
   }
 
-  step() {
+  step(region?: PondRegion) {
     if (this.paused) {
-      this.recount();
+      // Recount only on an occasional paused tick; no cell is moving.
+      if (this.frame === 0 || !region) this.recount();
       this.trauma *= 0.86;
       return;
     }
     this.lastReaction = null;
     this.frame++;
     this.moved.fill(0);
-    this.counts.fill(0);
+    if (!region) this.counts.fill(0);
     const { w, h } = this;
     let grains = 0;
     let fires = 0;
-
-    for (let y = h - 1; y >= 0; y--) {
+    // An offscreen region is dormant until its camera arrives. A 6-cell
+    // simulation apron keeps materials moving naturally near the viewport rim.
+    const apron = 6;
+    const x0 = region ? Math.max(0, Math.floor(region.x) - apron) : 0;
+    const y0 = region ? Math.max(0, Math.floor(region.y) - apron) : 0;
+    const x1 = region ? Math.min(w, Math.ceil(region.x + region.width) + apron) : w;
+    const y1 = region ? Math.min(h, Math.ceil(region.y + region.height) + apron) : h;
+    for (let y = y1 - 1; y >= y0; y--) {
       const ltr = ((y + this.frame) & 1) === 0;
-      for (let n = 0; n < w; n++) {
-        const x = ltr ? n : w - 1 - n;
+      for (let n = 0; n < x1 - x0; n++) {
+        const x = ltr ? x0 + n : x1 - 1 - n;
         const i = y * w + x;
-        const t = this.grid[i];
-        if (t !== E.EMPTY && t !== E.WALL) {
+        const t = this.grid[i]!;
+        if (!region && t !== E.EMPTY && t !== E.WALL) {
           grains++;
           this.counts[t]++;
           if (t === E.FIRE) fires++;
@@ -406,9 +416,14 @@ export class PondSim {
         this.stepCell(x, y, i, t);
       }
     }
-
-    this.grainCount = grains;
-    this.fireCount = fires;
+    if (region) {
+      // Aggregate world totals outside the hot loop at ~1.5 second intervals.
+      // This never advances particles in distant inactive territory.
+      if (this.frame % 72 === 1) this.recount();
+    } else {
+      this.grainCount = grains;
+      this.fireCount = fires;
+    }
     this.trauma *= 0.86;
   }
 
@@ -721,12 +736,19 @@ export class PondSim {
     this.aux[i] = (dir < 0 ? 0 : 128) | food;
   }
 
-  render(image: ImageData) {
+  /**
+   * Render only the camera crop at native pixel resolution. Image width and
+   * height may be far smaller than the world, avoiding large canvas uploads.
+   */
+  render(image: ImageData, originX = 0, originY = 0) {
     const data = image.data;
-    const n = this.grid.length;
     const flickerBase = this.frame;
-    for (let i = 0; i < n; i++) {
-      const p = i * 4;
+    const viewportWidth = image.width;
+    const viewportHeight = image.height;
+    for (let y = 0; y < viewportHeight; y++) {
+      for (let x = 0; x < viewportWidth; x++) {
+      const i = (originY + y) * this.w + originX + x;
+      const p = (y * viewportWidth + x) * 4;
       if (this.locked[i]) {
         data[p] = 10;
         data[p + 1] = 9;
@@ -761,6 +783,7 @@ export class PondSim {
       data[p + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
       data[p + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
       data[p + 3] = 255;
+      }
     }
   }
 }
