@@ -2,7 +2,7 @@ import { E } from "./elements.ts";
 import {
   FORMS, FORCES, HABITATS, TRAITS, getOutcome, type DiscoveryOutcome,
 } from "./discovery.ts";
-import type { PondSim } from "./sim.ts";
+import type { PondSim, PondRegion } from "./sim.ts";
 
 /**
  * The Pond's living layer. These are bounded individual specimens, not extra
@@ -184,10 +184,12 @@ export class PondEcosystem {
     return true;
   }
 
-  step(sim: PondSim): void {
+  step(sim: PondSim, region?: PondRegion): void {
     this.ticks++;
     for (let n = this.creatures.length - 1; n >= 0; n--) {
       const creature = this.creatures[n]!;
+      if (region && (creature.x < region.x - 8 || creature.x >= region.x + region.width + 8 ||
+          creature.y < region.y - 8 || creature.y >= region.y + region.height + 8)) continue;
       const outcome = getOutcome(creature.id);
       if (!outcome) { this.creatures.splice(n, 1); continue; }
       const profile = residentProfile(outcome);
@@ -233,7 +235,7 @@ export class PondEcosystem {
       // the sprite color. Limit changes to ~two per second per resident.
       if ((this.ticks + n * 7) % 24 === 0) this.influence(sim, creature, profile);
     }
-    if (this.ticks % 24 === 0) this.interact(sim);
+    if (this.ticks % 24 === 0) this.interact(sim, region);
   }
 
   /**
@@ -241,11 +243,14 @@ export class PondEcosystem {
    * At 80 residents this is O(80²) only twice per second, never per pixel or
    * per rendered frame. The social rules use existing material IDs exclusively.
    */
-  private interact(sim: PondSim): void {
+  private interact(sim: PondSim, region?: PondRegion): void {
     const active = this.creatures.map((creature) => {
       const outcome = getOutcome(creature.id)!;
       return { creature, name: species(outcome), profile: residentProfile(outcome) };
-    });
+    }).filter(({ creature }) => !region || (
+      creature.x >= region.x - 8 && creature.x < region.x + region.width + 8 &&
+      creature.y >= region.y - 8 && creature.y < region.y + region.height + 8
+    ));
     const used = new Set<number>();
     let applied = 0;
     for (let i = 0; i < active.length && applied < 6; i++) {
@@ -335,7 +340,7 @@ export class PondEcosystem {
   }
 
   /** Canvas layer uses native low-resolution pixels, not expensive DOM sprites. */
-  render(ctx: CanvasRenderingContext2D): void {
+  render(ctx: CanvasRenderingContext2D, originX = 0, originY = 0): void {
     if (!this.creatures.length) return;
     ctx.save();
     ctx.imageSmoothingEnabled = false;
@@ -343,7 +348,8 @@ export class PondEcosystem {
       const outcome = getOutcome(creature.id);
       if (!outcome) continue;
       const profile = residentProfile(outcome);
-      const x = Math.round(creature.x), y = Math.round(creature.y);
+      const x = Math.round(creature.x - originX), y = Math.round(creature.y - originY);
+      if (x < -8 || y < -8 || x > ctx.canvas.width + 8 || y > ctx.canvas.height + 8) continue;
       const s = profile.size;
       const bob = Math.round(Math.sin((creature.age + creature.phase) * 0.09));
       const wing = Math.round(Math.sin((creature.age + creature.phase) * 0.24) * 2);
