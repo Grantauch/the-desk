@@ -52,6 +52,7 @@ export function PondApp() {
   const [brush, setBrush] = useState(4);
   const [specimenId, setSpecimenId] = useState<string | null>(null);
   const [residentCount, setResidentCount] = useState(0);
+  const [ecosystemNews, setEcosystemNews] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(true);
   const [guide, setGuide] = useState(false);
@@ -228,6 +229,7 @@ export function PondApp() {
     (g: number) => {
       setGrains(g);
       setResidentCount(ecosystem.count);
+      setEcosystemNews(ecosystem.lastInteraction);
       if (!startedRef.current) return;
       const r = sim.lastReaction;
       if (r && !seen.current.has(r)) {
@@ -254,6 +256,7 @@ export function PondApp() {
     loadScene(sim, id);
     ecosystem.clear();
     setResidentCount(0);
+    setEcosystemNews(null);
     setScene(id);
     setPaused(false);
   };
@@ -282,6 +285,7 @@ export function PondApp() {
     sim.clearInterior();
     ecosystem.clear();
     setResidentCount(0);
+    setEcosystemNews(null);
     setScene("blank");
     setToast("Dish cleared. Undo brings it back.");
   };
@@ -503,6 +507,12 @@ export function PondApp() {
               {nextSize ? "Expand pond to " + nextSize + " × " + nextSize : "Maximum pond size"}
             </Button>
           </div>
+
+          {ecosystemNews ? (
+            <p className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm text-muted">
+              <span className="font-medium text-fg">Pond life</span> · {ecosystemNews}
+            </p>
+          ) : null}
 
           <div className="rounded-xl bg-surface p-2 shadow-[0_0_0_1px_var(--color-border)]">
             <div className="grid grid-cols-5 gap-1 sm:grid-cols-10">
