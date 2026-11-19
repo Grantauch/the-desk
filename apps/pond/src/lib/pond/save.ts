@@ -1,8 +1,8 @@
-import type { PondSim } from "./sim.ts";
+import { PondSim, isPondSize, type PondSize } from "./sim.ts";
 import { validateResidents, type ResidentSave } from "./ecosystem.ts";
 
 export const WORLD_KEY = "grantdesk-pond-world-v1";
-export const MAX_SAVE_BYTES = 200_000;
+export const MAX_SAVE_BYTES = 520_000;
 
 /**
  * V2 adds optional resident specimens alongside the unchanged V1 particle
@@ -50,6 +50,23 @@ export function decodePondFile(text: string, sim: PondSim): { particles: Uint8Ar
   validateSnapshot(particles, sim.w * sim.h);
   const residents = value.version === 2 ? validateResidents(value.residents, sim) : [];
   return { particles, residents };
+}
+
+/**
+ * Decode an import against its own approved stage size before changing the
+ * current pond. Older 192px saves and expanded 256/320px ponds both round-trip.
+ */
+export function decodePondAnySize(text: string): { size: PondSize; particles: Uint8Array; residents: ResidentSave[] } {
+  if (text.length > MAX_SAVE_BYTES) throw new Error("That save is too large.");
+  const parsed: unknown = JSON.parse(text);
+  if (!parsed || typeof parsed !== "object") throw new Error("Invalid Pond save.");
+  const value = parsed as Record<string, unknown>;
+  if (typeof value.width !== "number" || !isPondSize(value.width) || value.height !== value.width) {
+    throw new Error("That Pond size is not supported.");
+  }
+  const candidate = new PondSim(value.width, value.width);
+  const decoded = decodePondFile(text, candidate);
+  return { size: value.width, ...decoded };
 }
 
 /** Backwards compatible particle-only API for existing tools and tests. */
