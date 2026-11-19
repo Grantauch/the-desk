@@ -491,7 +491,6 @@ export function PondApp() {
         </div>
       ) : null}
 
-      <footer className="px-3 pb-3 text-center text-xs text-muted">Originally built with Grok · developed for the desk</footer>
       {!started ? (
         <div
           className="absolute inset-0 z-30 w-full flex flex-col items-center justify-center bg-bg/62 px-6 text-center"
