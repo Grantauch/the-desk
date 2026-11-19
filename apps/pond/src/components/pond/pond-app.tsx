@@ -311,7 +311,8 @@ export function PondApp() {
     const needle = mixSearch.trim().toLowerCase();
     return discovered.slice().reverse()
       .map((id) => getOutcome(id))
-      .filter((outcome) => outcome !== null && (!needle || outcome.name.toLowerCase().includes(needle)))
+      .filter((outcome): outcome is NonNullable<ReturnType<typeof getOutcome>> => outcome !== null)
+      .filter((outcome) => !needle || outcome.name.toLowerCase().includes(needle))
       .slice(0, 72);
   }, [discovered, mixSearch]);
   const featured = featuredId ? getOutcome(featuredId) : null;
