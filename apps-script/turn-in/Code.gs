@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-11-19-turn-in-v14';
+const TI_VERSION = '2026-11-19-turn-in-v15';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -148,14 +148,34 @@ function logSignInFailure_(hub, error) {
   return supportId;
 }
 
+let TI_REQUEST = null;
+
 function route_(request) {
   Object.keys(TI_DRAFT_MEMO).forEach((key) => { delete TI_DRAFT_MEMO[key]; });
   const action = String(request.action || '');
   if (action === 'ping') return { ok: true, version: TI_VERSION };
-  if (action === 'signin') return signIn_(request);
-  if (action === 'save') return saveDraft_(request);
-  if (action === 'turnin') return turnIn_(request);
-  throw refuse_('bad_request', 'That request could not be read.');
+  if (!['signin', 'save', 'turnin'].includes(action)) throw refuse_('bad_request', 'That request could not be read.');
+  const started = Date.now();
+  const requestState = { rosterMs: 0, draftMs: 0, lockWaitMs: 0 };
+  TI_REQUEST = requestState;
+  try {
+    if (action === 'signin') return signIn_(request);
+    if (action === 'save') return saveDraft_(request);
+    return turnIn_(request);
+  } finally {
+    TI_REQUEST = null;
+    const totalMs = Date.now() - started;
+    if (totalMs >= 10000) console.log(JSON.stringify({
+      event: 'turn_in_slow_request', version: TI_VERSION, action, totalMs,
+      rosterMs: requestState.rosterMs, draftMs: requestState.draftMs, lockWaitMs: requestState.lockWaitMs,
+    }));
+  }
+}
+
+function tryStudentWriteLock_(lock, timeoutMs) {
+  const started = Date.now();
+  try { return lock.tryLock(timeoutMs); }
+  finally { if (TI_REQUEST) TI_REQUEST.lockWaitMs += Date.now() - started; }
 }
 
 /* ---------------------------------------------------------------- actions -- */
@@ -205,7 +225,7 @@ function saveDraft_(request) {
   const book = workbook_();
   if (session.test) {
     const testLock = LockService.getScriptLock();
-    if (!testLock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
+    if (!tryStudentWriteLock_(testLock, TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
     try {
       const prior = guardedDraft_(book, identity, hub, request, answers);
       if (prior) return { ok: true, savedAt: prior.savedAt, revision: prior.revision || prior.savedAt };
@@ -218,7 +238,7 @@ function saveDraft_(request) {
   // A save is acknowledged only after a durable write. Cache alone can be evicted.
   const drafts = book.getSheetByName(TI_SHEETS.DRAFTS);
   const lock = LockService.getScriptLock();
-  if (!lock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
+  if (!tryStudentWriteLock_(lock, TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
   try {
     const prior = guardedDraft_(book, identity, hub, request, answers);
     if (prior) return { ok: true, savedAt: prior.savedAt, revision: prior.revision || prior.savedAt };
@@ -273,7 +293,7 @@ function turnIn_(request) {
   const book = workbook_();
   const sheet = book.getSheetByName(identity.test ? TI_SHEETS.LOAD_TEST : TI_SHEETS.TURN_INS);
   const lock = LockService.getScriptLock();
-  if (!lock.tryLock(TI_TURNIN_LOCK_MS)) {
+  if (!tryStudentWriteLock_(lock, TI_TURNIN_LOCK_MS)) {
     throw refuse_('busy', 'Lots of students are turning in right now. Press Turn In again.');
   }
   try {
@@ -641,6 +661,20 @@ function openTurnInRoster_() {
 }
 
 function rosterByHash_(useCache = true) {
+  // Authentication, membership and receipt generation share one roster for
+  // this request. A new request still consults the configured credential source.
+  if (useCache && TI_REQUEST && TI_REQUEST.roster) return TI_REQUEST.roster;
+  const started = Date.now();
+  try {
+    const roster = readRosterByHash_(useCache);
+    if (useCache && TI_REQUEST) TI_REQUEST.roster = roster;
+    return roster;
+  } finally {
+    if (TI_REQUEST) TI_REQUEST.rosterMs += Date.now() - started;
+  }
+}
+
+function readRosterByHash_(useCache) {
   const cache = CacheService.getScriptCache();
   const book = openTurnInRoster_();
   const directoryPins = schoolDirectoryPinsForTurnIn_(book);
@@ -950,6 +984,12 @@ function draftCacheKey_(email, hub) {
 }
 
 function findDraft_(email, hub) {
+  const started = Date.now();
+  try { return readDraft_(email, hub); }
+  finally { if (TI_REQUEST) TI_REQUEST.draftMs += Date.now() - started; }
+}
+
+function readDraft_(email, hub) {
   const cached = CacheService.getScriptCache().get(draftCacheKey_(email, hub));
   if (cached) {
     try {
