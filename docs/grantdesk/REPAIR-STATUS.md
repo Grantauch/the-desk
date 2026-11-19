@@ -1,3 +1,9 @@
+## November 19 Turn In timeout investigation
+
+The afternoon incident showed a burst of completed web-app executions taking tens of seconds to over four minutes. The service recovered before a live synthetic probe, and saves resumed. The execution list did not identify the operation that started the stall.
+
+Synthetic reproduction showed 350 roster workbook opens across 105 sign-in, save and submission requests. The server patch reduces those opens to 105 and adds private phase timings for slow requests. The website patch staggers autosave, preserves retry spacing through edits and uses one bounded request when sign-in times out. Production publication and classroom acceptance are tracked independently. The Apps Script rollout follows the existing production approval gate.
+
 ## November 19 assignment sign-in diagnostics
 
 The shared assignment client displays an opaque support code for a server-rejected sign-in and separate codes for browser-side failures. The matching private Apps Script log records the assignment, version, stage, and failure reason without credentials or student work. The editor health function checks actual dependencies without using the roster cache or writing to Sheets. Source verification uses synthetic accounts. Protected CI, the website release, the existing Apps Script deployment, and classroom sign-in are separate checks.
