@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 type PondCanvasProps = {
   sim: PondSim;
+  enhancedGraphics?: boolean;
   camera: PondCamera;
   panMode: boolean;
   onPan: (dx: number, dy: number) => void;
@@ -22,7 +23,7 @@ type PondCanvasProps = {
   onStrokeStart?: () => void;
 };
 
-export function PondCanvas({ sim, camera, panMode, onPan, ecosystem, specimenId, onSpecimenPlace, tool, brush, running, className, onStats, onStrokeStart }: PondCanvasProps) {
+export function PondCanvas({ sim, enhancedGraphics = true, camera, panMode, onPan, ecosystem, specimenId, onSpecimenPlace, tool, brush, running, className, onStats, onStrokeStart }: PondCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const painting = useRef(false);
@@ -36,6 +37,7 @@ export function PondCanvas({ sim, camera, panMode, onPan, ecosystem, specimenId,
   const onSpecimenPlaceRef = useRef(onSpecimenPlace);
   const brushRef = useRef(brush);
   const runningRef = useRef(running);
+  const graphicsRef = useRef(enhancedGraphics);
   const onStatsRef = useRef(onStats);
   const onStrokeRef = useRef(onStrokeStart);
   const cursor = useRef({ x: camera.x + camera.size / 2, y: camera.y + camera.size / 2 });
@@ -49,6 +51,7 @@ export function PondCanvas({ sim, camera, panMode, onPan, ecosystem, specimenId,
   onSpecimenPlaceRef.current = onSpecimenPlace;
   brushRef.current = brush;
   runningRef.current = running;
+  graphicsRef.current = enhancedGraphics;
   onStatsRef.current = onStats;
   onStrokeRef.current = onStrokeStart;
 
@@ -86,7 +89,7 @@ export function PondCanvas({ sim, camera, panMode, onPan, ecosystem, specimenId,
         steps++;
       }
       const view = cameraRef.current;
-      sim.render(image, view.x, view.y);
+      sim.render(image, view.x, view.y, graphicsRef.current);
       ctx.putImageData(image, 0, 0);
       ecosystem.render(ctx, view.x, view.y);
       const wrap = wrapRef.current;
