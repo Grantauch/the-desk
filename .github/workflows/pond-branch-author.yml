@@ -28,6 +28,12 @@ jobs:
         run: npm run pond:build
       - name: Check source and generated assets
         run: npm run pond:test
+      - name: Install browser acceptance dependencies
+        run: npm ci --include=dev
+      - name: Install test Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser-test living discoveries on mobile and desktop
+        run: node scripts/test-pond-discovery-browser.mjs
       - name: Commit generated Pond assets to working branch
         run: |
           git config user.name "github-actions[bot]"
