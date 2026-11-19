@@ -1,5 +1,11 @@
 # Update the existing Turn In service
 
+## v14 assignment sign-in diagnostics
+
+This release pairs the shared `desk-save.js` client with Turn In v14 on the existing deployment. The student keeps the existing sign-in message and can report a support code. In the private Apps Script Executions dashboard, open the `doPost` execution near the reported time and match its `turn_in_signin_failed` log entry by support code. The log supplies the assignment, version, stage, and reason without logging PINs, names, emails, answers, or raw exception text. Browser-only codes identify a timeout, network failure, unexpected response, or local loading failure.
+
+From the Apps Script editor, run `checkTurnInSignInHealth` after deployment to verify that the roster, configured directory, and assignment workbook can be read. This check bypasses the roster cache and makes no spreadsheet changes. Check the existing `/exec` reports `2026-11-19-turn-in-v14` and `checkedWritesRequired: true`, then send one known unassigned synthetic PIN through a live assignment. Verify the student sees a support code and match it to the private log. Use synthetic fixtures for positive sign-in regression. No workbook migration or setup is required.
+
 The v12 release (Oct 29 2026) stores a bounded cursor bookmark separately from answers and permits Turn In using the existing signed account session after refresh. Cursor-only updates preserve finished status, checked revisions and retry idempotency. No sheet migration or setup is needed. Deploy through the existing guarded workflow, preserving the workbook, stable endpoint and access settings.
 
 The v11 release (Oct 29 2026) makes draft lookups read only the email and hub columns, so a save no longer holds the lock while reading every saved answer; lets a tab keep saving after its own save landed late; and always records a Turn In press, keeping a newer account version as current progress. Deploy with the Deploy Turn In Apps Script workflow.
