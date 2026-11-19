@@ -88,7 +88,8 @@ const CURATED: ReadonlyArray<readonly [string, string, string]> = [
   ["Sun", "Earth", "Desert"], ["Desert", "Water", "Oasis"], ["Plant", "Bird", "Nest"],
   ["Nest", "Life", "Egg"], ["Egg", "Fire", "Phoenix"], ["Forest", "Animal", "Wildlife"],
   ["Bird", "Storm", "Thunderbird"], ["Ocean", "Storm", "Hurricane"], ["Stone", "Plant", "Moss"],
-  ["Moss", "Water", "Bog"], ["Mountain", "Ice", "Glacier"], ["Metal", "Energy", "Clock"],
+  ["Moss", "Water", "Bog"], ["Cloud", "Wind", "Snow"], ["Snow", "Water", "Ice"],
+  ["Mountain", "Ice", "Glacier"], ["Metal", "Energy", "Clock"],
 ];
 
 function key(a: string, b: string): string {
