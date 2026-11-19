@@ -79,6 +79,11 @@ async function run(viewport) {
     await page.getByText("256 × 256", { exact: false }).first().waitFor();
     await page.getByRole("button", { name: /Expand pond to 320/ }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
+    await page.getByRole("button", { name: "Undo" }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 256, "undo must restore the previous stage");
+    await page.getByText(/1 living creations/).waitFor();
+    await page.getByRole("button", { name: /Expand pond to 320/ }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
     await page.getByRole("button", { name: "Mix Steam" }).click();
     await page.getByRole("button", { name: "Place in pond" }).click();
     const expandedCanvas = page.getByRole("application");
