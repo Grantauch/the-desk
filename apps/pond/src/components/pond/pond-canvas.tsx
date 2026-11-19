@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { COLS, ERASER, ROWS, WIND, type ToolId } from "@/lib/pond/elements";
+import { ERASER, WIND, type ToolId } from "@/lib/pond/elements";
 import { pondAudio } from "@/lib/pond/audio";
 import type { PondSim } from "@/lib/pond/sim";
 import type { PondEcosystem } from "@/lib/pond/ecosystem";
@@ -30,7 +30,7 @@ export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, 
   const runningRef = useRef(running);
   const onStatsRef = useRef(onStats);
   const onStrokeRef = useRef(onStrokeStart);
-  const cursor = useRef({ x: COLS / 2, y: ROWS / 2 });
+  const cursor = useRef({ x: sim.w / 2, y: sim.h / 2 });
   const [position, setPosition] = useState(cursor.current);
   const [focused, setFocused] = useState(false);
   toolRef.current = tool;
@@ -44,11 +44,11 @@ export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width = COLS;
-    canvas.height = ROWS;
+    canvas.width = sim.w;
+    canvas.height = sim.h;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
-    const image = ctx.createImageData(COLS, ROWS);
+    const image = ctx.createImageData(sim.w, sim.h);
     let raf = 0;
     let acc = 0;
     let lastT = performance.now();
@@ -99,8 +99,8 @@ export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, 
 
     const toCell = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect();
-      const x = Math.floor(((clientX - rect.left) / rect.width) * COLS);
-      const y = Math.floor(((clientY - rect.top) / rect.height) * ROWS);
+      const x = Math.floor(((clientX - rect.left) / rect.width) * sim.w);
+      const y = Math.floor(((clientY - rect.top) / rect.height) * sim.h);
       return { x, y };
     };
 
@@ -119,7 +119,7 @@ export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, 
         sim.paint(x, y, t, r);
       }
       last.current = { x, y };
-      pondAudio.paint(t === ERASER ? 0 : t, x / COLS);
+      pondAudio.paint(t === ERASER ? 0 : t, x / sim.w);
     };
 
     const down = (e: PointerEvent) => {
@@ -171,8 +171,8 @@ export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, 
     <div ref={wrapRef} className={cn("relative will-change-transform", className)}>
       <canvas
         ref={canvasRef}
-        width={COLS}
-        height={ROWS}
+        width={sim.w}
+        height={sim.h}
         className="pixelated block size-full rounded-full touch-none select-none"
         aria-label={specimenId ? "Living dish. Tap or press Enter to place a discovery. Arrow keys move the cursor." : "Living dish. Draw to paint. Keyboard: arrows move the brush, Enter paints."}
         role="application"
@@ -184,7 +184,7 @@ export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, 
           const move = moves[event.key];
           if (move) {
             event.preventDefault();
-            cursor.current = { x: Math.max(2, Math.min(COLS - 3, cursor.current.x + move[0])), y: Math.max(2, Math.min(ROWS - 3, cursor.current.y + move[1])) };
+            cursor.current = { x: Math.max(2, Math.min(sim.w - 3, cursor.current.x + move[0])), y: Math.max(2, Math.min(sim.h - 3, cursor.current.y + move[1])) };
             setPosition(cursor.current);
           }
           if (event.key === "Enter" && runningRef.current && !event.repeat) {
@@ -200,7 +200,7 @@ export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, 
           }
         }}
       />
-      {focused && <span aria-hidden="true" className="pointer-events-none absolute size-3 rounded-full border border-white" style={{left: `${position.x / COLS * 100}%`, top: `${position.y / ROWS * 100}%`, transform: "translate(-50%, -50%)"}} />}
+      {focused && <span aria-hidden="true" className="pointer-events-none absolute size-3 rounded-full border border-white" style={{left: `${position.x / sim.w * 100}%`, top: `${position.y / sim.h * 100}%`, transform: "translate(-50%, -50%)"}} />}
     </div>
   );
 }
