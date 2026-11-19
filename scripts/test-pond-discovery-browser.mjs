@@ -73,6 +73,25 @@ async function run(viewport) {
     await page.getByText(/1 living creations/).waitFor();
     await page.getByRole("button", { name: "Mix Steam" }).waitFor();
 
+    // Expansion must add real simulation cells, not simply stretch the canvas.
+    await page.getByRole("button", { name: /Expand pond to 256/ }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
+    await page.getByText("256 × 256", { exact: false }).first().waitFor();
+    await page.getByRole("button", { name: /Expand pond to 320/ }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
+    await page.getByRole("button", { name: "Mix Steam" }).click();
+    await page.getByRole("button", { name: "Place in pond" }).click();
+    const expandedCanvas = page.getByRole("application");
+    const expandedBox = await expandedCanvas.boundingBox();
+    assert.ok(expandedBox);
+    // New resident is placed in the NEW outer ring, outside the 192-cell bowl.
+    await expandedCanvas.click({ position: { x: expandedBox.width * 0.86, y: expandedBox.height * 0.5 } });
+    await page.getByText(/2 living creations/).waitFor();
+    await page.reload({ waitUntil: "load" });
+    await page.getByRole("button", { name: "Make a mess" }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
+    await page.getByText(/2 living creations/).waitFor();
+
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Export world" }).click();
     const download = await downloadPromise;
@@ -80,8 +99,12 @@ async function run(viewport) {
     const bytes = await readFile(await download.path(), "utf-8");
     const world = JSON.parse(bytes);
     assert.equal(world.version, 2);
-    assert.equal(world.residents.length, 1);
+    assert.equal(world.width, 320);
+    assert.equal(world.height, 320);
+    assert.equal(world.residents.length, 2);
     assert.equal(world.residents[0].id, "Steam");
+    assert.equal(world.residents[1].id, "Steam");
+    assert.ok(world.residents[1].x > 250, "new territory must accept living placements");
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     assert.equal(overflow, false, "Pond should not overflow horizontally");
