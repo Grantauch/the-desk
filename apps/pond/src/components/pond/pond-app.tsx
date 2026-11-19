@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PondCanvas } from "@/components/pond/pond-canvas";
-import { STARTERS, combine } from "@/lib/pond/discovery";
+import { DiscoveryGlyph } from "@/components/pond/discovery-glyph";
+import {
+  STARTERS, OUTCOME_SPACE, MAX_DISCOVERIES, DISCOVERY_STORAGE_KEY,
+  combine, getOutcome, paintMaterial, restoreDiscoveries,
+} from "@/lib/pond/discovery";
 import { pondAudio } from "@/lib/pond/audio";
 import {
   E,
@@ -47,8 +51,11 @@ export function PondApp() {
   const [muted, setMuted] = useState(true);
   const [guide, setGuide] = useState(false);
   const [discovered, setDiscovered] = useState<string[]>([...STARTERS]);
+  const [discoveryLoaded, setDiscoveryLoaded] = useState(false);
   const [firstMix, setFirstMix] = useState<string | null>(null);
-  const [lastMix, setLastMix] = useState("Select two discoveries to combine.");
+  const [mixSearch, setMixSearch] = useState("");
+  const [featuredId, setFeaturedId] = useState<string | null>(null);
+  const [lastMix, setLastMix] = useState("Pick two discoveries. Familiar mixes make familiar things; other pairs can make new species.");
   const [scene, setScene] = useState<SceneId | "custom">("garden");
   const [grains, setGrains] = useState(0);
   const [hintIndex, setHintIndex] = useState(0);
@@ -76,11 +83,16 @@ export function PondApp() {
   useEffect(() => {
     try {
       setMuted(localStorage.getItem("pond-muted") !== "0");
-      const unlocked = localStorage.getItem("pond-discoveries-v1");
-      if (unlocked) {
-        const parsed: unknown = JSON.parse(unlocked);
-        if (Array.isArray(parsed)) setDiscovered([...new Set([...STARTERS, ...parsed.filter((v): v is string => typeof v === "string" && v.length < 80)])].slice(0, 1000));
-      }
+      let savedDiscoveries: unknown = null;
+      let legacyDiscoveries: unknown = null;
+      try {
+        const current = localStorage.getItem(DISCOVERY_STORAGE_KEY);
+        const previous = localStorage.getItem("pond-discoveries-v1");
+        if (current) savedDiscoveries = JSON.parse(current);
+        if (previous) legacyDiscoveries = JSON.parse(previous);
+      } catch { /* malformed discovery saves cannot affect the pond */ }
+      setDiscovered(restoreDiscoveries(savedDiscoveries, legacyDiscoveries));
+      setDiscoveryLoaded(true);
       const saved = localStorage.getItem(WORLD_KEY);
       if (saved) {
         sim.restore(decodeWorld(saved, sim));
@@ -107,6 +119,12 @@ export function PondApp() {
       document.removeEventListener("visibilitychange", hide);
     };
   }, [sim]);
+
+  useEffect(() => {
+    if (!discoveryLoaded) return;
+    try { localStorage.setItem(DISCOVERY_STORAGE_KEY, JSON.stringify(discovered)); }
+    catch { /* session discoveries remain usable if storage is disabled */ }
+  }, [discovered, discoveryLoaded]);
 
   useEffect(() => {
     if (!toast) return;
@@ -261,19 +279,42 @@ export function PondApp() {
     } finally { if (fileRef.current) fileRef.current.value = ""; }
   };
 
-  const chooseMix = (name: string) => {
-    if (!firstMix) { setFirstMix(name); setLastMix(`Now choose something to combine with ${name}.`); return; }
-    const result = combine(firstMix, name);
-    if (result) {
-      setDiscovered((previous) => {
-        const next = previous.includes(result) ? previous : [...previous, result];
-        try { localStorage.setItem("pond-discoveries-v1", JSON.stringify(next)); } catch { /* storage optional */ }
-        return next;
-      });
-      setLastMix(`${firstMix} + ${name} = ${result}!`);
-    } else setLastMix(`${firstMix} + ${name}: no discovery yet. Try another pair.`);
+  const chooseMix = (id: string) => {
+    if (!firstMix) {
+      setFirstMix(id);
+      setLastMix("Choose a second discovery to combine with " + (getOutcome(id)?.name ?? id) + ".");
+      return;
+    }
+    const result = combine(firstMix, id);
+    if (!result) {
+      setLastMix("That combination could not be made.");
+      setFirstMix(null);
+      return;
+    }
+    const firstName = getOutcome(firstMix)?.name ?? firstMix;
+    const secondName = getOutcome(id)?.name ?? id;
+    const alreadyKnown = discovered.includes(result.id);
+    setDiscovered((previous) => {
+      if (previous.includes(result.id)) return previous;
+      const history = previous.length >= MAX_DISCOVERIES
+        ? [...STARTERS, ...previous.filter((value) => !STARTERS.some((root) => root === value)).slice(-(MAX_DISCOVERIES - STARTERS.length - 1))]
+        : previous;
+      return [...history, result.id];
+    });
+    setFeaturedId(result.id);
+    setLastMix(firstName + " + " + secondName + " = " + result.name +
+      (alreadyKnown ? " (already discovered)" : " — new discovery!"));
     setFirstMix(null);
   };
+
+  const visibleDiscoveries = useMemo(() => {
+    const needle = mixSearch.trim().toLowerCase();
+    return discovered.slice().reverse()
+      .map((id) => getOutcome(id))
+      .filter((outcome) => outcome !== null && (!needle || outcome.name.toLowerCase().includes(needle)))
+      .slice(0, 72);
+  }, [discovered, mixSearch]);
+  const featured = featuredId ? getOutcome(featuredId) : null;
 
   const selected = toolById(tool);
 
@@ -429,20 +470,67 @@ export function PondApp() {
           </div>
 
           <section aria-label="Discovery workbench" className="rounded-xl bg-surface p-3 shadow-[0_0_0_1px_var(--color-border)]">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <h2 className="font-display text-lg">Discover</h2>
-              <span className="text-xs text-muted">{discovered.length} found</span>
+            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-display text-lg">Discovery lab</h2>
+              <p className="text-xs text-muted tabular-nums">{discovered.length.toLocaleString()} found · {OUTCOME_SPACE.toLocaleString()} procedural possibilities</p>
             </div>
-            <p role="status" className="mb-3 text-sm text-muted">{lastMix}</p>
-            <div className="flex max-h-36 flex-wrap gap-2 overflow-y-auto">
-              {discovered.map((name) => (
-                <button key={name} type="button" aria-pressed={firstMix === name} onClick={() => chooseMix(name)}
-                  className={cn("min-h-10 rounded-lg border px-3 py-2 text-sm", firstMix === name ? "border-accent bg-accent text-accent-fg" : "border-border bg-surface-2 text-fg hover:border-border-strong")}>
-                  {name}
+            <div className="mb-2 flex items-center gap-3">
+              {featured ? <DiscoveryGlyph outcome={featured} size={58} className="shrink-0" /> : null}
+              <p role="status" aria-live="polite" className="min-w-0 text-sm text-muted">{lastMix}</p>
+            </div>
+            {featured ? (
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const material = paintMaterial(featured);
+                    setTool(material);
+                    setLastMix("Brush selected: " + toolById(material).name + ". This is the closest existing physics material; your discovery's identity stays in the lab.");
+                  }}
+                  className="min-h-10 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-accent-fg"
+                >
+                  Paint using {toolById(paintMaterial(featured)).name}
+                </button>
+                <p className="text-xs text-muted">Visual discoveries use existing pond physics materials.</p>
+              </div>
+            ) : null}
+            <div className="mb-2 flex items-center gap-2">
+              <input
+                type="search"
+                value={mixSearch}
+                onChange={(event) => setMixSearch(event.target.value)}
+                placeholder="Search discoveries"
+                aria-label="Search unlocked discoveries"
+                className="min-h-10 w-full min-w-0 rounded-lg border border-border bg-surface-2 px-3 text-sm text-fg placeholder:text-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              />
+              {firstMix ? (
+                <button type="button" className="shrink-0 text-sm text-muted underline" onClick={() => { setFirstMix(null); setLastMix("Combination canceled."); }}>
+                  Cancel
+                </button>
+              ) : null}
+            </div>
+            <div className="grid max-h-48 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3" aria-label="Unlocked discoveries">
+              {visibleDiscoveries.map((outcome) => (
+                <button
+                  key={outcome.id}
+                  type="button"
+                  title={outcome.name}
+                  aria-label={"Mix " + outcome.name}
+                  aria-pressed={firstMix === outcome.id}
+                  onClick={() => chooseMix(outcome.id)}
+                  className={cn(
+                    "flex min-h-14 items-center gap-2 rounded-lg border px-2 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline focus-visible:outline-2",
+                    firstMix === outcome.id ? "border-accent bg-surface-2" : "border-border hover:border-border-strong hover:bg-surface-2",
+                  )}
+                >
+                  <DiscoveryGlyph outcome={outcome} size={34} className="shrink-0" />
+                  <span className="min-w-0 break-words text-fg">{outcome.name}</span>
                 </button>
               ))}
             </div>
-            <p className="mt-2 text-xs text-muted">Experiment with pairs. Discoveries save separately from your pond.</p>
+            <p className="mt-2 text-xs text-muted">
+              {visibleDiscoveries.length} shown · Saved in this browser · Try combining a discovery with itself.
+            </p>
           </section>
 
           <div className="flex items-center gap-2">
