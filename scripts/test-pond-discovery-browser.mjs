@@ -119,8 +119,7 @@ async function run(viewport) {
     await page.mouse.down();
     await page.mouse.move(rect.x + rect.width * 0.35, rect.y + rect.height * 0.5, { steps: 8 });
     await page.mouse.up();
-    await page.getByRole("button", { name: "Pan world right" }).click();
-    await page.getByRole("button", { name: "Pan world right" }).click();
+    for (let n = 0; n < 6; n++) await page.getByRole("button", { name: "Pan world right" }).click();
     const afterPan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
     assert.notEqual(afterPan, beforePan, "drag-and-pan changes the world camera");
     await page.getByRole("button", { name: "Explore: on" }).click();
