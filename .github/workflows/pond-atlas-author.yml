@@ -1,0 +1,47 @@
+name: Pond atlas build and browser verification
+on:
+  pull_request:
+permissions:
+  contents: write
+jobs:
+  pond-atlas:
+    if: github.repository == 'Grantauch/the-desk' && github.event.pull_request.head.repo.full_name == 'Grantauch/the-desk' && github.head_ref == 'feat/pond-exploration-atlas'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out atlas development branch
+        uses: actions/checkout@v7
+        with:
+          ref: feat/pond-exploration-atlas
+          fetch-depth: 0
+      - name: Set up Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/pond/package-lock.json
+      - name: Install Pond dependencies
+        run: npm ci --prefix apps/pond --include=dev
+      - name: Test Pond and atlas modules
+        run: npm --prefix apps/pond test
+      - name: Build Pond and version public bundle
+        run: npm run pond:build
+      - name: Verify source and bundle consistency
+        run: npm run pond:test
+      - name: Install browser testing dependencies
+        run: npm ci --include=dev
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test atlas on mobile and desktop
+        run: node scripts/test-pond-discovery-browser.mjs
+      - name: Commit generated assets to atlas branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A public/hubs/pond
+          if git diff --cached --quiet; then
+            echo "Bundle already matches."
+          else
+            git commit -m "Build Pond exploration atlas bundle"
+            git push origin HEAD:feat/pond-exploration-atlas
+          fi
