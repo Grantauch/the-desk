@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { resolve, extname, sep } from "node:path";
 import { chromium } from "playwright";
 
-const root = fileURLToPath(new URL("../public/hubs/pond/", import.meta.url));
+const root = resolve(fileURLToPath(new URL("../public/hubs/pond/", import.meta.url)));
 const url = "http://127.0.0.1:4399/hubs/pond/";
 const out = fileURLToPath(new URL("../browser-results/pond-discovery/", import.meta.url));
 await mkdir(out, { recursive: true });
