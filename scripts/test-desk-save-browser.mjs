@@ -78,14 +78,19 @@ async function chromebook(server, options = {}) {
   // driving the tab-only and optional sign in paths that still exist behind it.
   const hooks = { endpoint: options.endpoint === false ? '' : ENDPOINT, debounceMs: 300, snapshotMs: 300, gate: false, ...(options.hooks || {}) };
   await context.addInitScript((h) => { window.__deskSaveTest = h; }, hooks);
-  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0, legacySignIn: false };
+  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0, legacySignIn: false, signInGate: null };
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url());
     if (url.origin === new URL(BASE).origin) return route.continue();
     if (url.hostname === 'turnin.test') {
       if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors() });
       const body = route.request().postData() || '{}';
-      net.calls.push(JSON.parse(body).action);
+      const { action } = JSON.parse(body);
+      net.calls.push(action);
+      if (action === 'signin' && net.signInGate) {
+        await net.signInGate;
+        return;
+      }
       if (net.delayMs) await new Promise((r) => setTimeout(r, Math.random() * net.delayMs));
       if (net.down) return route.abort('internetdisconnected');
       if (net.flaky && Math.random() < net.flaky) {
@@ -541,6 +546,65 @@ async function passGate(page, pin, { confirm = true } = {}) {
     await gate(page).getByRole('button', { name: 'Yes, that is me' }).click();
   }
 }
+
+await test('editing through a save outage respects backoff and saves only the newest draft on recovery', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  try {
+    const page = await cb.context.newPage();
+    await page.clock.install();
+    await openHub(cb.context, 'bts-the-bargain.html', page);
+    await passGate(page, s.pin(PEOPLE.ada));
+    const box = page.locator('#q1');
+    const saves = () => cb.net.calls.filter(action => action === 'save').length;
+    cb.net.down = true;
+    await box.fill('First attempt during the outage');
+    await page.clock.runFor(1000);
+    await waitFor(() => saves() === 1);
+    await waitFor(async () => /retrying/.test(await chip(page).locator('.chip').textContent()));
+
+    await box.fill('Latest edit during the outage');
+    await page.clock.runFor(2000);
+    assert.equal(saves(), 1, 'typing cannot override the outstanding retry delay');
+    assert.equal(await box.inputValue(), 'Latest edit during the outage');
+
+    cb.net.down = false;
+    await page.clock.fastForward(22000);
+    await waitFor(() => s.rows('Progress').some(row => /Latest edit during the outage/.test(row.Answers)));
+    assert.equal(saves(), 2, 'only one retry sends the latest work');
+    assert.equal(s.rows('Drafts').length, 1);
+  } finally {
+    await cb.context.close();
+  }
+});
+
+await test('a slow sign-in has one request and can be tried again after its timeout', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  let release;
+  cb.net.signInGate = new Promise(resolve => { release = resolve; });
+  try {
+    const page = await cb.context.newPage();
+    await page.clock.install();
+    await openHub(cb.context, 'bts-the-bargain.html', page);
+    const pin = s.pin(PEOPLE.ada);
+    await gate(page).locator('input[type="password"]').fill(pin);
+    await gate(page).getByRole('button', { name: 'Start', exact: true }).click();
+    await waitFor(() => cb.net.calls.includes('signin'));
+    await page.clock.runFor(35000);
+    await waitFor(async () => /TI-TIMEOUT/.test(await gate(page).locator('.status').textContent()));
+    assert.deepEqual(cb.net.calls, ['signin'], 'one click must not start another execution after an abort');
+    assert.equal(await gateOpen(page), true);
+
+    cb.net.signInGate = null;
+    await passGate(page, pin);
+    assert.equal(await gateOpen(page), false);
+    assert.deepEqual(cb.net.calls, ['signin', 'signin']);
+  } finally {
+    release();
+    await cb.context.close();
+  }
+});
 
 await test('Roswell Signal keeps practice tab-local and saves all seven report answers to the verified account', async () => {
   const s = world();

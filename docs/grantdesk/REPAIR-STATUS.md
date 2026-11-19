@@ -4,6 +4,12 @@ Owner Codex, PR #421 / tracker P421, first release batch for #422. The centraliz
 
 Rendered review reproduced the legacy theme CSS overriding all five subject palettes, including pale Blitzkrieg text on the cream newspaper background. Subject selectors now win over the legacy rules, including title styling; a computed-style regression failed before correction. Focused Chromium passes at 320, 390, 1366 and 1920 pixels: category membership, all 77 story cards, credited cover, fieldwork keyboard controls, page-finder navigation, assignment PIN gate, no-JavaScript routes, viewport fit and zero automated WCAG A/AA violations on all three catalog pages. Full `npm run verify` exited 0: zero diagnostic errors or warnings, 55 routes, 186 HTML files, 6,006 local references, 37 sealed releases and 360 sealed files. Exact-head protected CI, normal merge and verified Netlify production remain separate pending gates. No assignment HTML, PIN or Save/Turn In code changes. The broader scene and artwork overhaul in #422 remains open; physical classroom acceptance is separate.
 
+## November 19 Turn In timeout investigation
+
+The afternoon incident showed a burst of completed web-app executions taking tens of seconds to over four minutes. The service recovered before a live synthetic probe, and saves resumed. The execution list did not identify the operation that started the stall.
+
+Synthetic reproduction showed 350 roster workbook opens across 105 sign-in, save and submission requests. The server patch reduces those opens to 105 and adds private phase timings for slow requests. The website patch staggers autosave, preserves retry spacing through edits and uses one bounded request when sign-in times out. Production publication and classroom acceptance are tracked independently. The Apps Script rollout follows the existing production approval gate.
+
 ## November 19 assignment sign-in diagnostics
 
 The shared assignment client displays an opaque support code for a server-rejected sign-in and separate codes for browser-side failures. The matching private Apps Script log records the assignment, version, stage, and failure reason without credentials or student work. The editor health function checks actual dependencies without using the roster cache or writing to Sheets. Source verification uses synthetic accounts. Protected CI, the website release, the existing Apps Script deployment, and classroom sign-in are separate checks.

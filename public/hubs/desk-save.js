@@ -58,6 +58,7 @@
     : 'after a short pause, or about every 30 seconds while you keep typing';
   var SNAPSHOT_MS = 4000;
   var REQUEST_TIMEOUT_MS = 15000;
+  var SIGNIN_TIMEOUT_MS = 2 * REQUEST_TIMEOUT_MS;
 
   var testHooks = window.__deskSaveTest || null;
   if (testHooks) {
@@ -392,8 +393,8 @@
           error.name = 'DeskSaveResponseError';
           throw error;
         }
-        return response.json().catch(function () {
-          var error = new Error('Expected a JSON response from Turn In.');
+        return response.json().catch(function (error) {
+          if (error.name !== 'SyntaxError') throw error;
           error.name = 'DeskSaveResponseError';
           throw error;
         }).finally(function () { clearTimeout(timer); });
@@ -407,7 +408,11 @@
         if (result && (result.code === 'server' || result.code === 'busy') && n < attempts) return wait(n).then(function () { return attempt(n + 1); });
         return result;
       }, function (error) {
-        if (n < attempts) return wait(n).then(function () { return attempt(n + 1); });
+        // Aborting the browser request can leave Apps Script running. Keep one
+        // sign-in execution per press when the service is slow.
+        if (n < attempts && !(body.action === 'signin' && error && error.name === 'AbortError')) {
+          return wait(n).then(function () { return attempt(n + 1); });
+        }
         throw error;
       });
     }
@@ -426,17 +431,21 @@
   var cloudPromise = null;
   var finishing = false;
   var cloudRetry = 0;
+  var cloudRetryAt = 0;
+  var cloudStaggerMs = Math.floor(Math.random() * Math.min(4000, CLOUD_DEBOUNCE_MS / 4));
 
   function scheduleCloud() {
     if (!cloudOn || !state.token || applying || transitioning || finishing || state.conflict) return;
     var now = Date.now();
     if (!cloudFirstPending) cloudFirstPending = now;
+    if (cloudBusy) return;
     clearTimeout(cloudTimer);
-    var delay = Math.max(0, Math.min(CLOUD_DEBOUNCE_MS, cloudFirstPending + CLOUD_MAX_WAIT_MS - now));
+    var delay = Math.max(0, cloudRetryAt - now,
+      Math.min(CLOUD_DEBOUNCE_MS, cloudFirstPending + CLOUD_MAX_WAIT_MS - now) + cloudStaggerMs);
     cloudTimer = setTimeout(saveCloud, delay);
   }
 
-  function saveCloud() {
+  function saveCloud(retryNow) {
     clearTimeout(cloudTimer);
     if (!cloudOn || !state.token || transitioning || finishing || state.conflict) return Promise.resolve(false);
     var list = answers(false);
@@ -444,7 +453,8 @@
     var position = state.position, positionHash = JSON.stringify(position);
     if (hash === state.cloudHash && positionHash === state.cloudPositionHash) { cloudFirstPending = 0; return Promise.resolve(true); }
     if (!answeredCount(list) && !state.everSaved) { state.cloudHash = hash; state.cloudPositionHash = positionHash; return Promise.resolve(true); }
-    if (cloudBusy) return cloudPromise.then(function () { return saveCloud(); });
+    if (cloudBusy) return cloudPromise.then(function (saved) { return saved ? saveCloud(retryNow) : false; });
+    if (retryNow !== true && Date.now() < cloudRetryAt) { scheduleCloud(); return Promise.resolve(false); }
     cloudBusy = true;
     var started = generation, owner = state;
     cloudPromise = post({ writeProtocol: 1, baseRevision: state.remoteAt, action: 'save', token: state.token, hub: hub, course: course, classPeriod: state.classPeriod, title: document.title, page: location.pathname, answers: list, position: position }).then(function (result) {
@@ -463,6 +473,7 @@
         state.remoteAt = result.revision || result.savedAt;
         cloudFirstPending = 0;
         cloudRetry = 0;
+        cloudRetryAt = 0;
         persist();
         ui.refresh();
         if (pendingCloud()) scheduleCloud();
@@ -482,8 +493,9 @@
       cloudBusy = false;
       if (started !== generation || state !== owner) return false;
       cloudRetry = Math.min(cloudRetry + 1, 4);
+      cloudRetryAt = Date.now() + 15000 * cloudRetry + Math.floor(Math.random() * 5000);
       clearTimeout(cloudTimer);
-      cloudTimer = setTimeout(saveCloud, 15000 * cloudRetry);
+      cloudTimer = setTimeout(saveCloud, cloudRetryAt - Date.now());
       ui.refresh();
       return false;
     });
@@ -737,6 +749,7 @@
   function resetPage() {
     heldPin = '';
     generation++; clearTimeout(cloudTimer); cloudFirstPending = 0;
+    cloudRetry = 0; cloudRetryAt = 0;
     applying = true;
     fields().forEach(function (el) { setValue(el, el.defaultValue); });
     resetRadios();
@@ -770,7 +783,7 @@
     var beforeOwner = state;
     var responseReceived = false;
     return Promise.resolve(cloudPromise).then(function () {
-      return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2 });
+      return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2, timeoutMs: SIGNIN_TIMEOUT_MS });
     }).then(function (result) {
       responseReceived = true;
       if (!result || typeof result.ok !== 'boolean') {
@@ -797,6 +810,7 @@
         return { ok: false, message: 'The account copy contains answers this version of the page cannot display. Your work was kept. Ask your teacher to recover the full version before saving.' };
       }
       generation++;
+      cloudFirstPending = 0; cloudRetry = 0; cloudRetryAt = 0;
       state.undoValues = differentStudent ? null : snapshot();
       applying = true;
       if (switching) {
@@ -1393,7 +1407,7 @@
       resumePin.addEventListener('keydown', function (e) { if (e.key === 'Enter') resumeSign.click(); });
       resumeNow.addEventListener('click', function () {
         busy(resumeNow, true, 'Saving…');
-        saveCloud().then(function (ok) {
+        saveCloud(true).then(function (ok) {
           busy(resumeNow, false, 'Save now');
           var current = ok && state.token && state.cloudAt && hashOf(answers(false)) === state.cloudHash;
           setStatus(resumeStatus, current ? 'Account save confirmed. Check the name and time above.' : 'Latest account save not confirmed. Keep this tab open; saving will retry.', current);
@@ -1923,7 +1937,7 @@
     window.addEventListener('blur', function () { setTimeout(function () { var a = document.activeElement; if ((a && a.tagName === 'IFRAME') || document.hasFocus()) return; tlAway(); }, 0); });
     window.addEventListener('focus', tlBack);
     window.addEventListener('pagehide', function () { tlFlushAll(); tlSave(true); beaconSave(); });
-    window.addEventListener('online', function () { if (state.token) saveCloud(); });
+    window.addEventListener('online', function () { if (state.token) saveCloud(true); });
     window.addEventListener('beforeunload', function (e) {
       if (!hasWork()) return;
       var hash = hashOf(answers(true));

@@ -1,5 +1,13 @@
 # Update the existing Turn In service
 
+## v15 classroom traffic recovery
+
+Sign-in, save and Turn In reuse the roster within a single request. The existing roster cache, PIN rules and write lock stay in place across requests. Slow requests (10 seconds or longer) write a `turn_in_slow_request` event in private execution logs with the action, total time, roster time, draft lookup time and lock wait. The event contains no student data. Use it to distinguish roster reads and write-lock contention from delay elsewhere in a request.
+
+The website update works with the existing Apps Script deployment. It staggers automatic saves, preserves the retry delay while students continue typing, and lets a slow sign-in finish within one 30-second request before the student retries.
+
+Release v15 through the guarded Turn In workflow, using the existing deployment. No sheet migration or setup is required. Confirm `2026-11-19-turn-in-v15` and `checkedWritesRequired: true` on the existing `/exec`. Run the private dependency check and verify the synthetic classroom write count before claiming server rollout.
+
 ## v14 assignment sign-in diagnostics
 
 This release pairs the shared `desk-save.js` client with Turn In v14 on the existing deployment. The student keeps the existing sign-in message and can report a support code. In the private Apps Script Executions dashboard, open the `doPost` execution near the reported time and match its `turn_in_signin_failed` log entry by support code. The log supplies the assignment, version, stage, and reason without logging PINs, names, emails, answers, or raw exception text. Browser-only codes identify a timeout, network failure, unexpected response, or local loading failure. With an earlier Turn In deployment, the new website shows category codes such as `TI-PIN` and `TI-SETUP`. Request-level log correlation requires v14.

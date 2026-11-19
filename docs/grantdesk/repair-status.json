@@ -13,6 +13,11 @@
       "No underlying hub HTML, PIN verification, assignment saving, Turn In, roster or private endpoint is changed. The wider scene and artwork overhaul in #422 remains open."
     ]
   },
+  "turn-in-classroom-timeouts-2026-11-19": {
+    "scope": "Reduce repeated roster reads, pace automatic retries during slowdowns, and record private request timings.",
+    "verification_status": "SYNTHETIC_CLASS_AND_TIMEOUT_REGRESSIONS",
+    "deployment_status": "PENDING_WEBSITE_AND_GUARDED_TURN_IN_V15"
+  },
   "turn-in-signin-diagnostics-2026-11-19": {
     "scope": "Reportable assignment sign-in support codes, private redacted failure logs, and an editor-only dependency check.",
     "verification_status": "FOCUSED_SYNTHETIC_RUNTIME_CHECKS_PASSED_PROTECTED_CI_PENDING",
