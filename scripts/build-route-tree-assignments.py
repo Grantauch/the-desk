@@ -53,7 +53,7 @@ PROMPTS = {
   ('Draw your next step in words.','Choose a realistic goal of your own and one player as a comparison. Describe an obstacle, a door that could help, and what you would do after a setback. Connect your plan to two real facts from the player’s story.','Use four moves: my goal; the obstacle; the door and who might open it; my next step if I get cut. Explain the historical connection instead of only saying “never give up.”')],
  'B':[
   ('Defend an explanation.','Which better explains unexpected NFL entry: individual preparation, institutional opportunity, or contingency? Make a claim using two of your five players, include two dated or numerical facts, and address a plausible counterargument.',''),
-  ('Audit the visual evidence.','Compare Lane’s original photograph and ink interpretation with Warner’s reconstructed night shift. Explain what each visual can establish and what needs written evidence. Use two specific dated details and explain why a convincing image is not automatically proof.',''),
+  ('Audit the visual evidence.','Compare Lane’s dated 1953 press photograph with Warner’s 2007 portrait. Explain what each can establish and why neither photograph documents the earlier career turning point. Use two specific dated details and explain why a convincing image is not automatically proof.',''),
   ('Challenge the sample.','Do these exceptional careers show that NFL opportunity is fair? Use the odds panel and two of your cases to make an argument. Acknowledge a limit of this five-player sample, then propose one concrete improvement to how teams discover or develop talent.','')]
 }
 
