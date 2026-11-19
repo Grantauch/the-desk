@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PondCanvas } from "@/components/pond/pond-canvas";
 import { DiscoveryGlyph } from "@/components/pond/discovery-glyph";
+import { PondEcosystem, MAX_RESIDENTS, type ResidentSave } from "@/lib/pond/ecosystem";
 import {
   STARTERS, OUTCOME_SPACE, MAX_DISCOVERIES, DISCOVERY_STORAGE_KEY,
   combine, getOutcome, paintMaterial, restoreDiscoveries,
@@ -29,7 +30,7 @@ import {
 } from "@/lib/pond/elements";
 import { PondSim, SCENES, loadScene, type SceneId } from "@/lib/pond/sim";
 import { cn } from "@/lib/utils";
-import { decodeWorld, encodeWorld, MAX_SAVE_BYTES, WORLD_KEY } from "@/lib/pond/save";
+import { decodePondFile, encodeWorld, MAX_SAVE_BYTES, WORLD_KEY } from "@/lib/pond/save";
 
 const BRUSHES = [1, 2, 4, 7, 11];
 
@@ -39,7 +40,8 @@ export function PondApp() {
     loadScene(s, "garden");
     return s;
   }, []);
-  const undoRef = useRef<Uint8Array[]>([]);
+  const ecosystem = useMemo(() => new PondEcosystem(), []);
+  const undoRef = useRef<Array<{ world: Uint8Array; residents: ResidentSave[] }>>([]);
   const [canUndo, setCanUndo] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,8 @@ export function PondApp() {
   const [started, setStarted] = useState(false);
   const [tool, setTool] = useState<ToolId>(E.SAND);
   const [brush, setBrush] = useState(4);
+  const [specimenId, setSpecimenId] = useState<string | null>(null);
+  const [residentCount, setResidentCount] = useState(0);
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(true);
   const [guide, setGuide] = useState(false);
@@ -65,20 +69,22 @@ export function PondApp() {
   startedRef.current = started;
 
   const checkpoint = useCallback(() => {
-    undoRef.current = [...undoRef.current.slice(-19), sim.snapshot()];
+    undoRef.current = [...undoRef.current.slice(-19), { world: sim.snapshot(), residents: ecosystem.snapshot() }];
     setCanUndo(true);
     setScene("custom");
-  }, [sim]);
+  }, [sim, ecosystem]);
 
   const undo = useCallback(() => {
     const previous = undoRef.current.pop();
     if (!previous) return;
-    sim.restore(previous);
+    sim.restore(previous.world);
+    ecosystem.restore(previous.residents, sim);
+    setResidentCount(ecosystem.count);
     setScene("custom");
     setCanUndo(undoRef.current.length > 0);
     setPaused(true);
     setToast("Undone. Paused so you can inspect it.");
-  }, [sim]);
+  }, [sim, ecosystem]);
 
   useEffect(() => {
     try {
@@ -95,7 +101,10 @@ export function PondApp() {
       setDiscoveryLoaded(true);
       const saved = localStorage.getItem(WORLD_KEY);
       if (saved) {
-        sim.restore(decodeWorld(saved, sim));
+        const restored = decodePondFile(saved, sim);
+        sim.restore(restored.particles);
+        ecosystem.restore(restored.residents, sim);
+        setResidentCount(ecosystem.count);
         setScene("custom");
         setPaused(true);
         setSaveMessage("Your saved world is ready. Press Play when you want it to move.");
@@ -105,7 +114,7 @@ export function PondApp() {
     }
     const save = () => {
       if (!startedRef.current) return;
-      try { localStorage.setItem(WORLD_KEY, encodeWorld(sim)); }
+      try { localStorage.setItem(WORLD_KEY, encodeWorld(sim, ecosystem.snapshot())); }
       catch { setSaveMessage("Browser saving is unavailable. Use Export world to keep this dish."); }
     };
     const hide = () => { if (document.hidden) save(); };
@@ -118,7 +127,7 @@ export function PondApp() {
       window.removeEventListener("pagehide", save);
       document.removeEventListener("visibilitychange", hide);
     };
-  }, [sim]);
+  }, [sim, ecosystem]);
 
   useEffect(() => {
     if (!discoveryLoaded) return;
@@ -201,7 +210,7 @@ export function PondApp() {
         Digit0: ERASER,
       };
       const next = map[e.code];
-      if (next !== undefined) setTool(next);
+      if (next !== undefined) { setTool(next); setSpecimenId(null); }
       if (e.code === "BracketLeft") setBrush((b) => BRUSHES[Math.max(0, BRUSHES.indexOf(b) - 1)] ?? 1);
       if (e.code === "BracketRight")
         setBrush((b) => BRUSHES[Math.min(BRUSHES.length - 1, BRUSHES.indexOf(b) + 1)] ?? 11);
@@ -213,6 +222,7 @@ export function PondApp() {
   const onStats = useCallback(
     (g: number) => {
       setGrains(g);
+      setResidentCount(ecosystem.count);
       if (!startedRef.current) return;
       const r = sim.lastReaction;
       if (r && !seen.current.has(r)) {
@@ -226,7 +236,7 @@ export function PondApp() {
         }
       }
     },
-    [sim],
+    [sim, ecosystem],
   );
 
   const begin = () => {
@@ -237,6 +247,8 @@ export function PondApp() {
   const stamp = (id: SceneId) => {
     checkpoint();
     loadScene(sim, id);
+    ecosystem.clear();
+    setResidentCount(0);
     setScene(id);
     setPaused(false);
   };
@@ -251,12 +263,14 @@ export function PondApp() {
   const clear = () => {
     checkpoint();
     sim.clearInterior();
+    ecosystem.clear();
+    setResidentCount(0);
     setScene("blank");
     setToast("Dish cleared. Undo brings it back.");
   };
 
   const exportWorld = () => {
-    const url = URL.createObjectURL(new Blob([encodeWorld(sim)], {type: "application/json"}));
+    const url = URL.createObjectURL(new Blob([encodeWorld(sim, ecosystem.snapshot())], {type: "application/json"}));
     const link = document.createElement("a");
     link.href = url;
     link.download = "pond-world.json";
@@ -269,14 +283,30 @@ export function PondApp() {
     if (!file) return;
     try {
       if (file.size > MAX_SAVE_BYTES) throw new Error("That save is too large.");
-      const bytes = decodeWorld(await file.text(), sim);
+      const restored = decodePondFile(await file.text(), sim);
       checkpoint();
-      sim.restore(bytes);
+      sim.restore(restored.particles);
+      ecosystem.restore(restored.residents, sim);
+      setResidentCount(ecosystem.count);
+      setSpecimenId(null);
       setPaused(true);
       setSaveMessage("World imported and paused. Press Play to continue.");
     } catch {
       setSaveMessage("That file isn't a valid Pond world. Your current dish is still here.");
     } finally { if (fileRef.current) fileRef.current.value = ""; }
+  };
+
+  const placeSpecimen = (id: string, x: number, y: number) => {
+    if (ecosystem.count >= MAX_RESIDENTS) {
+      setToast("The pond is full. Clear or undo to make more room.");
+      return;
+    }
+    if (!sim.inBounds(x, y) || !sim.inDish(x, y) || sim.locked[sim.idx(x, y)]) return;
+    checkpoint();
+    if (ecosystem.add(id, x, y, sim)) {
+      setResidentCount(ecosystem.count);
+      setToast((getOutcome(id)?.name ?? "Discovery") + " is now in the pond!");
+    }
   };
 
   const chooseMix = (id: string) => {
@@ -326,7 +356,7 @@ export function PondApp() {
         <div className="min-w-0">
           <h1 className="font-display text-xl font-medium tracking-tight leading-tight sm:text-2xl">Pond</h1>
           <a href="/games/" className="text-muted text-xs underline">← the desk</a>
-          <p className="text-muted text-sm tabular-nums">{grains.toLocaleString()} grains</p>
+          <p className="text-muted text-sm tabular-nums">{grains.toLocaleString()} grains · {residentCount} living creations</p>
         </div>
         <div className="flex items-center gap-1.5">
           <Button
@@ -400,6 +430,9 @@ export function PondApp() {
           <div className="absolute inset-2 overflow-hidden rounded-full bg-dish-well">
             <PondCanvas
               sim={sim}
+              ecosystem={ecosystem}
+              specimenId={specimenId}
+              onSpecimenPlace={placeSpecimen}
               tool={tool}
               brush={brush}
               running={started}
@@ -446,7 +479,7 @@ export function PondApp() {
                     title={item.blurb}
                     aria-label={item.name}
                     aria-pressed={on}
-                    onClick={() => setTool(item.id)}
+                    onClick={() => { setTool(item.id); setSpecimenId(null); }}
                     className={cn(
                       "flex h-11 flex-col items-center justify-center gap-1 rounded-md transition-[background-color,box-shadow,transform] duration-150",
                       on ? "bg-surface-2 shadow-[0_0_0_1px_var(--color-border-strong)]" : "hover:bg-surface-2/60",
@@ -486,13 +519,24 @@ export function PondApp() {
                   onClick={() => {
                     const material = paintMaterial(featured);
                     setTool(material);
+                    setSpecimenId(null);
                     setLastMix("Brush selected: " + toolById(material).name + ". This is the closest existing physics material; your discovery's identity stays in the lab.");
                   }}
                   className="min-h-10 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-accent-fg"
                 >
                   Paint using {toolById(paintMaterial(featured)).name}
                 </button>
-                <p className="text-xs text-muted">Visual discoveries use existing pond physics materials.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSpecimenId(featured.id);
+                    setLastMix("Place " + featured.name + ": tap or press Enter on the pond to add a living specimen. Each creation moves and affects its surroundings.");
+                  }}
+                  className="min-h-10 rounded-lg border border-border-strong bg-surface-2 px-3 py-2 text-sm text-fg"
+                >
+                  Place in pond
+                </button>
+                <p className="text-xs text-muted">Specimens have behavior based on form, habitat, and energy.</p>
               </div>
             ) : null}
             <div className="mb-2 flex items-center gap-2">
@@ -533,6 +577,13 @@ export function PondApp() {
               {visibleDiscoveries.length} shown · Saved in this browser · Try combining a discovery with itself.
             </p>
           </section>
+
+          {specimenId ? (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border-strong bg-surface-2 px-3 py-2 text-sm">
+              <span>Placing: <strong>{getOutcome(specimenId)?.name}</strong> · {residentCount}/{MAX_RESIDENTS} inhabitants</span>
+              <Button size="sm" variant="quiet" onClick={() => setSpecimenId(null)}>Done placing</Button>
+            </div>
+          ) : null}
 
           <div className="flex items-center gap-2">
             <div className="flex h-11 flex-1 items-center gap-1 rounded-md bg-surface px-2 shadow-[0_0_0_1px_var(--color-border)]">
