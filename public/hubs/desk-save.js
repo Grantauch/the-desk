@@ -750,7 +750,15 @@
   /* ------------------------------------------------------------ actions -- */
 
   function signInFailure(message, code, supportId) {
-    var reference = /^TI-(?:[A-F0-9]{16}|TIMEOUT|NETWORK|RESPONSE|CLIENT)$/.test(supportId || '') ? supportId : '';
+    var legacyCodes = {
+      bad_pin: 'TI-PIN',
+      slow_down: 'TI-THROTTLE',
+      not_ready: 'TI-SETUP',
+      server: 'TI-SERVER'
+    };
+    var reference = /^TI-(?:[A-F0-9]{16}|TIMEOUT|NETWORK|RESPONSE|CLIENT)$/.test(supportId || '')
+      ? supportId
+      : Object.hasOwn(legacyCodes, code) ? legacyCodes[code] : '';
     return { ok: false, code: code, message: reference ? message + ' Support code: ' + reference : message };
   }
 
