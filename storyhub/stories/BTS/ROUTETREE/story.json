@@ -340,5 +340,12 @@
         "I07"
       ]
     }
-  ]
+  ],
+  "editionRoutes": {
+    "chooser": "/hubs/bts-the-route-tree.html",
+    "A": "/hubs/bts-route-tree-a.html",
+    "B": "/hubs/bts-route-tree-b.html",
+    "preservedFullEdition": "/hubs/bts-route-tree-full-reference.html"
+  },
+  "chaptersDescribe": "The preserved full edition; A/B manifests partition the cases with matched workload and different reasoning demand."
 }
