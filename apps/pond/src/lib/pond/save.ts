@@ -1,25 +1,60 @@
 import type { PondSim } from "./sim.ts";
+import { validateResidents, type ResidentSave } from "./ecosystem.ts";
 
 export const WORLD_KEY = "grantdesk-pond-world-v1";
 export const MAX_SAVE_BYTES = 200_000;
 
-export function encodeWorld(sim: PondSim) {
+/**
+ * V2 adds optional resident specimens alongside the unchanged V1 particle
+ * snapshot. Both legacy exports and previously autosaved V1 worlds still load.
+ */
+export function encodeWorld(sim: PondSim, residents: readonly ResidentSave[] = []) {
+  const verified = validateResidents(residents, sim);
   const bytes = sim.snapshot();
   let binary = "";
   for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
-  return JSON.stringify({ app: "pond", version: 1, width: sim.w, height: sim.h, data: btoa(binary) });
+  const output = JSON.stringify({
+    app: "pond", version: 2, width: sim.w, height: sim.h,
+    data: btoa(binary), residents: verified,
+  });
+  if (output.length > MAX_SAVE_BYTES) throw new Error("Pond save is too large.");
+  return output;
 }
 
-export function decodeWorld(text: string, sim: PondSim): Uint8Array {
+type SaveEnvelope = {
+  app: "pond";
+  version: 1 | 2;
+  width: number;
+  height: number;
+  data: string;
+  residents?: unknown;
+};
+
+function envelope(text: string, sim: PondSim): SaveEnvelope {
   if (text.length > MAX_SAVE_BYTES) throw new Error("That save is too large.");
-  const value = JSON.parse(text);
-  if (!value || value.app !== "pond" || value.version !== 1 || value.width !== sim.w || value.height !== sim.h || typeof value.data !== "string") {
+  const value: unknown = JSON.parse(text);
+  if (!value || typeof value !== "object") throw new Error("Invalid pond save.");
+  const world = value as Record<string, unknown>;
+  if (world.app !== "pond" || (world.version !== 1 && world.version !== 2) ||
+    world.width !== sim.w || world.height !== sim.h || typeof world.data !== "string") {
     throw new Error("Choose a Pond save for this dish size.");
   }
+  return world as SaveEnvelope;
+}
+
+/** Validate both layers before mutating either: imported worlds are atomic. */
+export function decodePondFile(text: string, sim: PondSim): { particles: Uint8Array; residents: ResidentSave[] } {
+  const value = envelope(text, sim);
   const binary = atob(value.data);
-  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  validateSnapshot(bytes, sim.w * sim.h);
-  return bytes;
+  const particles = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  validateSnapshot(particles, sim.w * sim.h);
+  const residents = value.version === 2 ? validateResidents(value.residents, sim) : [];
+  return { particles, residents };
+}
+
+/** Backwards compatible particle-only API for existing tools and tests. */
+export function decodeWorld(text: string, sim: PondSim): Uint8Array {
+  return decodePondFile(text, sim).particles;
 }
 
 export function validateSnapshot(bytes: Uint8Array, cells: number) {
