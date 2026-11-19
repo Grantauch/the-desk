@@ -617,8 +617,8 @@
     },
     {
       "path": "/hubs/bts-route-tree-full-reference.html",
-      "bytes": 146363,
-      "sha256": "47885e529ab39bb069b22de8f81af96475deb87b4d6f9ca8e706048403e89585"
+      "bytes": 146377,
+      "sha256": "252a06895b16e5f4cca3239f86cfd2468041db8ada0ba6ae2a2748a3f2c3b043"
     },
     {
       "path": "/hubs/bts-route-tree-b.html",
@@ -626,8 +626,8 @@
       "sha256": "861828e1571460bf8503e2b414ed98bc357e106493d03eb88abfe36ecb4aec0f"
     }
   ],
-  "totalBytes": 10814203,
-  "sealedAt": "2026-11-18",
+  "totalBytes": 10814217,
+  "sealedAt": "2026-11-19",
   "assignmentRoutes": [
     "/hubs/bts-route-tree-a.html",
     "/hubs/bts-route-tree-b.html"

@@ -1,4 +1,19 @@
 {
+  "route-tree-alternative-assignment-publication-2026-11-19": {
+    "status": "LOCAL_FULL_AND_FOCUSED_VERIFIED",
+    "owner": "Codex",
+    "scope": "PR #415 / tracker P415: publish balanced Route Tree A/B alternatives while preserving the full assignment and existing saved work.",
+    "verification_status": "CANONICAL_FULL_GATE_AND_FOCUSED_CHROMIUM_PASS_EXACT_HEAD_PROTECTED_CI_PENDING",
+    "deployment_status": "NORMAL_PROTECTED_MERGE_AND_EXACT_PRODUCTION_VERIFICATION_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "A and B each contain five NFL cases, one other-sport connection, five evidence checks and three 90-110 word responses. A scaffolds comparison; B increases independent reasoning.",
+      "Chromium at 320, 390 and 1440 pixels verifies ordinary/reduced motion, keyboard image comparisons, disclosures, WCAG A/AA, viewport fit and separate tab drafts.",
+      "Synthetic accounts using the real Turn In code verify all six A/B responses, refresh, cross-device account restoration, two complete submissions and next-student isolation at every width. The preserved edition recovers all five original responses under bts-the-route-tree.",
+      "A failing no-JavaScript regression reproduced 109 hidden narrative elements in the preserved edition. Restoring its original no-js class in the page and authoring tool makes every narrative element visible. The release manifest was resealed.",
+      "Full canonical npm run verify exited 0 on the integrated source: 55 built routes, 186 HTML files and 5,997 local references. The focused browser server uses the native path separator for Windows/Linux parity. Earlier protected workflows 44339915158 and 44339915241 passed head 500c757; these release fixes require fresh exact-head checks."
+    ]
+  },
   "reconstruction-student-publication-2026-11-17": {
     "status": "IMPLEMENTED",
     "owner": "Codex",

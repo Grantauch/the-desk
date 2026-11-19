@@ -204,7 +204,7 @@ ENTRY.write_text(document('The Route Tree — Choose Assignment A or B','Two bal
 
 # Preserve the original field definitions and script markup without serializing JS.
 archive=REFERENCE.read_text()
-archive=re.sub(r'<body(?:\s[^>]*)?>','<body data-desk-assignment="bts-the-route-tree">',archive,count=1)
+archive=re.sub(r'<body(?:\s[^>]*)?>','<body class="no-js" data-desk-assignment="bts-the-route-tree">',archive,count=1)
 archive=re.sub(r'<title>.*?</title>','<title>The Route Tree — Preserved Full Assignment | Beyond the Scoreboard</title>',archive,count=1)
 archive=archive.replace('https://grant-desk.com/hubs/bts-the-route-tree.html','https://grant-desk.com/hubs/bts-route-tree-full-reference.html')
 if 'id="preserved-edition-note"' not in archive:

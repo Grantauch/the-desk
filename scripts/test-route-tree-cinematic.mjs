@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { extname, resolve } from 'node:path';
+import { extname, resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 const output = resolve('browser-results/route-tree');
@@ -13,7 +13,7 @@ const server = createServer(async (req, res) => {
   try {
     const path = new URL(req.url, 'http://test').pathname;
     const file = resolve('public', '.' + path);
-    assert.ok(file.startsWith(resolve('public') + '/'));
+    assert.ok(file.startsWith(resolve('public') + sep));
     const data = path === '/__baseline.html' ? baseline : await readFile(file);
     res.setHeader('Content-Type', types[extname(path)] || 'application/octet-stream'); res.end(data);
   } catch { res.writeHead(404).end(); }
@@ -212,6 +212,7 @@ try {
   const page = await context.newPage();
   await context.route('**/*', r => new URL(r.request().url()).origin === origin ? r.continue() : r.abort());
   await page.goto(origin + '/hubs/bts-route-tree-full-reference.html');
+  assert.ok(await page.locator('.rv').evaluateAll(nodes => nodes.length > 0 && nodes.every(el => getComputedStyle(el).opacity === '1')), 'Preserved narrative stays visible without JavaScript');
   assert.equal(await page.locator('.source-note summary').count(), 2);
   assert.equal(await page.locator('#cast li:not([hidden])').count(), 10);
   await page.locator('.source-note summary').first().click();
