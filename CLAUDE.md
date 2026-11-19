@@ -15,7 +15,8 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - `src/data/learningHubs.ts` — the interactive units behind `/learn/<course>/<unit>/`. Each unit carries a stable `slug` and a display `period`
 - `src/data/unit-materials.json` — which catalog resources are attached to which unit. Keyed by the unit's display name, so renaming a unit on a course page means renaming its key here in the same commit
 - `src/data/resources.json` — the public resource catalog, generated from an ignored private inventory
-- `src/pages/simulations.astro` — sims array. Each entry can have `details` sections
+- `src/data/interactiveExperiences.ts` — single card catalog for Games and Simulations. Every entry declares a primary `section`: `game`, `simulation`, `investigation` or `practice`. Do not put interactive simulation cards back in Games.
+- `src/pages/simulations.astro` — interactive simulations and investigations come from the shared catalog; `sims` holds teacher-led classroom fieldwork (debates, seminars and projects), not software simulations.
 - `src/pages/sitemap.xml.ts` — manual path list. Add new pages here too
 - `src/pages/rss.xml.ts` — announcements feed, builds itself
 - `src/components/Nav.astro` — nav links array (update when adding pages)
@@ -65,7 +66,7 @@ StoryHub is a quality standard and production system, not a visible template. Ea
 - **Change current unit**: set `currentUnit` in `src/data/classroom-state.ts` to an existing course unit; current calendar titles derive from that same value
 - **Rename a unit**: change `name` on the class page and the matching key in `src/data/unit-materials.json` together, and leave `hubSlug` alone. `npm run site:validate` checks the pairs that have already been renamed
 - **Attach slides or packets to a unit**: add a `materials: [{ label, href }]` array to that unit in the class page. Drive links must be shared as anyone with the link, viewer
-- **Add a lessonhub or game**: drop the HTML file in `public/hubs/` and add an entry to the `hubs` array in `src/pages/games.astro`. If it has any answer boxes, add `<script src="/hubs/desk-save.js" defer></script>` before `</body>`; `npm run turn-in:test` fails without it. Put `data-desk-skip` on inputs that are not answers, and `<div data-desk-turnin></div>` where the Turn In panel should sit if the end of the page is wrong
+- **Add a lessonhub, game or simulation**: drop the HTML file in `public/hubs/` and add an entry with the correct primary `section` to `src/data/interactiveExperiences.ts`. The Games and Simulations pages share this catalog; don't hand-wire cards into either page. If it has any answer boxes, add `<script src="/hubs/desk-save.js" defer></script>` before `</body>`; `npm run turn-in:test` fails without it. Put `data-desk-skip` on inputs that are not answers, and `<div data-desk-turnin></div>` where the Turn In panel should sit if the end of the page is wrong
 - **Start a StoryHub**: run `npm run storyhub:new -- COURSE LESSON "Title"`, author Story DNA and narrative manifests, then build only after the manifests describe a distinct identity and asset plan.
 
 ## Verification
