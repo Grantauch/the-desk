@@ -1,16 +1,14 @@
 name: Pond branch author build
 
 on:
-  push:
-    branches:
-      - feat/pond-discovery-workbench
+  pull_request:
 
 permissions:
   contents: write
 
 jobs:
   build-pond:
-    if: github.repository == 'Grantauch/the-desk'
+    if: github.repository == 'Grantauch/the-desk' && github.event.pull_request.head.repo.full_name == 'Grantauch/the-desk' && github.head_ref == 'feat/pond-discovery-workbench'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
