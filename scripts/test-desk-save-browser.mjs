@@ -901,7 +901,12 @@ await test('the gate covers an answer page until a PIN is entered, confirms the 
 
   const wrong = s.pin(PEOPLE.ada) === '123456' ? '654321' : '123456';
   await passGate(page, wrong);
-  assert.match(await gate(page).locator('.status').textContent(), /did not match/);
+  const rejected = await gate(page).locator('.status').textContent();
+  assert.match(rejected, /did not match/);
+  const supportId = rejected.match(/Support code: (TI-[A-F0-9]{16})/)?.[1];
+  assert.ok(supportId, 'the student can report the support ID shown on the gate');
+  assert.ok(s.logs.some((entry) => entry.includes(supportId) && entry.includes('pin_no_match')),
+    'the support ID leads to the reason in the service log');
   assert.equal(await gateOpen(page), true, 'a wrong PIN never unlocks');
   assert.equal(await gate(page).getByRole('button', { name: 'Start without saving to my account' }).isHidden(), true);
 
