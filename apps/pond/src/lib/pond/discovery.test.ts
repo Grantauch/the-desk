@@ -15,7 +15,7 @@ test("the structured catalog contains over ten million distinct stable identitie
   assert.equal(OUTCOME_SPACE, 10_485_760);
   const tested = new Set<string>();
   for (let n = 0; n < 10000; n++) {
-    const index = (n * 1013) % OUTCOME_SPACE;
+    const index: number = (n * 1013) % OUTCOME_SPACE;
     const facets = facetsFromIndex(index);
     assert.equal(facetIndex(facets), index);
     const id = idFromFacets(facets);
