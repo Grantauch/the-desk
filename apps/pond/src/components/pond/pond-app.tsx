@@ -28,9 +28,9 @@ import {
   toolById,
   type ToolId,
 } from "@/lib/pond/elements";
-import { PondSim, SCENES, loadScene, type SceneId } from "@/lib/pond/sim";
+import { PondSim, POND_SIZES, SCENES, loadScene, type PondSize, type SceneId } from "@/lib/pond/sim";
 import { cn } from "@/lib/utils";
-import { decodePondFile, encodeWorld, MAX_SAVE_BYTES, WORLD_KEY } from "@/lib/pond/save";
+import { decodePondAnySize, encodeWorld, MAX_SAVE_BYTES, WORLD_KEY } from "@/lib/pond/save";
 
 const BRUSHES = [1, 2, 4, 7, 11];
 
@@ -41,7 +41,8 @@ export function PondApp() {
     return s;
   }, []);
   const ecosystem = useMemo(() => new PondEcosystem(), []);
-  const undoRef = useRef<Array<{ world: Uint8Array; residents: ResidentSave[] }>>([]);
+  const undoRef = useRef<Array<{ size: PondSize; world: Uint8Array; residents: ResidentSave[] }>>([]);
+  const [pondSize, setPondSize] = useState<PondSize>(192);
   const [canUndo, setCanUndo] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
@@ -69,7 +70,7 @@ export function PondApp() {
   startedRef.current = started;
 
   const checkpoint = useCallback(() => {
-    undoRef.current = [...undoRef.current.slice(-19), { world: sim.snapshot(), residents: ecosystem.snapshot() }];
+    undoRef.current = [...undoRef.current.slice(-19), { size: sim.w as PondSize, world: sim.snapshot(), residents: ecosystem.snapshot() }];
     setCanUndo(true);
     setScene("custom");
   }, [sim, ecosystem]);
@@ -77,8 +78,10 @@ export function PondApp() {
   const undo = useCallback(() => {
     const previous = undoRef.current.pop();
     if (!previous) return;
+    sim.resize(previous.size);
     sim.restore(previous.world);
     ecosystem.restore(previous.residents, sim);
+    setPondSize(previous.size);
     setResidentCount(ecosystem.count);
     setScene("custom");
     setCanUndo(undoRef.current.length > 0);
@@ -101,9 +104,11 @@ export function PondApp() {
       setDiscoveryLoaded(true);
       const saved = localStorage.getItem(WORLD_KEY);
       if (saved) {
-        const restored = decodePondFile(saved, sim);
+        const restored = decodePondAnySize(saved);
+        sim.resize(restored.size);
         sim.restore(restored.particles);
         ecosystem.restore(restored.residents, sim);
+        setPondSize(restored.size);
         setResidentCount(ecosystem.count);
         setScene("custom");
         setPaused(true);
@@ -260,6 +265,18 @@ export function PondApp() {
     pondAudio.shake();
   };
 
+  const nextSize = POND_SIZES[POND_SIZES.indexOf(pondSize) + 1] ?? null;
+  const expandPond = () => {
+    if (!nextSize) return;
+    checkpoint();
+    const offset = sim.resize(nextSize);
+    ecosystem.translate(offset, offset, sim);
+    setPondSize(nextSize);
+    setResidentCount(ecosystem.count);
+    setScene("custom");
+    setToast("Expanded! Your existing world is preserved in a larger pond.");
+  };
+
   const clear = () => {
     checkpoint();
     sim.clearInterior();
@@ -283,10 +300,12 @@ export function PondApp() {
     if (!file) return;
     try {
       if (file.size > MAX_SAVE_BYTES) throw new Error("That save is too large.");
-      const restored = decodePondFile(await file.text(), sim);
+      const restored = decodePondAnySize(await file.text());
       checkpoint();
+      sim.resize(restored.size);
       sim.restore(restored.particles);
       ecosystem.restore(restored.residents, sim);
+      setPondSize(restored.size);
       setResidentCount(ecosystem.count);
       setSpecimenId(null);
       setPaused(true);
@@ -426,11 +445,17 @@ export function PondApp() {
 
       <div className="flex flex-1 items-center justify-center px-3 py-2">
         <div
-          className="relative w-full max-w-[min(100%,36rem,72dvh)] aspect-square rounded-full bg-dish p-2"
+          className={cn(
+            "relative w-full aspect-square rounded-full bg-dish p-2 transition-[max-width] duration-300",
+            pondSize === 192 ? "max-w-[min(100%,36rem,72dvh)]" :
+              pondSize === 256 ? "max-w-[min(100%,42rem,78dvh)]" :
+                "max-w-[min(100%,48rem,84dvh)]",
+          )}
           style={{ boxShadow: "var(--shadow-dish)" }}
         >
           <div className="absolute inset-2 overflow-hidden rounded-full bg-dish-well">
             <PondCanvas
+              key={pondSize}
               sim={sim}
               ecosystem={ecosystem}
               specimenId={specimenId}
@@ -468,6 +493,15 @@ export function PondApp() {
                 {s.name}
               </button>
             ))}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 py-2">
+            <p className="text-sm text-muted">
+              <strong className="font-medium text-fg">{pondSize} × {pondSize}</strong> cells · {Math.round(Math.PI * Math.pow(pondSize / 2 - 1, 2)).toLocaleString()} playable cells
+            </p>
+            <Button variant="quiet" size="sm" disabled={!nextSize} onClick={expandPond}>
+              {nextSize ? "Expand pond to " + nextSize + " × " + nextSize : "Maximum pond size"}
+            </Button>
           </div>
 
           <div className="rounded-xl bg-surface p-2 shadow-[0_0_0_1px_var(--color-border)]">
