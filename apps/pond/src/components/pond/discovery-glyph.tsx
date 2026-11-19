@@ -1,4 +1,4 @@
-import type { DiscoveryOutcome } from "@/lib/pond/discovery";
+import { facetIndex, type DiscoveryOutcome } from "@/lib/pond/discovery";
 
 type Props = { outcome: DiscoveryOutcome; size?: number; className?: string };
 
@@ -13,6 +13,15 @@ export function DiscoveryGlyph({ outcome, size = 44, className }: Props) {
   const fill = "hsl(" + hue + " 70% 65%)";
   const shadow = "hsl(" + secondary + " 58% 30%)";
   const glow = "hsl(" + secondary + " 85% 78%)";
+  // Twenty-four binary pixels encode every index in the 10.48M-identity space.
+  // No two procedural outcomes share this signature pattern.
+  const index = facetIndex(outcome.facets);
+  const signature = Array.from({ length: 24 }, (_, bit) => {
+    if (((index >>> bit) & 1) === 0) return "";
+    const x = 23 + (bit % 4) * 4;
+    const y = 21 + Math.floor(bit / 4) * 4;
+    return "M" + x + " " + y + "h2v2h-2Z";
+  }).join(" ");
   const paths = [
     "M32 10 C47 22 49 37 32 54 C15 38 17 22 32 10Z",
     "M14 45 L26 19 L35 36 L43 14 L53 45Z",
@@ -28,6 +37,7 @@ export function DiscoveryGlyph({ outcome, size = 44, className }: Props) {
       <circle cx="32" cy="32" r="30" fill={shadow} />
       <circle cx="32" cy="32" r="26" fill="none" stroke={glow} strokeOpacity="0.36" />
       <path d={paths[form % paths.length]} fill={fill} stroke={glow} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d={signature} fill={glow} opacity=".85" />
       <path d="M16 49 Q32 57 48 49" fill="none" stroke={glow} strokeOpacity=".5" strokeWidth="2" />
       <circle cx={12 + (habitat % 13)} cy={12 + (force % 8)} r={1.5 + (trait % 3)} fill={glow} />
       <circle cx={44 + (trait % 8)} cy={13 + (habitat % 11)} r={1.5 + (force % 2)} fill={glow} />
