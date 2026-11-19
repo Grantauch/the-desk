@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PondCanvas } from "@/components/pond/pond-canvas";
+import { STARTERS, combine } from "@/lib/pond/discovery";
 import { pondAudio } from "@/lib/pond/audio";
 import {
   E,
@@ -45,6 +46,9 @@ export function PondApp() {
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(true);
   const [guide, setGuide] = useState(false);
+  const [discovered, setDiscovered] = useState<string[]>([...STARTERS]);
+  const [firstMix, setFirstMix] = useState<string | null>(null);
+  const [lastMix, setLastMix] = useState("Select two discoveries to combine.");
   const [scene, setScene] = useState<SceneId | "custom">("garden");
   const [grains, setGrains] = useState(0);
   const [hintIndex, setHintIndex] = useState(0);
@@ -72,6 +76,11 @@ export function PondApp() {
   useEffect(() => {
     try {
       setMuted(localStorage.getItem("pond-muted") !== "0");
+      const unlocked = localStorage.getItem("pond-discoveries-v1");
+      if (unlocked) {
+        const parsed: unknown = JSON.parse(unlocked);
+        if (Array.isArray(parsed)) setDiscovered([...new Set([...STARTERS, ...parsed.filter((v): v is string => typeof v === "string" && v.length < 80)])].slice(0, 1000));
+      }
       const saved = localStorage.getItem(WORLD_KEY);
       if (saved) {
         sim.restore(decodeWorld(saved, sim));
@@ -252,6 +261,20 @@ export function PondApp() {
     } finally { if (fileRef.current) fileRef.current.value = ""; }
   };
 
+  const chooseMix = (name: string) => {
+    if (!firstMix) { setFirstMix(name); setLastMix(`Now choose something to combine with ${name}.`); return; }
+    const result = combine(firstMix, name);
+    if (result) {
+      setDiscovered((previous) => {
+        const next = previous.includes(result) ? previous : [...previous, result];
+        try { localStorage.setItem("pond-discoveries-v1", JSON.stringify(next)); } catch { /* storage optional */ }
+        return next;
+      });
+      setLastMix(`${firstMix} + ${name} = ${result}!`);
+    } else setLastMix(`${firstMix} + ${name}: no discovery yet. Try another pair.`);
+    setFirstMix(null);
+  };
+
   const selected = toolById(tool);
 
   return (
@@ -404,6 +427,23 @@ export function PondApp() {
               })}
             </div>
           </div>
+
+          <section aria-label="Discovery workbench" className="rounded-xl bg-surface p-3 shadow-[0_0_0_1px_var(--color-border)]">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h2 className="font-display text-lg">Discover</h2>
+              <span className="text-xs text-muted">{discovered.length} found</span>
+            </div>
+            <p role="status" className="mb-3 text-sm text-muted">{lastMix}</p>
+            <div className="flex max-h-36 flex-wrap gap-2 overflow-y-auto">
+              {discovered.map((name) => (
+                <button key={name} type="button" aria-pressed={firstMix === name} onClick={() => chooseMix(name)}
+                  className={cn("min-h-10 rounded-lg border px-3 py-2 text-sm", firstMix === name ? "border-accent bg-accent text-accent-fg" : "border-border bg-surface-2 text-fg hover:border-border-strong")}>
+                  {name}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">Experiment with pairs. Discoveries save separately from your pond.</p>
+          </section>
 
           <div className="flex items-center gap-2">
             <div className="flex h-11 flex-1 items-center gap-1 rounded-md bg-surface px-2 shadow-[0_0_0_1px_var(--color-border)]">
