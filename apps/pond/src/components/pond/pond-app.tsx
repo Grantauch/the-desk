@@ -29,6 +29,7 @@ import {
   type ToolId,
 } from "@/lib/pond/elements";
 import { PondSim, POND_SIZES, SCENES, loadScene, type PondSize, type SceneId } from "@/lib/pond/sim";
+import { initialCamera, expandCamera, panCamera, zoomCamera, type PondCamera } from "@/lib/pond/camera";
 import { cn } from "@/lib/utils";
 import { decodePondAnySize, encodeWorld, MAX_SAVE_BYTES, WORLD_KEY } from "@/lib/pond/save";
 
@@ -41,8 +42,10 @@ export function PondApp() {
     return s;
   }, []);
   const ecosystem = useMemo(() => new PondEcosystem(), []);
-  const undoRef = useRef<Array<{ size: PondSize; world: Uint8Array; residents: ResidentSave[] }>>([]);
+  const undoRef = useRef<Array<{ size: PondSize; world: Uint8Array; residents: ResidentSave[]; camera: PondCamera }>>([]);
   const [pondSize, setPondSize] = useState<PondSize>(192);
+  const [camera, setCamera] = useState<PondCamera>(() => initialCamera(192));
+  const [panMode, setPanMode] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
@@ -71,10 +74,14 @@ export function PondApp() {
   startedRef.current = started;
 
   const checkpoint = useCallback(() => {
-    undoRef.current = [...undoRef.current.slice(-19), { size: sim.w as PondSize, world: sim.snapshot(), residents: ecosystem.snapshot() }];
+    const undoLimit = sim.w > 320 ? 5 : 20;
+    undoRef.current = [
+      ...undoRef.current.slice(-(undoLimit - 1)),
+      { size: sim.w as PondSize, world: sim.snapshot(), residents: ecosystem.snapshot(), camera },
+    ];
     setCanUndo(true);
     setScene("custom");
-  }, [sim, ecosystem]);
+  }, [sim, ecosystem, camera]);
 
   const undo = useCallback(() => {
     const previous = undoRef.current.pop();
@@ -83,6 +90,7 @@ export function PondApp() {
     sim.restore(previous.world);
     ecosystem.restore(previous.residents, sim);
     setPondSize(previous.size);
+    setCamera(previous.camera);
     setResidentCount(ecosystem.count);
     setScene("custom");
     setCanUndo(undoRef.current.length > 0);
@@ -110,6 +118,7 @@ export function PondApp() {
         sim.restore(restored.particles);
         ecosystem.restore(restored.residents, sim);
         setPondSize(restored.size);
+        setCamera(initialCamera(restored.size));
         setResidentCount(ecosystem.count);
         setScene("custom");
         setPaused(true);
@@ -124,7 +133,7 @@ export function PondApp() {
       catch { setSaveMessage("Browser saving is unavailable. Use Export world to keep this dish."); }
     };
     const hide = () => { if (document.hidden) save(); };
-    const interval = window.setInterval(save, 10000);
+    const interval = window.setInterval(save, 16000);
     window.addEventListener("pagehide", save);
     document.addEventListener("visibilitychange", hide);
     return () => {
@@ -269,15 +278,23 @@ export function PondApp() {
   };
 
   const nextSize = POND_SIZES[POND_SIZES.indexOf(pondSize) + 1] ?? null;
+  const panBy = (dx: number, dy: number) => {
+    setCamera((before) => panCamera(pondSize, before, dx, dy));
+  };
+  const zoomBy = (direction: "in" | "out") => {
+    setCamera((before) => zoomCamera(pondSize, before, direction));
+  };
   const expandPond = () => {
     if (!nextSize) return;
     checkpoint();
     const offset = sim.resize(nextSize);
     ecosystem.translate(offset, offset, sim);
+    setCamera((before) => expandCamera(before, pondSize, nextSize));
     setPondSize(nextSize);
     setResidentCount(ecosystem.count);
     setScene("custom");
-    setToast("Expanded! Your existing world is preserved in a larger pond.");
+    if (nextSize > 320) setPanMode(true);
+    setToast("World expanded! Drag in Explore mode to discover the new territory.");
   };
 
   const clear = () => {
@@ -310,6 +327,8 @@ export function PondApp() {
       sim.restore(restored.particles);
       ecosystem.restore(restored.residents, sim);
       setPondSize(restored.size);
+      setCamera(initialCamera(restored.size));
+      setPanMode(restored.size > 320);
       setResidentCount(ecosystem.count);
       setSpecimenId(null);
       setPaused(true);
@@ -450,17 +469,21 @@ export function PondApp() {
       <div className="flex flex-1 items-center justify-center px-3 py-2">
         <div
           className={cn(
-            "relative w-full aspect-square rounded-full bg-dish p-2 transition-[max-width] duration-300",
+            "relative w-full aspect-square bg-dish p-2 transition-[max-width,border-radius] duration-300",
+            camera.size === pondSize ? "rounded-full" : "rounded-[1.5rem]",
             pondSize === 192 ? "max-w-[min(100%,36rem,72dvh)]" :
               pondSize === 256 ? "max-w-[min(100%,42rem,78dvh)]" :
                 "max-w-[min(100%,48rem,84dvh)]",
           )}
           style={{ boxShadow: "var(--shadow-dish)" }}
         >
-          <div className="absolute inset-2 overflow-hidden rounded-full bg-dish-well">
+          <div className={cn("absolute inset-2 overflow-hidden bg-dish-well", camera.size === pondSize ? "rounded-full" : "rounded-[1.1rem]")}>
             <PondCanvas
-              key={pondSize}
+              key={pondSize + ":" + camera.size}
               sim={sim}
+              camera={camera}
+              panMode={panMode}
+              onPan={panBy}
               ecosystem={ecosystem}
               specimenId={specimenId}
               onSpecimenPlace={placeSpecimen}
@@ -507,6 +530,32 @@ export function PondApp() {
               {nextSize ? "Expand pond to " + nextSize + " × " + nextSize : "Maximum pond size"}
             </Button>
           </div>
+
+          {(pondSize > 320 || camera.size < pondSize) ? (
+            <section aria-label="World navigation" className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface px-3 py-3">
+              <svg viewBox="0 0 100 100" width="64" height="64" aria-label="World overview and active viewport" role="img" className="shrink-0 rounded-lg bg-dish-well">
+                <circle cx="50" cy="50" r="48" fill="#26211c" stroke="#777067" strokeWidth="1.5"/>
+                <rect x={camera.x / pondSize * 100} y={camera.y / pondSize * 100}
+                  width={camera.size / pondSize * 100} height={camera.size / pondSize * 100}
+                  fill="#c8c2ba" fillOpacity=".18" stroke="#f2ebe3" strokeWidth="1.5" rx="2"/>
+              </svg>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-fg">Explore your world</p>
+                <p className="text-xs text-muted">Viewing {camera.size} × {camera.size} cells at {camera.x}, {camera.y} · Distant regions rest until you explore them.</p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <Button variant={panMode ? "default" : "quiet"} size="sm" aria-pressed={panMode}
+                    onClick={() => setPanMode((value) => !value)}>{panMode ? "Explore: on" : "Explore / drag"}</Button>
+                  <Button variant="quiet" size="sm" aria-label="Pan world left" onClick={() => panBy(-64, 0)}>←</Button>
+                  <Button variant="quiet" size="sm" aria-label="Pan world up" onClick={() => panBy(0, -64)}>↑</Button>
+                  <Button variant="quiet" size="sm" aria-label="Pan world down" onClick={() => panBy(0, 64)}>↓</Button>
+                  <Button variant="quiet" size="sm" aria-label="Pan world right" onClick={() => panBy(64, 0)}>→</Button>
+                  <Button variant="quiet" size="sm" aria-label="Center world view" onClick={() => setCamera(initialCamera(pondSize))}>Center</Button>
+                  <Button variant="quiet" size="sm" aria-label="Zoom in" disabled={camera.size === 192} onClick={() => zoomBy("in")}>Zoom +</Button>
+                  <Button variant="quiet" size="sm" aria-label="Zoom out" disabled={camera.size === Math.min(320, pondSize)} onClick={() => zoomBy("out")}>Zoom −</Button>
+                </div>
+              </div>
+            </section>
+          ) : null}
 
           {ecosystemNews ? (
             <p className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm text-muted">
