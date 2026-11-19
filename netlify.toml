@@ -133,7 +133,9 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
+    # Only the site itself and Margin (the classroom stage) may show these pages
+    # inside a frame. Everyone else is refused, as DENY did before.
+    Content-Security-Policy = "frame-ancestors 'self' https://margin.grant-desk.com"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
