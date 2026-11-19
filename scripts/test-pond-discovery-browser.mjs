@@ -97,6 +97,46 @@ async function run(viewport) {
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
     await page.getByText(/2 living creations/).waitFor();
 
+    // Build a world far beyond one viewport. The camera renders a crop instead
+    // of scaling all 768 cells into the original circular canvas.
+    await page.getByRole("button", { name: /Expand pond to 448/ }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
+    await page.getByRole("button", { name: "Zoom +" }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 192);
+    await page.getByRole("button", { name: "Zoom −" }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
+    await page.getByRole("button", { name: /Expand pond to 576/ }).click();
+    await page.getByRole("button", { name: /Expand pond to 768/ }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
+
+    const nav = page.getByRole("region", { name: "World navigation" });
+    const beforePan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    const largeCanvas = page.getByRole("application");
+    const rect = await largeCanvas.boundingBox();
+    assert.ok(rect);
+    // Drag to explore, then move to a distant outer region with the controls.
+    await page.mouse.move(rect.x + rect.width * 0.75, rect.y + rect.height * 0.5);
+    await page.mouse.down();
+    await page.mouse.move(rect.x + rect.width * 0.35, rect.y + rect.height * 0.5, { steps: 8 });
+    await page.mouse.up();
+    await page.getByRole("button", { name: "Pan world right" }).click();
+    await page.getByRole("button", { name: "Pan world right" }).click();
+    const afterPan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    assert.notEqual(afterPan, beforePan, "drag-and-pan changes the world camera");
+    await page.getByRole("button", { name: "Explore: on" }).click();
+    // Selection still works when returning to painting/placement mode.
+    await page.getByRole("button", { name: "Mix Steam" }).click();
+    await page.getByRole("button", { name: "Place in pond" }).click();
+    const farCanvas = page.getByRole("application");
+    const farRect = await farCanvas.boundingBox();
+    assert.ok(farRect);
+    await farCanvas.click({ position: { x: farRect.width * 0.5, y: farRect.height * 0.5 } });
+    await page.getByText(/3 living creations/).waitFor();
+    await page.reload({ waitUntil: "load" });
+    await page.getByRole("button", { name: "Make a mess" }).click();
+    assert.equal(await page.getByRole("application").evaluate(el => el.width), 256, "large world uses camera viewport");
+    await page.getByText(/3 living creations/).waitFor();
+
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Export world" }).click();
     const download = await downloadPromise;
@@ -104,12 +144,14 @@ async function run(viewport) {
     const bytes = await readFile(await download.path(), "utf-8");
     const world = JSON.parse(bytes);
     assert.equal(world.version, 2);
-    assert.equal(world.width, 320);
-    assert.equal(world.height, 320);
-    assert.equal(world.residents.length, 2);
+    assert.equal(world.width, 768);
+    assert.equal(world.height, 768);
+    assert.equal(world.residents.length, 3);
     assert.equal(world.residents[0].id, "Steam");
     assert.equal(world.residents[1].id, "Steam");
-    assert.ok(world.residents[1].x > 250, "new territory must accept living placements");
+    assert.equal(world.residents[2].id, "Steam");
+    assert.ok(world.residents[1].x > 250, "first expansion ring accepts inhabitants");
+    assert.ok(world.residents[2].x > 560, "distant camera territory accepts inhabitants");
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     assert.equal(overflow, false, "Pond should not overflow horizontally");
