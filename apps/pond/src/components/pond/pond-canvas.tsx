@@ -2,24 +2,30 @@ import { useEffect, useRef, useState } from "react";
 import { COLS, ERASER, ROWS, WIND, type ToolId } from "@/lib/pond/elements";
 import { pondAudio } from "@/lib/pond/audio";
 import type { PondSim } from "@/lib/pond/sim";
+import type { PondEcosystem } from "@/lib/pond/ecosystem";
 import { cn } from "@/lib/utils";
 
 type PondCanvasProps = {
   sim: PondSim;
+  ecosystem: PondEcosystem;
+  specimenId: string | null;
+  onSpecimenPlace?: (id: string, x: number, y: number) => void;
   tool: ToolId;
   brush: number;
   running: boolean;
   className?: string;
-  onStats?: (grains: number, fire: number) => void;
+  onStats?: (grains: number, fire: number, residents: number) => void;
   onStrokeStart?: () => void;
 };
 
-export function PondCanvas({ sim, tool, brush, running, className, onStats, onStrokeStart }: PondCanvasProps) {
+export function PondCanvas({ sim, ecosystem, specimenId, onSpecimenPlace, tool, brush, running, className, onStats, onStrokeStart }: PondCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const painting = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
   const toolRef = useRef(tool);
+  const specimenRef = useRef(specimenId);
+  const onSpecimenPlaceRef = useRef(onSpecimenPlace);
   const brushRef = useRef(brush);
   const runningRef = useRef(running);
   const onStatsRef = useRef(onStats);
@@ -28,6 +34,8 @@ export function PondCanvas({ sim, tool, brush, running, className, onStats, onSt
   const [position, setPosition] = useState(cursor.current);
   const [focused, setFocused] = useState(false);
   toolRef.current = tool;
+  specimenRef.current = specimenId;
+  onSpecimenPlaceRef.current = onSpecimenPlace;
   brushRef.current = brush;
   runningRef.current = running;
   onStatsRef.current = onStats;
@@ -58,12 +66,16 @@ export function PondCanvas({ sim, tool, brush, running, className, onStats, onSt
       acc += dt;
       let steps = 0;
       while (acc >= STEP && steps < 2) {
-        if (runningRef.current) sim.step();
+        if (runningRef.current) {
+          sim.step();
+          if (!sim.paused) ecosystem.step(sim);
+        }
         acc -= STEP;
         steps++;
       }
       sim.render(image);
       ctx.putImageData(image, 0, 0);
+      ecosystem.render(ctx);
       const wrap = wrapRef.current;
       if (wrap) {
         const shake = reduce.matches ? 0 : sim.trauma * sim.trauma;
@@ -74,12 +86,12 @@ export function PondCanvas({ sim, tool, brush, running, className, onStats, onSt
       pondAudio.setFireLevel(sim.paused || !runningRef.current ? 0 : sim.fireCount);
       if (now - statsAt > 200) {
         statsAt = now;
-        onStatsRef.current?.(sim.grainCount, sim.fireCount);
+        onStatsRef.current?.(sim.grainCount, sim.fireCount, ecosystem.count);
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [sim]);
+  }, [sim, ecosystem]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -113,6 +125,13 @@ export function PondCanvas({ sim, tool, brush, running, className, onStats, onSt
     const down = (e: PointerEvent) => {
       if (!runningRef.current) return;
       if (e.button !== undefined && e.button !== 0) return;
+      if (specimenRef.current) {
+        const { x, y } = toCell(e.clientX, e.clientY);
+        canvas.focus({ preventScroll: true });
+        onSpecimenPlaceRef.current?.(specimenRef.current, x, y);
+        e.preventDefault();
+        return;
+      }
       painting.current = true;
       onStrokeRef.current?.();
       last.current = null;
@@ -155,7 +174,7 @@ export function PondCanvas({ sim, tool, brush, running, className, onStats, onSt
         width={COLS}
         height={ROWS}
         className="pixelated block size-full rounded-full touch-none select-none"
-        aria-label="Living dish. Draw to paint. Keyboard: arrows move the brush, Enter paints."
+        aria-label={specimenId ? "Living dish. Tap or press Enter to place a discovery. Arrow keys move the cursor." : "Living dish. Draw to paint. Keyboard: arrows move the brush, Enter paints."}
         role="application"
         tabIndex={0}
         onFocus={() => setFocused(true)}
@@ -170,8 +189,12 @@ export function PondCanvas({ sim, tool, brush, running, className, onStats, onSt
           }
           if (event.key === "Enter" && runningRef.current && !event.repeat) {
             event.preventDefault();
-            onStrokeRef.current?.();
             const { x, y } = cursor.current;
+            if (specimenRef.current) {
+              onSpecimenPlaceRef.current?.(specimenRef.current, x, y);
+              return;
+            }
+            onStrokeRef.current?.();
             if (toolRef.current === WIND) sim.wind(x, y, 2, -1, brushRef.current);
             else sim.paint(x, y, toolRef.current === ERASER ? 0 : toolRef.current, brushRef.current);
           }
