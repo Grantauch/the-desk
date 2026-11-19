@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { PondSim } from "./sim.ts";
 import { E } from "./elements.ts";
-import { getOutcome } from "./discovery.ts";
+import { getOutcome, idFromFacets } from "./discovery.ts";
 import {
   PondEcosystem, MAX_RESIDENTS, residentProfile, validateResidents,
 } from "./ecosystem.ts";
@@ -129,4 +129,48 @@ test("undo restores both physical pixels and living residents", () => {
   life.restore(residents, sim);
   assert.deepEqual(sim.snapshot(), world);
   assert.equal(life.count, 0);
+});
+
+
+test("living discoveries pollinate and create real seeds in nearby sand space", () => {
+  const sim = newPond();
+  const life = new PondEcosystem();
+  assert.ok(life.add("Plant", 96, 96, sim));
+  assert.ok(life.add("Butterfly", 98, 96, sim));
+  for (let n = 0; n < 48; n++) life.step(sim);
+  assert.ok(life.interactionCount > 0, "nearby species must interact");
+  assert.match(life.lastInteraction ?? "", /pollinated/);
+  assert.equal(sim.grid[sim.idx(99, 98)], E.SEED, "pollination leaves a seed in the pond");
+  life.clear();
+  assert.equal(life.interactionCount, 0);
+  assert.equal(life.lastInteraction, null);
+});
+
+test("hunters and prey compete for energy, and swimmers school together", () => {
+  const sim = newPond();
+  const predator = idFromFacets({ form: 8, habitat: 0, force: 0, trait: 0 }); // Wolf
+  const prey = idFromFacets({ form: 29, habitat: 0, force: 0, trait: 0 }); // Rabbit
+  const life = new PondEcosystem();
+  assert.ok(life.add(predator, 96, 96, sim));
+  assert.ok(life.add(prey, 98, 96, sim));
+  for (let n = 0; n < 24; n++) life.step(sim);
+  assert.match(life.lastInteraction ?? "", /Wolf chased Rabbit/);
+  assert.ok(life.snapshot().find((resident) => resident.id === prey)!.energy < 100);
+
+  const swimmers = new PondEcosystem();
+  assert.ok(swimmers.add("Fish", 96, 96, sim));
+  assert.ok(swimmers.add("Fish", 98, 97, sim));
+  for (let n = 0; n < 24; n++) swimmers.step(sim);
+  assert.match(swimmers.lastInteraction ?? "", /schooled together/);
+});
+
+test("machines irrigate rooted neighbours without changing the particle schema", () => {
+  const sim = newPond();
+  const life = new PondEcosystem();
+  assert.ok(life.add("Robot", 96, 96, sim));
+  assert.ok(life.add("Plant", 98, 96, sim));
+  for (let n = 0; n < 24; n++) life.step(sim);
+  assert.match(life.lastInteraction ?? "", /irrigated/);
+  assert.equal(sim.grid[sim.idx(96, 98)], E.WATER);
+  assert.ok([...sim.grid].every((material) => material <= 20));
 });
