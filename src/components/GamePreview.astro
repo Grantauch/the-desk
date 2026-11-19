@@ -167,26 +167,27 @@ const subject = subjectCues[label.toLowerCase()];
     opacity: 0.55;
   }
 
-  .subject-checklings { background: linear-gradient(135deg, #253d30, #17291e 65%, #476249); }
-  .subject-pond { background: linear-gradient(135deg, #193b48, #0d2533 65%, #266977); }
-  .subject-dry-county { background: linear-gradient(135deg, #442b22, #211d1b 70%, #64513a); }
-  .subject-blitzkrieg { background: linear-gradient(135deg, #29332d, #161f20 68%, #4e503a); color: #f6f1df; }
-  .subject-robber-barons { background: linear-gradient(135deg, #2f3b42, #152028 70%, #566066); }
-  .subject-dry-county .preview-heading strong {
+  /* Subject palettes must win over the legacy theme rules below. */
+  .game-preview.subject-checklings { background: linear-gradient(135deg, #253d30, #17291e 65%, #476249); }
+  .game-preview.subject-pond { background: linear-gradient(135deg, #193b48, #0d2533 65%, #266977); }
+  .game-preview.subject-dry-county { background: linear-gradient(135deg, #442b22, #211d1b 70%, #64513a); }
+  .game-preview.subject-blitzkrieg { background: linear-gradient(135deg, #29332d, #161f20 68%, #4e503a); color: #f6f1df; }
+  .game-preview.subject-robber-barons { background: linear-gradient(135deg, #2f3b42, #152028 70%, #566066); }
+  .game-preview.subject-dry-county .preview-heading strong {
     color: #f5dec4;
     font-family: Georgia, serif;
     font-style: normal;
     text-shadow: none;
     text-transform: none;
   }
-  .subject-dry-county .preview-heading span { color: #e8b98f; }
-  .subject-blitzkrieg .preview-heading strong {
+  .game-preview.subject-dry-county .preview-heading span { color: #e8b98f; }
+  .game-preview.subject-blitzkrieg .preview-heading strong {
     color: #f6f1df;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 800;
     text-transform: uppercase;
   }
-  .subject-blitzkrieg .preview-heading span { color: #dedcbb; }
+  .game-preview.subject-blitzkrieg .preview-heading span { color: #dedcbb; }
 
   .game-preview.featured {
     min-height: 10.5rem;

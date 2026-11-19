@@ -1,4 +1,18 @@
 {
+  "experience-catalog-publication-2026-11-19": {
+    "status": "LOCAL_FULL_AND_RENDERED_VERIFIED",
+    "owner": "Codex",
+    "scope": "PR #421, first publication batch for #422: classify all 37 existing activity entries, preserve their routes and fieldwork links, and use the existing credited trench photograph.",
+    "verification_status": "CANONICAL_FULL_AND_CHROMIUM_320_390_1366_1920_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "EXACT_HEAD_PROTECTED_CI_MERGE_AND_PRODUCTION_ACCEPTANCE_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All 37 original activity hrefs match the centralized inventory: 17 games, 5 practice activities, 9 simulations and 6 investigations. The source and live Story Hub catalog contain 77 entries at this checkpoint.",
+      "Rendered review reproduced old theme rules overriding all five new subject palettes. Increased subject selector specificity, including the title styles, so Blitzkrieg no longer displays pale text on newspaper cream. The computed-style acceptance assertion failed before the fix.",
+      "Focused Chromium passes at 320, 390, 1366 and 1920 pixels: category membership, all 77 story cards, credited cover, fieldwork keyboard controls, page-finder navigation, assignment PIN gate, no-JavaScript routes, viewport fit and zero automated WCAG A/AA violations on all three catalog pages. Full npm run verify exited 0: zero diagnostic errors or warnings, 55 routes, 186 HTML files, 6006 local references, 37 sealed releases and 360 sealed files.",
+      "No underlying hub HTML, PIN verification, assignment saving, Turn In, roster or private endpoint is changed. The wider scene and artwork overhaul in #422 remains open."
+    ]
+  },
   "turn-in-signin-diagnostics-2026-11-19": {
     "scope": "Reportable assignment sign-in support codes, private redacted failure logs, and an editor-only dependency check.",
     "verification_status": "FOCUSED_SYNTHETIC_RUNTIME_CHECKS_PASSED_PROTECTED_CI_PENDING",

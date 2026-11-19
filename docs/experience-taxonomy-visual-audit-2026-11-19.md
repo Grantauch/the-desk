@@ -7,7 +7,7 @@ Scope: current `main` catalogs, without private student data. This is an initial
 
 - `src/pages/games.astro` previously mixed competitive games, quiz practice, source investigations, strategy simulations, 3D reconstructions, and guided map journeys.
 - `src/pages/simulations.astro` previously presented five instructor-led activities (debates, seminars, research projects) before any interactive decision model.
-- `src/data/storyhubs.ts` separately catalogs 72 published entries; some include working models and deserve cross-discovery rather than destructive relocation.
+- `src/data/storyhubs.ts` separately catalogs 77 published entries at the release checkpoint; some include working models and deserve cross-discovery rather than destructive relocation.
 - Catalog entries are now centralized in `src/data/interactiveExperiences.ts`: 17 games, 9 simulations, 6 investigations and 5 practice activities. This classifies the 37 entries from the original Games source array only; it does **not** count unpublished branches or claim the whole site has only 37 experiences.
 
 ## Taxonomy contract
@@ -48,6 +48,10 @@ These are **source-metadata flags, not claims that each file was visually inspec
 - All existing hub `href` values and the five teacher-led activity packs stay available.
 - `GamePreview.astro` now uses truthful subject-specific cues for Checklings, Pond, Dry County, Blitzkrieg and Robber Barons rather than showing irrelevant basketball, newspaper, or paycheck UI on those cards.
 - *The Line That Wouldn't Move* uses a period photograph already present in the hub instead of its catalog SVG cover.
+
+## Rendered release checkpoint
+
+The first rendered check reproduced the legacy theme background overriding all five subject palettes. Blitzkrieg displayed pale title text over the old cream newspaper background. Subject selectors now take precedence over the legacy theme rules, including the title styling. A computed-style regression failed before this correction. Phone, Chromebook and classroom-display acceptance and production evidence are recorded separately from the initial source inventory; this checkpoint does not certify the remaining artwork or every story interaction.
 
 ## Required visual production sequence (not yet completed)
 
