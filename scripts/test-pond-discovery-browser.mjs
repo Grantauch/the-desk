@@ -110,6 +110,11 @@ async function run(viewport) {
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
 
     const nav = page.getByRole("region", { name: "World navigation" });
+    const atlas = page.getByRole("region", { name: "Exploration atlas" });
+    await atlas.getByRole("heading", { name: "World atlas" }).waitFor();
+    await atlas.getByText(/% explored/).waitFor();
+    await atlas.getByText("Discovered locations").waitFor();
+    assert.ok(await atlas.getByRole("button", { name: "Select a location on the world map to explore" }).isVisible());
     const beforePan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
     const largeCanvas = page.getByRole("application");
     const rect = await largeCanvas.boundingBox();
@@ -122,6 +127,10 @@ async function run(viewport) {
     for (let n = 0; n < 6; n++) await page.getByRole("button", { name: "Pan world right" }).click();
     const afterPan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
     assert.notEqual(afterPan, beforePan, "drag-and-pan changes the world camera");
+    await atlas.getByRole("button", { name: "Select a location on the world map to explore" })
+      .click({ position: { x: 235, y: 155 } });
+    const afterAtlasJump = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    assert.notEqual(afterAtlasJump, afterPan, "the atlas should navigate the world camera");
     await page.getByRole("button", { name: "Explore: on" }).click();
     // Selection still works when returning to painting/placement mode.
     await page.getByRole("button", { name: "Mix Steam" }).click();
@@ -143,6 +152,9 @@ async function run(viewport) {
     const bytes = await readFile(await download.path(), "utf-8");
     const world = JSON.parse(bytes);
     assert.equal(world.version, 2);
+    assert.equal(world.atlas?.version, 1);
+    assert.equal(world.atlas?.worldSize, 768);
+    assert.ok(typeof world.atlas?.explored === "string" && world.atlas.explored.length > 150);
     assert.equal(world.width, 768);
     assert.equal(world.height, 768);
     assert.equal(world.residents.length, 3);
