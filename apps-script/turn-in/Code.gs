@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-11-04-turn-in-v13';
+const TI_VERSION = '2026-11-19-turn-in-v14';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -80,6 +80,35 @@ function doGet() {
   });
 }
 
+/** Run in the Apps Script editor to check the actual dependencies without writing to Sheets. */
+function checkTurnInSignInHealth() {
+  let result;
+  let stage = 'roster';
+  try {
+    if (!PropertiesService.getScriptProperties().getProperty('PIN_SALT')) {
+      throw refuse_('not_ready', 'The PIN salt is missing.', 'pin_lookup', 'pin_salt_missing');
+    }
+    const roster = rosterByHash_(false);
+    if (!Object.values(roster).some((entry) => entry.emails.length === 1)) {
+      throw refuse_('not_ready', 'The roster has no usable entries.', 'roster', 'roster_no_usable_credentials');
+    }
+    stage = 'account_load';
+    if (!workbook_().getSheetByName(TI_SHEETS.DRAFTS)) {
+      throw refuse_('not_ready', 'The Drafts tab is missing.', stage, 'drafts_sheet_missing');
+    }
+    result = { ready: true, version: TI_VERSION };
+  } catch (error) {
+    result = {
+      ready: false,
+      version: TI_VERSION,
+      stage: error && error.studentMessage && error.stage || stage,
+      reason: error && error.studentMessage && error.reason || 'dependency_unreadable',
+    };
+  }
+  console.log(JSON.stringify(result));
+  return result;
+}
+
 function doPost(e) {
   let request;
   try {
@@ -90,10 +119,33 @@ function doPost(e) {
   try {
     return json_(route_(request || {}));
   } catch (error) {
-    if (error && error.studentMessage) return json_({ ok: false, code: error.code || 'refused', error: error.studentMessage });
-    console.error(error && error.stack || error);
-    return json_({ ok: false, code: 'server', error: 'Something went wrong on our end. Press the button again.' });
+    const expected = error && error.studentMessage;
+    const result = expected
+      ? { ok: false, code: error.code || 'refused', error: error.studentMessage }
+      : { ok: false, code: 'server', error: 'Something went wrong on our end. Press the button again.' };
+    if (request && request.action === 'signin') {
+      result.supportId = logSignInFailure_(request.hub, error);
+    } else if (!expected) {
+      console.error(error && error.stack || error);
+    }
+    return json_(result);
   }
+}
+
+function logSignInFailure_(hub, error) {
+  const supportId = 'TI-' + Utilities.getUuid().replace(/-/g, '').slice(-16).toUpperCase();
+  const expected = error && error.studentMessage;
+  // Only log the assignment slug and fixed diagnostic labels. Never log a
+  // request, account token, PIN, email, or a raw Google exception.
+  console.log(JSON.stringify({
+    event: 'turn_in_signin_failed',
+    supportId,
+    version: TI_VERSION,
+    hub: typeof hub === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(hub) ? hub : '',
+    stage: expected && error.stage || 'signin',
+    reason: expected && (error.reason || error.code) || 'unexpected',
+  }));
+  return supportId;
 }
 
 function route_(request) {
@@ -113,6 +165,17 @@ function signIn_(request) {
   const identity = identify_(request);
   const token = makeToken_(identity.email, identity.test);
   const classPeriod = pickClass_(identity.classes, request.course);
+  let classroomUrl = '', draft = null;
+  if (!identity.test) {
+    try {
+      classroomUrl = classroomLink_(hub, classPeriod);
+      draft = findDraft_(identity.email, hub);
+    } catch (error) {
+      if (error && error.studentMessage) throw error;
+      throw refuse_('server', 'Could not load your assignment account. Try again or ask your teacher.',
+        'account_load', 'assignment_workbook_unreadable');
+    }
+  }
   return {
     ok: true,
     token,
@@ -121,8 +184,8 @@ function signIn_(request) {
     firstName: firstName_(identity.name),
     classes: identity.classes,
     classPeriod,
-    classroomUrl: identity.test ? '' : classroomLink_(hub, classPeriod),
-    draft: identity.test ? null : findDraft_(identity.email, hub),
+    classroomUrl,
+    draft,
   };
 }
 
@@ -529,7 +592,7 @@ function identify_(request) {
   const pin = String(request.pin || '').trim();
 
   if (testKey && request.test && String(request.test) === testKey) {
-    if (!/^9\d{5}$/.test(pin)) throw refuse_('bad_pin', 'Load test PINs start with 9.');
+    if (!/^9\d{5}$/.test(pin)) throw refuse_('bad_pin', 'Load test PINs start with 9.', 'pin_lookup', 'test_pin_format');
     const n = pin.slice(-3);
     return {
       email: `load-test-${n}@example.invalid`,
@@ -541,7 +604,7 @@ function identify_(request) {
 
   const device = String(request.device || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64) || 'unknown';
   assertAttemptsAllowed_(device);
-  if (!/^\d{5,6}$/.test(pin)) throw refuse_('bad_pin', 'Enter your five or six digit hall pass PIN.');
+  if (!/^\d{5,6}$/.test(pin)) throw refuse_('bad_pin', 'Enter your five or six digit hall pass PIN.', 'pin_lookup', 'pin_format');
 
   // Lunch numbers lose a leading zero in some school exports (020772 vs 20772).
   // Accept either spelling of the same number before calling it a wrong PIN.
@@ -550,9 +613,9 @@ function identify_(request) {
   const match = byHash[hashPin_(pin)] || (zeroTwin ? byHash[hashPin_(zeroTwin)] : null);
   if (!match) {
     recordFailedAttempt_(device);
-    throw refuse_('bad_pin', 'That PIN did not match. Try again or ask your teacher.');
+    throw refuse_('bad_pin', 'That PIN did not match. Try again or ask your teacher.', 'pin_lookup', 'pin_no_match');
   }
-  if (match.emails.length !== 1) throw refuse_('bad_pin', 'That PIN needs to be fixed. Ask your teacher.');
+  if (match.emails.length !== 1) throw refuse_('bad_pin', 'That PIN needs to be fixed. Ask your teacher.', 'pin_lookup', 'pin_ambiguous');
   return { email: match.emails[0], name: match.name, classes: match.classes, test: false };
 }
 
@@ -567,35 +630,49 @@ function turnInIdentity_(request) {
   return identity;
 }
 
-function rosterByHash_() {
+function openTurnInRoster_() {
+  const id = PropertiesService.getScriptProperties().getProperty('ROSTER_SPREADSHEET_ID');
+  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'roster', 'roster_setting_missing');
+  try {
+    return SpreadsheetApp.openById(id);
+  } catch (error) {
+    throw refuse_('not_ready', 'The class roster is unavailable. Ask your teacher before signing in.', 'roster', 'roster_unreadable');
+  }
+}
+
+function rosterByHash_(useCache = true) {
   const cache = CacheService.getScriptCache();
-  const directoryPins = schoolDirectoryPinsForTurnIn_();
-  const cached = directoryPins === null ? cache.get('roster:v1') : null;
+  const book = openTurnInRoster_();
+  const directoryPins = schoolDirectoryPinsForTurnIn_(book);
+  const cacheable = useCache && directoryPins === null;
+  const cached = cacheable ? cache.get('roster:v1') : null;
   if (cached) { try { return JSON.parse(cached); } catch (error) { cache.remove('roster:v1'); } }
 
-  const props = PropertiesService.getScriptProperties();
-  const id = props.getProperty('ROSTER_SPREADSHEET_ID');
-  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
-  const sheet = SpreadsheetApp.openById(id).getSheetByName('Roster');
-  if (!sheet) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
-
-  const lastRow = sheet.getLastRow();
-  const map = {};
-  if (lastRow >= 2) {
-    sheet.getRange(2, 1, lastRow - 1, 5).getValues().forEach((row) => {
-      const email = String(row[0] || '').trim().toLowerCase();
-      const name = String(row[1] || '').trim();
-      const classPeriod = String(row[2] || '').trim();
-      const pinHash = directoryPins === null ? String(row[3] || '').trim() : directoryPins[email] ? hashPin_(directoryPins[email]) : '';
-      const active = isTruthyCell_(row[4], true);
-      if (!email || !name || !pinHash || !active) return;
-      const entry = map[pinHash] || (map[pinHash] = { name, emails: [], classes: [] });
-      if (entry.emails.indexOf(email) === -1) entry.emails.push(email);
-      if (classPeriod && entry.classes.indexOf(classPeriod) === -1) entry.classes.push(classPeriod);
-    });
-  }
+  let rows;
   try {
-    if (directoryPins === null) cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
+    const sheet = book.getSheetByName('Roster');
+    if (!sheet) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'roster', 'roster_sheet_missing');
+    const lastRow = sheet.getLastRow();
+    rows = lastRow >= 2 ? sheet.getRange(2, 1, lastRow - 1, 5).getValues() : [];
+  } catch (error) {
+    if (error && error.studentMessage) throw error;
+    throw refuse_('not_ready', 'The class roster is unavailable. Ask your teacher before signing in.', 'roster', 'roster_unreadable');
+  }
+
+  const map = {};
+  rows.forEach((row) => {
+    const email = String(row[0] || '').trim().toLowerCase();
+    const name = String(row[1] || '').trim();
+    const classPeriod = String(row[2] || '').trim();
+    const pinHash = directoryPins === null ? String(row[3] || '').trim() : directoryPins[email] ? hashPin_(directoryPins[email]) : '';
+    const active = isTruthyCell_(row[4], true);
+    if (!email || !name || !pinHash || !active) return;
+    const entry = map[pinHash] || (map[pinHash] = { name, emails: [], classes: [] });
+    if (entry.emails.indexOf(email) === -1) entry.emails.push(email);
+    if (classPeriod && entry.classes.indexOf(classPeriod) === -1) entry.classes.push(classPeriod);
+  });
+  try {
+    if (cacheable) cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
   } catch (error) {
     // A very large roster can exceed the cache value limit. Reading the sheet each time still works.
   }
@@ -603,34 +680,45 @@ function rosterByHash_() {
 }
 
 /** Directory lookups are server-only and never grant classroom membership. */
-function schoolDirectoryPinsForTurnIn_() {
-  const rosterId = PropertiesService.getScriptProperties().getProperty('ROSTER_SPREADSHEET_ID');
-  if (!rosterId) return null;
-  const book = SpreadsheetApp.openById(rosterId), settings = book.getSheetByName('Settings');
-  if (!settings || settings.getLastRow() < 2) return null;
-  const pointer = settings.getRange(2, 1, settings.getLastRow() - 1, 2).getValues().find((row) => row[0] === 'SCHOOL_DIRECTORY_SOURCE_ID');
+function schoolDirectoryPinsForTurnIn_(book) {
+  const roster = book || openTurnInRoster_();
+  let pointer;
+  try {
+    const settings = roster.getSheetByName('Settings');
+    if (!settings || settings.getLastRow() < 2) return null;
+    pointer = settings.getRange(2, 1, settings.getLastRow() - 1, 2).getValues().find((row) => row[0] === 'SCHOOL_DIRECTORY_SOURCE_ID');
+  } catch (error) {
+    throw refuse_('not_ready', 'Turn In could not read the sign-in settings. Ask your teacher.', 'roster', 'roster_settings_unreadable');
+  }
   if (!pointer || !pointer[1]) return null;
   try {
     const sheet = SpreadsheetApp.openById(String(pointer[1])).getSheetByName('School Directory');
-    if (!sheet || sheet.getLastRow() < 1 || sheet.getLastRow() > 5001) throw new Error('Invalid directory');
+    if (!sheet || sheet.getLastRow() < 1 || sheet.getLastRow() > 5001) throw directoryFailure_('directory_schema');
     const header = sheet.getRange(1, 1, 1, 4).getValues()[0];
-    if (header.join('|') !== 'School Student ID|Student Name|School Email|Status') throw new Error('Invalid headings');
+    if (header.join('|') !== 'School Student ID|Student Name|School Email|Status') throw directoryFailure_('directory_schema');
     const pins = {}, ids = new Set(), emails = new Set();
     const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues() : [];
     rows.filter((row) => row.some((cell) => cell !== '')).forEach((row) => {
       const email = String(row[2] || '').trim().toLowerCase(), status = String(row[3] || '').toUpperCase();
-      if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0]) || ids.has(row[0]) || (email && emails.has(email)) || !['AVAILABLE','DISABLED'].includes(status)) throw new Error('Invalid directory');
+      if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0]) || ids.has(row[0]) || (email && emails.has(email)) || !['AVAILABLE','DISABLED'].includes(status)) throw directoryFailure_('directory_rows');
       ids.add(row[0]); if (email) emails.add(email);
       if (email && status === 'AVAILABLE') pins[email] = row[0];
     });
     return pins;
-  } catch (error) { throw refuse_('not_ready', 'The school directory is unavailable. Ask your teacher before signing in.'); }
+  } catch (error) {
+    if (error && error.studentMessage) throw error;
+    throw directoryFailure_('directory_unreadable');
+  }
+}
+
+function directoryFailure_(reason) {
+  return refuse_('not_ready', 'The school directory is unavailable. Ask your teacher before signing in.', 'directory', reason);
 }
 
 /** Mirrors hashPin_ in the Hall Pass project. Both must share the same PIN_SALT. */
 function hashPin_(pin) {
   const salt = PropertiesService.getScriptProperties().getProperty('PIN_SALT');
-  if (!salt) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
+  if (!salt) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'pin_lookup', 'pin_salt_missing');
   const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, `${salt}:${pin}`, Utilities.Charset.UTF_8);
   return Utilities.base64EncodeWebSafe(bytes);
 }
@@ -840,10 +928,10 @@ function assertAttemptsAllowed_(device) {
   const bucket = attemptBucket_();
   const all = cache.getAll([`fail:all:${bucket}`, `fail:${device}:${bucket}`]);
   if (Number(all[`fail:${device}:${bucket}`] || 0) >= TI_FAILS_PER_DEVICE) {
-    throw refuse_('slow_down', 'Too many wrong PINs on this Chromebook. Wait a few minutes or ask your teacher.');
+    throw refuse_('slow_down', 'Too many wrong PINs on this Chromebook. Wait a few minutes or ask your teacher.', 'throttle', 'device_throttled');
   }
   if (Number(all[`fail:all:${bucket}`] || 0) >= TI_FAILS_GLOBAL) {
-    throw refuse_('slow_down', 'Turn In is paused for a few minutes. Use the copy button for now.');
+    throw refuse_('slow_down', 'Turn In is paused for a few minutes. Use the copy button for now.', 'throttle', 'service_throttled');
   }
 }
 
@@ -956,14 +1044,16 @@ function countWords_(text) {
 
 function workbook_() {
   const id = PropertiesService.getScriptProperties().getProperty('TURNIN_SPREADSHEET_ID');
-  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
+  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'account_load', 'assignment_workbook_setting_missing');
   return SpreadsheetApp.openById(id);
 }
 
-function refuse_(code, studentMessage) {
+function refuse_(code, studentMessage, stage, reason) {
   const error = new Error(studentMessage);
   error.code = code;
   error.studentMessage = studentMessage;
+  error.stage = stage;
+  error.reason = reason;
   return error;
 }
 

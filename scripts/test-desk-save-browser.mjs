@@ -78,7 +78,7 @@ async function chromebook(server, options = {}) {
   // driving the tab-only and optional sign in paths that still exist behind it.
   const hooks = { endpoint: options.endpoint === false ? '' : ENDPOINT, debounceMs: 300, snapshotMs: 300, gate: false, ...(options.hooks || {}) };
   await context.addInitScript((h) => { window.__deskSaveTest = h; }, hooks);
-  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0 };
+  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0, legacySignIn: false };
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url());
     if (url.origin === new URL(BASE).origin) return route.continue();
@@ -94,6 +94,7 @@ async function chromebook(server, options = {}) {
         return route.abort('connectionreset');
       }
       const out = server.post(body);
+      if (net.legacySignIn && JSON.parse(body).action === 'signin') delete out.supportId;
       return route.fulfill({ status: 200, headers: { ...cors(), 'content-type': 'application/json' }, body: JSON.stringify(out) });
     }
     return route.abort('blockedbyclient');
@@ -901,9 +902,19 @@ await test('the gate covers an answer page until a PIN is entered, confirms the 
 
   const wrong = s.pin(PEOPLE.ada) === '123456' ? '654321' : '123456';
   await passGate(page, wrong);
-  assert.match(await gate(page).locator('.status').textContent(), /did not match/);
+  const rejected = await gate(page).locator('.status').textContent();
+  assert.match(rejected, /did not match/);
+  const supportId = rejected.match(/Support code: (TI-[A-F0-9]{16})/)?.[1];
+  assert.ok(supportId, 'the student can report the support ID shown on the gate');
+  assert.ok(s.logs.some((entry) => entry.includes(supportId) && entry.includes('pin_no_match')),
+    'the support ID leads to the reason in the service log');
   assert.equal(await gateOpen(page), true, 'a wrong PIN never unlocks');
   assert.equal(await gate(page).getByRole('button', { name: 'Start without saving to my account' }).isHidden(), true);
+
+  cb.net.legacySignIn = true;
+  await passGate(page, wrong);
+  assert.match(await gate(page).locator('.status').textContent(), /Support code: TI-PIN\b/);
+  cb.net.legacySignIn = false;
 
   await passGate(page, s.pin(PEOPLE.ada), { confirm: false });
   assert.equal(await gate(page).locator('.who').textContent(), 'Ada');
