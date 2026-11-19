@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { PondCanvas } from "@/components/pond/pond-canvas";
 import { DiscoveryGlyph } from "@/components/pond/discovery-glyph";
+import { WorldAtlas } from "@/components/pond/world-atlas";
+import { blankAtlas, revealAtlas, expandAtlas, type AtlasState } from "@/lib/pond/atlas";
 import { PondEcosystem, MAX_RESIDENTS, residentProfile, type ResidentSave } from "@/lib/pond/ecosystem";
 import {
   STARTERS, OUTCOME_SPACE, MAX_DISCOVERIES, DISCOVERY_STORAGE_KEY,
@@ -29,7 +31,7 @@ import {
   type ToolId,
 } from "@/lib/pond/elements";
 import { PondSim, POND_SIZES, SCENES, loadScene, type PondSize, type SceneId } from "@/lib/pond/sim";
-import { initialCamera, expandCamera, panCamera, zoomCamera, type PondCamera } from "@/lib/pond/camera";
+import { initialCamera, clampCamera, expandCamera, panCamera, zoomCamera, type PondCamera } from "@/lib/pond/camera";
 import { cn } from "@/lib/utils";
 import { decodePondAnySize, encodeWorld, MAX_SAVE_BYTES, WORLD_KEY } from "@/lib/pond/save";
 
@@ -42,9 +44,15 @@ export function PondApp() {
     return s;
   }, []);
   const ecosystem = useMemo(() => new PondEcosystem(), []);
-  const undoRef = useRef<Array<{ size: PondSize; world: Uint8Array; residents: ResidentSave[]; camera: PondCamera }>>([]);
+  const undoRef = useRef<Array<{ size: PondSize; world: Uint8Array; residents: ResidentSave[]; camera: PondCamera; atlas: AtlasState }>>([]);
   const [pondSize, setPondSize] = useState<PondSize>(192);
   const [camera, setCamera] = useState<PondCamera>(() => initialCamera(192));
+  const [atlas, setAtlas] = useState<AtlasState>(() => revealAtlas(blankAtlas(192), initialCamera(192)));
+  const atlasRef = useRef(atlas);
+  atlasRef.current = atlas;
+  const [atlasOpen, setAtlasOpen] = useState(false);
+  const [atlasRevision, setAtlasRevision] = useState(0);
+  const lastAtlasRefresh = useRef(0);
   const [panMode, setPanMode] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -77,11 +85,11 @@ export function PondApp() {
     const undoLimit = sim.w > 320 ? 5 : 20;
     undoRef.current = [
       ...undoRef.current.slice(-(undoLimit - 1)),
-      { size: sim.w as PondSize, world: sim.snapshot(), residents: ecosystem.snapshot(), camera },
+      { size: sim.w as PondSize, world: sim.snapshot(), residents: ecosystem.snapshot(), camera, atlas },
     ];
     setCanUndo(true);
     setScene("custom");
-  }, [sim, ecosystem, camera]);
+  }, [sim, ecosystem, camera, atlas]);
 
   const undo = useCallback(() => {
     const previous = undoRef.current.pop();
@@ -91,6 +99,7 @@ export function PondApp() {
     ecosystem.restore(previous.residents, sim);
     setPondSize(previous.size);
     setCamera(previous.camera);
+    setAtlas(previous.atlas);
     setResidentCount(ecosystem.count);
     setScene("custom");
     setCanUndo(undoRef.current.length > 0);
@@ -118,7 +127,12 @@ export function PondApp() {
         sim.restore(restored.particles);
         ecosystem.restore(restored.residents, sim);
         setPondSize(restored.size);
-        setCamera(initialCamera(restored.size));
+        const startingCamera = initialCamera(restored.size);
+        setCamera(startingCamera);
+        const restoredAtlas = restored.atlas ?? revealAtlas(blankAtlas(restored.size), startingCamera);
+        atlasRef.current = restoredAtlas;
+        setAtlas(restoredAtlas);
+        setAtlasOpen(restored.size > 320);
         setResidentCount(ecosystem.count);
         setScene("custom");
         setPaused(true);
@@ -129,7 +143,7 @@ export function PondApp() {
     }
     const save = () => {
       if (!startedRef.current) return;
-      try { localStorage.setItem(WORLD_KEY, encodeWorld(sim, ecosystem.snapshot())); }
+      try { localStorage.setItem(WORLD_KEY, encodeWorld(sim, ecosystem.snapshot(), atlasRef.current)); }
       catch { setSaveMessage("Browser saving is unavailable. Use Export world to keep this dish."); }
     };
     const hide = () => { if (document.hidden) save(); };
@@ -143,6 +157,10 @@ export function PondApp() {
       document.removeEventListener("visibilitychange", hide);
     };
   }, [sim, ecosystem]);
+
+  useEffect(() => {
+    setAtlas((current) => current.worldSize === pondSize ? revealAtlas(current, camera) : current);
+  }, [camera, pondSize]);
 
   useEffect(() => {
     if (!discoveryLoaded) return;
@@ -239,6 +257,10 @@ export function PondApp() {
       setGrains(g);
       setResidentCount(ecosystem.count);
       setEcosystemNews(ecosystem.lastInteraction);
+      if (Date.now() - lastAtlasRefresh.current > 1200) {
+        lastAtlasRefresh.current = Date.now();
+        setAtlasRevision((value) => value + 1);
+      }
       if (!startedRef.current) return;
       const r = sim.lastReaction;
       if (r && !seen.current.has(r)) {
@@ -266,6 +288,7 @@ export function PondApp() {
     ecosystem.clear();
     setResidentCount(0);
     setEcosystemNews(null);
+    setAtlas(revealAtlas(blankAtlas(pondSize), camera));
     setScene(id);
     setPaused(false);
   };
@@ -289,11 +312,12 @@ export function PondApp() {
     checkpoint();
     const offset = sim.resize(nextSize);
     ecosystem.translate(offset, offset, sim);
+    setAtlas((previous) => expandAtlas(previous, nextSize));
     setCamera((before) => expandCamera(before, pondSize, nextSize));
     setPondSize(nextSize);
     setResidentCount(ecosystem.count);
     setScene("custom");
-    if (nextSize > 320) setPanMode(true);
+    if (nextSize > 320) { setPanMode(true); setAtlasOpen(true); }
     setToast("World expanded! Drag in Explore mode to discover the new territory.");
   };
 
@@ -303,12 +327,13 @@ export function PondApp() {
     ecosystem.clear();
     setResidentCount(0);
     setEcosystemNews(null);
+    setAtlas(revealAtlas(blankAtlas(pondSize), camera));
     setScene("blank");
     setToast("Dish cleared. Undo brings it back.");
   };
 
   const exportWorld = () => {
-    const url = URL.createObjectURL(new Blob([encodeWorld(sim, ecosystem.snapshot())], {type: "application/json"}));
+    const url = URL.createObjectURL(new Blob([encodeWorld(sim, ecosystem.snapshot(), atlasRef.current)], {type: "application/json"}));
     const link = document.createElement("a");
     link.href = url;
     link.download = "pond-world.json";
@@ -327,7 +352,10 @@ export function PondApp() {
       sim.restore(restored.particles);
       ecosystem.restore(restored.residents, sim);
       setPondSize(restored.size);
-      setCamera(initialCamera(restored.size));
+      const startingCamera = initialCamera(restored.size);
+      setCamera(startingCamera);
+      setAtlas(restored.atlas ?? revealAtlas(blankAtlas(restored.size), startingCamera));
+      setAtlasOpen(restored.size > 320);
       setPanMode(restored.size > 320);
       setResidentCount(ecosystem.count);
       setSpecimenId(null);
@@ -337,6 +365,15 @@ export function PondApp() {
       setSaveMessage("That file isn't a valid Pond world. Your current dish is still here.");
     } finally { if (fileRef.current) fileRef.current.value = ""; }
   };
+
+  const jumpToAtlas = (x: number, y: number) => {
+    setCamera((old) => clampCamera(pondSize, {
+      ...old, x: x - old.size / 2, y: y - old.size / 2,
+    }));
+    if (pondSize > 320) setPanMode(true);
+  };
+
+  const mapResidents = useMemo(() => ecosystem.snapshot(), [ecosystem, atlasRevision, residentCount]);
 
   const placeSpecimen = (id: string, x: number, y: number) => {
     if (ecosystem.count >= MAX_RESIDENTS) {
@@ -555,6 +592,18 @@ export function PondApp() {
                 </div>
               </div>
             </section>
+          ) : null}
+
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 py-2">
+            <span className="text-sm text-fg"><strong className="font-medium">World atlas</strong> · Fog of war, habitats and living creations</span>
+            <Button variant="quiet" size="sm" aria-expanded={atlasOpen} aria-controls="pond-world-atlas"
+              onClick={() => setAtlasOpen((old) => !old)}>{atlasOpen ? "Hide atlas" : "Open atlas"}</Button>
+          </div>
+          {atlasOpen ? (
+            <div id="pond-world-atlas">
+              <WorldAtlas sim={sim} atlas={atlas} camera={camera} residents={mapResidents}
+                revision={atlasRevision} onJump={jumpToAtlas}/>
+            </div>
           ) : null}
 
           {ecosystemNews ? (
