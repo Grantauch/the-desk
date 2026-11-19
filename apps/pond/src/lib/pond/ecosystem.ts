@@ -131,6 +131,12 @@ export class PondEcosystem {
   snapshot(): ResidentSave[] { return this.creatures.map((r) => ({ ...r })); }
   clear() { this.creatures = []; this.ticks = 0; }
 
+  /** Keep existing inhabitants in their original relative positions as the bowl grows. */
+  translate(dx: number, dy: number, sim: PondSim): void {
+    const next = this.creatures.map((r) => ({ ...r, x: r.x + dx, y: r.y + dy }));
+    this.creatures = validateResidents(next, sim);
+  }
+
   restore(value: unknown, sim: PondSim): void {
     const next = validateResidents(value, sim);
     this.creatures = next;
