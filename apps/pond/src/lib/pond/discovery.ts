@@ -206,11 +206,21 @@ export function paintMaterial(outcome: DiscoveryOutcome): ElementId {
     Flame: E.FIRE, Algae: E.FUNGUS, Moss: E.FUNGUS,
   };
   if (outcome.kind === "classic" && direct[outcome.name] !== undefined) return direct[outcome.name]!;
-  const materials: ElementId[] = [
-    E.SAND, E.WATER, E.PLANT, E.STONE, E.WOOD, E.ICE, E.LAVA,
-    E.SLIME, E.SEED, E.FUNGUS, E.SNOW, E.CRITTER, E.STEAM,
-  ];
-  return materials[(outcome.facets.form + outcome.facets.habitat + outcome.facets.force) % materials.length]!;
+  const form = FORMS[outcome.facets.form];
+  const habitat = HABITATS[outcome.facets.habitat];
+  const force = FORCES[outcome.facets.force];
+  if (["Flame", "Volcanic", "Sulfur", "Solar", "Sunbeam"].includes(force)) return habitat === "Volcano" ? E.LAVA : E.FIRE;
+  if (["Frost", "Midnight", "Moonbeam"].includes(force) || ["Glacier", "Tundra"].includes(habitat)) return E.ICE;
+  if (["Tidal", "Oceanic", "River", "Rain", "Mist"].includes(force) || ["Ocean", "Lake", "River", "Lagoon"].includes(habitat)) return E.WATER;
+  if (["Fox", "Otter", "Turtle", "Stag", "Hawk", "Moth", "Beetle", "Whale", "Wolf",
+    "Dragon", "Phoenix", "Serpent", "Rabbit", "Owl", "Frog", "Jellyfish"].includes(form)) return E.CRITTER;
+  if (["Mushroom", "Coral"].includes(form)) return E.FUNGUS;
+  if (["Fern", "Flower", "Tree"].includes(form)) return E.PLANT;
+  if (form === "Seed") return E.SEED;
+  if (["Lantern", "Clock", "Ship", "Tower", "Robot", "Bicycle", "Cottage"].includes(form)) return E.WOOD;
+  if (["Comet", "Moon", "Star", "Balloon", "Sprite"].includes(form)) return E.STEAM;
+  if (["Shell", "Crystal", "Golem", "Giant", "Island"].includes(form)) return E.STONE;
+  return E.SAND;
 }
 
 export function restoreDiscoveries(saved: unknown, legacy: unknown = null): string[] {
