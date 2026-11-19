@@ -48,6 +48,14 @@ const CLASSIC_FLY = new Set(["Bird", "Butterfly", "Cloud", "Storm", "Fairy", "Sp
 const CLASSIC_ROOT = new Set(["Plant", "Garden", "Forest", "Tree", "Stone", "Mountain", "Oasis", "Glacier", "Glass", "Moss"]);
 const CLASSIC_MACHINE = new Set(["Machine", "Robot", "Android", "Pump", "Windmill", "Factory", "Clock", "Tool"]);
 const CLASSIC_WALK = new Set(["Animal", "Human", "Cyborg", "Wildlife", "Phoenix", "Thunderbird"]);
+const HUNTERS = new Set(["Wolf", "Fox", "Hawk", "Dragon", "Serpent", "Owl"]);
+const PREY = new Set(["Rabbit", "Frog", "Moth", "Fish", "Beetle", "Butterfly", "Bird"]);
+const POLLINATORS = new Set(["Moth", "Beetle", "Butterfly", "Bird", "Sprite", "Fairy"]);
+const VEGETATION = new Set(["Mushroom", "Fern", "Flower", "Tree", "Seed", "Plant", "Garden", "Forest", "Moss", "Algae"]);
+function species(outcome: DiscoveryOutcome): string {
+  return outcome.kind === "classic" ? outcome.name : FORMS[outcome.facets.form]!;
+}
+
 
 export function residentProfile(outcome: DiscoveryOutcome): ResidentProfile {
   const { form, habitat, force, trait } = outcome.facets;
@@ -127,9 +135,16 @@ function isSwimmable(cell: number): boolean {
 export class PondEcosystem {
   private creatures: ResidentSave[] = [];
   private ticks = 0;
+  lastInteraction: string | null = null;
+  interactionCount = 0;
   get count() { return this.creatures.length; }
   snapshot(): ResidentSave[] { return this.creatures.map((r) => ({ ...r })); }
-  clear() { this.creatures = []; this.ticks = 0; }
+  clear() {
+    this.creatures = [];
+    this.ticks = 0;
+    this.lastInteraction = null;
+    this.interactionCount = 0;
+  }
 
   /** Keep existing inhabitants in their original relative positions as the bowl grows. */
   translate(dx: number, dy: number, sim: PondSim): void {
@@ -141,6 +156,8 @@ export class PondEcosystem {
     const next = validateResidents(value, sim);
     this.creatures = next;
     this.ticks = 0;
+    this.lastInteraction = null;
+    this.interactionCount = 0;
   }
 
   add(id: string, x: number, y: number, sim: PondSim): boolean {
@@ -215,6 +232,85 @@ export class PondEcosystem {
       // Different forces and forms change the *real sand world*, not just
       // the sprite color. Limit changes to ~two per second per resident.
       if ((this.ticks + n * 7) % 24 === 0) this.influence(sim, creature, profile);
+    }
+    if (this.ticks % 24 === 0) this.interact(sim);
+  }
+
+  /**
+   * Each resident participates in at most one relationship per ecology beat.
+   * At 80 residents this is O(80²) only twice per second, never per pixel or
+   * per rendered frame. The social rules use existing material IDs exclusively.
+   */
+  private interact(sim: PondSim): void {
+    const active = this.creatures.map((creature) => {
+      const outcome = getOutcome(creature.id)!;
+      return { creature, name: species(outcome), profile: residentProfile(outcome) };
+    });
+    const used = new Set<number>();
+    let applied = 0;
+    for (let i = 0; i < active.length && applied < 6; i++) {
+      if (used.has(i)) continue;
+      for (let j = i + 1; j < active.length; j++) {
+        if (used.has(j)) continue;
+        const a = active[i]!, b = active[j]!;
+        const dx = a.creature.x - b.creature.x;
+        const dy = a.creature.y - b.creature.y;
+        if (dx * dx + dy * dy > 100) continue;
+        const hunter = HUNTERS.has(a.name) && PREY.has(b.name) ? a :
+          HUNTERS.has(b.name) && PREY.has(a.name) ? b : null;
+        const victim = hunter === a ? b : hunter === b ? a : null;
+        const pollinator = POLLINATORS.has(a.name) && VEGETATION.has(b.name) ? a :
+          POLLINATORS.has(b.name) && VEGETATION.has(a.name) ? b : null;
+        const plant = pollinator === a ? b : pollinator === b ? a : null;
+        const grazer = !HUNTERS.has(a.name) && a.profile.mode === "walk" && VEGETATION.has(b.name) ? a :
+          !HUNTERS.has(b.name) && b.profile.mode === "walk" && VEGETATION.has(a.name) ? b : null;
+        const food = grazer === a ? b : grazer === b ? a : null;
+        const machine = a.profile.mode === "mechanical" && VEGETATION.has(b.name) ? a :
+          b.profile.mode === "mechanical" && VEGETATION.has(a.name) ? b : null;
+        const crop = machine === a ? b : machine === b ? a : null;
+        let event: string | null = null;
+        if (hunter && victim) {
+          victim.creature.energy = Math.max(0, victim.creature.energy - 1.2);
+          hunter.creature.energy = Math.min(100, hunter.creature.energy + 0.4);
+          event = hunter.name + " chased " + victim.name;
+        } else if (pollinator && plant) {
+          pollinator.creature.energy = Math.min(100, pollinator.creature.energy + 0.5);
+          plant.creature.energy = Math.min(100, plant.creature.energy + 0.2);
+          const x = Math.round(plant.creature.x) + 3;
+          const y = Math.round(plant.creature.y) + 2;
+          if (sim.inBounds(x, y) && sim.inDish(x, y) && sim.grid[sim.idx(x, y)] === E.EMPTY) {
+            sim.spawn(sim.idx(x, y), E.SEED);
+          }
+          event = pollinator.name + " pollinated " + plant.name;
+        } else if (grazer && food) {
+          grazer.creature.energy = Math.min(100, grazer.creature.energy + 0.7);
+          food.creature.energy = Math.max(0, food.creature.energy - 0.08);
+          event = grazer.name + " grazed near " + food.name;
+        } else if (machine && crop) {
+          const x = Math.round(crop.creature.x) - 2;
+          const y = Math.round(crop.creature.y) + 2;
+          if (sim.inBounds(x, y) && sim.inDish(x, y) && sim.grid[sim.idx(x, y)] === E.EMPTY) {
+            sim.spawn(sim.idx(x, y), E.WATER);
+          }
+          crop.creature.energy = Math.min(100, crop.creature.energy + 0.3);
+          event = machine.name + " irrigated " + crop.name;
+        } else if (a.profile.mode === "swim" && b.profile.mode === "swim") {
+          const vx = (a.creature.vx + b.creature.vx) / 2;
+          a.creature.vx = a.creature.vx * 0.7 + vx * 0.3;
+          b.creature.vx = b.creature.vx * 0.7 + vx * 0.3;
+          a.creature.energy = Math.min(100, a.creature.energy + 0.2);
+          b.creature.energy = Math.min(100, b.creature.energy + 0.2);
+          event = a.name + " and " + b.name + " schooled together";
+        }
+        if (event) {
+          this.lastInteraction = event;
+          this.interactionCount++;
+          used.add(i);
+          used.add(j);
+          applied++;
+          break;
+        }
+      }
     }
   }
 
