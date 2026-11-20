@@ -1,0 +1,90 @@
+---
+export interface TimelineEvent {
+  date: string;
+  heading: string;
+  detail: string;
+  image?: string;
+  imageAlt?: string;
+}
+interface Props { period: string; events?: TimelineEvent[] }
+const { period, events = [] } = Astro.props;
+---
+<section class="intro-timeline" aria-labelledby="timeline-heading">
+  <div class="timeline-intro">
+    <p class="timeline-eyebrow">WHEN · time and context</p>
+    <h2 id="timeline-heading">A place in history</h2>
+    <p class="timeline-period">{period}</p>
+  </div>
+  {events.length > 0 ? (
+    <div class="timeline-widget" data-intro-timeline>
+      <div class="timeline-controls" role="group" aria-label="Explore the historical timeline">
+        <button type="button" data-timeline-prev aria-label="Previous historical event">← previous</button>
+        <span data-timeline-count aria-live="polite">1 of {events.length}</span>
+        <button type="button" data-timeline-next aria-label="Next historical event">next →</button>
+      </div>
+      <div class="timeline-markers" aria-label="Timeline dates">
+        {events.map((item: TimelineEvent, index: number) => (
+          <button type="button" aria-label={`View ${item.date}: ${item.heading}`} aria-pressed={index === 0 ? 'true' : 'false'} data-timeline-marker={index}>
+            <span class="timeline-dot" aria-hidden="true"></span><span>{item.date}</span>
+          </button>
+        ))}
+      </div>
+      <div class="timeline-panels">
+        {events.map((item: TimelineEvent, index: number) => (
+          <article data-timeline-panel={index} hidden={index !== 0} aria-label={`${item.date}: ${item.heading}`}>
+            <div>
+              <p class="timeline-date">{item.date}</p><h3>{item.heading}</h3><p>{item.detail}</p>
+            </div>
+            {item.image && <img src={item.image} alt={item.imageAlt || ''} loading="lazy" width="480" height="270" />}
+          </article>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div class="timeline-context">
+      <p>This story takes place during <strong>{period}</strong>. As you read, notice how events unfold and how earlier decisions shape what happens next.</p>
+    </div>
+  )}
+</section>
+<style>
+.intro-timeline{background:#f5f0e5;border-top:4px solid #18303b;padding:clamp(1rem,3vw,2rem);margin:2rem 0}
+.timeline-eyebrow{font:800 .7rem var(--font-mono);color:#9f431e;letter-spacing:.09em}
+.intro-timeline h2{font:800 clamp(1.4rem,3vw,2rem) var(--font-display);margin:.25rem 0}
+.timeline-period{font:.85rem var(--font-mono)}
+.timeline-controls{display:flex;justify-content:space-between;align-items:center;margin:1.5rem 0 .7rem;gap:1rem}
+.timeline-controls button{border:1px solid #25343a;padding:.65rem;min-height:44px;background:white;font:700 .76rem var(--font-mono)}
+.timeline-controls span{font:.8rem var(--font-mono)}
+.timeline-markers{display:flex;overflow-x:auto;gap:.5rem;padding:.5rem 0 1rem;border-bottom:2px solid #c1b7a4;scrollbar-width:thin}
+.timeline-markers button{display:flex;align-items:center;flex-direction:column;gap:.5rem;min-width:96px;min-height:48px;padding:.4rem;color:#243943;font:700 .78rem var(--font-mono)}
+.timeline-dot{display:block;width:12px;height:12px;border-radius:50%;background:#c1b7a4}
+.timeline-markers button[aria-pressed=true] .timeline-dot{background:#a73f20;box-shadow:0 0 0 4px #eac4a7}
+.timeline-markers button[aria-pressed=true]{font-weight:900}
+.timeline-panels article{padding:1.4rem 0;display:grid;grid-template-columns:1fr minmax(0,40%);gap:1.5rem}
+.timeline-panels article[hidden]{display:none}
+.timeline-panels h3{font:800 1.4rem var(--font-display);margin:.3rem 0 .7rem}
+.timeline-date{font:800 .75rem var(--font-mono);color:#9f431e}
+.timeline-panels p,.timeline-context p{line-height:1.65}
+.timeline-panels img{width:100%;height:auto;max-height:270px;object-fit:contain}
+.timeline-context{padding:1.5rem 0 .5rem}
+.timeline-widget button:focus-visible{outline:3px solid #b84f1e;outline-offset:3px}
+@media(max-width:640px){.timeline-panels article{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.timeline-widget *{scroll-behavior:auto!important;transition:none!important}}
+</style>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-intro-timeline]').forEach(widget=>{
+    const markers=Array.from(widget.querySelectorAll<HTMLButtonElement>('[data-timeline-marker]'));
+    const panels=Array.from(widget.querySelectorAll<HTMLElement>('[data-timeline-panel]'));
+    const count=widget.querySelector<HTMLElement>('[data-timeline-count]');
+    let selected=0;
+    const show=(index:number)=>{
+      if (!markers.length) return;
+      selected=(index+markers.length)%markers.length;
+      markers.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===selected)));
+      panels.forEach((panel,i)=>panel.hidden=i!==selected);
+      if(count) count.textContent=`${selected+1} of ${markers.length}`;
+    };
+    markers.forEach((button,i)=>button.addEventListener('click',()=>show(i)));
+    widget.querySelector('[data-timeline-prev]')?.addEventListener('click',()=>show(selected-1));
+    widget.querySelector('[data-timeline-next]')?.addEventListener('click',()=>show(selected+1));
+  });
+</script>
