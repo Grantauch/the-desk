@@ -11,6 +11,7 @@
     "apps/blitzkrieg",
     "public/hubs/blitzkrieg",
     "apps/over-the-somme",
-    "public/hubs/pond"
+    "public/hubs/pond",
+    "schoolwide"
   ]
 }
