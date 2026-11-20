@@ -29,6 +29,12 @@ This batch replaces three Story Hub catalog illustrations, six in-lesson narrati
 - Scene 11 (*Monongahela*) now uses the 1892 Kurz & Allison *Great Battle of Homestead* lithograph, held by the Library of Congress. Source: https://www.loc.gov/item/2003656885/. It is clearly labeled an **artistic interpretation published at the time**, not a photograph or direct eyewitness transcript.
 - In both scenes the former local authored SVG remains an image-load fallback; the displayed captions distinguish an original period print from direct photographic evidence.
 
+### Original Pullman company-housing record (scene 12)
+
+- The previous generic repeating-brick-house SVG in L015 scene 12 is now replaced by the 1894 *Frank Leslie's Illustrated Newspaper* page **The town of Pullman, Illinois—the homes and wages of the Pullman operatives**, a plate of ten historical halftone illustrations. It is not a single camera photograph of a street.
+- Original/source and rights: [Library of Congress, LCCN 95511227](https://www.loc.gov/pictures/item/95511227/); digitized image `https://cdn.loc.gov/service/pnp/cph/3c10000/3c14000/3c14600/3c14674v.jpg`. The LOC describes no known publication restrictions; 1894 publication is US public domain.
+- The plate is presented uncropped as an actual newspaper page, with a visible attribution/source link; the prior local SVG remains the load-failure fallback. On small displays, readable lesson copy remains HTML and does not depend on reading the original newspaper scan.
+
 ## 3. Beyond the Scoreboard — Not in the Room
 
 - Catalog: `bts-l03-not-in-the-room`. Replaces the catalog's ledger-illustration preview with the original 1876 *Chicago White Stockings* lithograph. This image depicts players and their manager, **not** the National League's club-owner meeting. That distinction is central to this lesson.
