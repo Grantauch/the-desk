@@ -9,6 +9,31 @@
 <link rel="canonical" href="https://grant-desk.com/hubs/ush9-medal-of-honor-veteran.html">
 <link rel="stylesheet" href="/hubs/moh/moh.css">
 <link rel="stylesheet" href="/hubs/moh/exhibit.css">
+<style>
+.profile-explain{background:#f4f0e7;color:#252c38}
+.profile-explain .wrap{max-width:1140px}
+.profile-explain h2{color:#192436;margin-bottom:.8rem}
+.profile-explain .kicker{color:#654a22}
+.profile-explain h3{font:800 1.35rem/1.15 var(--display,Arial,sans-serif);color:#253146;margin:0 0 .5rem}
+.reading-deck{max-width:64rem;font:400 1.18rem/1.68 var(--serif,Georgia,serif);color:#27364a}
+.reading-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem;margin:1.5rem 0}
+.reading-card{background:white;border:1px solid #d9d3c5;border-radius:.8rem;padding:1.3rem 1.4rem}
+.reading-card p{font:400 1.07rem/1.65 var(--serif,Georgia,serif);color:#26364a}
+.reading-ask{padding:1.2rem 1.4rem;border-left:4px solid #987233;background:#fbf8ed;border-radius:.3rem}
+.reading-ask strong{display:block;font-size:1.15rem;color:#23324a}
+.reading-ask ol{padding-left:1.5rem;line-height:1.58;color:#253146}
+.vocab-lab{background:#122239;color:#ecdfc8}
+.vocab-lab .exhibit-title{color:#f0d398}
+.vocab-intro{max-width:62rem;font:400 1.1rem/1.55 var(--serif,Georgia,serif)}
+.vocab-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;margin:1.4rem 0}
+.vocab-card{border:1px solid #6b7890;border-radius:.65rem;padding:.75rem 1rem;background:#1a2c44;min-width:0}
+.vocab-card h3{font-weight:800;color:#f5d59d;font-size:1.02rem;margin:0}
+.vocab-card .definition{margin:.35rem 0 0;line-height:1.45;color:#f0f3f8}
+.vocab-chip{font-size:.78rem;letter-spacing:.1em;color:#aec5e3;margin:.3rem 0 .5rem;text-transform:uppercase}
+.vocab-note{font-size:.94rem;color:#d7e3f5}
+@media(max-width:820px){.reading-columns{grid-template-columns:1fr}.vocab-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.vocab-grid{grid-template-columns:1fr}.reading-deck{font-size:1.05rem}.reading-card{padding:1rem}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main-content">Skip to main content</a>
@@ -34,6 +59,7 @@
 <script src="/hubs/moh/veterans.js"></script>
 <script src="/hubs/moh/map.js"></script>
 <script src="/hubs/moh/portraits.js"></script>
+<script src="/hubs/moh/reading-extra.js"></script>
 <script>
 (function () {
   'use strict';
@@ -79,7 +105,7 @@
     ])
   ])]);
   page.appendChild(hero);
-  var navItems = [['record', 'Service record'], ['story', 'His story'], ['citation', 'Official citation'], ['sources', 'Sources']];
+  var navItems = [['record', 'Service record'], ['story', 'His story'], ['more', 'Extra reading'], ['vocabulary', 'Vocabulary'], ['citation', 'Official citation'], ['sources', 'Sources']];
   page.appendChild(el('nav', { class: 'profile-jumps', 'aria-label': 'On this profile' }, [
     el('div', { class: 'wrap' }, navItems.map(function (item) {
       return el('a', { href: '#' + item[0], text: item[1] });
@@ -143,6 +169,70 @@
   page.appendChild(el('section', { class: 'exhibit-section light-section story', id: 'story', 'aria-labelledby': 'story-title' }, [
     el('div', { class: 'wrap' }, [
       el('h2', { class: 'exhibit-title', id: 'story-title', text: 'His story' }), chapters
+    ])
+  ]));
+
+
+  /* More grounded reading without invented dates, dialogue, motives or facts. */
+  var extra = window.MOH_EXTRA || {}, lens = extra.lenses && extra.lenses[v.slug] || '';
+  var contextKey = v.tags.indexOf('lostbattalion') >= 0 ? 'lostbattalion'
+    : v.tags.indexOf('belleau') >= 0 ? 'belleau' : v.tags.indexOf('escape') >= 0 ? 'escape'
+    : v.tags.indexOf('air') >= 0 ? 'air' : v.tags.indexOf('navy') >= 0 ? 'navy'
+    : v.tags.indexOf('marines') >= 0 ? 'marines' : v.tags.indexOf('meuse') >= 0 ? 'meuse' : 'army';
+  var ctx = extra.context && extra.context[contextKey] || [];
+  var firstBox = el('section', { class: 'reading-card' }, [
+    el('h3', { text: 'What was happening in World War I?' }),
+    el('p', { text: ctx[1] || '' })
+  ]);
+  var secondBox = el('section', { class: 'reading-card' }, [
+    el('h3', { text: 'Why this moment matters' }),
+    el('p', { text: lens })
+  ]);
+  var evidence = el('div', { class: 'reading-ask' }, [
+    el('strong', { text: 'Use these clues in your report' }),
+    el('ol', {}, [
+      el('li', { text: 'Before the war: What do we know about ' + v.name + ' before military service? If the records leave something out, say so.' }),
+      el('li', { text: 'The medal action: On ' + v.actionLabel + ', what danger did he face near ' + v.place + '? Which actions were his?' }),
+      el('li', { text: 'After the war: What happened to him, and when did the medal arrive? Compare the dates in his service record.' }),
+      el('li', { text: 'Historical proof: Find one exact detail in the citation that supports your explanation. Put that detail into your own words.' })
+    ])
+  ]);
+  page.appendChild(el('section', { class: 'exhibit-section profile-explain', id: 'more', 'aria-labelledby': 'more-title' }, [
+    el('div', { class: 'wrap' }, [
+      el('p', { class: 'kicker', text: 'Read more · context and meaning' }),
+      el('h2', { class: 'exhibit-title', id: 'more-title', text: 'Understand the bigger story' }),
+      el('p', { class: 'reading-deck', text: 'A medal citation tells what a person did. To write a strong history report, you also need to explain the world around him and why the details matter. Read both panels before you start your chapters.' }),
+      el('div', { class: 'reading-columns' }, [firstBox, secondBox]), evidence
+    ])
+  ]));
+
+  /* Each veteran gets their citation definitions and WWI historical glossary. */
+  var terms = extra.terms || {}, seen = {};
+  var cards = el('div', { class: 'vocab-grid', role: 'list' });
+  function addTerm(term, definition, label) {
+    var normalized = String(term).toLowerCase().trim();
+    if (seen[normalized] || !definition) return;
+    seen[normalized] = true;
+    cards.appendChild(el('div', { class: 'vocab-card', role: 'listitem' }, [
+      el('h3', { text: term }), el('p', { class: 'definition', text: definition }),
+      el('p', { class: 'vocab-chip', text: label })
+    ]));
+  }
+  v.words.forEach(function (w) { addTerm(w[0], w[1], 'From this citation'); });
+  ['citation', 'recipient', 'rank', 'unit', 'regiment', 'offensive', 'valor', 'artillery', 'trench', 'casualty', 'platoon', 'company'].forEach(function (term) {
+    addTerm(term, terms[term], 'History word');
+  });
+  var fullText = [v.hook, v.unit, v.citation, v.before.join(' '), v.day.join(' '), v.after.join(' '), lens, ctx[1] || ''].join(' ').toLowerCase();
+  Object.keys(terms).forEach(function (term) {
+    if (fullText.indexOf(term.toLowerCase()) >= 0) addTerm(term, terms[term], 'In this story');
+  });
+  page.appendChild(el('section', { class: 'exhibit-section vocab-lab', id: 'vocabulary', 'aria-labelledby': 'vocab-title' }, [
+    el('div', { class: 'wrap' }, [
+      el('p', { class: 'kicker', text: 'Words before writing' }),
+      el('h2', { class: 'exhibit-title', id: 'vocab-title', text: 'Vocabulary for this veteran' }),
+      el('p', { class: 'vocab-intro', text: 'These are the words most likely to slow you down. Read the definition, find the word in the story, and explain it in your own words. You do not need to memorize every definition.' }),
+      cards,
+      el('p', { class: 'vocab-note', text: 'In Step 2 of your project, choose three words from the official citation for YOUR side and explain them in plain language. Partners choose their own three words.' })
     ])
   ]));
 

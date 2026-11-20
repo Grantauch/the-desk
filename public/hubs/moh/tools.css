@@ -102,3 +102,22 @@
   .project-tool .group { padding-inline:.75rem; }
   .project-tool .step-nav { flex-wrap:wrap; }
 }
+
+
+/* Classroom readiness: short instructions, visible ownership and large writing controls. */
+.setup-guide,.ws-coach,.step-guide{font-family:var(--ui);line-height:1.55}
+.setup-guide{margin:.9rem 0 1.2rem;padding:1rem 1.2rem;border-left:4px solid var(--bronze);background:var(--navy2);color:var(--bone);border-radius:0 .6rem .6rem 0;font-size:1.06rem}
+.ws-coach{grid-column:1/-1;margin:.15rem 0 0;color:var(--bone);font-size:.96rem;line-height:1.48;border-left:3px solid var(--bronze);padding:.35rem .8rem;background:rgba(207,159,69,.08)}
+.step-guide{margin:1.1rem 0 1.5rem;padding:1rem 1.2rem;background:#19273c;border:1px solid var(--bronze);border-radius:.75rem;color:var(--bone)}
+.step-guide strong{display:block;color:var(--star);font-weight:800;font-size:1.1rem}
+.step-guide ol{margin:.5rem 0 0;padding-left:1.5rem;display:grid;gap:.35rem}
+.step-guide li{padding-left:.2rem}
+.box-guide{color:#b9cadd;font:400 .94rem/1.5 var(--ui);margin:0 0 .45rem}
+.moh-wordcount{margin-right:auto;font:600 .84rem var(--ui);color:#b9cadd}
+.moh-expand{background:transparent;border:1px solid var(--line);border-radius:.35rem;color:var(--ribbon2);font:600 .88rem var(--ui);padding:.25rem .55rem;margin:.3rem 0 0;cursor:pointer}
+.moh-expand:hover,.moh-expand:focus-visible{border-color:var(--bronze);outline-offset:3px}
+.box.big-writing textarea{min-height:18rem;max-width:100%;font-size:1.15rem}
+.ws-steps button[aria-current="step"]{outline:2px solid var(--bronze2);outline-offset:2px}
+.ws-steps button.done .lbl{color:#dcf6e6}
+@media (max-width:600px){.setup-guide,.step-guide{padding:.85rem 1rem}.ws-coach{font-size:.9rem}.step-guide ol{padding-left:1.3rem}.box.big-writing textarea{min-height:14rem}}
+@media (prefers-reduced-motion:reduce){.box.pulse textarea,.box.pulse input{animation:none}}

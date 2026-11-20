@@ -980,8 +980,11 @@ test('partners pair with a code and each sees only the other person’s project 
   assert.equal(joined.team.role, 'B');
   assert.equal(joined.team.code, '', 'a full team no longer shows its code');
   assert.deepEqual(joined.team.members.map((m) => m.name), ['Ada B.', 'Grace H.']);
-  w.post({ action: 'save', token: grace.token, hub: MOH, classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '',
+  const forbidden = w.post({ action: 'save', token: grace.token, hub: MOH, classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '',
     answers: answers(['id:moh-b-day-1', 'What happened', 'He crossed the field.'], ['id:other', 'Not project', 'private']) });
+  assert.equal(forbidden.code, 'partner_field', 'an unknown nonempty project field is rejected');
+  assert.equal(w.post({ action: 'save', token: grace.token, hub: MOH, classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '',
+    answers: answers(['id:moh-b-day-1', 'What happened', 'He crossed the field.']) }).ok, true);
   const seen = team(w, ada.token, { op: 'status' });
   assert.equal(seen.team.partner.name, 'Grace H.');
   assert.deepEqual(seen.team.partner.answers, [{ k: 'id:moh-b-day-1', a: 'He crossed the field.' }]);
@@ -1014,6 +1017,56 @@ test('switching veterans checks the class list and is logged', () => {
   assert.equal(team(w, ada.token, { op: 'choose', choice: 'henry-johnson' }).code, 'taken');
   assert.equal(team(w, ada.token, { op: 'choose', choice: 'sidney-manning' }).team.choice, 'sidney-manning');
   assert.match(w.rows('Project Teams')[0]['History'], /switched from william-shemin to sidney-manning/);
+});
+
+
+test('unknown veteran and forged partner field or Turn In are rejected by the actual server', () => {
+  const w = world();
+  const a = sign(w, PEOPLE.ada), b = sign(w, PEOPLE.grace);
+  assert.equal(team(w, a.token, { op:'create', mode:'pair', choice:'not-a-real-veteran' }).code, 'bad_choice');
+  const joined = team(w, a.token, { op:'create', mode:'pair', choice:'alvin-york' });
+  assert.equal(team(w, b.token, { op:'join', code:joined.team.code }).ok, true);
+  const save = (token, field) => w.post({action:'save',token,hub:MOH,classPeriod:'Period 1',writeProtocol:1,baseRevision:'',answers:answers([field,'A response','Forged across the partner boundary'])});
+  assert.equal(save(a.token,'id:moh-b-fact-unit').code,'partner_field');
+  assert.equal(save(b.token,'id:moh-a-fact-born').code,'partner_field');
+  assert.equal(save(a.token,'id:moh-nonexistent').code,'partner_field');
+  assert.equal(w.post({action:'turnin',accountToken:b.token,hub:MOH,classPeriod:'Period 1',submissionId:'forged-b',writeProtocol:1,baseRevision:'',answers:answers(['id:moh-a-before-1','Before','Not my answer'])}).code,'partner_field');
+  assert.equal(w.rows('Turn Ins').length,0,'no forged submission is recorded');
+  assert.equal(w.rows('Progress').length,0,'no forged draft is recorded');
+});
+
+test('36 synthetic classmates form 18 teams and all save/turn in separately without mixing answers', () => {
+  const people = crowd(36);
+  const w = world({ memberships:people });
+  const choices = [
+    'freddie-stowers','henry-johnson','william-shemin','alvin-york','nelson-holderman','frank-luke',
+    'eddie-rickenbacker','samuel-woodfill','david-barkley','harold-furlong','william-donovan',
+    'jake-allex','louis-cukela','matej-kocak','ernest-janson','weedon-osborne','edouard-izac','harold-roberts'
+  ];
+  const accounts=people.map(([p],i)=>w.post({action:'signin',pin:w.pin(p),hub:MOH,course:'ush9',classPeriod:'Period 3',device:'cb-'+i}));
+  assert.ok(accounts.every(a=>a.ok),'every synthetic PIN signs in');
+  for(let j=0;j<18;j++){
+    const a=accounts[j*2],b=accounts[j*2+1];
+    const made=team(w,a.token,{op:'create',mode:'pair',choice:choices[j],classPeriod:'Period 3'});
+    assert.equal(made.ok,true,'A can create '+j);
+    const joined=team(w,b.token,{op:'join',code:made.team.code,classPeriod:'Period 3'});
+    assert.equal(joined.ok,true,'B can join '+j);
+    assert.equal(joined.team.choice,choices[j]);
+  }
+  assert.equal(w.rows('Project Teams').length,18);
+  assert.equal(team(w,accounts[0].token,{op:'status',classPeriod:'Period 3'}).team.role,'A');
+  assert.equal(team(w,accounts[1].token,{op:'status',classPeriod:'Period 3'}).team.role,'B');
+  for(let i=0;i<36;i++){
+    const own=i%2===0?'id:moh-a-fact-born':'id:moh-b-fact-unit';
+    const userAnswer=answers([own,'Student answer','Individual writing student '+String(i).padStart(2,'0')]);
+    const saved=w.post({action:'save',token:accounts[i].token,hub:MOH,classPeriod:'Period 3',course:'ush9',answers:userAnswer,writeProtocol:1,baseRevision:''});
+    assert.equal(saved.ok,true,'save from '+i+' '+JSON.stringify(saved));
+    const finish=w.post({action:'turnin',accountToken:accounts[i].token,hub:MOH,classPeriod:'Period 3',course:'ush9',answers:userAnswer,writeProtocol:1,baseRevision:saved.revision,submissionId:'medal-student-'+i});
+    assert.equal(finish.ok,true,'turn-in from '+i+' '+JSON.stringify(finish));
+  }
+  assert.equal(w.rows('Turn Ins').length,36,'every student has a distinct submission');
+  assert.equal(w.rows('Progress').length,36,'every student retains their own account work');
+  assert.equal(new Set(w.rows('Turn Ins').map(x=>x['Student Email'])).size,36,'no student accounts merged');
 });
 
 test('the teacher key is made once in the private workbook and unlocks every team’s work', () => {
