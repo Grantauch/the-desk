@@ -53,6 +53,8 @@ try {
           assert.match(await page.locator('.funnel output').textContent(),/cohort comparisons/);
           for(const card of await page.locator('.claim-card').all())await card.locator('button').first().click();
           assert.match(await page.locator('#claim-progress').textContent(),/^5 of 5/);
+          assert.equal(await page.locator('.ink-controls').count(),0,'Student editions must show the original photos, not AI ink sliders');
+          assert.ok(await page.locator('.authentic-photo img').count()>=2);
           for(const range of await page.locator('.ink-controls input').all()){
             await range.focus();await page.keyboard.press('Home');
             assert.match(await range.getAttribute('aria-valuetext'),/^0% ink/);
@@ -87,7 +89,7 @@ try {
         await page.screenshot({path:resolve(output,`${name}-chooser.jpg`),quality:85});
         assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
         results.push({name,status:'passed',groups});
-        console.log(`PASS ${name}: equal workload, claims, image controls, WCAG, fit and isolated drafts`);
+        console.log(`PASS ${name}: equal workload, authentic images, claims, WCAG, fit and isolated drafts`);
       } catch(error){results.push({name,status:'failed',message:error.message});console.error(`FAIL ${name}: ${error.message}`);await page.screenshot({path:resolve(output,`${name}-failed.jpg`),quality:85}).catch(()=>{});}
       finally{await context.close();}
     }
@@ -100,7 +102,7 @@ try {
       assert.equal(await page.locator('textarea').count(),3);
       const disclosure=page.locator('.claim-card details').first();await disclosure.locator('summary').click();
       assert.equal(await disclosure.evaluate(el=>el.open),true);
-      if(v==='b')assert.match(await page.locator('#case-lane .ink-stage').getAttribute('style'),/0%/);
+      if(v==='b'){assert.equal(await page.locator('#case-lane .ink-stage').count(),0);assert.equal(await page.locator('#case-lane .authentic-photo img').count(),1);}
     }
     await context.close();
   }

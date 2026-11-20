@@ -7,16 +7,33 @@ interface Props {
 }
 
 const { theme, label, eyebrow, featured = false } = Astro.props;
+
+// These previews depict the actual activity instead of unrelated default UI
+// (for example a basketball scoreboard on the Prohibition game).
+const subjectCues: Record<string, { skin: string; cues: string[] }> = {
+  'checklings · pixel camp': { skin: 'subject-checklings', cues: ['care for your companion', 'explore the camp', 'grow together'] },
+  'pond': { skin: 'subject-pond', cues: ['paint materials', 'combine elements', 'save your world'] },
+  'dry county': { skin: 'subject-dry-county', cues: ['run a route', 'avoid roadblocks', 'find the jugs'] },
+  'blitzkrieg': { skin: 'subject-blitzkrieg', cues: ['seven battlefields', 'defend the road', 'upgrade the guns'] },
+  'robber barons': { skin: 'subject-robber-barons', cues: ['buy railroads', 'negotiate deals', 'survive 1893'] },
+};
+const subject = subjectCues[label.toLowerCase()];
 ---
 
-<div class:list={['game-preview', theme, { featured }]} aria-hidden="true">
+<div class:list={['game-preview', theme, subject?.skin, { featured }]} aria-hidden="true">
   <div class="preview-heading">
     <span>{eyebrow}</span>
     <strong>{label}</strong>
   </div>
 
+  {subject && (
+    <div class="subject-strip" aria-hidden="true">
+      {subject.cues.map((cue, index) => <span><b>0{index + 1}</b> {cue}</span>)}
+    </div>
+  )}
+
   {
-    theme === 'jeopardy' && (
+    !subject && theme === 'jeopardy' && (
       <div class="jeopardy-board">
         {[200, 400, 600, 800, 1000].map((value) => <span>${value}</span>)}
       </div>
@@ -24,7 +41,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'casefile' && (
+    !subject && theme === 'casefile' && (
       <div class="verdict-row">
         <span>confirmed</span>
         <span>debunked</span>
@@ -34,7 +51,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'scoreboard' && (
+    !subject && theme === 'scoreboard' && (
       <div class="score-strip">
         <span>home</span>
         <strong>04</strong>
@@ -46,7 +63,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'finance' && (
+    !subject && theme === 'finance' && (
       <div class="paycheck-lines">
         <span>gross pay</span><strong>$1,240</strong>
         <span>withheld</span><strong>− $286</strong>
@@ -56,7 +73,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'ring' && (
+    !subject && theme === 'ring' && (
       <div class="tape-strip">
         <span>1934</span>
         <strong>W–L–KO</strong>
@@ -68,7 +85,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'street' && (
+    !subject && theme === 'street' && (
       <div class="street-strip">
         <span>3 on 3</span>
         <strong>21</strong>
@@ -80,7 +97,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'press' && (
+    !subject && theme === 'press' && (
       <div class="press-strip">
         <span>inside ×1</span>
         <span>front ×2</span>
@@ -90,7 +107,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'cartoon' && (
+    !subject && theme === 'cartoon' && (
       <div class="cartoon-strip">
         <span>reform</span>
         <strong>+3</strong>
@@ -102,7 +119,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
   }
 
   {
-    theme === 'lab' && (
+    !subject && theme === 'lab' && (
       <div class="lab-grid">
         <span>boss fight</span>
         <span>evidence locker</span>
@@ -121,6 +138,56 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
     padding: 1.15rem;
     color: white;
   }
+
+  /* Subject-specific, truthful previews for games with otherwise misleading motifs. */
+  .subject-strip {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+    border-top: 1px solid rgb(255 255 255 / 0.5);
+    padding-top: 0.6rem;
+  }
+
+  .subject-strip span {
+    font-family: ui-monospace, 'Cascadia Code', monospace;
+    font-size: 0.6rem;
+    font-weight: 650;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .subject-strip b {
+    margin-right: 0.2rem;
+    font-size: 0.55rem;
+    opacity: 0.55;
+  }
+
+  /* Subject palettes must win over the legacy theme rules below. */
+  .game-preview.subject-checklings { background: linear-gradient(135deg, #253d30, #17291e 65%, #476249); }
+  .game-preview.subject-pond { background: linear-gradient(135deg, #193b48, #0d2533 65%, #266977); }
+  .game-preview.subject-dry-county { background: linear-gradient(135deg, #442b22, #211d1b 70%, #64513a); }
+  .game-preview.subject-blitzkrieg { background: linear-gradient(135deg, #29332d, #161f20 68%, #4e503a); color: #f6f1df; }
+  .game-preview.subject-robber-barons { background: linear-gradient(135deg, #2f3b42, #152028 70%, #566066); }
+  .game-preview.subject-dry-county .preview-heading strong {
+    color: #f5dec4;
+    font-family: Georgia, serif;
+    font-style: normal;
+    text-shadow: none;
+    text-transform: none;
+  }
+  .game-preview.subject-dry-county .preview-heading span { color: #e8b98f; }
+  .game-preview.subject-blitzkrieg .preview-heading strong {
+    color: #f6f1df;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .game-preview.subject-blitzkrieg .preview-heading span { color: #dedcbb; }
 
   .game-preview.featured {
     min-height: 10.5rem;
