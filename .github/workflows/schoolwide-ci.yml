@@ -67,6 +67,19 @@ jobs:
 
       - name: Verify Schoolwide foundation
         run: npm run verify
+      - name: Create isolated synthetic classroom-load database
+        run: node scripts/prepare-ci-load-db.mjs
+
+      - name: Apply migrations to isolated classroom-load database
+        env:
+          DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide_load
+        run: npm run db:migrate
+
+      - name: Verify 35 simultaneous synthetic Check-Ins and retries
+        env:
+          DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide_load
+        run: node --import tsx --test src/checkins/checkins.concurrency-load.integration.test.ts
+
       - name: Check VPS staging operator scripts syntax
         run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh && node --check scripts/vps-host-probe.mjs
 
