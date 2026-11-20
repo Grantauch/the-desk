@@ -1,5 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import StoryIntroTimeline from '../../../components/StoryIntroTimeline.astro';
+import StoryIntroMap from '../../../components/StoryIntroMap.astro';
 import { storyHubs } from '../../../data/storyhubs';
 import { interactiveExperiences } from '../../../data/interactiveExperiences';
 
@@ -47,6 +49,20 @@ const { entry } = Astro.props;
         <p class="intro-help">You can return to this introduction from the library. Your lesson opens at its original address.</p>
       </div>
     </section>
+    <section class="who-what" aria-label="Who and what">
+      <article>
+        <p class="who-what__eyebrow">WHO · people and powers</p>
+        <h2>Who is involved?</h2>
+        <p>This introduction covers <strong>{entry.title}</strong>. The people, groups, and institutions central to the story are introduced as their evidence appears. Portraits and flags will only be added when accurately identified and sourced.</p>
+      </article>
+      <article>
+        <p class="who-what__eyebrow">WHAT · the historical situation</p>
+        <h2>What is happening?</h2>
+        <p>{entry.blurb || entry.question}</p>
+      </article>
+    </section>
+    <StoryIntroTimeline period={entry.period} />
+    <StoryIntroMap place={entry.unit} />
     <div class="intro-details">
       <section aria-labelledby="context-heading">
         <h2 id="context-heading">before you begin</h2>
@@ -67,6 +83,12 @@ const { entry } = Astro.props;
   </main>
 </Base>
 <style>
+.who-what{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+.who-what article{background:#fff;border:1px solid #d4c9b7;padding:clamp(1rem,3vw,1.6rem)}
+.who-what__eyebrow{font:800 .7rem var(--font-mono);letter-spacing:.08em;color:#9b461f}
+.who-what h2{font:800 1.5rem var(--font-display);margin:.5rem 0}
+.who-what article p:last-child{line-height:1.65}
+@media(max-width:700px){.who-what{grid-template-columns:1fr}}
 .intro-shell{max-width:1200px;margin:0 auto;padding:1rem 0 4rem}
 .intro-shell nav{margin-bottom:1rem;font:700 .82rem var(--font-mono)}
 .intro-shell nav a{color:var(--color-accent-dark)}
