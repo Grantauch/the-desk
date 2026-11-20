@@ -14,6 +14,9 @@ export interface StoryHub {
   blurb: string;
   cover: string;
   coverAlt: string;
+  /** Reviewed public-domain historical photo shown instead of a narrative-only SVG cover.
+   * The original local cover remains a fallback in the archive; the external source is credited. */
+  archivalCover?: { src: string; alt: string; credit: string; sourceUrl: string };
   topics: string[];
   inside: string[];
   /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
@@ -720,6 +723,7 @@ export const storyHubs: StoryHub[] = [
     question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
     blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
     cover: '/storyhub/hh/nuremberg/cover.svg',
+    archivalCover: {'src':'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/US_Army_51610_The_Case_Against_the_Defendents.jpg/1280px-US_Army_51610_The_Case_Against_the_Defendents.jpg','alt':'U.S. Army Signal Corps photograph of prosecutor Robert H. Jackson addressing the International Military Tribunal in Nuremberg, 1945–1946','credit':'U.S. Army Signal Corps · public domain','sourceUrl':'https://commons.wikimedia.org/wiki/File:US_Army_51610_The_Case_Against_the_Defendents.jpg'},
     coverAlt: 'Original documentary illustration of the Nuremberg tribunal courtroom, not an archival photograph',
     topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
     inside: [
@@ -1448,6 +1452,7 @@ export const storyHubs: StoryHub[] = [
     blurb:
       'Four strikes across seventeen years reveal a system getting faster and more distant: local militia, outside troops, hired detectives, and finally a court order that could reach a national union without leaving the courtroom.',
     cover: '/storyhub/ush9/l015/assets/a01-rail-yard.svg',
+    archivalCover: {'src':'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Pullman_strike%2C_1894_%28NBY_1375%29.jpg/1280px-Pullman_strike%2C_1894_%28NBY_1375%29.jpg','alt':'1894 historical photograph showing a crowd gathered outside industrial buildings during the Pullman Strike in Chicago','credit':'Newberry Library · 1894 · public domain','sourceUrl':'https://commons.wikimedia.org/wiki/File:Pullman_strike,_1894_(NBY_1375).jpg'},
     coverAlt: 'Authored paper-and-ink scene of an empty rail yard at first light',
     topics: ['great railroad strike', 'haymarket', 'homestead', 'pullman strike', 'labor injunctions'],
     inside: [
