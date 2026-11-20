@@ -586,8 +586,8 @@ export const storyHubs: StoryHub[] = [
     bytesize: 'bytesize no. 8',
     question: 'why did millions fight for years over ground measured in yards?',
     blurb: 'The sequel to Thirty Seven Days. Explore a working trench system, switch between dawn, daylight and night routines, evaluate the tradeoffs of a hypothetical attack, and investigate the Somme and the first tanks.',
-    cover: '/storyhub/ush9/the-line-that-wouldnt-move/assets/cover.svg',
-    coverAlt: 'Original illustrated cover depicting two opposing Western Front trench systems, cratered open ground, and the title The Line That Would Not Move.',
+    cover: '/storyhub/ush9/the-line-that-wouldnt-move/assets/trench-rest-q4135.jpg',
+    coverAlt: 'British soldiers resting in small trench-side shelters near Contalmaison, September 1916. Photograph by John Warwick Brooke, IWM Q 4135.',
     topics: ['world war i', 'western front', 'trench warfare', 'battle of the somme', 'military technology'],
     inside: [
       'Inspect five parts of a trench network in an interactive tactical map.',
