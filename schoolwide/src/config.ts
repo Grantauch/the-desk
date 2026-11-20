@@ -77,6 +77,14 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     } else {
       // A systemd staging service on the VPS uses its own PostgreSQL cluster
       // through local peer-authenticated Unix sockets, not Margin's database.
+      if (
+        parsed.HOST !== '127.0.0.1' ||
+        parsed.PORT !== 18787 ||
+        parsed.LEGACY_READ_ADAPTER_MODE !== 'disabled' ||
+        parsed.OPERATIONS_WORKERS_ENABLED !== 'false'
+      ) {
+        throw new Error('VPS host staging must bind localhost and keep all legacy/sync workers disabled.');
+      }
       if (parsed.DATABASE_SOCKET_PATH !== '/var/run/postgresql') {
         throw new Error('VPS host staging requires a local PostgreSQL Unix socket.');
       }
