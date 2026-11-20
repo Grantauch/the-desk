@@ -9,7 +9,7 @@
   <link rel="canonical" href="https://grant-desk.com/hubs/bts-l03-not-in-the-room.html">
   <meta property="og:title" content="Not In The Room | GrantDesk StoryHub">
   <meta property="og:description" content="How baseball owners built a league and closed the labor market while players were missing from the room.">
-  <meta property="og:image" content="https://grant-desk.com/storyhub/bts/l03/assets/cover-ledger.svg">
+  <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/b/b5/1876_Chicago_White_Stockings.webp">
   <meta name="twitter:card" content="summary_large_image">
   <style>
     :root{--paper:#d8c9a7;--paper-light:#eadfc4;--ink:#241f19;--faded:#6f5c48;--rule:#964e45;--marble:#274f50;--marble-soft:#3f6a68;--signal:#27356c;--white:#fffaf0;--shadow:#20160f33}
@@ -68,7 +68,11 @@
     @media(max-width:480px){.crumb{display:none}.bid-grid,.occupation-list{grid-template-columns:1fr}.instrument__head{display:block}.instrument__head .reset{margin-top:1rem}.identity-placeholder{grid-template-columns:1fr}.identity-placeholder__mark{min-height:6rem}.hero-ledger__row{grid-template-columns:4.2rem 1fr}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.notes{transition:none}.point{opacity:1;transform:translate(-50%,-50%) scale(1)}}
     @media print{.topbar,.notes,.reset,.advance,.market-switch,.occupation-list{display:none!important}body{background:#fff}.chapter,.appendix{break-inside:avoid}.instrument,.hero-ledger,.plain-talk{box-shadow:none}.point{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-  </style>
+  
+    /* Period portrait replaces a generic identity placeholder, without forcing enlargement of a low-resolution historical original. */
+    .identity-portrait{display:block;width:100%;height:100%;max-height:15.5rem;object-fit:cover;object-position:center top;filter:grayscale(1) contrast(1.13);border-right:2px solid var(--ink)}
+    .identity-placeholder__copy a{font-weight:700;text-decoration:underline;text-underline-offset:3px}
+</style>
 </head>
 <body>
   <a class="skip" href="#main-content">Skip to the story</a>
@@ -117,10 +121,10 @@
         <p>The meeting and date are documented. A later story says Hulbert locked the door until the deal was finished. That detail comes from memoir, written down long after the winners had won. It may be true. The surviving record does not let us treat it like the meeting itself.</p>
         <p>Out of the room came the National League of Professional Base Ball Clubs. Hulbert became league president in 1877 and held the job until his death in 1882.</p>
       </div>
-      <div class="identity-placeholder" role="img" aria-label="Text identity marker for William Hulbert; an archival portrait will be added later">
-        <div class="identity-placeholder__mark" aria-hidden="true">WH</div>
-        <div class="identity-placeholder__copy"><small>visual source slot · clearly not archival</small><strong>William Hulbert</strong><p>Organizer, club executive, and league president. An approved period portrait can replace this labeled text marker without changing the lesson.</p></div>
-      </div>
+      <figure class="identity-placeholder" aria-labelledby="hulbert-portrait-name">
+        <img class="identity-portrait" src="https://upload.wikimedia.org/wikipedia/commons/f/fb/William_Hulbert_Baseball.jpg" alt="Period studio portrait of William Ambrose Hulbert, wearing a dark suit and prominent moustache" loading="lazy" decoding="async" width="198" height="264" referrerpolicy="no-referrer">
+        <figcaption class="identity-placeholder__copy"><small>historical portrait · national baseball hall of fame source</small><strong id="hulbert-portrait-name">William Hulbert</strong><p>Chicago club executive, organizer of the 1876 National League, and league president from 1877 to 1882. <a href="https://commons.wikimedia.org/wiki/File:William_Hulbert_Baseball.jpg" target="_blank" rel="noopener noreferrer">Original portrait &amp; public-domain record ↗</a></p></figcaption>
+      </figure>
     </section>
 
     <section class="chapter page" id="charter">
