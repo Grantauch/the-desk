@@ -12,13 +12,13 @@ const immersiveStoryNames = ['over there', 'over the somme', 'the arsenal', 'the
 const immersiveStories = interactiveExperiences.filter((item) => immersiveStoryNames.includes(item.name));
 const library = [
   ...storyHubs.map((hub) => ({
-    href: hub.href, title: hub.title, course: hub.course, period: hub.period,
+    href: hub.href, introHref: `/storyhubs/view/${hub.slug}/`, title: hub.title, course: hub.course, period: hub.period,
     unit: hub.unit, question: hub.question, blurb: hub.blurb,
     cover: hub.cover, coverAlt: hub.coverAlt,
     topics: hub.topics, format: hub.bytesize ? 'short' : 'story',
   })),
   ...immersiveStories.filter((item) => !storyHubs.some((hub) => hub.href === item.href)).map((item) => ({
-    href: item.href, title: item.name, course: item.course, period: item.previewEyebrow,
+    href: item.href, introHref: `/storyhubs/view/${item.href.split('/').pop()?.replace(/\.html$/, '') || item.name.replace(/\W+/g, '-')}/`, title: item.name, course: item.course, period: item.previewEyebrow,
     unit: item.kind, question: item.blurb, blurb: '',
     cover: '', coverAlt: '', topics: [item.kind], format: 'immersive',
   })),
@@ -56,12 +56,25 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
       <div class="daily-feature__shade"></div>
     </div>
     <div class="daily-feature__content">
-      <p class="daily-feature__eyebrow">the daily feature · one story every day</p>
-      <h2 id="daily-feature-heading">today's featured story</h2>
+      <p class="daily-feature__eyebrow">today's three featured stories · new selections daily</p>
+      <h2 id="daily-feature-heading">featured story</h2>
       <p id="daily-feature-title" class="daily-feature__title">{library[0]?.title}</p>
       <p id="daily-feature-question" class="daily-feature__question">{library[0]?.question}</p>
-      <a id="daily-feature-link" class="daily-feature__link" href={library[0]?.href}>explore today's story →</a>
-      <p class="daily-feature__rotation" id="daily-feature-rotation">Every story gets its turn before the rotation repeats.</p>
+      <a id="daily-feature-link" class="daily-feature__link" href={library[0]?.href}>read the introduction →</a>
+      <p class="daily-feature__rotation" id="daily-feature-rotation">Three unique picks daily. Each story gets its turn before the rotation repeats.</p>
+    </div>
+  </section>
+
+  <section class="featured-companions" aria-label="More featured stories today">
+    <h2>also featured today</h2>
+    <div class="featured-companions__items">
+      {[1,2].map((position) => (
+        <a id={`daily-companion-${position}`} href={library[position]?.introHref || '/storyhubs/'} class="featured-companions__card">
+          <span class="featured-companions__number">featured pick {position+1}</span>
+          <strong id={`daily-companion-title-${position}`}>{library[position]?.title}</strong>
+          <span>read introduction →</span>
+        </a>
+      ))}
     </div>
   </section>
 
@@ -109,15 +122,15 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
     </div>
     <div class="library-grid" id="storyhub-library">
       {library.map((hub) => (
-        <article class="library-card" data-course={hub.course.toLowerCase()} data-format={hub.format} data-title={hub.title} data-question={hub.question} data-href={hub.href} data-cover={hub.cover} data-cover-alt={hub.coverAlt} data-search={[hub.title,hub.course,hub.period,hub.unit,hub.question,hub.blurb,...hub.topics].join(' ').toLowerCase()}>
-          <a class="library-card__art" href={hub.href} aria-label={`Open ${hub.title}`}>
+        <article class="library-card" data-course={hub.course.toLowerCase()} data-format={hub.format} data-title={hub.title} data-question={hub.question} data-href={hub.introHref} data-cover={hub.cover} data-cover-alt={hub.coverAlt} data-search={[hub.title,hub.course,hub.period,hub.unit,hub.question,hub.blurb,...hub.topics].join(' ').toLowerCase()}>
+          <a class="library-card__art" href={hub.introHref} aria-label={`Read introduction to ${hub.title}`}>
             {hub.cover ? <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="600" height="338" /> : <span class="library-card__placeholder" aria-hidden="true">historical field guide</span>}
           </a>
           <div class="library-card__content">
             <p class="library-card__meta">{hub.course} · {hub.format === 'immersive' ? 'map & exploration' : hub.format === 'short' ? 'short story' : 'story hub'}</p>
-            <h3><a href={hub.href}>{hub.title}</a></h3>
+            <h3><a href={hub.introHref}>{hub.title}</a></h3>
             <p class="library-card__question">{hub.question}</p>
-            <div class="library-card__footer"><span>{hub.period}</span><a href={hub.href}>explore →</a></div>
+            <div class="library-card__footer"><span>{hub.period}</span><a href={hub.introHref}>introduction →</a></div>
           </div>
         </article>
       ))}
@@ -423,7 +436,9 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
   }).formatToParts(new Date());
   const part = (type: string) => Number(dateParts.find(item => item.type === type)?.value || 1);
   const calendarDay = Math.floor(Date.UTC(part('year'), part('month') - 1, part('day')) / 86400000);
-  const featuredIndex = ((calendarDay % cards.length) + cards.length) % cards.length;
+  // Advance in groups of three to avoid repeats until a complete library pass.
+  // The final partial group wraps to the start; distinct picks within a day are guaranteed.
+  const featuredIndex = (((calendarDay * 3) % cards.length) + cards.length) % cards.length;
   const featured = cards[featuredIndex];
   if (featured) {
     const setText = (selector: string, value: string) => {
@@ -432,7 +447,14 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
     };
     setText('#daily-feature-title', featured.dataset.title || '');
     setText('#daily-feature-question', featured.dataset.question || '');
-    setText('#daily-feature-rotation', `Story ${featuredIndex + 1} of ${cards.length} in the rotation · changes at midnight Eastern`);
+    setText('#daily-feature-rotation', `Three stories featured today · changes at midnight Eastern`);
+    for (const position of [1,2]) {
+      const other=cards[(featuredIndex+position)%cards.length];
+      const companion=document.querySelector<HTMLAnchorElement>(`#daily-companion-${position}`);
+      const title=document.querySelector<HTMLElement>(`#daily-companion-title-${position}`);
+      if(companion && other) companion.href=other.dataset.href || '#storyhub-library';
+      if(title && other) title.textContent=other.dataset.title || '';
+    }
     const link = document.querySelector<HTMLAnchorElement>('#daily-feature-link');
     if (link) link.href = featured.dataset.href || '#storyhub-library';
     const image = document.querySelector<HTMLImageElement>('#daily-feature-image');
