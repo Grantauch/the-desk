@@ -120,6 +120,19 @@ main{overflow:hidden}.scene{position:relative;min-height:min(92vh,900px);display
 #s6:after{background:linear-gradient(90deg,rgba(12,11,10,.94),rgba(12,11,10,.72) 55%,rgba(12,11,10,.16))}
 @media(max-width:950px){.scene-study{width:49%;right:1%;padding:.85rem;gap:.6rem}}
 @media(max-width:760px){.scene-study{inset:auto 0 1.8rem 0;width:94%;margin:auto;padding:.7rem;max-height:41%;min-height:0;gap:.4rem;overflow:auto}.scene-study h3{font-size:1.45rem}.scene-study__eyebrow,.scene-study__foot{font-size:.5rem}.scene-study__armory{gap:.2rem}.scene-study__armory>div{padding:.25rem;grid-template-columns:2rem 1fr}.scene-study__armory b{font-size:1.1rem}.scene-study__armory strong{font-size:.85rem}.scene-study__armory span{font-size:.65rem}.scene-study__daybar{height:37px}.scene-study__daybar span{font-size:.57rem}.scene-study a{font-size:.53rem}#s5 .scene-copy,#s6 .scene-copy{align-self:flex-start;padding-top:5rem}}
+
+/* The evidence plates are genuine second-column content, not text-covering art.
+   Reserve distinct vertical zones when a phone collapses the layout. */
+#s3 .scene-copy,#s5 .scene-copy,#s6 .scene-copy,#s13 .scene-copy,#s14 .scene-copy{width:min(39vw,530px)}
+@media(max-width:760px){
+ #s3,#s5,#s6,#s13,#s14{min-height:max(980px,138svh)}
+ #s3 .scene-copy,#s5 .scene-copy,#s6 .scene-copy,#s13 .scene-copy,#s14 .scene-copy{width:min(90vw,760px);align-self:start;padding-top:clamp(2.4rem,8vw,4rem)}
+ #s3 .scene-diagram,#s13 .scene-diagram,#s14 .scene-diagram,#s5 .scene-study,#s6 .scene-study{max-height:45%;bottom:2rem}
+}
+@media(max-width:390px){
+ #s3,#s5,#s6,#s13,#s14{min-height:max(1030px,151svh)}
+ #s3 .scene-diagram,#s13 .scene-diagram,#s14 .scene-diagram,#s5 .scene-study,#s6 .scene-study{max-height:42%}
+}
 </style>
 </head>
 <body>
