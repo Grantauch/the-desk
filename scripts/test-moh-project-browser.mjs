@@ -190,6 +190,15 @@ await test('every veteran page builds with a citation, a map pin and working nex
     assert.ok((await page.locator('#more .reading-card').innerText()).length > 350, `${slug} expands the reading beyond the short biography`);
     assert.ok(await page.locator('#vocabulary .vocab-card').count() >= 15, `${slug} includes a substantial plain-language glossary`);
     assert.equal(await page.locator('#more .reading-ask li').count(), 4, `${slug} contains a four-step evidence guide`);
+    const project = await page.context().newPage();
+    await project.goto(`${BASE}/hubs/${HUB}.html?deskteacher=on`);
+    await project.waitForFunction(() => Boolean(window.MOH_EXTRA && window.MOH_EXTRA.terms));
+    const bank = await project.evaluate((key) => {
+      const v = window.MOH_VETERANS.find((x) => x.slug === key), terms = window.MOH_EXTRA.terms;
+      return v.words.length + Object.keys(terms).filter((term) => v.citation.toLowerCase().includes(term.toLowerCase()) && !v.words.some((w) => w[0].toLowerCase() === term.toLowerCase())).length;
+    }, slug);
+    assert.ok(bank >= 6, `${slug} has at least six citation terms for two partners`);
+    await project.close();
   }
   assert.deepEqual(page.errors.map(String), []);
   await cb.context.close();
