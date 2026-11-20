@@ -1,0 +1,41 @@
+name: Import reviewed archival Story Hub covers
+
+on:
+  push:
+    branches:
+      - feat/archival-cover-wave1-20261120
+    paths:
+      - scripts/import-archival-storyhub-covers.mjs
+      - .github/workflows/import-archival-covers.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out authoring branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Retrieve verified archival images
+        run: node scripts/import-archival-storyhub-covers.mjs
+      - name: Preserve source images and licenses in authoring branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/storyhub/ush9/l015/assets/railroad-strike-1877-archival.jpg
+          git add public/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg
+          git add public/storyhub/hh/nuremberg/robert-jackson-nuremberg-archival.jpg
+          git add docs/catalog/ARCHIVAL-COVER-PROVENANCE.json
+          if ! git diff --cached --quiet; then
+            git commit -m "art: add self-hosted, source-verified archival Story Hub cover files"
+            git push origin HEAD:feat/archival-cover-wave1-20261120
+          fi
