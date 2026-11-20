@@ -1,4 +1,18 @@
 {
+  "medal-of-honor-exemplar-2026-11-20": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Add a complete clearly labeled student-style paired exemplar of the current Medal of Honor project, with teaching annotations, both art pieces, print/reading views and links from all seven steps.",
+    "verification_status": "ALL_44_AUTHORED_FIELDS_MATCH_CURRENT_SPEC_BROWSER_AND_CANONICAL_GATES_PENDING",
+    "deployment_status": "PROTECTED_REVIEW_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All 44 authored fields satisfy the current MOH spec minimums; six vocabulary terms occur in the citation, both headlines meet the five-word limit and both exact citation quotations meet the twelve-word limit.",
+      "Reading page has no answer fields, account scripts or save hooks. Workspace links open the matching section in a new tab.",
+      "Memorial image uses the existing student art renderer. Stowers likeness is explicitly identified as a U.S. Army forensic reconstruction; interpretive drawings are labeled.",
+      "Chromium cannot launch in this environment because Unix sockets are restricted; three-width accessibility, keyboard, print, no-JavaScript and synthetic draft-preservation coverage has been added to the existing protected browser suite."
+    ]
+  },
   "medal-of-honor-exhibit-2026-11-19": {
     "status": "LOCAL_BROWSER_VERIFIED",
     "owner": "Codex",

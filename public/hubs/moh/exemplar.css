@@ -1,0 +1,65 @@
+/* A student's paper with clearly separate teaching notes. All content works without JS. */
+.exemplar{background:#e5e0d6;color:#202c38}
+.example-intro{padding:3rem 0 2rem;max-width:1120px}
+.example-intro .kicker{color:#795615}
+.example-intro h1{font-size:clamp(2.9rem,6vw,5rem);line-height:1.02;color:#182c3c;text-transform:none;letter-spacing:-.025em;margin-bottom:1rem}
+.example-intro h1 span{color:#426179}
+.example-intro .lede{color:#263b49;max-width:48rem}
+.exemplar a:not(.btn):not(.brand){text-underline-offset:.18em}
+.example-intro a,.sample-paper a,.example-footer a{color:#1c5480}
+.example-intro a:hover,.sample-paper a:hover{color:#123b5b}
+.model-label{font:.92rem/1.5 var(--ui);padding:.7rem .9rem;border-left:3px solid #a37b33;background:#f4eee1;max-width:52rem}
+.example-controls{display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;margin:1.2rem 0}
+.example-controls .btn.ghost{color:#203d54;box-shadow:inset 0 0 0 2px #697c88}
+.example-controls [role=status]{font-size:.9rem;color:#435562}
+.example-jumps{display:flex;gap:.55rem 1rem;flex-wrap:wrap;padding:1rem 0;border-bottom:1px solid #b4b7b3}
+.solo-note{font-size:.96rem;margin:1rem 0 0;max-width:52rem}
+.sample-paper{max-width:1120px;margin:0 auto;background:#fffef9;box-shadow:0 5px 30px #25323c1a;border:1px solid #c9c6bb}
+.paper-cover{padding:2.3rem 1.5rem;text-align:center;border-bottom:2px solid #243e55}
+.paper-kicker{font:600 .85rem/1.35 var(--ui);color:#50616b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem}
+.sample-paper h2,.sample-paper h3{font-family:var(--ui);font-weight:600;color:#1c3448;line-height:1.25;text-transform:none;letter-spacing:0}
+.paper-cover h2{font:600 clamp(2.6rem,6vw,4rem)/1.15 var(--serif);color:#1c3448}
+.cover-title{font:italic 1.4rem var(--serif);margin-top:.7rem}
+.cover-portrait{max-width:230px;margin:1.5rem auto}
+.cover-portrait img{width:100%;height:240px;object-fit:cover;object-position:50% 20%;filter:sepia(.14)}
+.sample-paper figcaption{font:.83rem/1.5 var(--ui);color:#4b5962;margin-top:.7rem}
+.paper-cover .model-label{display:inline-block;text-align:left;margin:0}
+.sample-section{display:grid;grid-template-columns:minmax(0,1fr) 255px;gap:2rem;padding:2.2rem 2.4rem;border-bottom:1px solid #d5d9d8;scroll-margin-top:6rem}
+.student-work{min-width:0;font:1.06rem/1.8 var(--serif);color:#25313a}
+.student-work h2{font-size:1.65rem;margin-bottom:1rem}
+.student-work h3{font-size:1.08rem;margin:1.2rem 0 .4rem}
+.student-work p:last-child{margin-bottom:0}
+.section-context{font:.93rem/1.6 var(--ui);color:#52616a}
+.fact-file{display:grid;grid-template-columns:135px minmax(0,1fr);margin:0;font-size:1rem;line-height:1.65}
+.fact-file dt{font-family:var(--ui);font-weight:600}
+.fact-file dt,.fact-file dd{margin:0;padding:.7rem .5rem;border-bottom:1px solid #d8dbd7}
+.fact-file dd{padding-right:0}
+.explanation{align-self:start;background:#edf3f7;border:1px solid #b5c9d7;border-left:4px solid #376786;padding:1rem;color:#233e51;font:.96rem/1.6 var(--ui)}
+.explanation h3{font:600 1.1rem/1.3 var(--ui);color:#244c69;margin-bottom:.6rem}
+.explanation p{margin-bottom:.8rem}
+.explanation p:last-child{margin-bottom:0}
+.try-it{border-top:1px solid #b5c9d7;padding-top:.7rem}
+.word-table{width:100%;border-collapse:collapse;font:1rem/1.6 var(--ui);table-layout:fixed}
+.word-table caption{text-align:left;color:#4b5962;font-size:.88rem;padding-bottom:.6rem}
+.word-table th,.word-table td{padding:.65rem .4rem;vertical-align:top;text-align:left;border-bottom:1px solid #cfd5d7;overflow-wrap:anywhere}
+.word-table thead th{background:#edf0ee}
+.word-table th:first-child{width:17%}.word-table th:nth-child(2){width:26%}
+.word-table tbody th{font-weight:600}
+.poster-example{margin:0;background:#f2ecd9;border:2px solid #667861;padding:1.3rem 1.1rem;color:#213a50}
+.poster-head{font:600 clamp(1.8rem,4vw,2.7rem)/1.15 var(--ui);text-align:center;margin-bottom:.3rem}
+.poster-name{text-align:center;font:600 1.1rem var(--ui)}
+.poster-scene{display:block;width:100%;height:auto;border-bottom:1px solid #9d9f8c}
+.poster-facts{display:grid;grid-template-columns:1fr 1fr;gap:.4rem 1rem;margin:1rem 0;font:.92rem/1.55 var(--ui)}
+.poster-facts p{margin:0}
+.poster-example blockquote{margin:1rem 0 0;padding:.7rem 0;border-top:1px solid #9d9f8c;text-align:center;font:italic 1.1rem/1.5 var(--serif)}
+.poster-example cite{display:block;font:normal .82rem var(--ui);margin-top:.5rem}
+.student-work figure:not(.poster-example){margin:0 0 1.2rem}
+.student-work figure img{width:100%;height:auto;border:1px solid #bfc8cc}
+.source-list{padding-left:1.4rem;font-size:.96rem;overflow-wrap:anywhere}.source-list li{margin-bottom:.7rem}
+.final-check ul{padding-left:1.25rem}.final-check li{margin-bottom:.45rem}
+.example-end{padding:2.5rem 0}.example-end h2{color:#1c3448;font-size:2rem;text-transform:none;line-height:1.2;margin-bottom:.6rem}
+.example-end .btn{margin:.4rem .4rem 0 0}.example-end .btn.ghost{color:#203d54;box-shadow:inset 0 0 0 2px #697c88}
+.example-footer{font-size:.86rem;color:#495a65;padding-bottom:1.5rem}
+.exemplar.notes-hidden .explanation{display:none}.exemplar.notes-hidden .sample-section{grid-template-columns:1fr;max-width:800px;margin:0 auto}
+@media(max-width:760px){.sample-section{grid-template-columns:1fr;gap:1.2rem;padding:1.5rem 1.2rem}.explanation{border-left-width:3px}.paper-cover{padding:1.7rem 1.2rem}.example-intro{padding-top:2rem}.sample-paper{margin:0 .5rem}.fact-file{grid-template-columns:1fr}.fact-file dt{border-bottom:0;padding:.6rem 0 0}.fact-file dd{padding:.1rem 0 .6rem}.poster-facts{grid-template-columns:1fr}.mbar{position:static}.mbar .wrap{padding:.6rem 0}.mbar nav{margin-left:0}.mbar nav a{padding:.4rem .55rem}.word-table{font-size:.92rem}.word-table th:first-child{width:18%}.word-table th:nth-child(2){width:29%}.sample-section{scroll-margin-top:1rem}}
+@media print{@page{size:letter;margin:.6in}.exemplar{background:white;color:#111}.mbar,.skip,.example-controls,.example-jumps,.example-end,.example-footer{display:none!important}.example-intro{padding:0 0 1rem;width:100%}.example-intro h1{font-size:25pt}.example-intro .lede,.example-intro .solo-note{font-size:10pt}.sample-paper{box-shadow:none;border:0;margin:0;max-width:none}.paper-cover{break-after:page}.sample-section{padding:1rem 0;gap:.2in;grid-template-columns:minmax(0,1fr) 1.65in}.student-work{font-size:10.5pt;line-height:1.65}.student-work h2{font-size:17pt}.explanation{font-size:9pt;break-inside:avoid}.poster-example,figure{break-inside:avoid}.sample-section h2,.sample-section h3{break-after:avoid}.notes-hidden .sample-section{max-width:none}.model-label{font-size:9pt}.sample-paper a{color:#1c3448}.word-table{font-size:9pt}}
