@@ -1,0 +1,104 @@
+/* The classroom tools use the same materials as the exhibit, with denser layouts. */
+.project-tool #main-content { min-width:0; }
+.tool-page-title {
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
+.project-tool .setup { padding-block:clamp(1.25rem,5vw,3rem); }
+.tool-intro {
+  background:linear-gradient(90deg,#1b1814 24%,#211b14df 56%,#251b0f7a),
+    url("/hubs/moh/archive/americans-going-to-front-small.webp") 60% 49% / cover;
+  border-block:1px solid #75604a;
+  padding:clamp(1.3rem,4vw,2.7rem);
+  margin-bottom:1.6rem;
+}
+.tool-intro .exhibit-title { font-size:clamp(2.2rem,5vw,4.1rem); }
+.tool-intro p:last-child { margin:1rem 0 0; max-width:48ch; }
+.project-tool .ws-wait { text-align:left; padding-block:2rem; }
+.project-tool .ws-wait .tool-intro p { color:var(--bone); }
+.project-tool .big-choice {
+  min-height:7rem;
+  border:1px solid #76614b;
+  border-top:3px solid #a68359;
+  border-radius:3px;
+  background:linear-gradient(140deg,#3a2e22,#26211a);
+}
+.project-tool .big-choice:hover, .project-tool .big-choice:focus-visible { border-color:var(--bronze); background:#3e3023; }
+.project-tool .big-choice b { font:600 1.35rem/1.1 var(--serif); text-transform:none; }
+.project-tool .join-row input, .project-tool .code-card { border-radius:3px; }
+.project-tool .code-card .code { font-size:clamp(2rem,9vw,4rem); overflow-wrap:anywhere; }
+.project-tool #pick-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr)); }
+.picker-entry {
+  display:flex;
+  flex-direction:column;
+  gap:.35rem;
+  min-width:0;
+}
+.project-tool .picker-entry .vcard {
+  justify-content:flex-start;
+  flex:1;
+  width:100%;
+  text-align:left;
+  color:var(--bone);
+  border-radius:3px;
+  padding:.65rem;
+  cursor:pointer;
+  background:#27221c;
+}
+.project-tool .picker-entry .vcard.taken { opacity:1; cursor:default; border-color:#79614b; }
+.project-tool .picker-entry .vcard.taken::after { content:none; }
+.project-tool .picker-entry .rank { margin-top:.25rem; color:var(--bronze2); }
+.project-tool .picker-entry .name { font:600 1.28rem/1.15 var(--serif); text-transform:none; }
+.project-tool .picker-entry .choice-status { color:var(--bronze2); font:.93rem var(--ui); }
+.project-tool .picker-entry .tag { align-self:flex-start; font-size:.9rem; padding:.3rem .6rem; }
+.project-tool .picker-entry img { width:100%; height:8rem; object-fit:cover; object-position:50% 28%; background:#47382b; }
+.project-tool .ws-head { top:0; background:#211d18; border-color:#856b50; }
+.project-tool .ws-head .wrap { grid-template-columns:minmax(0,1fr) auto; }
+.ws-identity { display:flex; align-items:center; gap:.75rem; min-width:0; }
+.ws-avatar { width:3.15rem; flex:none; align-self:start; }
+.ws-avatar img { border:1px solid #a48662; width:100%; height:auto; aspect-ratio:5 / 6; object-fit:cover; }
+.ws-identity .ws-title { gap:.35rem .7rem; }
+.project-tool .ws-title #ws-vet { margin:0; color:var(--star); font:600 1.38rem/1.12 var(--serif); text-transform:none; }
+.project-tool .progress { height:.36rem; }
+.project-tool .progress span { background:linear-gradient(90deg,#b9c9cb,var(--bronze)); }
+.project-tool .ws-step h2 { font:600 clamp(2rem,5vw,3.4rem)/1.05 var(--serif); letter-spacing:-.04em; text-transform:none; }
+.project-tool .ws-steps button { border-radius:3px; }
+.project-tool .ws-steps button[aria-current="step"] { background:#453626; }
+.project-tool .group, .project-tool .panel-card, .project-tool .paper, .project-tool .art-group {
+  border-radius:3px;
+}
+.project-tool .group.mine { border-top:2px solid #a78662; }
+.project-tool .group-head { flex-wrap:wrap; }
+.project-tool .box textarea, .project-tool .box input[type=text] { background:#171613; border-radius:3px; }
+.project-tool .designer { background:#30271e; padding:clamp(.45rem,2vw,1rem); border:1px solid var(--line); }
+.project-tool .art-tools { grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr)); }
+.project-tool .art-group { min-width:0; }
+.project-tool .overlay, .teacher-tool .overlay { background:#15120ef0; }
+.project-tool .overlay .bar, .teacher-tool .overlay .bar { background:#211c16; padding:.65rem; }
+.project-tool .drawer { background:#28231c; }
+.project-tool .drawer summary:hover { color:var(--bronze2); }
+.teacher-tool main { width:min(var(--max),calc(100% - clamp(2rem,8vw,8rem))); padding-inline:0; }
+.teacher-tool .stats, .teacher-tool .teams { grid-template-columns:repeat(auto-fit,minmax(min(100%,345px),1fr)); }
+.teacher-tool .stats { grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr)); }
+.teacher-tool .keyrow, .teacher-tool .stat, .teacher-tool .team { border-radius:3px; }
+.teacher-tool .team { border-top:2px solid #a78662; }
+.teacher-tool .team h3 { font:600 1.35rem/1.1 var(--serif); text-transform:none; }
+.teacher-tool .teacher-veteran { display:flex; align-items:center; gap:.65rem; }
+.teacher-tool .teacher-veteran img { width:2.6rem; height:auto; aspect-ratio:5 / 6; object-fit:cover; border:1px solid #a78662; }
+.teacher-tool #gallery { grid-template-rows:minmax(0,1fr) auto; }
+.teacher-tool #gallery .cap { flex-wrap:wrap; background:#211c16; }
+
+@media (max-width:900px) {
+  .project-tool .ws-head { position:relative; }
+  .project-tool .ws-head .wrap { grid-template-columns:minmax(0,1fr); }
+  .project-tool .ws-actions { justify-content:flex-start; }
+}
+@media (max-width:420px) {
+  .project-tool .ws-steps button { min-height:44px; }
+  .project-tool .group { padding-inline:.75rem; }
+  .project-tool .step-nav { flex-wrap:wrap; }
+}
