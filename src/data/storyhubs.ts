@@ -719,8 +719,8 @@ export const storyHubs: StoryHub[] = [
     bytesize: 'bytesize no. 3',
     question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
     blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
-    cover: '/storyhub/hh/nuremberg/cover.svg',
-    coverAlt: 'Original documentary illustration of the Nuremberg tribunal courtroom, not an archival photograph',
+    cover: '/storyhub/hh/nuremberg/robert-jackson-nuremberg-archival.jpg',
+    coverAlt: 'Archival U.S. Army photograph of prosecutor Robert H. Jackson addressing the Nuremberg tribunal; not John C. Woods'
     topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
     inside: [
       'Decide how leaders accused of war crimes should be tried, then discover the 1946 verdicts.',
@@ -1447,8 +1447,8 @@ export const storyHubs: StoryHub[] = [
     question: 'when workers stopped the trains, who arrived to make them move again?',
     blurb:
       'Four strikes across seventeen years reveal a system getting faster and more distant: local militia, outside troops, hired detectives, and finally a court order that could reach a national union without leaving the courtroom.',
-    cover: '/storyhub/ush9/l015/assets/a01-rail-yard.svg',
-    coverAlt: 'Authored paper-and-ink scene of an empty rail yard at first light',
+    cover: '/storyhub/ush9/l015/assets/railroad-strike-1877-archival.jpg',
+    coverAlt: '1877 Harper’s Weekly engraving showing burning railroad facilities in Pittsburgh during the Great Railroad Strike'
     topics: ['great railroad strike', 'haymarket', 'homestead', 'pullman strike', 'labor injunctions'],
     inside: [
       'A rail-network timeline that shows the 1877 strike spreading city by city and records who answered it.',
@@ -1468,8 +1468,8 @@ export const storyHubs: StoryHub[] = [
     question: 'what changes when the people doing the work are missing from the meeting?',
     blurb:
       'Baseball owners create a league, set entry rules, and close the labor market while the players who produce the game are absent from the room. Students follow exactly where control moved and who gained it.',
-    cover: '/storyhub/bts/l03/assets/cover-ledger.svg',
-    coverAlt: 'Editorial ledger cover with an intentionally empty player chair',
+    cover: '/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg',
+    coverAlt: 'Public-domain 1876 Chicago White Stockings club portrait, one of the original National League teams'
     topics: ['national league origins', 'william hulbert', 'club ownership', 'reserve rule', 'player labor'],
     inside: [
       'A four-clause charter audit that makes students identify the problem each owner rule was designed to solve.',
