@@ -1,4 +1,4 @@
-/* B10C — The Breakaway: early-2000s college-football console menu language.
+/* B10C — Gridiron Blitz: early-2000s college-football console menu language.
    Original layout, no NCAA/EA logos, trademarks or sourced menu artwork. */
 :root{--bg:#06162e;--panel:#0b2343;--panel-2:#18365c;--paper:#f3f6fd;--muted:#c5d1e0;--quiet:#9fb4c6;--bolt:#f5ba56;--bolt-soft:#ffe1a0;--danger:#ff8c66;--safe:#a9e9d4;--stroke:rgba(190,210,233,.32);--stroke-strong:rgba(226,237,255,.49);--glass:rgba(6,20,43,.94)}
 .app{background:radial-gradient(circle at 56% 35%,#254c76 0%,#102744 39%,#061528 81%)}
