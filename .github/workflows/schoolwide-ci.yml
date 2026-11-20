@@ -68,7 +68,7 @@ jobs:
       - name: Verify Schoolwide foundation
         run: npm run verify
       - name: Check VPS staging operator scripts syntax
-        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh && node --check scripts/vps-host-probe.mjs
+        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh && node --check scripts/vps-host-probe.mjs
 
       - name: Verify isolated VPS staging Compose configuration
         env:
