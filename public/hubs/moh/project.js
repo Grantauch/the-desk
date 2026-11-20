@@ -46,36 +46,58 @@
 
   /* ---------------------------------------------------------------- setup -- */
   function setupMsg(text, good) { var m = $('#setup-msg'); m.hidden = !text; m.textContent = text || ''; m.className = 'msg' + (good ? ' good' : ''); }
-  function stage(name) { ['mode', 'join', 'pick'].forEach(function (s) { $('#stage-' + s).hidden = s !== name; }); setupMsg(''); }
+  function stage(name) {
+    ['mode', 'join', 'pick'].forEach(function (s) { $('#stage-' + s).hidden = s !== name; });
+    var title = $('#setup-title');
+    var titles = {
+      mode: 'How are you working?',
+      join: 'Join your partner',
+      pick: S.setupMode === 'change' ? 'Change your veteran' : 'Choose your veteran'
+    };
+    title.textContent = titles[name];
+    $('#setup-hello').hidden = name !== 'mode';
+    setupMsg('');
+    title.focus();
+  }
   function enterSetup(mode) {
     show('moh-setup');
     var acc = window.__deskSave.account();
     $('#setup-hello').textContent = 'Hi ' + (acc && acc.firstName || 'there') + '. Choose one. If you are working with a partner, only one of you starts the team.';
-    $('#setup-title').textContent = 'How are you working?';
     S.setupMode = mode || '';
-    if (mode === 'change') { $('#setup-title').textContent = 'Change your veteran'; buildPicker(); stage('pick'); }
+    if (mode === 'change') { buildPicker(); stage('pick'); }
     else stage('mode');
   }
   function buildPicker() {
     var grid = $('#pick-grid'); grid.innerHTML = '';
     var want = new URLSearchParams(location.search).get('pick');
-    if (!S.picked && want && S.taken.indexOf(want) < 0) S.picked = want;
+    if (!S.picked && vet(want) && S.taken.indexOf(want) < 0) S.picked = want;
     if (S.setupMode === 'change' && S.team) S.picked = S.team.choice;
     VETS.forEach(function (v) {
       var taken = S.taken.indexOf(v.slug) >= 0;
       var card = el('button', { type: 'button', class: 'vcard' + (taken ? ' taken' : '') + (S.picked === v.slug ? ' picked' : ''), 'data-slug': v.slug, 'aria-pressed': S.picked === v.slug ? 'true' : 'false' });
       if (taken) card.disabled = true;
+      card.appendChild(window.MOH_PORTRAITS.image(v.slug, 'thumb'));
       card.appendChild(el('span', { class: 'rank' }, v.rank + ' · ' + v.branch));
       card.appendChild(el('span', { class: 'name' }, v.name));
-      card.appendChild(el('span', { class: 'hook' }, v.hook));
-      var meta = el('span', { class: 'meta' }); var link = el('a', { href: '/hubs/ush9-medal-of-honor-veteran.html?v=' + v.slug, target: '_blank', rel: 'noopener', class: 'tag' }, 'Read his page');
-      link.addEventListener('click', function (e) { e.stopPropagation(); });
-      meta.appendChild(link); card.appendChild(meta);
-      card.addEventListener('click', function () { S.picked = v.slug; $$('#pick-grid .vcard').forEach(function (c) { var on = c.getAttribute('data-slug') === v.slug; c.classList.toggle('picked', on); c.setAttribute('aria-pressed', on ? 'true' : 'false'); }); $('[data-action="confirm-pick"]').disabled = false; });
-      grid.appendChild(card);
+      if (taken) card.appendChild(el('span', { class: 'choice-status' }, 'Taken in your class'));
+      var entry = el('div', { class: 'picker-entry' });
+      entry.appendChild(card);
+      entry.appendChild(el('a', {
+        href: '/hubs/ush9-medal-of-honor-veteran.html?v=' + v.slug,
+        target: '_blank', rel: 'noopener', class: 'tag', 'aria-label': 'Read about ' + v.name + ' (new tab)'
+      }, 'Read profile ↗'));
+      card.addEventListener('click', function () {
+        S.picked = v.slug;
+        $$('#pick-grid .vcard').forEach(function (c) {
+          var on = c.getAttribute('data-slug') === v.slug;
+          c.classList.toggle('picked', on);
+          c.setAttribute('aria-pressed', String(on));
+        });
+        $('[data-action="confirm-pick"]').disabled = false;
+      });
+      grid.appendChild(entry);
     });
     $('[data-action="confirm-pick"]').disabled = !S.picked || S.taken.indexOf(S.picked) >= 0;
-    $('#pick-title').textContent = S.setupMode === 'solo' ? 'Pick your veteran. You are working alone.' : S.setupMode === 'change' ? 'Pick a different veteran' : 'Pick your team\'s veteran';
   }
   function confirmPick() {
     if (!S.picked || S.busy) return;
@@ -176,6 +198,7 @@
   function currentVet() { return vet(S.team.choice) || VETS[0]; }
   function headLine() {
     var v = currentVet(), n = names(), line = $('#ws-team'); line.innerHTML = '';
+    $('#ws-avatar').replaceChildren(window.MOH_PORTRAITS.image(v.slug, 'thumb'));
     $('#ws-vet').textContent = v.name;
     $('#ws-vet-link').href = '/hubs/ush9-medal-of-honor-veteran.html?v=' + v.slug;
     if (S.team.mode === 'solo') {

@@ -9,13 +9,13 @@
   var CSS = [
     '.mohp{background:#fff;color:#111;font:12pt/1.55 "Source Serif 4",Georgia,"Times New Roman",serif;max-width:7.5in;margin:0 auto;padding:.6in .7in;box-shadow:0 10px 30px rgba(0,0,0,.3)}',
     '.mohp h1,.mohp h2{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;text-transform:uppercase;letter-spacing:.03em;margin:0;color:#111}',
-    '.mohp .cover{text-align:center;padding-bottom:.3in;page-break-after:always;break-after:page}',
-    '.mohp .cover .kick{font:600 11pt "Barlow Condensed",Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#7a5512;margin:0 0 .15in}',
-    '.mohp .cover h1{font-size:40pt;line-height:1}',
-    '.mohp .cover .sub{font:600 13pt "Barlow Condensed",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;margin:.12in 0 .25in;color:#333}',
+    '.mohp .cover{text-align:center;border-block:1px solid #a07d51;padding:.25in 0 .3in;page-break-after:always;break-after:page}',
+    '.mohp .cover .kick{text-align:center;font:600 11pt "Barlow Condensed",Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#7a5512;margin:0 0 .15in}',
+    '.mohp .cover h1{font:600 clamp(24pt, 5vw, 40pt)/1.05 "Source Serif 4",Georgia,serif;text-transform:none;letter-spacing:-.035em}',
+    '.mohp .cover .sub{font:600 13pt "Barlow Condensed",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;margin:.12in 0 .25in;color:#333;text-align:center}',
     '.mohp .cover img{width:100%;border:1px solid #999;margin:.1in 0 .25in}',
     '.mohp .cover .noart{border:2px dashed #bbb;padding:.6in .3in;color:#777;margin:.1in 0 .25in}',
-    '.mohp .by{font-size:12pt;margin:.04in 0}',
+    '.mohp .cover .by{text-align:center;font-size:12pt;margin:.04in 0}',
     '.mohp h2{font-size:17pt;margin:.28in 0 .02in;border-bottom:1.5px solid #111;padding-bottom:.03in}',
     '.mohp .sign{font:italic 10.5pt "Source Serif 4",Georgia,serif;color:#555;margin:0 0 .1in}',
     '.mohp p{margin:0 0 .12in;text-align:left}',
@@ -26,7 +26,8 @@
     '.mohp .missing{color:#b0281c;font-style:italic}',
     '.mohp ol{margin:.04in 0 0 .2in;padding:0;font-size:11pt}',
     '.mohp .page-break{break-before:page;page-break-before:always}',
-    '@media print{.mohp{box-shadow:none;padding:0;max-width:none}@page{size:letter;margin:.8in}}'
+    '@media screen and (max-width:650px){.mohp{padding:.3in .2in}}',
+    '@media print{.mohp{box-shadow:none;padding:0;max-width:none}.mohp .cover h1{font-size:40pt}@page{size:letter;margin:.8in}}'
   ].join('\n');
   function css() {
     if (document.getElementById('mohp-css')) return;
