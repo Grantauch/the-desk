@@ -30,6 +30,10 @@ assert.equal(migrate.depends_on?.postgres?.condition, 'service_healthy');
 assert.equal(app.depends_on?.migrate?.condition, 'service_completed_successfully');
 assert.ok(postgres.volumes?.length > 0, 'The staging DB must be durable.');
 assert.ok(!postgres.volumes.some((v) => String(v.source ?? '').toLowerCase().includes('margin')), 'No Margin volumes.');
+for (const service of [postgres, migrate, app]) {
+  assert.ok(service.mem_limit, 'Each staging service needs a memory cap.');
+  assert.ok(service.cpus, 'Each staging service needs a CPU cap.');
+}
 assert.equal(app.environment?.DEPLOYMENT_TIER, 'staging');
 assert.equal(app.environment?.STAGING_PLATFORM, 'vps');
 assert.equal(app.environment?.LEGACY_PRODUCTION_WRITES, 'forbidden');
