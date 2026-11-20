@@ -1,0 +1,54 @@
+name: Pond Field Station UI build
+on:
+  pull_request:
+permissions:
+  contents: write
+jobs:
+  field-ui:
+    if: github.repository == 'Grantauch/the-desk' && github.event.pull_request.head.repo.full_name == 'Grantauch/the-desk' && github.head_ref == 'feat/pond-field-station-ui'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out UI branch
+        uses: actions/checkout@v7
+        with:
+          ref: feat/pond-field-station-ui
+          fetch-depth: 0
+      - name: Configure Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/pond/package-lock.json
+      - name: Install locked Pond dependencies
+        run: npm ci --prefix apps/pond --include=dev
+      - name: Test Pond and world simulation regressions
+        run: npm --prefix apps/pond test
+      - name: Build new field station interface
+        run: npm run pond:build
+      - name: Verify source and published assets
+        run: npm run pond:test
+      - name: Install Playwright test dependencies
+        run: npm ci --include=dev
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser test field station on mobile and desktop
+        run: node scripts/test-pond-discovery-browser.mjs
+      - name: Archive UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pond-field-station-ui-screens
+          path: browser-results/pond-discovery/
+          if-no-files-found: ignore
+      - name: Commit generated Pond site assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A public/hubs/pond
+          if git diff --cached --quiet; then
+            echo "No generated changes."
+          else
+            git commit -m "Build Pond Field Station user interface"
+            git push origin HEAD:feat/pond-field-station-ui
+          fi
