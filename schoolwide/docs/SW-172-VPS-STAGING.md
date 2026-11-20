@@ -35,12 +35,13 @@ From an *authorized and reviewed* checkout of `schoolwide/sw-172-vps-staging-can
 
 ```sh
 cd schoolwide
-git status --porcelain
-git rev-parse HEAD
+test -z "$(git status --porcelain)" || { echo 'Refusing unreviewed changes'; exit 1; }
+REVIEWED_SHA="$(git rev-parse HEAD)"
+test "${#REVIEWED_SHA}" -eq 40 || exit 1
 umask 077
 DB_PASSWORD="$(openssl rand -hex 32)"
-printf 'SCHOOLWIDE_DB_PASSWORD=%s\nSCHOOLWIDE_RELEASE_SHA=%s\n' "$DB_PASSWORD" "$(git rev-parse HEAD)" > deploy/.env.vps-stage
-unset DB_PASSWORD
+printf 'SCHOOLWIDE_DB_PASSWORD=%s\nSCHOOLWIDE_RELEASE_SHA=%s\n' "$DB_PASSWORD" "$REVIEWED_SHA" > deploy/.env.vps-stage
+unset DB_PASSWORD REVIEWED_SHA
 chmod 600 deploy/.env.vps-stage
 docker compose --env-file deploy/.env.vps-stage -f deploy/vps-staging.compose.yml config --quiet
 ```
