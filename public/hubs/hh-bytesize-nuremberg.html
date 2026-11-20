@@ -132,9 +132,9 @@ a {
   position: absolute;
   inset: 0;
   z-index: -4;
-  background: url('/storyhub/hh/nuremberg/cover.svg')
+  background: url('https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/US_Army_51610_The_Case_Against_the_Defendents.jpg/1280px-US_Army_51610_The_Case_Against_the_Defendents.jpg')
     center 33% / cover no-repeat;
-  filter: grayscale(1) contrast(1.55) brightness(0.67);
+  filter: grayscale(1) contrast(1.14) brightness(0.60);
 }
 .cover-grain {
   position: absolute;
@@ -1165,6 +1165,11 @@ figcaption {
   }
 }
 
+
+/* Photographic evidence needs source context; the image is not a reconstruction. */
+.documentary-photo-credit {font:700 .65rem/1.5 'Barlow Condensed',Arial,sans-serif;letter-spacing:.13em;color:#eee9dc;max-width:40rem;margin:1.1rem 0 0;text-shadow:0 1px 2px #111}
+.documentary-photo-credit a {text-decoration:underline;text-underline-offset:3px}
+.archival figcaption a {text-decoration:underline;text-underline-offset:2px}
 </style>
   </head>
   <body>
@@ -1201,6 +1206,7 @@ figcaption {
               The Nazis were convicted. The hangman had a secret. And some
               witnesses said the final night went badly wrong.
             </p>
+            <p class="documentary-photo-credit">ACTUAL TRIAL PHOTOGRAPH · U.S. ARMY SIGNAL CORPS · <a href="https://commons.wikimedia.org/wiki/File:US_Army_51610_The_Case_Against_the_Defendents.jpg" target="_blank" rel="noopener noreferrer">VIEW THE RECORD ↗</a></p>
             <div class="cover-cta">
               <a class="btn btn-accent" href="#byte-1"
                 >OPEN THE EVIDENCE <span>↗</span></a
@@ -1336,11 +1342,12 @@ figcaption {
               </div>
               <figure class="archival">
                 <img
-                  src="/storyhub/hh/nuremberg/cover.svg"
-                  alt="Modern documentary illustration of the Nuremberg courtroom, not an archival photograph"
+                  src="https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/US_Army_51610_The_Case_Against_the_Defendents.jpg/1280px-US_Army_51610_The_Case_Against_the_Defendents.jpg"
+                  alt="U.S. Army Signal Corps photograph of Robert H. Jackson presenting evidence to the Nuremberg tribunal in its crowded courtroom, 1945–1946"
+                  referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='/storyhub/hh/nuremberg/cover.svg'"
                   loading="lazy"
                 />
-                <figcaption>NUREMBERG TRIALS · MODERN DOCUMENTARY ILLUSTRATION</figcaption>
+                <figcaption>NUREMBERG TRIALS · U.S. ARMY SIGNAL CORPS PHOTOGRAPH · <a href="https://commons.wikimedia.org/wiki/File:US_Army_51610_The_Case_Against_the_Defendents.jpg" target="_blank" rel="noopener noreferrer">SOURCE &amp; RIGHTS ↗</a></figcaption>
               </figure>
             </div>
             <div class="interaction slim">
