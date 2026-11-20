@@ -1,0 +1,28 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile, stat} from 'node:fs/promises';
+import {resolve} from 'node:path';
+
+const root=resolve(process.cwd(),process.argv.includes('--dist')?'dist':'public');
+const game=await readFile(resolve(root,'hubs/gridiron-blitz/index.html'),'utf8');
+const privacy=await readFile(resolve(root,'hubs/gridiron-blitz/privacy.html'),'utf8');
+const catalog=await readFile(resolve(process.cwd(),'src/data/interactiveExperiences.ts'),'utf8');
+
+test('Gridiron is a complete self-contained route',async()=>{
+  assert.ok((await stat(resolve(root,'hubs/gridiron-blitz/index.html'))).size>150000);
+  for(const key of ['id="playBtn"','id="field"','id="stiffBtn"','gridiron_blitz_progression_v1'])assert.ok(game.includes(key),key);
+});
+test('Privacy defaults disable external analytics and unverified leaderboards',()=>{
+  assert.doesNotMatch(game,/<script[^>]+src=/i);
+  assert.doesNotMatch(game,/fetch\(\s*['"`]https?:\/\//i);
+  assert.match(privacy,/No account\. No leaderboard\. No tracking endpoint/);
+});
+test('Pre-release metadata and privacy route are present',()=>{
+  assert.match(game,/href="\.\/privacy.html"/);
+  assert.match(game,/noindex,nofollow/);
+  assert.match(game,/https:\/\/grant-desk.com\/hubs\/gridiron-blitz\//);
+});
+test('Game catalog includes exactly one Gridiron entry',()=>{
+  assert.equal(catalog.split("name: 'gridiron blitz · breakaway'").length-1,1);
+  assert.match(catalog,/href: '\/hubs\/gridiron-blitz\/'/);
+});
