@@ -47,6 +47,13 @@ This batch replaces three Story Hub catalog illustrations, six in-lesson narrati
 - Archival record: [Library of Congress 93513661 / Wikimedia Commons public-domain scan](https://commons.wikimedia.org/wiki/File:J._J._Kanberg_-_The_Five_Chicago_Anarchists-2.2R_V01-2.1_LoC.jpg); 1887 historic portrait, **not** a photograph of executions.
 - The source is presented at restrained size with the list of actual events as live HTML. The former jail corridor SVG remains a load-failure fallback.
 
+### Scene 10: fortified Homestead works in the period press
+
+- Scene 10 replaces a generic imaginary Fort Frick fence with a real *Harper's Weekly* wood engraving published **July 23, 1892**, depicting the Eighteenth Regiment marching past the Carnegie company works on **July 12, 1892**. Original published work [Library of Congress LCCN 2004678727](https://www.loc.gov/item/2004678727/), [Commons source](https://commons.wikimedia.org/wiki/File:The_First_Troops_in_Homestead._The_Eighteenth_Regiment_passing_the_Office_and_Works_of_the_Carnegie_Company,_July_12,_1892_LCCN2004678727.jpg). **It is not a photograph of the initial June 28 lockout or literal fence construction**. Published wood engraving; U.S. public domain.
+- Scene 3 (rail communication), scene 13 (federal injunction), and scene 14 (comparative use of power) now have substantive **native HTML explanatory diagrams**, rather than generic background pictures. All identify themselves as diagrams, comparisons or classroom summaries rather than historic maps, documents, or direct quotations.
+- Scene 13's legal summary links to the [Federal Judicial Center primary-source compilation](https://www.fjc.gov/sites/default/files/trials/debs_psa.pdf). This explanatory panel does not claim to reproduce the original July 2 order verbatim.
+- On small screens the supplemental diagram falls into a reduced panel beneath the lesson copy; test mobile readability and vertical overlap visually before release approval.
+
 ## 3. Beyond the Scoreboard — Not in the Room
 
 - Catalog: `bts-l03-not-in-the-room`. Replaces the catalog's ledger-illustration preview with the original 1876 *Chicago White Stockings* lithograph. This image depicts players and their manager, **not** the National League's club-owner meeting. That distinction is central to this lesson.
