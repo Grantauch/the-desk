@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'public/hubs/bts-the-route-tree.html'
+      - 'public/hubs/bts-route-tree-*.html'
       - 'public/storyhub/bts/route-tree/**'
       - 'scripts/test-route-tree-cinematic.mjs'
       - '.github/workflows/route-tree-art-review.yml'

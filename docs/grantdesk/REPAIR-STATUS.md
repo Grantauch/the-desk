@@ -1,3 +1,21 @@
+## November 19 experience catalog publication
+
+Owner Codex, PR #421 / tracker P421, first release batch for #422. The centralized inventory preserves all 37 original activity URLs while separating 17 games, five practice activities, nine simulations and six investigations. Simulations retains the five teacher-led collections and adds three links into existing Story Hubs. The current Story Hub catalog contains 77 entries, correcting the earlier count of 72. The trench cover uses the already credited John Warwick Brooke / IWM Q 4135 photograph within the same lesson.
+
+Rendered review reproduced the legacy theme CSS overriding all five subject palettes, including pale Blitzkrieg text on the cream newspaper background. Subject selectors now win over the legacy rules, including title styling; a computed-style regression failed before correction. Focused Chromium passes at 320, 390, 1366 and 1920 pixels: category membership, all 77 story cards, credited cover, fieldwork keyboard controls, page-finder navigation, assignment PIN gate, no-JavaScript routes, viewport fit and zero automated WCAG A/AA violations on all three catalog pages. Full `npm run verify` exited 0: zero diagnostic errors or warnings, 55 routes, 186 HTML files, 6,006 local references, 37 sealed releases and 360 sealed files. Exact-head protected CI, normal merge and verified Netlify production remain separate pending gates. No assignment HTML, PIN or Save/Turn In code changes. The broader scene and artwork overhaul in #422 remains open; physical classroom acceptance is separate.
+
+Protected integrated run 44629366194 passed full verification, Checkaverse, assignment saving and earlier browser journeys, then exposed an old discovery assertion expecting Constitution Day on Games. The corrected journey follows Games to Simulations, opens the investigation and verifies the same assignment URL and answer control. The complete discovery/privacy/buzzer suite passes at 320, 390 and 1440 pixels. This test-only correction still requires fresh protected checks.
+
+## November 19 Turn In timeout investigation
+
+The afternoon incident showed a burst of completed web-app executions taking tens of seconds to over four minutes. The service recovered before a live synthetic probe, and saves resumed. The execution list did not identify the operation that started the stall.
+
+Synthetic reproduction showed 350 roster workbook opens across 105 sign-in, save and submission requests. The server patch reduces those opens to 105 and adds private phase timings for slow requests. The website patch staggers autosave, preserves retry spacing through edits and uses one bounded request when sign-in times out. Production publication and classroom acceptance are tracked independently. The Apps Script rollout follows the existing production approval gate.
+
+## November 19 assignment sign-in diagnostics
+
+The shared assignment client displays an opaque support code for a server-rejected sign-in and separate codes for browser-side failures. The matching private Apps Script log records the assignment, version, stage, and failure reason without credentials or student work. The editor health function checks actual dependencies without using the roster cache or writing to Sheets. Source verification uses synthetic accounts. Protected CI, the website release, the existing Apps Script deployment, and classroom sign-in are separate checks.
+
 ## November 17 Reconstruction Case File student publication
 
 Owner Codex, issue #383 / tracker R05. The additive `reconstruction-case-file-student.html` edition uses the shared PIN gate and account saving. All six sections remain mounted, preserving 23 text fields and 26 choice groups across navigation, account restore and Turn In. The unowned browser-wide legacy draft is discarded. The original source is retained; old bookmarks redirect, and Games, U.S. History Unit 1 and the sitemap expose the student edition.
@@ -758,3 +776,10 @@ Initial trench browser journeys passed all seven stops, trench-part labels and s
 Owner: Codex. Production health run [42278965733](https://github.com/Grantauch/the-desk/actions/runs/42278965733) failed on the Curiosity feed. Anonymous requests reproduced HTTP 502 across all five collections. The repair gives each collection a selected archive artifact with a locally served WebP, source credit, primary-source question and original record link. The browser continues to request live records on demand and preserves an open context panel when the live response arrives. The scheduled feed check still measures the live service.
 
 Six Chromium cases at 320, 390 and 1440 pixels passed the outage and delayed-live-response journeys, including keyboard reveal and automated WCAG A/AA. Some external record pages refused requests from the audit environment. Protected review, Netlify publication and school-network acceptance are separate.
+## November 19 Route Tree alternative assignments publication
+
+Owner Codex, PR #415 / tracker P415. The Route Tree chooser leads to balanced A/B alternatives: five NFL cases, one other-sport connection, five evidence checks and three 90–110 word responses each. A supports guided comparison; B asks for independent argument, source criticism and counterargument. The complete earlier edition keeps its original account identity and answer fields.
+
+Focused Chromium passed at 320, 390 and 1440 pixels with ordinary/reduced motion, keyboard image controls, native disclosures, fit and WCAG A/AA. Synthetic accounts running the real Turn In code passed complete A/B saving, refresh, cross-device restoration, two submissions, shared-device isolation and recovery of the five original responses. No real student service was contacted.
+
+Release review reproduced 109 invisible narrative elements without JavaScript: the preserved edition had lost its original `no-js` class. Restoring the class in the HTML and authoring script fixes the failing regression; the release manifest is resealed. The browser server also uses the platform path separator for Windows/Linux parity. Full canonical `npm run verify` exited 0 on the integrated source: 55 built routes, 186 HTML files and 5,997 local references. Earlier protected checks passed the author's head; these release fixes still require fresh exact-head protected checks, normal merge and exact Netlify/live-browser proof. Physical classroom acceptance remains pending.

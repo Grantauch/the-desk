@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREEB",
+  "interactions": [
+    {
+      "id": "S1",
+      "chapterId": "odds",
+      "type": "cohort-funnel",
+      "teaches": "Put exceptional careers beside an approximate opportunity denominator.",
+      "studentAction": "Select high school, college or draft.",
+      "feedback": "Highlight the relevant dots and explain the cohort limitation.",
+      "staticFallback": "The dated numerical comparison and its caveat remain readable.",
+      "identityFit": "Readable documentary evidence and playbook route language.",
+      "status": "implemented"
+    },
+    {
+      "id": "S2",
+      "chapterId": "image-evidence",
+      "type": "source-comparison",
+      "teaches": "Distinguish source observation from visual interpretation.",
+      "studentAction": "Use source disclosures and the photographic comparison when present.",
+      "feedback": "Dates, untouched source and explicit reconstruction limits.",
+      "staticFallback": "Native details and source captions; B begins with the authentic Lane photograph.",
+      "identityFit": "Readable documentary evidence and playbook route language.",
+      "status": "implemented"
+    },
+    {
+      "id": "S3",
+      "chapterId": "evidence-calls",
+      "type": "claim-check",
+      "teaches": "Match five claims to the record and its limits.",
+      "studentAction": "Choose Supported, Contradicted or Needs context.",
+      "feedback": "Explain the evidence and permit revision.",
+      "staticFallback": "Native Read the evidence check disclosures.",
+      "identityFit": "Readable documentary evidence and playbook route language.",
+      "status": "implemented"
+    },
+    {
+      "id": "S4",
+      "chapterId": "other-sport",
+      "type": "cross-sport-comparison",
+      "teaches": "Transfer an explanation beyond the NFL sample.",
+      "studentAction": "Read the case and the dated context image.",
+      "feedback": "A connection statement links preparation and opportunity.",
+      "staticFallback": "All prose and the context image are visible.",
+      "identityFit": "Readable documentary evidence and playbook route language.",
+      "status": "implemented"
+    },
+    {
+      "id": "S5",
+      "chapterId": "responses",
+      "type": "written-response",
+      "teaches": "Build independent arguments with source criticism.",
+      "studentAction": "Write three 90–110 word responses.",
+      "feedback": "Word counts and shared account saving / Turn In.",
+      "staticFallback": "Native labeled textareas; A includes optional scaffolding.",
+      "identityFit": "Readable documentary evidence and playbook route language.",
+      "status": "implemented"
+    }
+  ]
+}

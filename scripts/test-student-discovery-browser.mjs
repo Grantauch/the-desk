@@ -72,9 +72,23 @@ try {
       await page.locator('#desk-save-panel').waitFor();
       assert.equal(await answer.inputValue(), '', 'Clearing a course survives refresh');
       await page.goto(origin + '/games/');
-      await page.getByRole('link', { name: /constitution day · case files/ }).waitFor();
+      assert.equal(await page.getByRole('link', { name: /constitution day · case files/ }).count(), 0,
+        'Source investigations are separate from Games');
       assert.equal(await page.getByRole('link', { name: /jeopardy live · student buzzer/ }).getAttribute('href'), '/hubs/jeopardy-buzz.html');
       assert.equal(await page.locator('a[href*="lessonhub-lab"]').count(), 0);
+      await page.getByRole('link', { name: 'Explore simulations and investigations' }).click();
+      await page.waitForURL(origin + '/simulations/');
+      const investigation = page.locator('section[aria-labelledby="investigation-heading"] article')
+        .filter({ has: page.getByRole('heading', { name: /constitution day · case files/ }) });
+      const investigationLink = investigation.getByRole('link', { name: 'open investigation' });
+      assert.equal(await investigationLink.getAttribute('href'), route, 'The assignment keeps its original URL');
+      const assignmentOpened = page.waitForEvent('popup');
+      await investigationLink.click();
+      const assignment = await assignmentOpened;
+      await assignment.waitForLoadState('domcontentloaded');
+      assert.equal(new URL(assignment.url()).pathname, route);
+      await assignment.locator('[data-q="us1"]').waitFor();
+      await assignment.close();
       await page.goto(origin + '/us-history/');
       assert.equal(await page.locator('a[href*="jeopardy-v2"]').count(), 0);
       assert.ok(await page.locator('a[href*="jeopardy-v3"]').count());
