@@ -66,6 +66,7 @@ export function PondApp() {
   const [ecosystemNews, setEcosystemNews] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(true);
+  const [richGraphics, setRichGraphics] = useState(true);
   const [guide, setGuide] = useState(false);
   const [discovered, setDiscovered] = useState<string[]>([...STARTERS]);
   const [discoveryLoaded, setDiscoveryLoaded] = useState(false);
@@ -110,6 +111,7 @@ export function PondApp() {
   useEffect(() => {
     try {
       setMuted(localStorage.getItem("pond-muted") !== "0");
+      setRichGraphics(localStorage.getItem("pond-rich-graphics") !== "0");
       let savedDiscoveries: unknown = null;
       let legacyDiscoveries: unknown = null;
       try {
@@ -428,10 +430,18 @@ export function PondApp() {
   const featured = featuredId ? getOutcome(featuredId) : null;
   const featuredProfile = featured ? residentProfile(featured) : null;
 
+  const toggleGraphics = () => {
+    setRichGraphics((current) => {
+      const next = !current;
+      try { localStorage.setItem("pond-rich-graphics", next ? "1" : "0"); } catch { /* optional */ }
+      return next;
+    });
+  };
+
   const selected = toolById(tool);
 
   return (
-    <main className="relative flex min-h-dvh flex-col bg-bg text-fg">
+    <main className={cn("pond-environment relative flex min-h-dvh flex-col bg-bg text-fg", !richGraphics && "pond-classic")}>
       {started ? (
         <header className="flex items-center justify-between gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
         <div className="min-w-0">
@@ -506,7 +516,7 @@ export function PondApp() {
       <div className="flex flex-1 items-center justify-center px-3 py-2">
         <div
           className={cn(
-            "relative w-full aspect-square bg-dish p-2 transition-[max-width,border-radius] duration-300",
+            "pond-glass-shell relative w-full aspect-square bg-dish p-2 transition-[max-width,border-radius] duration-300",
             camera.size === pondSize ? "rounded-full" : "rounded-[1.5rem]",
             pondSize === 192 ? "max-w-[min(100%,36rem,72dvh)]" :
               pondSize === 256 ? "max-w-[min(100%,42rem,78dvh)]" :
@@ -514,10 +524,11 @@ export function PondApp() {
           )}
           style={{ boxShadow: "var(--shadow-dish)" }}
         >
-          <div className={cn("absolute inset-2 overflow-hidden bg-dish-well", camera.size === pondSize ? "rounded-full" : "rounded-[1.1rem]")}>
+          <div className={cn("pond-dish-interior absolute inset-2 overflow-hidden bg-dish-well", camera.size === pondSize ? "rounded-full" : "rounded-[1.1rem]")}>
             <PondCanvas
               key={pondSize + ":" + camera.size}
               sim={sim}
+              enhancedGraphics={richGraphics}
               camera={camera}
               panMode={panMode}
               onPan={panBy}
@@ -532,6 +543,7 @@ export function PondApp() {
               className="size-full"
             />
           </div>
+          <div aria-hidden="true" className="pond-glass-sheen pointer-events-none absolute inset-2" />
           {toast ? (
             <div className="pointer-events-none absolute left-1/2 top-6 z-10 -translate-x-1/2 rounded-md bg-surface px-3 py-1.5 text-sm text-fg shadow-[0_0_0_1px_var(--color-border)] pond-enter">
               {toast}
@@ -563,9 +575,14 @@ export function PondApp() {
             <p className="text-sm text-muted">
               <strong className="font-medium text-fg">{pondSize} × {pondSize}</strong> cells · {Math.round(Math.PI * Math.pow(pondSize / 2 - 1, 2)).toLocaleString()} playable cells
             </p>
-            <Button variant="quiet" size="sm" disabled={!nextSize} onClick={expandPond}>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="quiet" size="sm" aria-label={richGraphics ? "Switch to classic pixel graphics" : "Enable rich pixel graphics"} aria-pressed={richGraphics} onClick={toggleGraphics}>
+                Visuals: {richGraphics ? "Rich" : "Classic"}
+              </Button>
+              <Button variant="quiet" size="sm" disabled={!nextSize} onClick={expandPond}>
               {nextSize ? "Expand pond to " + nextSize + " × " + nextSize : "Maximum pond size"}
-            </Button>
+              </Button>
+            </div>
           </div>
 
           {(pondSize > 320 || camera.size < pondSize) ? (
@@ -625,13 +642,13 @@ export function PondApp() {
                     aria-pressed={on}
                     onClick={() => { setTool(item.id); setSpecimenId(null); }}
                     className={cn(
-                      "flex h-11 flex-col items-center justify-center gap-1 rounded-md transition-[background-color,box-shadow,transform] duration-150",
+                      "pond-tool-button flex h-11 flex-col items-center justify-center gap-1 rounded-md transition-[background-color,box-shadow,transform] duration-150",
                       on ? "bg-surface-2 shadow-[0_0_0_1px_var(--color-border-strong)]" : "hover:bg-surface-2/60",
                     )}
                   >
                     <span
                       className={cn(
-                        "size-4 rounded-full shadow-[0_0_0_1px_rgb(255_255_255/12%)]",
+                        "pond-material-swatch size-5 rounded-full shadow-[0_0_0_1px_rgb(255_255_255/12%)]",
                         item.swatch,
                         item.id === WIND && "flex items-center justify-center",
                       )}

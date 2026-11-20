@@ -740,49 +740,207 @@ export class PondSim {
    * Render only the camera crop at native pixel resolution. Image width and
    * height may be far smaller than the world, avoiding large canvas uploads.
    */
-  render(image: ImageData, originX = 0, originY = 0) {
+  /**
+   * Pixel-art lighting is derived entirely from existing cells and the frame
+   * number. No extra simulation state, textures, assets, or GPU passes.
+   *
+   * Enhanced is the default; classic exactly retains the older palette-based
+   * appearance for reduced load or personal preference.
+   */
+  render(image: ImageData, originX = 0, originY = 0, enhanced = true) {
     const data = image.data;
-    const flickerBase = this.frame;
-    const viewportWidth = image.width;
-    const viewportHeight = image.height;
-    for (let y = 0; y < viewportHeight; y++) {
-      for (let x = 0; x < viewportWidth; x++) {
-      const i = (originY + y) * this.w + originX + x;
-      const p = (y * viewportWidth + x) * 4;
-      if (this.locked[i]) {
-        data[p] = 10;
-        data[p + 1] = 9;
-        data[p + 2] = 8;
-        data[p + 3] = 0;
-        continue;
-      }
-      const t = this.grid[i] as ElementId;
-      const base = RGB[t] ?? RGB[0]!;
-      const v = (this.tint[i] - 8) * 3;
-      let r = base[0] + v;
-      let g = base[1] + v;
-      let b = base[2] + v;
-      if (t === E.FIRE) {
-        const f = ((flickerBase + i) * 17) & 31;
-        r = Math.min(255, r + f + 20);
-        g = Math.min(255, g + (f >> 1));
-        b = Math.max(0, b - 8);
-      } else if (t === E.LAVA) {
-        const f = ((flickerBase * 3 + i) * 13) & 21;
-        r = Math.min(255, r + f);
-        g = Math.min(255, g + (f >> 2));
-      } else if (t === E.WATER) {
-        const f = ((flickerBase + i) >> 2) & 7;
-        b = Math.min(255, b + f);
-      } else if (t === E.EMPTY) {
-        r = 14;
-        g = 12;
-        b = 11;
-      }
-      data[p] = r < 0 ? 0 : r > 255 ? 255 : r;
-      data[p + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
-      data[p + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
-      data[p + 3] = 255;
+    const width = image.width;
+    const height = image.height;
+    const worldWidth = this.w;
+    const worldHeight = this.h;
+    const frame = this.frame;
+    const grid = this.grid;
+    const tint = this.tint;
+    const locked = this.locked;
+
+    for (let y = 0; y < height; y++) {
+      const wy = y + originY;
+      const row = wy * worldWidth;
+      for (let x = 0; x < width; x++) {
+        const wx = x + originX;
+        const i = row + wx;
+        const pixel = (y * width + x) * 4;
+        if (locked[i]) {
+          data[pixel] = 10;
+          data[pixel + 1] = 9;
+          data[pixel + 2] = 8;
+          data[pixel + 3] = 0;
+          continue;
+        }
+        const material = grid[i] as ElementId;
+        const color = RGB[material] ?? RGB[0]!;
+        const shade = (tint[i]! - 8) * (enhanced ? 2.5 : 3);
+        let r = color[0] + shade;
+        let g = color[1] + shade;
+        let b = color[2] + shade;
+
+        if (!enhanced) {
+          // Identical visual rules to the earlier engine.
+          if (material === E.FIRE) {
+            const flicker = ((frame + i) * 17) & 31;
+            r = Math.min(255, r + flicker + 20);
+            g = Math.min(255, g + (flicker >> 1));
+            b -= 8;
+          } else if (material === E.LAVA) {
+            const flicker = ((frame * 3 + i) * 13) & 21;
+            r += flicker;
+            g += flicker >> 2;
+          } else if (material === E.WATER) {
+            b += ((frame + i) >> 2) & 7;
+          } else if (material === E.EMPTY) {
+            r = 14;
+            g = 12;
+            b = 11;
+          }
+        } else {
+          // Integer-only texture noise: stable in world coordinates when the
+          // player pans, while movement uses just the current frame counter.
+          const noise = (wx * 37 ^ wy * 73 ^ tint[i]! * 31) >>> 0;
+          const grain = (noise & 15) - 7;
+          const above = wy > 0 ? grid[i - worldWidth] : E.WALL;
+          const below = wy + 1 < worldHeight ? grid[i + worldWidth] : E.WALL;
+          const left = wx > 0 ? grid[i - 1] : E.WALL;
+          const right = wx + 1 < worldWidth ? grid[i + 1] : E.WALL;
+          const exposed = above === E.EMPTY || above === E.STEAM || above === E.SMOKE;
+
+          switch (material) {
+            case E.EMPTY: {
+              // An almost-black mineral bed with subtle stable texture.
+              const speck = (noise & 63) === 0 ? 8 : 0;
+              r = 14 + (grain >> 2) + speck;
+              g = 18 + (grain >> 2) + speck;
+              b = 21 + (grain >> 2) + speck;
+              if (above === E.FIRE || below === E.FIRE || left === E.FIRE || right === E.FIRE ||
+                  above === E.LAVA || below === E.LAVA) {
+                r += 33;
+                g += 11;
+                b += 1;
+              }
+              break;
+            }
+            case E.WATER: {
+              const surface = above !== E.WATER && above !== E.SLIME;
+              // Deep water is teal blue; peaks reflect a mobile stripe of light.
+              const depth = surface ? 0 : -18;
+              const ripple = ((wx * 3 + wy + (frame >> 1)) & 31) < 5;
+              r = 27 + grain + depth;
+              g = 112 + (grain >> 1) + depth + (surface ? 30 : 0);
+              b = 159 + grain + depth + (surface ? 38 : 0);
+              if (surface && ripple) {
+                r += 64;
+                g += 67;
+                b += 51;
+              } else if ((noise & 63) === 2) {
+                g += 13;
+                b += 16;
+              }
+              break;
+            }
+            case E.SAND:
+            case E.SALT:
+            case E.POWDER: {
+              const topLight = exposed ? 17 : -3;
+              r += grain * 1.6 + topLight;
+              g += grain + topLight * 0.75;
+              b += (grain >> 1) + topLight * 0.45;
+              if ((noise & 31) === 7) { r += 26; g += 20; b += 12; }
+              break;
+            }
+            case E.STONE: {
+              const crack = ((wx * 3 + wy * 11 + (noise & 7)) % 29) === 0;
+              r += (grain >> 1) + (exposed ? 13 : -4) - (crack ? 25 : 0);
+              g += (grain >> 1) + (exposed ? 14 : -3) - (crack ? 23 : 0);
+              b += (grain >> 1) + (exposed ? 17 : -2) - (crack ? 21 : 0);
+              break;
+            }
+            case E.WOOD: {
+              const vein = ((wx + (wy >> 1) + (noise & 3)) & 7) < 2;
+              r += vein ? -17 : 11;
+              g += vein ? -12 : 4;
+              b += vein ? -8 : -1;
+              if (exposed) { r += 12; g += 9; b += 6; }
+              break;
+            }
+            case E.ICE: {
+              const facet = ((wx * 3 - wy * 5 + (noise & 15)) & 31) < 3;
+              r += facet ? 48 : -10;
+              g += facet ? 31 : 0;
+              b += facet ? 24 : 9;
+              if (exposed) { r += 12; g += 10; b += 9; }
+              break;
+            }
+            case E.FIRE: {
+              const flicker = ((frame * 9 + i * 17) & 31);
+              r += 32 + flicker;
+              g += 18 + (flicker << 1);
+              b -= 23;
+              if (exposed) { r += 8; g += 13; }
+              break;
+            }
+            case E.LAVA: {
+              const pulse = ((frame * 3 + wx * 11 + wy * 7) & 31);
+              const rim = left !== E.LAVA || right !== E.LAVA || above !== E.LAVA;
+              r += pulse + (rim ? 34 : 0);
+              g += (pulse >> 1) + (rim ? 31 : -11);
+              b -= rim ? 4 : 15;
+              break;
+            }
+            case E.PLANT:
+            case E.SEED:
+            case E.FUNGUS: {
+              const tip = exposed && (noise & 3) === 0;
+              r += (grain >> 1) + (tip ? 17 : -4);
+              g += grain + (tip ? 44 : 4);
+              b += grain + (tip ? 9 : 2);
+              break;
+            }
+            case E.STEAM:
+            case E.SMOKE: {
+              const wisps = ((wx * 7 + wy * 3 + (frame >> 2)) & 31) < 6;
+              r += grain + (wisps ? 14 : -8);
+              g += grain + (wisps ? 15 : -5);
+              b += grain + (wisps ? 21 : 0);
+              break;
+            }
+            case E.SNOW: {
+              const glint = (noise & 31) === 0;
+              r += glint ? 29 : -4;
+              g += glint ? 24 : 0;
+              b += glint ? 18 : 1;
+              break;
+            }
+            case E.OIL: {
+              const sheen = ((wx + (frame >> 2) + (wy >> 1)) & 31) < 3;
+              if (sheen && exposed) { r += 29; g += 29; b += 37; }
+              break;
+            }
+            case E.ACID:
+            case E.SLIME: {
+              const glow = (noise & 15) === 2;
+              r += glow ? 8 : -5;
+              g += glow ? 42 : 11;
+              b += glow ? 18 : 8;
+              break;
+            }
+            case E.CRITTER: {
+              const eyes = (noise & 7) === 2;
+              r += eyes ? 35 : 5;
+              g += eyes ? 17 : 0;
+              b += eyes ? 9 : 3;
+              break;
+            }
+          }
+        }
+
+        data[pixel] = r < 0 ? 0 : r > 255 ? 255 : r;
+        data[pixel + 1] = g < 0 ? 0 : g > 255 ? 255 : g;
+        data[pixel + 2] = b < 0 ? 0 : b > 255 ? 255 : b;
+        data[pixel + 3] = 255;
       }
     }
   }

@@ -68,6 +68,18 @@ async function run(viewport) {
     // Undo pauses the pond but creation placement is still allowed.
     await canvas.click({ position: { x: box.width * 0.52, y: box.height * 0.48 } });
     await page.getByText(/1 living creations/).waitFor();
+    // The richer graphics are a real render option, not just a CSS label.
+    // Undo has paused physics, so compare the same world in both render modes.
+    await page.getByRole("button", { name: "Switch to classic pixel graphics" }).click();
+    await page.getByRole("button", { name: "Enable rich pixel graphics" }).waitFor();
+    await page.waitForTimeout(100);
+    const classicPixels = await page.getByRole("application").evaluate(el => el.toDataURL());
+    await page.getByRole("button", { name: "Enable rich pixel graphics" }).click();
+    await page.getByRole("button", { name: "Switch to classic pixel graphics" }).waitFor();
+    await page.waitForTimeout(100);
+    const richPixels = await page.getByRole("application").evaluate(el => el.toDataURL());
+    assert.notEqual(richPixels, classicPixels, "enhanced renderer must visually differ from the original");
+    assert.equal(await page.evaluate(() => localStorage.getItem("pond-rich-graphics")), "1");
     await page.reload({ waitUntil: "load" });
     await page.getByRole("button", { name: "Make a mess" }).click();
     await page.getByText(/1 living creations/).waitFor();
