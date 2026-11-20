@@ -30,7 +30,6 @@ body{padding-bottom:4rem}
 .ws-head{position:sticky;top:3.4rem;z-index:30;background:rgba(13,22,38,.97);border-bottom:1px solid var(--line);padding:.7rem 0}
 .ws-head .wrap{display:grid;grid-template-columns:1fr auto;gap:.6rem 1rem;align-items:center}
 .ws-title{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap}
-.ws-title b{font:800 1.6rem/1 var(--display);text-transform:uppercase;color:var(--star)}
 .ws-title a{font:600 .9rem var(--display);letter-spacing:.1em;text-transform:uppercase}
 .ws-team{color:var(--mute);font-size:.98rem}
 .ws-team strong{color:var(--bone)}
@@ -130,12 +129,14 @@ body.mode-solo .partner-only{display:none}
 @media (max-width:600px){.ws-steps ol{grid-template-columns:repeat(7,minmax(0,1fr))}.ws-steps button{grid-template-columns:1fr;justify-items:center;padding:.45rem .2rem}.ws-steps .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 @media print{.ws-head,.ws-steps,.step-nav,.drawer{display:none!important}}
 </style>
+<link rel="stylesheet" href="/hubs/moh/exhibit.css">
+<link rel="stylesheet" href="/hubs/moh/tools.css">
 </head>
-<body class="role-none" data-desk-autosave-ms="20000">
+<body class="project-tool role-none" data-desk-autosave-ms="20000">
 <a class="skip" href="#main-content">Skip to your project</a>
 <header class="mbar">
   <div class="wrap">
-    <a class="brand" href="/hubs/ush9-medal-of-honor.html"><svg class="star-mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,4 61,38 97,38 68,59 79,94 50,73 21,94 32,59 3,38 39,38" fill="#cf9f45"/></svg>Medal of Honor Project</a>
+    <a class="brand" href="/hubs/ush9-medal-of-honor.html"><span aria-hidden="true">★</span> Medal of Honor Project</a>
     <nav aria-label="Project">
       <a href="/hubs/ush9-medal-of-honor.html#veterans">Veterans</a>
       <a href="/hubs/ush9-medal-of-honor-project.html" aria-current="page">My project</a>
@@ -145,14 +146,20 @@ body.mode-solo .partner-only{display:none}
 </header>
 
 <main id="main-content">
+  <h1 class="tool-page-title">My Medal of Honor project</h1>
   <section class="wrap ws-wait" id="moh-wait">
-    <h2>Your project</h2>
-    <p>Sign in with your lunch PIN to open your project. Use the same PIN every day, on any Chromebook.</p>
+    <div class="tool-intro">
+      <p class="kicker">Medal of Honor Project</p>
+      <h2 class="exhibit-title">Your project</h2>
+      <p>Sign in with your lunch PIN to open your project. Use the same PIN every day, on any Chromebook.</p>
+    </div>
   </section>
 
   <section class="wrap setup" id="moh-setup" hidden data-desk-skip>
-    <p class="kicker">Set up · takes two minutes</p>
-    <h2 id="setup-title">How are you working?</h2>
+    <div class="tool-intro">
+      <p class="kicker">Project setup</p>
+      <h2 id="setup-title" class="exhibit-title" tabindex="-1">How are you working?</h2>
+    </div>
     <p class="lede" id="setup-hello"></p>
     <div class="stage" id="stage-mode">
       <div class="cards2">
@@ -162,12 +169,10 @@ body.mode-solo .partner-only{display:none}
       </div>
     </div>
     <div class="stage" id="stage-join" hidden>
-      <h3>Type your partner's team code</h3>
-      <div class="join-row"><input id="join-code" maxlength="4" autocomplete="off" aria-label="Four letter team code" data-desk-skip><button type="button" class="btn" data-action="join">Join the team</button><button type="button" class="btn ghost" data-action="back-mode">Back</button></div>
+      <div class="join-row"><input id="join-code" maxlength="4" autocomplete="off" aria-label="Your partner’s four-character team code" data-desk-skip><button type="button" class="btn" data-action="join">Join the team</button><button type="button" class="btn ghost" data-action="back-mode">Back</button></div>
     </div>
     <div class="stage" id="stage-pick" hidden>
-      <h3 id="pick-title">Pick your veteran</h3>
-      <p class="mini">Greyed out cards are already taken by another team in your class. Open a veteran's page in a new tab to read more first.</p>
+      <p class="mini">Each veteran can be chosen by one team per class. Open a profile in a new tab to read more.</p>
       <div class="vgrid" id="pick-grid" style="margin-top:1rem"></div>
       <div class="join-row"><button type="button" class="btn" data-action="confirm-pick" disabled>Use this veteran</button><button type="button" class="btn ghost" data-action="back-mode">Back</button></div>
     </div>
@@ -178,7 +183,10 @@ body.mode-solo .partner-only{display:none}
     <div class="ws-head">
       <div class="wrap">
         <div>
-          <div class="ws-title"><b id="ws-vet"></b><a id="ws-vet-link" href="#" target="_blank" rel="noopener">Open his page</a></div>
+          <div class="ws-identity">
+            <div class="ws-avatar" id="ws-avatar" aria-hidden="true"></div>
+            <div class="ws-title"><p id="ws-vet"></p><a id="ws-vet-link" href="#" target="_blank" rel="noopener">Open his page</a></div>
+          </div>
           <div class="ws-team" id="ws-team"></div>
         </div>
         <div class="ws-actions">
@@ -583,6 +591,7 @@ body.mode-solo .partner-only{display:none}
 
 <script src="/hubs/moh/spec.js"></script>
 <script src="/hubs/moh/veterans.js"></script>
+<script src="/hubs/moh/portraits.js"></script>
 <script src="/hubs/moh/art.js"></script>
 <script src="/hubs/moh/paper.js"></script>
 <script src="/hubs/moh/project.js"></script>
