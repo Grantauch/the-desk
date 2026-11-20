@@ -6,6 +6,7 @@ import {resolve} from 'node:path';
 const root=resolve(process.cwd(),process.argv.includes('--dist')?'dist':'public');
 const game=await readFile(resolve(root,'hubs/gridiron-blitz/index.html'),'utf8');
 const privacy=await readFile(resolve(root,'hubs/gridiron-blitz/privacy.html'),'utf8');
+const consoleStyles=await readFile(resolve(root,'hubs/gridiron-blitz/console-ui.css'),'utf8');
 const catalog=await readFile(resolve(process.cwd(),'src/data/interactiveExperiences.ts'),'utf8');
 
 test('Gridiron is a complete self-contained route',async()=>{
@@ -35,4 +36,14 @@ test('B10 accessibility polish preserves keyboard and no-JS recovery',()=>{
   assert.match(game,/\.pause-button\{width:44px;min-width:44px;min-height:45px;padding:7px\}/);
   assert.match(privacy,/Support and troubleshooting/);
   assert.match(privacy,/Please do not send school PINs or passwords/);
+});
+
+test('B10C console tile navigation and styling survive the website build',()=>{
+  assert.match(game,/href="\.\/console-ui\.css"/);
+  assert.match(game,/class="console-topbar"/);
+  assert.match(game,/class="console-footer"/);
+  assert.match(game,/stopImmediatePropagation\(\)/);
+  assert.match(consoleStyles,/\.mode-choice\[aria-pressed="true"\]/);
+  assert.match(consoleStyles,/\.aside-nav button/);
+  assert.match(consoleStyles,/@media\(max-width:680px\)/);
 });
