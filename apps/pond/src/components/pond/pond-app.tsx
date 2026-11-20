@@ -621,10 +621,10 @@ export function PondApp() {
                   </div>
                   <p className="field-panel-description">Chart places, inhabitants and wild habitats.</p>
                 </div>
-                <button type="button" className="field-atlas-toggle" aria-expanded={atlasOpen} aria-controls="pond-world-atlas"
+                <button type="button" className="field-atlas-toggle" aria-label={atlasOpen ? "Hide atlas" : "Open atlas"} aria-expanded={atlasOpen} aria-controls="pond-world-atlas"
                   onClick={() => setAtlasOpen((open) => !open)}>
                   <span>{atlasOpen ? "Fold the map" : "Unfold the map"}</span><span aria-hidden="true">{atlasOpen ? "−" : "+"}</span>
-                  <span className="sr-only">{atlasOpen ? "Hide atlas" : "Open atlas"}</span>
+                  
                 </button>
                 {atlasOpen ? <div id="pond-world-atlas" className="field-atlas-content"><WorldAtlas
                   sim={sim} atlas={atlas} camera={camera} residents={mapResidents}
