@@ -17,6 +17,12 @@ x-schoolwide-environment: &schoolwide-environment
   LEGACY_PRODUCTION_WRITES: forbidden
   OPERATIONS_WORKERS_ENABLED: "false"
 
+x-bounded-logging: &bounded-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   postgres:
     image: postgres:18-alpine
@@ -32,6 +38,7 @@ services:
       timeout: 3s
       retries: 20
     restart: unless-stopped
+    logging: *bounded-logging
     security_opt:
       - no-new-privileges:true
     networks:
@@ -49,6 +56,7 @@ services:
       postgres:
         condition: service_healthy
     restart: "no"
+    logging: *bounded-logging
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -73,6 +81,7 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    logging: *bounded-logging
     security_opt:
       - no-new-privileges:true
     cap_drop:
