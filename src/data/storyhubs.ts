@@ -1474,6 +1474,12 @@ export const storyHubs: StoryHub[] = [
     blurb:
       'Baseball owners create a league, set entry rules, and close the labor market while the players who produce the game are absent from the room. Students follow exactly where control moved and who gained it.',
     cover: '/storyhub/bts/l03/assets/cover-ledger.svg',
+    archivalCover: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/1876_Chicago_White_Stockings.webp',
+      alt: 'Original 1876 Chicago White Stockings team lithograph with portraits of the players whose work generated the new National League business',
+      credit: '1876 Chicago White Stockings team lithograph · public domain',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:1876_Chicago_White_Stockings.webp',
+    },
     coverAlt: 'Editorial ledger cover with an intentionally empty player chair',
     topics: ['national league origins', 'william hulbert', 'club ownership', 'reserve rule', 'player labor'],
     inside: [
