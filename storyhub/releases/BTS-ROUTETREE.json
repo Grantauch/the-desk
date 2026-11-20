@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-the-route-tree.html",
-      "bytes": 8175,
-      "sha256": "2d1e3ac10c509888ceab314f1d366212d398e9524577dd53e765810b8987dee7"
+      "bytes": 7370,
+      "sha256": "b9190982edbd525199b87e16fe549f59303ace8fbde464fca755bade8a2f08d2"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
@@ -607,13 +607,13 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/assignments.css",
-      "bytes": 13576,
-      "sha256": "5de7e178dfa83c370ca9c0c73aea6637f21c3957d92f8c7f7fb23055c6b17e31"
+      "bytes": 14564,
+      "sha256": "b455f3b5e068e9cfe781c07b3b1ec6356b93b4c719efd78df17a65f995df4d0d"
     },
     {
       "path": "/hubs/bts-route-tree-a.html",
-      "bytes": 93627,
-      "sha256": "4eec8ee49d68010f479a9b8590d851fba4fd7c9287abb7e709255e50e64ba2b6"
+      "bytes": 91958,
+      "sha256": "d10b2774ad25f9c442f11b7514f3fc77c932b03a9f549d18f1beae8a5f383942"
     },
     {
       "path": "/hubs/bts-route-tree-full-reference.html",
@@ -622,11 +622,11 @@
     },
     {
       "path": "/hubs/bts-route-tree-b.html",
-      "bytes": 96393,
-      "sha256": "861828e1571460bf8503e2b414ed98bc357e106493d03eb88abfe36ecb4aec0f"
+      "bytes": 91823,
+      "sha256": "39d003bb1a8aa062eac827b3011635a0a309851944e3ddb1cfb8aa84911f27b1"
     }
   ],
-  "totalBytes": 10814217,
+  "totalBytes": 10808161,
   "sealedAt": "2026-11-19",
   "assignmentRoutes": [
     "/hubs/bts-route-tree-a.html",

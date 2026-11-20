@@ -11,7 +11,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { world, PEOPLE, CODE } = require('./lib/turn-in-harness.cjs');
+const { world, crowd, PEOPLE, CODE } = require('./lib/turn-in-harness.cjs');
 
 const MANIFEST = path.join(__dirname, '..', 'apps-script', 'turn-in', 'appsscript.json');
 
@@ -71,6 +71,46 @@ test('a PIN made by Hall Pass signs a student in to Turn In', () => {
   assert.ok(result.token);
 });
 
+test('35 students sign in, save and turn in with one roster read per request', () => {
+  const students = crowd(35);
+  const w = world({ memberships: students });
+  const open = w.sandbox.SpreadsheetApp.openById;
+  let rosterOpens = 0;
+  w.sandbox.SpreadsheetApp.openById = id => {
+    if (id === 'roster-book') rosterOpens += 1;
+    return open(id);
+  };
+  const hub = 'class-load';
+  const accounts = students.map(([student]) => w.post({ action: 'signin', pin: w.pin(student), hub }));
+  assert.ok(accounts.every(account => account.ok));
+  const drafts = accounts.map(account => w.post({ action: 'save', token: account.token, hub, answers: ONE,
+    classPeriod: 'Period 3', writeProtocol: 1, baseRevision: '' }));
+  assert.ok(drafts.every(draft => draft.ok));
+  accounts.forEach((account, i) => {
+    const result = w.post({ action: 'turnin', accountToken: account.token, hub, answers: ONE, classPeriod: 'Period 3',
+      submissionId: 'class-load-' + i, writeProtocol: 1, baseRevision: drafts[i].revision });
+    assert.equal(result.ok, true);
+  });
+  assert.equal(w.rows('Turn Ins').length, 35);
+  assert.equal(rosterOpens, 105, 'one roster open for each of the 105 requests');
+});
+
+test('a slow request logs phase timings without including student data', () => {
+  const w = world();
+  const open = w.sandbox.SpreadsheetApp.openById;
+  w.sandbox.SpreadsheetApp.openById = id => {
+    if (id === 'roster-book') w.clock.advanceSeconds(12);
+    return open(id);
+  };
+  const result = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'synthetic-hub' });
+  assert.equal(result.ok, true);
+  const entry = w.logs.find(line => line.includes('turn_in_slow_request'));
+  assert.ok(entry);
+  assert.deepEqual(JSON.parse(entry), { event: 'turn_in_slow_request',
+    version: JSON.parse(w.sandbox.doGet().text).version, action: 'signin', totalMs: 12000,
+    rosterMs: 12000, draftMs: 0, lockWaitMs: 0 });
+});
+
 test('exact lunch numbers work in Turn In, unassigned numbers fail, and corrections invalidate sessions', () => {
   const w = world();
   const old = w.pin(PEOPLE.ada);
@@ -99,6 +139,64 @@ test('exact lunch numbers work in Turn In, unassigned numbers fail, and correcti
   assert.equal(w.post({ action:'signin', pin:'023456', hub:'x', device:'disabled' }).ok,false);
 });
 
+test('a sign-in failure returns a support ID that matches a private, redacted log', () => {
+  const w = world();
+  const pin = w.pin(PEOPLE.ada) === '746203' ? '871642' : '746203';
+  const request = { action: 'signin', pin, hub: 'bts-route-tree-a', device: 'private-device',
+    token: 'private-token', email: PEOPLE.ada.email, answers: ONE };
+  const result = w.post(request);
+  assert.equal(result.code, 'bad_pin');
+  assert.match(result.supportId, /^TI-[A-F0-9]{16}$/);
+  assert.equal(result.reason, undefined);
+  assert.notEqual(result.supportId, w.post(request).supportId);
+  const entry = w.logs.map((line) => {
+    try { return JSON.parse(line); } catch (error) { return null; }
+  }).find((value) => value && value.supportId === result.supportId);
+  assert.ok(entry, 'the ID on the assignment can be found in Apps Script logs');
+  assert.deepEqual(Object.keys(entry).sort(), ['event', 'hub', 'reason', 'stage', 'supportId', 'version']);
+  assert.equal(entry.event, 'turn_in_signin_failed');
+  assert.equal(entry.hub, request.hub);
+  assert.equal(entry.reason, 'pin_no_match');
+  assert.equal(entry.stage, 'pin_lookup');
+  assert.doesNotMatch(JSON.stringify(entry), new RegExp([pin, request.device, request.token, request.email, 'Three years'].join('|')));
+});
+
+test('sign-in diagnostics distinguish PIN format, roster access and a malformed directory', () => {
+  const w = world();
+  const badFormat = w.post({ action: 'signin', pin: 'bad', hub: 'bts-route-tree-a' });
+  assert.equal(badFormat.code, 'bad_pin');
+  assert.ok(w.logs.some((line) => line.includes(badFormat.supportId) && line.includes('pin_format')));
+  const pin = w.pin(PEOPLE.ada);
+  w.h.properties.setProperty('ROSTER_SPREADSHEET_ID', 'unreadable-private-id');
+  const badRoster = w.post({ action: 'signin', pin, hub: 'bts-route-tree-a' });
+  assert.equal(badRoster.code, 'not_ready');
+  assert.ok(w.logs.some((line) => line.includes(badRoster.supportId) && line.includes('roster_unreadable')));
+  w.h.properties.setProperty('ROSTER_SPREADSHEET_ID', 'roster-book');
+  w.school.harness.call('setSettingValue_', 'SCHOOL_DIRECTORY_SOURCE_ID', 'directory-without-access');
+  const inaccessible = w.post({ action: 'signin', pin, hub: 'bts-route-tree-a' });
+  assert.equal(inaccessible.code, 'not_ready');
+  assert.ok(w.logs.some((line) => line.includes(inaccessible.supportId) && line.includes('directory_unreadable')));
+  const directory = w.sandbox.SpreadsheetApp.create('Synthetic invalid directory');
+  directory.insertSheet('School Directory').getRange(1, 1).setValue('Wrong header');
+  w.school.harness.call('setSettingValue_', 'SCHOOL_DIRECTORY_SOURCE_ID', directory.getId());
+  const badDirectory = w.post({ action: 'signin', pin, hub: 'bts-route-tree-a' });
+  assert.equal(badDirectory.code, 'not_ready');
+  assert.ok(w.logs.some((line) => line.includes(badDirectory.supportId) && line.includes('directory_schema')));
+  assert.equal(w.logs.some((line) => line.includes('unreadable-private-id') || line.includes(directory.getId())), false);
+});
+
+test('the editor health check reads actual dependencies even with a warm roster cache', () => {
+  const w = world();
+  assert.equal(w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'bts-route-tree-a' }).ok, true);
+  assert.equal(w.sandbox.checkTurnInSignInHealth().ready, true);
+  const rosterBook = w.school.harness.spreadsheet;
+  rosterBook.deleteSheet(rosterBook.getSheetByName('Roster'));
+  assert.equal(JSON.parse(w.sandbox.doGet().text).ready, true, 'public readiness still reports configuration presence');
+  const diagnosis = w.sandbox.checkTurnInSignInHealth();
+  assert.equal(diagnosis.ready, false);
+  assert.equal(diagnosis.reason, 'roster_sheet_missing');
+});
+
 test('a wrong PIN is refused, and repeated misses slow that Chromebook only', () => {
   const w = world();
   const real = w.pin(PEOPLE.ada);
@@ -109,6 +207,7 @@ test('a wrong PIN is refused, and repeated misses slow that Chromebook only', ()
   for (let i = 0; i < 7; i += 1) w.post({ action: 'signin', pin: wrong, hub: 'x', device: 'cb-9' });
   const locked = w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-9' });
   assert.equal(locked.code, 'slow_down');
+  assert.ok(w.logs.some((line) => line.includes(locked.supportId) && line.includes('device_throttled')));
   assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-2' }).ok, true);
   w.clock.advanceMinutes(11);
   assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'cb-9' }).ok, true, 'the pause ends');
@@ -119,7 +218,9 @@ test('a flood of wrong PINs across devices pauses Turn In for everyone', () => {
   const real = w.pin(PEOPLE.grace);
   const wrong = real === '333333' ? '444444' : '333333';
   for (let i = 0; i < 60; i += 1) w.post({ action: 'signin', pin: wrong, hub: 'x', device: `d${i}` });
-  assert.equal(w.post({ action: 'signin', pin: real, hub: 'x', device: 'fresh' }).code, 'slow_down');
+  const locked = w.post({ action: 'signin', pin: real, hub: 'x', device: 'fresh' });
+  assert.equal(locked.code, 'slow_down');
+  assert.ok(w.logs.some((line) => line.includes(locked.supportId) && line.includes('service_throttled')));
 });
 
 test('a student marked inactive on the roster cannot turn in', () => {
@@ -184,9 +285,27 @@ test('a busy sheet refuses cleanly, writes nothing, and the same press works on 
 
 test('every sheet write happens under the script lock', () => {
   const source = fs.readFileSync(CODE, 'utf8');
-  const body = source.slice(source.indexOf('function saveDraft_'), source.indexOf('/* --------------------------------------------------------------- identity'));
-  assert.ok(body.indexOf('tryLock') < body.indexOf('drafts.appendRow'), 'draft write is locked');
-  assert.ok(body.indexOf('tryLock(TI_TURNIN_LOCK_MS)') < body.indexOf('turnInRow_(sheet,'), 'turn in write is locked');
+  const w = world();
+  const appendUnderLock = tab => {
+    const sheet = w.book().getSheetByName(tab);
+    const append = sheet.appendRow.bind(sheet);
+    sheet.appendRow = row => {
+      assert.equal(w.h.state.lock.held, true, tab + ' append must hold the script lock');
+      return append(row);
+    };
+  };
+  appendUnderLock('Drafts');
+  appendUnderLock('Turn Ins');
+  w.sandbox.SpreadsheetApp.flush = () => assert.equal(w.h.state.lock.held, true, 'flush must hold the script lock');
+  const hub = 'lock-check';
+  const signIn = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub });
+  const draft = w.post({ action: 'save', token: signIn.token, hub, classPeriod: 'Period 1',
+    answers: ONE, writeProtocol: 1, baseRevision: '' });
+  assert.equal(draft.ok, true);
+  assert.equal(w.post({ action: 'turnin', accountToken: signIn.token, hub, classPeriod: 'Period 1',
+    answers: ONE, submissionId: 'checked-lock', writeProtocol: 1, baseRevision: draft.revision }).ok, true);
+  assert.equal(w.rows('Drafts').length, 1);
+  assert.equal(w.rows('Turn Ins').length, 1);
   assert.match(source, /function turnInRow_[^}]*SpreadsheetApp\.flush\(\)/);
 });
 
@@ -399,7 +518,6 @@ test('only enrolled classes produce progress and each class has its own row', ()
 });
 
 test('35 students update current progress without duplicate rows after interrupted writes', () => {
-  const { crowd } = require('./lib/turn-in-harness.cjs');
   const students = crowd(35);
   const w = world({ memberships: students });
   students.forEach(([person]) => savedDraft(w, person));
@@ -827,6 +945,95 @@ test('Turn In accepts the verified account session after refresh and refuses exp
   w.clock.advanceMinutes(241);
   assert.equal(w.post({ ...body, submissionId: 'expired' }).code, 'signed_out');
   assert.equal(w.rows('Turn Ins').length, 1);
+});
+
+
+/* ---------------------------------------------------------- project teams -- */
+
+const MOH = 'ush9-medal-of-honor-project';
+const sign = (w, person) => w.post({ action: 'signin', pin: w.pin(person), hub: MOH, course: 'ush9', device: 'cb-' + person.email.slice(0, 3) });
+const team = (w, token, body) => w.post({ action: 'team', token, hub: MOH, course: 'ush9', ...body });
+
+test('a student working alone gets a solo project that holds the veteran', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada);
+  assert.equal(team(w, ada.token, { op: 'status' }).team, null);
+  const made = team(w, ada.token, { op: 'create', mode: 'solo', choice: 'freddie-stowers' });
+  assert.equal(made.ok, true, JSON.stringify(made));
+  assert.equal(made.team.role, 'solo');
+  assert.equal(made.team.code, '');
+  assert.equal(made.team.choice, 'freddie-stowers');
+  assert.equal(team(w, ada.token, { op: 'status' }).team.choice, 'freddie-stowers');
+  const row = w.rows('Project Teams')[0];
+  assert.equal(row['Mode'], 'solo');
+  assert.equal(row['Member A Email'], PEOPLE.ada.email);
+});
+
+test('partners pair with a code and each sees only the other person’s project boxes', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace);
+  const made = team(w, ada.token, { op: 'create', mode: 'pair', choice: 'alvin-york' });
+  assert.match(made.team.code, /^[A-Z0-9]{4}$/);
+  assert.equal(made.team.role, 'A');
+  const joined = team(w, grace.token, { op: 'join', code: made.team.code.toLowerCase() });
+  assert.equal(joined.ok, true, JSON.stringify(joined));
+  assert.equal(joined.team.role, 'B');
+  assert.equal(joined.team.code, '', 'a full team no longer shows its code');
+  assert.deepEqual(joined.team.members.map((m) => m.name), ['Ada B.', 'Grace H.']);
+  w.post({ action: 'save', token: grace.token, hub: MOH, classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '',
+    answers: answers(['id:moh-b-day-1', 'What happened', 'He crossed the field.'], ['id:other', 'Not project', 'private']) });
+  const seen = team(w, ada.token, { op: 'status' });
+  assert.equal(seen.team.partner.name, 'Grace H.');
+  assert.deepEqual(seen.team.partner.answers, [{ k: 'id:moh-b-day-1', a: 'He crossed the field.' }]);
+  assert.equal(team(w, ada.token, { op: 'cancel' }).code, 'locked', 'a full team cannot be broken up by a student');
+});
+
+test('one team per class per veteran, wrong codes, full teams and other classes are refused', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace), kat = sign(w, PEOPLE.katherine), alan = sign(w, PEOPLE.alan);
+  const made = team(w, ada.token, { op: 'create', mode: 'pair', choice: 'frank-luke' });
+  assert.equal(team(w, grace.token, { op: 'create', mode: 'solo', choice: 'frank-luke' }).code, 'taken');
+  assert.deepEqual(team(w, grace.token, { op: 'status' }).taken, ['frank-luke']);
+  assert.equal(team(w, kat.token, { op: 'create', mode: 'solo', choice: 'frank-luke' }).ok, true, 'another class may take the same veteran');
+  assert.equal(team(w, grace.token, { op: 'join', code: 'ZZZZ' }).code, 'bad_code');
+  assert.equal(team(w, grace.token, { op: 'join', code: made.team.code }).ok, true);
+  assert.equal(team(w, alan.token, { op: 'join', code: made.team.code }).code, 'team_full');
+  const kat2 = team(w, kat.token, { op: 'cancel' });
+  assert.equal(kat2.ok, true);
+  const solo = team(w, kat.token, { op: 'create', mode: 'pair', choice: 'jake-allex' });
+  assert.equal(team(w, ada.token, { op: 'join', code: solo.team.code }).code, 'already');
+  assert.equal(team(w, w.post({ action: 'signin', pin: w.pin(PEOPLE.alan), hub: MOH, course: 'ush9', classPeriod: 'Period 5', device: 'x' }).token,
+    { op: 'join', code: solo.team.code }).code, 'other_class');
+});
+
+test('switching veterans checks the class list and is logged', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace);
+  team(w, ada.token, { op: 'create', mode: 'solo', choice: 'william-shemin' });
+  team(w, grace.token, { op: 'create', mode: 'solo', choice: 'henry-johnson' });
+  assert.equal(team(w, ada.token, { op: 'choose', choice: 'henry-johnson' }).code, 'taken');
+  assert.equal(team(w, ada.token, { op: 'choose', choice: 'sidney-manning' }).team.choice, 'sidney-manning');
+  assert.match(w.rows('Project Teams')[0]['History'], /switched from william-shemin to sidney-manning/);
+});
+
+test('the teacher key is made once in the private workbook and unlocks every team’s work', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace);
+  const made = team(w, ada.token, { op: 'create', mode: 'pair', choice: 'alvin-york' });
+  team(w, grace.token, { op: 'join', code: made.team.code });
+  w.post({ action: 'save', token: ada.token, hub: MOH, classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '',
+    answers: answers(['id:moh-a-before-1', 'Where', 'Tennessee'], ['id:moh-b-day-1', 'Not mine', '']) });
+  const first = w.post({ action: 'teacher', hub: MOH, key: '' });
+  assert.equal(first.code, 'key_created');
+  const key = w.book().getSheetByName('Teacher Key').getRange(2, 1).getValue();
+  assert.ok(key.length > 15);
+  assert.equal(w.post({ action: 'teacher', hub: MOH, key: 'nope', device: 'd1' }).code, 'bad_key');
+  const view = w.post({ action: 'teacher', hub: MOH, key, device: 'd1' });
+  assert.equal(view.ok, true, JSON.stringify(view));
+  assert.equal(view.teams.length, 1);
+  assert.equal(view.teams[0].a.short, 'Ada B.');
+  assert.equal(view.teams[0].b.work, null, 'a partner with no saved work is listed without work');
+  assert.deepEqual(view.teams[0].a.work.answers.map((e) => e.k), ['id:moh-a-before-1', 'id:moh-b-day-1']);
 });
 
 console.log(`${failures ? 'FAIL' : 'PASS'}  turn in web app  (${passed}/${passed + failures})`);
