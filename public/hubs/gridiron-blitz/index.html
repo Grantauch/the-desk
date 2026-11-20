@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#071218" />
   <meta name="color-scheme" content="dark" />
-  <meta name="description" content="Gridiron Blitz — Breakaway. Read the defense. Make the cut. Own every yard in this original arcade football runner." />
-  <title>Gridiron Blitz — Breakaway</title>
+  <meta name="description" content="Gridiron Blitz — Arcade Run. Read the defense. Make the cut. Own every yard in this original arcade football runner." />
+  <title>Gridiron Blitz — Arcade Run</title>
   <link rel="canonical" href="https://grant-desk.com/hubs/gridiron-blitz/" />
-  <meta name="robots" content="noindex,nofollow" />
+  <meta name="robots" content="index,follow" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Gridiron Blitz — The Breakaway" />
+  <meta property="og:title" content="Gridiron Blitz — Arcade Run" />
   <meta property="og:description" content="Read the defense. Make the cut. Own every yard. An original arcade football runner." />
   <style>.portal-privacy{font:inherit;color:#d5fc57;text-decoration:underline;text-underline-offset:3px}.portal-privacy:focus-visible{outline:2px solid #d5fc57;outline-offset:5px}@media (max-width:440px){.hero-footer{flex-wrap:wrap;gap:.35rem}.portal-privacy{font-size:.68rem}}</style>
-<style>/* GRIDIRON BLITZ / THE BREAKAWAY — original B03 design system
+<style>/* GRIDIRON BLITZ / ORIGINAL ARCADE RUN — original B03 design system
    Grid unit 4/8, athletic condensed headers, broadcast telemetry, tactile controls.
    All assets and icons authored locally: no font, CSS, or icon CDN. */
 :root{
@@ -366,7 +366,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #f4fdbe!important;outline
       <div class="score-actions"><span class="run-id" id="runSeed">SEED 00000000</span><button type="button" class="icon-button pause-button" id="pauseBtn" aria-label="Pause game" title="Pause / P"><svg aria-hidden="true"><use href="#i-pause"/></svg><span>PAUSE</span></button></div>
       <div class="drive-track"><div id="progressFill" class="drive-fill"></div><span class="endzone-mark" aria-hidden="true"></span></div>
     </header>
-    <div class="play-label" aria-hidden="true"><span class="play-label-rule"></span> <span id="modeLabel">BREAKAWAY / 100-YARD CHALLENGE</span></div>
+    <div class="play-label" aria-hidden="true"><span class="play-label-rule"></span> <span id="modeLabel">FULL DRIVE / 100-YARD CHALLENGE</span></div>
     <section class="defense-hud" aria-label="Defensive lane awareness">
       <div class="defense-heading"><span class="defense-eyebrow">DEFENSE READ</span><span class="read-mark" aria-hidden="true">◉</span></div>
       <p id="defenseCall" class="defense-call">SCANNING THE FIELD</p><div id="threatReadout" class="threat-readout" role="status" aria-live="off"><span class="threat-dot" aria-hidden="true"></span><span id="threatText">READ THE DEFENSE</span></div>
@@ -395,24 +395,24 @@ button:focus-visible,a:focus-visible{outline:3px solid #f4fdbe!important;outline
         </div>
       </div>
     </div>
-    <div class="hud-bottomline"><span>GRIDIRON BLITZ <b>/</b> BREAKAWAY</span><span class="touch-hint">SWIPE THE FIELD OR USE THE BUTTONS</span><span>ORIGINAL ARCADE FOOTBALL</span></div>
+    <div class="hud-bottomline"><span>GRIDIRON BLITZ <b>/</b> ARCADE RUN</span><span class="touch-hint">SWIPE THE FIELD OR USE THE BUTTONS</span><span>ORIGINAL ARCADE FOOTBALL</span></div>
   </div>
 
   <div id="startPanel" class="overlay start-overlay">
     <div class="cover-lines" aria-hidden="true"><div></div><div></div><div></div></div>
-    <div class="console-topbar" aria-label="Game menu"><strong>BREAKAWAY / 04</strong><i class="console-divider" aria-hidden="true"></i><span>MAIN MENU</span><small>COLLEGE FOOTBALL ARCADE</small><span class="console-edition">SEASON 01</span></div>
+    <div class="console-topbar" aria-label="Game menu"><strong>GRIDIRON / 04</strong><i class="console-divider" aria-hidden="true"></i><span>MAIN MENU</span><small>COLLEGE FOOTBALL ARCADE</small><span class="console-edition">SEASON 01</span></div>
     <div class="cover-grid">
       <section class="hero" aria-labelledby="titleHeading">
-        <div class="hero-kicker"><span class="kicker-dash"></span> AN ORIGINAL ARCADE FOOTBALL EXPERIENCE <span class="kicker-edition">BREAKAWAY / 01</span></div>
-        <div class="brand-row"><div class="brand-insignia" aria-hidden="true"><svg><use href="#i-bolt"/></svg></div><span>GRIT. VISION. BREAKAWAY.</span></div>
+        <div class="hero-kicker"><span class="kicker-dash"></span> AN ORIGINAL ARCADE FOOTBALL EXPERIENCE <span class="kicker-edition">GRIDIRON / 01</span></div>
+        <div class="brand-row"><div class="brand-insignia" aria-hidden="true"><svg><use href="#i-bolt"/></svg></div><span>READ. CUT. SCORE.</span></div>
         <h1 id="titleHeading"><span>GRIDIRON</span><em>BLITZ<span class="period">.</span></em></h1>
-        <div class="hero-subline"><span class="hero-subline-rule"></span><strong>THE BREAKAWAY</strong><span id="heroRunDescription"> / THE ONE-HUNDRED-YARD RUN</span></div>
+        <div class="hero-subline"><span class="hero-subline-rule"></span><strong>THE ARCADE RUN</strong><span id="heroRunDescription"> / THE ONE-HUNDRED-YARD RUN</span></div>
         <p class="hero-deck">See the lane. Beat the blitz.<br/>Make every yard yours.</p>
         <div class="mode-picker" role="group" aria-label="Choose game mode"><button type="button" class="mode-choice" data-mode="drive" aria-pressed="true"><strong>FULL DRIVE</strong><small>100 YARDS / CAREER</small></button><button type="button" class="mode-choice" data-mode="sprint" aria-pressed="false"><strong>SCORE ATTACK</strong><small>50 YARDS / MEDALS</small></button></div><p class="selected-mode" id="selectedModeName">100-YARD DRIVE · FULL FIELD</p>
         <div class="hero-actions"><button type="button" id="playBtn" class="primary"><span>TAKE THE FIELD</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><button type="button" id="guideFromTitle" class="outline-button"><svg aria-hidden="true"><use href="#i-book"/></svg><span>HOW TO PLAY</span></button></div>
         <div class="quick-instructions"><span><b>01</b> READ THE GAP</span><span><b>02</b> MAKE THE CUT</span><span><b>03</b> REACH THE END ZONE</span></div>
         <p class="legacy-line" id="legacyLine">Checking local career save…</p>
-        <div class="hero-footer"><span>NO INTERNET REQUIRED TO PLAY</span><a href="./privacy.html" class="portal-privacy">PRIVACY & FAIR PLAY</a><span class="hero-footer-gap"></span><span>B09 / REVIEW EDITION</span></div>
+        <div class="hero-footer"><span>NO INTERNET REQUIRED TO PLAY</span><a href="./privacy.html" class="portal-privacy">PRIVACY & FAIR PLAY</a><span class="hero-footer-gap"></span><span>FREE / GRANTDESK EDITION</span></div>
       </section>
       <aside class="cover-aside" aria-label="Drive instructions and career shortcuts">
         <div class="aside-top"><span class="aside-num">01<span>/</span>01</span><span>THE CHALLENGE <i></i></span></div>
@@ -451,7 +451,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #f4fdbe!important;outline
   </div>
 
   <div id="careerPanel" class="overlay utility-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="careerHeading">
-    <section class="utility-dialog" tabindex="-1"><div class="utility-header"><div><span class="section-tag">THE RECORD BOOK / 03</span><h2 id="careerHeading">YOUR <em>LEGACY.</em></h2></div><button type="button" class="icon-button close-button" id="careerClose" aria-label="Close career record"><svg><use href="#i-close"/></svg></button></div><p class="utility-intro">Your career is active again. Each scored run earns bounded XP and coins; previous unlocks are imported without changing the original save.</p><section class="career-progression"><div class="rank-heading"><strong id="careerRank">LEVEL 1 / ROOKIE</strong><span id="careerXP">0 XP</span></div><div class="rank-track"><span id="careerRankFill"></span></div><small id="careerNextRank">NEXT: STARTER</small><div class="progression-stats"><div><span>BANK</span><strong id="careerCoins">0</strong></div><div><span>SPRINTS</span><strong id="careerSprints">0</strong></div><div><span>SPRINT BEST</span><strong id="careerSprintBest">0</strong></div><div><span>CLEAN READS</span><strong id="careerCleanReads">0</strong></div></div><small id="careerStoreStatus">SAVED LOCALLY</small></section><h3 class="utility-section-title">ACHIEVEMENTS <span>ONE-TIME REWARDS</span></h3><div id="achievementGrid" class="achievement-grid"></div><h3 class="utility-section-title">BREAKAWAY RECORD <span>FOUNDATION SERIES</span></h3><div class="career-stats"><div><small>BEST SCORE</small><strong id="careerBest">0</strong></div><div><small>DRIVES PLAYED</small><strong id="careerAttempts">0</strong></div><div><small>TOUCHDOWNS</small><strong id="careerTDs">0</strong></div><div><small>TOTAL YARDS</small><strong id="careerTotalYards">0</strong></div></div><h3 class="utility-section-title">ORIGINAL CAREER ARCHIVE <span>READ-ONLY / SAFE</span></h3><div class="archive-stats"><div><span>ORIGINAL HIGH SCORE</span><strong id="archiveBest">—</strong></div><div><span>COINS</span><strong id="archiveCoins">—</strong></div><div><span>XP EARNED</span><strong id="archiveXp">—</strong></div><div><span>UNIFORM UNLOCKS</span><strong id="archiveUniforms">—</strong></div></div><div class="archive-note"><svg aria-hidden="true"><use href="#i-check"/></svg><p id="archiveStatus">Your original save data has not been modified. Legacy cosmetics and upgrades return in a later gameplay batch.</p></div></section>
+    <section class="utility-dialog" tabindex="-1"><div class="utility-header"><div><span class="section-tag">THE RECORD BOOK / 03</span><h2 id="careerHeading">YOUR <em>LEGACY.</em></h2></div><button type="button" class="icon-button close-button" id="careerClose" aria-label="Close career record"><svg><use href="#i-close"/></svg></button></div><p class="utility-intro">Your career is active again. Each scored run earns bounded XP and coins; previous unlocks are imported without changing the original save.</p><section class="career-progression"><div class="rank-heading"><strong id="careerRank">LEVEL 1 / ROOKIE</strong><span id="careerXP">0 XP</span></div><div class="rank-track"><span id="careerRankFill"></span></div><small id="careerNextRank">NEXT: STARTER</small><div class="progression-stats"><div><span>BANK</span><strong id="careerCoins">0</strong></div><div><span>SPRINTS</span><strong id="careerSprints">0</strong></div><div><span>SPRINT BEST</span><strong id="careerSprintBest">0</strong></div><div><span>CLEAN READS</span><strong id="careerCleanReads">0</strong></div></div><small id="careerStoreStatus">SAVED LOCALLY</small></section><h3 class="utility-section-title">ACHIEVEMENTS <span>ONE-TIME REWARDS</span></h3><div id="achievementGrid" class="achievement-grid"></div><h3 class="utility-section-title">GRIDIRON RECORD <span>ARCADE SERIES</span></h3><div class="career-stats"><div><small>BEST SCORE</small><strong id="careerBest">0</strong></div><div><small>DRIVES PLAYED</small><strong id="careerAttempts">0</strong></div><div><small>TOUCHDOWNS</small><strong id="careerTDs">0</strong></div><div><small>TOTAL YARDS</small><strong id="careerTotalYards">0</strong></div></div><h3 class="utility-section-title">ORIGINAL CAREER ARCHIVE <span>READ-ONLY / SAFE</span></h3><div class="archive-stats"><div><span>ORIGINAL HIGH SCORE</span><strong id="archiveBest">—</strong></div><div><span>COINS</span><strong id="archiveCoins">—</strong></div><div><span>XP EARNED</span><strong id="archiveXp">—</strong></div><div><span>UNIFORM UNLOCKS</span><strong id="archiveUniforms">—</strong></div></div><div class="archive-note"><svg aria-hidden="true"><use href="#i-check"/></svg><p id="archiveStatus">Your original save data has not been modified. Legacy cosmetics and upgrades return in a later gameplay batch.</p></div></section>
   </div>
 
   <div id="lockerPanel" class="overlay utility-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="lockerHeading">
@@ -982,7 +982,7 @@ const RANKS = [
     { name: 'HALL OF FAME', xp: 9200 }
 ];
 const TROPHIES = [
-    { id: 'first_td', title: 'FIRST BREAKAWAY', description: 'Reach the end zone in the full drive.', reward: 70 },
+    { id: 'first_td', title: 'FIRST TOUCHDOWN', description: 'Reach the end zone in the full drive.', reward: 70 },
     { id: 'sprint_gold', title: 'QUICK SIX', description: 'Earn a gold score attack medal (1,700 points).', reward: 90 },
     { id: 'read_8', title: 'THE FILM ROOM', description: 'Make 8 clean reads in one full drive.', reward: 105 },
     { id: 'runs_5', title: 'FIVE DRIVES DEEP', description: 'Complete five full drives.', reward: 140 },
@@ -1551,7 +1551,7 @@ function createWorldArt(quality) {
     // Center brand mark and drive arrows are stenciled, not overlays tracking the player.
     m.floorPoly([[-1, -45.5], [.15, -45.5], [-.45, -49.0], [1.6, -49.0], [-1.0, -54.7], [-.28, -50.4], [-1.9, -50.4]], .078, '#cee85e');
     m.mark(0, -50.6, 5.8, .045, '#749c75');
-    floorWord(m, 'BREAKAWAY', 0, -103.1, .27, '#d9ef8a');
+    floorWord(m, 'BLITZ', 0, -103.1, .27, '#d9ef8a');
     floorWord(m, 'GRIDIRON', 0, -.55, .15, '#90bc9b');
     // Warm sideline trim, player entrance gate, fixed reference markers.
     for (const side of [-1, 1]) {
@@ -3151,7 +3151,7 @@ function syncHud(s) {
     byId('hudYards').innerHTML = `${String(Math.floor(s.yards)).padStart(3, '0')}<span class="minor">/${s.mode === 'drive' ? 100 : s.mode === 'sprint' ? 50 : CONFIG.drillEndYards}</span>`;
     byId('hudScore').textContent = format(s.score);
     byId('progressFill').style.width = `${Math.min(100, s.yards / (s.mode === 'drive' ? 100 : s.mode === 'sprint' ? 50 : CONFIG.drillEndYards) * 100)}%`;
-    byId('modeLabel').textContent = s.mode === 'drive' ? 'BREAKAWAY / 100-YARD CHALLENGE' : s.mode === 'sprint' ? 'SCORE ATTACK / 50-YARD SPRINT' : `DEFENSE LAB / ${s.mode.toUpperCase()} DRILL`;
+    byId('modeLabel').textContent = s.mode === 'drive' ? 'FULL DRIVE / 100-YARD CHALLENGE' : s.mode === 'sprint' ? 'SCORE ATTACK / 50-YARD SPRINT' : `DEFENSE LAB / ${s.mode.toUpperCase()} DRILL`;
     byId('readStreak').textContent = `${s.cleanReads} CLEAN READS · ${s.perfectReads} EARLY CUTS`;
     byId('runSeed').textContent = `SEED ${String(s.seed).padStart(8, '0')}`;
     const next = latestThreat(s);
