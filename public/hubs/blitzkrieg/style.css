@@ -487,3 +487,157 @@ kbd { font-family: Oswald, sans-serif; background: rgba(255,255,255,0.1); border
 .upgrade-deltas span { padding: .11em .33em; border-radius: .24em; white-space: nowrap; font-size: .73em; font-weight: 700; }
 .upgrade-deltas .good { background: #233722; color: #c6f0a8; }
 .upgrade-deltas .trade { background: #462b21; color: #ffc4a6; }
+
+
+/* Command-table title treatment: tactile document typography, no decorative scene SVG. */
+#title {
+  padding: 3em 4em;
+  background:
+    linear-gradient(90deg, rgba(9, 11, 10, .96) 0%, rgba(9, 11, 10, .85) 58%, rgba(10, 12, 10, .66) 100%),
+    repeating-linear-gradient(23deg, transparent 0 30px, rgba(206, 185, 129, .032) 31px 32px);
+}
+#title .title-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3em;
+  width: 100%;
+  max-width: 72em;
+  max-height: 100%;
+  margin: 0 auto;
+}
+#title .title-wrap { flex: 1 1 33em; min-width: 0; }
+#title .title-wrap::before {
+  content: "CAMPAIGN / SEPTEMBER 1939";
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin-bottom: 2.2em;
+  padding-bottom: .6em;
+  border-bottom: 2px solid #ba5744;
+  color: #c7c7a9;
+  font: 800 .76em/1.3 "Special Elite", monospace;
+  letter-spacing: .13em;
+}
+#title h1 {
+  font-size: 6.9em;
+  color: #f1ead8;
+  text-shadow: 0 3px 0 #4b2820, 0 .12em .3em #000;
+}
+#title .tag { color: #e7b9a1; letter-spacing: .36em; }
+#title .menu { width: 18.2em; gap: .65em; }
+#title .menu button {
+  min-height: 2.8em;
+  border-radius: 2px;
+  border-color: #8e856e;
+  background: #191d1bcf;
+  box-shadow: inset 3px 0 0 #8c7a5e, 0 4px 10px #0005;
+}
+#title .menu button.big {
+  background: linear-gradient(180deg, #b84e37, #872e22);
+  border-color: #e8a287;
+  box-shadow: inset 4px 0 0 #f2d1a7, 0 5px 12px #0009;
+}
+#title .menu button:focus-visible,
+#title .title-foot button:focus-visible {
+  outline: 3px solid #ffe6a0;
+  outline-offset: 3px;
+}
+#title .field-report {
+  flex: 0 0 23.5em;
+  max-height: 39em;
+  overflow: auto;
+  color: #29251d;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 25px, #5d513a0d 26px 27px),
+    linear-gradient(146deg, #e5d8b6, #bfb093);
+  border: 1px solid #e9e0c9;
+  padding: 1.3em 1.5em 1.5em;
+  box-shadow: 0 .5em 2.5em #000b, inset 0 0 0 5px #4b433128;
+  transform: rotate(.6deg);
+}
+#title .field-report__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  padding-bottom: .65em;
+  border-bottom: 2px solid #41372c;
+  color: #685b47;
+  font: 800 .65em/1.4 "Special Elite", monospace;
+  letter-spacing: .05em;
+}
+#title .field-report__intro { padding: 1em 0 .5em; }
+#title .field-report__eyebrow {
+  margin: 0;
+  font: 800 .75em/1.3 "Special Elite", monospace;
+  letter-spacing: .09em;
+  color: #843b31;
+}
+#title .field-report h2 {
+  margin: .25em 0 .13em;
+  font: 700 2.6em/.94 Oswald, sans-serif;
+  letter-spacing: .01em;
+  color: #26251c;
+}
+#title .field-report__intro > p:last-child {
+  max-width: 31ch;
+  font: 500 1em/1.32 "Barlow Condensed", sans-serif;
+  color: #443e30;
+}
+#title .field-report__steps {
+  padding: 0;
+  margin: .65em 0 1em;
+  list-style: none;
+  counter-reset: none;
+  border-top: 1px solid #827960;
+}
+#title .field-report__steps li {
+  display: grid;
+  grid-template-columns: 2.7em 1fr;
+  gap: .9em;
+  padding: .85em 0;
+  border-bottom: 1px solid #827960;
+}
+#title .field-report__number {
+  font: 700 2.15em/.9 Oswald, sans-serif;
+  color: #983d2f;
+}
+#title .field-report__steps strong {
+  display: block;
+  font: 700 1.08em/1.1 Oswald, sans-serif;
+  letter-spacing: .045em;
+}
+#title .field-report__steps p {
+  margin: .3em 0 0;
+  max-width: 27ch;
+  font: 500 .91em/1.26 "Barlow Condensed", sans-serif;
+  color: #494333;
+}
+#title .field-report__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: .9em;
+  padding-top: .65em;
+  border-top: 3px double #665641;
+  color: #6a563f;
+  font: 700 .61em/1.35 "Special Elite", monospace;
+  letter-spacing: .03em;
+}
+@media (max-width: 960px) {
+  #title { padding: 2.2em; }
+  #title .title-layout { gap: 1.4em; }
+  #title h1 { font-size: 5.9em; }
+  #title .field-report { flex-basis: 21em; padding: 1em; }
+}
+@media (max-width: 680px) {
+  #title { padding: 1.2em; overflow-y: auto; }
+  #title .title-layout { flex-direction: column; justify-content: flex-start; gap: 1.1em; }
+  #title .title-wrap { flex: 0 0 auto; width: 100%; }
+  #title .title-wrap::before { margin-bottom: 1em; }
+  #title h1 { font-size: 4.2em; }
+  #title .menu { width: min(100%, 20em); }
+  #title .field-report { flex: 0 0 auto; width: min(100%, 28em); max-height: none; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #title .field-report, #title .menu button { transition: none; }
+}
