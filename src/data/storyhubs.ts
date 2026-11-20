@@ -1489,8 +1489,8 @@ export const storyHubs: StoryHub[] = [
     question: 'when a hundred retellings trace back to one origin, how many sources do you really have?',
     blurb:
       'The “Paul is dead” rumor and the Watergate investigation put two very different source networks side by side. Students trace origins, collapse repeated claims, and test whether each conclusion can be disproved.',
-    cover: '/storyhub/hh/l06/assets/cover-signal.svg',
-    coverAlt: 'Editorial receiver dial contrasting repeated signals with independent signals',
+    cover: '/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg',
+    coverAlt: 'Yoichi Okamoto archival photograph of the Watergate complex, photographed in May 1973; National Archives',
     topics: ['source independence', 'corroboration', 'paul is dead', 'watergate', 'falsifiability'],
     inside: [
       'A backward trace that follows many rumor outlets to the same two Michigan origins.',
