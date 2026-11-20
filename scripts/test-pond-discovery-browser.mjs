@@ -72,6 +72,14 @@ async function run(viewport) {
     assert.ok(await page.locator(".field-stage-plinth").isVisible(), "bespoke glass field stage must render");
     assert.ok(await page.getByRole("group", { name: "Crafting slots" }).isVisible());
     assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
+    if (viewport.width <= 400) {
+      const quick = page.getByRole("navigation", { name: "Quick material tools" });
+      assert.ok(await quick.isVisible(), "mobile quick-material dock must be reachable");
+      await quick.getByRole("button", { name: "Quick Water" }).click();
+      assert.equal(await quick.getByRole("button", { name: "Quick Water" }).getAttribute("aria-pressed"), "true");
+      await quick.getByRole("button", { name: "Quick Sand" }).click();
+      assert.equal(await quick.getByRole("button", { name: "Quick Sand" }).getAttribute("aria-pressed"), "true");
+    }
     await page.getByRole("button", { name: "Mix Fire" }).click();
     await page.getByRole("button", { name: "Mix Water" }).click();
     await page.getByText(/Fire \+ Water = Steam/).waitFor();
@@ -200,6 +208,9 @@ async function run(viewport) {
     assert.equal(overflow, false, "Pond should not overflow horizontally");
     assert.deepEqual(errors, [], "No browser errors");
     const name = viewport.width <= 400 ? "mobile" : "desktop";
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(150);
+    await page.screenshot({ path: out + "/" + name + "-top.png" });
     await page.screenshot({ path: out + "/" + name + ".png", fullPage: true });
     console.log("PASS Pond discovery, placement, undo, autosave, export on " + name);
     cases++;
