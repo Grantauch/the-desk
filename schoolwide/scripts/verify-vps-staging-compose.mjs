@@ -15,6 +15,11 @@ const app = services.app;
 for (const service of [postgres, migrate]) {
   assert.ok(!service.ports || service.ports.length === 0, 'Database or migration ports are public.');
 }
+for (const service of [postgres, migrate, app]) {
+  assert.equal(service.logging?.driver, 'json-file', 'Container logs must be bounded.');
+  assert.equal(service.logging?.options?.['max-size'], '10m');
+  assert.equal(String(service.logging?.options?.['max-file']), '3');
+}
 assert.equal(app.ports?.length, 1, 'The app must have exactly one loopback port.');
 const port = app.ports[0];
 assert.equal(port.host_ip, '127.0.0.1', 'The staging app must bind host loopback only.');
