@@ -157,7 +157,7 @@ await test('annotated exemplar is complete, accessible, printable and never beco
     const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     assert.deepEqual(axe.violations.map(v => `${v.id}: ${v.nodes.map(n => n.target).join(' ')}`), [], `exemplar accessibility at ${width}`);
     await page.screenshot({ path: `${OUT}/exemplar-${width}.png`, fullPage: true });
-    const toggle = page.getByRole('button', { name: 'Hide explanation notes' });
+    const toggle = page.locator('#toggle-notes');
     await toggle.focus();
     await page.keyboard.press('Enter');
     assert.equal(await page.locator('.explanation:visible').count(), 0);
