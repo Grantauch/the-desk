@@ -689,8 +689,8 @@ function readRosterByHash_(useCache) {
   const cache = CacheService.getScriptCache();
   const book = openTurnInRoster_();
   const directoryPins = schoolDirectoryPinsForTurnIn_(book);
-  const cacheable = useCache && directoryPins === null;
-  const cached = cacheable ? cache.get('roster:v1') : null;
+  const cacheable = directoryPins === null;
+  const cached = useCache && cacheable ? cache.get('roster:v1') : null;
   if (cached) { try { return JSON.parse(cached); } catch (error) { cache.remove('roster:v1'); } }
 
   let rows;
@@ -717,7 +717,12 @@ function readRosterByHash_(useCache) {
     if (classPeriod && entry.classes.indexOf(classPeriod) === -1) entry.classes.push(classPeriod);
   });
   try {
-    if (cacheable) cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
+    // A fresh PIN check must also replace the cache used by the next save,
+    // or that new session would be compared with the previous credential.
+    if (cacheable) {
+      if (!useCache) cache.remove('roster:v1');
+      cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
+    }
   } catch (error) {
     // A very large roster can exceed the cache value limit. Reading the sheet each time still works.
   }
