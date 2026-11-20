@@ -157,7 +157,9 @@
   function pollPartner() {
     clearTimeout(pollTimer);
     if (!S.team || S.demo) return;
-    var wait = document.visibilityState === 'visible' ? 75000 : 180000;
+    // Check often while a new team waits for the partner to type the code, then settle down.
+    var waiting = S.team.mode === 'pair' && !names().hasB;
+    var wait = document.visibilityState !== 'visible' ? 180000 : waiting ? 12000 : 75000;
     pollTimer = setTimeout(function () {
       api('status').then(function (r) {
         if (!r.team) { leaveWork(); enterSetup(); return; }
