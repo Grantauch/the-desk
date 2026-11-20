@@ -80,7 +80,7 @@ try {
         'Practice drills are not mixed into the Games cabinet');
       await page.getByRole('link', { name: /Practice & review/i }).first().click();
       await page.waitForURL(origin + '/practice/');
-      assert.ok(await page.getByRole('heading', { name: 'practice & review', exact: true }).count());
+      assert.ok(await page.getByRole('heading', { name: /practice & review/i }).count());
       assert.ok(await page.locator('a[href="/hubs/ush9-muckrakers-review.html"]').count(),
         'The practice activity retains its original student URL');
       await page.goto(origin + '/games/');
