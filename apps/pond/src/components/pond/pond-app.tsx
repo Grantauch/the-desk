@@ -44,6 +44,7 @@ import { cn } from "@/lib/utils";
 import { decodePondAnySize, encodeWorld, MAX_SAVE_BYTES, WORLD_KEY } from "@/lib/pond/save";
 
 const BRUSHES = [1, 2, 4, 7, 11];
+const QUICK_TOOLS: ToolId[] = [E.WATER, E.SAND, E.PLANT, E.FIRE, ERASER];
 
 export function PondApp() {
   const sim = useMemo(() => {
@@ -633,7 +634,7 @@ export function PondApp() {
             </aside>
 
             <aside className="field-materials" aria-label="Materials and world controls">
-              <section className="field-panel field-tool-panel">
+              <section id="pond-field-kit" className="field-panel field-tool-panel">
                 <div className="field-panel-header">
                   <p className="field-eyebrow">04 / THE MATERIAL LIBRARY</p>
                   <div className="field-panel-heading">
@@ -754,6 +755,28 @@ export function PondApp() {
           </>
         ) : null}
       </div>
+
+
+      {started ? (
+        <nav className="field-mobile-dock" aria-label="Quick material tools">
+          {QUICK_TOOLS.map((id) => {
+            const item = toolById(id);
+            return (
+              <button key={id} type="button" aria-label={"Quick " + item.name} title={"Paint " + item.name}
+                aria-pressed={tool === id && !specimenId}
+                onClick={() => { setTool(id); setSpecimenId(null); setPanMode(false); }}
+                className={cn("field-mobile-dock-tool", tool === id && !specimenId && "field-mobile-dock-tool--active")}>
+                <span className={cn("pond-material-swatch field-mobile-dock-color", item.swatch)} aria-hidden="true"/>
+                <span>{item.name}</span>
+              </button>
+            );
+          })}
+          <button type="button" className="field-mobile-dock-more" aria-label="Open full material kit"
+            onClick={() => document.getElementById("pond-field-kit")?.scrollIntoView({ block: "start", behavior: "smooth" })}>
+            <Layers3 size={20} aria-hidden="true"/><span>All tools</span>
+          </button>
+        </nav>
+      ) : null}
 
       {guide ? (
         <div className="fixed inset-0 z-30 flex items-end justify-center bg-[#07100f]/85 p-3 sm:items-center" onClick={() => setGuide(false)}>
