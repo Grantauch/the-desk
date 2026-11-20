@@ -19,7 +19,7 @@
     },
     {
       "id": "A02",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Martinsburg local-militia problem",
       "sourceMode": "interpretive-reconstruction",
@@ -27,10 +27,12 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. Interpretive reconstruction; not a likeness of specific participants.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. Interpretive reconstruction; not a likeness of specific participants. No longer displayed in the current student-facing scene.",
       "htmlSafeZone": "Right half deep shadow for date stamp and body lines.",
       "responsiveCrop": "Keep locomotive stopped and figures close together rather than confrontational; protect right-side shadow.",
-      "deployPath": "/storyhub/ush9/l015/assets/a02-martinsburg.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a02-martinsburg.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original illustration remains sealed at its historical URL, but the current lesson uses a locally hosted period-source image instead."
     },
     {
       "id": "A03",
@@ -49,7 +51,7 @@
     },
     {
       "id": "A04",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Pittsburgh aftermath ledger substrate",
       "sourceMode": "interpretive-reconstruction",
@@ -57,10 +59,12 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The damage scene is interpretive rather than archival.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The damage scene is interpretive rather than archival. No longer displayed in the current student-facing scene.",
       "htmlSafeZone": "Left third flat smoke haze for the ledger panels.",
       "responsiveCrop": "Preserve overturned locomotive and large scale of damage while keeping left third quiet.",
-      "deployPath": "/storyhub/ush9/l015/assets/a04-pittsburgh-aftermath.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a04-pittsburgh-aftermath.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original illustration remains sealed at its historical URL, but the current lesson uses a locally hosted period-source image instead."
     },
     {
       "id": "A05",
@@ -240,6 +244,34 @@
       "deployPath": "/storyhub/ush9/l015/assets/a14-ladder.svg",
       "deploymentStatus": "legacy-asset-preserved",
       "deploymentNote": "No longer linked from current lesson; remains in sealed release to preserve prior public asset URLs."
+    },
+    {
+      "id": "A15",
+      "type": "wood-engraving",
+      "role": "Source-grounded Martinsburg blockade scene, replacing ornamental A02 SVG",
+      "sourceMode": "archival-wood-engraving",
+      "subject": "1877 Harper’s Weekly wood engraving of Martinsburg blockade, based on photograph by D. Bendann",
+      "sourceUrl": "https://www.loc.gov/item/00649601/",
+      "rightsStatus": "public-domain-1877-print",
+      "provenance": "Original 1877 Harper’s Weekly engraving, after D. Bendann photograph. Image retrieved from Lapham’s Quarterly historical reproduction and optimized into locally hosted JPEG derivative. Clearly identified as engraving, not original photograph.",
+      "htmlSafeZone": "Dark type overlay on right, image has documentary composition with crowd and locomotives.",
+      "responsiveCrop": "Keep locomotive and blockade legible; source title and credit remain native HTML.",
+      "status": "shipped",
+      "deployPath": "/storyhub/ush9/l015/assets/a02-martinsburg-1877.jpg"
+    },
+    {
+      "id": "A16",
+      "type": "period-photograph",
+      "role": "Period Pittsburgh destruction aftermath photograph, replacing ornamental A04 SVG",
+      "sourceMode": "archival-photograph",
+      "subject": "Ruins of the Pennsylvania Railroad Union Depot in Pittsburgh after 1877 fire",
+      "sourceUrl": "https://beltmag.com/great-railroad-strike-pittsburgh-pennsylvania-labor/",
+      "rightsStatus": "historical-photo-rights-reviewed-for-educational-redistribution",
+      "provenance": "Historic photograph from Jones & Laughlin Steel Corporation Photographs collection in Detre Library & Archives, Heinz History Center, reproduced in Belt Magazine. Local compressed JPEG derivative. Not a photograph of the roundhouse or of the fire in progress.",
+      "htmlSafeZone": "White native HTML text gradient over left half.",
+      "responsiveCrop": "Preserve depot walls and telegraph poles; in-image historical printed caption remains historical artifact.",
+      "status": "shipped",
+      "deployPath": "/storyhub/ush9/l015/assets/a04-pittsburgh-1877.jpg"
     }
   ]
 }

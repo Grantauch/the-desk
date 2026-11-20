@@ -36,3 +36,10 @@ This StoryHub follows four major labor conflicts from 1877 through 1894 and comp
 ## Visual provenance policy
 
 Narrative scene images for this lesson are planned separately in `assets.json`. Where strong historical visual evidence survives, production should begin from a verified period photograph, engraving, document, building, or artifact. When a direct visual source does not survive or does not fit the required composition, the page may use a clearly identified interpretive reconstruction. Generated or reconstructed scenes are never presented as archival photographs, and all readable historical language remains native HTML rather than fabricated inside images.
+
+## Restored archival images for A02 and A04
+
+- **Martinsburg (A15):** *The Great Strike—Blockade of Engines at Martinsburg, West Virginia*, wood engraving from *Harper’s Weekly*, August 11, 1877, after a photograph by D. Bendann. [Library of Congress record LCCN 00649601](https://www.loc.gov/item/00649601/). The source is **an engraving**, not a surviving photograph. Locally hosted derivative sourced through Lapham’s Quarterly historical reproduction.
+- **Pittsburgh (A16):** Photograph of the ruined Pennsylvania Railroad Union Depot after the fire of 1877, from the Jones & Laughlin Steel Corporation Photographs collection, Detre Library & Archives at the Heinz History Center. [Belt Magazine, historical photograph with attribution](https://beltmag.com/great-railroad-strike-pittsburgh-pennsylvania-labor/). Photograph records damage after the fire; it does **not** depict the roundhouse burning.
+
+Both are period sources displayed as evidence. The previous illustrative SVGs remain at their old public URLs for compatibility but no longer display in the student-facing scenes.
