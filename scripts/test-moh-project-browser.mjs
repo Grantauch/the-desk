@@ -186,6 +186,10 @@ await test('every veteran page builds with a citation, a map pin and working nex
     }, slug);
     assert.ok(cite, `${slug} shows its citation word for word`);
     assert.ok(await page.locator('svg circle, svg .pin').count() > 0, `${slug} has a map pin`);
+    assert.equal(await page.locator('#more .reading-card').count(), 2, `${slug} includes historical context and an individual explanation`);
+    assert.ok((await page.locator('#more .reading-card').innerText()).length > 350, `${slug} expands the reading beyond the short biography`);
+    assert.ok(await page.locator('#vocabulary .vocab-card').count() >= 15, `${slug} includes a substantial plain-language glossary`);
+    assert.equal(await page.locator('#more .reading-ask li').count(), 4, `${slug} contains a four-step evidence guide`);
   }
   assert.deepEqual(page.errors.map(String), []);
   await cb.context.close();
