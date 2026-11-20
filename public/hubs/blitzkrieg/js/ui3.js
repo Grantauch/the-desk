@@ -30,12 +30,12 @@
   UP.refreshResume = function () {
     const menu = document.querySelector("#title .menu");
     if (!menu) return;
-    let b = $("b-resume");
+    let b = menu.querySelector("#b-title-resume");
     const s = BK.RunSave.read();
     if (!s) { if (b) b.remove(); return; }
     if (!b) {
       b = document.createElement("button");
-      b.id = "b-resume";
+      b.id = "b-title-resume";
       b.className = "big resume";
       menu.insertBefore(b, menu.firstChild);
     }
