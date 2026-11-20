@@ -1,3 +1,13 @@
+## November 20 Blitzkrieg classroom playtest follow-up
+
+Built on the Phase 2 branch (#414), preserving the existing lesson link, local saves, map indices and daily rotation. The anonymous feedback became a checklist:
+
+- **Fairness:** lighter standard units, flamethrowers, snipers and aircraft; less sniper damage and suppression. Motorcycles and aircraft show additional fictional hit markers during crewed play.
+- **Clarity and rewards:** visible permanent medals and banked support charges, clearer blocked construction zones with reasons, stronger combat upgrade tiers with stat and effect comparisons, and a selectable free refit that can be saved for later.
+- **Variety:** a Supply Farm, Repair Station, Dispatch Depot with road units or a short bomber flyover, and three different mini-bosses. Signal Junction adds a working turret train; Canal Loop adds two separate crossings.
+
+Seventeen focused automated checks and a seeded all-map integration smoke cover the mechanics and save compatibility. Required CI, a browser/Chromebook playtest and exact production readback remain distinct; a draft preview is not the classroom release.
+
 ## November 19 experience catalog publication
 
 Owner Codex, PR #421 / tracker P421, first release batch for #422. The centralized inventory preserves all 37 original activity URLs while separating 17 games, five practice activities, nine simulations and six investigations. Simulations retains the five teacher-led collections and adds three links into existing Story Hubs. The current Story Hub catalog contains 77 entries, correcting the earlier count of 72. The trench cover uses the already credited John Warwick Brooke / IWM Q 4135 photograph within the same lesson.

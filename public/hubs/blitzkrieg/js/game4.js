@@ -368,7 +368,8 @@
     let h = 0;
     for (const ch of "bk39" + key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     const r = BK.makeRng(h || 1);
-    const map = Math.floor(r() * BK.MAPS.length);
+    const eligibleMaps = BK.MAPS.flatMap((m, i) => m.bonus ? [] : [i]);
+    const map = eligibleMaps[Math.floor(r() * eligibleMaps.length)];
     const weather = r.pick(["clear", "fog", "rain", "smoke"]);
     const ids = Object.keys(BK.DAILY_MODS);
     const mods = [];

@@ -116,10 +116,10 @@
 
   // ---------------------------------------------------------------- special enemy units
   Object.assign(BK.ENEMIES, {
-    pioneer: { id: "pioneer", name: "Flamethrower Team", hp: 75, speed: 34, armor: 0.05, reward: 12, leak: 1, r: 8, kind: "foot", score: 60, assault: true,
+    pioneer: { id: "pioneer", name: "Flamethrower Team", hp: 48, speed: 34, armor: 0.05, reward: 12, leak: 1, r: 8, kind: "foot", score: 60, assault: true,
       weak: [{ id: "fuel", x0: -9, x1: -3, y0: -5, y1: 5, mult: 1, effect: "flametank" }],
       tip: "Pioneers leave the road to burn out your guns. Hit the fuel tank on the back." },
-    sniper: { id: "sniper", name: "Sniper", hp: 50, speed: 30, armor: 0, reward: 15, leak: 1, r: 7, kind: "foot", score: 70, snipe: true,
+    sniper: { id: "sniper", name: "Sniper", hp: 32, speed: 30, armor: 0, reward: 15, leak: 1, r: 7, kind: "foot", score: 70, snipe: true,
       tip: "Snipers hide in cover and pin your crews down. They are hard to spot unless a gun is close or crewed." },
     mortarteam: { id: "mortarteam", name: "Mortar Team", hp: 85, speed: 30, armor: 0, reward: 16, leak: 1, r: 9, kind: "foot", score: 70, mortar: true,
       tip: "Mortar teams set up off the road and lob bombs onto your guns. Go after them first." },

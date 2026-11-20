@@ -456,3 +456,34 @@ kbd { font-family: Oswald, sans-serif; background: rgba(255,255,255,0.1); border
 /* The commander's buttons sit above Send Wave so the bottom row never overflows. */
 #herobar { position: absolute; right: 0; bottom: calc(100% + 0.4em); }
 #herobar .abil { width: 3.7em; height: 3.7em; }
+
+/* Student playtest follow-up: construction, banked support, and actionable upgrade comparisons. */
+#build-verdict {
+  position: absolute; z-index: 3; left: 50%; bottom: 9.7em; transform: translateX(-50%);
+  max-width: min(82%, 30em); width: max-content; padding: .4em .8em; border-radius: .35em;
+  background: #1c211b; border: 1px solid #b9bca8; color: #f0e9d3; box-shadow: 0 .25em 1em #0009;
+  pointer-events: none; font-size: .93em; font-weight: 800; letter-spacing: .035em;
+}
+#build-verdict.bad { border-color: #ff9f88; background: #43231d; color: #ffe0d4; }
+#build-verdict.ok { border-color: #ade489; background: #293a22; color: #e1fbd1; }
+#refit-count {
+  position: absolute; left: 0; bottom: calc(100% + .35em); padding: .27em .65em;
+  background: #2c2715; border: 1px solid #dcbf70; border-radius: .3em; color: #ffde90;
+  font-weight: 800; font-size: .79em; pointer-events: none;
+}
+.abil .support-bank {
+  position: absolute; z-index: 2; top: .54em; right: .4em; min-width: 1.3em; padding: .05em .13em;
+  border-radius: .24em; background: #f8d87d; color: #251b09; font-size: .67em; font-weight: 900; line-height: 1.1;
+}
+.refit-note { margin: .35em 0; color: #ffdf92; border-left: 2px solid #e5c577; padding: .23em .48em; background: #292413; }
+.refit-note b, .refit-note small { display: block; }
+.refit-note small { color: #fff2c7; }
+.refit-spend {
+  display: block; width: 100%; padding: .4em .55em; margin-top: .1em; border: 1px solid #dcbf70;
+  border-radius: .3em; background: #3b3118; color: #ffe4a2; text-align: center; font-weight: 800; font-size: .82em;
+}
+.refit-spend:hover, .refit-spend:focus-visible { border-color: #fff4bd; background: #544320; }
+.upgrade-deltas { display: flex; flex-wrap: wrap; gap: .25em; margin-top: .29em; }
+.upgrade-deltas span { padding: .11em .33em; border-radius: .24em; white-space: nowrap; font-size: .73em; font-weight: 700; }
+.upgrade-deltas .good { background: #233722; color: #c6f0a8; }
+.upgrade-deltas .trade { background: #462b21; color: #ffc4a6; }

@@ -256,7 +256,7 @@
         fx.sparks(ev.x, ev.y, 4, "255,210,140", 90);
         break;
       case "train":
-        say("ŚMIAŁY IS COMING", "#ffd84d", 22, this.cam.x, this.cam.y);
+        say(ev.railPatrol ? "RAIL PATROL DISPATCHED" : "ŚMIAŁY IS COMING", "#ffd84d", 22, this.cam.x, this.cam.y);
         au.radio();
         break;
       case "uhlans":
@@ -587,7 +587,8 @@
           if (d < -60 || d > rail.len + 60) continue;
           const [x, y, a] = rail.at(BK.clamp(d, 0, rail.len));
           c.save(); c.translate(x, y); c.rotate(a);
-          A.trainCar(c, i === 0 ? "loco" : "gun", this.time);
+          const turret = i > 0 && tr.railTurrets && tr.railTurrets[i - 1];
+          A.trainCar(c, i === 0 ? "loco" : "gun", this.time, turret ? (turret.angle == null ? 0 : turret.angle - a) : null);
           c.restore();
           if (i === 0 && R() < 0.5) fx.add({ kind: "smoke", x, y, vx: R.range(-10, 10), vy: -30, life: 2, size: 9, grow: 20, a: 0.6, drag: 0.97 });
         }
@@ -938,20 +939,17 @@
   // Placing forts and moving guns: show a ghost of what will go where.
   const baseOverlay = RP.drawOverlay;
   RP.drawOverlay = function (c, v) {
+    if (v.building || v.relocate) BK.drawPlacementZones(c, this.g, v.relocate && v.relocate.id);
     if (v.ghost && v.ghost.kind) {
       const { kind, x, y } = v.ghost;
       const bad = this.g.canPlace(x, y, kind);
       const def = BK.GUNS[kind];
       const r = def.range * (1 + this.g.mods.range);
       this.rangeRing(c, x, y, r, bad ? "rgba(255,90,79,0.9)" : "rgba(160,240,120,0.95)", def.minRange);
-      c.globalAlpha = 0.75;
+      c.globalAlpha = bad ? 0.48 : 0.8;
       A.gun(c, { kind, x, y, ang: -Math.PI / 2, recoil: 0, ko: 0, level: 1, path: [kind] });
       c.globalAlpha = 1;
-      if (bad) {
-        c.strokeStyle = "rgba(255,90,79,0.95)";
-        c.lineWidth = 3;
-        c.beginPath(); c.moveTo(x - 10, y - 10); c.lineTo(x + 10, y + 10); c.moveTo(x + 10, y - 10); c.lineTo(x - 10, y + 10); c.stroke();
-      }
+      BK.drawPlacementMarker(c, x, y, bad);
       v = Object.assign({}, v, { ghost: null });
     }
     if (v.fortGhost) {
@@ -979,7 +977,7 @@
     if (v.relocate) {
       const t = this.g.towers.find((x) => x.id === v.relocate.id);
       if (t && v.pointer) {
-        const bad = this.g.canPlace(v.pointer.x, v.pointer.y, t.kind, t);
+        const bad = this.g.relocationBlock(t, v.pointer.x, v.pointer.y);
         c.globalAlpha = 0.6;
         A.gun(c, Object.assign({}, t, { x: v.pointer.x, y: v.pointer.y }));
         c.globalAlpha = 1;
@@ -987,6 +985,7 @@
         c.setLineDash([6, 5]); c.lineWidth = 2;
         c.beginPath(); c.moveTo(t.x, t.y); c.lineTo(v.pointer.x, v.pointer.y); c.stroke();
         c.setLineDash([]);
+        BK.drawPlacementMarker(c, v.pointer.x, v.pointer.y, bad);
       }
     }
     if (v.ability === "uhlans" && v.pointer) {
