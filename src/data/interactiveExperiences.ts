@@ -16,6 +16,17 @@ export interface Hub {
 
 export const interactiveExperiences: Hub[] = [
   {
+    name: 'gridiron blitz · breakaway',
+    section: 'game',
+    course: 'just for fun',
+    kind: '3d arcade football runner',
+    theme: 'scoreboard',
+    previewEyebrow: '100 yards · 3 lanes · 2 game modes',
+    href: '/hubs/gridiron-blitz/',
+    blurb: 'See the lane, beat the blitz, and run for the end zone. Full Drive and Score Attack, tactical defenses, earned uniforms and local career progress. No sign-in, tracking, purchases or public leaderboard.',
+  },
+
+  {
     name: 'reconstruction case file',
     section: 'investigation',
     course: 'US History',
