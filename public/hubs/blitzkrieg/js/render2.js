@@ -414,7 +414,8 @@
     const shake = fx.camera();
     c.save();
     c.translate(BK.W / 2 + shake.x, BK.H / 2 + shake.y);
-    c.rotate(shake.rot);
+    // No roll on Chromebooks: a rotated full screen draw is where their GPUs tear.
+    if (!document.documentElement.classList.contains("lowfx")) c.rotate(shake.rot);
     const z = cm.z * shake.zoom * (this.quiet && !this.bigMap() ? 1.14 : 1);
     c.scale(z, z);
     let cx = cm.x, cy = cm.y;
@@ -426,8 +427,16 @@
     // Ground and scorch, cropped to what the camera sees.
     const sx = Math.max(0, v.x0), sy = Math.max(0, v.y0), sw = Math.min(g.WW, v.x1) - sx, sh = Math.min(g.WH, v.y1) - sy;
     if (sw > 0 && sh > 0) {
-      c.drawImage(this.ground, sx * gs, sy * gs, sw * gs, sh * gs, sx, sy, sw, sh);
-      c.drawImage(fx.decal, sx * gs, sy * gs, sw * gs, sh * gs, sx, sy, sw, sh);
+      // Crop on whole source pixels. A fractional crop of a large image under the camera's scale
+      // shows as a diagonal tear on some Chromebook GPUs, where the quad's two triangles meet.
+      const gw = this.ground.width, gh = this.ground.height;
+      const x0 = Math.max(0, Math.floor(sx * gs)), y0 = Math.max(0, Math.floor(sy * gs));
+      const x1 = Math.min(gw, Math.ceil((sx + sw) * gs)), y1 = Math.min(gh, Math.ceil((sy + sh) * gs));
+      if (x1 > x0 && y1 > y0) {
+        c.drawImage(this.ground, x0, y0, x1 - x0, y1 - y0, x0 / gs, y0 / gs, (x1 - x0) / gs, (y1 - y0) / gs);
+        const dw = fx.decal.width, dh = fx.decal.height;
+        c.drawImage(fx.decal, x0, y0, Math.min(dw, x1) - x0, Math.min(dh, y1) - y0, x0 / gs, y0 / gs, (Math.min(dw, x1) - x0) / gs, (Math.min(dh, y1) - y0) / gs);
+      }
     }
     // Craters the battle has dug.
     for (const cr of g.craters) {

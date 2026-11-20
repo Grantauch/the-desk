@@ -141,14 +141,19 @@
       for (let i = 0; i < 60 * 14; i++) { this.bot.update(STEP); this.g.update(STEP); }
       this.g.events.length = 0;
     }
-    startRun(mapIndex, endless) {
+    startRun(mapIndex, endless, opts) {
+      opts = opts || {};
       BK.Audio.unlock();
       BK.Audio.startMusic();
       this.lastMap = mapIndex;
       this.lastEndless = !!endless;
       for (const id of ["title", "maps", "command", "notes", "cards", "pause", "result"]) $(id).classList.add("hidden");
       this.bot = null;
-      this.g = new BK.Game({ map: mapIndex, endless, seed: (Math.random() * 1e9) | 0, save: { unlocks: BK.Save.data.unlocks } });
+      // A saved battle picks up where it left off. Otherwise a new one starts on the chosen difficulty.
+      const diff = opts.diff || BK.Save.data.settings.diff || "regular";
+      this.g = opts.snapshot ? BK.Game.fromSnapshot(opts.snapshot, BK.Save.data.unlocks)
+        : new BK.Game({ map: mapIndex, endless, diff, daily: opts.daily, weather: opts.weather, seed: opts.seed || (Math.random() * 1e9) | 0, save: { unlocks: BK.Save.data.unlocks } });
+      if (opts.daily && !opts.snapshot && this.g.applyDaily) this.g.applyDaily(opts.daily);
       this.R.setGame(this.g);
       this.R.quiet = false;
       this.inRun = true;
@@ -294,6 +299,8 @@
         // Crates win over everything else.
         const cr = g.crateAt(p.x, p.y);
         if (cr) { g.openCrate(cr); return; }
+        // The commander: select him, then click where he should go.
+        if (this.fieldClick && this.fieldClick(p, e)) return;
         if (g.crew) {
           g.aim.x = p.x; g.aim.y = p.y;
           const t = this.towerAt(p.x, p.y);
@@ -420,6 +427,7 @@
         const k = e.key.toLowerCase();
         if (k === "p" || (k === "escape" && this.paused)) { this.togglePause(); return; }
         if (this.paused || this.g.result) return;
+        if (this.onKey && this.onKey(k, e)) return;
         if (k === "escape") { this.cancel(); return; }
         if (k === " ") { e.preventDefault(); this.sendWave(); return; }
         if (k === "f") { this.toggleSpeed(); return; }
