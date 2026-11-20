@@ -130,6 +130,13 @@ await test('home and veteran pages read cleanly at phone and desktop widths', as
   });
   assert.equal(await page.locator('#wall img').count(), cards, 'every card has a local image');
   assert.ok(await page.locator('.gallery-backdrop img').evaluate((image) => image.naturalWidth > 0), 'archival cover loaded');
+  const medal = page.locator('.hero-medal img');
+  await medal.evaluate((image) => image.decode());
+  assert.match(await medal.getAttribute('alt'), /Frank Luke/);
+  assert.match(await page.locator('.hero-medal .medal-credit').getAttribute('href'), /180917-F-IO108-006/);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  assert.equal(await page.locator('.medal-glint').first().evaluate((glint) => getComputedStyle(glint).animationName), 'none');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.locator('#filters [data-tag="navy"]').click();
   const navyCount = await page.evaluate(() => window.MOH_VETERANS.filter((veteran) => veteran.tags.includes('navy')).length);
   assert.equal(await page.locator('#wall .exhibit-card:visible').count(), navyCount, 'service filter updates the gallery');

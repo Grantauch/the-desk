@@ -9,6 +9,7 @@
     "evidence": [
       "All 21 images, official citations, maps, and profile links render. Tested the landing and profile at 320, 390, and 1440 pixels with automated WCAG A/AA checks.",
       "Synthetic browser journeys passed for solo and paired work, same-class claim locking, the full report and teacher gallery.",
+      "The hero features a credited U.S. Air Force photograph of Frank Luke Jr.’s Medal of Honor with brief glints and a still reduced-motion treatment.",
       "Stowers is a labeled U.S. Army forensic reconstruction. Stockham is represented by the medal awarded to him. Profile captions credit each visual source."
     ]
   },
