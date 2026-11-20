@@ -22,6 +22,13 @@ Date: November 20, 2026. Scope: student-facing story hero and one interior evide
 - **Interior — The game they were playing:** Replaced an uninformative field drawing with a **true proportional scale** comparing 5 yards in 3 downs under 1905 rules against 10 yards in 3 downs under the 1906 rules. Bars use 50% vs 100% of the same 10-yard scale. Labeled a rule comparison rather than a period image.
 - The original offline title treatment remains as a fallback.
 
+## Hidden History — Two Sources catalog cover
+
+- Changed the Story Hub catalog cover from the generic `hh/l06/assets/cover-signal.svg` receiver graphic to the **existing locally hosted** archival photograph `/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg`.
+- The original photograph is credited within `/hubs/hh-who-took-the-files.html` as **Yoichi Okamoto · National Archives; Watergate complex, May 1973**. It illustrates the investigation's physical location, not the 1969 rumor or an invented meeting.
+- Deliberately preserved the receiver/dial in the *Two Sources* lesson itself because it is an explanatory, source-count instrument rather than a fake historical scene. Its original SVG remains deployed for existing social previews and as a source asset; no deep links or released HTML are altered by the cover change.
+- This reuses the site's existing verified local image: no extra hosting dependency or third-party image download.
+
 ## Performance, safety and follow-up
 
 - Removed redundant identical `storyhub-context.css` imports in two files. There is still exactly one copy of each needed stylesheet.
