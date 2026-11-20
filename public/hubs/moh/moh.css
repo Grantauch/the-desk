@@ -1,0 +1,100 @@
+/* Medal of Honor project · shared styles for the hub, veteran pages, the project workspace and the teacher page. */
+@font-face{font-family:"Barlow Condensed";font-weight:600;src:url(/storyhub/bts/americas-most-hated/assets/barlow-condensed-600.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow Condensed";font-weight:800;src:url(/storyhub/bts/americas-most-hated/assets/barlow-condensed-800.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow";font-weight:400;src:url(/storyhub/bts/americas-most-hated/assets/barlow-400.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow";font-weight:600;src:url(/storyhub/bts/americas-most-hated/assets/barlow-600.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow";font-style:italic;font-weight:400;src:url(/storyhub/bts/americas-most-hated/assets/barlow-400-italic.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Source Serif 4";font-weight:400 600;src:url(/storyhub/bts/americas-most-hated/assets/source-serif-4.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Source Serif 4";font-style:italic;font-weight:400;src:url(/storyhub/bts/americas-most-hated/assets/source-serif-4-italic.woff2) format("woff2");font-display:swap}
+
+:root{
+  --navy:#0d1626;--navy2:#142036;--navy3:#1d2c48;--line:#2b3d5f;
+  --ribbon:#7fb3dc;--ribbon2:#a9cdea;--star:#f5f0e1;--bone:#ece4d1;--mute:#a7b2c6;
+  --bronze:#cf9f45;--bronze2:#e7bf6a;--paper:#f3ead6;--paper2:#e6dbc2;--ink:#1c1813;--ink2:#4a4237;
+  --red:#c2452f;--green:#4fae7c;--amber:#e3a83b;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --ui:"Barlow",Arial,Helvetica,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --type:"Courier New",Courier,monospace;
+  --max:1180px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--navy);color:var(--bone);font:400 1.08rem/1.6 var(--ui);overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:var(--ribbon2)}
+a:hover{color:var(--star)}
+:focus-visible{outline:3px solid var(--bronze2);outline-offset:3px}
+.skip{position:absolute;left:1rem;top:-5rem;background:var(--bronze);color:var(--ink);padding:.6rem 1rem;z-index:90;font:800 1rem var(--display);text-transform:uppercase;letter-spacing:.06em}
+.skip:focus{top:1rem}
+.wrap{width:min(var(--max),calc(100% - 2.5rem));margin:0 auto}
+.kicker{font:600 .95rem/1.2 var(--display);letter-spacing:.2em;text-transform:uppercase;color:var(--bronze2);margin:0 0 .6rem}
+h1,h2,h3{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:.98;margin:0}
+h2{font-size:clamp(2rem,4.6vw,3.2rem);color:var(--star)}
+h3{font-size:1.45rem;color:var(--star);letter-spacing:.04em}
+p{margin:0 0 1rem}
+.lede{font:400 1.25rem/1.55 var(--serif);color:var(--bone);max-width:44rem}
+
+/* top bar shared by every page */
+.mbar{position:sticky;top:0;z-index:40;background:rgba(13,22,38,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.mbar .wrap{display:flex;align-items:center;gap:1rem;min-height:3.4rem;flex-wrap:wrap}
+.mbar .brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--star);font:800 1.2rem var(--display);letter-spacing:.08em;text-transform:uppercase}
+.mbar nav{display:flex;gap:.3rem;margin-left:auto;flex-wrap:wrap}
+.mbar nav a{color:var(--mute);text-decoration:none;font:600 1rem var(--display);letter-spacing:.08em;text-transform:uppercase;padding:.45rem .8rem;border-radius:.4rem}
+.mbar nav a:hover,.mbar nav a[aria-current="page"]{color:var(--star);background:var(--navy3)}
+.mbar nav a.go{background:var(--bronze);color:var(--ink)}
+.mbar nav a.go:hover{background:var(--bronze2)}
+.star-mark{width:1.6rem;height:1.6rem;flex:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:0;border-radius:.5rem;padding:.8rem 1.3rem;font:800 1.05rem var(--display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:none;background:var(--bronze);color:var(--ink)}
+.btn:hover{background:var(--bronze2);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--star);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 2px var(--ribbon);color:var(--star)}
+.btn.blue{background:var(--ribbon);color:var(--navy)}
+.btn.small{padding:.5rem .85rem;font-size:.95rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* the medal ribbon: light blue with white stars, used once per page */
+.ribbon{height:22px;background:var(--ribbon) radial-gradient(circle,var(--star) 2.2px,transparent 2.6px) 0 0/26px 22px repeat-x;border-top:2px solid var(--navy);border-bottom:2px solid var(--navy)}
+
+/* veteran cards */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.vcard{position:relative;display:flex;flex-direction:column;gap:.55rem;background:linear-gradient(170deg,var(--navy3),var(--navy2));border:1px solid var(--line);border-radius:.8rem;padding:1.1rem 1.1rem 1rem;text-decoration:none;color:var(--bone);transition:transform .15s,border-color .15s}
+.vcard:hover{transform:translateY(-3px);border-color:var(--ribbon);color:var(--bone)}
+.vcard .rank{font:600 .9rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--ribbon2)}
+.vcard .name{font:800 1.75rem/1 var(--display);text-transform:uppercase;color:var(--star)}
+.vcard .hook{font:400 1rem/1.45 var(--serif);color:var(--bone);margin:0}
+.vcard .meta{margin-top:auto;display:flex;flex-wrap:wrap;gap:.35rem;font:600 .82rem var(--ui);color:var(--mute)}
+.tag{display:inline-block;padding:.12rem .5rem;border-radius:99px;background:rgba(127,179,220,.12);color:var(--ribbon2);font:600 .78rem var(--ui);letter-spacing:.02em}
+.tag.gold{background:rgba(207,159,69,.15);color:var(--bronze2)}
+.vcard.taken{opacity:.45}
+.vcard.taken::after{content:"Taken in your class";position:absolute;top:.8rem;right:.8rem;font:800 .8rem var(--display);letter-spacing:.08em;text-transform:uppercase;background:var(--red);color:#fff;padding:.2rem .5rem;border-radius:.3rem}
+.vcard.picked{border-color:var(--bronze2);box-shadow:0 0 0 3px var(--bronze)}
+.chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:1.2rem 0}
+.chips button{border:1px solid var(--line);background:var(--navy2);color:var(--bone);border-radius:99px;padding:.4rem .9rem;font:600 .95rem var(--ui);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ribbon);border-color:var(--ribbon);color:var(--navy)}
+
+/* paper panels */
+.paper{background:var(--paper);color:var(--ink);border-radius:.6rem;padding:1.6rem 1.8rem;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.paper h3{color:var(--ink)}
+.paper a{color:#1f4f7a}
+.record{font-family:var(--type);font-size:.98rem;line-height:1.5}
+.record dl{display:grid;grid-template-columns:minmax(8rem,auto) 1fr;gap:.35rem 1rem;margin:0}
+.record dt{font-weight:700;text-transform:uppercase;font-size:.85rem;color:var(--ink2);padding-top:.1rem}
+.record dd{margin:0}
+
+/* footer */
+.mfoot{border-top:1px solid var(--line);margin-top:4rem;padding:2rem 0 3rem;color:var(--mute);font-size:.95rem}
+.mfoot a{color:var(--mute)}
+
+@media (max-width:640px){
+  .mbar nav{margin-left:0}
+  .paper{padding:1.2rem}
+}
+@media print{
+  body{background:#fff;color:#000}
+  .mbar,.mfoot,.no-print,#desk-read-aloud,#desk-save-reader{display:none!important}
+}

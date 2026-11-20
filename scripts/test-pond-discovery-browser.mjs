@@ -98,18 +98,25 @@ async function run(viewport) {
     await page.getByText(/1 living creations/).waitFor();
     // The richer graphics are a real render option, not just a CSS label.
     // Undo has paused physics, so compare the same world in both render modes.
-    await page.getByRole("button", { name: "Switch to classic pixel graphics" }).click();
-    await page.getByRole("button", { name: "Enable rich pixel graphics" }).waitFor();
+    const graphics = pressed => page.getByRole("button", { name: "Rich pixel graphics", exact: true, pressed });
+    await graphics(true).click();
+    await graphics(false).waitFor();
     await page.waitForTimeout(100);
     const classicPixels = await page.getByRole("application").evaluate(el => el.toDataURL());
-    await page.getByRole("button", { name: "Enable rich pixel graphics" }).click();
-    await page.getByRole("button", { name: "Switch to classic pixel graphics" }).waitFor();
+    await graphics(false).click();
+    await graphics(true).waitFor();
     await page.waitForTimeout(100);
     const richPixels = await page.getByRole("application").evaluate(el => el.toDataURL());
     assert.notEqual(richPixels, classicPixels, "enhanced renderer must visually differ from the original");
     assert.equal(await page.evaluate(() => localStorage.getItem("pond-rich-graphics")), "1");
+    await graphics(true).click();
+    await graphics(false).waitFor();
+    assert.equal(await page.evaluate(() => localStorage.getItem("pond-rich-graphics")), "0");
     await page.reload({ waitUntil: "load" });
     await page.getByRole("button", { name: "Make a mess" }).click();
+    await graphics(false).waitFor();
+    await graphics(false).click();
+    await graphics(true).waitFor();
     await page.getByText(/1 living creations/).waitFor();
     await page.getByRole("button", { name: "Mix Steam" }).waitFor();
 

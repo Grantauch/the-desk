@@ -48,8 +48,8 @@
   // Tuned with the headless bot. Enemy health climbs a little faster each wave (ramp2 in game3.js),
   // the 75mm no longer outshoots everything, and each field has its own toughness.
   BK.GUNS.f75.dmg = 135;
-  Object.assign(BK.TUNE, { hp: 3, ramp: 0.3, ramp2: 0.035 });
-  const MAP_HP = { frontier: 1.45, orchard: 1.85, river: 1.55, mokra: 1.95, mlawa: 2.1, wizna: 2, bzura: 2.1, warsaw: 2.2 };
+  Object.assign(BK.TUNE, { hp: 3.1, ramp: 0.3, ramp2: 0.037 });
+  const MAP_HP = { frontier: 1.6, orchard: 2, river: 1.55, mokra: 1.8, mlawa: 1.95, wizna: 2, bzura: 2.1, warsaw: 2.2 };
   for (const m of BK.MAPS) if (MAP_HP[m.id]) m.hp = MAP_HP[m.id];
 
   // ---------------------------------------------------------------- trees

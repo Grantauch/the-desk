@@ -730,7 +730,7 @@ export function PondApp() {
                   </section>
                 ) : <p className="field-world-hint">Expand the basin to unlock cartographic navigation.</p>}
                 <div className="field-world-footer">
-                  <button type="button" aria-label={richGraphics ? "Switch to classic pixel graphics" : "Enable rich pixel graphics"}
+                  <button type="button" aria-label="Rich pixel graphics"
                     aria-pressed={richGraphics} onClick={toggleGraphics} className="field-graphics-toggle">
                     <Sparkles size={15}/> Visuals: {richGraphics ? "Rich" : "Classic"}
                   </button>

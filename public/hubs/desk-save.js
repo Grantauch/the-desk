@@ -58,6 +58,7 @@
     : 'after a short pause, or about every 30 seconds while you keep typing';
   var SNAPSHOT_MS = 4000;
   var REQUEST_TIMEOUT_MS = 15000;
+  var SIGNIN_TIMEOUT_MS = 2 * REQUEST_TIMEOUT_MS;
 
   var testHooks = window.__deskSaveTest || null;
   if (testHooks) {
@@ -357,6 +358,10 @@
     applying = false;
   }
 
+  function announceAccount() {
+    setTimeout(function () { window.dispatchEvent(new Event('desk-save:account')); }, 0);
+  }
+
   function answeredCount(list) {
     return list.filter(function (e) { return clean(e.a); }).length;
   }
@@ -386,8 +391,17 @@
         keepalive: body.action === 'save',
         signal: controller ? controller.signal : undefined
       }).then(function (response) {
-        if (!response.ok) { clearTimeout(timer); throw new Error('http ' + response.status); }
-        return response.json().finally(function () { clearTimeout(timer); });
+        if (!response.ok) {
+          clearTimeout(timer);
+          var error = new Error('http ' + response.status);
+          error.name = 'DeskSaveResponseError';
+          throw error;
+        }
+        return response.json().catch(function (error) {
+          if (error.name !== 'SyntaxError') throw error;
+          error.name = 'DeskSaveResponseError';
+          throw error;
+        }).finally(function () { clearTimeout(timer); });
       }, function (error) {
         clearTimeout(timer);
         throw error;
@@ -398,7 +412,11 @@
         if (result && (result.code === 'server' || result.code === 'busy') && n < attempts) return wait(n).then(function () { return attempt(n + 1); });
         return result;
       }, function (error) {
-        if (n < attempts) return wait(n).then(function () { return attempt(n + 1); });
+        // Aborting the browser request can leave Apps Script running. Keep one
+        // sign-in execution per press when the service is slow.
+        if (n < attempts && !(body.action === 'signin' && error && error.name === 'AbortError')) {
+          return wait(n).then(function () { return attempt(n + 1); });
+        }
         throw error;
       });
     }
@@ -417,17 +435,21 @@
   var cloudPromise = null;
   var finishing = false;
   var cloudRetry = 0;
+  var cloudRetryAt = 0;
+  var cloudStaggerMs = Math.floor(Math.random() * Math.min(4000, CLOUD_DEBOUNCE_MS / 4));
 
   function scheduleCloud() {
     if (!cloudOn || !state.token || applying || transitioning || finishing || state.conflict) return;
     var now = Date.now();
     if (!cloudFirstPending) cloudFirstPending = now;
+    if (cloudBusy) return;
     clearTimeout(cloudTimer);
-    var delay = Math.max(0, Math.min(CLOUD_DEBOUNCE_MS, cloudFirstPending + CLOUD_MAX_WAIT_MS - now));
+    var delay = Math.max(0, cloudRetryAt - now,
+      Math.min(CLOUD_DEBOUNCE_MS, cloudFirstPending + CLOUD_MAX_WAIT_MS - now) + cloudStaggerMs);
     cloudTimer = setTimeout(saveCloud, delay);
   }
 
-  function saveCloud() {
+  function saveCloud(retryNow) {
     clearTimeout(cloudTimer);
     if (!cloudOn || !state.token || transitioning || finishing || state.conflict) return Promise.resolve(false);
     var list = answers(false);
@@ -435,7 +457,8 @@
     var position = state.position, positionHash = JSON.stringify(position);
     if (hash === state.cloudHash && positionHash === state.cloudPositionHash) { cloudFirstPending = 0; return Promise.resolve(true); }
     if (!answeredCount(list) && !state.everSaved) { state.cloudHash = hash; state.cloudPositionHash = positionHash; return Promise.resolve(true); }
-    if (cloudBusy) return cloudPromise.then(function () { return saveCloud(); });
+    if (cloudBusy) return cloudPromise.then(function (saved) { return saved ? saveCloud(retryNow) : false; });
+    if (retryNow !== true && Date.now() < cloudRetryAt) { scheduleCloud(); return Promise.resolve(false); }
     cloudBusy = true;
     var started = generation, owner = state;
     cloudPromise = post({ writeProtocol: 1, baseRevision: state.remoteAt, action: 'save', token: state.token, hub: hub, course: course, classPeriod: state.classPeriod, title: document.title, page: location.pathname, answers: list, position: position }).then(function (result) {
@@ -454,6 +477,7 @@
         state.remoteAt = result.revision || result.savedAt;
         cloudFirstPending = 0;
         cloudRetry = 0;
+        cloudRetryAt = 0;
         persist();
         ui.refresh();
         if (pendingCloud()) scheduleCloud();
@@ -473,8 +497,9 @@
       cloudBusy = false;
       if (started !== generation || state !== owner) return false;
       cloudRetry = Math.min(cloudRetry + 1, 4);
+      cloudRetryAt = Date.now() + 15000 * cloudRetry + Math.floor(Math.random() * 5000);
       clearTimeout(cloudTimer);
-      cloudTimer = setTimeout(saveCloud, 15000 * cloudRetry);
+      cloudTimer = setTimeout(saveCloud, cloudRetryAt - Date.now());
       ui.refresh();
       return false;
     });
@@ -728,6 +753,7 @@
   function resetPage() {
     heldPin = '';
     generation++; clearTimeout(cloudTimer); cloudFirstPending = 0;
+    cloudRetry = 0; cloudRetryAt = 0;
     applying = true;
     fields().forEach(function (el) { setValue(el, el.defaultValue); });
     resetRadios();
@@ -740,16 +766,34 @@
 
   /* ------------------------------------------------------------ actions -- */
 
+  function signInFailure(message, code, supportId) {
+    var legacyCodes = {
+      bad_pin: 'TI-PIN',
+      slow_down: 'TI-THROTTLE',
+      not_ready: 'TI-SETUP',
+      server: 'TI-SERVER'
+    };
+    var reference = /^TI-(?:[A-F0-9]{16}|TIMEOUT|NETWORK|RESPONSE|CLIENT)$/.test(supportId || '')
+      ? supportId
+      : Object.hasOwn(legacyCodes, code) ? legacyCodes[code] : '';
+    return { ok: false, code: code, message: reference ? message + ' Support code: ' + reference : message };
+  }
+
   function signIn(pin, options) {
     if (transitioning || finishing) return Promise.resolve({ ok: false, message: 'Wait for the current account check.' });
     transitioning = true;
     clearTimeout(cloudTimer);
     var beforeHash = hashOf(answers(false));
     var beforeOwner = state;
+    var responseReceived = false;
     return Promise.resolve(cloudPromise).then(function () {
-      return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2 });
+      return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2, timeoutMs: SIGNIN_TIMEOUT_MS });
     }).then(function (result) {
-      if (!result || !result.ok) return { ok: false, code: result && result.code || 'server', message: result && result.error || 'That did not go through. Try again.' };
+      responseReceived = true;
+      if (!result || typeof result.ok !== 'boolean') {
+        return signInFailure('The save system sent an unexpected response. Try again or ask your teacher.', 'server', 'TI-RESPONSE');
+      }
+      if (!result.ok) return signInFailure(result.error || 'That did not go through. Try again.', result.code || 'server', result.supportId);
       if (state !== beforeOwner || beforeHash !== hashOf(answers(false))) return { ok: false, message: 'Your answers changed while loading. They were kept. Choose Load My Work again when ready.' };
       var draft = result.draft && Array.isArray(result.draft.answers) ? result.draft : null;
       var differentStudent = Boolean(state.identityKey && (!result.identityKey || result.identityKey !== state.identityKey));
@@ -770,6 +814,7 @@
         return { ok: false, message: 'The account copy contains answers this version of the page cannot display. Your work was kept. Ask your teacher to recover the full version before saving.' };
       }
       generation++;
+      cloudFirstPending = 0; cloudRetry = 0; cloudRetryAt = 0;
       state.undoValues = differentStudent ? null : snapshot();
       applying = true;
       if (switching) {
@@ -816,11 +861,16 @@
       }
       state.classroomUrl = classroomAssignmentUrl(result.classroomUrl);
       persist();
+      announceAccount();
       var hello = state.firstName ? 'Welcome back, ' + state.firstName + '. ' : '';
       return { ok: true, message: hello + (restored ? restored + ' answers brought back. ' : (!draft ? 'No account copy was found for this assignment. ' : 'Your account copy is loaded. ')) + 'Check your name before saving.' };
-    }).catch(function () {
+    }).catch(function (error) {
       applying = false;
-      return { ok: false, code: 'offline', message: 'Could not reach the save system. Your visible answers were kept. Keep this tab open or download a backup.' };
+      if (responseReceived) return signInFailure('Could not load your work in this tab. Ask your teacher.', 'server', 'TI-CLIENT');
+      var supportId = 'TI-NETWORK';
+      if (error && error.name === 'AbortError') supportId = 'TI-TIMEOUT';
+      if (error && error.name === 'DeskSaveResponseError') supportId = 'TI-RESPONSE';
+      return signInFailure('Could not reach the save system. Your visible answers were kept. Keep this tab open or download a backup.', 'offline', supportId);
     }).finally(function () {
       transitioning = false;
       if (state.token && !state.conflict && pendingCloud()) saveCloud();
@@ -1362,7 +1412,7 @@
       resumePin.addEventListener('keydown', function (e) { if (e.key === 'Enter') resumeSign.click(); });
       resumeNow.addEventListener('click', function () {
         busy(resumeNow, true, 'Saving…');
-        saveCloud().then(function (ok) {
+        saveCloud(true).then(function (ok) {
           busy(resumeNow, false, 'Save now');
           var current = ok && state.token && state.cloudAt && hashOf(answers(false)) === state.cloudHash;
           setStatus(resumeStatus, current ? 'Account save confirmed. Check the name and time above.' : 'Latest account save not confirmed. Keep this tab open; saving will retry.', current);
@@ -1463,9 +1513,14 @@
     ui.refresh = function (note) {
       if (typeof note === 'string') { message = note; messageGood = false; }
       var list = answers(true);
-      var count = answeredCount(list);
       var hash = hashOf(list);
-      var total = list.length;
+      // Boxes a page marks data-desk-uncounted (a partner's part of a shared
+      // project, for example) still save, but do not count toward "answered".
+      var uncounted = {};
+      fields().filter(function (el) { return el.hasAttribute('data-desk-uncounted'); }).forEach(function (el) { uncounted[keyOf.get(el)] = true; });
+      var counted = list.filter(function (e) { return !uncounted[e.k]; });
+      var count = answeredCount(counted);
+      var total = counted.length;
       if (resumeHost) {
         var pending = pendingCloud();
         resumeHost.host.setAttribute('data-signed-in', state.token ? 'true' : 'false');
@@ -1892,7 +1947,7 @@
     window.addEventListener('blur', function () { setTimeout(function () { var a = document.activeElement; if ((a && a.tagName === 'IFRAME') || document.hasFocus()) return; tlAway(); }, 0); });
     window.addEventListener('focus', tlBack);
     window.addEventListener('pagehide', function () { tlFlushAll(); tlSave(true); beaconSave(); });
-    window.addEventListener('online', function () { if (state.token) saveCloud(); });
+    window.addEventListener('online', function () { if (state.token) saveCloud(true); });
     window.addEventListener('beforeunload', function (e) {
       if (!hasWork()) return;
       var hash = hashOf(answers(true));
@@ -1926,6 +1981,12 @@
     }
     window.__deskSave.ready = true;
     window.__deskSave.hub = hub;
+    // Pages with shared work (project teams) call Turn In with the signed in
+    // account session. The PIN itself is never exposed.
+    window.__deskSave.account = function () {
+      return state && state.token ? { token: state.token, firstName: state.firstName, classPeriod: state.classPeriod, endpoint: ENDPOINT, hub: hub, course: course, device: device } : null;
+    };
+    if (state.token) announceAccount();
     if (testHooks) {
       window.__deskSave.state = function () { return JSON.parse(JSON.stringify(state)); };
       window.__deskSave.answers = function () { return answers(true); };

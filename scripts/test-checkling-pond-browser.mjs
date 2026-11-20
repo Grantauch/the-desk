@@ -294,17 +294,21 @@ try {
     await page.goto(`${origin}/hubs/pond/`);
     await page.getByRole('button',{name:'Make a mess',exact:true}).click();
     await page.getByRole('button',{name:'Pause',exact:true}).click();
-    const canvas = page.locator('canvas');
+    const canvas = page.getByRole('application',{name:/^Living dish/});
     await page.getByRole('button',{name:'Stone',exact:true}).click();
     await canvas.focus();
     await page.keyboard.press('ArrowUp');
     await page.keyboard.press('Enter');
     assert.ok(await page.getByRole('button',{name:'Undo',exact:true}).isEnabled());
     await page.getByRole('button',{name:'Undo',exact:true}).click();
-    const box = await canvas.boundingBox();
-    const x = box.x + box.width / 2, y = box.y + box.height / 2;
-    if (width < 600) await page.touchscreen.tap(x,y);
+    // Undo is in the tool panel. Clicking it can scroll the dish out of view
+    // in a stacked layout; raw pointer coordinates do not scroll it back.
+    if (width < 600) await canvas.tap();
     else {
+      await canvas.click({trial:true});
+      const box = await canvas.boundingBox();
+      assert.ok(box, 'The Pond canvas must be visible before dragging');
+      const x = box.x + box.width / 2, y = box.y + box.height / 2;
       await page.mouse.move(x,y);
       await page.mouse.down();
       await page.mouse.move(x+35,y-20,{steps:5});

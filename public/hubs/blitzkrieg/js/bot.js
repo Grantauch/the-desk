@@ -142,6 +142,17 @@
           if (f) g.useAbility(id, f.x, f.y);
         }
       }
+      // The commander goes where the fighting is and uses his orders when they are ready.
+      if (g.hero && !g.hero.dead && g.phase === "combat") {
+        const f = g.frontEnemy();
+        if (f) {
+          let near = null, bd = 1e12;
+          for (const t of g.towers) { const d = (t.x - f.x) * (t.x - f.x) + (t.y - f.y) * (t.y - f.y); if (d < bd) { bd = d; near = t; } }
+          if (near) g.moveHero(near.x + (f.x - near.x) * 0.25, near.y + (f.y - near.y) * 0.25);
+        }
+        g.heroGrenade();
+        if (g.towers.filter((t) => Math.hypot(t.x - g.hero.x, t.y - g.hero.y) < BK.HERO.rally.r).length >= 3 && g.enemies.length > 4) g.heroRally();
+      }
       if (g.phase === "deploy" && !g.demo) g.startWave();
       if (g.phase === "deploy" && g.demo) g.startWave();
       if (this.opts.crew) {
