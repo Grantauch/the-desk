@@ -1,6 +1,6 @@
 # Source-first visual replacements — November 19, 2026
 
-This batch replaces three Story Hub catalog illustrations, three in-lesson narrative SVG appearances, and one explicitly labeled portrait placeholder with documented primary-source media. **Existing local SVG files are retained for rollback and as fallbacks where noted.** No PIN gate, answers, saving, or Turn In code was modified.
+This batch replaces three Story Hub catalog illustrations, four in-lesson narrative SVG appearances, and one explicitly labeled portrait placeholder with documented primary-source media. **Existing local SVG files are retained for rollback and as fallbacks where noted.** No PIN gate, answers, saving, or Turn In code was modified.
 
 ## 1. Hidden History — The Hangman of Nuremberg
 
