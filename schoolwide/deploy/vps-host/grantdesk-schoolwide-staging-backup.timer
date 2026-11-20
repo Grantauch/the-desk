@@ -1,0 +1,13 @@
+# Use only after synthetic staging acceptance. Existing host filesystem
+# backup runs at 02:15; this database dump runs 10 minutes earlier.
+[Unit]
+Description=Daily synthetic Schoolwide staging PostgreSQL dump before host archive
+
+[Timer]
+OnCalendar=*-*-* 02:05:00
+Persistent=true
+AccuracySec=1min
+Unit=grantdesk-schoolwide-staging-backup.service
+
+[Install]
+WantedBy=timers.target
