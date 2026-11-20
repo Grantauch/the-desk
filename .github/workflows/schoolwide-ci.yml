@@ -67,3 +67,8 @@ jobs:
 
       - name: Verify Schoolwide foundation
         run: npm run verify
+      - name: Verify isolated VPS staging Compose configuration
+        env:
+          SCHOOLWIDE_DB_PASSWORD: synthetic_ci_only_1234567890
+          SCHOOLWIDE_RELEASE_SHA: ${{ github.sha }}
+        run: docker compose -f deploy/vps-staging.compose.yml config --format json | node scripts/verify-vps-staging-compose.mjs
