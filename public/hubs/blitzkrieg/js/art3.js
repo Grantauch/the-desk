@@ -1046,4 +1046,50 @@
     tufts(c, 95, 12, 26, 32);
   };
   BASE_R.tksdug = 32;
+  // ------------------------------------------------------------------ Sd.Kfz. 231 eight wheeler (enemy)
+  // Built from the four wheel armored car: a longer hull on four axles and a bigger 20mm turret.
+  const { HULL, TURRET } = A._h;
+  if (HULL && HULL.armcar && TURRET && TURRET.armcar) {
+    HULL.armcar8 = function (c, e, o) {
+      for (const x of [-18, -6, 6, 18]) for (const s of [-1, 1]) {
+        rr(c, x - 3.4, s * 11.2 - 2.4, 6.8, 4.8, 2);
+        fillStroke(c, "#1c1c19", 0.7);
+        c.fillStyle = "rgba(120,120,110,0.35)"; c.fillRect(x - 2.4, s * 11.2 - 0.4, 4.8, 0.8);
+      }
+      c.save(); c.scale(1.32, 1.06); HULL.armcar(c, e, o); c.restore();
+      // Rear engine deck louvers and the second driver's visor at the back.
+      c.strokeStyle = "rgba(0,0,0,0.45)"; c.lineWidth = 0.7;
+      for (let y = -4.5; y <= 4.5; y += 1.8) { c.beginPath(); c.moveTo(-23, y); c.lineTo(-18, y); c.stroke(); }
+      c.fillStyle = "#151512"; c.fillRect(-21.5, -2.8, 1.4, 5.6); c.fillRect(21, -2.8, 1.4, 5.6);
+      c.fillStyle = "#e8e2cf"; c.fillRect(-6, 7.6, 3.2, 1.4); c.fillRect(-5.1, 6.7, 1.4, 3.2);
+    };
+    TURRET.armcar8 = {
+      x: 1, y: 0,
+      draw(c, e, o) {
+        c.fillStyle = "#1f201d";
+        rr(c, 6, -1.1, 16, 2.2, 0.6); c.fill();
+        rr(c, 20, -1.6, 3, 3.2, 0.6); c.fill();
+        c.save(); c.scale(1.18, 1.18); TURRET.armcar.draw(c, e, o); c.restore();
+      },
+    };
+    // The icon draws the hull and turret directly, since the shared enemy table was built before this unit existed.
+    const baseIcon = A.enemyIcon;
+    A.enemyIcon = function (kind, size) {
+      if (kind !== "armcar8") return baseIcon(kind, size);
+      const cv = document.createElement("canvas");
+      const s2 = (size || 48) * 2;
+      cv.width = cv.height = s2;
+      const c = cv.getContext("2d");
+      c.translate(s2 / 2, s2 / 2);
+      c.scale((s2 * 0.82) / 54, (s2 * 0.82) / 54);
+      c.rotate(-Math.PI / 2);
+      HULL.armcar8(c, { kind, t: 0.3, seed: 3, dist: 0 }, {});
+      c.translate(TURRET.armcar8.x, TURRET.armcar8.y);
+      TURRET.armcar8.draw(c, {}, {});
+      return cv.toDataURL();
+    };
+  }
+
+  // Figure helpers for the commander in hero.js.
+  A._p = { man, roga, rifle, binocs, mapSheet, P };
 })(typeof window !== "undefined" ? window : globalThis);

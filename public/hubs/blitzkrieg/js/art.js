@@ -303,7 +303,7 @@
   };
   HULL.officer = HULL.inf;
 
-  HULL.moto = function (c, e) {
+  HULL.moto = function (c, e, o) {
     // sidecar on the right
     c.beginPath();
     c.ellipse(0.5, 7, 9.5, 4.8, 0, 0, Math.PI * 2);
@@ -341,6 +341,7 @@
     c.stroke();
     c.fillStyle = "rgba(170,200,205,0.8)";
     c.fillRect(1.2, -2.3, 1.1, 2.6);
+    drawWeakMarkers(c, e, o);
   };
 
   HULL.truck = function (c, e, o) {
@@ -774,7 +775,25 @@
   }
 
   // ------------------------------------------------------------------ aircraft
-  const weakRing = (c, x0, x1, y0, y1, p) => brackets(c, x0, x1, y0, y1, p);
+  function drawWeakMarkers(c, e, o) {
+    if (!o || !o.weak) return;
+    for (const w of BK.ENEMIES[e.kind].weak || []) {
+      // Definitions are already in simulation coordinates. The art transform applies US again.
+      const S = BK.US;
+      brackets(c, w.x0 / S, w.x1 / S, w.y0 / S, w.y1 / S, o.pulse ?? 0.75);
+      if (w.effect !== "softspot") continue;
+      const x = (w.x0 + w.x1) / (2 * S), y = (w.y0 + w.y1) / (2 * S);
+      const mark = 2.8;
+      c.save();
+      c.beginPath();
+      c.moveTo(x, y - mark); c.lineTo(x + mark, y); c.lineTo(x, y + mark); c.lineTo(x - mark, y); c.closePath();
+      c.fillStyle = "#ffe38a";
+      c.strokeStyle = "#322712";
+      c.lineWidth = 1;
+      c.fill(); c.stroke();
+      c.restore();
+    }
+  }
   // ------------------------------------------------------------------- aircraft
   function stukaShape(c, s, colors, leader) {
     const [g1, g2, glass, nose] = colors;
@@ -823,13 +842,13 @@
   ENEMY.stuka = function (c, e, o) {
     const s = 0.9 + (1 - e.alt) * 0.35;
     stukaShape(c, s, ["#46553e", "#2f3b2b", "rgba(170,205,215,0.85)", "#3a4535"], false);
-    if (o.weak) weakRing(c, 12 * s, 22 * s, -5 * s, 5 * s, o.pulse);
+    drawWeakMarkers(c, e, o);
     propDisc(c, 23 * s, e.t);
   };
   ENEMY.leader = function (c, e, o) {
     const s = 1.1 + (1 - e.alt) * 0.4;
     stukaShape(c, s, ["#46553e", "#2f3b2b", "rgba(170,205,215,0.85)", "#d9a92e"], true);
-    if (o.weak) weakRing(c, 12 * s, 22 * s, -5 * s, 5 * s, o.pulse);
+    drawWeakMarkers(c, e, o);
     propDisc(c, 23 * s, e.t);
   };
   ENEMY.recon = function (c, e, o) {
@@ -847,7 +866,7 @@
     c.fillStyle = "rgba(170,205,215,0.85)";
     c.fillRect(2, -1.8, 6, 3.6);
     c.restore();
-    if (o.weak) weakRing(c, 10, 19, -5, 5, o.pulse);
+    drawWeakMarkers(c, e, o);
     propDisc(c, 20, e.t);
   };
 

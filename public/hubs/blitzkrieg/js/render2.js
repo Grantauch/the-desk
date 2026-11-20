@@ -256,7 +256,7 @@
         fx.sparks(ev.x, ev.y, 4, "255,210,140", 90);
         break;
       case "train":
-        say("ŚMIAŁY IS COMING", "#ffd84d", 22, this.cam.x, this.cam.y);
+        say(ev.railPatrol ? "RAIL PATROL DISPATCHED" : "ŚMIAŁY IS COMING", "#ffd84d", 22, this.cam.x, this.cam.y);
         au.radio();
         break;
       case "uhlans":
@@ -414,7 +414,8 @@
     const shake = fx.camera();
     c.save();
     c.translate(BK.W / 2 + shake.x, BK.H / 2 + shake.y);
-    c.rotate(shake.rot);
+    // No roll on Chromebooks: a rotated full screen draw is where their GPUs tear.
+    if (!document.documentElement.classList.contains("lowfx")) c.rotate(shake.rot);
     const z = cm.z * shake.zoom * (this.quiet && !this.bigMap() ? 1.14 : 1);
     c.scale(z, z);
     let cx = cm.x, cy = cm.y;
@@ -426,8 +427,16 @@
     // Ground and scorch, cropped to what the camera sees.
     const sx = Math.max(0, v.x0), sy = Math.max(0, v.y0), sw = Math.min(g.WW, v.x1) - sx, sh = Math.min(g.WH, v.y1) - sy;
     if (sw > 0 && sh > 0) {
-      c.drawImage(this.ground, sx * gs, sy * gs, sw * gs, sh * gs, sx, sy, sw, sh);
-      c.drawImage(fx.decal, sx * gs, sy * gs, sw * gs, sh * gs, sx, sy, sw, sh);
+      // Crop on whole source pixels. A fractional crop of a large image under the camera's scale
+      // shows as a diagonal tear on some Chromebook GPUs, where the quad's two triangles meet.
+      const gw = this.ground.width, gh = this.ground.height;
+      const x0 = Math.max(0, Math.floor(sx * gs)), y0 = Math.max(0, Math.floor(sy * gs));
+      const x1 = Math.min(gw, Math.ceil((sx + sw) * gs)), y1 = Math.min(gh, Math.ceil((sy + sh) * gs));
+      if (x1 > x0 && y1 > y0) {
+        c.drawImage(this.ground, x0, y0, x1 - x0, y1 - y0, x0 / gs, y0 / gs, (x1 - x0) / gs, (y1 - y0) / gs);
+        const dw = fx.decal.width, dh = fx.decal.height;
+        c.drawImage(fx.decal, x0, y0, Math.min(dw, x1) - x0, Math.min(dh, y1) - y0, x0 / gs, y0 / gs, (Math.min(dw, x1) - x0) / gs, (Math.min(dh, y1) - y0) / gs);
+      }
     }
     // Craters the battle has dug.
     for (const cr of g.craters) {
@@ -578,7 +587,8 @@
           if (d < -60 || d > rail.len + 60) continue;
           const [x, y, a] = rail.at(BK.clamp(d, 0, rail.len));
           c.save(); c.translate(x, y); c.rotate(a);
-          A.trainCar(c, i === 0 ? "loco" : "gun", this.time);
+          const turret = i > 0 && tr.railTurrets && tr.railTurrets[i - 1];
+          A.trainCar(c, i === 0 ? "loco" : "gun", this.time, turret ? (turret.angle == null ? 0 : turret.angle - a) : null);
           c.restore();
           if (i === 0 && R() < 0.5) fx.add({ kind: "smoke", x, y, vx: R.range(-10, 10), vy: -30, life: 2, size: 9, grow: 20, a: 0.6, drag: 0.97 });
         }
@@ -929,20 +939,17 @@
   // Placing forts and moving guns: show a ghost of what will go where.
   const baseOverlay = RP.drawOverlay;
   RP.drawOverlay = function (c, v) {
+    if (v.building || v.relocate) BK.drawPlacementZones(c, this.g, v.relocate && v.relocate.id);
     if (v.ghost && v.ghost.kind) {
       const { kind, x, y } = v.ghost;
       const bad = this.g.canPlace(x, y, kind);
       const def = BK.GUNS[kind];
       const r = def.range * (1 + this.g.mods.range);
       this.rangeRing(c, x, y, r, bad ? "rgba(255,90,79,0.9)" : "rgba(160,240,120,0.95)", def.minRange);
-      c.globalAlpha = 0.75;
+      c.globalAlpha = bad ? 0.48 : 0.8;
       A.gun(c, { kind, x, y, ang: -Math.PI / 2, recoil: 0, ko: 0, level: 1, path: [kind] });
       c.globalAlpha = 1;
-      if (bad) {
-        c.strokeStyle = "rgba(255,90,79,0.95)";
-        c.lineWidth = 3;
-        c.beginPath(); c.moveTo(x - 10, y - 10); c.lineTo(x + 10, y + 10); c.moveTo(x + 10, y - 10); c.lineTo(x - 10, y + 10); c.stroke();
-      }
+      BK.drawPlacementMarker(c, x, y, bad);
       v = Object.assign({}, v, { ghost: null });
     }
     if (v.fortGhost) {
@@ -970,7 +977,7 @@
     if (v.relocate) {
       const t = this.g.towers.find((x) => x.id === v.relocate.id);
       if (t && v.pointer) {
-        const bad = this.g.canPlace(v.pointer.x, v.pointer.y, t.kind, t);
+        const bad = this.g.relocationBlock(t, v.pointer.x, v.pointer.y);
         c.globalAlpha = 0.6;
         A.gun(c, Object.assign({}, t, { x: v.pointer.x, y: v.pointer.y }));
         c.globalAlpha = 1;
@@ -978,6 +985,7 @@
         c.setLineDash([6, 5]); c.lineWidth = 2;
         c.beginPath(); c.moveTo(t.x, t.y); c.lineTo(v.pointer.x, v.pointer.y); c.stroke();
         c.setLineDash([]);
+        BK.drawPlacementMarker(c, v.pointer.x, v.pointer.y, bad);
       }
     }
     if (v.ability === "uhlans" && v.pointer) {
