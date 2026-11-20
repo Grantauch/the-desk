@@ -27,9 +27,24 @@ The VPS deployment is a separate stack. Do **not** attach to the existing Margin
 - Liveness, readiness, and unauthorized-teacher-route checks reuse `scripts/staging-smoke.mjs`.
 - Restart policy and bounded application log files; operational alerting and real backup restoration are **not** certified by Compose alone.
 
-## Operator preflight (not authorization to deploy)
+## Confirmed VPS baseline and operator preflight (not authorization to deploy)
 
-Before an operator deploys this separate candidate to the VPS, verify enough RAM/CPU/disk for **Margin and this isolated PostgreSQL**, free loopback port 18787, OS patching, Docker Compose availability, firewall, and encrypted offsite backups. Confirm the school/district's privacy terms and hosting-region requirements before moving any actual student records.
+The supplied OVHcloud VPS-2 specification is Ubuntu 26.04 LTS, 4 vCPU, 8 GB RAM, 75 GB storage in US East. Margin uses `margin.service`, Caddy, and a separate local PostgreSQL `margin` database. The server is configured for nightly `/srv/*/data` filesystem backups at 02:15, but **that pattern does not inherently capture database transactions or Docker named volumes**. It must not be treated as a PostgreSQL backup until an actual database dump and a restore have been verified. Margin's own Postgres backups must also be verified by its server owner.
+
+The candidate caps its normal app and Postgres containers to 512 MiB and 1 GiB RAM respectively, with 1 vCPU per service. These are **staging safety limits**, not throughput guarantees; the preflight checks available capacity rather than presuming all 8 GB are free. Staging uses its own Compose network and database and never modifies `margin.service`, existing PostgreSQL roles, Caddy, DNS, or SSH.
+
+TheAtlas is the authorized SSH bridge according to the server handoff; the remote device was unavailable at the time this source was prepared. No VPS commands were executed in this review.
+
+Before an operator deploys, check the host without changing its services:
+
+```sh
+cd schoolwide
+bash scripts/vps-host-preflight.sh
+```
+
+This reports capacity, Margin/Caddy health, port collisions and Docker availability without opening private configuration files. Treat any `BLOCK` result as a stop. It does **not** establish the existing backups' recoverability or authorize live student data.
+
+Also verify OS patching, private network/firewall, free disk after image builds, and a working encrypted offsite backup with a tested restore. Confirm the school/district's privacy terms and hosting-region requirements before moving any actual student records.
 
 From an *authorized and reviewed* checkout of `schoolwide/sw-172-vps-staging-candidate`, with no uncommitted files:
 
@@ -58,6 +73,19 @@ STAGING_URL=http://127.0.0.1:18787 EXPECTED_RELEASE_SHA="$(git rev-parse HEAD)" 
 ```
 
 Never open PostgreSQL port 5432 or the loopback staging service to the public Internet. If a remote synthetic classroom test becomes necessary, use a vetted VPN/private test path or a separately protected Caddy route. Do not use an existing Margin hostname for this service.
+
+## Staging database backup coverage
+
+The Compose database is stored in a dedicated Docker volume and is intentionally **outside** Margin's database. The existing host's `/srv/*/data` backup job will not automatically include that Docker volume. For this *synthetic-only staging candidate*, `scripts/vps-staging-backup.sh` creates a restrictive PostgreSQL custom-format dump in `/srv/schoolwide/data/backups` that the host's filesystem backup can subsequently copy. It validates that the archive is readable, but that does not prove a full restore.
+
+Once staging is actually deployed and an operator has verified the source and private environment file:
+
+```sh
+cd schoolwide
+bash scripts/vps-staging-backup.sh
+```
+
+The operator must separately set up a scheduled backup run before the existing 02:15 filesystem backup window, and test restore into a **separate disposable database**. No schedule or offsite replication has been created by this PR. Retention, encryption, free-space alerts and a true restore rehearsal are required before any data-bearing environment is approved.
 
 ## Safe failure and cleanup
 
