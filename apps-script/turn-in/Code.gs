@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-11-20-turn-in-v16';
+const TI_VERSION = '2026-11-20-turn-in-v17';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -219,6 +219,7 @@ function saveDraft_(request) {
   const hub = cleanHub_(request.hub);
   const session = readToken_(request.token);
   const answers = cleanAnswers_(request.answers);
+  if (!session.test) validateMedalOwnership_(hub, session.email, request.classPeriod, request.course, answers);
   if (!session.test && !Object.values(rosterByHash_()).some((entry) => entry.emails.length === 1 && entry.emails[0] === session.email)) {
     throw refuse_('signed_out', 'Ask your teacher to check your account before saving again.');
   }
@@ -272,6 +273,7 @@ function turnIn_(request) {
   const identity = turnInIdentity_(request);
   const submissionKey = `sub:${identity.email}:${hub}:${submissionId}`;
   const answers = cleanAnswers_(request.answers);
+  if (!identity.test) validateMedalOwnership_(hub, identity.email, request.classPeriod, request.course, answers);
   // Authenticate and validate the complete body even when retrying a cached ID.
   if (request.accountToken && readToken_(request.accountToken).email !== identity.email) throw refuse_('wrong_account', 'That PIN belongs to a different account. Sign out before changing students.');
   if (!answers.some((entry) => entry.a.trim())) throw refuse_('bad_request', 'Write at least one answer first.');
@@ -1097,6 +1099,60 @@ function countWords_(text) {
  * teacher changes the row in the Project Teams tab.
  */
 
+
+/* All project answer keys and their legitimate authors. Never trust a client-supplied role. */
+const TI_MOH_HUB = 'ush9-medal-of-honor-project';
+const TI_MOH_OWNERS = Object.freeze({
+  "id:moh-a-fact-born": "a",
+  "id:moh-a-fact-before": "a",
+  "id:moh-a-fact-join": "a",
+  "id:moh-b-fact-unit": "b",
+  "id:moh-b-fact-day": "b",
+  "id:moh-b-fact-end": "b",
+  "id:moh-a-word-1": "a",
+  "id:moh-a-mean-1": "a",
+  "id:moh-a-word-2": "a",
+  "id:moh-a-mean-2": "a",
+  "id:moh-a-word-3": "a",
+  "id:moh-a-mean-3": "a",
+  "id:moh-b-word-1": "b",
+  "id:moh-b-mean-1": "b",
+  "id:moh-b-word-2": "b",
+  "id:moh-b-mean-2": "b",
+  "id:moh-b-word-3": "b",
+  "id:moh-b-mean-3": "b",
+  "id:moh-a-before-1": "a",
+  "id:moh-a-before-2": "a",
+  "id:moh-a-before-3": "a",
+  "id:moh-b-day-1": "b",
+  "id:moh-b-day-2": "b",
+  "id:moh-b-day-3": "b",
+  "id:moh-a-cite-1": "a",
+  "id:moh-a-cite-2": "a",
+  "id:moh-a-cite-3": "a",
+  "id:moh-b-after-1": "b",
+  "id:moh-b-after-2": "b",
+  "id:moh-b-after-3": "b",
+  "id:moh-a-why-1": "a",
+  "id:moh-a-why-2": "a",
+  "id:moh-b-why-1": "b",
+  "id:moh-b-why-2": "b",
+  "id:moh-a-poster-head": "a",
+  "id:moh-a-poster-scene": "a",
+  "id:moh-a-poster-fact-1": "a",
+  "id:moh-a-poster-fact-2": "a",
+  "id:moh-a-poster-fact-3": "a",
+  "id:moh-a-poster-fact-4": "a",
+  "id:moh-a-poster-quote": "a",
+  "id:moh-a-poster-layout": "a",
+  "id:moh-a-poster-status": "a",
+  "id:moh-b-screen-title": "b",
+  "id:moh-b-screen-caption": "b",
+  "id:moh-b-screen-quote": "b",
+  "id:moh-b-screen-data": "b"
+});
+const TI_MOH_VETERANS = Object.freeze(["freddie-stowers","henry-johnson","william-shemin","alvin-york","nelson-holderman","frank-luke","eddie-rickenbacker","samuel-woodfill","david-barkley","harold-furlong","william-donovan","jake-allex","louis-cukela","matej-kocak","ernest-janson","weedon-osborne","edouard-izac","harold-roberts","sidney-manning","fred-stockham","george-robb"]);
+
 const TI_TEAM_CODE_CHARS = 'ACDEFGHJKMNPQRTUVWXY34679';
 const TI_TEAM_COLS = { updated: 0, hub: 1, classPeriod: 2, id: 3, code: 4, mode: 5, choice: 6, aName: 7, aEmail: 8, bName: 9, bEmail: 10, status: 11, history: 12 };
 
@@ -1204,9 +1260,36 @@ function writeTeam_(sheet, team) {
   sheet.getRange(team.row, 1, 1, TI_HEADERS.TEAMS.length).setValues([literalCells_(teamCells_(team))]);
 }
 
+
+/**
+ * Server-side boundary for the shared Medal of Honor report. Client-side
+ * readOnly controls are just a convenience; these checks also reject an
+ * altered network request from a student trying to write a partner's answers.
+ * Blank fields are allowed because the shared form includes both partners'
+ * inputs and because students can begin before the other person joins.
+ */
+function validateMedalOwnership_(hub, email, requestedClass, course, answers) {
+  if (hub !== TI_MOH_HUB || !answers.some((entry) => entry.a.trim())) return;
+  const identity = identityByEmail_(email);
+  if (!identity) throw refuse_('signed_out', 'Sign in again before saving your project.');
+  const classPeriod = chooseClass_(identity.classes, requestedClass, course);
+  const mine = readTeams_(workbook_(), hub).find((team) => teamHas_(team, email));
+  if (!mine || mine.classPeriod !== classPeriod) throw refuse_('no_team', 'Open your project team first, then save your writing.');
+  const role = mine.mode === 'solo' ? 'solo' : mine.aEmail === email ? 'a' : 'b';
+  for (const entry of answers) {
+    if (!entry.a.trim()) continue;
+    const owner = TI_MOH_OWNERS[entry.k];
+    if (!owner || (role !== 'solo' && owner !== role) ||
+        (role === 'solo' && owner === 'b' && /^id:moh-b-why-/.test(entry.k))) {
+      throw refuse_('partner_field', 'This answer belongs to your partner, or is not part of your project. Use only your gold boxes and try again.');
+    }
+  }
+}
+
 function cleanChoice_(value) {
   const choice = String(value || '').trim().toLowerCase();
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(choice)) throw refuse_('bad_request', 'Pick a veteran first.');
+  if (TI_MOH_VETERANS.indexOf(choice) < 0) throw refuse_('bad_choice', 'Pick a veteran from the project gallery.');
   return choice;
 }
 
@@ -1241,7 +1324,7 @@ function teamView_(team, email, withPartner) {
   if (withPartner && partnerEmail) {
     const draft = findDraft_(partnerEmail, team.hub);
     view.partner = { name: shortName_(role === 'A' ? team.bName : team.aName), savedAt: draft && draft.savedAt || '',
-      answers: draft ? draft.answers.filter((entry) => /^id:moh-/.test(entry.k)).map((entry) => ({ k: entry.k, a: entry.a })) : [] };
+      answers: draft ? draft.answers.filter((entry) => TI_MOH_OWNERS[entry.k] === (role === 'A' ? 'b' : 'a')).map((entry) => ({ k: entry.k, a: entry.a })) : [] };
   }
   return view;
 }
