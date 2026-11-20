@@ -1259,7 +1259,7 @@ export const storyHubs: StoryHub[] = [
     blurb:
       'Exclusion reaches homes, ships, identity papers, and courtrooms. Chinese Americans answer with mass resistance and cases that strengthen equal protection and birthright citizenship.',
     cover: '/storyhub/ush9/l016/assets/wong.webp',
-    coverAlt: 'Wong Kim Ark's November 5, 1894 departure statement, including his identification photograph, from the U.S. National Archives',
+    coverAlt: "Wong Kim Ark’s November 5, 1894 departure statement, including his identification photograph, from the U.S. National Archives",
     topics: ['chinese exclusion', 'civil disobedience', 'equal protection', 'wong kim ark', 'birthright citizenship'],
     inside: [
       'Move a ship carrying a valid return certificate that Congress cancels during the crossing.',
