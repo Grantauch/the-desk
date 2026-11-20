@@ -48,7 +48,8 @@ const interactiveCatalog = await readFile("src/data/interactiveExperiences.ts", 
 const covers = [...storyCatalog.matchAll(/\bcover:\s*'([^']+)'/g)].map(m => m[1]);
 const storySvgCovers = covers.filter(p => /\.svg(?:\?|$)/i.test(p));
 const catalogArtHints = [...storyCatalog.matchAll(suspect)].map(m => ({ phrase: m[0], offset: m.index }));
-const entries = [...interactiveCatalog.matchAll(/\bsection:\s*'(game|simulation|investigation|practice)'/g)];
+// Match only record fields, not the discriminated union declared on the Hub interface.
+const entries = [...interactiveCatalog.matchAll(/^\s{4}section:\s*'(game|simulation|investigation|practice)'/gm)];
 const sections = Object.fromEntries(["game", "simulation", "investigation", "practice"].map(section => [section, entries.filter(m=>m[1]===section).length]));
 const svgImageDocuments = documents.filter(d => d.svgImageRefs.length).sort((a,b)=>b.svgImageRefs.length-a.svgImageRefs.length);
 const result = {
