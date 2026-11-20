@@ -148,6 +148,10 @@ jobs:
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: npm run browser:test
 
+      - name: Check Curiosity catalog outage and recovery in a real browser
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: npm run curiosity:browser
+
       - name: Check WWI trench models and independent fallbacks
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: |

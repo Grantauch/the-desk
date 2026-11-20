@@ -1,3 +1,5 @@
+import archiveRecords from '../../src/data/curiosity-archive.json' with { type: 'json' };
+
 const COLLECTIONS = {
   power: {
     query: 'presidents congress political campaigns',
@@ -100,6 +102,7 @@ const normalizeRecord = (record, collection, settings) => {
 };
 
 export const normalizeLocResults = (payload, collection) => {
+  if (!Object.hasOwn(COLLECTIONS, collection)) return [];
   const settings = COLLECTIONS[collection];
   if (!settings) return [];
   const normalized = (Array.isArray(payload?.results) ? payload.results : [])
@@ -111,9 +114,33 @@ export const normalizeLocResults = (payload, collection) => {
   return [...unique.slice(rotation), ...unique.slice(0, rotation)].slice(0, 5);
 };
 
+const archiveResponse = (collection, settings) => ({
+  statusCode: 200,
+  headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+  },
+  body: JSON.stringify({
+    collection,
+    mode: 'archive',
+    items: [{
+      ...archiveRecords[collection],
+      collection,
+      category: settings.category,
+      mode: 'selected archive record',
+      position: collection === 'sports' ? 'top' : 'center',
+      related: settings.related,
+      relatedLabel: settings.relatedLabel,
+      deeper: '/detour-shelf/',
+      deeperLabel: 'follow another evidence-first detour',
+    }],
+  }),
+});
+
 export const handler = async (event) => {
   const collection = event?.queryStringParameters?.collection ?? '';
-  const settings = COLLECTIONS[collection];
+  const settings = Object.hasOwn(COLLECTIONS, collection) ? COLLECTIONS[collection] : null;
   if (!settings) {
     return {
       statusCode: 400,
@@ -130,20 +157,17 @@ export const handler = async (event) => {
     });
     if (!response.ok) throw new Error(`Catalog returned ${response.status}`);
     const items = normalizeLocResults(await response.json(), collection);
+    if (!items.length) return archiveResponse(collection, settings);
     return {
-      statusCode: items.length ? 200 : 502,
+      statusCode: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': items.length ? 'public, max-age=300, s-maxage=86400, stale-while-revalidate=604800' : 'no-store',
+        'Cache-Control': 'public, max-age=300, s-maxage=86400, stale-while-revalidate=604800',
         'X-Content-Type-Options': 'nosniff',
       },
-      body: JSON.stringify({ collection, items }),
+      body: JSON.stringify({ collection, mode: 'live', items }),
     };
   } catch {
-    return {
-      statusCode: 502,
-      headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
-      body: JSON.stringify({ collection, items: [] }),
-    };
+    return archiveResponse(collection, settings);
   }
 };
