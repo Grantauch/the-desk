@@ -49,3 +49,48 @@ test('staging accepts an exact release SHA and Cloud SQL Unix socket', () => {
   assert.equal(config.releaseSha, releaseSha);
   assert.equal(config.databaseSocketPath, socketPath);
 });
+
+test('VPS staging accepts only an internal dedicated PostgreSQL database', () => {
+  const config = readConfig({
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/grantdesk_schoolwide_stage',
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps',
+    RELEASE_SHA: 'b'.repeat(40),
+  });
+  assert.equal(config.stagingPlatform, 'vps');
+  assert.equal(config.databaseSocketPath, undefined);
+});
+
+test('VPS staging refuses public database hosts and shared production databases', () => {
+  const staging = {
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps',
+    RELEASE_SHA: 'b'.repeat(40),
+  };
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@203.0.113.10:5432/grantdesk_schoolwide_stage',
+  }), /dedicated internal postgres service/);
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/margin',
+  }), /dedicated internal postgres service/);
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/grantdesk_schoolwide_stage',
+    DATABASE_SOCKET_PATH: '/cloudsql/unexpected',
+  }), /must not set DATABASE_SOCKET_PATH/);
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage@postgres:5432/grantdesk_schoolwide_stage',
+  }), /dedicated internal postgres service/);
+});
+
+test('VPS staging cannot silently become a production configuration', () => {
+  assert.throws(() => readConfig({
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/grantdesk_schoolwide_stage',
+    DEPLOYMENT_TIER: 'production',
+    STAGING_PLATFORM: 'vps',
+    RELEASE_SHA: 'b'.repeat(40),
+  }), /cannot be used as a production cutover flag/);
+});
