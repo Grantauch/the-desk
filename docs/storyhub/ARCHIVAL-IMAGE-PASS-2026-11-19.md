@@ -35,6 +35,12 @@ This batch replaces three Story Hub catalog illustrations, six in-lesson narrati
 - Original/source and rights: [Library of Congress, LCCN 95511227](https://www.loc.gov/pictures/item/95511227/); digitized image `https://cdn.loc.gov/service/pnp/cph/3c10000/3c14000/3c14600/3c14674v.jpg`. The LOC describes no known publication restrictions; 1894 publication is US public domain.
 - The plate is presented uncropped as an actual newspaper page, with a visible attribution/source link; the prior local SVG remains the load-failure fallback. On small displays, readable lesson copy remains HTML and does not depend on reading the original newspaper scan.
 
+### Haymarket: two 1886 primary-source publications (scenes 7–8)
+
+- **Scene 7:** `/hubs/ush9-l015-who-showed-up.html` uses a *Frank Leslie's Illustrated Newspaper* wood engraving published **15 May 1886**, attributed to C. Bunnell and Charles Upham. This is a **published sketch made for a newspaper, not a photograph**. Its source caption characterizes participants as “murderous rioters,” a loaded editorial label **not adopted by our lesson**. Image held at the [Library of Congress, LCCN 96506773](https://www.loc.gov/item/96506773/); digitization: `https://cdn.loc.gov/service/pnp/ds/04500/04514v.jpg`. Public domain: published 1886.
+- **Scene 8:** uses an **1886 Inter Ocean Co. printed Haymarket trial broadside** that reproduces portraits of the defendants, lawyers, jurors and police. These are historical likenesses, not generated faces. It is a later published compilation, not a photograph of everyone together at a single moment. Source [Library of Congress, LCCN 2008680516](https://www.loc.gov/item/2008680516/); digitization: `https://cdn.loc.gov/service/pnp/ppmsca/19500/19510v.jpg`. Public domain: published 1886.
+- Lesson captions distinguish the exact type and viewpoint of each publication, provide a route to the original record, and retain the existing SVGs as on-error fallbacks. No assertion about guilt is derived merely from contemporary editorial labeling.
+
 ## 3. Beyond the Scoreboard — Not in the Room
 
 - Catalog: `bts-l03-not-in-the-room`. Replaces the catalog's ledger-illustration preview with the original 1876 *Chicago White Stockings* lithograph. This image depicts players and their manager, **not** the National League's club-owner meeting. That distinction is central to this lesson.
