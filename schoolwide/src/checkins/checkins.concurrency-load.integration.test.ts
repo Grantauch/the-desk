@@ -16,7 +16,7 @@ function permittedCiDatabase(url?: string): boolean {
     const parsed = new URL(url);
     return ['localhost', '127.0.0.1'].includes(parsed.hostname)
       && parsed.port === '5432'
-      && parsed.pathname === '/grantdesk_schoolwide'
+      && parsed.pathname === '/grantdesk_schoolwide_load'
       && parsed.username === 'grantdesk';
   } catch {
     return false;
