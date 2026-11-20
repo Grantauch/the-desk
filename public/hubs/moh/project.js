@@ -59,7 +59,7 @@
       track.setAttribute('aria-valuenow', '0');
       track.parentNode.insertBefore(coach, track.nextSibling);
     }
-    $('.ws-step').forEach(function (step) {
+    $$('.ws-step').forEach(function (step) {
       var info = GUIDE[step.getAttribute('data-step')], intro = $('.step-intro', step);
       if (!info || !intro) return;
       var panel = el('div', { class: 'step-guide' }), title = el('strong', {}, 'Do these next:'), list = el('ol');
