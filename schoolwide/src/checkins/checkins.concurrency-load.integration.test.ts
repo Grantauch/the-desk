@@ -109,7 +109,7 @@ async function seedSyntheticClass(pool: Pool, size: number) {
       await client.query(
         `INSERT INTO student_credentials
          (id,school_id,student_id,verifier_scheme,secret_hash,secret_salt,verifier_params,credential_version,status)
-         VALUES ($1,$2,$3,'SCRYPT_PEPPER_V1',$4,'synthetic-salt','{}'::jsonb,1,'ACTIVE')`,
+         VALUES ($1,$2,$3,'SCRYPT_PEPPER_V1',$4,'synthetic-salt-0001','{}'::jsonb,1,'ACTIVE')`,
         [s.credential, ids.school, s.id, 'a'.repeat(64)],
       );
       await client.query(
