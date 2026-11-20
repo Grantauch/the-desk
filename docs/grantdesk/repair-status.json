@@ -3,14 +3,15 @@
     "status": "IMPLEMENTED",
     "owner": "Codex",
     "scope": "Issue #411: selected archive availability during live catalog failures, truthful status and recovery.",
-    "verification_status": "CURRENT_MAIN_CANONICAL_FULL_AND_FOCUSED_BROWSER_PASS_PROTECTED_CI_PENDING",
+    "verification_status": "LATEST_MAIN_CANONICAL_FULL_AND_FOCUSED_PASS_PROTECTED_HEAD_PENDING",
     "deployment_status": "MERGE_AND_EXACT_PRODUCTION_READBACK_PENDING",
     "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
     "evidence": [
       "The production mysteries endpoint returned 502 before the repair. Empty, restricted, malformed, failed and offline catalog responses now use the existing reviewed record for each collection with explicit archive labeling and no-store.",
       "Handler regressions cover all five collections and fresh live recovery. Built Chromium covers keyboard context reveal, collection/source controls, loaded archive images, cycling, WCAG, page fit, live preference and local development fallback. The health checker continues to report degraded live catalog health.",
       "Full local verification and protected site run 44321311637 passed on 94610035934c669a8fce6185a25373f661f07ddb. November 19 resumption integrated current main 839be9c cleanly. Integrated full local verification passed with zero errors, 55 pages, 183 HTML files, 5908 references and 327 sealed assets; focused Chromium re-passed at 320/390/1440. Fresh integrated-head protected CI, normal merge and production acceptance remain required.",
-      "November 20: reconciled current main af6113a without changing other release records. Live GitHub shows #412 still open; earlier narrative merge notes are not current evidence. Handler and built Chromium checks passed at 320/390/1440, including live recovery, local fallback and no-JavaScript sources. Full integrated npm run verify exited 0: zero errors and warnings, 55 built pages, 190 HTML files, 6067 local references and 37 releases/360 sealed files. Independent review approved. Exact-head protected CI, normal merge and production verification remain pending."
+      "November 20: reconciled current main af6113a without changing other release records. Live GitHub shows #412 still open; earlier narrative merge notes are not current evidence. Handler and built Chromium checks passed at 320/390/1440, including live recovery, local fallback and no-JavaScript sources. Full integrated npm run verify exited 0: zero errors and warnings, 55 built pages, 190 HTML files, 6067 local references and 37 releases/360 sealed files. Independent review approved. Exact-head protected CI, normal merge and production verification remain pending.",
+      "Latest main 0b01ef1 integrated cleanly. A 10.2-second server archive response reproduced the browser ten-second deadline abort and one redundant LOC retry. Extended the browser deadline to twelve seconds beyond the function nine-second upstream limit. The failing regression now passes with zero retries and zero function aborts; complete focused Chromium at 320/390/1440 and independent review pass. Combined-source npm run verify passed with zero errors and warnings, 55 pages, 190 HTML files, 6070 references and 37 releases/360 assets. Final-head protected checks, normal merge and production acceptance remain pending."
     ]
   },
   "medal-of-honor-exhibit-2026-11-19": {

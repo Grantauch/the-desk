@@ -113,7 +113,30 @@ try {
     await direct.goto(`${origin}/curiosity-desk/`);
     await direct.locator('[data-field="mode"]').filter({ hasText: 'live catalog record' }).waitFor();
     await direct.close();
-    results.push({ livePreference: true, archiveCycling: true, localDirectFallback: true });
+
+    // Production's nine-second upstream deadline also needs time for the
+    // function invocation and network response before the browser gives up.
+    const slow = await browser.newPage();
+    let slowDirectRequests = 0;
+    let slowFunctionAborts = 0;
+    slow.on('requestfailed', request => {
+      if (request.url().includes('/.netlify/functions/curiosity')) slowFunctionAborts++;
+    });
+    await slow.route('**/.netlify/functions/curiosity?**', async route => {
+      await new Promise(resolve => setTimeout(resolve, 10_200));
+      await route.fulfill({ json: { collection: 'power', mode: 'archive', items: [archive.power] } }).catch(() => {});
+    });
+    await slow.route('https://www.loc.gov/photos/**', route => {
+      slowDirectRequests++;
+      return route.fulfill({ status: 503, body: 'Synthetic catalog outage' });
+    });
+    await slow.goto(`${origin}/curiosity-desk/`, { waitUntil: 'domcontentloaded' });
+    await slow.locator('[data-curiosity-live-status]').filter({ hasText: 'live catalog unavailable' }).waitFor({ timeout: 15_000 });
+    assert.equal(slowDirectRequests, 0, 'a slow server archive response must not trigger a redundant catalog request');
+    assert.equal(slowFunctionAborts, 0, 'browser deadline includes function and network overhead');
+    assert.equal((await slow.locator('[data-field="mode"]').textContent()).trim(), 'selected archive record');
+    await slow.close();
+    results.push({ livePreference: true, archiveCycling: true, localDirectFallback: true, slowArchiveWithoutRetry: true });
   }
   const nojs = await browser.newPage({ javaScriptEnabled: false });
   await nojs.goto(`${origin}/curiosity-desk/`);
