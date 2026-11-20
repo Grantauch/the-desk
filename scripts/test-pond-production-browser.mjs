@@ -66,6 +66,7 @@ async function inspect(viewport, mobile) {
     assert.ok(canvasSize.bytes > 1000, "Simulation canvas contains pixels");
 
     // Painting and undo should act on the simulation rather than only the UI.
+    await page.getByRole("button", { name: "Blank", exact: true }).click();
     await page.getByRole("button", { name: "Pause", exact: true }).click();
     await page.getByRole("button", { name: "Play", exact: true }).waitFor();
     await page.getByRole("button", { name: "Stone", exact: true }).click();
