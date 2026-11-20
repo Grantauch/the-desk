@@ -11,13 +11,13 @@ Related: issue #422, initial taxonomy release PR #421. This is a **source-code c
 
 ## Source and rights references
 
-1. Nuremberg defendants and counsel: [Harry S. Truman Library, photo 72-906](https://www.trumanlibrary.gov/photograph-records/72-906). Current source address: `https://s3.amazonaws.com/NARAprodstorage/lz/presidential-libraries/truman/photographs/72/72-906.jpg`. Source record states public domain.
-2. Woods period portrait: [Wikimedia Commons, John C. Woods.jpg](https://commons.wikimedia.org/wiki/File:John_C._Woods.jpg), 1946, 123 × 175 pixels. Wikimedia Commons identifies the work as public domain in the United States. Current original image address: `https://upload.wikimedia.org/wikipedia/commons/1/15/John_C._Woods.jpg`.
+1. Nuremberg defendants and counsel: [Harry S. Truman Library, photo 72-906](https://www.trumanlibrary.gov/photograph-records/72-906). The official source record identifies this public-domain photograph. The locally hosted derivative is `/storyhub/hh/nuremberg/courtroom-72-906.jpg` (SHA-256 `e4e0d5ee44da675f3d8293b40d469da4bedbbdfc3147614e5ee10f37d23e849f`).
+2. Woods period portrait: [Wikimedia Commons, John C. Woods.jpg](https://commons.wikimedia.org/wiki/File:John_C._Woods.jpg), 1946, 123 × 175 pixels. Wikimedia Commons identifies the work as public domain in the United States. The canonical Commons address is `https://upload.wikimedia.org/wikipedia/commons/1/15/John_C._Woods.jpg`. The locally hosted derivative is `/storyhub/hh/nuremberg/woods-1946.jpg` (SHA-256 `068c13f7735f16530a89aaf9f2a87e7b8c5c1e64f5e69d00dd002165b891a310`).
 3. Two Sources: `/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg`; the existing catalog identifies a Yoichi Okamoto / National Archives photograph of the Watergate complex (May 1973). No new binary was introduced.
 
-## Release blocker: external image dependencies
+## Local image delivery and provenance
 
-The Nuremberg source images are currently referenced from authoritative remote hosts, because this branch does **not** include new optimized, locally hosted binary assets. Before production merge: obtain copies directly from the credited sources, optimize without removing relevant content, put them in `public/storyhub/hh/nuremberg/`, update the references, check file provenance, and test that both images work without third-party image-host access. Do not treat the remote-host implementation as final classroom acceptance. If the source images are blocked by district filtering, keep the release unmerged until local copies are ready.
+Both authentic 1946 image files have been added under `public/storyhub/hh/nuremberg/`; the standalone page and catalog now reference local URLs. Public-domain rights were checked against the Truman Library and Wikimedia Commons records. The source origins initially responded with HTTP 403/429 to automated retrieval, so byte-preserving originals could not be fetched directly; local JPEG derivatives were obtained through an image-delivery proxy, then visually inspected against the authoritative photographs. They are marked as derivatives, not certified byte-for-byte archival masters. SHA-256 hashes are recorded above. **No third-party image requests are needed by the published lesson.** Responsive browser QA, CI, and final production verification still need to pass before merging.
 
 ## Remaining catalog SVG covers
 
