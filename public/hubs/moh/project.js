@@ -14,6 +14,108 @@
   var S = { account: null, team: null, taken: [], role: null, partner: null, partnerAt: 0, step: 'facts', setupMode: '', picked: '', busy: false, designer: null, demo: false };
   var pollTimer = 0;
 
+  /* The student sees short, concrete instructions instead of a wall of directions.
+   * Guidance never supplies an answer, and the role-specific fields remain separate.
+   */
+  var GUIDE = {
+    facts: ['Open his page in a new tab.', 'Look for the early-life or service record section.', 'Write each fact as one short sentence. Use your own words.'],
+    words: ['Read the official Medal of Honor citation below.', 'Choose three highlighted hard words for YOUR side.', 'Explain each word like you are teaching someone younger.'],
+    story1: ['Read the matching chapter on his page.', 'Answer the three questions in order. Each box becomes part of your report.', 'Write 2 or 3 short sentences in each box.'],
+    story2: ['Read the next section on his page or the numbered citation part.', 'Explain what happened in your own words.', 'Write 2 or 3 short sentences per box.'],
+    why: ['Choose one real moment from his story.', 'Explain why it stood out to YOU.', 'Explain what his story teaches us about courage or America during World War I.'],
+    art: ['Poster Lead: make a hand-drawn wall poster. Screen Lead: create your digital memorial.', 'Complete the short planning boxes first.', 'Finish the artwork, then mark it done. Your partner makes their own piece.'],
+    finish: ['Use the checklist to find anything missing.', 'Read the full report. Fix anything that needs work.', 'Press Turn In on your own account. Both partners turn in separately.']
+  };
+  function fieldTip(f) {
+    if (f.kind === 'word') return 'Choose one of the word buttons below the citation, then explain it in your own words.';
+    if (f.kind === 'meaning') return 'Use a simple explanation, not just the same word again.';
+    if (f.kind === 'why') return 'Start with what YOU noticed, then explain why you think it matters.';
+    if (f.kind === 'box' && f.chapter === 'cite') return 'Read the numbered part of the citation above this box. Tell what it means in everyday language.';
+    if (f.kind === 'box' && f.chapter === 'before') return 'Find this detail in the Before the War section of his page.';
+    if (f.kind === 'box' && f.chapter === 'day') return 'Use the Day He Earned the Medal section. Include the people, place or actions involved.';
+    if (f.kind === 'box' && f.chapter === 'after') return 'Find this in the After the War section. Include a specific fact.';
+    if (f.id.indexOf('quote') !== -1) return 'Use 12 words or fewer, copied exactly from the official citation.';
+    if (f.kind === 'fact') return f.owner === 'a'
+      ? 'Find this in his early-life story or service record. Use one short sentence.'
+      : 'Find this in his service record, battle story or After the War section.';
+    if (f.kind === 'short') return 'Use a short, specific sentence. Your veteran page has the facts you need.';
+    return '';
+  }
+  function installGuides() {
+    var mode = $('#stage-mode .cards2');
+    if (mode) mode.parentNode.insertBefore(el('p', { class: 'setup-guide' },
+      'Working with a partner? Sit together and decide who will draw the poster (Partner A) and who will make the digital screen (Partner B). Partner A starts the team. Partner B signs in with THEIR OWN PIN on THEIR OWN Chromebook and enters the team code.'), mode);
+    var join = $('#stage-join .join-row');
+    if (join) join.parentNode.insertBefore(el('p', { class: 'setup-guide' },
+      'Ask your partner for the four-character code on their screen. Do not enter their lunch PIN. You must both be in the same class period.'), join);
+    var coach = el('p', { id: 'ws-coach', class: 'ws-coach', 'aria-live': 'off' });
+    var progress = $('#ws-progress');
+    if (progress) {
+      var track = progress.parentNode;
+      track.setAttribute('role', 'progressbar');
+      track.setAttribute('aria-label', 'Your project progress');
+      track.setAttribute('aria-valuemin', '0');
+      track.setAttribute('aria-valuemax', '100');
+      track.setAttribute('aria-valuenow', '0');
+      track.parentNode.insertBefore(coach, track.nextSibling);
+    }
+    $$('.ws-step').forEach(function (step) {
+      var info = GUIDE[step.getAttribute('data-step')], intro = $('.step-intro', step);
+      if (!info || !intro) return;
+      var panel = el('div', { class: 'step-guide' }), title = el('strong', {}, 'Do these next:'), list = el('ol');
+      info.forEach(function (tip) { list.appendChild(el('li', {}, tip)); });
+      panel.appendChild(title); panel.appendChild(list);
+      intro.parentNode.insertBefore(panel, intro.nextSibling);
+    });
+    M.FIELDS.forEach(function (f) {
+      if (f.kind === 'gen') return;
+      var input = document.getElementById(f.id), box = input && input.closest('.box'), hint = fieldTip(f);
+      if (!box || !hint) return;
+      var note = el('p', { class: 'box-guide', id: 'guide-' + f.id }, hint);
+      input.parentNode.insertBefore(note, input);
+      input.setAttribute('aria-describedby', note.id);
+      input.setAttribute('autocapitalize', 'sentences');
+      input.setAttribute('autocorrect', 'on');
+      if (input.tagName === 'TEXTAREA') {
+        var foot = $('.box-foot', box);
+        if (foot) {
+          var count = el('span', { class: 'moh-wordcount', 'aria-live': 'off' });
+          var update = function () {
+            var n = (input.value.trim().match(/\S+/g) || []).length;
+            count.textContent = n + (n === 1 ? ' word' : ' words');
+          };
+          input.addEventListener('input', update);
+          foot.insertBefore(count, foot.firstChild);
+          update();
+        }
+        var expand = el('button', { type: 'button', class: 'moh-expand', 'aria-expanded': 'false', 'aria-controls': input.id }, 'Make box bigger');
+        expand.addEventListener('click', function () {
+          var big = box.classList.toggle('big-writing');
+          expand.setAttribute('aria-expanded', String(big));
+          expand.textContent = big ? 'Normal size' : 'Make box bigger';
+          input.focus();
+        });
+        box.appendChild(expand);
+      }
+    });
+  }
+  function updateCoach() {
+    if (!S.team) return;
+    var now = M.STEPS.find(function (st) { return st.id === S.step; }), c = stepCounts(S.step);
+    var wait = S.team.mode === 'pair' && S.role === 'A' && !names().hasB;
+    var who = S.role === 'solo' ? 'Working alone: both parts are yours.'
+      : S.role === 'A' ? 'You are Partner A (the poster).' : 'You are Partner B (the memorial screen).';
+    var message = 'Step ' + (now ? now.n : 1) + ' of 7 · ' + c.done + ' of ' + c.total + ' of YOUR boxes done. ' + who
+      + ' Gold boxes are yours; dashed boxes belong to your partner.';
+    if (wait) message += ' Your partner has not joined yet. Give them code ' + S.team.code + '. You can start your own boxes now.';
+    if (S.team.mode === 'pair' && names().hasB) message += ' You both use your own PIN and Turn In separately.';
+    var coach = $('#ws-coach');
+    if (coach) coach.textContent = message;
+    var track = $('#ws-progress') && $('#ws-progress').parentNode;
+    if (track) track.setAttribute('aria-valuenow', String(Math.round(parseFloat($('#ws-progress').style.width) || 0)));
+  }
+
+
   function el(tag, attrs, text) { var n = document.createElement(tag); Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); }); if (text != null) n.textContent = text; return n; }
   function vet(slug) { return VETS.find(function (v) { return v.slug === slug; }) || null; }
   function toast(text) { var t = el('div', { class: 'toast', role: 'status' }, text); document.body.appendChild(t); setTimeout(function () { t.remove(); }, 3200); }
@@ -98,6 +200,9 @@
       grid.appendChild(entry);
     });
     $('[data-action="confirm-pick"]').disabled = !S.picked || S.taken.indexOf(S.picked) >= 0;
+    if (S.taken.length >= VETS.length && S.setupMode !== 'change') {
+      setupMsg('All 21 veterans have been chosen in your class. Ask your teacher to help you join a team or change an assignment. Your PIN is working.');
+    }
   }
   function confirmPick() {
     if (!S.picked || S.busy) return;
@@ -105,14 +210,14 @@
     var p = S.setupMode === 'change' ? api('choose', { choice: S.picked }) : api('create', { mode: S.setupMode === 'solo' ? 'solo' : 'pair', choice: S.picked });
     p.then(function (r) { S.taken = r.taken || []; enterWork(r.team); if (S.setupMode === 'change') toast('Veteran changed to ' + vet(r.team.choice).name + '.'); })
       .catch(function (e) { bug(e); setupMsg(e.message); if (e.code === 'taken') return api('status').then(function (r) { S.taken = r.taken || []; S.picked = ''; buildPicker(); setupMsg(e.message); }); })
-      .then(function () { S.busy = false; });
+      .finally(function () { S.busy = false; });
   }
   function joinTeam() {
     var code = $('#join-code').value.trim().toUpperCase();
     if (code.length !== 4) { setupMsg('Team codes have four letters or numbers. Ask your partner to read it to you.'); return; }
     if (S.busy) return; S.busy = true; setupMsg('Joining…', true);
     api('join', { code: code }).then(function (r) { S.taken = r.taken || []; enterWork(r.team); toast('You joined the team. You are Partner B, the Screen Lead.'); })
-      .catch(function (e) { bug(e); setupMsg(e.message); }).then(function () { S.busy = false; });
+      .catch(function (e) { bug(e); setupMsg(e.message); }).finally(function () { S.busy = false; });
   }
 
   /* --------------------------------------------------------------- roles -- */
@@ -182,8 +287,12 @@
     // Check often while a new team waits for the partner to type the code, then settle down.
     var waiting = S.team.mode === 'pair' && !names().hasB;
     var wait = document.visibilityState !== 'visible' ? 180000 : waiting ? 12000 : 75000;
+    var signedAt = window.__deskSave && window.__deskSave.account && window.__deskSave.account();
+    var teamId = S.team.id;
     pollTimer = setTimeout(function () {
       api('status').then(function (r) {
+        var signedNow = window.__deskSave && window.__deskSave.account && window.__deskSave.account();
+        if (!S.team || S.team.id !== teamId || !signedAt || !signedNow || signedAt.token !== signedNow.token) return;
         if (!r.team) { leaveWork(); enterSetup(); return; }
         var joined = S.team && S.team.mode === 'pair' && !names().hasB && r.team.members.length > 1;
         S.team = r.team; S.partner = r.team.partner; S.taken = r.taken || [];
@@ -227,12 +336,20 @@
     var v = currentVet(), parts = M.citationParts(v.citation);
     $$('.cite-part').forEach(function (q) { q.textContent = parts[Number(q.getAttribute('data-part'))] || ''; });
     var full = $('.full-cite'); full.innerHTML = '';
-    var words = v.words.map(function (w) { return w[0]; }), re = new RegExp('\\b(' + words.map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'gi'), last = 0, m;
+    var glossary = v.words.slice(), seen = {};
+    glossary.forEach(function (w) { seen[w[0].toLowerCase()] = true; });
+    var extra = window.MOH_EXTRA && window.MOH_EXTRA.terms || {};
+    Object.keys(extra).forEach(function (word) {
+      if (glossary.length >= 14 || seen[word.toLowerCase()]) return;
+      if (v.citation.toLowerCase().indexOf(word.toLowerCase()) < 0) return;
+      glossary.push([word, extra[word]]); seen[word.toLowerCase()] = true;
+    });
+    var words = glossary.map(function (w) { return w[0]; }), re = new RegExp('\\b(' + words.map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'gi'), last = 0, m;
     while ((m = re.exec(v.citation))) { full.appendChild(document.createTextNode(v.citation.slice(last, m.index))); full.appendChild(el('mark', {}, m[0])); last = m.index + m[0].length; }
     full.appendChild(document.createTextNode(v.citation.slice(last)));
     var chips = $('.word-chips'); chips.innerHTML = '';
-    v.words.forEach(function (w) {
-      var b = el('button', { type: 'button' }, w[0]);
+    glossary.forEach(function (w) {
+      var b = el('button', { type: 'button', title: w[1], 'aria-label': 'Use the word ' + w[0] }, w[0]);
       b.addEventListener('click', function () {
         var target = $$('.box.k-word').map(function (box) { return document.getElementById(box.getAttribute('data-field')); }).filter(function (i) { return owned(i.id) && !i.value.trim(); })[0];
         if (!target) { toast('Your word boxes are full. Delete one to use a different word.'); return; }
@@ -293,6 +410,7 @@
     $('#ws-progress').style.width = (all ? Math.round(done / all * 100) : 0) + '%';
     checklist();
     syncChoices();
+    updateCoach();
   }
   function checklist() {
     var ul = $('#moh-checklist'); ul.innerHTML = '';
@@ -319,6 +437,7 @@
     $$('.ws-steps [data-goto]').forEach(function (b) { if (b.getAttribute('data-goto') === stepId) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
     try { sessionStorage.setItem('moh-step', stepId); } catch (e) { /* fine */ }
     if (stepId === 'art' && S.designer) S.designer.refresh();
+    updateCoach();
     var target = focusId && document.getElementById(focusId);
     if (target) {
       var box = target.closest('.box'); box.classList.remove('pulse'); void box.offsetWidth; box.classList.add('pulse');
@@ -366,7 +485,7 @@
 
   /* --------------------------------------------------------------- enter -- */
   function enterWork(team) {
-    S.team = team; S.partner = team.partner || S.partner; S.role = team.role;
+    S.team = team; S.partner = team.partner || null; S.role = team.role;
     show('moh-work');
     headLine(); applyRole(); fillVeteranParts(); initDesigner();
     var saved = ''; try { saved = sessionStorage.getItem('moh-step') || ''; } catch (e) { /* fine */ }
@@ -434,6 +553,8 @@
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && S.team) pollPartner(); });
   window.addEventListener('desk-save:account', function () { if (!S.team) load(); });
   window.addEventListener('desk-save:reset', function () { leaveWork(); show('moh-wait'); $('#moh-wait p').textContent = 'Sign in with your lunch PIN to open your project.'; });
+
+  installGuides();
 
   // A teacher device skips the PIN gate. Offer a read through of every step.
   // While the paper or blueprint is open, printing prints only that, page after page.

@@ -186,6 +186,19 @@ await test('every veteran page builds with a citation, a map pin and working nex
     }, slug);
     assert.ok(cite, `${slug} shows its citation word for word`);
     assert.ok(await page.locator('svg circle, svg .pin').count() > 0, `${slug} has a map pin`);
+    assert.equal(await page.locator('#more .reading-card').count(), 2, `${slug} includes historical context and an individual explanation`);
+    assert.ok((await page.locator('#more .reading-columns').innerText()).length > 350, `${slug} expands the reading beyond the short biography`);
+    assert.ok(await page.locator('#vocabulary .vocab-card').count() >= 15, `${slug} includes a substantial plain-language glossary`);
+    assert.equal(await page.locator('#more .reading-ask li').count(), 4, `${slug} contains a four-step evidence guide`);
+    const project = await page.context().newPage();
+    await project.goto(`${BASE}/hubs/${HUB}.html?deskteacher=on`);
+    await project.waitForFunction(() => Boolean(window.MOH_EXTRA && window.MOH_EXTRA.terms));
+    const bank = await project.evaluate((key) => {
+      const v = window.MOH_VETERANS.find((x) => x.slug === key), terms = window.MOH_EXTRA.terms;
+      return v.words.length + Object.keys(terms).filter((term) => v.citation.toLowerCase().includes(term.toLowerCase()) && !v.words.some((w) => w[0].toLowerCase() === term.toLowerCase())).length;
+    }, slug);
+    assert.ok(bank >= 6, `${slug} has at least six citation terms for two partners`);
+    await project.close();
   }
   assert.deepEqual(page.errors.map(String), []);
   await cb.context.close();
@@ -199,6 +212,7 @@ await test('a pair splits the work: each partner edits only their own boxes and 
   const ada = await open(school, `/hubs/${HUB}.html?pick=alvin-york`);
   await passGate(ada, s.pin(PEOPLE.ada));
   await ada.locator('#moh-setup').waitFor({ state: 'visible' });
+  assert.match(await ada.locator('#stage-mode .setup-guide').textContent(), /own PIN/i, 'partner setup explicitly says to use separate PINs');
   await ada.screenshot({ path: `${OUT}/setup-mode.png` });
   await ada.locator('[data-mode="start"]').click();
   await ada.locator('#stage-pick').waitFor({ state: 'visible' });
@@ -208,6 +222,9 @@ await test('a pair splits the work: each partner edits only their own boxes and 
   await ada.locator('#moh-work').waitFor({ state: 'visible' });
   const code = (await ada.locator('#ws-team strong').nth(2).textContent()).trim();
   assert.match(code, /^[A-Z0-9]{4}$/, 'Partner A sees a four character team code');
+  assert.match(await ada.locator('#ws-coach').textContent(), /partner has not joined yet/i, 'waiting for Partner B is explained');
+  assert.equal(await ada.locator('#step-facts .step-guide li').count(), 3, 'each step offers a three-action guide');
+  assert.equal(await ada.locator('#moh-a-fact-born').getAttribute('aria-describedby'), 'guide-moh-a-fact-born', 'each field has accessible plain-language help');
   assert.match(await ada.locator('#ws-vet').textContent(), /York/);
 
   // Ada owns Partner A boxes and not Partner B boxes.
@@ -233,6 +250,13 @@ await test('a pair splits the work: each partner edits only their own boxes and 
   assert.equal(await grace.locator('#moh-b-fact-unit').evaluate((el) => el.readOnly), false);
   assert.equal(await grace.locator('#moh-a-fact-born').evaluate((el) => el.readOnly), true);
   await grace.locator('#moh-b-fact-unit').fill('Company G, 328th Infantry, 82nd Division');
+  assert.match(await grace.locator('#ws-coach').textContent(), /Partner B/i, 'the student always sees their actual role');
+  const forged = s.post({ action: 'save', hub: HUB, token: await grace.evaluate(() => window.__deskSave.account().token),
+    classPeriod: 'Period 1', course: 'ush9', writeProtocol: 1, baseRevision: '', answers: [
+      { k: 'id:moh-a-fact-born', q: 'Where born?', a: 'Forged answer to another student field' },
+    ] });
+  assert.equal(forged.ok, false, 'server rejects a forged partner-field save');
+  assert.equal(forged.code, 'partner_field', 'server reports ownership violation');
 
   // Ada's typing reaches her account, and Grace sees it after the next status.
   await ada.evaluate(() => window.__deskSave.saveCloud && window.__deskSave.saveCloud());
@@ -289,6 +313,21 @@ await test('a student working alone does every job, the next job button walks th
   await page.locator('[data-action="confirm-pick"]').click();
   await page.locator('#moh-work').waitFor({ state: 'visible' });
   assert.equal(await page.locator('body').evaluate((b) => b.classList.contains('role-solo')), true);
+  assert.match(await page.locator('#ws-coach').textContent(), /Working alone/i, 'solo requirements are identified');
+  assert.equal(await page.locator('#step-facts .step-guide li').count(), 3);
+  await page.locator('[data-goto="story1"]').click();
+  const longPasteBlocked = await page.locator('#moh-a-before-1').evaluate((field) => {
+    const clipboard = new DataTransfer();
+    clipboard.setData('text/plain', Array.from({ length: 20 }, (_, i) => 'word' + i).join(' '));
+    return field.dispatchEvent(new ClipboardEvent('paste', { clipboardData: clipboard, bubbles: true, cancelable: true })) === false;
+  });
+  assert.equal(longPasteBlocked, true, 'a paste longer than 12 words is blocked by default');
+  await page.locator('#moh-a-before-1').fill('Handwritten thought to see the counting helper');
+  assert.match(await page.locator('.box[data-field="moh-a-before-1"] .moh-wordcount').textContent(), /words?$/);
+  await page.locator('.box[data-field="moh-a-before-1"] .moh-expand').click();
+  assert.equal(await page.locator('.box[data-field="moh-a-before-1"]').evaluate((el) => el.classList.contains('big-writing')), true, 'writing boxes expand on demand');
+  await page.locator('#moh-a-before-1').fill('');
+  await page.locator('[data-goto="facts"]').click();
   for (const width of [390, 1366]) {
     await page.setViewportSize({ width, height: 768 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `workspace has no sideways scroll at ${width}`);
@@ -341,6 +380,7 @@ await test('a student working alone does every job, the next job button walks th
   await page.locator('[data-action="next-job"]').click();
   await waitFor(async () => !(await page.locator('#step-finish').isHidden()));
   assert.equal(await page.locator('#ws-progress').evaluate((el) => el.style.width), '100%');
+  assert.equal(await page.locator('#ws-progress').evaluate((el) => el.parentNode.getAttribute('aria-valuenow')), '100', 'progress is accessible');
   await page.screenshot({ path: `${OUT}/work-finish.png`, fullPage: true });
 
   await page.locator('#step-finish [data-action="preview"]').click();
