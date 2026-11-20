@@ -16,7 +16,7 @@ export interface StoryHub {
   coverAlt: string;
   /** Reviewed public-domain historical photo shown instead of a narrative-only SVG cover.
    * The original local cover remains a fallback in the archive; the external source is credited. */
-  archivalCover?: { src: string; alt: string; credit: string; sourceUrl: string };
+  archivalCover?: { src: string; alt: string; credit: string; sourceUrl: string; kind?: 'photograph' | 'period-lithograph' };
   topics: string[];
   inside: string[];
   /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
@@ -1478,6 +1478,7 @@ export const storyHubs: StoryHub[] = [
       src: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/1876_Chicago_White_Stockings.webp',
       alt: 'Original 1876 Chicago White Stockings team lithograph with portraits of the players whose work generated the new National League business',
       credit: '1876 Chicago White Stockings team lithograph · public domain',
+      kind: 'period-lithograph',
       sourceUrl: 'https://commons.wikimedia.org/wiki/File:1876_Chicago_White_Stockings.webp',
     },
     coverAlt: 'Editorial ledger cover with an intentionally empty player chair',
