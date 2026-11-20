@@ -69,7 +69,9 @@
       "role": "post-1877 armory method",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Nineteenth-century urban National Guard armory facade built as a fortification",
-      "namedPeople": ["Rutherford B. Hayes"],
+      "namedPeople": [
+        "Rutherford B. Hayes"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub. The facade communicates documented armory fortification logic without claiming to depict a specific surviving building.",
@@ -114,7 +116,16 @@
       "role": "Haymarket legal-record table substrate",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Courtroom evidence table viewed directly overhead with period papers and an evidence box",
-      "namedPeople": ["August Spies", "Samuel Fielden", "Albert Parsons", "Adolph Fischer", "George Engel", "Louis Lingg", "Michael Schwab", "Oscar Neebe"],
+      "namedPeople": [
+        "August Spies",
+        "Samuel Fielden",
+        "Albert Parsons",
+        "Adolph Fischer",
+        "George Engel",
+        "Louis Lingg",
+        "Michael Schwab",
+        "Oscar Neebe"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub. No defendant likenesses or readable fake documents are fabricated.",
@@ -129,7 +140,10 @@
       "role": "execution and pardon date sequence",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Empty nineteenth-century jail corridor with barred windows casting hard parallel light",
-      "namedPeople": ["John Peter Altgeld", "August Spies"],
+      "namedPeople": [
+        "John Peter Altgeld",
+        "August Spies"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub. Environmental reconstruction, not represented as the Cook County jail itself.",
@@ -144,7 +158,10 @@
       "role": "Fort Frick chain-of-custody substrate",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Tall fortified wooden fence running along a riverbank at dusk with barbed wire, rifle ports, and mill silhouette",
-      "namedPeople": ["Andrew Carnegie", "Henry Clay Frick"],
+      "namedPeople": [
+        "Andrew Carnegie",
+        "Henry Clay Frick"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub from the documented Fort Frick dimensions and defensive features; not archival evidence.",
@@ -174,7 +191,9 @@
       "role": "Pullman company-town ledger substrate",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Straight-on row of Pullman-style company brick houses in flat afternoon light, empty and meticulously ordered",
-      "namedPeople": ["George Pullman"],
+      "namedPeople": [
+        "George Pullman"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub. The repeating houses carry company-town structure without presenting a false archival photograph.",
@@ -184,33 +203,43 @@
     },
     {
       "id": "A13",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
-      "role": "injunction document machine substrate",
-      "sourceMode": "interpretive-reconstruction",
+      "role": "Retired ornamental injunction-paper scene, replaced by source-grounded native HTML quantitative docket",
+      "sourceMode": "retained-legacy-editorial-svg",
       "subject": "Single federal court paper on a desk at a low raking angle with seal and fountain pen",
-      "namedPeople": ["Eugene V. Debs", "Grover Cleveland", "Richard Olney", "Peter S. Grosscup", "William A. Woods"],
+      "namedPeople": [
+        "Eugene V. Debs",
+        "Grover Cleveland",
+        "Richard Olney",
+        "Peter S. Grosscup",
+        "William A. Woods"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. All readable court language remains native HTML rather than fabricated inside the image.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. All readable court language remains native HTML rather than fabricated inside the image. The student-facing L015 page now uses semantic HTML comparison visuals in place of this SVG. Original asset retained under its published URL for compatibility.",
       "htmlSafeZone": "Near-white paper surface across upper two thirds for stepped sequence.",
       "responsiveCrop": "Keep seal, pen, and large quiet paper field; do not fabricate readable court text in the image.",
-      "deployPath": "/storyhub/ush9/l015/assets/a13-injunction-paper.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a13-injunction-paper.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "No longer linked from current lesson; remains in sealed release to preserve prior public asset URLs."
     },
     {
       "id": "A14",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
-      "role": "seventeen-year comparison ladder substrate",
-      "sourceMode": "editorial-reconstruction",
+      "role": "Retired ornamental staircase metaphor, replaced by native HTML four-case response comparison",
+      "sourceMode": "retained-legacy-editorial-svg",
       "subject": "Four flights of an iron stairwell photographed straight upward from the bottom, identical landings receding into light",
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink editorial SVG authored for this StoryHub as a structural metaphor for the four-case ladder, not literal historical evidence.",
+      "provenance": "Original paper-and-ink editorial SVG authored for this StoryHub as a structural metaphor for the four-case ladder, not literal historical evidence. The student-facing L015 page now uses semantic HTML comparison visuals in place of this SVG. Original asset retained under its published URL for compatibility.",
       "htmlSafeZone": "Bright opening at top for header; stair treads remain legible enough to carry the fixed comparison rungs.",
       "responsiveCrop": "Protect all four landings and upward geometry; preserve top opening.",
-      "deployPath": "/storyhub/ush9/l015/assets/a14-ladder.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a14-ladder.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "No longer linked from current lesson; remains in sealed release to preserve prior public asset URLs."
     }
   ]
 }
