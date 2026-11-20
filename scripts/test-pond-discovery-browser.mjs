@@ -52,6 +52,26 @@ async function run(viewport) {
     assert.equal(response.status(), 200);
     await page.getByRole("button", { name: "Make a mess" }).click();
     await page.getByRole("heading", { name: "Discovery lab" }).waitFor();
+    // Layout contract: desktop has a three-zone field station; mobile puts
+    // the living pond first, tools second and the ledger below.
+    const chamber = page.locator(".field-observation");
+    const notebook = page.locator(".field-ledger");
+    const fieldKit = page.locator(".field-materials");
+    assert.ok(await chamber.isVisible() && await notebook.isVisible() && await fieldKit.isVisible());
+    const [chamberBox, notebookBox, kitBox] = await Promise.all([
+      chamber.boundingBox(), notebook.boundingBox(), fieldKit.boundingBox(),
+    ]);
+    assert.ok(chamberBox && notebookBox && kitBox);
+    if (viewport.width <= 400) {
+      assert.ok(chamberBox.y < kitBox.y && kitBox.y < notebookBox.y, "mobile should keep observation above tools and discovery");
+      assert.ok(chamberBox.width > 300, "mobile observation must use the device width");
+    } else {
+      assert.ok(notebookBox.x < chamberBox.x && chamberBox.x < kitBox.x, "desktop should use ledger / chamber / tools columns");
+      assert.ok(Math.abs(notebookBox.y - chamberBox.y) < 70, "desktop regions begin at the same baseline");
+    }
+    assert.ok(await page.locator(".field-stage-plinth").isVisible(), "bespoke glass field stage must render");
+    assert.ok(await page.getByRole("group", { name: "Crafting slots" }).isVisible());
+    assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
     await page.getByRole("button", { name: "Mix Fire" }).click();
     await page.getByRole("button", { name: "Mix Water" }).click();
     await page.getByText(/Fire \+ Water = Steam/).waitFor();
