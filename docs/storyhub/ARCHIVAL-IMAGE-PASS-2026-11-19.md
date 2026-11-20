@@ -54,6 +54,13 @@ This batch replaces three Story Hub catalog illustrations, six in-lesson narrati
 - Scene 13's legal summary links to the [Federal Judicial Center primary-source compilation](https://www.fjc.gov/sites/default/files/trials/debs_psa.pdf). This explanatory panel does not claim to reproduce the original July 2 order verbatim.
 - On small screens the supplemental diagram falls into a reduced panel beneath the lesson copy; test mobile readability and vertical overlap visually before release approval.
 
+### Scene 5 and 6: the final authored visual placeholders now teach
+
+- Scene 5 replaces the invented armory façade with an **architectural-purpose panel**: building / arsenal / institution. The entry links to the [Encyclopedia of Chicago's armories history](https://www.encyclopedia.chicagohistory.org/pages/1736.html). The panel is an editorial explanation, not a picture of a specific named armory and not evidence that all armories were constructed in 1877.
+- Scene 6 replaces a generic factory clock with a **24-hour budget comparison** showing 12 work / 8 sleep / 4 personal against 8 work / 8 sleep / 8 personal. It explicitly says that 12 hours is an *illustrative* previous workday, not a nationwide 1886 average. Eight-hour movement source: [Smithsonian National Museum of American History](https://americanhistory.si.edu/explore/stories/may-day-americas-traditional-radical-complicated-holiday-part-2).
+- These changes complete a **14/14 primary scene visual-substrate upgrade** for `USH9-L015`. Eight scenes use source-labeled period visuals; six use authored HTML explanatory graphics. None of the primary 14 scene images are the original generic illustration SVG. The old local SVG assets remain in the repository as load-error fallbacks for external period images, not as primary rendering assets.
+- **Approval still requires actual mobile and classroom-browser screenshots**. Static code review alone does not establish that the multiple source panels are readable or non-overlapping on 360–450px phones and a 1366px Chromebook. Make corrections if any overlay is problematic before merge; do not bypass the site integrity gate.
+
 ## 3. Beyond the Scoreboard — Not in the Room
 
 - Catalog: `bts-l03-not-in-the-room`. Replaces the catalog's ledger-illustration preview with the original 1876 *Chicago White Stockings* lithograph. This image depicts players and their manager, **not** the National League's club-owner meeting. That distinction is central to this lesson.
