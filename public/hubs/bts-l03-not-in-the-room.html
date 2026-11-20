@@ -121,9 +121,9 @@
         <p>The meeting and date are documented. A later story says Hulbert locked the door until the deal was finished. That detail comes from memoir, written down long after the winners had won. It may be true. The surviving record does not let us treat it like the meeting itself.</p>
         <p>Out of the room came the National League of Professional Base Ball Clubs. Hulbert became league president in 1877 and held the job until his death in 1882.</p>
       </div>
-      <figure class="identity-placeholder" aria-labelledby="hulbert-portrait-name">
-        <img class="identity-portrait" src="https://upload.wikimedia.org/wikipedia/commons/f/fb/William_Hulbert_Baseball.jpg" alt="Period studio portrait of William Ambrose Hulbert, wearing a dark suit and prominent moustache" loading="lazy" decoding="async" width="198" height="264" referrerpolicy="no-referrer">
-        <figcaption class="identity-placeholder__copy"><small>historical portrait · national baseball hall of fame source</small><strong id="hulbert-portrait-name">William Hulbert</strong><p>Chicago club executive, organizer of the 1876 National League, and league president from 1877 to 1882. <a href="https://commons.wikimedia.org/wiki/File:William_Hulbert_Baseball.jpg" target="_blank" rel="noopener noreferrer">Original portrait &amp; public-domain record ↗</a></p></figcaption>
+      <figure class="identity-placeholder" aria-labelledby="hulbert-portrait-name" data-archive-media>
+        <img class="identity-portrait" src="https://upload.wikimedia.org/wikipedia/commons/f/fb/William_Hulbert_Baseball.jpg" alt="" data-archive-image data-archive-alt="Period studio portrait of William Ambrose Hulbert, wearing a dark suit and prominent moustache" style="visibility:hidden" loading="lazy" decoding="async" width="198" height="264" referrerpolicy="no-referrer">
+        <figcaption class="identity-placeholder__copy"><small data-archive-label data-archive-loaded-label="historical portrait · national baseball hall of fame source">PORTRAIT NOT SHOWN · SOURCE RECORD BELOW</small><strong id="hulbert-portrait-name">William Hulbert</strong><p>Chicago club executive, organizer of the 1876 National League, and league president from 1877 to 1882. <a href="https://commons.wikimedia.org/wiki/File:William_Hulbert_Baseball.jpg" target="_blank" rel="noopener noreferrer">Original portrait &amp; public-domain record ↗</a></p></figcaption>
       </figure>
     </section>
 
@@ -282,5 +282,6 @@
     $('#downloadNotes').addEventListener('click',()=>{const blob=new Blob([`NOT IN THE ROOM — NOTES\n\n${notesText.value}`],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='not-in-the-room-notes.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
   </script>
 <script src="/hubs/desk-save.js" defer></script>
+<script src="/storyhub/runtime/archive-media.js" defer></script>
 </body>
 </html>

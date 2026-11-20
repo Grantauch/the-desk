@@ -132,8 +132,10 @@ a {
   position: absolute;
   inset: 0;
   z-index: -4;
-  background: url('https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/US_Army_51610_The_Case_Against_the_Defendents.jpg/1280px-US_Army_51610_The_Case_Against_the_Defendents.jpg')
-    center 33% / cover no-repeat;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 33%;
   filter: grayscale(1) contrast(1.14) brightness(0.60);
 }
 .cover-grain {
@@ -1190,8 +1192,8 @@ figcaption {
             <span class="dots">•</span> 1945—1950</span
           ><a href="#dispatch" class="mast-action">CASE FILE ↓</a>
         </header>
-        <div class="cover" id="top">
-          <div class="cover-archival" aria-hidden="true"></div>
+        <div class="cover" id="top" data-archive-media>
+          <img class="cover-archival" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/US_Army_51610_The_Case_Against_the_Defendents.jpg/1280px-US_Army_51610_The_Case_Against_the_Defendents.jpg" data-archive-image alt="" aria-hidden="true" referrerpolicy="no-referrer" style="visibility:hidden">
           <div class="cover-grain" aria-hidden="true"></div>
           <div class="cover-overlay" aria-hidden="true"></div>
           <div class="cover-content">
@@ -1206,7 +1208,7 @@ figcaption {
               The Nazis were convicted. The hangman had a secret. And some
               witnesses said the final night went badly wrong.
             </p>
-            <p class="documentary-photo-credit">ACTUAL TRIAL PHOTOGRAPH · U.S. ARMY SIGNAL CORPS · <a href="https://commons.wikimedia.org/wiki/File:US_Army_51610_The_Case_Against_the_Defendents.jpg" target="_blank" rel="noopener noreferrer">VIEW THE RECORD ↗</a></p>
+            <p class="documentary-photo-credit"><span data-archive-label data-archive-loaded-label="ACTUAL TRIAL PHOTOGRAPH · U.S. ARMY SIGNAL CORPS · ">ARCHIVE IMAGE NOT SHOWN · </span><a href="https://commons.wikimedia.org/wiki/File:US_Army_51610_The_Case_Against_the_Defendents.jpg" target="_blank" rel="noopener noreferrer">VIEW THE RECORD ↗</a></p>
             <div class="cover-cta">
               <a class="btn btn-accent" href="#byte-1"
                 >OPEN THE EVIDENCE <span>↗</span></a
@@ -1340,14 +1342,17 @@ figcaption {
                   third was kept in reserve.
                 </p>
               </div>
-              <figure class="archival">
+              <figure class="archival" data-archive-media>
                 <img
                   src="https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/US_Army_51610_The_Case_Against_the_Defendents.jpg/1280px-US_Army_51610_The_Case_Against_the_Defendents.jpg"
-                  alt="U.S. Army Signal Corps photograph of Robert H. Jackson presenting evidence to the Nuremberg tribunal in its crowded courtroom, 1945–1946"
-                  referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='/storyhub/hh/nuremberg/cover.svg'"
+                  alt="" data-archive-image
+                  data-archive-alt="U.S. Army Signal Corps photograph of Robert H. Jackson presenting evidence to the Nuremberg tribunal in its crowded courtroom, 1945–1946"
+                  referrerpolicy="no-referrer" data-archive-fallback="/storyhub/hh/nuremberg/cover.svg"
+                  data-archive-fallback-alt="Modern editorial illustration of the Nuremberg tribunal courtroom; not an archival photograph."
+                  style="visibility:hidden"
                   loading="lazy"
                 />
-                <figcaption>NUREMBERG TRIALS · U.S. ARMY SIGNAL CORPS PHOTOGRAPH · <a href="https://commons.wikimedia.org/wiki/File:US_Army_51610_The_Case_Against_the_Defendents.jpg" target="_blank" rel="noopener noreferrer">SOURCE &amp; RIGHTS ↗</a></figcaption>
+                <figcaption><span data-archive-label data-archive-loaded-label="NUREMBERG TRIALS · U.S. ARMY SIGNAL CORPS PHOTOGRAPH · ">ARCHIVE IMAGE NOT SHOWN · </span><a href="https://commons.wikimedia.org/wiki/File:US_Army_51610_The_Case_Against_the_Defendents.jpg" target="_blank" rel="noopener noreferrer">SOURCE &amp; RIGHTS ↗</a></figcaption>
               </figure>
             </div>
             <div class="interaction slim">
@@ -2046,5 +2051,6 @@ updateWords();
 
 </script>
     <script src="/hubs/desk-save.js" defer></script>
-  </body>
+  <script src="/storyhub/runtime/archive-media.js" defer></script>
+</body>
 </html>
