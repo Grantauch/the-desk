@@ -1,6 +1,6 @@
 # Source-first visual replacements — November 19, 2026
 
-This batch replaces three Story Hub catalog illustrations, four in-lesson narrative SVG appearances, and one explicitly labeled portrait placeholder with documented primary-source media. **Existing local SVG files are retained for rollback and as fallbacks where noted.** No PIN gate, answers, saving, or Turn In code was modified.
+This batch replaces three Story Hub catalog illustrations, six in-lesson narrative SVG appearances, and one explicitly labeled portrait placeholder with documented primary-source media. **Existing local SVG files are retained for rollback and as fallbacks where noted.** No PIN gate, answers, saving, or Turn In code was modified.
 
 ## 1. Hidden History — The Hangman of Nuremberg
 
@@ -22,6 +22,12 @@ This batch replaces three Story Hub catalog illustrations, four in-lesson narrat
 - Source: https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Blockade_of_Engines_at_Martinsburg_W_VA.jpg
 - Rights: published in 1877; public domain.
 - Preserve all remaining 12 authored vector scenes pending individual QA. An interactive or historically meaningful SVG is not automatically low quality.
+
+## Additional labor primary sources
+
+- Scene 4 (*Pittsburgh*) now uses an August 11, 1877 *Harper's Weekly* engraving of the burning Union Depot during the Great Railroad Strike. Source: https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Destruction_of_the_Union_Depot.jpg. This is a **period engraving**, not a photograph or literal snapshot of every destroyed locomotive.
+- Scene 11 (*Monongahela*) now uses the 1892 Kurz & Allison *Great Battle of Homestead* lithograph, held by the Library of Congress. Source: https://www.loc.gov/item/2003656885/. It is clearly labeled an **artistic interpretation published at the time**, not a photograph or direct eyewitness transcript.
+- In both scenes the former local authored SVG remains an image-load fallback; the displayed captions distinguish an original period print from direct photographic evidence.
 
 ## 3. Beyond the Scoreboard — Not in the Room
 
