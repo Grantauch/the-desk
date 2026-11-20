@@ -252,6 +252,11 @@
     }
     armRelocate(t) {
       if (!this.inRun || !t) return;
+      if (!this.g.towerStats(t).mobile) {
+        BK.Audio.ui("deny");
+        this.ui.toast("Stationary gun", "Only mobile guns can move between waves.", null, 0, 2);
+        return;
+      }
       this.clearMode();
       this.mode = "relocate";
       this.relocId = t.id;
@@ -312,13 +317,13 @@
         }
         if (this.mode === "build") {
           const why = g.canPlace(p.x, p.y, this.buildKind);
-          if (!why) {
-            g.build(this.buildKind, p.x, p.y);
+          this.ghost = { kind: this.buildKind, x: p.x, y: p.y };
+          if (!why && g.build(this.buildKind, p.x, p.y)) {
             this.ui.tipOnce("send", "Add more guns, or hit Send Wave when you are ready. Going early pays a bonus.", null, 0.6);
             if (!e.shiftKey || g.money < BK.GUNS[this.buildKind].cost) this.clearMode();
           } else {
             BK.Audio.ui("deny");
-            const msg = { road: "Too close to the road.", gun: "Too close to another gun.", prop: "Trees and hay are in the way.", edge: "Too close to the edge.", money: "Not enough złoty." }[why];
+            const msg = BK.placementReason(why || "unavailable");
             this.R.fx.text(p.x, p.y - 20, msg, "#ff8a70", 15, { life: 1 });
           }
           return;
@@ -336,8 +341,9 @@
         }
         if (this.mode === "relocate") {
           const t = g.towers.find((x) => x.id === this.relocId);
-          if (t && g.relocate(t, p.x, p.y)) { this.clearMode(); this.selected = t.id; this.ui.openPanel(t); }
-          else { BK.Audio.ui("deny"); this.R.fx.text(p.x, p.y - 20, g.phase !== "deploy" ? "Between waves only." : "Can't set up there.", "#ff8a70", 15); }
+          const why = t ? g.relocate(t, p.x, p.y) : "unavailable";
+          if (!why) { this.clearMode(); this.selected = t.id; this.ui.openPanel(t); }
+          else { BK.Audio.ui("deny"); this.R.fx.text(p.x, p.y - 20, BK.placementReason(why), "#ff8a70", 15); }
           return;
         }
         if (this.mode === "ability") {
@@ -508,7 +514,7 @@
       if (this.inRun && g.crew && !g.crewTower()) this.refreshCrew();
       if (this.inRun && $("crewbar").classList.contains("hidden") === !!g.crew) this.refreshCrew();
       this.R.draw(this.inRun ? {
-        ghost: this.ghost, ability: this.mode === "ability" ? this.abilityId : null, pointer: this.pointer, selected: this.selected,
+        ghost: this.ghost, building: this.mode === "build", ability: this.mode === "ability" ? this.abilityId : null, pointer: this.pointer, selected: this.selected,
         fortGhost: this.mode === "fort" && this.pointer ? { kind: this.fortKind, x: this.pointer.x, y: this.pointer.y } : null,
         relocate: this.mode === "relocate" ? { id: this.relocId } : null,
       } : null);

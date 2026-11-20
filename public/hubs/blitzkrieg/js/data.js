@@ -71,35 +71,41 @@
 
   // ---------------------------------------------------------------- enemies
   // Shapes are in pixels facing +x. Weak spots use the same local frame.
+  const airTargets = () => [
+    { id: "air-upper", x0: -5, x1: 5, y0: -19, y1: -10, mult: 1.75, effect: "softspot" },
+    { id: "air-lower", x0: -5, x1: 5, y0: 10, y1: 19, mult: 1.75, effect: "softspot" },
+  ];
   BK.ENEMIES = {
     inf: {
-      id: "inf", name: "Rifleman", hp: 32, speed: 34, armor: 0, reward: 3, leak: 1, r: 7,
+      id: "inf", name: "Rifleman", hp: 24, speed: 34, armor: 0, reward: 3, leak: 1, r: 7,
       kind: "foot", score: 10,
     },
     officer: {
-      id: "officer", name: "Officer", hp: 70, speed: 34, armor: 0, reward: 10, leak: 1, r: 8,
+      id: "officer", name: "Officer", hp: 56, speed: 34, armor: 0, reward: 10, leak: 1, r: 8,
       kind: "foot", score: 40, aura: 70,
       tip: "Officers drive the squad on. Drop one and the squad panics.",
     },
     moto: {
-      id: "moto", name: "Motorcycle", hp: 48, speed: 92, armor: 0.05, reward: 5, leak: 1, L: 26, Wd: 16,
+      id: "moto", name: "Motorcycle", hp: 42, speed: 92, armor: 0.05, reward: 5, leak: 1, L: 26, Wd: 16,
       kind: "wheel", score: 20,
+      weak: [{ id: "bike-mark", x0: -6, x1: 5, y0: 4, y1: 10, mult: 1.9, effect: "softspot" }],
+      tip: "Motorcycles are fast. Crew a gun and aim for the gold target for a bonus hit and brief slowdown.",
     },
     truck: {
-      id: "truck", name: "Supply Truck", hp: 150, speed: 44, armor: 0.12, reward: 11, leak: 2, L: 46, Wd: 20,
+      id: "truck", name: "Supply Truck", hp: 125, speed: 44, armor: 0.12, reward: 11, leak: 2, L: 46, Wd: 20,
       kind: "wheel", score: 40,
       weak: [{ id: "fuel", x0: -23, x1: -14, y0: -10, y1: 10, mult: 1, effect: "fuel" }],
       tip: "Hit the red fuel drums and the truck goes up, taking its neighbors with it.",
     },
     armcar: {
-      id: "armcar", name: "Armored Car", hp: 130, speed: 70, armor: 0.4, reward: 13, leak: 2, L: 38, Wd: 20,
+      id: "armcar", name: "Armored Car", hp: 112, speed: 70, armor: 0.4, reward: 13, leak: 2, L: 38, Wd: 20,
       kind: "wheel", score: 60,
       weak: [{ id: "tires", x0: -16, x1: 16, y0: -13, y1: -8, mult: 1.5, effect: "tires" }, { id: "tires", x0: -16, x1: 16, y0: 8, y1: 13, mult: 1.5, effect: "tires" }],
       shoots: { range: 135, rate: 5, dmg: 1.6, kind: "mg" },
       tip: "Armored cars rake your nests with MG fire. Shoot the tires to slow them.",
     },
     ltank: {
-      id: "ltank", name: "Light Tank", hp: 270, speed: 34, armor: 0.75, reward: 18, leak: 3, L: 46, Wd: 28,
+      id: "ltank", name: "Light Tank", hp: 238, speed: 34, armor: 0.75, reward: 18, leak: 3, L: 46, Wd: 28,
       kind: "track", score: 90,
       weak: [
         { id: "engine", x0: -23, x1: -12, y0: -8, y1: 8, mult: 3, effect: "engine" },
@@ -109,7 +115,7 @@
       tip: "Engine deck at the back takes x3 and ignores armor. Tracks stop it cold.",
     },
     smoke: {
-      id: "smoke", name: "Smoke Tank", hp: 300, speed: 34, armor: 0.75, reward: 22, leak: 3, L: 46, Wd: 28,
+      id: "smoke", name: "Smoke Tank", hp: 265, speed: 34, armor: 0.75, reward: 22, leak: 3, L: 46, Wd: 28,
       kind: "track", score: 110, smoke: true,
       weak: [
         { id: "engine", x0: -23, x1: -12, y0: -8, y1: 8, mult: 3, effect: "engine" },
@@ -119,13 +125,13 @@
       tip: "Pops a smoke screen when hurt. Your guns cannot see into smoke, but you can.",
     },
     htrack: {
-      id: "htrack", name: "Half Track", hp: 210, speed: 42, armor: 0.45, reward: 14, leak: 2, L: 54, Wd: 22,
+      id: "htrack", name: "Half Track", hp: 185, speed: 42, armor: 0.45, reward: 14, leak: 2, L: 54, Wd: 22,
       kind: "half", score: 70, carries: 3,
       weak: [{ id: "crew", x0: -20, x1: 6, y0: -7, y1: 7, mult: 2, effect: "crew" }],
       tip: "The open crew bay takes double damage. Kill it and the riflemen inside bail out.",
     },
     mtank: {
-      id: "mtank", name: "Panzer IV", hp: 680, speed: 26, armor: 0.85, reward: 40, leak: 5, L: 60, Wd: 32,
+      id: "mtank", name: "Panzer IV", hp: 615, speed: 26, armor: 0.85, reward: 40, leak: 5, L: 60, Wd: 32,
       kind: "track", score: 250,
       weak: [
         { id: "engine", x0: -30, x1: -17, y0: -10, y1: 10, mult: 3, effect: "engine" },
@@ -136,16 +142,16 @@
       tip: "It shells your guns from range. Crew a gun and put one in the engine deck.",
     },
     stuka: {
-      id: "stuka", name: "Stuka", hp: 120, speed: 170, armor: 0.1, reward: 20, leak: 0, L: 44, Wd: 56,
+      id: "stuka", name: "Stuka", hp: 90, speed: 170, armor: 0.1, reward: 20, leak: 0, L: 44, Wd: 56,
       kind: "air", air: true, score: 120, bomb: 70,
-      weak: [{ id: "engine", x0: 12, x1: 22, y0: -5, y1: 5, mult: 3, effect: "engine" }],
-      tip: "Dive bombers go after your guns. The Bofors and crewed guns can reach them.",
+      weak: [{ id: "engine", x0: 12, x1: 22, y0: -5, y1: 5, mult: 3, effect: "engine" }, ...airTargets()],
+      tip: "Dive bombers go after your guns. The Bofors can reach them; crew it and aim for a gold target.",
     },
     recon: {
-      id: "recon", name: "Spotter Plane", hp: 95, speed: 95, armor: 0.05, reward: 26, leak: 0, L: 38, Wd: 54,
+      id: "recon", name: "Spotter Plane", hp: 70, speed: 95, armor: 0.05, reward: 26, leak: 0, L: 38, Wd: 54,
       kind: "air", air: true, score: 150, spotter: true,
-      weak: [{ id: "engine", x0: 10, x1: 19, y0: -5, y1: 5, mult: 3, effect: "engine" }],
-      tip: "While it circles, artillery falls on your guns. Kill it first.",
+      weak: [{ id: "engine", x0: 10, x1: 19, y0: -5, y1: 5, mult: 3, effect: "engine" }, ...airTargets()],
+      tip: "While it circles, artillery falls on your guns. Gold targets give crewed shots a bonus.",
     },
     // ----- bosses
     command: {
@@ -160,10 +166,10 @@
       tip: "The frame antenna drives the whole column. Hit the frame to cut the radio.",
     },
     leader: {
-      id: "leader", name: "Staffel Leader", hp: 950, speed: 175, armor: 0.25, reward: 140, leak: 0, L: 52, Wd: 66,
+      id: "leader", name: "Staffel Leader", hp: 820, speed: 175, armor: 0.25, reward: 140, leak: 0, L: 52, Wd: 66,
       kind: "air", air: true, boss: true, score: 1200, bomb: 95, dives: 3,
-      weak: [{ id: "engine", x0: 14, x1: 26, y0: -6, y1: 6, mult: 3, effect: "engine" }],
-      tip: "The leader dives three times. Bring it down before it gets away.",
+      weak: [{ id: "engine", x0: 14, x1: 26, y0: -6, y1: 6, mult: 3, effect: "engine" }, ...airTargets()],
+      tip: "The leader dives three times. Aim for the gold targets before it gets away.",
     },
     nbfz: {
       id: "nbfz", name: "Neubaufahrzeug", hp: 3600, speed: 19, armor: 0.88, reward: 260, leak: 12, L: 86, Wd: 38,
@@ -184,7 +190,7 @@
 
   // ---------------------------------------------------------------- abilities
   BK.ABILITIES = {
-    arty: { id: "arty", name: "Artillery", desc: "Five heavy shells on a spot you pick.", charge: 100, key: "Q" },
+    arty: { id: "arty", name: "Artillery", desc: "Five heavy shells on a spot you pick.", charge: 100, key: "Z" },
     fighter: { id: "fighter", name: "P.11 Strafe", desc: "A PZL P.11 fighter strafes a line you draw. Hits planes too.", charge: 140, key: "W", unlock: "fighter" },
     mines: { id: "mines", name: "Mines", desc: "Three anti tank mines on the road.", charge: 90, key: "E", unlock: "mines" },
   };

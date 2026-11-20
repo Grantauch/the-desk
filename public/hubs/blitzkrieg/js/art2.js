@@ -1198,7 +1198,7 @@
   A.shadeHex = shadeHex;
 
   // ------------------------------------------------------------------ armored train Śmiały
-  A.trainCar = function (c, kind, t) {
+  A.trainCar = function (c, kind, t, turretAngle) {
     const L = kind === "loco" ? 64 : 58;
     c.fillStyle = "rgba(0,0,0,0.35)";
     c.fillRect(-L / 2 + 4, -12 + 4, L, 24);
@@ -1217,12 +1217,13 @@
       // A turret with a 75mm gun at each end.
       for (const s of [-1, 1]) {
         c.save(); c.translate(s * (L / 2 - 14), 0);
+        if (turretAngle != null) c.rotate(turretAngle);
         blob(c, 0, 0, 8.5, "#4a5236");
         c.strokeStyle = OUT; c.lineWidth = 1; c.beginPath(); c.arc(0, 0, 8.5, 0, 6.28); c.stroke();
         rr(c, 4, -1.8, 16, 3.6, 1); c.fillStyle = "#2c3022"; c.fill();
         c.restore();
       }
-      c.fillStyle = "#e8e2cf"; c.font = "bold 6px sans-serif"; c.fillText("ŚMIAŁY", -12, 2.5);
+      c.fillStyle = "#e8e2cf"; c.font = "bold 6px sans-serif"; c.fillText(turretAngle == null ? "ŚMIAŁY" : "PATROL", -12, 2.5);
     }
   };
 
