@@ -1002,3 +1002,57 @@
 .field-atlas-content [aria-label="Visited habitat landmarks"] {
   grid-template-columns: minmax(0, 1fr);
 }
+
+
+/* Mobile quick-tray stays reachable while the pond is in view; desktop uses
+   the full permanent field-kit rail instead of duplicating controls. */
+.field-mobile-dock { display:none; }
+
+@media (max-width:800px) {
+  .field-station { padding-bottom:calc(108px + env(safe-area-inset-bottom)); }
+  .field-mobile-dock {
+    position:fixed;
+    z-index:19;
+    display:flex;
+    justify-content:space-between;
+    gap:4px;
+    align-items:stretch;
+    bottom:max(10px,env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%);
+    width:min(calc(100% - 18px), 680px);
+    min-height:67px;
+    padding:7px;
+    border:1px solid #ead5a1;
+    border-radius:7px;
+    background:
+      linear-gradient(160deg, #ece4ca 0%, #cfc6a8 100%);
+    box-shadow:0 12px 38px #00000099, inset 0 0 0 3px #f2ebda61;
+  }
+  .field-mobile-dock-tool, .field-mobile-dock-more {
+    display:flex;
+    min-width:0;
+    flex:1 1 0;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:3px;
+    padding:4px 1px;
+    border:1px solid transparent;
+    border-radius:3px;
+    background:transparent;
+    color:#2a3c31;
+    font-size:.59rem;
+    font-weight:700;
+    line-height:1.1;
+  }
+  .field-mobile-dock-tool--active,
+  .field-mobile-dock-tool[aria-pressed="true"] {
+    border-color:#8c774f;
+    background:#f6ebcd;
+    box-shadow:0 1px 4px #56492f28;
+  }
+  .field-mobile-dock-color { width:23px; height:23px; border-radius:50%; }
+  .field-mobile-dock-more { flex:1.2 1 0; border-left:1px solid #8c896f88; border-radius:0; color:#294e40; }
+  .field-mobile-dock button:focus-visible { outline-color:#476b5b; }
+}
