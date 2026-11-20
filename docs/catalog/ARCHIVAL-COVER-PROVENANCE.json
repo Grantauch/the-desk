@@ -1,0 +1,41 @@
+[
+  {
+    "slug": "ush9-l015-who-showed-up",
+    "destination": "public/storyhub/ush9/l015/assets/railroad-strike-1877-archival.jpg",
+    "title": "A Steeple-View of the Pittsburgh Conflagration",
+    "author": "M. B. Leiser, Harper's Weekly",
+    "date": "1877-08-11",
+    "rights": "Public domain in the United States (published 1877)",
+    "source": "https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_(cropped).jpg",
+    "assetSource": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_%28cropped%29.jpg/1280px-Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_%28cropped%29.jpg",
+    "description": "Historical engraving of railroad yards burning in Pittsburgh during the Great Railroad Strike of 1877.",
+    "bytes": 287835,
+    "sha256": "2f395ab765cc901f9f69b201cfce035681e30defd5ea7e4af68ba39dd1ceb525"
+  },
+  {
+    "slug": "bts-l03-not-in-the-room",
+    "destination": "public/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg",
+    "title": "1876 Chicago White Stockings team photograph",
+    "author": "Unknown nineteenth-century photographer",
+    "date": "1876",
+    "rights": "Public domain in the United States (published 1876)",
+    "source": "https://commons.wikimedia.org/wiki/File:1876_Chicago_White_Stockings.jpg",
+    "assetSource": "https://upload.wikimedia.org/wikipedia/commons/9/95/1876_Chicago_White_Stockings.jpg",
+    "description": "1876 Chicago White Stockings club portrait; one of the original National League teams.",
+    "bytes": 194417,
+    "sha256": "56b2afb3e1ed79f82e91745a6227c3f9559f45b5720cf5b91954a29001208d90"
+  },
+  {
+    "slug": "hh-bytesize-nuremberg",
+    "destination": "public/storyhub/hh/nuremberg/robert-jackson-nuremberg-archival.jpg",
+    "title": "U.S. Chief Prosecutor Robert H. Jackson at the Nuremberg Trials",
+    "author": "United States Army photographer",
+    "date": "1945–1946",
+    "rights": "Public domain in the United States (official U.S. Army work)",
+    "source": "https://commons.wikimedia.org/wiki/File:Prosecutor_Robert_Jackson_at_Nuremberg_Trials.jpg",
+    "assetSource": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Prosecutor_Robert_Jackson_at_Nuremberg_Trials.jpg",
+    "description": "Chief U.S. Prosecutor Robert H. Jackson addresses the International Military Tribunal in Nuremberg.",
+    "bytes": 513717,
+    "sha256": "fc8f13b676cea5cfd1bbb189366bfd7314c759c08d747ff9f72488ccd19bb502"
+  }
+]
