@@ -38,6 +38,7 @@ const paths = [
   '/hubs/ush9-wwi-jeopardy.html',
   '/hubs/ush9-medal-of-honor.html',
   '/hubs/ush9-medal-of-honor-exemplar.html',
+  '/hubs/ush9-medal-of-honor-guide.html',
   '/hubs/the-league.html',
   '/hubs/tale-of-the-tape.html',
   '/hubs/blacktop-kings.html',
