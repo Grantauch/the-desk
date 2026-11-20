@@ -30,6 +30,8 @@ services:
       POSTGRES_DB: grantdesk_schoolwide_stage
       POSTGRES_USER: grantdesk_stage
       POSTGRES_PASSWORD: "${SCHOOLWIDE_DB_PASSWORD:?Set a private DB password}"
+    mem_limit: 1g
+    cpus: "1.0"
     volumes:
       - schoolwide_postgres_stage:/var/lib/postgresql
     healthcheck:
@@ -51,6 +53,8 @@ services:
       context: ..
       dockerfile: Dockerfile
     command: ["node", "dist/db/migrate.js"]
+    mem_limit: 512m
+    cpus: "1.0"
     environment: *schoolwide-environment
     depends_on:
       postgres:
@@ -70,6 +74,8 @@ services:
       context: ..
       dockerfile: Dockerfile
     environment: *schoolwide-environment
+    mem_limit: 512m
+    cpus: "1.0"
     depends_on:
       migrate:
         condition: service_completed_successfully
