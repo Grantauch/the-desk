@@ -529,7 +529,7 @@ export function PondApp() {
                 <span>{paused ? "Simulation paused" : "World in motion"}</span>
               </div>
               <p><strong>{specimenId ? (getOutcome(specimenId)?.name ?? "Discovery") : panMode ? "Explore mode" : selected.name}</strong> <span className="field-status-separator">/</span> {specimenId ? "Tap to place a specimen" : panMode ? "Drag to navigate" : "Paint inside the glass"}</p>
-              <span className="field-world-size">{pondSize} × {pondSize}</span>
+              <span className="field-world-size">{pondSize} × {pondSize} · {residentCount} living creations</span>
             </div>
           ) : null}
           {started && ecosystemNews ? (
