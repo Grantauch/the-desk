@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
+  Compass,
+  FlaskConical,
+  Leaf,
+  Map,
+  Sparkles,
+  Layers3,
+  Download,
+  Upload,
   Pause,
   Play,
   RotateCcw,
@@ -441,424 +449,345 @@ export function PondApp() {
   const selected = toolById(tool);
 
   return (
-    <main className={cn("pond-environment relative flex min-h-dvh flex-col bg-bg text-fg", !richGraphics && "pond-classic")}>
+    <main className={cn("pond-environment field-station min-h-dvh bg-bg text-fg", !richGraphics && "pond-classic")}>
+      <div className="field-ambient-grain" aria-hidden="true" />
       {started ? (
-        <header className="flex items-center justify-between gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
-        <div className="min-w-0">
-          <h1 className="font-display text-xl font-medium tracking-tight leading-tight sm:text-2xl">Pond</h1>
-          <a href="/games/" className="text-muted text-xs underline">← the desk</a>
-          <p className="text-muted text-sm tabular-nums">{grains.toLocaleString()} grains · {residentCount} living creations</p>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="quiet"
-            size="icon"
-            className="size-11"
-            aria-label={paused ? "Play" : "Pause"}
-            onClick={() => setPaused((p) => !p)}
-          >
-            <span className="relative size-5">
-              <Pause
-                className={cn(
-                  "absolute inset-0 size-5 transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
-                  paused ? "scale-[0.25] opacity-0 blur-[4px]" : "scale-100 opacity-100 blur-none",
-                )}
-              />
-              <Play
-                className={cn(
-                  "absolute inset-0 size-5 transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
-                  paused ? "scale-100 opacity-100 blur-none" : "scale-[0.25] opacity-0 blur-[4px]",
-                )}
-              />
-            </span>
-          </Button>
-          <Button
-            variant="quiet"
-            size="icon"
-            className="size-11"
-            aria-label={muted ? "Unmute" : "Mute"}
-            onClick={() => {
-              pondAudio.unlock();
-              setMuted((m) => !m);
-            }}
-          >
-            <span className="relative size-5">
-              <Volume2
-                className={cn(
-                  "absolute inset-0 size-5 transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
-                  muted ? "scale-[0.25] opacity-0 blur-[4px]" : "scale-100 opacity-100 blur-none",
-                )}
-              />
-              <VolumeX
-                className={cn(
-                  "absolute inset-0 size-5 transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
-                  muted ? "scale-100 opacity-100 blur-none" : "scale-[0.25] opacity-0 blur-[4px]",
-                )}
-              />
-            </span>
-          </Button>
-          <Button
-            variant="quiet"
-            size="icon"
-            className="size-11"
-            aria-label="Open mixes"
-            aria-pressed={guide}
-            onClick={() => setGuide((g) => !g)}
-          >
-            <BookOpen className="size-5" />
-          </Button>
-        </div>
-      </header>
-      ) : (
-        <div className="h-[max(0.75rem,env(safe-area-inset-top))]" />
-      )}
-
-      <div className="flex flex-1 items-center justify-center px-3 py-2">
-        <div
-          className={cn(
-            "pond-glass-shell relative w-full aspect-square bg-dish p-2 transition-[max-width,border-radius] duration-300",
-            camera.size === pondSize ? "rounded-full" : "rounded-[1.5rem]",
-            pondSize === 192 ? "max-w-[min(100%,36rem,72dvh)]" :
-              pondSize === 256 ? "max-w-[min(100%,42rem,78dvh)]" :
-                "max-w-[min(100%,48rem,84dvh)]",
-          )}
-          style={{ boxShadow: "var(--shadow-dish)" }}
-        >
-          <div className={cn("pond-dish-interior absolute inset-2 overflow-hidden bg-dish-well", camera.size === pondSize ? "rounded-full" : "rounded-[1.1rem]")}>
-            <PondCanvas
-              key={pondSize + ":" + camera.size}
-              sim={sim}
-              enhancedGraphics={richGraphics}
-              camera={camera}
-              panMode={panMode}
-              onPan={panBy}
-              ecosystem={ecosystem}
-              specimenId={specimenId}
-              onSpecimenPlace={placeSpecimen}
-              tool={tool}
-              brush={brush}
-              running={started}
-              onStats={onStats}
-              onStrokeStart={checkpoint}
-              className="size-full"
-            />
-          </div>
-          <div aria-hidden="true" className="pond-glass-sheen pointer-events-none absolute inset-2" />
-          {toast ? (
-            <div className="pointer-events-none absolute left-1/2 top-6 z-10 -translate-x-1/2 rounded-md bg-surface px-3 py-1.5 text-sm text-fg shadow-[0_0_0_1px_var(--color-border)] pond-enter">
-              {toast}
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      {started ? (
-      <div className="px-3 pb-[max(0.9rem,env(safe-area-inset-bottom))] pt-1">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-2.5">
-          <div className="flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {SCENES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => stamp(s.id)}
-                className={cn(
-                  "h-9 shrink-0 rounded-md px-3 text-sm transition-colors duration-150",
-                  scene === s.id ? "bg-accent text-accent-fg" : "bg-surface-2 text-muted hover:text-fg",
-                )}
-              >
-                {s.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 py-2">
-            <p className="text-sm text-muted">
-              <strong className="font-medium text-fg">{pondSize} × {pondSize}</strong> cells · {Math.round(Math.PI * Math.pow(pondSize / 2 - 1, 2)).toLocaleString()} playable cells
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="quiet" size="sm" aria-label={richGraphics ? "Switch to classic pixel graphics" : "Enable rich pixel graphics"} aria-pressed={richGraphics} onClick={toggleGraphics}>
-                Visuals: {richGraphics ? "Rich" : "Classic"}
-              </Button>
-              <Button variant="quiet" size="sm" disabled={!nextSize} onClick={expandPond}>
-              {nextSize ? "Expand pond to " + nextSize + " × " + nextSize : "Maximum pond size"}
-              </Button>
+        <header className="field-masthead">
+          <div className="field-brand">
+            <span className="field-brand-emblem" aria-hidden="true"><Leaf size={23} strokeWidth={1.4} /></span>
+            <div>
+              <p className="field-eyebrow">THE LIVING COLLECTION · VOL. 01</p>
+              <h1 className="field-brand-title">Pond<span className="field-brand-period">.</span></h1>
             </div>
           </div>
-
-          {(pondSize > 320 || camera.size < pondSize) ? (
-            <section aria-label="World navigation" className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface px-3 py-3">
-              <svg viewBox="0 0 100 100" width="64" height="64" aria-label="World overview and active viewport" role="img" className="shrink-0 rounded-lg bg-dish-well">
-                <circle cx="50" cy="50" r="48" fill="#26211c" stroke="#777067" strokeWidth="1.5"/>
-                <rect x={camera.x / pondSize * 100} y={camera.y / pondSize * 100}
-                  width={camera.size / pondSize * 100} height={camera.size / pondSize * 100}
-                  fill="#c8c2ba" fillOpacity=".18" stroke="#f2ebe3" strokeWidth="1.5" rx="2"/>
-              </svg>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-fg">Explore your world</p>
-                <p className="text-xs text-muted">Viewing {camera.size} × {camera.size} cells at {camera.x}, {camera.y} · Distant regions rest until you explore them.</p>
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  <Button variant={panMode ? "default" : "quiet"} size="sm" aria-pressed={panMode}
-                    onClick={() => setPanMode((value) => !value)}>{panMode ? "Explore: on" : "Explore / drag"}</Button>
-                  <Button variant="quiet" size="sm" aria-label="Pan world left" onClick={() => panBy(-64, 0)}>←</Button>
-                  <Button variant="quiet" size="sm" aria-label="Pan world up" onClick={() => panBy(0, -64)}>↑</Button>
-                  <Button variant="quiet" size="sm" aria-label="Pan world down" onClick={() => panBy(0, 64)}>↓</Button>
-                  <Button variant="quiet" size="sm" aria-label="Pan world right" onClick={() => panBy(64, 0)}>→</Button>
-                  <Button variant="quiet" size="sm" aria-label="Center world view" onClick={() => setCamera(initialCamera(pondSize))}>Center</Button>
-                  <Button variant="quiet" size="sm" aria-label="Zoom in" disabled={camera.size === 192} onClick={() => zoomBy("in")}>Zoom +</Button>
-                  <Button variant="quiet" size="sm" aria-label="Zoom out" disabled={camera.size === Math.min(320, pondSize)} onClick={() => zoomBy("out")}>Zoom −</Button>
-                </div>
-              </div>
-            </section>
-          ) : null}
-
-          <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 py-2">
-            <span className="text-sm text-fg"><strong className="font-medium">World atlas</strong> · Fog of war, habitats and living creations</span>
-            <Button variant="quiet" size="sm" aria-expanded={atlasOpen} aria-controls="pond-world-atlas"
-              onClick={() => setAtlasOpen((old) => !old)}>{atlasOpen ? "Hide atlas" : "Open atlas"}</Button>
+          <div className="field-masthead-meta" aria-label="World statistics">
+            <span><span className="field-led-light" /> LIVE FIELD STUDY</span>
+            <span>{grains.toLocaleString()} <small>grains</small></span>
+            <span>{residentCount} <small>inhabitants</small></span>
           </div>
-          {atlasOpen ? (
-            <div id="pond-world-atlas">
-              <WorldAtlas sim={sim} atlas={atlas} camera={camera} residents={mapResidents}
-                revision={atlasRevision} onJump={jumpToAtlas}/>
-            </div>
-          ) : null}
-
-          {ecosystemNews ? (
-            <p className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm text-muted">
-              <span className="font-medium text-fg">Pond life</span> · {ecosystemNews}
-            </p>
-          ) : null}
-
-          <div className="rounded-xl bg-surface p-2 shadow-[0_0_0_1px_var(--color-border)]">
-            <div className="grid grid-cols-5 gap-1 sm:grid-cols-10">
-              {PALETTE.map((item) => {
-                const on = tool === item.id;
-                return (
-                  <button
-                    key={item.name}
-                    type="button"
-                    title={item.blurb}
-                    aria-label={item.name}
-                    aria-pressed={on}
-                    onClick={() => { setTool(item.id); setSpecimenId(null); }}
-                    className={cn(
-                      "pond-tool-button flex h-11 flex-col items-center justify-center gap-1 rounded-md transition-[background-color,box-shadow,transform] duration-150",
-                      on ? "bg-surface-2 shadow-[0_0_0_1px_var(--color-border-strong)]" : "hover:bg-surface-2/60",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "pond-material-swatch size-5 rounded-full shadow-[0_0_0_1px_rgb(255_255_255/12%)]",
-                        item.swatch,
-                        item.id === WIND && "flex items-center justify-center",
-                      )}
-                    >
-                      {item.id === WIND ? <Wind className="size-2.5 text-accent-fg" /> : null}
-                    </span>
-                    <span className={cn("text-[10px] leading-none", on ? "text-fg" : "text-muted")}>
-                      {item.name}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <section aria-label="Discovery workbench" className="rounded-xl bg-surface p-3 shadow-[0_0_0_1px_var(--color-border)]">
-            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-display text-lg">Discovery lab</h2>
-              <p className="text-xs text-muted tabular-nums">{discovered.length.toLocaleString()} found · {OUTCOME_SPACE.toLocaleString()} procedural possibilities</p>
-            </div>
-            <div className="mb-2 flex items-center gap-3">
-              {featured ? <DiscoveryGlyph outcome={featured} size={58} className="shrink-0" /> : null}
-              <p role="status" aria-live="polite" className="min-w-0 text-sm text-muted">{lastMix}</p>
-            </div>
-            {featured ? (
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const material = paintMaterial(featured);
-                    setTool(material);
-                    setSpecimenId(null);
-                    setLastMix("Brush selected: " + toolById(material).name + ". This is the closest existing physics material; your discovery's identity stays in the lab.");
-                  }}
-                  className="min-h-10 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-accent-fg"
-                >
-                  Paint using {toolById(paintMaterial(featured)).name}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSpecimenId(featured.id);
-                    setLastMix("Place " + featured.name + ": tap or press Enter on the pond to add a living specimen. Each creation moves and affects its surroundings.");
-                  }}
-                  className="min-h-10 rounded-lg border border-border-strong bg-surface-2 px-3 py-2 text-sm text-fg"
-                >
-                  Place in pond
-                </button>
-                {featuredProfile ? (
-                  <p className="text-xs text-muted">
-                    {featuredProfile.mode} · {featuredProfile.influence} · Size {featuredProfile.size}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-            <div className="mb-2 flex items-center gap-2">
-              <input
-                type="search"
-                value={mixSearch}
-                onChange={(event) => setMixSearch(event.target.value)}
-                placeholder="Search discoveries"
-                aria-label="Search unlocked discoveries"
-                className="min-h-10 w-full min-w-0 rounded-lg border border-border bg-surface-2 px-3 text-sm text-fg placeholder:text-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              />
-              {firstMix ? (
-                <button type="button" className="shrink-0 text-sm text-muted underline" onClick={() => { setFirstMix(null); setLastMix("Combination canceled."); }}>
-                  Cancel
-                </button>
-              ) : null}
-            </div>
-            <div className="grid max-h-48 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3" aria-label="Unlocked discoveries">
-              {visibleDiscoveries.map((outcome) => (
-                <button
-                  key={outcome.id}
-                  type="button"
-                  title={outcome.name}
-                  aria-label={"Mix " + outcome.name}
-                  aria-pressed={firstMix === outcome.id}
-                  onClick={() => chooseMix(outcome.id)}
-                  className={cn(
-                    "flex min-h-14 items-center gap-2 rounded-lg border px-2 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline focus-visible:outline-2",
-                    firstMix === outcome.id ? "border-accent bg-surface-2" : "border-border hover:border-border-strong hover:bg-surface-2",
-                  )}
-                >
-                  <DiscoveryGlyph outcome={outcome} size={34} className="shrink-0" />
-                  <span className="min-w-0 break-words text-fg">{outcome.name}</span>
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-muted">
-              {visibleDiscoveries.length} shown · Saved in this browser · Try combining a discovery with itself.
-            </p>
-          </section>
-
-          {specimenId ? (
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border-strong bg-surface-2 px-3 py-2 text-sm">
-              <span>Placing: <strong>{getOutcome(specimenId)?.name}</strong> · {residentCount}/{MAX_RESIDENTS} inhabitants</span>
-              <Button size="sm" variant="quiet" onClick={() => setSpecimenId(null)}>Done placing</Button>
-            </div>
-          ) : null}
-
-          <div className="flex items-center gap-2">
-            <div className="flex h-11 flex-1 items-center gap-1 rounded-md bg-surface px-2 shadow-[0_0_0_1px_var(--color-border)]">
-              {BRUSHES.map((b) => (
-                <button
-                  key={b}
-                  type="button"
-                  aria-label={`Brush ${b}`}
-                  onClick={() => setBrush(b)}
-                  className={cn(
-                    "flex h-9 flex-1 items-center justify-center rounded-sm transition-colors duration-150",
-                    brush === b ? "bg-surface-2" : "hover:bg-surface-2/50",
-                  )}
-                >
-                  <span
-                    className="rounded-full bg-fg"
-                    style={{ width: 4 + b, height: 4 + b, opacity: brush === b ? 1 : 0.4 }}
-                  />
-                </button>
-              ))}
-            </div>
-            <Button variant="quiet" size="icon" aria-label="Undo" disabled={!canUndo} onClick={undo}>
-              <Undo2 className="size-4" />
+          <div className="field-header-actions">
+            <a href="/games/" className="field-return-link">← The Desk</a>
+            <Button variant="quiet" size="icon" className="field-header-action" aria-label={paused ? "Play" : "Pause"} title={paused ? "Resume simulation" : "Pause simulation"} onClick={() => setPaused((p) => !p)}>
+              {paused ? <Play size={17}/> : <Pause size={17}/>}
             </Button>
-            <Button variant="quiet" className="h-11 px-3" title="Shake the pond" onClick={shake}>
-              Shake
+            <Button variant="quiet" size="icon" className="field-header-action" aria-label={muted ? "Unmute" : "Mute"} title={muted ? "Enable sound" : "Mute sound"} onClick={() => { pondAudio.unlock(); setMuted((m) => !m); }}>
+              {muted ? <VolumeX size={17}/> : <Volume2 size={17}/>}
             </Button>
-            <Button variant="quiet" size="icon" className="size-11" aria-label="Clear dish" onClick={clear}>
-              <RotateCcw className="size-4" />
+            <Button variant="quiet" size="icon" className="field-header-action" aria-label="Open mixes" title="Recipe notebook" aria-pressed={guide} onClick={() => setGuide((g) => !g)}>
+              <BookOpen size={18}/>
             </Button>
           </div>
-
-          <div className="flex flex-wrap justify-center gap-2">
-            <Button
-              variant="quiet"
-              size="sm"
-              disabled={residentCount === 0}
-              onClick={() => {
-                checkpoint();
-                if (ecosystem.removeLast()) setResidentCount(ecosystem.count);
-              }}
-            >
-              Remove last resident
-            </Button>
-            <Button variant="quiet" size="sm" onClick={exportWorld}>Export world</Button>
-            <Button variant="quiet" size="sm" onClick={() => fileRef.current?.click()}>Import world</Button>
-            <a href="/games/" className="inline-flex min-h-11 items-center px-3 text-sm text-muted underline">Back to games</a>
-            <input ref={fileRef} type="file" accept=".json,application/json" aria-label="Import Pond world" className="hidden" onChange={(e) => void importWorld(e.target.files?.[0])} />
-          </div>
-          <p role="status" className="text-center text-xs text-muted">{saveMessage}</p>
-          <p className="min-h-5 text-center text-sm text-muted">
-            <span className="text-fg">{selected.name}</span>
-            <span className="mx-1.5 text-subtle">·</span>
-            {HINTS[hintIndex]}
-          </p>
-        </div>
-      </div>
+        </header>
       ) : null}
 
-      {guide ? (
-        <div
-          className="fixed inset-0 z-20 flex items-end justify-center bg-bg/70 p-3 sm:items-center"
-          onClick={() => setGuide(false)}
-        >
-          <div
-            ref={guideRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mixes"
-            tabIndex={-1}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") setGuide(false);
-              if (e.key === "Tab") { e.preventDefault(); guideRef.current?.querySelector<HTMLButtonElement>("button")?.focus(); }
-            }}
-            className="max-h-[85dvh] overflow-y-auto w-full max-w-md rounded-xl bg-surface p-5 shadow-[0_0_0_1px_var(--color-border),0_24px_48px_rgb(0_0_0/40%)] pond-enter"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <h2 className="font-display text-xl font-medium tracking-tight">Mixes</h2>
-                <p className="mt-1 text-sm text-muted">Things to try. Nothing is required.</p>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => setGuide(false)}>
-                Close
-              </Button>
+      <div className="field-workspace">
+        <section className="field-observation" aria-label="Living pond simulation">
+          <div className="field-observation-heading">
+            <div>
+              <p className="field-eyebrow">01 / OBSERVATION CHAMBER</p>
+              <h2>Make a living world<span className="field-heading-dot">.</span></h2>
+              <p className="field-observation-sub">An endless experiment in little things.</p>
             </div>
+            <span className="field-chamber-stamp" aria-hidden="true">EST. ∞</span>
+          </div>
+          <div className="field-stage-plinth">
+            <span className="field-plinth-tick field-plinth-tick--top" aria-hidden="true">N · 00</span>
+            <span className="field-plinth-tick field-plinth-tick--left" aria-hidden="true">FIELD / A</span>
+            <span className="field-plinth-tick field-plinth-tick--right" aria-hidden="true">SPECIMEN / 01</span>
+            <div className={cn(
+              "pond-glass-shell field-dish relative w-full aspect-square bg-dish p-2 transition-[border-radius] duration-300",
+              camera.size === pondSize ? "rounded-full" : "rounded-[1.5rem]",
+            )} style={{ boxShadow: "var(--shadow-dish)" }}>
+              <div className={cn("pond-dish-interior absolute inset-2 overflow-hidden bg-dish-well", camera.size === pondSize ? "rounded-full" : "rounded-[1.1rem]")}>
+                <PondCanvas
+                  key={pondSize + ":" + camera.size}
+                  sim={sim}
+                  enhancedGraphics={richGraphics}
+                  camera={camera}
+                  panMode={panMode}
+                  onPan={panBy}
+                  ecosystem={ecosystem}
+                  specimenId={specimenId}
+                  onSpecimenPlace={placeSpecimen}
+                  tool={tool}
+                  brush={brush}
+                  running={started}
+                  onStats={onStats}
+                  onStrokeStart={checkpoint}
+                  className="size-full"
+                />
+              </div>
+              <div aria-hidden="true" className="pond-glass-sheen pointer-events-none absolute inset-2" />
+              {toast ? <div role="status" className="field-stage-toast pointer-events-none absolute left-1/2 top-8 z-10 -translate-x-1/2 pond-enter">{toast}</div> : null}
+            </div>
+            <span className="field-plinth-tick field-plinth-tick--bottom" aria-hidden="true">ECOSYSTEM IN PROGRESS</span>
+          </div>
+          {started ? (
+            <div className="field-status-sill">
+              <div className="field-live-state">
+                <span className={cn("field-live-pulse", paused && "field-live-pulse--paused")} />
+                <span>{paused ? "Simulation paused" : "World in motion"}</span>
+              </div>
+              <p><strong>{specimenId ? (getOutcome(specimenId)?.name ?? "Discovery") : panMode ? "Explore mode" : selected.name}</strong> <span className="field-status-separator">/</span> {specimenId ? "Tap to place a specimen" : panMode ? "Drag to navigate" : "Paint inside the glass"}</p>
+              <span className="field-world-size">{pondSize} × {pondSize}</span>
+            </div>
+          ) : null}
+          {started && ecosystemNews ? (
+            <p className="field-ecosystem-ticker" aria-live="off"><Leaf size={14}/> <span>From the field:</span> {ecosystemNews}</p>
+          ) : null}
+        </section>
+
+        {started ? (
+          <>
+            <aside className="field-ledger" aria-label="Discovery notebook">
+              <section aria-label="Discovery workbench" className="field-panel field-discovery-panel">
+                <div className="field-panel-header">
+                  <p className="field-eyebrow">02 / THE SPECIMEN LEDGER</p>
+                  <div className="field-panel-heading">
+                    <h2>Discovery lab</h2>
+                    <FlaskConical size={23} strokeWidth={1.4} aria-hidden="true"/>
+                  </div>
+                  <p className="field-panel-description">Everything begins with a curious combination.</p>
+                </div>
+                <div className="field-ledger-number">
+                  <span className="field-count">{discovered.length.toLocaleString()} <small>found</small></span>
+                  <span className="field-count-note">of {OUTCOME_SPACE.toLocaleString()} possibilities</span>
+                </div>
+                <div className="field-mixing-tray" role="group" aria-label="Crafting slots">
+                  <div className={cn("field-mix-slot", firstMix && "field-mix-slot--active")}>
+                    <span className="field-slot-number">01 / FIRST ELEMENT</span>
+                    <span>{firstMix ? (getOutcome(firstMix)?.name ?? firstMix) : "Choose a discovery"}</span>
+                  </div>
+                  <span className="field-mix-plus" aria-hidden="true">+</span>
+                  <div className="field-mix-slot">
+                    <span className="field-slot-number">02 / SECOND ELEMENT</span>
+                    <span>{firstMix ? "Choose the next" : "Ready to combine"}</span>
+                  </div>
+                </div>
+                <div className="field-mix-result">
+                  {featured ? <DiscoveryGlyph outcome={featured} size={72} className="field-feature-glyph shrink-0" /> :
+                    <span className="field-feature-placeholder" aria-hidden="true"><Sparkles size={27}/></span>}
+                  <div className="min-w-0">
+                    <p className="field-eyebrow">LATEST FIELD NOTE</p>
+                    <p role="status" aria-live="polite" className="field-mix-message">{lastMix}</p>
+                  </div>
+                </div>
+                {featured ? (
+                  <div className="field-specimen-actions">
+                    <button type="button" onClick={() => {
+                      const material = paintMaterial(featured);
+                      setTool(material);
+                      setSpecimenId(null);
+                      setPanMode(false);
+                      setLastMix("Brush selected: " + toolById(material).name + ". This is the closest existing physics material; your discovery's identity stays in the lab.");
+                    }} className="field-primary-action">
+                      <Layers3 size={15} aria-hidden="true"/> Paint using {toolById(paintMaterial(featured)).name}
+                    </button>
+                    <button type="button" onClick={() => {
+                      setSpecimenId(featured.id);
+                      setPanMode(false);
+                      setLastMix("Place " + featured.name + ": tap or press Enter on the pond to add a living specimen. Each creation moves and affects its surroundings.");
+                    }} className="field-secondary-action">
+                      <Leaf size={15} aria-hidden="true"/> Place in pond
+                    </button>
+                    {featuredProfile ? <p className="field-specimen-profile">{featuredProfile.mode} · {featuredProfile.influence} · Size {featuredProfile.size}</p> : null}
+                  </div>
+                ) : null}
+                <div className="field-search-row">
+                  <label className="sr-only" htmlFor="pond-discovery-search">Search unlocked discoveries</label>
+                  <input id="pond-discovery-search" type="search" value={mixSearch} onChange={(event) => setMixSearch(event.target.value)}
+                    placeholder="Search the collection…" aria-label="Search unlocked discoveries" className="field-search-input"/>
+                  {firstMix ? <button type="button" className="field-cancel-mix" onClick={() => { setFirstMix(null); setLastMix("Combination canceled."); }}>Cancel</button> : null}
+                </div>
+                <div className="field-specimen-grid" aria-label="Unlocked discoveries">
+                  {visibleDiscoveries.map((outcome) => (
+                    <button key={outcome.id} type="button" title={outcome.name} aria-label={"Mix " + outcome.name}
+                      aria-pressed={firstMix === outcome.id} onClick={() => chooseMix(outcome.id)}
+                      className={cn("field-specimen-card", firstMix === outcome.id && "field-specimen-card--selected")}>
+                      <DiscoveryGlyph outcome={outcome} size={39} className="field-specimen-icon shrink-0"/>
+                      <span>{outcome.name}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="field-ledger-footnote">{visibleDiscoveries.length} specimens shown · Try combining a discovery with itself.</p>
+              </section>
+
+              <section className="field-panel field-atlas-panel">
+                <div className="field-panel-header field-atlas-heading">
+                  <p className="field-eyebrow">03 / THE EXPLORER'S MAP</p>
+                  <div className="field-panel-heading">
+                    <h2>World atlas</h2>
+                    <Map size={23} strokeWidth={1.5} aria-hidden="true"/>
+                  </div>
+                  <p className="field-panel-description">Chart places, inhabitants and wild habitats.</p>
+                </div>
+                <button type="button" className="field-atlas-toggle" aria-expanded={atlasOpen} aria-controls="pond-world-atlas"
+                  onClick={() => setAtlasOpen((open) => !open)}>
+                  <span>{atlasOpen ? "Fold the map" : "Unfold the map"}</span><span aria-hidden="true">{atlasOpen ? "−" : "+"}</span>
+                  <span className="sr-only">{atlasOpen ? "Hide atlas" : "Open atlas"}</span>
+                </button>
+                {atlasOpen ? <div id="pond-world-atlas" className="field-atlas-content"><WorldAtlas
+                  sim={sim} atlas={atlas} camera={camera} residents={mapResidents}
+                  revision={atlasRevision} onJump={jumpToAtlas}/></div> : null}
+              </section>
+            </aside>
+
+            <aside className="field-materials" aria-label="Materials and world controls">
+              <section className="field-panel field-tool-panel">
+                <div className="field-panel-header">
+                  <p className="field-eyebrow">04 / THE MATERIAL LIBRARY</p>
+                  <div className="field-panel-heading">
+                    <h2>Field kit</h2>
+                    <span className="field-kit-number">18 MATERIALS</span>
+                  </div>
+                  <p className="field-panel-description">Choose a substance, then paint the world.</p>
+                </div>
+                <div className="field-palette-grid" role="group" aria-label="Materials">
+                  {PALETTE.map((item) => {
+                    const on = tool === item.id && !specimenId;
+                    return (
+                      <button key={item.name} type="button" title={item.blurb} aria-label={item.name} aria-pressed={on}
+                        onClick={() => { setTool(item.id); setSpecimenId(null); setPanMode(false); }}
+                        className={cn("pond-tool-button field-material-tile", on && "field-material-tile--active")}>
+                        <span className={cn("pond-material-swatch field-material-dot", item.swatch, item.id === WIND && "flex items-center justify-center")}>
+                          {item.id === WIND ? <Wind size={13} className="text-accent-fg"/> : null}
+                        </span>
+                        <span>{item.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {specimenId ? <div className="field-placement-banner" role="status">
+                  <span><Leaf size={15}/> Placing <strong>{getOutcome(specimenId)?.name}</strong></span>
+                  <button type="button" onClick={() => setSpecimenId(null)}>Done placing</button>
+                </div> : null}
+                <div className="field-brush-kit">
+                  <div className="field-subhead"><span>BRUSH DIAMETER</span><span>{brush} PX</span></div>
+                  <div className="field-brush-sizes" role="group" aria-label="Brush size">
+                    {BRUSHES.map((b) => (
+                      <button key={b} type="button" aria-label={"Brush " + b} aria-pressed={brush === b}
+                        onClick={() => setBrush(b)} className={cn("field-brush-button", brush === b && "field-brush-button--active")}>
+                        <span style={{width: 5 + b, height: 5 + b}}/>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="field-utility-actions">
+                  <Button variant="quiet" size="sm" aria-label="Undo" disabled={!canUndo} onClick={undo}><Undo2 size={15}/> Undo</Button>
+                  <Button variant="quiet" size="sm" title="Shake the pond" onClick={shake}><Wind size={15}/> Shake</Button>
+                  <Button variant="quiet" size="sm" aria-label="Clear dish" onClick={clear}><RotateCcw size={15}/> Clear</Button>
+                </div>
+              </section>
+
+              <section className="field-panel field-world-panel">
+                <div className="field-panel-header">
+                  <p className="field-eyebrow">05 / TERRAIN & EXPLORATION</p>
+                  <div className="field-panel-heading"><h2>Shape the world</h2><Compass size={22} strokeWidth={1.5}/></div>
+                </div>
+                <div className="field-scene-presets" aria-label="World presets">
+                  {SCENES.map((preset) => (
+                    <button key={preset.id} type="button" onClick={() => stamp(preset.id)}
+                      aria-pressed={scene === preset.id}
+                      className={cn("field-scene-chip", scene === preset.id && "field-scene-chip--active")}>{preset.name}</button>
+                  ))}
+                </div>
+                <div className="field-expand-readout">
+                  <div><p className="field-subhead">CURRENT TERRITORY</p>
+                    <strong>{pondSize} <span>×</span> {pondSize}</strong>
+                    <small>{Math.round(Math.PI * Math.pow(pondSize / 2 - 1, 2)).toLocaleString()} playable cells</small>
+                  </div>
+                  <button type="button" className="field-expand-button" disabled={!nextSize} onClick={expandPond}>
+                    {nextSize ? "Expand pond to " + nextSize + " × " + nextSize : "Maximum pond size"}
+                    <span aria-hidden="true">↗</span>
+                  </button>
+                </div>
+                {(pondSize > 320 || camera.size < pondSize) ? (
+                  <section aria-label="World navigation" className="field-navigation">
+                    <div className="field-nav-top">
+                      <svg viewBox="0 0 100 100" width="58" height="58" aria-label="World overview and active viewport" role="img" className="field-nav-overview">
+                        <circle cx="50" cy="50" r="48" fill="#182823" stroke="#779181" strokeWidth="1.5"/>
+                        <rect x={camera.x / pondSize * 100} y={camera.y / pondSize * 100}
+                          width={camera.size / pondSize * 100} height={camera.size / pondSize * 100}
+                          fill="#cbddc8" fillOpacity=".18" stroke="#f1d9a1" strokeWidth="1.5" rx="2"/>
+                      </svg>
+                      <div><p className="field-subhead">VIEWPORT</p>
+                        <strong>{camera.size} × {camera.size}</strong>
+                        <small>{camera.x}, {camera.y} · Distant regions rest until explored</small>
+                      </div>
+                    </div>
+                    <div className="field-nav-controls">
+                      <Button variant={panMode ? "default" : "quiet"} size="sm" aria-pressed={panMode}
+                        onClick={() => setPanMode((value) => !value)}>{panMode ? "Explore: on" : "Explore / drag"}</Button>
+                      <Button variant="quiet" size="sm" aria-label="Pan world left" onClick={() => panBy(-64, 0)}>←</Button>
+                      <Button variant="quiet" size="sm" aria-label="Pan world up" onClick={() => panBy(0, -64)}>↑</Button>
+                      <Button variant="quiet" size="sm" aria-label="Pan world down" onClick={() => panBy(0, 64)}>↓</Button>
+                      <Button variant="quiet" size="sm" aria-label="Pan world right" onClick={() => panBy(64, 0)}>→</Button>
+                      <Button variant="quiet" size="sm" aria-label="Center world view" onClick={() => setCamera(initialCamera(pondSize))}>Center</Button>
+                      <Button variant="quiet" size="sm" aria-label="Zoom in" disabled={camera.size === 192} onClick={() => zoomBy("in")}>Zoom +</Button>
+                      <Button variant="quiet" size="sm" aria-label="Zoom out" disabled={camera.size === Math.min(320, pondSize)} onClick={() => zoomBy("out")}>Zoom −</Button>
+                    </div>
+                  </section>
+                ) : <p className="field-world-hint">Expand the basin to unlock cartographic navigation.</p>}
+                <div className="field-world-footer">
+                  <button type="button" aria-label={richGraphics ? "Switch to classic pixel graphics" : "Enable rich pixel graphics"}
+                    aria-pressed={richGraphics} onClick={toggleGraphics} className="field-graphics-toggle">
+                    <Sparkles size={15}/> Visuals: {richGraphics ? "Rich" : "Classic"}
+                  </button>
+                </div>
+              </section>
+              <section className="field-panel field-storage-panel">
+                <div className="field-panel-header">
+                  <p className="field-eyebrow">06 / FIELD ARCHIVE</p>
+                  <div className="field-panel-heading"><h2>Preserve your pond</h2><BookOpen size={19} strokeWidth={1.5}/></div>
+                </div>
+                <div className="field-archive-actions">
+                  <Button variant="quiet" size="sm" onClick={exportWorld}><Download size={16}/> Export world</Button>
+                  <Button variant="quiet" size="sm" onClick={() => fileRef.current?.click()}><Upload size={16}/> Import world</Button>
+                  <Button variant="quiet" size="sm" disabled={residentCount === 0} onClick={() => { checkpoint(); if (ecosystem.removeLast()) setResidentCount(ecosystem.count); }}>Remove last resident</Button>
+                </div>
+                <input ref={fileRef} type="file" accept=".json,application/json" aria-label="Import Pond world"
+                  className="sr-only" onChange={(event) => void importWorld(event.target.files?.[0])}/>
+                <p role="status" className="field-save-status">{saveMessage}</p>
+                <p className="field-hint"><strong>{selected.name}</strong> · {HINTS[hintIndex]}</p>
+              </section>
+            </aside>
+          </>
+        ) : null}
+      </div>
+
+      {guide ? (
+        <div className="fixed inset-0 z-30 flex items-end justify-center bg-[#07100f]/85 p-3 sm:items-center" onClick={() => setGuide(false)}>
+          <div ref={guideRef} role="dialog" aria-modal="true" aria-label="Mixes" tabIndex={-1}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") setGuide(false);
+              if (event.key === "Tab") { event.preventDefault(); guideRef.current?.querySelector<HTMLButtonElement>("button")?.focus(); }
+            }}
+            className="field-recipe-dialog pond-enter max-h-[85dvh] w-full max-w-lg overflow-y-auto p-6"
+            onClick={(event) => event.stopPropagation()}>
+            <div className="field-panel-heading mb-3">
+              <div><p className="field-eyebrow">THE NATURALIST'S RECIPE NOTES</p><h2 className="text-2xl font-display">Things to try</h2></div>
+              <Button variant="ghost" size="sm" onClick={() => setGuide(false)}>Close</Button>
+            </div>
+            <p className="field-panel-description mb-4">These are only the beginning. There are no required recipes.</p>
             <ul className="grid gap-3 sm:grid-cols-2">
-              {RECIPES.map((r) => (
-                <li key={r.id}>
-                  <p className="text-sm font-medium text-fg">{r.title}</p>
-                  <p className="text-sm text-muted">{r.body}</p>
-                </li>
-              ))}
+              {RECIPES.map((recipe) => <li key={recipe.id} className="field-recipe-card">
+                <p className="font-medium">{recipe.title}</p><p className="text-sm opacity-75">{recipe.body}</p>
+              </li>)}
             </ul>
           </div>
         </div>
       ) : null}
 
       {!started ? (
-        <div
-          className="absolute inset-0 z-30 w-full flex flex-col items-center justify-center bg-bg/62 px-6 text-center"
-        >
-          <h1 className="pond-enter font-display text-6xl font-medium tracking-tight sm:text-7xl">Pond</h1>
-          <p className="pond-enter pond-enter-2 mt-3 max-w-sm text-base text-muted leading-snug">
-            Paint a tiny world of sand, water, fire, and growing things.
-          </p>
-          <button type="button" onClick={begin} className="pond-enter pond-enter-3 mt-8 inline-flex h-12 items-center rounded-lg bg-accent px-7 text-base font-medium text-accent-fg">
-            Make a mess
-          </button>
-          <p className="pond-enter pond-enter-4 mt-4 text-sm text-subtle">Finger or mouse. No score.</p>
+        <div className="field-start-overlay">
+          <div className="field-start-card pond-enter">
+            <span className="field-start-emblem" aria-hidden="true"><Leaf size={30} strokeWidth={1.3}/></span>
+            <p className="field-eyebrow">AN EXPERIMENT IN POSSIBILITY · NO. 001</p>
+            <h1>Welcome to <em>Pond.</em></h1>
+            <p>Water becomes a world. A grain becomes a landscape. Every discovery begins with a little curiosity.</p>
+            <button type="button" onClick={begin} className="field-start-button">Make a mess <span aria-hidden="true">↗</span></button>
+            <small>Paint · Discover · Evolve · Explore</small>
+          </div>
         </div>
       ) : null}
     </main>
