@@ -1,6 +1,6 @@
 # Gridiron Blitz — B10 Go/No-Go and rollback register
 **Date:** 2026-11-20
-**Decision: NO-GO for commercial 1.0 or production merge.**
+**Decision: User has explicitly requested publication under Games as a free public beta. Commercial 1.0 remains NO-GO. Merge must honor required repository CI; deployment must be independently verified.**
 **Candidate:** draft PR #447, `feat/gridiron-blitz-b09-staging-20261120`.
 **Why:** outstanding legal/name clearance, physical-device/browser verification, real-player accessibility/comfort testing, public-staging save reload, full-site independent approval, and deployment/rollback proof.
 
@@ -47,4 +47,4 @@
 - Production merge, deployed SHA and real public URLs: **NOT PERFORMED**
 - Production rollback rehearsal: **NOT PERFORMED**
 
-**No honest commercial-1.0 or live claim until all applicable gates are documented and passed.**
+**User authorized a Games-section free beta release on 2026-11-20. The legal, physical-device and human QA blockers continue to bar a paid/commercial 1.0 claim. Merging is not proof of live deployment; verify the public route and catalog before describing it as live.**
