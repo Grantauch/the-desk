@@ -4,14 +4,14 @@ Related: issue #422, initial taxonomy release PR #421. This is a **source-code c
 
 ## Concrete changes in this batch
 
-- **The Hangman of Nuremberg**: replace the generic vector courtroom hero and Story Hub catalog thumbnail with a documented photograph of the 1945–46 trial. The image is from the Harry S. Truman Presidential Library and Museum, photo **72-873**, and its record identifies public-domain rights. Use a restrained grayscale treatment and label the photograph near the hero and in the source register.
+- **The Hangman of Nuremberg**: replace the generic vector courtroom hero and Story Hub catalog thumbnail with a documented photograph of the 1945–46 trial. The image is from the Harry S. Truman Presidential Library and Museum, photo **72-906**, and its record identifies public-domain rights. Use a restrained grayscale treatment and label the photograph near the hero and in the source register.
 - In the same lesson, replace the fake vector John C. Woods personnel portrait with an **actual 1946 photograph of Woods**. The surviving Wikimedia Commons reproduction is only 123 × 175 pixels: display at native size with a visible source credit, **not** upscaled as a cinematic portrait. The Commons file page marks it public domain.
 - **Two Sources**: point the standalone hub's Open Graph image at the same locally hosted and already credited 1973 Watergate photograph used by its Story Hub catalog, rather than the residual signal SVG.
 - No student answer fields, PIN, Turn In, direct assignment route, or shared runtime were changed.
 
 ## Source and rights references
 
-1. Nuremberg courtroom: [Harry S. Truman Library, photo 72-873](https://www.trumanlibrary.gov/photograph-records/72-873). Current source address: `https://s3.amazonaws.com/NARAprodstorage/lz/presidential-libraries/truman/photographs/72/72-873.jpg`. Source record states public domain.
+1. Nuremberg defendants and counsel: [Harry S. Truman Library, photo 72-906](https://www.trumanlibrary.gov/photograph-records/72-906). Current source address: `https://s3.amazonaws.com/NARAprodstorage/lz/presidential-libraries/truman/photographs/72/72-906.jpg`. Source record states public domain.
 2. Woods period portrait: [Wikimedia Commons, John C. Woods.jpg](https://commons.wikimedia.org/wiki/File:John_C._Woods.jpg), 1946, 123 × 175 pixels. Wikimedia Commons identifies the work as public domain in the United States. Current original image address: `https://upload.wikimedia.org/wikipedia/commons/1/15/John_C._Woods.jpg`.
 3. Two Sources: `/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg`; the existing catalog identifies a Yoichi Okamoto / National Archives photograph of the Watergate complex (May 1973). No new binary was introduced.
 
