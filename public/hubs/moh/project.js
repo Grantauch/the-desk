@@ -200,6 +200,9 @@
       grid.appendChild(entry);
     });
     $('[data-action="confirm-pick"]').disabled = !S.picked || S.taken.indexOf(S.picked) >= 0;
+    if (S.taken.length >= VETS.length && S.setupMode !== 'change') {
+      setupMsg('All 21 veterans have been chosen in your class. Ask your teacher to help you join a team or change an assignment. Your PIN is working.');
+    }
   }
   function confirmPick() {
     if (!S.picked || S.busy) return;
