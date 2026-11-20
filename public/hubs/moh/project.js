@@ -27,7 +27,7 @@
     finish: ['Use the checklist to find anything missing.', 'Read the full report. Fix anything that needs work.', 'Press Turn In on your own account. Both partners turn in separately.']
   };
   function fieldTip(f) {
-    if (f.kind === 'word') return 'Choose a word from the citation above. You can click a highlighted word.';
+    if (f.kind === 'word') return 'Choose one of the word buttons below the citation, then explain it in your own words.';
     if (f.kind === 'meaning') return 'Use a simple explanation, not just the same word again.';
     if (f.kind === 'why') return 'Start with what YOU noticed, then explain why you think it matters.';
     if (f.kind === 'box' && f.chapter === 'cite') return 'Read the numbered part of the citation above this box. Tell what it means in everyday language.';
