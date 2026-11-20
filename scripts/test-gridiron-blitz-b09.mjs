@@ -29,7 +29,7 @@ test('Game catalog includes exactly one Gridiron entry',()=>{
 test('B10 accessibility polish preserves keyboard and no-JS recovery',()=>{
   assert.match(game,/<noscript>/i);
   assert.match(game,/JavaScript is required to play/);
-  assert.equal((game.match(/<h1\\b/g)||[]).length,1,'Keep a single page heading for site validation');
+  assert.equal((game.match(/<h1\b/g)||[]).length,1,'Keep a single page heading for site validation');
   assert.match(game,/href="\.\/privacy\.html"/);
   assert.match(game,/\.pause-button\{min-width:44px;width:44px;min-height:44px\}/);
   assert.match(game,/\.pause-button\{width:44px;min-width:44px;min-height:45px;padding:7px\}/);
