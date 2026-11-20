@@ -1,0 +1,43 @@
+name: Medal of Honor classroom readiness
+
+on:
+  pull_request:
+    paths:
+      - 'apps-script/turn-in/**'
+      - 'public/hubs/moh/**'
+      - 'public/hubs/ush9-medal-of-honor-project.html'
+      - 'public/hubs/ush9-medal-of-honor-veteran.html'
+      - 'scripts/test-moh-project-browser.mjs'
+      - 'scripts/test-turn-in-app.cjs'
+      - '.github/workflows/moh-classroom-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medal-classroom-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  synthetic-classroom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --include=dev
+      - name: Test real Apps Script logic with synthetic students
+        run: npm run turn-in:test
+      - name: Run every veteran and partner Chromium journey
+        run: npm run moh:browser
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: medal-classroom-failures
+          path: browser-results/medal-of-honor/
+          if-no-files-found: ignore
