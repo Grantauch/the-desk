@@ -52,9 +52,9 @@ async function inspect(viewport, mobile) {
     await page.getByRole("heading", { name: "Field kit", exact: true }).waitFor();
     await page.getByRole("heading", { name: "World atlas", exact: true }).waitFor();
     await page.getByRole("button", { name: "Rich pixel graphics" }).waitFor();
-    assert.ok(pondAssets.some(a => /\\.js(?:\\?|$)/.test(a.url) && a.status === 200),
+    assert.ok(pondAssets.some(a => /\.js(?:\?|$)/.test(a.url) && a.status === 200),
       "Deployed Pond JavaScript asset loaded with 200");
-    assert.ok(pondAssets.some(a => /\\.css(?:\\?|$)/.test(a.url) && a.status === 200),
+    assert.ok(pondAssets.some(a => /\.css(?:\?|$)/.test(a.url) && a.status === 200),
       "Deployed Pond CSS asset loaded with 200");
     assert.equal(pondAssets.filter(a => a.status >= 400).length, 0, "No failed Pond asset responses");
 
@@ -85,7 +85,7 @@ async function inspect(viewport, mobile) {
     // One curated mix and its living specimen must be real, undoable gameplay.
     await page.getByRole("button", { name: "Mix Fire", exact: true }).click();
     await page.getByRole("button", { name: "Mix Water", exact: true }).click();
-    await page.getByText(/Fire \\+ Water = Steam/).waitFor();
+    await page.getByText(/Fire \+ Water = Steam/).waitFor();
     await page.getByRole("button", { name: "Place in pond", exact: true }).click();
     await canvas.click({ position: { x: 94, y: 95 } });
     await page.getByText(/1 living creations/).waitFor();
