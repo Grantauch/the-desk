@@ -1,0 +1,58 @@
+---
+export interface Counterfactual {
+  turningPoint: string;
+  alternative: string;
+  consequence: string;
+  limits: string;
+  whyItMatters: string;
+  sourceLabel?: string;
+  sourceUrl?: string;
+}
+interface Props { title: string; scenario?: Counterfactual }
+const { title, scenario } = Astro.props;
+---
+<section class="counterfactual" aria-labelledby="counterfactual-heading">
+  <div class="counterfactual-header">
+    <p class="counterfactual-kicker">WHY IT MATTERS · COUNTERFACTUAL HISTORY</p>
+    <h2 id="counterfactual-heading">What if history had gone differently?</h2>
+    <p>History did not have to unfold exactly as it did. Exploring another possible path helps explain why this story still matters.</p>
+  </div>
+  {scenario ? (
+    <div class="counterfactual-paths">
+      <article>
+        <p class="counterfactual-label">What actually happened</p>
+        <h3>{scenario.turningPoint}</h3>
+        <p>{scenario.whyItMatters}</p>
+      </article>
+      <article>
+        <p class="counterfactual-label">Imagine a different path</p>
+        <h3>{scenario.alternative}</h3>
+        <p>{scenario.consequence}</p>
+      </article>
+      <p class="counterfactual-qualification"><strong>What we cannot know:</strong> {scenario.limits}</p>
+      {scenario.sourceUrl && <p class="counterfactual-source">Historical reference: <a href={scenario.sourceUrl} target="_blank" rel="noopener noreferrer">{scenario.sourceLabel || 'View source'}</a></p>}
+    </div>
+  ) : (
+    <div class="counterfactual-context">
+      <p><strong>The significance of {title}:</strong> This story is worth studying because its events, choices or historical evidence help explain the world that followed.</p>
+      <p>Historians can explore what might have changed if a pivotal event had unfolded differently, but an alternative outcome is never a proven fact. A story-specific, evidence-based comparison will be added here after editorial review.</p>
+    </div>
+  )}
+  <p class="counterfactual-footnote">This is an explanation, not a quiz. Plausible alternatives are interpretations—not documented events.</p>
+</section>
+<style>
+.counterfactual{background:#1d2935;color:#f6f1e8;margin:2rem 0;padding:clamp(1.25rem,3vw,2.25rem);border-top:5px solid #e2ba72}
+.counterfactual-kicker{font:800 .7rem var(--font-mono);letter-spacing:.1em;color:#f1c783}
+.counterfactual h2{font:800 clamp(1.5rem,3vw,2.3rem)/1.15 var(--font-display);margin:.55rem 0}
+.counterfactual-header>p:last-child{max-width:70ch;line-height:1.65;color:#e4e8e8}
+.counterfactual-paths{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.counterfactual-paths article,.counterfactual-context{background:#30404d;padding:1.25rem}
+.counterfactual-paths h3{font:800 1.35rem var(--font-display);margin:.45rem 0}
+.counterfactual-label{font:800 .73rem var(--font-mono);color:#f1c783;text-transform:uppercase}
+.counterfactual-paths article>p:last-child,.counterfactual-context p{line-height:1.7}
+.counterfactual-context p+p{margin-top:1rem}
+.counterfactual-qualification,.counterfactual-source{grid-column:1/-1;line-height:1.65}
+.counterfactual-source a{color:#ffe0a6;text-decoration:underline}
+.counterfactual-footnote{font:.76rem var(--font-mono);color:#d6dedf;margin-top:1.2rem;line-height:1.65}
+@media(max-width:650px){.counterfactual-paths{grid-template-columns:1fr}}
+</style>
