@@ -33,8 +33,8 @@ import { storyHubs } from '../data/storyhubs';
       storyHubs.map((hub) => (
         <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition, 'storyhub-card--bytesize': hub.bytesize }]}>
           <a class="storyhub-card__cover" href={hub.href}>
-            <img src={hub.archivalCover?.src ?? hub.cover} alt={hub.archivalCover?.alt ?? hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" referrerpolicy="no-referrer" />
-            {hub.archivalCover && <span class="storyhub-card__archival-label">ARCHIVAL PHOTOGRAPH · NOT A RECONSTRUCTION</span>}
+            <img class:list={[hub.archivalCover?.kind === 'period-lithograph' && 'storyhub-card__cover-print']} src={hub.archivalCover?.src ?? hub.cover} alt={hub.archivalCover?.alt ?? hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" referrerpolicy="no-referrer" />
+            {hub.archivalCover && <span class="storyhub-card__archival-label">{hub.archivalCover.kind === 'period-lithograph' ? 'PERIOD LITHOGRAPH · ORIGINAL 1876 ARTWORK' : 'ARCHIVAL PHOTOGRAPH · PERIOD ORIGINAL'}</span>}
           </a>
 
           <div class="storyhub-card__body">
@@ -145,6 +145,11 @@ import { storyHubs } from '../data/storyhubs';
     min-height: 13rem;
     object-fit: cover;
     transition: transform 0.5s ease;
+  }
+
+  .storyhub-card__cover img.storyhub-card__cover-print {
+    object-fit: contain;
+    background: #f1e9db;
   }
 
   .storyhub-card__cover:hover img,
