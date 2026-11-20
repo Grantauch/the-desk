@@ -14,6 +14,11 @@ export interface StoryHub {
   blurb: string;
   cover: string;
   coverAlt: string;
+  /** Attribution for a verifiable historical cover image. */
+  coverCredit?: string;
+  coverSource?: string;
+  /** Preserve documentary composition where a central crop would be misleading. */
+  coverFit?: 'cover' | 'contain';
   topics: string[];
   inside: string[];
   /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
@@ -720,7 +725,9 @@ export const storyHubs: StoryHub[] = [
     question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
     blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
     cover: '/storyhub/hh/nuremberg/robert-jackson-nuremberg-archival.jpg',
-    coverAlt: 'Archival U.S. Army photograph of prosecutor Robert H. Jackson addressing the Nuremberg tribunal; not John C. Woods'
+    coverAlt: 'Archival U.S. Army photograph of prosecutor Robert H. Jackson addressing the Nuremberg tribunal; not John C. Woods',
+    coverCredit: 'U.S. Army photographer · Nuremberg Trials',
+    coverSource: 'https://commons.wikimedia.org/wiki/File:Prosecutor_Robert_Jackson_at_Nuremberg_Trials.jpg',
     topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
     inside: [
       'Decide how leaders accused of war crimes should be tried, then discover the 1946 verdicts.',
@@ -1448,7 +1455,10 @@ export const storyHubs: StoryHub[] = [
     blurb:
       'Four strikes across seventeen years reveal a system getting faster and more distant: local militia, outside troops, hired detectives, and finally a court order that could reach a national union without leaving the courtroom.',
     cover: '/storyhub/ush9/l015/assets/railroad-strike-1877-archival.jpg',
-    coverAlt: '1877 Harper’s Weekly engraving showing burning railroad facilities in Pittsburgh during the Great Railroad Strike'
+    coverAlt: '1877 Harper’s Weekly engraving showing burning railroad facilities in Pittsburgh during the Great Railroad Strike',
+    coverCredit: 'M. B. Leiser · Harper’s Weekly (1877)',
+    coverSource: 'https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_(cropped).jpg',
+    coverFit: 'contain',
     topics: ['great railroad strike', 'haymarket', 'homestead', 'pullman strike', 'labor injunctions'],
     inside: [
       'A rail-network timeline that shows the 1877 strike spreading city by city and records who answered it.',
@@ -1469,7 +1479,10 @@ export const storyHubs: StoryHub[] = [
     blurb:
       'Baseball owners create a league, set entry rules, and close the labor market while the players who produce the game are absent from the room. Students follow exactly where control moved and who gained it.',
     cover: '/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg',
-    coverAlt: 'Public-domain 1876 Chicago White Stockings club portrait, one of the original National League teams'
+    coverAlt: 'Public-domain 1876 Chicago White Stockings club portrait, one of the original National League teams',
+    coverCredit: '1876 Chicago White Stockings · photographer unknown',
+    coverSource: 'https://commons.wikimedia.org/wiki/File:1876_Chicago_White_Stockings.jpg',
+    coverFit: 'contain',
     topics: ['national league origins', 'william hulbert', 'club ownership', 'reserve rule', 'player labor'],
     inside: [
       'A four-clause charter audit that makes students identify the problem each owner rule was designed to solve.',
