@@ -358,6 +358,10 @@
     applying = false;
   }
 
+  function announceAccount() {
+    setTimeout(function () { window.dispatchEvent(new Event('desk-save:account')); }, 0);
+  }
+
   function answeredCount(list) {
     return list.filter(function (e) { return clean(e.a); }).length;
   }
@@ -857,6 +861,7 @@
       }
       state.classroomUrl = classroomAssignmentUrl(result.classroomUrl);
       persist();
+      announceAccount();
       var hello = state.firstName ? 'Welcome back, ' + state.firstName + '. ' : '';
       return { ok: true, message: hello + (restored ? restored + ' answers brought back. ' : (!draft ? 'No account copy was found for this assignment. ' : 'Your account copy is loaded. ')) + 'Check your name before saving.' };
     }).catch(function (error) {
@@ -1508,9 +1513,14 @@
     ui.refresh = function (note) {
       if (typeof note === 'string') { message = note; messageGood = false; }
       var list = answers(true);
-      var count = answeredCount(list);
       var hash = hashOf(list);
-      var total = list.length;
+      // Boxes a page marks data-desk-uncounted (a partner's part of a shared
+      // project, for example) still save, but do not count toward "answered".
+      var uncounted = {};
+      fields().filter(function (el) { return el.hasAttribute('data-desk-uncounted'); }).forEach(function (el) { uncounted[keyOf.get(el)] = true; });
+      var counted = list.filter(function (e) { return !uncounted[e.k]; });
+      var count = answeredCount(counted);
+      var total = counted.length;
       if (resumeHost) {
         var pending = pendingCloud();
         resumeHost.host.setAttribute('data-signed-in', state.token ? 'true' : 'false');
@@ -1971,6 +1981,12 @@
     }
     window.__deskSave.ready = true;
     window.__deskSave.hub = hub;
+    // Pages with shared work (project teams) call Turn In with the signed in
+    // account session. The PIN itself is never exposed.
+    window.__deskSave.account = function () {
+      return state && state.token ? { token: state.token, firstName: state.firstName, classPeriod: state.classPeriod, endpoint: ENDPOINT, hub: hub, course: course, device: device } : null;
+    };
+    if (state.token) announceAccount();
     if (testHooks) {
       window.__deskSave.state = function () { return JSON.parse(JSON.stringify(state)); };
       window.__deskSave.answers = function () { return answers(true); };

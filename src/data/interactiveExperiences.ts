@@ -128,6 +128,17 @@ export const interactiveExperiences: Hub[] = [
     blurb: 'A top down bootlegging game on a map traced from Mt. Morris. Run liquor, hijack rival trucks and outrun police roadblocks and federal dry agents. Hit the ramps, race the hot runs, and hunt sixteen hidden moonshine jugs with real Prohibition history inside. Fictional people and events.',
   },
   {
+    name: 'medal of honor project',
+    section: 'investigation',
+    course: 'u.s. history 9',
+    kind: 'research project',
+    theme: 'press',
+    previewEyebrow: '21 veterans · 1917 to 1918',
+    href: '/hubs/ush9-medal-of-honor.html',
+    blurb:
+      'Pick one of 21 Americans who earned the Medal of Honor in World War I, read his story and his official citation, then build a research report, a hand drawn wall poster and a memorial screen with a partner or alone.',
+  },
+  {
     name: 'over there',
     section: 'simulation',
     course: 'u.s. history 9',
