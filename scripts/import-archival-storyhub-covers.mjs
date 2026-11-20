@@ -51,7 +51,7 @@ function commonsUrl(name, width) {
   const canonical = name.replaceAll(" ", "_");
   const hash = createHash("md5").update(canonical).digest("hex");
   // Wikimedia requires RFC3986-escaped parentheses in upload paths.
-  const path = encodeURIComponent(canonical).replace(/\\(/g, "%28").replace(/\\)/g, "%29");
+  const path = encodeURIComponent(canonical).replaceAll("(", "%28").replaceAll(")", "%29");
   const base = "https://upload.wikimedia.org/wikipedia/commons/";
   return width
     ? base + "thumb/" + hash[0] + "/" + hash.slice(0, 2) + "/" + path + "/" + width + "px-" + path
