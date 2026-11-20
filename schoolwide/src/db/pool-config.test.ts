@@ -3,6 +3,12 @@ import test from 'node:test';
 import { Client } from 'pg';
 import { databaseConnectionOptions } from './pool-config.js';
 
+function connectionParams(client: Client): { host: string; port: number } {
+  // node-postgres exposes this at runtime, but the published Client type
+  // does not declare it; only read the host and port in this regression test.
+  return (client as unknown as { connectionParameters: { host: string; port: number } }).connectionParameters;
+}
+
 test('explicit Unix socket wins over localhost in staging URL', () => {
   const options = databaseConnectionOptions({
     databaseUrl: 'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage',
@@ -17,8 +23,8 @@ test('explicit Unix socket wins over localhost in staging URL', () => {
   // Regression for node-postgres: a connectionString re-parsed by pg would
   // override the explicit socket host and silently select localhost TCP.
   const client = new Client(options);
-  assert.equal(client.connectionParameters.host, '/var/run/postgresql');
-  assert.equal(client.connectionParameters.port, 55432);
+  assert.equal(connectionParams(client).host, '/var/run/postgresql');
+  assert.equal(connectionParams(client).port, 55432);
 });
 
 test('Cloud SQL staging also retains its mounted socket', () => {
@@ -29,7 +35,7 @@ test('Cloud SQL staging also retains its mounted socket', () => {
   assert.equal(options.host, '/cloudsql/synthetic-project:region:instance');
   assert.equal(options.connectionString, undefined);
   const client = new Client(options);
-  assert.equal(client.connectionParameters.host, '/cloudsql/synthetic-project:region:instance');
+  assert.equal(connectionParams(client).host, '/cloudsql/synthetic-project:region:instance');
 });
 
 test('non-socket connections continue to use the original URL', () => {
