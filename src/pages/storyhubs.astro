@@ -33,7 +33,7 @@ import { storyHubs } from '../data/storyhubs';
       storyHubs.map((hub) => (
         <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition, 'storyhub-card--bytesize': hub.bytesize }]}>
           <a class="storyhub-card__cover" href={hub.href}>
-            <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
+            <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" class:list={[hub.coverFit === 'contain' && 'storyhub-card__cover--contain']} />
           </a>
 
           <div class="storyhub-card__body">
@@ -52,6 +52,12 @@ import { storyHubs } from '../data/storyhubs';
 
             <p class="storyhub-card__question">{hub.question}</p>
             <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
+            {hub.coverSource && hub.coverCredit && (
+              <p class="mt-2 font-mono text-[0.7rem] text-ink-soft">
+                <span>Historical cover source: </span>
+                <a href={hub.coverSource} target="_blank" rel="noopener" class="font-semibold underline underline-offset-2 hover:text-accent">{hub.coverCredit}</a>
+              </p>
+            )}
 
             <ul class="storyhub-card__inside">
               {hub.inside.map((item) => (
@@ -117,6 +123,11 @@ import { storyHubs } from '../data/storyhubs';
     min-height: 13rem;
     object-fit: cover;
     transition: transform 0.5s ease;
+  }
+  .storyhub-card__cover img.storyhub-card__cover--contain {
+    object-fit: contain;
+    background: #11171c;
+    padding: 0.35rem;
   }
 
   .storyhub-card__cover:hover img,
