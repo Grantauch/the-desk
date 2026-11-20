@@ -52,6 +52,34 @@ async function run(viewport) {
     assert.equal(response.status(), 200);
     await page.getByRole("button", { name: "Make a mess" }).click();
     await page.getByRole("heading", { name: "Discovery lab" }).waitFor();
+    // Layout contract: desktop has a three-zone field station; mobile puts
+    // the living pond first, tools second and the ledger below.
+    const chamber = page.locator(".field-observation");
+    const notebook = page.locator(".field-ledger");
+    const fieldKit = page.locator(".field-materials");
+    assert.ok(await chamber.isVisible() && await notebook.isVisible() && await fieldKit.isVisible());
+    const [chamberBox, notebookBox, kitBox] = await Promise.all([
+      chamber.boundingBox(), notebook.boundingBox(), fieldKit.boundingBox(),
+    ]);
+    assert.ok(chamberBox && notebookBox && kitBox);
+    if (viewport.width <= 400) {
+      assert.ok(chamberBox.y < kitBox.y && kitBox.y < notebookBox.y, "mobile should keep observation above tools and discovery");
+      assert.ok(chamberBox.width > 300, "mobile observation must use the device width");
+    } else {
+      assert.ok(notebookBox.x < chamberBox.x && chamberBox.x < kitBox.x, "desktop should use ledger / chamber / tools columns");
+      assert.ok(Math.abs(notebookBox.y - chamberBox.y) < 70, "desktop regions begin at the same baseline");
+    }
+    assert.ok(await page.locator(".field-stage-plinth").isVisible(), "bespoke glass field stage must render");
+    assert.ok(await page.getByRole("group", { name: "Crafting slots" }).isVisible());
+    assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
+    if (viewport.width <= 400) {
+      const quick = page.getByRole("navigation", { name: "Quick material tools" });
+      assert.ok(await quick.isVisible(), "mobile quick-material dock must be reachable");
+      await quick.getByRole("button", { name: "Quick Water" }).click();
+      assert.equal(await quick.getByRole("button", { name: "Quick Water" }).getAttribute("aria-pressed"), "true");
+      await quick.getByRole("button", { name: "Quick Sand" }).click();
+      assert.equal(await quick.getByRole("button", { name: "Quick Sand" }).getAttribute("aria-pressed"), "true");
+    }
     await page.getByRole("button", { name: "Mix Fire" }).click();
     await page.getByRole("button", { name: "Mix Water" }).click();
     await page.getByText(/Fire \+ Water = Steam/).waitFor();
@@ -70,18 +98,25 @@ async function run(viewport) {
     await page.getByText(/1 living creations/).waitFor();
     // The richer graphics are a real render option, not just a CSS label.
     // Undo has paused physics, so compare the same world in both render modes.
-    await page.getByRole("button", { name: "Switch to classic pixel graphics" }).click();
-    await page.getByRole("button", { name: "Enable rich pixel graphics" }).waitFor();
+    const graphics = pressed => page.getByRole("button", { name: "Rich pixel graphics", exact: true, pressed });
+    await graphics(true).click();
+    await graphics(false).waitFor();
     await page.waitForTimeout(100);
     const classicPixels = await page.getByRole("application").evaluate(el => el.toDataURL());
-    await page.getByRole("button", { name: "Enable rich pixel graphics" }).click();
-    await page.getByRole("button", { name: "Switch to classic pixel graphics" }).waitFor();
+    await graphics(false).click();
+    await graphics(true).waitFor();
     await page.waitForTimeout(100);
     const richPixels = await page.getByRole("application").evaluate(el => el.toDataURL());
     assert.notEqual(richPixels, classicPixels, "enhanced renderer must visually differ from the original");
     assert.equal(await page.evaluate(() => localStorage.getItem("pond-rich-graphics")), "1");
+    await graphics(true).click();
+    await graphics(false).waitFor();
+    assert.equal(await page.evaluate(() => localStorage.getItem("pond-rich-graphics")), "0");
     await page.reload({ waitUntil: "load" });
     await page.getByRole("button", { name: "Make a mess" }).click();
+    await graphics(false).waitFor();
+    await graphics(false).click();
+    await graphics(true).waitFor();
     await page.getByText(/1 living creations/).waitFor();
     await page.getByRole("button", { name: "Mix Steam" }).waitFor();
 
@@ -127,7 +162,7 @@ async function run(viewport) {
     await atlas.getByText(/% explored/).waitFor();
     await atlas.getByText("Discovered locations").waitFor();
     assert.ok(await atlas.getByRole("button", { name: "Select a location on the world map to explore" }).isVisible());
-    const beforePan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    const beforePan = await nav.locator(".field-nav-top small").textContent();
     const largeCanvas = page.getByRole("application");
     const rect = await largeCanvas.boundingBox();
     assert.ok(rect);
@@ -137,11 +172,11 @@ async function run(viewport) {
     await page.mouse.move(rect.x + rect.width * 0.35, rect.y + rect.height * 0.5, { steps: 8 });
     await page.mouse.up();
     for (let n = 0; n < 6; n++) await page.getByRole("button", { name: "Pan world right" }).click();
-    const afterPan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    const afterPan = await nav.locator(".field-nav-top small").textContent();
     assert.notEqual(afterPan, beforePan, "drag-and-pan changes the world camera");
     await atlas.getByRole("button", { name: "Select a location on the world map to explore" })
       .click({ position: { x: 235, y: 155 } });
-    const afterAtlasJump = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    const afterAtlasJump = await nav.locator(".field-nav-top small").textContent();
     assert.notEqual(afterAtlasJump, afterPan, "the atlas should navigate the world camera");
     await page.getByRole("button", { name: "Explore: on" }).click();
     // Selection still works when returning to painting/placement mode.
@@ -180,6 +215,9 @@ async function run(viewport) {
     assert.equal(overflow, false, "Pond should not overflow horizontally");
     assert.deepEqual(errors, [], "No browser errors");
     const name = viewport.width <= 400 ? "mobile" : "desktop";
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(150);
+    await page.screenshot({ path: out + "/" + name + "-top.png" });
     await page.screenshot({ path: out + "/" + name + ".png", fullPage: true });
     console.log("PASS Pond discovery, placement, undo, autosave, export on " + name);
     cases++;
