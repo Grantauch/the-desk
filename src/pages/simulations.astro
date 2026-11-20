@@ -128,9 +128,21 @@ const sims = [
 
 const interactiveSimulations = interactiveExperiences.filter((experience) => experience.section === 'simulation');
 const investigations = interactiveExperiences.filter((experience) => experience.section === 'investigation');
-// These Story Hubs remain narratives at their original URLs; their substantial interactive
-// models also deserve a way in through Simulations.
-const simulationStorySlugs = ['hh-they-couldnt-stop', 'ush9-bytesize-marne', 'ush9-bytesize-why-they-fought'];
+// Cross-listed because each Story Hub includes a substantial interactive system,
+// historical counterfactual, quantitative model, or experiential reconstruction.
+// The original story/assignment URL, persistence, and Turn In remain unchanged.
+const simulationStorySlugs = [
+  'hh-they-couldnt-stop',                    // contagion/stress model
+  'ush9-bytesize-marne',                    // 3D battle table and taxi model
+  'ush9-bytesize-why-they-fought',          // alliance dominoes and military data
+  'hh-bytesize-glomar',                    // deep-water salvage pressure/pipe model
+  'hh-living-history-02-device-in-your-pocket', // feed ranking and rumor spread
+  'hh-too-successful',                     // weather-seeding experiments
+  'hh-shines-in-the-dark',                 // radium dial studio simulation
+  'ush9-bytesize-the-line-that-wouldnt-move', // trenches and attack scenarios
+  'ush9-who-paid-for-it',                  // industrial integration/refinery takeover
+  'ush9-l018-the-debt-didnt-move',         // railroad-rate and farm debt model
+];
 const storyHubSimulations = storyHubs.filter((hub) => simulationStorySlugs.includes(hub.slug));
 ---
 
@@ -183,8 +195,8 @@ const storyHubSimulations = storyHubs.filter((hub) => simulationStorySlugs.inclu
   </section>
 
   <section class="mt-16" aria-labelledby="story-simulations-heading">
-    <h2 id="story-simulations-heading" class="font-display text-3xl font-bold lowercase">simulations inside story hubs<span class="text-accent">.</span></h2>
-    <p class="mt-2 mb-6 max-w-3xl text-ink-soft">These lessons remain in Story Hubs because the narrative matters. Their interactive models are also discoverable here without duplicating the assignment or changing its saved-work link.</p>
+    <h2 id="story-simulations-heading" class="font-display text-3xl font-bold lowercase">interactive models in story hubs<span class="text-accent">.</span></h2>
+    <p class="mt-2 mb-6 max-w-3xl text-ink-soft">Some Story Hubs contain substantial interactive models worth exploring in their own right. These are additional ways in, not duplicate assignments: opening one uses its original URL and preserved saved-work identity.</p>
     <div class="grid gap-5 md:grid-cols-3">
       {storyHubSimulations.map((hub) => (
         <article class="pop overflow-hidden rounded-md bg-white">
