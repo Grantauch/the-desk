@@ -2,6 +2,7 @@
 import Base from '../../../layouts/Base.astro';
 import StoryIntroTimeline from '../../../components/StoryIntroTimeline.astro';
 import StoryIntroMap from '../../../components/StoryIntroMap.astro';
+import StoryIntroCounterfactual from '../../../components/StoryIntroCounterfactual.astro';
 import { storyHubs } from '../../../data/storyhubs';
 import { interactiveExperiences } from '../../../data/interactiveExperiences';
 
@@ -63,6 +64,7 @@ const { entry } = Astro.props;
     </section>
     <StoryIntroTimeline period={entry.period} />
     <StoryIntroMap place={entry.unit} />
+    <StoryIntroCounterfactual title={entry.title} />
     <div class="intro-details">
       <section aria-labelledby="context-heading">
         <h2 id="context-heading">before you begin</h2>
