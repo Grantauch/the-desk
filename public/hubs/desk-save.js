@@ -44,6 +44,7 @@
   window.__deskSave = { version: '4' };
 
   var IDLE_SIGNOUT_MS = 20 * 60 * 1000;
+  var CURRENT_PIN_HELP = 'Use the PIN that works for Daily Check-In or Hall Pass now. Older PIN emails may be out of date.';
   var CLOUD_DEBOUNCE_MS = 15 * 1000;
   var CLOUD_MAX_WAIT_MS = 30 * 1000;
   // Long assignments may request a more frequent, bounded cloud cadence.
@@ -767,6 +768,7 @@
   /* ------------------------------------------------------------ actions -- */
 
   function signInFailure(message, code, supportId) {
+    if (code === 'bad_pin') message += ' ' + CURRENT_PIN_HELP;
     var legacyCodes = {
       bad_pin: 'TI-PIN',
       slow_down: 'TI-THROTTLE',
@@ -1215,13 +1217,13 @@
     var gateActions = make('form', { class: 'actions', method: 'post', autocomplete: 'off' });
     var gatePinLabel = make('label', {}, 'Hall pass PIN');
     // Shared classroom devices must not offer to retain another student's PIN.
-    var gatePin = make('input', { name: 'pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', required: '', maxlength: '6', minlength: '5', pattern: '[0-9]{5,6}', enterkeyhint: 'go' });
+    var gatePin = make('input', { name: 'pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', required: '', maxlength: '6', minlength: '5', pattern: '[0-9]{5,6}', enterkeyhint: 'go', 'aria-describedby': 'ds-gate-help' });
     gatePinLabel.appendChild(gatePin);
     var gateStart = make('button', { class: 'primary', type: 'submit' }, 'Start');
     gateActions.appendChild(gatePinLabel);
     gateActions.appendChild(gateStart);
     stepPin.appendChild(gateActions);
-    var gateHelp = make('p', { class: 'help' }, 'Forgot your PIN? Ask your teacher before you start.');
+    var gateHelp = make('p', { class: 'help', id: 'ds-gate-help' }, CURRENT_PIN_HELP + ' Need help? Ask your teacher.');
 
     var stepWho = make('div', { class: 'step', hidden: '' });
     var whoTitle = make('h2', { id: 'ds-gate-who-title' }, 'Is this you?');
@@ -1535,7 +1537,7 @@
         resumeText.textContent = state.token
           ? 'Signed in as ' + (state.firstName || 'your account') + (state.classPeriod ? ' · ' + state.classPeriod : '') + '. ' +
             (pending ? (cloudRetry ? 'Account save is retrying. Your latest work is in this tab.' : 'Latest edits are saved in this tab; account save is pending.') : (state.cloudAt ? 'Account save confirmed at ' + clock(state.cloudAt) + '.' : 'Ready to save your work.')) + ' Returning from another device? Enter your PIN again before editing to recover the latest account copy.'
-          : 'Enter your Hall Pass PIN to load your saved work or start saving to your account. Use the same PIN when you return, including on another Chromebook.';
+          : 'Enter your current Hall Pass PIN to load your saved work or start saving to your account. ' + CURRENT_PIN_HELP;
         if (compactUi && state.token) resumeText.textContent = (state.firstName || 'Your account') + (state.classPeriod ? ' · ' + state.classPeriod : '') + ' · ' + (cloudRetry ? 'Connection interrupted. Your work is kept here; saving will retry.' : (pendingCloud() ? 'Saving your progress…' : (state.cloudAt ? 'Saved to your account at ' + clock(state.cloudAt) + '.' : 'Autosave is on.')));
       }
       handoff.hidden = !(cloudOn && state.turnedInAt && hash === state.turnedInHash);
