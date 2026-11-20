@@ -116,6 +116,97 @@ const words = (n, seed) => Array.from({ length: n }, (_, i) => `${seed}${i}`).jo
 
 /* ------------------------------------------------------------- reading -- */
 
+await test('annotated exemplar is complete, accessible, printable and never becomes student work', async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const errors = [], external = [];
+  page.on('pageerror', error => errors.push(String(error)));
+  await context.route('**/*', route => {
+    if (new URL(route.request().url()).origin === BASE) return route.continue();
+    external.push(route.request().url());
+    return route.abort();
+  });
+  await page.goto(`${BASE}/hubs/ush9-medal-of-honor-exemplar.html`);
+  await page.addScriptTag({ url: `${BASE}/hubs/moh/spec.js` });
+  await page.addScriptTag({ url: `${BASE}/hubs/moh/veterans.js` });
+  const contentCheck = await page.evaluate(() => {
+    const fields = window.MOH.FIELDS.filter(f => f.kind !== 'gen');
+    return fields.flatMap(field => {
+      const element = document.querySelector(`[data-model-field="${field.id}"]`);
+      if (!element) return [`Missing ${field.id}`];
+      if (element.textContent.trim().length < field.min) return [`Too short: ${field.id}`];
+      if (field.kind === 'word' && !window.MOH_VETERANS[0].citation.toLowerCase().includes(element.textContent.trim().toLowerCase())) return [`Word absent from citation: ${field.id}`];
+      if (/poster-head|screen-title/.test(field.id) && element.textContent.trim().split(/\s+/).length > 5) return [`Long title: ${field.id}`];
+      if (/poster-quote|screen-quote/.test(field.id)) {
+        const text = element.textContent.trim();
+        if (text.split(/\s+/).length > 12 || !window.MOH_VETERANS[0].citation.includes(text)) return [`Invalid quote: ${field.id}`];
+      }
+      return [];
+    });
+  });
+  assert.deepEqual(contentCheck, [], 'all student-authored fields meet the current assignment requirements');
+  assert.equal(await page.locator('input,textarea,canvas,script[src*="desk-save"]').count(), 0, 'reading page has no account or answer controls');
+  assert.match(await page.locator('.model-label').first().textContent(), /Teacher-created model/);
+  const notes = await page.locator('.explanation').count();
+  assert.equal(notes, 11);
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(() => Promise.all([...document.images].map(img => { img.loading = 'eager'; return img.decode(); })));
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `viewport fit at ${width}`);
+    const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    assert.deepEqual(axe.violations.map(v => `${v.id}: ${v.nodes.map(n => n.target).join(' ')}`), [], `exemplar accessibility at ${width}`);
+    await page.screenshot({ path: `${OUT}/exemplar-${width}.png`, fullPage: true });
+    const toggle = page.locator('#toggle-notes');
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.locator('.explanation:visible').count(), 0);
+    assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
+    assert.equal(await page.locator('[data-model-field]').count(), 44, 'reading view retains every answer');
+    await page.emulateMedia({ media: 'print' });
+    assert.equal(await page.locator('.explanation:visible').count(), 0, 'clean print hides explanations');
+    if (width === 1440) await page.pdf({ path: `${OUT}/exemplar-clean.pdf`, format: 'Letter' });
+    await page.emulateMedia({ media: 'screen' });
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.locator('.explanation:visible').count(), notes);
+  }
+  await page.emulateMedia({ media: 'print' });
+  assert.equal(await page.locator('.explanation:visible').count(), notes, 'annotated print retains notes');
+  await page.pdf({ path: `${OUT}/exemplar-annotated.pdf`, format: 'Letter' });
+  await page.emulateMedia({ media: 'screen' });
+  assert.deepEqual(external, [], 'exemplar needs no remote services');
+  assert.deepEqual(errors, []);
+  const noJS = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
+  const staticPage = await noJS.newPage();
+  await staticPage.goto(`${BASE}/hubs/ush9-medal-of-honor-exemplar.html`);
+  assert.equal(await staticPage.locator('.explanation:visible').count(), notes);
+  assert.equal(await staticPage.locator('[data-example-controls]:visible').count(), 0);
+  assert.ok(await staticPage.locator('#screen img').evaluate(async img => { img.loading = 'eager'; await img.decode(); return img.naturalWidth === 1600; }));
+  await noJS.close();
+  await context.close();
+  const synthetic = world();
+  const cb = await chromebook(synthetic);
+  const work = await open(cb, '/hubs/ush9-medal-of-honor-project.html');
+  await passGate(work, synthetic.pin(PEOPLE.katherine));
+  assert.equal(await work.locator('.ws-step a[href*="exemplar.html"]').count(), 7, 'each project step links to its matching model section');
+  assert.equal(await work.locator('.ws-step a[href*="exemplar.html"][target="_blank"][rel="noopener"]').count(), 7, 'model opens alongside the assignment');
+  await work.locator('[data-mode="solo"]').click();
+  await work.locator('#pick-grid .vcard[data-slug="freddie-stowers"]').click();
+  await work.locator('[data-action="confirm-pick"]').click();
+  await work.locator('#moh-work').waitFor({ state: 'visible' });
+  await work.locator('#moh-a-fact-born').fill('My own draft about Stowers stays in my project.');
+  const [model] = await Promise.all([
+    cb.context.waitForEvent('page'),
+    work.locator('#step-facts a[href*="exemplar.html"]').click(),
+  ]);
+  await model.waitForLoadState();
+  assert.match(model.url(), /exemplar\.html#fact-file$/);
+  assert.equal(await work.locator('#moh-a-fact-born').inputValue(), 'My own draft about Stowers stays in my project.');
+  assert.equal(await model.locator('input,textarea,#desk-save-gate').count(), 0);
+  await cb.context.close();
+});
+
 await test('home and veteran pages read cleanly at phone and desktop widths', async () => {
   const s = world();
   const cb = await chromebook(s, { gate: false });
