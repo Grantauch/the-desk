@@ -1,0 +1,88 @@
+# Schoolwide staging ONLY. Real students/PINs/teacher accounts are prohibited.
+# From schoolwide/: docker compose --env-file deploy/.env.vps-stage -f deploy/vps-staging.compose.yml up -d --build
+name: grantdesk-schoolwide-staging
+
+x-schoolwide-environment: &schoolwide-environment
+  NODE_ENV: production
+  HOST: 0.0.0.0
+  PORT: "8787"
+  LOG_LEVEL: info
+  DATABASE_URL: "postgresql://grantdesk_stage:${SCHOOLWIDE_DB_PASSWORD:?Set a private DB password}@postgres:5432/grantdesk_schoolwide_stage"
+  DB_POOL_MAX: "10"
+  SCHOOLWIDE_INSTANCE_ID: vps-staging
+  DEPLOYMENT_TIER: staging
+  STAGING_PLATFORM: vps
+  RELEASE_SHA: "${SCHOOLWIDE_RELEASE_SHA:?Set the exact reviewed Git commit SHA}"
+  LEGACY_READ_ADAPTER_MODE: disabled
+  LEGACY_PRODUCTION_WRITES: forbidden
+  OPERATIONS_WORKERS_ENABLED: "false"
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: grantdesk_schoolwide_stage
+      POSTGRES_USER: grantdesk_stage
+      POSTGRES_PASSWORD: "${SCHOOLWIDE_DB_PASSWORD:?Set a private DB password}"
+    volumes:
+      - schoolwide_postgres_stage:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grantdesk_stage -d grantdesk_schoolwide_stage"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - schoolwide_internal
+    # Deliberately no published Postgres port.
+
+  migrate:
+    image: "grantdesk-schoolwide-staging:${SCHOOLWIDE_RELEASE_SHA:?Set the exact reviewed Git commit SHA}"
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    command: ["node", "dist/db/migrate.js"]
+    environment: *schoolwide-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - schoolwide_internal
+
+  app:
+    image: "grantdesk-schoolwide-staging:${SCHOOLWIDE_RELEASE_SHA:?Set the exact reviewed Git commit SHA}"
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment: *schoolwide-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:18787:8787"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - schoolwide_internal
+    # Application is available on the VPS loopback only, not the public internet.
+
+networks:
+  schoolwide_internal:
+
+volumes:
+  schoolwide_postgres_stage:
