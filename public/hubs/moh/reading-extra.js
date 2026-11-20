@@ -95,7 +95,28 @@
     'volunteered':'offered to do something without being forced to',
     'initiative':'taking useful action without being told exactly what to do',
     'determined':'firmly decided and unwilling to give up',
-    'resistance':'efforts to oppose an attacking force'
+    'resistance':'efforts to oppose an attacking force',
+    'enemy':'the opposing military force',
+    'position':'the place where troops or weapons are located',
+    'odds':'how likely success or failure seems',
+    'dived':'moved sharply downward through the air',
+    'fokker':'a type of German military airplane used in World War I',
+    'halberstadt':'a type of German military airplane used in World War I',
+    'patrol':'a trip made to watch an area or look for danger',
+    'reconnoiter':'to scout an area and gather information',
+    'hesitation':'a pause before taking action',
+    'evident':'clear or easy to see',
+    'determination':'strong willingness to keep trying',
+    'bank':'the land beside a river',
+    'cramps':'sudden painful tightening of muscles',
+    'swam':'moved through water without a boat',
+    'voluntary':'done by choice, not because it was required',
+    'charged':'rushed toward an enemy position',
+    'heavy':'large in amount or intensity, especially when describing fire or losses',
+    'noncommissioned officer':'a military leader who earned authority through enlisted ranks',
+    'observation':'the act of carefully watching or noticing',
+    'conspicuous gallantry':'very noticeable bravery under danger',
+    'intrepidity':'exceptional courage in a dangerous situation'
   };
   root.MOH_EXTRA = { lenses:LENSES, context:CONTEXT, terms:TERMS };
 })(typeof window !== 'undefined' ? window : globalThis);
