@@ -13,6 +13,7 @@
 .profile-explain{background:#f4f0e7;color:#252c38}
 .profile-explain .wrap{max-width:1140px}
 .profile-explain h2{color:#192436;margin-bottom:.8rem}
+.profile-explain .kicker{color:#654a22}
 .profile-explain h3{font:800 1.35rem/1.15 var(--display,Arial,sans-serif);color:#253146;margin:0 0 .5rem}
 .reading-deck{max-width:64rem;font:400 1.18rem/1.68 var(--serif,Georgia,serif);color:#27364a}
 .reading-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem;margin:1.5rem 0}
@@ -26,8 +27,8 @@
 .vocab-intro{max-width:62rem;font:400 1.1rem/1.55 var(--serif,Georgia,serif)}
 .vocab-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;margin:1.4rem 0}
 .vocab-card{border:1px solid #6b7890;border-radius:.65rem;padding:.75rem 1rem;background:#1a2c44;min-width:0}
-.vocab-card dt{font-weight:800;color:#f5d59d;font-size:1.02rem}
-.vocab-card dd{margin:.35rem 0 0;line-height:1.45;color:#f0f3f8}
+.vocab-card h3{font-weight:800;color:#f5d59d;font-size:1.02rem;margin:0}
+.vocab-card .definition{margin:.35rem 0 0;line-height:1.45;color:#f0f3f8}
 .vocab-chip{font-size:.78rem;letter-spacing:.1em;color:#aec5e3;margin:.3rem 0 .5rem;text-transform:uppercase}
 .vocab-note{font-size:.94rem;color:#d7e3f5}
 @media(max-width:820px){.reading-columns{grid-template-columns:1fr}.vocab-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -207,13 +208,13 @@
 
   /* Each veteran gets their citation definitions and WWI historical glossary. */
   var terms = extra.terms || {}, seen = {};
-  var cards = el('dl', { class: 'vocab-grid' });
+  var cards = el('div', { class: 'vocab-grid', role: 'list' });
   function addTerm(term, definition, label) {
     var normalized = String(term).toLowerCase().trim();
     if (seen[normalized] || !definition) return;
     seen[normalized] = true;
-    cards.appendChild(el('div', { class: 'vocab-card' }, [
-      el('dt', { text: term }), el('dd', { text: definition }),
+    cards.appendChild(el('div', { class: 'vocab-card', role: 'listitem' }, [
+      el('h3', { text: term }), el('p', { class: 'definition', text: definition }),
       el('p', { class: 'vocab-chip', text: label })
     ]));
   }
