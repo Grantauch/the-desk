@@ -986,3 +986,19 @@
   .field-start-button { transition:none; transform:none !important; }
   .field-start-overlay { backdrop-filter:none; }
 }
+
+
+/* The atlas lives in a sidebar on wide desktops; component breakpoints must
+   follow its parent width rather than the overall browser viewport. */
+.field-atlas-content > section > .grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.field-atlas-content > section > .grid > * {
+  min-width: 0;
+}
+.field-atlas-content canvas {
+  max-width: 100%;
+}
+.field-atlas-content [aria-label="Visited habitat landmarks"] {
+  grid-template-columns: minmax(0, 1fr);
+}
