@@ -1,0 +1,105 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { storyHubs } from '../../../data/storyhubs';
+import { interactiveExperiences } from '../../../data/interactiveExperiences';
+
+const immersiveNames = ['over there', 'over the somme', 'the arsenal', 'the line', 'over the top', 'a splendid little war?'];
+export function getStaticPaths() {
+  const entries = [
+    ...storyHubs.map(hub => ({
+      slug: hub.slug, title: hub.title, href: hub.href, cover: hub.cover,
+      coverAlt: hub.coverAlt, course: hub.course, period: hub.period, unit: hub.unit,
+      question: hub.question, blurb: hub.blurb, inside: hub.inside, topics: hub.topics,
+      format: hub.bytesize ? 'Short Story' : 'Story Hub'
+    })),
+    ...interactiveExperiences.filter(item => immersiveNames.includes(item.name)).map(item => ({
+      slug: item.href.split('/').pop()?.replace(/\.html$/, '') || item.name.replace(/\W+/g, '-'),
+      title: item.name, href: item.href, cover: '', coverAlt: '',
+      course: item.course, period: item.previewEyebrow, unit: item.kind,
+      question: item.blurb, blurb: '',
+      inside: ['Explore the historical environment and interactive models.',
+        'Examine the evidence and the choices presented along the way.',
+        'Distinguish documented events from classroom models and interpretations.'],
+      topics: [item.kind], format: 'Immersive Story'
+    }))
+  ];
+  const seen = new Set<string>();
+  return entries.filter(entry => {
+    if (seen.has(entry.slug)) return false;
+    seen.add(entry.slug);
+    return true;
+  }).map(entry => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+const { entry } = Astro.props;
+---
+<Base title={`${entry.title} | Introduction`} description={`Introduction to ${entry.title}: context, essential question and what to expect.`} wide>
+  <main class="intro-shell">
+    <nav aria-label="Story Hubs breadcrumb"><a href="/storyhubs/">← back to the story library</a></nav>
+    <section class="intro-hero" aria-labelledby="intro-title">
+      {entry.cover && <div class="intro-image"><img src={entry.cover} alt={entry.coverAlt} width="1200" height="675" /></div>}
+      <div class="intro-copy">
+        <p class="intro-kicker">{entry.course} · {entry.format}</p>
+        <p class="intro-label">introduction</p>
+        <h1 id="intro-title">{entry.title}</h1>
+        <p class="intro-era">{entry.period} · {entry.unit}</p>
+        <p class="intro-question">{entry.question}</p>
+        <a class="intro-start" href={entry.href}>begin the story →</a>
+        <p class="intro-help">You can return to this introduction from the library. Your lesson opens at its original address.</p>
+      </div>
+    </section>
+    <div class="intro-details">
+      <section aria-labelledby="context-heading">
+        <h2 id="context-heading">before you begin</h2>
+        <p>{entry.blurb || entry.question}</p>
+        <h2>the big question</h2>
+        <p>{entry.question}</p>
+        <h2>how to approach this story</h2>
+        <p>Pay attention to who created the evidence, when it was created, and whose perspective might be missing. Separate documented facts from interpretations or simulated choices. Be ready to explain what supports your answer.</p>
+      </section>
+      <section class="intro-side" aria-labelledby="expect-heading">
+        <h2 id="expect-heading">what you'll explore</h2>
+        <ul>{entry.inside.map((item: string) => <li>{item}</li>)}</ul>
+        <h2>reading preferences</h2>
+        <label class="reading-option"><input type="checkbox" id="intro-reduce-motion" /> Reduce movement on this introduction</label>
+        <p class="intro-note">Any lesson-specific audio, captions, or interactive settings are controlled inside that lesson when supported. This introduction does not claim to override them.</p>
+      </section>
+    </div>
+  </main>
+</Base>
+<style>
+.intro-shell{max-width:1200px;margin:0 auto;padding:1rem 0 4rem}
+.intro-shell nav{margin-bottom:1rem;font:700 .82rem var(--font-mono)}
+.intro-shell nav a{color:var(--color-accent-dark)}
+.intro-hero{display:grid;grid-template-columns:1fr 1fr;background:#152733;color:#fff;min-height:370px}
+.intro-image img{height:100%;width:100%;object-fit:cover}
+.intro-image{min-height:280px}
+.intro-copy{padding:clamp(1.5rem,4vw,3.5rem);display:flex;flex-direction:column;align-items:start;justify-content:center}
+.intro-kicker,.intro-label{font:700 .75rem var(--font-mono);text-transform:uppercase;letter-spacing:.08em;color:#e9bd71}
+.intro-label{color:#c5d4d9;margin-top:1.4rem}
+.intro-copy h1{font:800 clamp(2.1rem,4vw,4rem)/1.08 var(--font-display);margin:.3rem 0 .7rem}
+.intro-era{font:.8rem var(--font-mono);color:#c9d6da}
+.intro-question{font-size:1.2rem;line-height:1.55;margin:1.4rem 0}
+.intro-start{display:inline-flex;align-items:center;min-height:48px;padding:.75rem 1.3rem;background:#e8bc70;color:#17232b;font:800 .9rem var(--font-mono)}
+.intro-start:hover,.intro-start:focus-visible{background:#fff;color:#111}
+.intro-help{font-size:.76rem;color:#c9d6da;margin-top:1rem}
+.intro-details{display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(1.5rem,4vw,4rem);padding:2.3rem 0}
+.intro-details h2{font:800 1.45rem var(--font-display);margin:1.4rem 0 .65rem}
+.intro-details h2:first-child{margin-top:0}
+.intro-details p,.intro-details li{line-height:1.75;color:var(--color-ink-soft)}
+.intro-details ul{padding-left:1.2rem;list-style:disc}
+.intro-details li{margin-bottom:.6rem}
+.intro-side{background:#f6f0e4;padding:1.5rem;align-self:start}
+.reading-option{display:flex;align-items:center;gap:.6rem;line-height:1.5}
+.reading-option input{height:1.2rem;width:1.2rem}
+.intro-note{font-size:.78rem;margin-top:.8rem}
+.intro-start:focus-visible,.intro-shell a:focus-visible,.reading-option input:focus-visible{outline:3px solid #df622b;outline-offset:3px}
+@media(max-width:760px){.intro-hero,.intro-details{grid-template-columns:1fr}.intro-image{max-height:300px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<script>
+  const control=document.querySelector<HTMLInputElement>('#intro-reduce-motion');
+  control?.addEventListener('change',()=>{document.documentElement.classList.toggle('intro-reduced-motion',Boolean(control.checked));});
+</script>
+<style is:global>
+html.intro-reduced-motion .intro-shell *,html.intro-reduced-motion .intro-shell *::before,html.intro-reduced-motion .intro-shell *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+</style>
