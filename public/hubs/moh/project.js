@@ -331,14 +331,22 @@
   }
   function fillVeteranParts() {
     var v = currentVet(), parts = M.citationParts(v.citation);
-    $$('.cite-part').forEach(function (q) { q.textContent = parts[Number(q.getAttribute('data-part'))] || ''; });
+    $('.cite-part').forEach(function (q) { q.textContent = parts[Number(q.getAttribute('data-part'))] || ''; });
     var full = $('.full-cite'); full.innerHTML = '';
-    var words = v.words.map(function (w) { return w[0]; }), re = new RegExp('\\b(' + words.map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'gi'), last = 0, m;
+    var glossary = v.words.slice(), seen = {};
+    glossary.forEach(function (w) { seen[w[0].toLowerCase()] = true; });
+    var extra = window.MOH_EXTRA && window.MOH_EXTRA.terms || {};
+    Object.keys(extra).forEach(function (word) {
+      if (glossary.length >= 14 || seen[word.toLowerCase()]) return;
+      if (v.citation.toLowerCase().indexOf(word.toLowerCase()) < 0) return;
+      glossary.push([word, extra[word]]); seen[word.toLowerCase()] = true;
+    });
+    var words = glossary.map(function (w) { return w[0]; }), re = new RegExp('\\b(' + words.map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'gi'), last = 0, m;
     while ((m = re.exec(v.citation))) { full.appendChild(document.createTextNode(v.citation.slice(last, m.index))); full.appendChild(el('mark', {}, m[0])); last = m.index + m[0].length; }
     full.appendChild(document.createTextNode(v.citation.slice(last)));
     var chips = $('.word-chips'); chips.innerHTML = '';
-    v.words.forEach(function (w) {
-      var b = el('button', { type: 'button' }, w[0]);
+    glossary.forEach(function (w) {
+      var b = el('button', { type: 'button', title: w[1], 'aria-label': 'Use the word ' + w[0] }, w[0]);
       b.addEventListener('click', function () {
         var target = $$('.box.k-word').map(function (box) { return document.getElementById(box.getAttribute('data-field')); }).filter(function (i) { return owned(i.id) && !i.value.trim(); })[0];
         if (!target) { toast('Your word boxes are full. Delete one to use a different word.'); return; }
