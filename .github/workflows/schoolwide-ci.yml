@@ -67,6 +67,9 @@ jobs:
 
       - name: Verify Schoolwide foundation
         run: npm run verify
+      - name: Check VPS staging operator scripts syntax
+        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh
+
       - name: Verify isolated VPS staging Compose configuration
         env:
           SCHOOLWIDE_DB_PASSWORD: synthetic_ci_only_1234567890
