@@ -1,12 +1,8 @@
-## November 20 Blitzkrieg classroom playtest follow-up
+## November 19 Medal of Honor exhibit
 
-Built on the Phase 2 branch (#414), preserving the existing lesson link, local saves, map indices and daily rotation. The anonymous feedback became a checklist:
+Owner Codex. Redesigned the World War I project's landing page, 21 veteran profiles, student picker and workspace, teacher desk, and report cover. Kept the original URLs, project fields, official citations and assignment service. The gallery serves two WebP sizes per veteran, with source credits on every profile. Stowers uses the U.S. Army forensic reconstruction distributed by the National Park Service. Stockham's image is the medal awarded to him. The landing photograph is from the Library of Congress. The hero displays Frank Luke Jr.’s actual Medal of Honor, photographed by Ken LaRock for the U.S. Air Force, with brief glints and a still reduced-motion treatment.
 
-- **Fairness:** lighter standard units, flamethrowers, snipers and aircraft; less sniper damage and suppression. Motorcycles and aircraft show additional fictional hit markers during crewed play.
-- **Clarity and rewards:** visible permanent medals and banked support charges, clearer blocked construction zones with reasons, stronger combat upgrade tiers with stat and effect comparisons, and a selectable free refit that can be saved for later.
-- **Variety:** a Supply Farm, Repair Station, Dispatch Depot with road units or a short bomber flyover, and three different mini-bosses. Signal Junction adds a working turret train; Canal Loop adds two separate crossings.
-
-Seventeen focused automated checks and a seeded all-map integration smoke cover the mechanics and save compatibility. Required CI, a browser/Chromebook playtest and exact production readback remain distinct; a draft preview is not the classroom release.
+The focused Chromium suite passed all six journeys, including all 21 images, citations, maps and profile links, narrow layouts and automated accessibility, synthetic solo/partner work, class-specific claims, report printing and teacher presentation. Protected checks and production deployment are tracked separately. No classroom-device acceptance has been performed.
 
 ## November 19 experience catalog publication
 

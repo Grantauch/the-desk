@@ -1,16 +1,16 @@
 {
-  "blitzkrieg-classroom-playtest-2026-11-20": {
-    "status": "IMPLEMENTED",
-    "owner": "Dot",
-    "scope": "Follow-up to Phase 2 (PR #414): classroom-requested balance, construction, rewards, support units, and two bonus maps in the fictional standalone game.",
-    "verification_status": "FOCUSED_SIMULATION_AND_INTEGRATION_CHECKS_PROTECTED_CI_PENDING",
-    "deployment_status": "REVIEW_MERGE_AND_EXACT_PRODUCTION_READBACK_PENDING",
-    "field_status": "PHYSICAL_SCHOOL_CHROMEBOOK_PLAYTEST_PENDING",
+  "medal-of-honor-exhibit-2026-11-19": {
+    "status": "LOCAL_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Restyle the Medal of Honor exhibit, all 21 profiles, student and teacher tools, and report cover. Add locally served archival images with credits.",
+    "verification_status": "FOCUSED_CHROMIUM_6_OF_6",
+    "deployment_status": "PROTECTED_CI_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
     "evidence": [
-      "Ordinary and specialist enemy health is lower; sniper hit and suppression are shorter. Crewed fire exposes marked, fictional motorcycle and additional plane targets.",
-      "Command medals are shown separately from up to two banked in-battle support charges. Wave and crate rewards can bank a player-selected free refit for later. Placement uses clear reasons and shapes as well as color; combat upgrade tiers gain a modest extra damage/rate boost and buttons compare real effects.",
-      "Supply Farm, Repair Station and Dispatch Depot introduce distinct economy and support options. The depot branches into road patrol or a short bomber flyover. Three fictional mini-bosses replace one encounter rather than adding another wave.",
-      "Signal Junction loans a turret train; Canal Loop has two crossings. Appended maps preserve existing save indices and daily rotation. All play and saves remain local to the browser."
+      "All 21 images, official citations, maps, and profile links render. Tested the landing and profile at 320, 390, and 1440 pixels with automated WCAG A/AA checks.",
+      "Synthetic browser journeys passed for solo and paired work, same-class claim locking, the full report and teacher gallery.",
+      "The hero features a credited U.S. Air Force photograph of Frank Luke Jr.’s Medal of Honor with brief glints and a still reduced-motion treatment.",
+      "Stowers is a labeled U.S. Army forensic reconstruction. Stockham is represented by the medal awarded to him. Profile captions credit each visual source."
     ]
   },
   "experience-catalog-publication-2026-11-19": {
