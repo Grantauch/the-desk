@@ -50,7 +50,7 @@ const mappedLocations = locations.filter(point =>
         <div class="where-picker">
           <label for="story-place-picker">Explore a location</label>
           <select id="story-place-picker" data-map-select>
-            {mappedLocations.map((item,index)=><option value={index}>{item.label}</option>)}
+            {mappedLocations.map((item,index)=><option value={index} data-description={item.description}>{item.label}</option>)}
           </select>
         </div>
         <article aria-live="polite">
@@ -58,7 +58,6 @@ const mappedLocations = locations.filter(point =>
           <p data-map-description>{mappedLocations[0].description}</p>
         </article>
       </div>
-      <script type="application/json" data-map-locations set:html={JSON.stringify(mappedLocations).replace(/</g, '\\u003c')} />
       {(sourceLabel || sourceUrl) && (
         <p class="where-source">Map source: {sourceUrl ? <a href={sourceUrl} target="_blank" rel="noopener noreferrer">{sourceLabel || 'view source'}</a> : sourceLabel}</p>
       )}
@@ -102,15 +101,6 @@ document.querySelectorAll<HTMLElement>('[data-story-map]').forEach(widget=>{
   const title=widget.querySelector<HTMLElement>('[data-map-title]');
   const description=widget.querySelector<HTMLElement>('[data-map-description]');
   const status=widget.querySelector<HTMLElement>('[data-map-zoom-status]');
-  const entries=points.map(point=>({
-    label:select?.options[Number(point.dataset.mapPoint)]?.textContent || '',
-    description:''
-  }));
-  const explanations=Array.from(widget.querySelectorAll<HTMLOptionElement>('[data-map-select] option'));
-  // Location details are embedded in a safe JSON script instead of data attributes.
-  const payload=widget.querySelector<HTMLScriptElement>('[data-map-locations]');
-  let details:{label:string;description:string}[]=[];
-  try {details=payload?.textContent ? JSON.parse(payload.textContent):[];} catch {details=[];}
   let zoom=1;
   const setZoom=(value:number)=>{
     zoom=Math.min(2.5,Math.max(1,value));
@@ -121,8 +111,8 @@ document.querySelectorAll<HTMLElement>('[data-story-map]').forEach(widget=>{
     if(!Number.isInteger(index)||index<0||index>=points.length)return;
     points.forEach((point,i)=>point.setAttribute('aria-pressed',String(i===index)));
     if(select)select.value=String(index);
-    if(title)title.textContent=details[index]?.label||entries[index]?.label||'';
-    if(description)description.textContent=details[index]?.description||'';
+    if(title)title.textContent=select?.options[index]?.textContent||'';
+    if(description)description.textContent=select?.options[index]?.dataset.description||'';
   };
   points.forEach((point,i)=>point.addEventListener('click',()=>choose(i)));
   select?.addEventListener('change',()=>choose(Number(select.value)));
