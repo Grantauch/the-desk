@@ -20,11 +20,11 @@ test('Privacy defaults disable external analytics and unverified leaderboards',(
 });
 test('Pre-release metadata and privacy route are present',()=>{
   assert.match(game,/href="\.\/privacy.html"/);
-  assert.match(game,/noindex,nofollow/);
+  assert.doesNotMatch(game,/noindex,nofollow/);
   assert.match(game,/https:\/\/grant-desk.com\/hubs\/gridiron-blitz\//);
 });
 test('Game catalog includes exactly one Gridiron entry',()=>{
-  assert.equal(catalog.split("name: 'gridiron blitz · breakaway'").length-1,1);
+  assert.equal(catalog.split("name: 'gridiron blitz'").length-1,1);
   assert.match(catalog,/href: '\/hubs\/gridiron-blitz\/'/);
 });
 test('B10 accessibility polish preserves keyboard and no-JS recovery',()=>{
