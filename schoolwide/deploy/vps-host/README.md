@@ -68,7 +68,20 @@ A real two-device school browser pilot, production Google identity, district dat
 
 ## Backup and recovery
 
-The host's existing 02:15 filesystem backup includes directories under `/srv/*/data` but does not capture PostgreSQL clusters automatically. Add a distinct `pg_dump -Fc` of `grantdesk_schoolwide_stage` through port 55432 into `/srv/schoolwide/data/` before the nightly backup and verify it is included. Restore rehearsal MUST use a separate disposable database or cluster, never Margin or live Schoolwide. Preserve mode 0600 root-only archives and test off-server recovery. The backup script must fail on a database dump failure rather than silently copying only the folder.
+The host's existing 02:15 filesystem backup includes directories under `/srv/*/data` but does not capture PostgreSQL clusters automatically. Once an isolated synthetic-only database actually exists, run `sudo bash scripts/vps-host-staging-backup.sh` to create a mode-0600 `pg_dump -Fc` in `/srv/schoolwide/data/`, then verify the nightly host backup contains it. Schedule the staging dump *before* 02:15 (for example 02:05) only after the test database is ready, and monitor job failures. Restore rehearsal MUST use a separate disposable database or cluster, never Margin or live Schoolwide. This script checks dump format but does not itself establish a full restore, encryption or off-server recovery. Its failures must not be ignored.
+
+### Bounded, read-only staging probe
+
+After the restricted account, database migrations, service and exact SHA are independently verified, execute:
+
+```sh
+cd /srv/schoolwide/current
+EXPECTED_RELEASE_SHA="$(git -C /srv/schoolwide/repo rev-parse HEAD)" \
+  PROBE_REQUESTS=35 PROBE_CONCURRENCY=10 \
+  node scripts/vps-host-probe.mjs
+```
+
+For up to 150 total requests per endpoint, `PROBE_REQUESTS=150 PROBE_CONCURRENCY=10`. The probe is hard-coded to `http://127.0.0.1:18787`, accepts no student IDs/PINs, and only tests the public health route plus unauthorized teacher access. It records p50, p95 and p99 request latency without private payloads. **It is not a true 150-student Check-In/Hall Pass workload test.** That later test needs synthetic authenticated identities and full mutation/queue parity checks; do not claim classroom capacity from a health endpoint test.
 
 ## Rollback / safe stop
 
