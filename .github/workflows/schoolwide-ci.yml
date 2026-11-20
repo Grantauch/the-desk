@@ -57,7 +57,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install Schoolwide dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Apply database migrations
         run: npm run db:migrate
@@ -68,7 +68,7 @@ jobs:
       - name: Verify Schoolwide foundation
         run: npm run verify
       - name: Check VPS staging operator scripts syntax
-        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh
+        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh && node --check scripts/vps-host-probe.mjs
 
       - name: Verify isolated VPS staging Compose configuration
         env:
