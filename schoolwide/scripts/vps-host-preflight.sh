@@ -49,10 +49,23 @@ else
   warn 'systemctl not available; cannot verify service state.'
 fi
 
-if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+if [[ "${SCHOOLWIDE_STAGING_MODE:-docker}" == "vps-host" ]]; then
+  for binary in pg_createcluster pg_lsclusters systemctl node npm; do
+    if command -v "$binary" >/dev/null 2>&1; then
+      ok "$binary available for systemd host staging"
+    else
+      fail "$binary unavailable for systemd host staging."
+    fi
+  done
+  if [[ -n "$(ss -ltnH '( sport = :55432 )' 2>/dev/null)" ]]; then
+    warn 'Dedicated PostgreSQL 55432 already listening; confirm it is the Schoolwide staging cluster.'
+  else
+    ok 'Dedicated PostgreSQL staging port 55432 is free'
+  fi
+elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   ok 'Docker Compose available'
 else
-  fail 'Docker Compose unavailable; do not deploy the candidate yet.'
+  fail 'Docker Compose unavailable; choose vps-host mode or install Docker separately.'
 fi
 
 if command -v ss >/dev/null 2>&1; then
