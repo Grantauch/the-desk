@@ -1183,6 +1183,7 @@ function team_(request) {
       const mode = request.mode === 'pair' ? 'pair' : request.mode === 'solo' ? 'solo' : '';
       if (!mode) throw refuse_('bad_request', 'Choose alone or with a partner.');
       const choice = cleanChoice_(request.choice);
+      if (hub === TI_MOH_HUB && TI_MOH_VETERANS.indexOf(choice) < 0) throw refuse_('bad_choice', 'Pick a veteran from the project gallery.');
       assertChoiceFree_(teams, classPeriod, choice, null);
       let code = '';
       if (mode === 'pair') {
@@ -1212,6 +1213,7 @@ function team_(request) {
     if (!mine) throw refuse_('no_team', 'Start or join a team first.');
     if (op === 'choose') {
       const choice = cleanChoice_(request.choice);
+      if (hub === TI_MOH_HUB && TI_MOH_VETERANS.indexOf(choice) < 0) throw refuse_('bad_choice', 'Pick a veteran from the project gallery.');
       if (choice !== mine.choice) {
         assertChoiceFree_(teams, mine.classPeriod, choice, mine);
         mine.history += ` | ${stamp_(now)} ${firstName_(identity.name)} switched from ${mine.choice} to ${choice}`;
@@ -1289,7 +1291,6 @@ function validateMedalOwnership_(hub, email, requestedClass, course, answers) {
 function cleanChoice_(value) {
   const choice = String(value || '').trim().toLowerCase();
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(choice)) throw refuse_('bad_request', 'Pick a veteran first.');
-  if (TI_MOH_VETERANS.indexOf(choice) < 0) throw refuse_('bad_choice', 'Pick a veteran from the project gallery.');
   return choice;
 }
 
