@@ -32,13 +32,33 @@ import { storyHubs } from '../data/storyhubs';
     {
       storyHubs.map((hub) => (
         <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition, 'storyhub-card--bytesize': hub.bytesize }]}>
-          <a class="storyhub-card__cover" href={hub.href}>
-            <img class:list={[hub.archivalCover?.kind === 'period-lithograph' && 'storyhub-card__cover-print']} src={hub.archivalCover?.src ?? hub.cover} alt={hub.archivalCover?.alt ?? hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" referrerpolicy="no-referrer" onerror={hub.archivalCover ? `this.onerror=null;this.src='${hub.cover}'` : undefined} />
-            {hub.archivalCover && <span class="storyhub-card__archival-label">{hub.archivalCover.kind === 'period-lithograph' ? 'PERIOD LITHOGRAPH · ORIGINAL 1876 ARTWORK' : 'ARCHIVAL PHOTOGRAPH · PERIOD ORIGINAL'}</span>}
+          <a class="storyhub-card__cover" href={hub.href} data-archive-media={hub.archivalCover ? "" : undefined}>
+            {hub.archivalCover ? (
+              <>
+                <img
+                  class:list={[hub.archivalCover.kind === 'period-lithograph' && 'storyhub-card__cover-print']}
+                  src={hub.archivalCover.src}
+                  alt=""
+                  data-archive-image
+                  data-archive-alt={hub.archivalCover.alt}
+                  data-archive-fallback={hub.cover}
+                  data-archive-fallback-alt={hub.coverAlt}
+                  style="visibility:hidden"
+                  loading="lazy" decoding="async" width="1600" height="900" referrerpolicy="no-referrer"
+                />
+                <span
+                  class="storyhub-card__archival-label"
+                  data-archive-label
+                  data-archive-loaded-label={hub.archivalCover.kind === 'period-lithograph' ? 'PERIOD LITHOGRAPH · ORIGINAL 1876 ARTWORK' : 'ARCHIVAL PHOTOGRAPH · PERIOD ORIGINAL'}
+                >ARCHIVE IMAGE NOT SHOWN</span>
+              </>
+            ) : (
+              <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
+            )}
           </a>
 
           <div class="storyhub-card__body">
-            {hub.archivalCover && <p class="storyhub-card__source-note">Photo: <a href={hub.archivalCover.sourceUrl} target="_blank" rel="noopener noreferrer">{hub.archivalCover.credit}</a></p>}
+            {hub.archivalCover && <p class="storyhub-card__source-note">Archive record: <a href={hub.archivalCover.sourceUrl} target="_blank" rel="noopener noreferrer">{hub.archivalCover.credit}</a></p>}
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span class="text-xs font-mono lowercase text-accent">{hub.course}</span>
               <span class="text-xs font-mono lowercase text-ink-soft">· {hub.unit}</span>
@@ -77,6 +97,7 @@ import { storyHubs } from '../data/storyhubs';
       ))
     }
   </div>
+  <script is:inline src="/storyhub/runtime/archive-media.js" defer></script>
 </Base>
 
 <style>
