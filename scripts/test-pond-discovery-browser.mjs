@@ -147,7 +147,7 @@ async function run(viewport) {
     await atlas.getByText(/% explored/).waitFor();
     await atlas.getByText("Discovered locations").waitFor();
     assert.ok(await atlas.getByRole("button", { name: "Select a location on the world map to explore" }).isVisible());
-    const beforePan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    const beforePan = await nav.locator(".field-nav-top small").textContent();
     const largeCanvas = page.getByRole("application");
     const rect = await largeCanvas.boundingBox();
     assert.ok(rect);
@@ -157,11 +157,11 @@ async function run(viewport) {
     await page.mouse.move(rect.x + rect.width * 0.35, rect.y + rect.height * 0.5, { steps: 8 });
     await page.mouse.up();
     for (let n = 0; n < 6; n++) await page.getByRole("button", { name: "Pan world right" }).click();
-    const afterPan = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    const afterPan = await nav.locator(".field-nav-top small").textContent();
     assert.notEqual(afterPan, beforePan, "drag-and-pan changes the world camera");
     await atlas.getByRole("button", { name: "Select a location on the world map to explore" })
       .click({ position: { x: 235, y: 155 } });
-    const afterAtlasJump = await nav.getByText(/Viewing 256 × 256 cells at/).textContent();
+    const afterAtlasJump = await nav.locator(".field-nav-top small").textContent();
     assert.notEqual(afterAtlasJump, afterPan, "the atlas should navigate the world camera");
     await page.getByRole("button", { name: "Explore: on" }).click();
     // Selection still works when returning to painting/placement mode.
