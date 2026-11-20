@@ -16,14 +16,14 @@ export interface Hub {
 
 export const interactiveExperiences: Hub[] = [
   {
-    name: 'gridiron blitz · breakaway',
+    name: 'gridiron blitz',
     section: 'game',
     course: 'just for fun',
-    kind: '3d arcade football runner',
+    kind: 'free arcade football game',
     theme: 'scoreboard',
-    previewEyebrow: '100 yards · 3 lanes · 2 game modes',
+    previewEyebrow: 'free · 100 yards · two modes',
     href: '/hubs/gridiron-blitz/',
-    blurb: 'See the lane, beat the blitz, and run for the end zone. Full Drive and Score Attack, tactical defenses, earned uniforms and local career progress. No sign-in, tracking, purchases or public leaderboard.',
+    blurb: 'A free, noncommercial arcade football challenge on GrantDesk. Read the defense and run for the end zone in Full Drive or Score Attack. Earn uniforms and save career progress on this device—no sign-in, purchases, tracking, or public leaderboard.',
   },
 
   {
