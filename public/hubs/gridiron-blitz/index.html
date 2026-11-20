@@ -324,6 +324,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #f4fdbe!important;outline
 @media(forced-colors:active){button:focus-visible,a:focus-visible{outline:3px solid Highlight!important}.lane-chip.blocked,.lane-chip.recommended{border:2px solid Highlight}}
 </style>
   
+  <link rel="stylesheet" href="./console-ui.css" />
 </head>
 <body>
 <noscript><div style="position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#071218;color:#f3f5eb;padding:2rem;font:1rem/1.6 system-ui,sans-serif"><div style="max-width:34rem"><strong style="font-size:2rem;display:block;line-height:1.1;color:#d5fc57">GRIDIRON BLITZ</strong><h2>JavaScript is required to play.</h2><p>Enable JavaScript in this browser, then reload this page. Your original career data will remain in browser storage.</p><p><a style="color:#d5fc57" href="./privacy.html">Privacy & fair play</a> · <a style="color:#d5fc57" href="/games/">Back to games</a></p></div></div></noscript>
@@ -399,6 +400,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #f4fdbe!important;outline
 
   <div id="startPanel" class="overlay start-overlay">
     <div class="cover-lines" aria-hidden="true"><div></div><div></div><div></div></div>
+    <div class="console-topbar" aria-label="Game menu"><strong>BREAKAWAY / 04</strong><i class="console-divider" aria-hidden="true"></i><span>MAIN MENU</span><small>COLLEGE FOOTBALL ARCADE</small><span class="console-edition">SEASON 01</span></div>
     <div class="cover-grid">
       <section class="hero" aria-labelledby="titleHeading">
         <div class="hero-kicker"><span class="kicker-dash"></span> AN ORIGINAL ARCADE FOOTBALL EXPERIENCE <span class="kicker-edition">BREAKAWAY / 01</span></div>
@@ -419,6 +421,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #f4fdbe!important;outline
         <div class="aside-nav"><button type="button" id="careerFromTitle"><svg aria-hidden="true"><use href="#i-trophy"/></svg><span>CAREER RECORD</span><span>→</span></button><button type="button" id="lockerFromTitle"><svg aria-hidden="true"><use href="#i-locker"/></svg><span>LOCKER ROOM</span><span>→</span></button><button type="button" id="settingsFromTitle"><svg aria-hidden="true"><use href="#i-settings"/></svg><span>SETTINGS</span><span>→</span></button></div>
       </aside>
     </div>
+    <div class="console-footer" aria-hidden="true"><span><b>◀ ▶</b> SELECT MODE &nbsp; • &nbsp; <b>ENTER</b> PLAY</span><span>ORIGINAL ARCADE FOOTBALL / LOCAL SAVE</span></div>
   </div>
 
   <div id="pausePanel" class="overlay centered-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pauseHeading">
@@ -3617,5 +3620,9 @@ requestAnimationFrame(animationFrame);
 
 })();
 </script>
+<script>(()=>{const menu=document.getElementById('startPanel');if(!menu)return;const tiles=()=>Array.from(menu.querySelectorAll('.mode-choice,#playBtn,#guideFromTitle,#careerFromTitle,#lockerFromTitle,#settingsFromTitle')).filter(el=>el.getClientRects().length>0&&!el.disabled);
+function move(dir){const arr=tiles(),cur=document.activeElement;if(!arr.length)return;if(!arr.includes(cur)){arr[0].focus();return;}const r=cur.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;const found=arr.map(el=>{const b=el.getBoundingClientRect(),dx=b.left+b.width/2-x,dy=b.top+b.height/2-y;return{el,forward:dir==='left'?-dx:dir==='right'?dx:dir==='up'?-dy:dy,cross:dir==='left'||dir==='right'?dy:dx};}).filter(a=>a.forward>9).sort((a,b)=>(a.forward+Math.abs(a.cross)*1.2)-(b.forward+Math.abs(b.cross)*1.2));if(found[0])found[0].el.focus();}
+document.addEventListener('keydown',e=>{if(menu.classList.contains('hidden')||e.altKey||e.ctrlKey||e.metaKey)return;const dir={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'}[e.key];if(!dir||e.repeat)return;e.preventDefault();e.stopImmediatePropagation();move(dir);},true);
+let last='';function poll(){if(menu.classList.contains('hidden'))last='';else{let p;try{p=Array.from(navigator.getGamepads?.()||[]).find(g=>g?.connected)}catch{}const dir=p?.buttons[12]?.pressed?'up':p?.buttons[13]?.pressed?'down':p?.buttons[14]?.pressed?'left':p?.buttons[15]?.pressed?'right':'';const input=p?.buttons[0]?.pressed?'choose':dir;if(input&&input!==last){if(input==='choose'){const t=document.activeElement;if(t instanceof HTMLButtonElement&&menu.contains(t))t.click();else tiles()[0]?.focus();}else move(dir);}last=input;}requestAnimationFrame(poll);}requestAnimationFrame(poll);})();</script>
 </body>
 </html>
