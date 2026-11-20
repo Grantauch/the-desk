@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sourceEditionCommit": "705f56d139ab925203c70e8bbb7f628ff4511b74",
+  "commonQuestion": "How do preparation, opportunity and setbacks shape unexpected routes, and what can the evidence establish?",
+  "distribution": "Alternating A/B groups; complete one alternative only.",
+  "variants": {
+    "A": {
+      "players": [
+        "unitas",
+        "papale",
+        "lewis",
+        "gates",
+        "mailata"
+      ],
+      "nflCases": 5,
+      "otherSportCases": 1,
+      "writtenResponses": 3,
+      "writingTargetWords": [
+        270,
+        330
+      ],
+      "estimatedMinutes": [
+        35,
+        45
+      ],
+      "caseReadingWords": 1026,
+      "mainTextWords": 3025
+    },
+    "B": {
+      "players": [
+        "lane",
+        "bleier",
+        "warner",
+        "neal",
+        "aubrey"
+      ],
+      "nflCases": 5,
+      "otherSportCases": 1,
+      "writtenResponses": 3,
+      "writingTargetWords": [
+        270,
+        330
+      ],
+      "estimatedMinutes": [
+        35,
+        45
+      ],
+      "caseReadingWords": 972,
+      "mainTextWords": 3084
+    }
+  },
+  "comparisonNote": "Word counts include the authored case prose, not an estimate of individual student reading speed. Both have 5 NFL cases, 1 other-sport case, 5 evidence calls and 3 equal-length responses; B increases cognitive demand."
+}

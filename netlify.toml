@@ -106,6 +106,11 @@
   status = 301
 
 [[redirects]]
+  from = "/medal"
+  to = "/hubs/ush9-medal-of-honor.html"
+  status = 302
+
+[[redirects]]
   from = "/buzz"
   to = "/hubs/jeopardy-buzz.html"
   status = 301
@@ -133,7 +138,9 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
+    # Only the site itself and Margin (the classroom stage) may show these pages
+    # inside a frame. Everyone else is refused, as DENY did before.
+    Content-Security-Policy = "frame-ancestors 'self' https://margin.grant-desk.com"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"

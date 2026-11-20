@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Medal of Honor Project · the desk</title>
+<meta name="description" content="The Medal of Honor project workspace: pick a veteran, team up with a partner, and build a report, a wall poster and a memorial screen one step at a time.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-medal-of-honor-project.html">
+<link rel="stylesheet" href="/hubs/moh/moh.css">
+<style>
+body{padding-bottom:4rem}
+.ws-wait{padding:5rem 0;text-align:center}
+.ws-wait p{color:var(--mute)}
+/* setup */
+.setup{padding:2.5rem 0}
+.setup h2{margin-bottom:.6rem}
+.stage{margin-top:1.6rem}
+.cards2{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+.big-choice{text-align:left;border:2px solid var(--line);background:var(--navy2);color:var(--bone);border-radius:.9rem;padding:1.3rem;cursor:pointer;font:400 1rem/1.45 var(--ui)}
+.big-choice b{display:block;font:800 1.6rem/1.05 var(--display);text-transform:uppercase;color:var(--star);margin-bottom:.5rem}
+.big-choice:hover,.big-choice[aria-pressed="true"]{border-color:var(--bronze)}
+.join-row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
+.join-row input{font:800 2rem var(--display);letter-spacing:.35em;text-transform:uppercase;width:9.5rem;padding:.35rem .7rem;border-radius:.5rem;border:2px solid var(--line);background:var(--navy);color:var(--star);text-align:center}
+.msg{margin-top:1rem;padding:.8rem 1rem;border-radius:.5rem;background:rgba(194,69,47,.15);border:1px solid rgba(194,69,47,.6);color:#ffd9d1}
+.msg.good{background:rgba(79,174,124,.13);border-color:rgba(79,174,124,.6);color:#d6f5e4}
+.code-card{margin-top:1.2rem;background:var(--paper);color:var(--ink);border-radius:.8rem;padding:1.4rem 1.6rem;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap}
+.code-card .code{font:800 4rem/1 var(--display);letter-spacing:.3em}
+/* workspace */
+.ws-head{position:sticky;top:3.4rem;z-index:30;background:rgba(13,22,38,.97);border-bottom:1px solid var(--line);padding:.7rem 0}
+.ws-head .wrap{display:grid;grid-template-columns:1fr auto;gap:.6rem 1rem;align-items:center}
+.ws-title{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap}
+.ws-title a{font:600 .9rem var(--display);letter-spacing:.1em;text-transform:uppercase}
+.ws-team{color:var(--mute);font-size:.98rem}
+.ws-team strong{color:var(--bone)}
+.ws-actions{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
+.progress{grid-column:1/-1;height:.55rem;background:var(--navy3);border-radius:99px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ribbon),var(--bronze));transition:width .4s}
+.ws-body{display:grid;grid-template-columns:230px 1fr;gap:2rem;margin-top:1.6rem;align-items:start}
+.ws-steps{position:sticky;top:9.5rem}
+.ws-step h2:focus{outline:none}
+.ws-account{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);opacity:.9}
+.ws-steps ol{list-style:none;margin:0;padding:0;display:grid;gap:.35rem}
+.ws-steps button{width:100%;display:grid;grid-template-columns:2rem 1fr auto;align-items:center;gap:.6rem;text-align:left;background:var(--navy2);border:1px solid var(--line);color:var(--bone);border-radius:.6rem;padding:.55rem .7rem;cursor:pointer;font:600 1rem var(--ui)}
+.ws-steps button[aria-current="step"]{border-color:var(--bronze);background:var(--navy3)}
+.ws-steps .dot{display:grid;place-items:center;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--navy);border:2px solid var(--line);font:800 1rem var(--display)}
+.ws-steps .st{font-size:.82rem;color:var(--mute)}
+.ws-steps button.done .dot{background:var(--green);border-color:var(--green);color:var(--navy)}
+.ws-steps button.done .st{color:var(--green)}
+.ws-step h2{margin-bottom:.4rem}
+.step-intro{font:400 1.15rem/1.55 var(--serif);color:var(--bone);max-width:44rem}
+.group{margin-top:1.6rem;border:1px solid var(--line);border-radius:.9rem;padding:1.2rem 1.3rem;background:var(--navy2)}
+.group.mine{border-color:rgba(207,159,69,.55)}
+.group.theirs{background:transparent;border-style:dashed}
+.group.skip{display:none}
+.group-head{display:flex;align-items:center;gap:.7rem;margin-bottom:.4rem}
+.badge{font:800 .85rem var(--display);letter-spacing:.1em;text-transform:uppercase;padding:.2rem .55rem;border-radius:.3rem;background:var(--bronze);color:var(--ink)}
+.group.theirs .badge{background:var(--navy3);color:var(--mute)}
+.box{margin-top:1rem}
+.box label{display:block;font:600 1.08rem/1.35 var(--ui);color:var(--star);margin-bottom:.4rem}
+.box label .who{display:none}
+.box textarea,.box input[type=text]{width:100%;border-radius:.55rem;border:2px solid var(--line);background:#0a1120;color:var(--star);font:400 1.1rem/1.55 var(--serif);padding:.7rem .85rem}
+.box textarea{resize:vertical;min-height:6.2rem}
+.box textarea:focus,.box input[type=text]:focus{border-color:var(--ribbon);outline:none}
+.box.ok textarea,.box.ok input[type=text]{border-color:rgba(79,174,124,.75)}
+.box.pulse textarea,.box.pulse input[type=text]{animation:pulse 1.4s ease 2}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(207,159,69,.5)}}
+.box-foot{display:flex;justify-content:flex-end;min-height:1.3rem}
+.meter{font-size:.9rem;color:var(--mute)}
+.box.ok .meter{color:var(--green)}
+.k-word,.k-meaning{display:inline-block;vertical-align:top}
+.k-word{width:calc(35% - .5rem);margin-right:.5rem}
+.k-meaning{width:65%}
+.cite-part{margin:.2rem 0 .6rem;padding:.7rem .9rem;background:var(--paper);color:var(--ink);border-radius:.5rem;font:400 1.02rem/1.55 var(--serif)}
+.box.partner textarea,.box.partner input[type=text],.box.partner .box-foot,.box.partner .cite-part{display:none}
+.partner-view{background:rgba(255,255,255,.03);border:1px dashed var(--line);border-radius:.5rem;padding:.7rem .9rem;font:400 1.05rem/1.5 var(--serif);color:var(--bone);white-space:pre-wrap}
+.partner-view.empty{color:var(--mute);font-style:italic}
+.cite-panel{margin-top:1.4rem}
+.cite-panel blockquote{margin:.4rem 0 .8rem;font:400 1.08rem/1.7 var(--serif)}
+.cite-panel mark{background:rgba(207,159,69,.35);color:inherit;border-radius:.2rem;padding:0 .1rem}
+.word-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.word-chips button{border:1px solid #b48a3c;background:#fff6df;color:var(--ink);border-radius:99px;padding:.3rem .8rem;font:600 .95rem var(--ui);cursor:pointer}
+.chip-help{font-size:.95rem;color:var(--ink2);margin:0 0 .4rem}
+.pick-row{margin-top:1.1rem}
+.mini{color:var(--mute);font-size:.98rem;margin:.2rem 0 .5rem}
+.choice{display:flex;flex-wrap:wrap;gap:.5rem}
+.choice button{border:2px solid var(--line);background:var(--navy);color:var(--bone);border-radius:.5rem;padding:.55rem .9rem;font:600 1rem var(--ui);cursor:pointer}
+.choice button[aria-pressed="true"]{border-color:var(--bronze);background:rgba(207,159,69,.2);color:var(--star)}
+.group.theirs .choice,.group.theirs .pick-row,.group.theirs .designer-wrap{display:none}
+.designer-wrap{margin-top:1.2rem}
+.art-canvas{width:100%;height:auto;border-radius:.5rem;touch-action:none;cursor:crosshair;background:#000;display:block}
+.art-ink{position:relative;height:1.6rem;background:var(--navy);border:1px solid var(--line);border-radius:.4rem;margin-top:.6rem;overflow:hidden}
+.art-ink span{position:absolute;left:0;top:0;bottom:0;background:var(--ribbon);opacity:.55}
+.art-ink span.full{background:var(--red)}
+.art-ink small{position:relative;display:block;padding:.15rem .6rem;font-size:.9rem}
+.art-hint{color:var(--mute);font-size:.95rem;margin:.5rem 0}
+.art-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.6rem}
+.art-group{border:1px solid var(--line);border-radius:.6rem;padding:.5rem .6rem .7rem;margin:0;display:flex;flex-wrap:wrap;gap:.35rem}
+.art-group legend{font:600 .85rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--bronze2);padding:0 .3rem}
+.art-group button{border:1px solid var(--line);background:var(--navy);color:var(--bone);border-radius:.4rem;padding:.35rem .6rem;font:600 .9rem var(--ui);cursor:pointer}
+.art-group button[aria-pressed="true"]{border-color:var(--bronze2);background:rgba(207,159,69,.25)}
+.art-group button.swatch{width:2rem;height:2rem;padding:0;border:2px solid var(--line)}
+.art-group button.swatch[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px var(--bronze)}
+.art-group[disabled]{opacity:.45}
+.step-nav{display:flex;justify-content:space-between;gap:1rem;margin-top:2rem}
+.finish-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.4rem}
+.panel-card{background:var(--navy2);border:1px solid var(--line);border-radius:.8rem;padding:1.1rem 1.2rem}
+.checklist{list-style:none;padding:0;margin:.6rem 0 0;display:grid;gap:.35rem}
+.checklist li{display:flex;gap:.6rem;align-items:baseline}
+.checklist li::before{content:"";flex:none;width:.9rem;height:.9rem;border-radius:50%;border:2px solid var(--mute);transform:translateY(.1rem)}
+.checklist li.ok::before{background:var(--green);border-color:var(--green)}
+.checklist button{background:none;border:0;color:var(--ribbon2);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.finish-actions{display:flex;gap:.6rem;flex-wrap:wrap;margin:1.4rem 0 .6rem}
+/* help and preview */
+.drawer{position:fixed;inset:0 0 0 auto;width:min(440px,100%);background:var(--navy2);border-left:1px solid var(--line);z-index:70;padding:1.4rem;overflow:auto;box-shadow:-20px 0 40px rgba(0,0,0,.45)}
+.drawer h2{font-size:2rem;margin-bottom:1rem}
+.drawer details{border-bottom:1px solid var(--line);padding:.4rem 0}
+.drawer summary{cursor:pointer;font:600 1.05rem var(--ui);color:var(--star);padding:.4rem 0}
+.drawer p{color:var(--bone)}
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(5,9,16,.88);overflow:auto;padding:1.5rem}
+.overlay .bar{position:sticky;top:0;display:flex;gap:.6rem;justify-content:flex-end;margin-bottom:1rem;z-index:2}
+.toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%);background:var(--paper);color:var(--ink);padding:.7rem 1.1rem;border-radius:.6rem;z-index:90;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.partner-chip{display:inline-flex;gap:.4rem;align-items:center;background:var(--navy3);border-radius:99px;padding:.2rem .7rem;font-size:.92rem;color:var(--bone)}
+.partner-chip i{width:.6rem;height:.6rem;border-radius:50%;background:var(--mute);display:inline-block}
+.partner-chip.fresh i{background:var(--green)}
+body.role-b .owner-a-only,body.role-none .owner-a-only{display:none}
+body.mode-solo .partner-only{display:none}
+@media (max-width:900px){.ws-body{grid-template-columns:1fr}.ws-steps{position:static}.ws-steps ol{grid-template-columns:repeat(4,minmax(0,1fr))}.ws-steps button{grid-template-columns:1.8rem minmax(0,1fr)}.ws-steps .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ws-steps .st{display:none}.cards2,.finish-grid{grid-template-columns:1fr}.ws-head{top:0}.k-word,.k-meaning{width:100%;margin:0}}
+@media (max-width:600px){.ws-steps ol{grid-template-columns:repeat(7,minmax(0,1fr))}.ws-steps button{grid-template-columns:1fr;justify-items:center;padding:.45rem .2rem}.ws-steps .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
+@media print{.ws-head,.ws-steps,.step-nav,.drawer{display:none!important}}
+</style>
+<link rel="stylesheet" href="/hubs/moh/exhibit.css">
+<link rel="stylesheet" href="/hubs/moh/tools.css">
+</head>
+<body class="project-tool role-none" data-desk-autosave-ms="20000">
+<a class="skip" href="#main-content">Skip to your project</a>
+<header class="mbar">
+  <div class="wrap">
+    <a class="brand" href="/hubs/ush9-medal-of-honor.html"><span aria-hidden="true">★</span> Medal of Honor Project</a>
+    <nav aria-label="Project">
+      <a href="/hubs/ush9-medal-of-honor.html#veterans">Veterans</a>
+      <a href="/hubs/ush9-medal-of-honor-project.html" aria-current="page">My project</a>
+      <a href="#help" data-action="help">Help</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content">
+  <h1 class="tool-page-title">My Medal of Honor project</h1>
+  <section class="wrap ws-wait" id="moh-wait">
+    <div class="tool-intro">
+      <p class="kicker">Medal of Honor Project</p>
+      <h2 class="exhibit-title">Your project</h2>
+      <p>Sign in with your lunch PIN to open your project. Use the same PIN every day, on any Chromebook.</p>
+    </div>
+  </section>
+
+  <section class="wrap setup" id="moh-setup" hidden data-desk-skip>
+    <div class="tool-intro">
+      <p class="kicker">Project setup</p>
+      <h2 id="setup-title" class="exhibit-title" tabindex="-1">How are you working?</h2>
+    </div>
+    <p class="lede" id="setup-hello"></p>
+    <div class="stage" id="stage-mode">
+      <div class="cards2">
+        <button type="button" class="big-choice" data-mode="start"><b>Start a team</b>Pick your veteran and get a four letter code for your partner. You will be Partner A, the Poster Lead.</button>
+        <button type="button" class="big-choice" data-mode="join"><b>Join my partner</b>Your partner already started a team and has a code. You will be Partner B, the Screen Lead.</button>
+        <button type="button" class="big-choice" data-mode="solo"><b>Work alone</b>You do every job: both chapters in each step, both art pieces, one reflection. Same requirements as a team.</button>
+      </div>
+    </div>
+    <div class="stage" id="stage-join" hidden>
+      <div class="join-row"><input id="join-code" maxlength="4" autocomplete="off" aria-label="Your partner’s four-character team code" data-desk-skip><button type="button" class="btn" data-action="join">Join the team</button><button type="button" class="btn ghost" data-action="back-mode">Back</button></div>
+    </div>
+    <div class="stage" id="stage-pick" hidden>
+      <p class="mini">Each veteran can be chosen by one team per class. Open a profile in a new tab to read more.</p>
+      <div class="vgrid" id="pick-grid" style="margin-top:1rem"></div>
+      <div class="join-row"><button type="button" class="btn" data-action="confirm-pick" disabled>Use this veteran</button><button type="button" class="btn ghost" data-action="back-mode">Back</button></div>
+    </div>
+    <div id="setup-msg" class="msg" hidden role="status"></div>
+  </section>
+
+  <section id="moh-work" hidden>
+    <div class="ws-head">
+      <div class="wrap">
+        <div>
+          <div class="ws-identity">
+            <div class="ws-avatar" id="ws-avatar" aria-hidden="true"></div>
+            <div class="ws-title"><p id="ws-vet"></p><a id="ws-vet-link" href="#" target="_blank" rel="noopener">Open his page</a></div>
+          </div>
+          <div class="ws-team" id="ws-team"></div>
+        </div>
+        <div class="ws-actions">
+          <button type="button" class="btn small" data-action="next-job">What do I do next?</button>
+          <button type="button" class="btn ghost small" data-action="help">Help</button>
+        </div>
+        <div class="progress" aria-hidden="true"><span id="ws-progress"></span></div>
+      </div>
+    </div>
+    <div class="wrap ws-body">
+      <nav class="ws-steps" aria-label="Project steps"><ol>
+<li><button type="button" data-goto="facts" title="Step 1, Fact file"><span class="dot">1</span><span class="lbl">Fact file</span><span class="st"></span></button></li>
+<li><button type="button" data-goto="words" title="Step 2, Hard words"><span class="dot">2</span><span class="lbl">Hard words</span><span class="st"></span></button></li>
+<li><button type="button" data-goto="story1" title="Step 3, Chapter one"><span class="dot">3</span><span class="lbl">Chapter one</span><span class="st"></span></button></li>
+<li><button type="button" data-goto="story2" title="Step 4, Chapter two"><span class="dot">4</span><span class="lbl">Chapter two</span><span class="st"></span></button></li>
+<li><button type="button" data-goto="why" title="Step 5, Why he matters"><span class="dot">5</span><span class="lbl">Why he matters</span><span class="st"></span></button></li>
+<li><button type="button" data-goto="art" title="Step 6, Art piece"><span class="dot">6</span><span class="lbl">Art piece</span><span class="st"></span></button></li>
+<li><button type="button" data-goto="finish" title="Step 7, Finish"><span class="dot">7</span><span class="lbl">Finish</span><span class="st"></span></button></li>
+      </ol></nav>
+      <div class="ws-main">
+<section class="ws-step" data-step="facts" id="step-facts" hidden aria-labelledby="h-facts">
+        <p class="kicker">Step 1 of 7 · Day 1</p>
+        <h2 id="h-facts">Meet your veteran</h2>
+        <p class="step-intro">Open your veteran's page and find each fact. Write each one as a short sentence in your own words.</p>
+        <div class="group" data-group="a">
+          <div class="group-head"><span class="badge"></span><h3>Early life facts</h3></div>
+          <div class="box k-fact" data-field="moh-a-fact-born" data-owner="a" data-kind="fact" data-min="15">
+          <label for="moh-a-fact-born"><span class="who" aria-hidden="true"></span><span class="q">Where and when was he born?</span></label>
+          <input type="text" id="moh-a-fact-born" data-q="Where and when was he born?" placeholder="He was born in ... on ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-fact" data-field="moh-a-fact-before" data-owner="a" data-kind="fact" data-min="20">
+          <label for="moh-a-fact-before"><span class="who" aria-hidden="true"></span><span class="q">What did he do before the war? Name a job, a school or someone in his family.</span></label>
+          <input type="text" id="moh-a-fact-before" data-q="What did he do before the war? Name a job, a school or someone in his family." placeholder="Before the war he ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-fact" data-field="moh-a-fact-join" data-owner="a" data-kind="fact" data-min="20">
+          <label for="moh-a-fact-join"><span class="who" aria-hidden="true"></span><span class="q">How and when did he join the military?</span></label>
+          <input type="text" id="moh-a-fact-join" data-q="How and when did he join the military?" placeholder="He joined in ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div><div class="group" data-group="b">
+          <div class="group-head"><span class="badge"></span><h3>Battle and medal facts</h3></div>
+          <div class="box k-fact" data-field="moh-b-fact-unit" data-owner="b" data-kind="fact" data-min="15">
+          <label for="moh-b-fact-unit"><span class="who" aria-hidden="true"></span><span class="q">What was his rank and unit when he earned the medal?</span></label>
+          <input type="text" id="moh-b-fact-unit" data-q="What was his rank and unit when he earned the medal?" placeholder="He was a ... in the ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-fact" data-field="moh-b-fact-day" data-owner="b" data-kind="fact" data-min="20">
+          <label for="moh-b-fact-day"><span class="who" aria-hidden="true"></span><span class="q">When and where did he earn the Medal of Honor?</span></label>
+          <input type="text" id="moh-b-fact-day" data-q="When and where did he earn the Medal of Honor?" placeholder="On ... near ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-fact" data-field="moh-b-fact-end" data-owner="b" data-kind="fact" data-min="20">
+          <label for="moh-b-fact-end"><span class="who" aria-hidden="true"></span><span class="q">When did he receive the medal, and when did he die?</span></label>
+          <input type="text" id="moh-b-fact-end" data-q="When did he receive the medal, and when did he die?" placeholder="He received the medal in ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div>
+        <div class="step-nav" data-desk-skip><button type="button" class="btn ghost" data-action="prev">← Back</button><button type="button" class="btn" data-action="next">Next step →</button></div>
+      </section>
+<section class="ws-step" data-step="words" id="step-words" hidden aria-labelledby="h-words">
+        <p class="kicker">Step 2 of 7 · Day 1</p>
+        <h2 id="h-words">Crack the citation</h2>
+        <p class="step-intro">The citation is the official paper that explains why he got the medal. Pick three hard words from it and explain each one like you would to a friend.</p>
+        <div class="cite-panel paper"><p class="kicker">The official citation</p><blockquote class="full-cite"></blockquote><p class="chip-help">Tap a highlighted word to put it in your next empty word box.</p><div class="word-chips" data-desk-skip></div></div><div class="group" data-group="a">
+          <div class="group-head"><span class="badge"></span><h3>Three hard words</h3></div>
+          <div class="box k-word" data-field="moh-a-word-1" data-owner="a" data-kind="word" data-min="3">
+          <label for="moh-a-word-1"><span class="who" aria-hidden="true"></span><span class="q">Hard word 1 from the citation</span></label>
+          <input type="text" id="moh-a-word-1" data-q="Hard word 1 from the citation" placeholder="Type the word" spellcheck="true" autocomplete="off" maxlength="40">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-meaning" data-field="moh-a-mean-1" data-owner="a" data-kind="meaning" data-min="10">
+          <label for="moh-a-mean-1"><span class="who" aria-hidden="true"></span><span class="q">What hard word 1 means, in your own words</span></label>
+          <input type="text" id="moh-a-mean-1" data-q="What hard word 1 means, in your own words" placeholder="It means ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-word" data-field="moh-a-word-2" data-owner="a" data-kind="word" data-min="3">
+          <label for="moh-a-word-2"><span class="who" aria-hidden="true"></span><span class="q">Hard word 2 from the citation</span></label>
+          <input type="text" id="moh-a-word-2" data-q="Hard word 2 from the citation" placeholder="Type the word" spellcheck="true" autocomplete="off" maxlength="40">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-meaning" data-field="moh-a-mean-2" data-owner="a" data-kind="meaning" data-min="10">
+          <label for="moh-a-mean-2"><span class="who" aria-hidden="true"></span><span class="q">What hard word 2 means, in your own words</span></label>
+          <input type="text" id="moh-a-mean-2" data-q="What hard word 2 means, in your own words" placeholder="It means ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-word" data-field="moh-a-word-3" data-owner="a" data-kind="word" data-min="3">
+          <label for="moh-a-word-3"><span class="who" aria-hidden="true"></span><span class="q">Hard word 3 from the citation</span></label>
+          <input type="text" id="moh-a-word-3" data-q="Hard word 3 from the citation" placeholder="Type the word" spellcheck="true" autocomplete="off" maxlength="40">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-meaning" data-field="moh-a-mean-3" data-owner="a" data-kind="meaning" data-min="10">
+          <label for="moh-a-mean-3"><span class="who" aria-hidden="true"></span><span class="q">What hard word 3 means, in your own words</span></label>
+          <input type="text" id="moh-a-mean-3" data-q="What hard word 3 means, in your own words" placeholder="It means ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div><div class="group" data-group="b">
+          <div class="group-head"><span class="badge"></span><h3>Three more hard words</h3></div>
+          <div class="box k-word" data-field="moh-b-word-1" data-owner="b" data-kind="word" data-min="3">
+          <label for="moh-b-word-1"><span class="who" aria-hidden="true"></span><span class="q">Hard word 4 from the citation</span></label>
+          <input type="text" id="moh-b-word-1" data-q="Hard word 4 from the citation" placeholder="Type the word" spellcheck="true" autocomplete="off" maxlength="40">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-meaning" data-field="moh-b-mean-1" data-owner="b" data-kind="meaning" data-min="10">
+          <label for="moh-b-mean-1"><span class="who" aria-hidden="true"></span><span class="q">What hard word 4 means, in your own words</span></label>
+          <input type="text" id="moh-b-mean-1" data-q="What hard word 4 means, in your own words" placeholder="It means ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-word" data-field="moh-b-word-2" data-owner="b" data-kind="word" data-min="3">
+          <label for="moh-b-word-2"><span class="who" aria-hidden="true"></span><span class="q">Hard word 5 from the citation</span></label>
+          <input type="text" id="moh-b-word-2" data-q="Hard word 5 from the citation" placeholder="Type the word" spellcheck="true" autocomplete="off" maxlength="40">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-meaning" data-field="moh-b-mean-2" data-owner="b" data-kind="meaning" data-min="10">
+          <label for="moh-b-mean-2"><span class="who" aria-hidden="true"></span><span class="q">What hard word 5 means, in your own words</span></label>
+          <input type="text" id="moh-b-mean-2" data-q="What hard word 5 means, in your own words" placeholder="It means ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-word" data-field="moh-b-word-3" data-owner="b" data-kind="word" data-min="3">
+          <label for="moh-b-word-3"><span class="who" aria-hidden="true"></span><span class="q">Hard word 6 from the citation</span></label>
+          <input type="text" id="moh-b-word-3" data-q="Hard word 6 from the citation" placeholder="Type the word" spellcheck="true" autocomplete="off" maxlength="40">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-meaning" data-field="moh-b-mean-3" data-owner="b" data-kind="meaning" data-min="10">
+          <label for="moh-b-mean-3"><span class="who" aria-hidden="true"></span><span class="q">What hard word 6 means, in your own words</span></label>
+          <input type="text" id="moh-b-mean-3" data-q="What hard word 6 means, in your own words" placeholder="It means ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div>
+        <div class="step-nav" data-desk-skip><button type="button" class="btn ghost" data-action="prev">← Back</button><button type="button" class="btn" data-action="next">Next step →</button></div>
+      </section>
+<section class="ws-step" data-step="story1" id="step-story1" hidden aria-labelledby="h-story1">
+        <p class="kicker">Step 3 of 7 · Day 2</p>
+        <h2 id="h-story1">Write your first chapter</h2>
+        <p class="step-intro">Answer one box at a time. Two or three sentences per box is plenty. When you finish, your boxes become a chapter of the report.</p>
+        <div class="group" data-group="a">
+          <div class="group-head"><span class="badge"></span><h3>Chapter: Before the War</h3></div>
+          <div class="box k-box" data-field="moh-a-before-1" data-owner="a" data-kind="box" data-min="60">
+          <label for="moh-a-before-1"><span class="who" aria-hidden="true"></span><span class="q">Where did he grow up? Who was in his family?</span></label>
+          <textarea id="moh-a-before-1" data-q="Where did he grow up? Who was in his family?" rows="3" placeholder="He grew up in ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-a-before-2" data-owner="a" data-kind="box" data-min="60">
+          <label for="moh-a-before-2"><span class="who" aria-hidden="true"></span><span class="q">What was his life like before the war? What did he do for work or school?</span></label>
+          <textarea id="moh-a-before-2" data-q="What was his life like before the war? What did he do for work or school?" rows="3" placeholder="Before the war, he ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-a-before-3" data-owner="a" data-kind="box" data-min="60">
+          <label for="moh-a-before-3"><span class="who" aria-hidden="true"></span><span class="q">How did he end up in the military and in the war?</span></label>
+          <textarea id="moh-a-before-3" data-q="How did he end up in the military and in the war?" rows="3" placeholder="In 1917, ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div><div class="group" data-group="b">
+          <div class="group-head"><span class="badge"></span><h3>Chapter: The Day He Earned the Medal</h3></div>
+          <div class="box k-box" data-field="moh-b-day-1" data-owner="b" data-kind="box" data-min="60">
+          <label for="moh-b-day-1"><span class="who" aria-hidden="true"></span><span class="q">Set the scene. When and where was the fight, and what was his job there?</span></label>
+          <textarea id="moh-b-day-1" data-q="Set the scene. When and where was the fight, and what was his job there?" rows="3" placeholder="On ..., his unit was ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-b-day-2" data-owner="b" data-kind="box" data-min="60">
+          <label for="moh-b-day-2"><span class="who" aria-hidden="true"></span><span class="q">What was the danger? What went wrong?</span></label>
+          <textarea id="moh-b-day-2" data-q="What was the danger? What went wrong?" rows="3" placeholder="The problem was ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-b-day-3" data-owner="b" data-kind="box" data-min="100">
+          <label for="moh-b-day-3"><span class="who" aria-hidden="true"></span><span class="q">What did he do? Tell it in order: first, next, then.</span></label>
+          <textarea id="moh-b-day-3" data-q="What did he do? Tell it in order: first, next, then." rows="3" placeholder="First, he ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div>
+        <div class="step-nav" data-desk-skip><button type="button" class="btn ghost" data-action="prev">← Back</button><button type="button" class="btn" data-action="next">Next step →</button></div>
+      </section>
+<section class="ws-step" data-step="story2" id="step-story2" hidden aria-labelledby="h-story2">
+        <p class="kicker">Step 4 of 7 · Day 3</p>
+        <h2 id="h-story2">Write your second chapter</h2>
+        <p class="step-intro">Same plan: one box at a time, two or three sentences each.</p>
+        <div class="group" data-group="a">
+          <div class="group-head"><span class="badge"></span><h3>Chapter: The Citation in Plain English</h3></div>
+          <div class="box k-box" data-field="moh-a-cite-1" data-owner="a" data-kind="box" data-min="50">
+          <label for="moh-a-cite-1"><span class="who" aria-hidden="true"></span><span class="q">Part 1 of the citation, rewritten in your own words</span></label>
+          <blockquote class="cite-part" data-part="0"></blockquote><textarea id="moh-a-cite-1" data-q="Part 1 of the citation, rewritten in your own words" rows="3" placeholder="This part says that ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-a-cite-2" data-owner="a" data-kind="box" data-min="50">
+          <label for="moh-a-cite-2"><span class="who" aria-hidden="true"></span><span class="q">Part 2 of the citation, rewritten in your own words</span></label>
+          <blockquote class="cite-part" data-part="1"></blockquote><textarea id="moh-a-cite-2" data-q="Part 2 of the citation, rewritten in your own words" rows="3" placeholder="Next, it says ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-a-cite-3" data-owner="a" data-kind="box" data-min="50">
+          <label for="moh-a-cite-3"><span class="who" aria-hidden="true"></span><span class="q">Part 3 of the citation, rewritten in your own words</span></label>
+          <blockquote class="cite-part" data-part="2"></blockquote><textarea id="moh-a-cite-3" data-q="Part 3 of the citation, rewritten in your own words" rows="3" placeholder="At the end, it says ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div><div class="group" data-group="b">
+          <div class="group-head"><span class="badge"></span><h3>Chapter: After the War</h3></div>
+          <div class="box k-box" data-field="moh-b-after-1" data-owner="b" data-kind="box" data-min="60">
+          <label for="moh-b-after-1"><span class="who" aria-hidden="true"></span><span class="q">What happened to him right after the fight?</span></label>
+          <textarea id="moh-b-after-1" data-q="What happened to him right after the fight?" rows="3" placeholder="After the fight, he ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-b-after-2" data-owner="b" data-kind="box" data-min="60">
+          <label for="moh-b-after-2"><span class="who" aria-hidden="true"></span><span class="q">When did he get the Medal of Honor? If it came late, why?</span></label>
+          <textarea id="moh-b-after-2" data-q="When did he get the Medal of Honor? If it came late, why?" rows="3" placeholder="He received the medal ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-box" data-field="moh-b-after-3" data-owner="b" data-kind="box" data-min="60">
+          <label for="moh-b-after-3"><span class="who" aria-hidden="true"></span><span class="q">How is he remembered today?</span></label>
+          <textarea id="moh-b-after-3" data-q="How is he remembered today?" rows="3" placeholder="Today, ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div>
+        <div class="step-nav" data-desk-skip><button type="button" class="btn ghost" data-action="prev">← Back</button><button type="button" class="btn" data-action="next">Next step →</button></div>
+      </section>
+<section class="ws-step" data-step="why" id="step-why" hidden aria-labelledby="h-why">
+        <p class="kicker">Step 5 of 7 · Day 4</p>
+        <h2 id="h-why">Why he matters</h2>
+        <p class="step-intro">This part is just yours. Your partner writes their own.</p>
+        <div class="group" data-group="a">
+          <div class="group-head"><span class="badge"></span><h3>Your reflection</h3></div>
+          <div class="box k-why" data-field="moh-a-why-1" data-owner="a" data-kind="why" data-min="80">
+          <label for="moh-a-why-1"><span class="who" aria-hidden="true"></span><span class="q">Which moment in his story surprised you the most? Why?</span></label>
+          <textarea id="moh-a-why-1" data-q="Which moment in his story surprised you the most? Why?" rows="4" placeholder="The moment that surprised me most was ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-why" data-field="moh-a-why-2" data-owner="a" data-kind="why" data-min="80">
+          <label for="moh-a-why-2"><span class="who" aria-hidden="true"></span><span class="q">What does his story show you about courage, or about America in 1918?</span></label>
+          <textarea id="moh-a-why-2" data-q="What does his story show you about courage, or about America in 1918?" rows="4" placeholder="His story shows ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div><div class="group" data-group="b">
+          <div class="group-head"><span class="badge"></span><h3>Your reflection</h3></div>
+          <div class="box k-why" data-field="moh-b-why-1" data-owner="b" data-kind="why" data-min="80">
+          <label for="moh-b-why-1"><span class="who" aria-hidden="true"></span><span class="q">Which moment in his story surprised you the most? Why?</span></label>
+          <textarea id="moh-b-why-1" data-q="Which moment in his story surprised you the most? Why?" rows="4" placeholder="The moment that surprised me most was ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-why" data-field="moh-b-why-2" data-owner="b" data-kind="why" data-min="80">
+          <label for="moh-b-why-2"><span class="who" aria-hidden="true"></span><span class="q">What does his story show you about courage, or about America in 1918?</span></label>
+          <textarea id="moh-b-why-2" data-q="What does his story show you about courage, or about America in 1918?" rows="4" placeholder="His story shows ..." spellcheck="true"></textarea>
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+        </div>
+        <div class="step-nav" data-desk-skip><button type="button" class="btn ghost" data-action="prev">← Back</button><button type="button" class="btn" data-action="next">Next step →</button></div>
+      </section>
+<section class="ws-step" data-step="art" id="step-art" hidden aria-labelledby="h-art">
+        <p class="kicker">Step 6 of 7 · Days 4 to 6</p>
+        <h2 id="h-art">Make your art piece</h2>
+        <p class="step-intro">Plan your piece here, then make it. Each partner makes a different piece.</p>
+        <div class="group" data-group="a">
+          <div class="group-head"><span class="badge"></span><h3>The wall poster</h3></div>
+          <div class="pick-row" data-desk-skip><p class="mini">Pick a layout for your poster</p>
+            <div class="choice" data-target="moh-a-poster-layout">
+              <button type="button" data-value="Big picture in the center">Big picture in the center</button>
+              <button type="button" data-value="Picture left, facts right">Picture left, facts right</button>
+              <button type="button" data-value="Three panel comic strip">Three panel comic strip</button>
+            </div></div><div class="box k-short" data-field="moh-a-poster-head" data-owner="a" data-kind="short" data-min="4">
+          <label for="moh-a-poster-head"><span class="who" aria-hidden="true"></span><span class="q">Poster headline, five words or fewer</span></label>
+          <input type="text" id="moh-a-poster-head" data-q="Poster headline, five words or fewer" placeholder="Only One of Us Can Get Out" spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-a-poster-scene" data-owner="a" data-kind="short" data-min="30">
+          <label for="moh-a-poster-scene"><span class="who" aria-hidden="true"></span><span class="q">What will you draw in the middle? Describe the scene in one sentence.</span></label>
+          <input type="text" id="moh-a-poster-scene" data-q="What will you draw in the middle? Describe the scene in one sentence." placeholder="I will draw ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-a-poster-fact-1" data-owner="a" data-kind="short" data-min="10">
+          <label for="moh-a-poster-fact-1"><span class="who" aria-hidden="true"></span><span class="q">Fact box 1 for the poster</span></label>
+          <input type="text" id="moh-a-poster-fact-1" data-q="Fact box 1 for the poster" placeholder="Born: ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-a-poster-fact-2" data-owner="a" data-kind="short" data-min="10">
+          <label for="moh-a-poster-fact-2"><span class="who" aria-hidden="true"></span><span class="q">Fact box 2 for the poster</span></label>
+          <input type="text" id="moh-a-poster-fact-2" data-q="Fact box 2 for the poster" placeholder="Unit: ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-a-poster-fact-3" data-owner="a" data-kind="short" data-min="10">
+          <label for="moh-a-poster-fact-3"><span class="who" aria-hidden="true"></span><span class="q">Fact box 3 for the poster</span></label>
+          <input type="text" id="moh-a-poster-fact-3" data-q="Fact box 3 for the poster" placeholder="The day: ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-a-poster-fact-4" data-owner="a" data-kind="short" data-min="10">
+          <label for="moh-a-poster-fact-4"><span class="who" aria-hidden="true"></span><span class="q">Fact box 4 for the poster</span></label>
+          <input type="text" id="moh-a-poster-fact-4" data-q="Fact box 4 for the poster" placeholder="Number to remember: ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-a-poster-quote" data-owner="a" data-kind="short" data-min="15">
+          <label for="moh-a-poster-quote"><span class="who" aria-hidden="true"></span><span class="q">A quote from the citation for your poster, 12 words or fewer</span></label>
+          <input type="text" id="moh-a-poster-quote" data-q="A quote from the citation for your poster, 12 words or fewer" placeholder="Copy a few words from the citation" spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div><div class="pick-row" data-desk-skip><p class="mini">Print the blueprint, then make the poster on the paper from the front table.</p><button type="button" class="btn blue small" data-action="blueprint">Print my poster blueprint</button></div>
+            <div class="pick-row" data-desk-skip><p class="mini">How far along is your poster? Mark Done only when it is finished and handed in.</p>
+            <div class="choice" data-target="moh-a-poster-status">
+              <button type="button" data-value="Planning">Planning</button><button type="button" data-value="Sketching">Sketching</button><button type="button" data-value="Coloring">Coloring</button><button type="button" data-value="Done">Done</button>
+            </div></div><div class="box gen" data-field="moh-a-poster-layout" data-owner="a" data-kind="gen" data-min="1" hidden><textarea id="moh-a-poster-layout" data-q="Poster layout choice" data-desk-generated readonly tabindex="-1"></textarea></div>
+<div class="box gen" data-field="moh-a-poster-status" data-owner="a" data-kind="gen" data-min="1" data-done="Done" hidden><textarea id="moh-a-poster-status" data-q="Poster progress" data-desk-generated readonly tabindex="-1"></textarea></div>
+        </div><div class="group" data-group="b">
+          <div class="group-head"><span class="badge"></span><h3>The memorial screen</h3></div>
+          <div class="box k-short" data-field="moh-b-screen-title" data-owner="b" data-kind="short" data-min="4">
+          <label for="moh-b-screen-title"><span class="who" aria-hidden="true"></span><span class="q">Screen title, five words or fewer</span></label>
+          <input type="text" id="moh-b-screen-title" data-q="Screen title, five words or fewer" placeholder="He Went Back for Them" spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-b-screen-caption" data-owner="b" data-kind="short" data-min="30">
+          <label for="moh-b-screen-caption"><span class="who" aria-hidden="true"></span><span class="q">One sentence that explains your picture</span></label>
+          <input type="text" id="moh-b-screen-caption" data-q="One sentence that explains your picture" placeholder="This shows the moment when ..." spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div>
+<div class="box k-short" data-field="moh-b-screen-quote" data-owner="b" data-kind="short" data-min="15">
+          <label for="moh-b-screen-quote"><span class="who" aria-hidden="true"></span><span class="q">A quote from the citation for your screen, 12 words or fewer</span></label>
+          <input type="text" id="moh-b-screen-quote" data-q="A quote from the citation for your screen, 12 words or fewer" placeholder="Copy a few words from the citation" spellcheck="true" autocomplete="off">
+          <div class="box-foot"><span class="meter" aria-live="polite"></span></div>
+          <div class="partner-view" data-desk-skip hidden></div>
+        </div><div class="designer-wrap" data-desk-skip><p class="mini">Design your screen. Draw inside the white frame, add stamps and pick colors. Your title, quote and caption from above appear on the screen.</p><div class="designer"></div></div><div class="box gen" data-field="moh-b-screen-data" data-owner="b" data-kind="gen" data-min="30" hidden><textarea id="moh-b-screen-data" data-q="Memorial screen design" data-desk-generated readonly tabindex="-1"></textarea></div>
+        </div>
+        <div class="step-nav" data-desk-skip><button type="button" class="btn ghost" data-action="prev">← Back</button><button type="button" class="btn" data-action="next">Next step →</button></div>
+      </section>
+<section class="ws-step" data-step="finish" id="step-finish" hidden aria-labelledby="h-finish">
+        <p class="kicker">Step 7 of 7 · Day 7</p>
+        <h2 id="h-finish">Finish and turn in</h2>
+        <p class="step-intro">Check your jobs, look over the full paper, and press Turn In.</p>
+        <div class="finish-grid" data-desk-skip>
+          <div class="panel-card"><h3>Your jobs</h3><ul class="checklist" id="moh-checklist"></ul></div>
+          <div class="panel-card partner-only"><h3>Your partner</h3><ul class="checklist" id="moh-partner-checklist"></ul></div>
+        </div>
+        <div class="finish-actions" data-desk-skip>
+          <button type="button" class="btn" data-action="preview">See the full paper</button>
+          <button type="button" class="btn ghost owner-a-only" data-action="blueprint">Print my poster blueprint</button>
+        </div>
+        <p class="mini">Press Turn In when your jobs are all checked. You can still fix things after. Your teacher sees your work as you go.</p>
+        <div data-desk-turnin></div>
+        <div class="step-nav" data-desk-skip><button type="button" class="btn ghost" data-action="prev">← Back</button><button type="button" class="btn" data-action="next">Next step →</button></div>
+      </section>
+      </div>
+    </div>
+    <div class="wrap ws-account"><div data-desk-resume></div></div>
+  </section>
+</main>
+
+<aside class="drawer" id="moh-help" hidden aria-labelledby="help-title" data-desk-skip>
+  <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="help-title">Help</h2><button type="button" class="btn ghost small" data-action="close-help">Close</button></div>
+  <details open><summary>What do I do next?</summary><p>Press the gold What do I do next? button at the top. It jumps to your next empty box and lights it up.</p></details>
+  <details><summary>How long does a box need to be?</summary><p>Two or three sentences. The box turns green and says Done when it is long enough. Fact and word boxes only need a short sentence.</p></details>
+  <details><summary>Where do I find the answers?</summary><p>On your veteran's page. Press Open his page at the top. You do not need any other website.</p></details>
+  <details><summary>Why can I not type in some boxes?</summary><p>Those boxes belong to your partner. You can read what they wrote, but only they can change it. Your grade comes from your own boxes.</p></details>
+  <details><summary>My partner is absent</summary><p>Keep going on your own jobs. Their boxes will wait for them. If they are gone for a few days, tell Mr. Auch.</p></details>
+  <details><summary>Can I paste?</summary><p>Short quotes of 12 words or fewer, yes. Longer pastes are blocked, and the page keeps a timeline of how answers were written. Write it the way you would say it.</p></details>
+  <details><summary>Did my work save?</summary><p>Yes. It saves to your account by itself every few seconds. The strip under the top bar shows when it last saved. You can sign in on any Chromebook and pick up where you left off.</p></details>
+  <details><summary>What is the poster?</summary><p>Partner A draws a poster by hand for the classroom wall. Fill in the poster boxes in Step 6, print the blueprint, and copy it onto the poster paper.</p></details>
+  <details><summary>What is the memorial screen?</summary><p>Partner B designs a picture in Step 6 right on this page. It shows on the Promethean board and becomes the cover of your printed paper.</p></details>
+  <details><summary>We want a different veteran</summary><p>Press Change veteran at the top. You can only pick someone no other team in your class has.</p></details>
+  <details><summary>I picked the wrong thing during setup</summary><p>If no partner has joined yet, press Start over at the top. If your team is already full, ask Mr. Auch.</p></details>
+</aside>
+
+<div class="overlay" id="moh-preview" hidden data-desk-skip role="dialog" aria-modal="true" aria-label="Your full paper">
+  <div class="bar"><button type="button" class="btn" data-action="print">Print</button><button type="button" class="btn ghost" data-action="close-preview">Close</button></div>
+  <div id="preview-body"></div>
+</div>
+
+<script src="/hubs/moh/spec.js"></script>
+<script src="/hubs/moh/veterans.js"></script>
+<script src="/hubs/moh/portraits.js"></script>
+<script src="/hubs/moh/art.js"></script>
+<script src="/hubs/moh/paper.js"></script>
+<script src="/hubs/moh/project.js"></script>
+<script src="/hubs/desk-save.js" defer></script>
+</body>
+</html>

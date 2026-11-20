@@ -5,13 +5,13 @@
   "route": "/hubs/bts-the-route-tree.html",
   "derivedFrom": {
     "source": "storyhub/stories/BTS/ROUTETREE/story.json",
-    "note": "Cinematic Ink pilot and ten licensed player photographs; authentic sources, source-derived interpretations and reconstructions are explicitly differentiated."
+    "note": "Two equal alternative assignments, guided A and more independent B; the complete earlier assignment keeps its original account identity. Six labeled Cinematic Ink scenes and natural source photography."
   },
   "files": [
     {
       "path": "/hubs/bts-the-route-tree.html",
-      "bytes": 145881,
-      "sha256": "7c6db5ac9afa279d9158bdacdde611bc85d9efe4f267952b70c02d99b1cb3e95"
+      "bytes": 7370,
+      "sha256": "b9190982edbd525199b87e16fe549f59303ace8fbde464fca755bade8a2f08d2"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
@@ -249,8 +249,8 @@
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-rights.json",
-      "bytes": 47047,
-      "sha256": "e7fcdfedf324756ad9ea59be4a5bb37714c8c5188fff5a77fbcdd90553265d68"
+      "bytes": 55469,
+      "sha256": "feeb152110c68bd6c221ca33288d4f8bc50ed6a8b1395fbb5217352e30b9f3fc"
     },
     {
       "path": "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp",
@@ -391,8 +391,246 @@
       "sha256": "2a35dae94c5af402593cc2d46fb65a289bca52b41ea693b939cdeef773327a81",
       "width": 1100,
       "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a09-640.webp",
+      "bytes": 31368,
+      "sha256": "18ad4cb6f4ec6ed604cd0459407608cfa20da1ec19ecf38e180c7fb3d5457e00",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a10-640.webp",
+      "bytes": 69990,
+      "sha256": "c337677294b665d4cd2c10827b3247f7e58e08ec2831fdd489ecd067afeb0933",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a09-1100.webp",
+      "assetId": "N09",
+      "bytes": 77906,
+      "sha256": "d7c0e1d5f99a23bbfae5eff6e701707031dffbb36bf9dd1857c18b228a57354b",
+      "width": 1100,
+      "height": 733
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a05-640.webp",
+      "bytes": 43722,
+      "sha256": "44ae2ebc01f0b4da32c3ca9a718d435d24395858b631a50be3d71c0418bc05d2",
+      "width": 640,
+      "height": 514
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a12-1100.webp",
+      "assetId": "N12",
+      "bytes": 104646,
+      "sha256": "5372ed92cff2c1d645862f964b106cb94963c6909b78232791cdd16ef696aeab",
+      "width": 1100,
+      "height": 810
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a13-1100.webp",
+      "assetId": "N13",
+      "bytes": 187050,
+      "sha256": "fc54eef93fa1bd93586e83fc37590ac79513e40936b41a3a6a6933dff20555f7",
+      "width": 1100,
+      "height": 729
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a12-640.webp",
+      "bytes": 40704,
+      "sha256": "13ac069ed679e2e6625cc3fb01d02a18f0da406b39cb5cbc031cad2233495340",
+      "width": 640,
+      "height": 471
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a03-640.webp",
+      "bytes": 83724,
+      "sha256": "322de7c5ad9a880bb56c935aba596b2413b292e6b6adc809b40573bd25e98de9",
+      "width": 640,
+      "height": 411
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a03-1100.webp",
+      "assetId": "N03",
+      "bytes": 284128,
+      "sha256": "51160cd03b63a72c9107c2bcd7d640f2215c52c6bd3196195b9296f3bdef5286",
+      "width": 1100,
+      "height": 707
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a14-640.webp",
+      "bytes": 45300,
+      "sha256": "84b006b9b1420857274a1334f8830c71b97e49c41a8b53f99c7090c285e875ef",
+      "width": 640,
+      "height": 399
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a13-640.webp",
+      "bytes": 73348,
+      "sha256": "e7c9c2734b9d3e3a002b0d1194ec10fe2e43b4d7778536d8229359f975a816b0",
+      "width": 640,
+      "height": 424
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a10-1100.webp",
+      "assetId": "N10",
+      "bytes": 145946,
+      "sha256": "dd041892e5683f91434474903befd6e5ec0eeb9e17e3f3b8d0ef9f7aa4628133",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a08-1100.webp",
+      "assetId": "N08",
+      "bytes": 66850,
+      "sha256": "67493013fef17aca8625a2df9c2f2d8067e7d507d5bd3ea578d4ae1c8fe0a261",
+      "width": 1100,
+      "height": 759
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a08-640.webp",
+      "bytes": 34508,
+      "sha256": "484652ab7ee1ee5d921c8fda48ef9fd69e5db5f98e1653e679d6e3b1379943f2",
+      "width": 640,
+      "height": 442
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a15-640.webp",
+      "bytes": 75282,
+      "sha256": "48aed92901a74909142e17e43a460f59ed68748d6a1c32953a4f1cbbe9aed5e0",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a14-1100.webp",
+      "assetId": "N14",
+      "bytes": 117648,
+      "sha256": "c554f3fffd90f85acc7001b2b6cdcb99b2488c91a5c6ffbed6c45f17f8e5ab12",
+      "width": 1100,
+      "height": 687
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a07-640.webp",
+      "bytes": 40786,
+      "sha256": "3f607ec4f5bb9d7c94d058f8e7cc9b88c39fc510f6138327f048ff7a7191a373",
+      "width": 640,
+      "height": 640
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a15-1100.webp",
+      "assetId": "N15",
+      "bytes": 190484,
+      "sha256": "6095f7ffa9ddad93c24780af1cb5dfbe4b79112fead86bf4267e5f8a50794947",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a05-1100.webp",
+      "assetId": "N05",
+      "bytes": 100578,
+      "sha256": "ba312f88d667f7d8b974bc8c04397e5714bd9fd66ba5afb30834e67500cce131",
+      "width": 1100,
+      "height": 884
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a07-1100.webp",
+      "assetId": "N07",
+      "bytes": 80104,
+      "sha256": "98395a88b2624bd5f76fd18f02a067a7bd7495fc5bb30f804dcb831bd7845a17",
+      "width": 1100,
+      "height": 1100
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-640.webp",
+      "bytes": 97330,
+      "sha256": "5efcf172c95675cd0068e262955e0eacafad64d6ecfc8bbf1c86a439927efef4",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1024.webp",
+      "bytes": 229776,
+      "sha256": "b14753428c739b867a7b3ac5e3c67b639429cee82540642cc91357a11135967d",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1536.webp",
+      "assetId": "C05",
+      "bytes": 462986,
+      "sha256": "ad6eb7cd135da6b4dc044a8bd4248c05438a53b8d02b3db4f0b8e1b26a660536",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-photo-640.webp",
+      "bytes": 72466,
+      "sha256": "2b78b095709dbd976e1a18c8395a9ef734cbac30cb2d0226edec62ed39966b5d",
+      "width": 640,
+      "height": 450
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-photo-1024.webp",
+      "bytes": 185592,
+      "sha256": "3958f94dcb6ec50080fb017a2add13367b1dc613ef1e0b99e05fc8d960289d15",
+      "width": 1024,
+      "height": 721
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1536.webp",
+      "assetId": "C06",
+      "bytes": 398526,
+      "sha256": "970b926f49241539fd292cbb06a0781676ffc21220b22978c7d00baa25c13a4a",
+      "width": 1536,
+      "height": 1082
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1024.webp",
+      "bytes": 200212,
+      "sha256": "9db8bcafda9f938fd2cc0b1d4d190c9053d3636828f14d7ba39bbca16d848609",
+      "width": 1024,
+      "height": 721
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-640.webp",
+      "bytes": 76532,
+      "sha256": "d37ccd67043491e25273db53d2bb563ab00e470a6dc21249429c002076bbd58c",
+      "width": 640,
+      "height": 451
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/assignments.js",
+      "bytes": 2268,
+      "sha256": "6707949d3a400f3914480c70345544ad3044740c867023057408af6d1d842408"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/assignments.css",
+      "bytes": 14564,
+      "sha256": "b455f3b5e068e9cfe781c07b3b1ec6356b93b4c719efd78df17a65f995df4d0d"
+    },
+    {
+      "path": "/hubs/bts-route-tree-a.html",
+      "bytes": 91958,
+      "sha256": "d10b2774ad25f9c442f11b7514f3fc77c932b03a9f549d18f1beae8a5f383942"
+    },
+    {
+      "path": "/hubs/bts-route-tree-full-reference.html",
+      "bytes": 146377,
+      "sha256": "252a06895b16e5f4cca3239f86cfd2468041db8ada0ba6ae2a2748a3f2c3b043"
+    },
+    {
+      "path": "/hubs/bts-route-tree-b.html",
+      "bytes": 91823,
+      "sha256": "39d003bb1a8aa062eac827b3011635a0a309851944e3ddb1cfb8aa84911f27b1"
     }
   ],
-  "totalBytes": 6973768,
-  "sealedAt": "2026-11-18"
+  "totalBytes": 10808161,
+  "sealedAt": "2026-11-19",
+  "assignmentRoutes": [
+    "/hubs/bts-route-tree-a.html",
+    "/hubs/bts-route-tree-b.html"
+  ],
+  "preservedRoute": "/hubs/bts-route-tree-full-reference.html"
 }

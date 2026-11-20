@@ -240,8 +240,13 @@
   G.upgradeOptions = function (t) {
     return this.node(t).next.map((id) => BK.TREES[t.kind][id]);
   };
-  G.upgradeBlock = function (t, n) {
+  G.upgradeBlock = function (t, n, refit = false) {
     if (this.phase === "won" || this.phase === "lost") return "battle over";
+    if (t.ko > 0) return "crew knocked out";
+    if (refit) {
+      if (this.phase !== "deploy") return "use between waves";
+      return this.refits > 0 ? null : "no saved refit";
+    }
     if ((t.rank || 0) < BK.RANK_FOR_TIER[n.tier]) return "needs " + BK.RANKS[BK.RANK_FOR_TIER[n.tier]].name;
     if (this.money < n.cost) return "needs " + n.cost + " zł";
     for (const [k, v] of Object.entries(n.items)) if ((this.inv[k] || 0) < v) return "needs " + BK.ITEMS[k].name;
@@ -251,13 +256,21 @@
     const o = this.upgradeOptions(t);
     return o.length ? Math.min(...o.map((n) => n.cost)) : null;
   };
-  G.upgrade = function (t, nodeId) {
+  G.upgrade = function (t, nodeId, refit = false) {
+    if (!this.towers.includes(t)) return false;
     const opts = this.upgradeOptions(t);
     const n = nodeId ? opts.find((o) => o.id === nodeId) : opts.length === 1 ? opts[0] : null;
-    if (!n || this.upgradeBlock(t, n)) return false;
-    this.money -= n.cost;
-    for (const [k, v] of Object.entries(n.items)) this.inv[k] -= v;
-    t.invest += n.cost;
+    if (!n || this.upgradeBlock(t, n, refit)) return false;
+    if (refit) {
+      this.refits--;
+      // The voucher covers field training too: a new crew can use a genuine free upgrade.
+      const rank = BK.RANK_FOR_TIER[n.tier];
+      if (t.rank < rank) this.gainXp(t, BK.RANKS[rank].xp - t.xp);
+    } else {
+      this.money -= n.cost;
+      for (const [k, v] of Object.entries(n.items)) this.inv[k] -= v;
+      t.invest += n.cost;
+    }
     t.path.push(n.id);
     t.level = t.path.length;
     t.spec = n.tier === 3 ? n.id : null;
@@ -265,21 +278,23 @@
     t.maxHp = this.towerMaxHp(t);
     t.hp = Math.min(t.maxHp, t.hp + Math.max(0, t.maxHp - old));
     this.refreshAuras();
-    this.emit("upgrade", { x: t.x, y: t.y, spec: n.tier === 3, name: n.name, morph: true });
+    this.emit("upgrade", { x: t.x, y: t.y, spec: n.tier === 3, name: n.name, morph: true, refit });
     if (n.tier === 3) this.honorEvent("tier3");
     return true;
   };
-  // A crate's free upgrade becomes a field promotion: XP to the most valuable gun.
+  // Free refits belong to the player; they never get wasted on the wrong crew.
   G.freeUpgrade = function () {
-    if (!this.towers.length) { this.addMoney(150, true); return; }
-    const t = this.towers.slice().sort((a, b) => b.invest - a.invest)[0];
-    const need = t.rank < 4 ? BK.RANKS[t.rank + 1].xp - t.xp : 200;
-    this.gainXp(t, Math.max(need, 60));
-    this.emit("text", { x: t.x, y: t.y - 30, str: "FIELD PROMOTION", color: "#ffd84d", size: 20 });
+    this.refits = (this.refits || 0) + 1;
+    this.emit("refitBanked", { count: this.refits });
+    return this.refits;
+  };
+  G.relocationBlock = function (t, x, y) {
+    if (!this.towerStats(t).mobile) return "not mobile";
+    if (this.phase !== "deploy") return "only between waves";
+    return this.canPlace(x, y, null, t);
   };
   G.relocate = function (t, x, y) {
-    if (!this.towerStats(t).mobile || this.phase !== "deploy") return "only between waves";
-    const why = this.canPlace(x, y, null, t);
+    const why = this.relocationBlock(t, x, y);
     if (why) return why;
     t.x = x; t.y = y;
     t.coverVer = -1;
@@ -578,9 +593,9 @@
         e.fireT = 3.2;
         e.revealT = 1.2;
         const cv = this.coverOf(t);
-        const pin = cv.crater || cv.sandbags || cv.ruin ? 1.3 : 2.3;
+        const pin = cv.crater || cv.sandbags || cv.ruin ? 0.9 : 1.6;
         t.supT = Math.max(t.supT || 0, pin);
-        this.damageTower(t, 5, "mg");
+        this.damageTower(t, 3, "mg");
         this.emit("etracer", { x: e.x, y: e.y, tx: t.x, ty: t.y, sniper: true });
         this.emit("text", { x: t.x, y: t.y - 30, str: "PINNED", color: "#ff8a70", size: 16 });
       }

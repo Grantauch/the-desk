@@ -352,7 +352,7 @@
       }
       Save.write();
       if (g.wave === 3) this.tipOnce("crew", "Double click a gun to crew it yourself. Aim at the glowing weak spots.", null, 3);
-      if (g.wave === 2) this.tipOnce("ability", "Kills charge Artillery. Press Q, then click the road.", null, 4);
+      if (g.wave === 2) this.tipOnce("ability", "Kills charge Artillery. Press Z, then click the road.", null, 4);
     }
 
     tipOnce(key, text, img, delay) {

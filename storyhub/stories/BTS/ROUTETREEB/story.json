@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREEB",
+  "course": "BTS",
+  "lessonCode": "ROUTETREEB",
+  "title": "The Route Tree — Assignment B",
+  "audience": "students",
+  "narrativeQuestion": "How do preparation, opportunity and setbacks shape unexpected routes, and what can the evidence establish?",
+  "chapters": [
+    {
+      "id": "case-lane",
+      "title": "Lane",
+      "claim": "A slant is three steps and a hard cut. Lane cut his bus ride short and walked into the Rams office.",
+      "namedPeople": [
+        {
+          "name": "Lane",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P04"
+        }
+      ],
+      "visualAnchorIds": [
+        "P04"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-bleier",
+      "title": "Bleier",
+      "claim": "A comeback runs deep, then turns back toward the ball. Bleier went to war and came back to the same team.",
+      "namedPeople": [
+        {
+          "name": "Bleier",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P03"
+        }
+      ],
+      "visualAnchorIds": [
+        "P03"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-warner",
+      "title": "Warner",
+      "claim": "A curl runs upfield, then stops in open space and waits for the ball. Warner waited five years.",
+      "namedPeople": [
+        {
+          "name": "Warner",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P02"
+        }
+      ],
+      "visualAnchorIds": [
+        "P02"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-neal",
+      "title": "Neal",
+      "claim": "An out route breaks hard toward the sideline. Neal broke out of a different sport completely.",
+      "namedPeople": [
+        {
+          "name": "Neal",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P07"
+        }
+      ],
+      "visualAnchorIds": [
+        "P07"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-aubrey",
+      "title": "Aubrey",
+      "claim": "A corner route angles for the far pylon, away from everybody else. Aubrey took an angle nobody had tried.",
+      "namedPeople": [
+        {
+          "name": "Aubrey",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P10"
+        }
+      ],
+      "visualAnchorIds": [
+        "P10"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "odds",
+      "title": "Keep the odds in view",
+      "claim": "Selected successful careers are not a representative sample.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S1"
+      ]
+    },
+    {
+      "id": "image-evidence",
+      "title": "Read the picture like a historian",
+      "claim": "A dated photograph, a documented account and an illustrated interpretation support different kinds of inference.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S2"
+      ]
+    },
+    {
+      "id": "evidence-calls",
+      "title": "Does the evidence support it?",
+      "claim": "Claims need dates, chronology and scope.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S3"
+      ]
+    },
+    {
+      "id": "other-sport",
+      "title": "One cross-sport connection",
+      "claim": "Readiness and an opportunity both matter outside football.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S4"
+      ]
+    },
+    {
+      "id": "responses",
+      "title": "Three responses, about 300 words",
+      "claim": "Use historical evidence to explain an unexpected route.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S5"
+      ]
+    }
+  ],
+  "assignmentContract": {
+    "variant": "B",
+    "players": [
+      "lane",
+      "bleier",
+      "warner",
+      "neal",
+      "aubrey"
+    ],
+    "nflCases": 5,
+    "otherSport": "Dave Ayres",
+    "writtenResponses": 3,
+    "wordsPerResponse": [
+      90,
+      110
+    ],
+    "estimatedMinutes": [
+      35,
+      45
+    ],
+    "difficulty": "independent evidence evaluation and counterargument",
+    "distribution": "Alternate A and B across seats; students complete one assignment only."
+  }
+}
