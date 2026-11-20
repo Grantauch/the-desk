@@ -99,6 +99,8 @@ test('VPS host staging accepts the isolated local PostgreSQL 18 cluster with pee
   const config = readConfig({
     DATABASE_URL: 'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage',
     DATABASE_SOCKET_PATH: '/var/run/postgresql',
+    HOST: '127.0.0.1',
+    PORT: '18787',
     DEPLOYMENT_TIER: 'staging',
     STAGING_PLATFORM: 'vps-host',
     RELEASE_SHA: 'c'.repeat(40),
@@ -112,6 +114,8 @@ test('VPS host staging fails closed for Margin DB, alternate role, port, socket,
   const safe = {
     DATABASE_URL: 'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage',
     DATABASE_SOCKET_PATH: '/var/run/postgresql',
+    HOST: '127.0.0.1',
+    PORT: '18787',
     DEPLOYMENT_TIER: 'staging',
     STAGING_PLATFORM: 'vps-host',
     RELEASE_SHA: 'c'.repeat(40),
@@ -129,4 +133,8 @@ test('VPS host staging fails closed for Margin DB, alternate role, port, socket,
   }
   assert.throws(() => readConfig({ ...safe, DATABASE_SOCKET_PATH: '/tmp' }), /local PostgreSQL Unix socket/);
   assert.throws(() => readConfig({ ...safe, DEPLOYMENT_TIER: 'production' }), /production cutover flag/);
+  assert.throws(() => readConfig({ ...safe, HOST: '0.0.0.0' }), /bind localhost/);
+  assert.throws(() => readConfig({ ...safe, PORT: '18788' }), /bind localhost/);
+  assert.throws(() => readConfig({ ...safe, OPERATIONS_WORKERS_ENABLED: 'true' }), /bind localhost/);
+  assert.throws(() => readConfig({ ...safe, LEGACY_READ_ADAPTER_MODE: 'shadow-read' }), /bind localhost/);
 });
