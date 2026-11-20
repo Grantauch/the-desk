@@ -33,7 +33,7 @@ import { storyHubs } from '../data/storyhubs';
       storyHubs.map((hub) => (
         <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition, 'storyhub-card--bytesize': hub.bytesize }]}>
           <a class="storyhub-card__cover" href={hub.href}>
-            <img class:list={[hub.archivalCover?.kind === 'period-lithograph' && 'storyhub-card__cover-print']} src={hub.archivalCover?.src ?? hub.cover} alt={hub.archivalCover?.alt ?? hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" referrerpolicy="no-referrer" />
+            <img class:list={[hub.archivalCover?.kind === 'period-lithograph' && 'storyhub-card__cover-print']} src={hub.archivalCover?.src ?? hub.cover} alt={hub.archivalCover?.alt ?? hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" referrerpolicy="no-referrer" onerror={hub.archivalCover ? `this.onerror=null;this.src='${hub.cover}'` : undefined} />
             {hub.archivalCover && <span class="storyhub-card__archival-label">{hub.archivalCover.kind === 'period-lithograph' ? 'PERIOD LITHOGRAPH · ORIGINAL 1876 ARTWORK' : 'ARCHIVAL PHOTOGRAPH · PERIOD ORIGINAL'}</span>}
           </a>
 
