@@ -30,6 +30,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --include=dev
+      - name: Install Chromium for the browser journeys
+        run: npx playwright install --with-deps chromium
       - name: Test real Apps Script logic with synthetic students
         run: npm run turn-in:test
       - name: Run every veteran and partner Chromium journey
