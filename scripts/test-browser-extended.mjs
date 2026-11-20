@@ -150,6 +150,39 @@ try {
         await page.close();
       }
     }
+    const videoPage = await context.newPage();
+    const videoRoute = '/hubs/ush9-bytesize-thirty-seven-days.html';
+    try {
+      // Exercise only the public lesson UI, with every external service kept offline.
+      await videoPage.goto(`${origin}${videoRoute}?deskteacher=on`, { waitUntil: 'load' });
+      const players = videoPage.locator('[data-yt]');
+      assert.equal(await players.count(), 3, 'The lesson retains its three videos');
+      for (const [index, player] of (await players.all()).entries()) {
+        const id = await player.getAttribute('data-yt');
+        const title = await player.getAttribute('data-title');
+        const trigger = player.getByRole('button', { name: title, exact: true });
+        const source = videoPage.locator(`a[href="https://www.youtube.com/watch?v=${id}"]`);
+        assert.ok(await source.isVisible(), 'The original video link remains usable offline');
+        await trigger.focus();
+        await videoPage.keyboard.press(index === 1 ? 'Space' : 'Enter');
+        const frame = player.locator('iframe');
+        assert.equal(await frame.getAttribute('title'), title);
+        assert.equal(await frame.evaluate(el => document.activeElement === el), true,
+          'Keyboard activation transfers focus to the replacement player');
+        assert.equal(await player.evaluate(el => getComputedStyle(el).outlineStyle), 'solid',
+          'The focused player has a visible outline');
+        assert.ok(await source.isVisible(), 'Replacing the player does not remove the original link');
+      }
+      assert.ok(await videoPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        'The loaded players fit without horizontal scrolling');
+      results.push({ route: videoRoute + ' keyboard video', viewport: viewport.name, status: 'passed' });
+      console.log(`PASS ${viewport.name}: ${videoRoute} video activation retains keyboard focus`);
+    } catch (error) {
+      results.push({ route: videoRoute + ' keyboard video', viewport: viewport.name, status: 'failed', error: error.stack });
+      console.error(`FAIL ${viewport.name}: ${videoRoute} keyboard video\n${error.message}`);
+    } finally {
+      await videoPage.close();
+    }
     const navPage = await context.newPage();
     try {
       await navPage.goto(origin, { waitUntil: 'load' });
