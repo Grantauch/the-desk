@@ -1,6 +1,6 @@
 # Source-first visual replacements — November 19, 2026
 
-This batch replaces two Story Hub catalog illustrations and three in-lesson narrative SVG appearances with documented primary-source media. **Existing local SVG files are retained for rollback and as fallbacks where noted.** No PIN gate, answers, saving, or Turn In code was modified.
+This batch replaces three Story Hub catalog illustrations, three in-lesson narrative SVG appearances, and one explicitly labeled portrait placeholder with documented primary-source media. **Existing local SVG files are retained for rollback and as fallbacks where noted.** No PIN gate, answers, saving, or Turn In code was modified.
 
 ## 1. Hidden History — The Hangman of Nuremberg
 
@@ -22,6 +22,15 @@ This batch replaces two Story Hub catalog illustrations and three in-lesson narr
 - Source: https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Blockade_of_Engines_at_Martinsburg_W_VA.jpg
 - Rights: published in 1877; public domain.
 - Preserve all remaining 12 authored vector scenes pending individual QA. An interactive or historically meaningful SVG is not automatically low quality.
+
+## 3. Beyond the Scoreboard — Not in the Room
+
+- Catalog: `bts-l03-not-in-the-room`. Replaces the catalog's ledger-illustration preview with the original 1876 *Chicago White Stockings* lithograph. This image depicts players and their manager, **not** the National League's club-owner meeting. That distinction is central to this lesson.
+- Lithograph source: https://commons.wikimedia.org/wiki/File:1876_Chicago_White_Stockings.webp
+- Rights: 1876 publication, public domain in the United States.
+- Historical person anchor: the text-only William Hulbert placeholder in the meeting chapter now uses an authentic period portrait with a visible source link, plus a concise identification.
+- Hulbert portrait source: https://commons.wikimedia.org/wiki/File:William_Hulbert_Baseball.jpg
+- Rights: public domain; source attributed to the National Baseball Hall of Fame by Wikimedia Commons. The available derivative is low-resolution, so it must not be enlarged into a full-screen image.
 
 ## Delivery limitation and follow-up
 
