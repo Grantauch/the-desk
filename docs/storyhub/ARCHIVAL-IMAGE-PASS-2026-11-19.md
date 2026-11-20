@@ -41,6 +41,12 @@ This batch replaces three Story Hub catalog illustrations, six in-lesson narrati
 - **Scene 8:** uses an **1886 Inter Ocean Co. printed Haymarket trial broadside** that reproduces portraits of the defendants, lawyers, jurors and police. These are historical likenesses, not generated faces. It is a later published compilation, not a photograph of everyone together at a single moment. Source [Library of Congress, LCCN 2008680516](https://www.loc.gov/item/2008680516/); digitization: `https://cdn.loc.gov/service/pnp/ppmsca/19500/19510v.jpg`. Public domain: published 1886.
 - Lesson captions distinguish the exact type and viewpoint of each publication, provide a route to the original record, and retain the existing SVGs as on-error fallbacks. No assertion about guilt is derived merely from contemporary editorial labeling.
 
+### Haymarket defendants (scene 9) — actual dated jail portraits
+
+- Scene 9 now shows the surviving **May 3, 1887 John Joergen Kanberg portrait composite** of August Spies, Albert Parsons, Louis Lingg, George Engel, and Adolph Fischer, made in the Chicago county jail before their deaths. It includes the defendant who died by suicide on November 10 rather than treating the group as exclusively the four men executed on November 11.
+- Archival record: [Library of Congress 93513661 / Wikimedia Commons public-domain scan](https://commons.wikimedia.org/wiki/File:J._J._Kanberg_-_The_Five_Chicago_Anarchists-2.2R_V01-2.1_LoC.jpg); 1887 historic portrait, **not** a photograph of executions.
+- The source is presented at restrained size with the list of actual events as live HTML. The former jail corridor SVG remains a load-failure fallback.
+
 ## 3. Beyond the Scoreboard — Not in the Room
 
 - Catalog: `bts-l03-not-in-the-room`. Replaces the catalog's ledger-illustration preview with the original 1876 *Chicago White Stockings* lithograph. This image depicts players and their manager, **not** the National League's club-owner meeting. That distinction is central to this lesson.
