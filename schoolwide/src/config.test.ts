@@ -94,3 +94,39 @@ test('VPS staging cannot silently become a production configuration', () => {
     RELEASE_SHA: 'b'.repeat(40),
   }), /cannot be used as a production cutover flag/);
 });
+
+test('VPS host staging accepts the isolated local PostgreSQL 18 cluster with peer auth', () => {
+  const config = readConfig({
+    DATABASE_URL: 'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage',
+    DATABASE_SOCKET_PATH: '/var/run/postgresql',
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps-host',
+    RELEASE_SHA: 'c'.repeat(40),
+  });
+  assert.equal(config.stagingPlatform, 'vps-host');
+  assert.equal(config.databaseSocketPath, '/var/run/postgresql');
+  assert.equal(config.legacyProductionWrites, 'forbidden');
+});
+
+test('VPS host staging fails closed for Margin DB, alternate role, port, socket, or password', () => {
+  const safe = {
+    DATABASE_URL: 'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage',
+    DATABASE_SOCKET_PATH: '/var/run/postgresql',
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps-host',
+    RELEASE_SHA: 'c'.repeat(40),
+  };
+  for (const databaseUrl of [
+    'postgresql://margin@localhost:5432/margin',
+    'postgresql://margin@localhost:55432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage@localhost:5432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage@203.0.113.3:55432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage:guess@localhost:55432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage@localhost:55432/margin',
+    'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage?sslmode=disable',
+  ]) {
+    assert.throws(() => readConfig({ ...safe, DATABASE_URL: databaseUrl }), /dedicated PostgreSQL cluster/);
+  }
+  assert.throws(() => readConfig({ ...safe, DATABASE_SOCKET_PATH: '/tmp' }), /local PostgreSQL Unix socket/);
+  assert.throws(() => readConfig({ ...safe, DEPLOYMENT_TIER: 'production' }), /production cutover flag/);
+});
