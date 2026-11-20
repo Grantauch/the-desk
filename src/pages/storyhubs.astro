@@ -37,9 +37,8 @@ import { storyHubs } from '../data/storyhubs';
             {hub.archivalCover && <span class="storyhub-card__archival-label">ARCHIVAL PHOTOGRAPH · NOT A RECONSTRUCTION</span>}
           </a>
 
-          {hub.archivalCover && <p class="storyhub-card__source-note">Photo: <a href={hub.archivalCover.sourceUrl} target="_blank" rel="noopener noreferrer">{hub.archivalCover.credit}</a></p>}
-
           <div class="storyhub-card__body">
+            {hub.archivalCover && <p class="storyhub-card__source-note">Photo: <a href={hub.archivalCover.sourceUrl} target="_blank" rel="noopener noreferrer">{hub.archivalCover.credit}</a></p>}
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span class="text-xs font-mono lowercase text-accent">{hub.course}</span>
               <span class="text-xs font-mono lowercase text-ink-soft">· {hub.unit}</span>
