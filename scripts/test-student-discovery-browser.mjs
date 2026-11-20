@@ -76,8 +76,21 @@ try {
         'Source investigations are separate from Games');
       assert.equal(await page.getByRole('link', { name: /jeopardy live · student buzzer/ }).getAttribute('href'), '/hubs/jeopardy-buzz.html');
       assert.equal(await page.locator('a[href*="lessonhub-lab"]').count(), 0);
+      assert.equal(await page.locator('a[href="/hubs/ush9-muckrakers-review.html"]').count(), 0,
+        'Practice drills are not mixed into the Games cabinet');
+      await page.getByRole('link', { name: /Practice & review/i }).first().click();
+      await page.waitForURL(origin + '/practice/');
+      assert.ok(await page.getByRole('heading', { name: 'practice & review', exact: true }).count());
+      assert.ok(await page.locator('a[href="/hubs/ush9-muckrakers-review.html"]').count(),
+        'The practice activity retains its original student URL');
+      await page.goto(origin + '/games/');
       await page.getByRole('link', { name: 'Explore simulations and investigations' }).click();
       await page.waitForURL(origin + '/simulations/');
+      const models = page.locator('section[aria-labelledby="story-simulations-heading"]');
+      assert.ok(await models.locator('a[href="/hubs/hh-bytesize-glomar.html"]').count(),
+        'The original Glomar Story Hub is discoverable under Simulations');
+      assert.ok(await models.locator('a[href="/hubs/ush9-who-paid-for-it.html"]').count(),
+        'An interactive industry model is also discoverable under Simulations');
       const investigation = page.locator('section[aria-labelledby="investigation-heading"] article')
         .filter({ has: page.getByRole('heading', { name: /constitution day · case files/ }) });
       const investigationLink = investigation.getByRole('link', { name: 'open investigation' });
