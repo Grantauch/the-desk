@@ -373,7 +373,8 @@
       for (const k in this.buffs) if (this.buffs[k] > 0) this.buffs[k] = Math.max(0, this.buffs[k] - dt);
       for (const a in this.abil) {
         const ab = this.abil[a];
-        if (ab.charge > BK.ABILITIES[a].charge) ab.charge = BK.ABILITIES[a].charge;
+        const reserve = BK.ABILITIES[a].charge * (BK.SUPPORT_RESERVE || 1);
+        if (ab.charge > reserve) ab.charge = reserve;
       }
 
       if (this.combo > 0) {
@@ -676,6 +677,11 @@
             e.flameBlown = true;
             mult *= 99;
             pen = 1;
+            break;
+          case "softspot":
+            mult *= w.mult * (o.weakMult || 1);
+            if (e.kind === "moto") e.slowT = Math.max(e.slowT, 2);
+            label = "WEAK SPOT";
             break;
           case "tires":
             if (e.slowT <= 0) this.emit("text", { x: e.x, y: e.y - 20, str: "TIRES", color: "#f2e3b0", size: 18 });
