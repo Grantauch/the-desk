@@ -1,4 +1,17 @@
 {
+  "medal-of-honor-exhibit-2026-11-19": {
+    "status": "LOCAL_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Restyle the Medal of Honor exhibit, all 21 profiles, student and teacher tools, and report cover. Add locally served archival images with credits.",
+    "verification_status": "FOCUSED_CHROMIUM_6_OF_6",
+    "deployment_status": "PROTECTED_CI_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All 21 images, official citations, maps, and profile links render. Tested the landing and profile at 320, 390, and 1440 pixels with automated WCAG A/AA checks.",
+      "Synthetic browser journeys passed for solo and paired work, same-class claim locking, the full report and teacher gallery.",
+      "Stowers is a labeled U.S. Army forensic reconstruction. Stockham is represented by the medal awarded to him. Profile captions credit each visual source."
+    ]
+  },
   "experience-catalog-publication-2026-11-19": {
     "status": "LOCAL_FULL_AND_RENDERED_VERIFIED",
     "owner": "Codex",

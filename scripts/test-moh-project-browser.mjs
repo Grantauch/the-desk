@@ -120,8 +120,21 @@ await test('home and veteran pages read cleanly at phone and desktop widths', as
   const s = world();
   const cb = await chromebook(s, { gate: false });
   const page = await open(cb, '/hubs/ush9-medal-of-honor.html');
-  const cards = await page.locator('.vgrid .vcard').count();
+  const cards = await page.locator('#wall .exhibit-card').count();
   assert.equal(cards, 21, 'all 21 veterans on the wall');
+  await page.locator('#wall img').evaluateAll(async (images) => {
+    await Promise.all(images.map((image) => {
+      image.loading = 'eager';
+      return image.decode();
+    }));
+  });
+  assert.equal(await page.locator('#wall img').count(), cards, 'every card has a local image');
+  assert.ok(await page.locator('.gallery-backdrop img').evaluate((image) => image.naturalWidth > 0), 'archival cover loaded');
+  await page.locator('#filters [data-tag="navy"]').click();
+  const navyCount = await page.evaluate(() => window.MOH_VETERANS.filter((veteran) => veteran.tags.includes('navy')).length);
+  assert.equal(await page.locator('#wall .exhibit-card:visible').count(), navyCount, 'service filter updates the gallery');
+  await page.locator('#filters [data-tag="all"]').click();
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `home has no sideways scroll at ${width}`);
@@ -132,7 +145,7 @@ await test('home and veteran pages read cleanly at phone and desktop widths', as
   const vet = await open(cb, '/hubs/ush9-medal-of-honor-veteran.html?v=freddie-stowers');
   await vet.waitForSelector('h1');
   assert.match(await vet.locator('h1').textContent(), /Stowers/);
-  for (const width of [390, 1440]) {
+  for (const width of [320, 390, 1440]) {
     await vet.setViewportSize({ width, height: 900 });
     assert.ok(await vet.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `veteran page has no sideways scroll at ${width}`);
     const axe = await new AxeBuilder({ page: vet }).withTags(['wcag2a', 'wcag2aa']).exclude('#desk-save-reader').analyze();
@@ -148,9 +161,17 @@ await test('every veteran page builds with a citation, a map pin and working nex
   const cb = await chromebook(s, { gate: false });
   const page = await open(cb, '/hubs/ush9-medal-of-honor.html');
   const slugs = await page.evaluate(() => window.MOH_VETERANS.map((v) => v.slug));
+  await page.setViewportSize({ width: 320, height: 780 });
   for (const slug of slugs) {
     await page.goto(`${BASE}/hubs/ush9-medal-of-honor-veteran.html?v=${slug}`);
     await page.waitForSelector('h1');
+    const portrait = page.locator('.profile-portrait img');
+    await portrait.evaluate((image) => image.decode());
+    assert.ok(await portrait.getAttribute('alt'), `${slug} describes its image`);
+    assert.ok(await page.locator('.profile-portrait figcaption a').getAttribute('href'), `${slug} credits its archival source`);
+    assert.match(await page.locator('.project-next a').getAttribute('href'), new RegExp('pick=' + slug + '$'));
+    assert.ok(await page.locator('.pager .next').getAttribute('href'), `${slug} links to the next profile`);
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${slug} fits the viewport`);
     const cite = await page.evaluate((s) => {
       const v = window.MOH_VETERANS.find((x) => x.slug === s);
       const q = document.querySelector('.citation blockquote');

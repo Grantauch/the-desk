@@ -60,16 +60,21 @@ details.hist pre{white-space:pre-wrap;margin:.3rem 0 0;font:inherit}
   body.previewing #preview .bar{display:none!important}
 }
 </style>
+<link rel="stylesheet" href="/hubs/moh/exhibit.css">
+<link rel="stylesheet" href="/hubs/moh/tools.css">
 </head>
-<body>
+<body class="teacher-tool">
+<a class="skip" href="#main-content">Skip to the teacher desk</a>
 <header class="mbar"><div class="wrap">
   <a class="brand" href="/hubs/ush9-medal-of-honor.html"><span aria-hidden="true">★</span> Medal of Honor Project</a>
   <nav aria-label="Project"><a href="/hubs/ush9-medal-of-honor.html">Veterans</a><a href="/hubs/ush9-medal-of-honor-project.html">Student view</a></nav>
 </div></header>
 <main id="main-content">
-  <p class="kicker">Teacher desk</p>
-  <h1>Teams, papers and screens</h1>
-  <p class="lede">Every team in every hour, each partner's progress counted separately, and one button to print a finished paper or put the memorial screens up on the board.</p>
+  <div class="tool-intro">
+    <p class="kicker">Teacher desk</p>
+    <h1 class="exhibit-title">Teams, papers and screens</h1>
+    <p>See each team’s progress by hour, print papers and poster blueprints, and present the memorial screens.</p>
+  </div>
 
   <form class="keyrow" id="keyform">
     <label for="key">Teacher key
@@ -106,6 +111,7 @@ details.hist pre{white-space:pre-wrap;margin:.3rem 0 0;font:inherit}
 
 <script src="/hubs/moh/spec.js"></script>
 <script src="/hubs/moh/veterans.js"></script>
+<script src="/hubs/moh/portraits.js"></script>
 <script src="/hubs/moh/art.js"></script>
 <script src="/hubs/moh/paper.js"></script>
 <script>
@@ -200,7 +206,10 @@ details.hist pre{white-space:pre-wrap;margin:.3rem 0 0;font:inherit}
   function button(label, fn, ghost) { var b = el('button', { type: 'button', class: 'btn small' + (ghost ? ' ghost' : '') }, label); b.addEventListener('click', fn); return b; }
   function card(t) {
     var v = vet(t.choice), c = el('article', { class: 'team' });
-    c.appendChild(el('h3', {}, v ? v.name : t.choice));
+    var heading = el('div', { class: 'teacher-veteran' });
+    if (v) heading.appendChild(window.MOH_PORTRAITS.image(v.slug, 'thumb'));
+    heading.appendChild(el('h3', {}, v ? v.name : t.choice));
+    c.appendChild(heading);
     c.appendChild(el('div', { class: 'sub' }, (t.mode === 'solo' ? 'Working alone' : 'Pair') + (t.code ? ' · waiting for a partner, code ' + t.code : '')));
     var people = t.mode === 'solo' ? [['solo', t.a, 'Does every job']] : [['A', t.a, 'Partner A, Poster Lead'], ['B', t.b, 'Partner B, Screen Lead']];
     var scores = [];

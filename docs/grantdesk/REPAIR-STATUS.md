@@ -1,3 +1,9 @@
+## November 19 Medal of Honor exhibit
+
+Owner Codex. Redesigned the World War I project's landing page, 21 veteran profiles, student picker and workspace, teacher desk, and report cover. Kept the original URLs, project fields, official citations and assignment service. The gallery serves two WebP sizes per veteran, with source credits on every profile. Stowers uses the U.S. Army forensic reconstruction distributed by the National Park Service. Stockham's image is the medal awarded to him. The landing photograph is from the Library of Congress.
+
+The focused Chromium suite passed all six journeys, including all 21 images, citations, maps and profile links, narrow layouts and automated accessibility, synthetic solo/partner work, class-specific claims, report printing and teacher presentation. Protected checks and production deployment are tracked separately. No classroom-device acceptance has been performed.
+
 ## November 19 experience catalog publication
 
 Owner Codex, PR #421 / tracker P421, first release batch for #422. The centralized inventory preserves all 37 original activity URLs while separating 17 games, five practice activities, nine simulations and six investigations. Simulations retains the five teacher-led collections and adds three links into existing Story Hubs. The current Story Hub catalog contains 77 entries, correcting the earlier count of 72. The trench cover uses the already credited John Warwick Brooke / IWM Q 4135 photograph within the same lesson.
