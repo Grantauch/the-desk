@@ -947,5 +947,94 @@ test('Turn In accepts the verified account session after refresh and refuses exp
   assert.equal(w.rows('Turn Ins').length, 1);
 });
 
+
+/* ---------------------------------------------------------- project teams -- */
+
+const MOH = 'ush9-medal-of-honor-project';
+const sign = (w, person) => w.post({ action: 'signin', pin: w.pin(person), hub: MOH, course: 'ush9', device: 'cb-' + person.email.slice(0, 3) });
+const team = (w, token, body) => w.post({ action: 'team', token, hub: MOH, course: 'ush9', ...body });
+
+test('a student working alone gets a solo project that holds the veteran', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada);
+  assert.equal(team(w, ada.token, { op: 'status' }).team, null);
+  const made = team(w, ada.token, { op: 'create', mode: 'solo', choice: 'freddie-stowers' });
+  assert.equal(made.ok, true, JSON.stringify(made));
+  assert.equal(made.team.role, 'solo');
+  assert.equal(made.team.code, '');
+  assert.equal(made.team.choice, 'freddie-stowers');
+  assert.equal(team(w, ada.token, { op: 'status' }).team.choice, 'freddie-stowers');
+  const row = w.rows('Project Teams')[0];
+  assert.equal(row['Mode'], 'solo');
+  assert.equal(row['Member A Email'], PEOPLE.ada.email);
+});
+
+test('partners pair with a code and each sees only the other person’s project boxes', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace);
+  const made = team(w, ada.token, { op: 'create', mode: 'pair', choice: 'alvin-york' });
+  assert.match(made.team.code, /^[A-Z0-9]{4}$/);
+  assert.equal(made.team.role, 'A');
+  const joined = team(w, grace.token, { op: 'join', code: made.team.code.toLowerCase() });
+  assert.equal(joined.ok, true, JSON.stringify(joined));
+  assert.equal(joined.team.role, 'B');
+  assert.equal(joined.team.code, '', 'a full team no longer shows its code');
+  assert.deepEqual(joined.team.members.map((m) => m.name), ['Ada B.', 'Grace H.']);
+  w.post({ action: 'save', token: grace.token, hub: MOH, classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '',
+    answers: answers(['id:moh-b-day-1', 'What happened', 'He crossed the field.'], ['id:other', 'Not project', 'private']) });
+  const seen = team(w, ada.token, { op: 'status' });
+  assert.equal(seen.team.partner.name, 'Grace H.');
+  assert.deepEqual(seen.team.partner.answers, [{ k: 'id:moh-b-day-1', a: 'He crossed the field.' }]);
+  assert.equal(team(w, ada.token, { op: 'cancel' }).code, 'locked', 'a full team cannot be broken up by a student');
+});
+
+test('one team per class per veteran, wrong codes, full teams and other classes are refused', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace), kat = sign(w, PEOPLE.katherine), alan = sign(w, PEOPLE.alan);
+  const made = team(w, ada.token, { op: 'create', mode: 'pair', choice: 'frank-luke' });
+  assert.equal(team(w, grace.token, { op: 'create', mode: 'solo', choice: 'frank-luke' }).code, 'taken');
+  assert.deepEqual(team(w, grace.token, { op: 'status' }).taken, ['frank-luke']);
+  assert.equal(team(w, kat.token, { op: 'create', mode: 'solo', choice: 'frank-luke' }).ok, true, 'another class may take the same veteran');
+  assert.equal(team(w, grace.token, { op: 'join', code: 'ZZZZ' }).code, 'bad_code');
+  assert.equal(team(w, grace.token, { op: 'join', code: made.team.code }).ok, true);
+  assert.equal(team(w, alan.token, { op: 'join', code: made.team.code }).code, 'team_full');
+  const kat2 = team(w, kat.token, { op: 'cancel' });
+  assert.equal(kat2.ok, true);
+  const solo = team(w, kat.token, { op: 'create', mode: 'pair', choice: 'jake-allex' });
+  assert.equal(team(w, ada.token, { op: 'join', code: solo.team.code }).code, 'already');
+  assert.equal(team(w, w.post({ action: 'signin', pin: w.pin(PEOPLE.alan), hub: MOH, course: 'ush9', classPeriod: 'Period 5', device: 'x' }).token,
+    { op: 'join', code: solo.team.code }).code, 'other_class');
+});
+
+test('switching veterans checks the class list and is logged', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace);
+  team(w, ada.token, { op: 'create', mode: 'solo', choice: 'william-shemin' });
+  team(w, grace.token, { op: 'create', mode: 'solo', choice: 'henry-johnson' });
+  assert.equal(team(w, ada.token, { op: 'choose', choice: 'henry-johnson' }).code, 'taken');
+  assert.equal(team(w, ada.token, { op: 'choose', choice: 'sidney-manning' }).team.choice, 'sidney-manning');
+  assert.match(w.rows('Project Teams')[0]['History'], /switched from william-shemin to sidney-manning/);
+});
+
+test('the teacher key is made once in the private workbook and unlocks every team’s work', () => {
+  const w = world();
+  const ada = sign(w, PEOPLE.ada), grace = sign(w, PEOPLE.grace);
+  const made = team(w, ada.token, { op: 'create', mode: 'pair', choice: 'alvin-york' });
+  team(w, grace.token, { op: 'join', code: made.team.code });
+  w.post({ action: 'save', token: ada.token, hub: MOH, classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '',
+    answers: answers(['id:moh-a-before-1', 'Where', 'Tennessee'], ['id:moh-b-day-1', 'Not mine', '']) });
+  const first = w.post({ action: 'teacher', hub: MOH, key: '' });
+  assert.equal(first.code, 'key_created');
+  const key = w.book().getSheetByName('Teacher Key').getRange(2, 1).getValue();
+  assert.ok(key.length > 15);
+  assert.equal(w.post({ action: 'teacher', hub: MOH, key: 'nope', device: 'd1' }).code, 'bad_key');
+  const view = w.post({ action: 'teacher', hub: MOH, key, device: 'd1' });
+  assert.equal(view.ok, true, JSON.stringify(view));
+  assert.equal(view.teams.length, 1);
+  assert.equal(view.teams[0].a.short, 'Ada B.');
+  assert.equal(view.teams[0].b.work, null, 'a partner with no saved work is listed without work');
+  assert.deepEqual(view.teams[0].a.work.answers.map((e) => e.k), ['id:moh-a-before-1', 'id:moh-b-day-1']);
+});
+
 console.log(`${failures ? 'FAIL' : 'PASS'}  turn in web app  (${passed}/${passed + failures})`);
 if (failures) process.exit(1);

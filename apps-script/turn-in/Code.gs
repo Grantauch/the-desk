@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-11-19-turn-in-v15';
+const TI_VERSION = '2026-11-20-turn-in-v16';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -47,6 +47,8 @@ const TI_SHEETS = {
   LOAD_TEST_PROGRESS: 'Load Test Progress',
   LOAD_TEST: 'Load Test',
   TIMELINE: 'Writing Timeline',
+  TEAMS: 'Project Teams',
+  TEACHER_KEY: 'Teacher Key',
 };
 
 const TI_HEADERS = {
@@ -57,6 +59,8 @@ const TI_HEADERS = {
   CLASSROOM_LINKS: ['Class / Period', 'Hub', 'Classroom Assignment URL', 'Hub Title'],
   TIMELINE: ['Turned In', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Submission ID', 'Writing Minutes',
     'Typed', 'Pasted', 'Largest Single Add', 'Times Away', 'Flags', 'Replay Data'],
+  TEAMS: ['Updated', 'Hub', 'Class / Period', 'Team ID', 'Join Code', 'Mode', 'Choice', 'Member A Name', 'Member A Email',
+    'Member B Name', 'Member B Email', 'Status', 'History'],
 };
 TI_HEADERS.LOAD_TEST = TI_HEADERS.TURN_INS;
 
@@ -154,13 +158,15 @@ function route_(request) {
   Object.keys(TI_DRAFT_MEMO).forEach((key) => { delete TI_DRAFT_MEMO[key]; });
   const action = String(request.action || '');
   if (action === 'ping') return { ok: true, version: TI_VERSION };
-  if (!['signin', 'save', 'turnin'].includes(action)) throw refuse_('bad_request', 'That request could not be read.');
+  if (!['signin', 'save', 'turnin', 'team', 'teacher'].includes(action)) throw refuse_('bad_request', 'That request could not be read.');
   const started = Date.now();
   const requestState = { rosterMs: 0, draftMs: 0, lockWaitMs: 0 };
   TI_REQUEST = requestState;
   try {
     if (action === 'signin') return signIn_(request);
     if (action === 'save') return saveDraft_(request);
+    if (action === 'team') return team_(request);
+    if (action === 'teacher') return teacher_(request);
     return turnIn_(request);
   } finally {
     TI_REQUEST = null;
@@ -1078,6 +1084,219 @@ function readableAnswers_(answers) {
 function countWords_(text) {
   const words = String(text || '').trim().match(/\S+/g);
   return words ? words.length : 0;
+}
+
+/* ------------------------------------------------------- project teams ---- */
+
+/*
+ * Project teams let two students share one project page. Each student still
+ * saves only to their own account, so the Progress view shows exactly who wrote
+ * what. A team row records the pair, the class, the join code and the choice
+ * (for the Medal of Honor project, the veteran). One team per class may hold a
+ * choice. Students can only leave a team before a partner joins. After that the
+ * teacher changes the row in the Project Teams tab.
+ */
+
+const TI_TEAM_CODE_CHARS = 'ACDEFGHJKMNPQRTUVWXY34679';
+const TI_TEAM_COLS = { updated: 0, hub: 1, classPeriod: 2, id: 3, code: 4, mode: 5, choice: 6, aName: 7, aEmail: 8, bName: 9, bEmail: 10, status: 11, history: 12 };
+
+function team_(request) {
+  const hub = cleanHub_(request.hub);
+  const session = readToken_(request.token);
+  if (session.test) throw refuse_('bad_request', 'Load test accounts cannot make teams.');
+  const identity = identityByEmail_(session.email);
+  if (!identity) throw refuse_('signed_out', 'Enter your PIN again.');
+  const classPeriod = chooseClass_(identity.classes, request.classPeriod, request.course);
+  const op = String(request.op || 'status');
+  if (!['status', 'create', 'join', 'choose', 'cancel'].includes(op)) throw refuse_('bad_request', 'That request could not be read.');
+  const book = workbook_();
+  if (op === 'status') {
+    const teams = readTeams_(book, hub);
+    const mine = teams.find((t) => teamHas_(t, identity.email));
+    return { ok: true, team: mine ? teamView_(mine, identity.email, true) : null, taken: takenChoices_(teams, classPeriod, mine) };
+  }
+  const lock = LockService.getScriptLock();
+  if (!tryStudentWriteLock_(lock, TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are working right now. Press the button again.');
+  try {
+    const sheet = teamsSheet_(book);
+    const teams = readTeams_(book, hub);
+    let mine = teams.find((t) => teamHas_(t, identity.email));
+    const now = new Date();
+    if (op === 'create') {
+      if (mine) return { ok: true, team: teamView_(mine, identity.email, false), taken: takenChoices_(teams, classPeriod, mine) };
+      const mode = request.mode === 'pair' ? 'pair' : request.mode === 'solo' ? 'solo' : '';
+      if (!mode) throw refuse_('bad_request', 'Choose alone or with a partner.');
+      const choice = cleanChoice_(request.choice);
+      assertChoiceFree_(teams, classPeriod, choice, null);
+      let code = '';
+      if (mode === 'pair') {
+        const used = new Set(teams.map((t) => t.code));
+        do { code = Array.from({ length: 4 }, () => TI_TEAM_CODE_CHARS[Math.floor(Math.random() * TI_TEAM_CODE_CHARS.length)]).join(''); } while (used.has(code));
+      }
+      const team = { updated: now, hub, classPeriod, id: 'T-' + Utilities.getUuid().slice(0, 8).toUpperCase(), code, mode, choice,
+        aName: identity.name, aEmail: identity.email, bName: '', bEmail: '', status: 'Active',
+        history: `${stamp_(now)} ${firstName_(identity.name)} started ${mode === 'pair' ? 'a team' : 'working alone'} with ${choice}` };
+      sheet.appendRow(literalCells_(teamCells_(team)));
+      team.row = sheet.getLastRow();
+      SpreadsheetApp.flush();
+      return { ok: true, team: teamView_(team, identity.email, false), taken: takenChoices_(teams.concat([team]), classPeriod, team) };
+    }
+    if (op === 'join') {
+      if (mine) throw refuse_('already', 'You are already on a team for this project.');
+      const code = String(request.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const team = teams.find((t) => t.code && t.code === code);
+      if (!team) throw refuse_('bad_code', 'That team code did not match. Check the four letters with your partner.');
+      if (team.mode !== 'pair' || team.bEmail) throw refuse_('team_full', 'That team already has two people. Ask your teacher.');
+      if (identity.classes.indexOf(team.classPeriod) === -1) throw refuse_('other_class', 'That code belongs to a team in a different class.');
+      team.bName = identity.name; team.bEmail = identity.email; team.updated = now;
+      team.history += ` | ${stamp_(now)} ${firstName_(identity.name)} joined`;
+      writeTeam_(sheet, team);
+      return { ok: true, team: teamView_(team, identity.email, false), taken: takenChoices_(teams, team.classPeriod, team) };
+    }
+    if (!mine) throw refuse_('no_team', 'Start or join a team first.');
+    if (op === 'choose') {
+      const choice = cleanChoice_(request.choice);
+      if (choice !== mine.choice) {
+        assertChoiceFree_(teams, mine.classPeriod, choice, mine);
+        mine.history += ` | ${stamp_(now)} ${firstName_(identity.name)} switched from ${mine.choice} to ${choice}`;
+        mine.choice = choice; mine.updated = now;
+        writeTeam_(sheet, mine);
+      }
+      return { ok: true, team: teamView_(mine, identity.email, false), taken: takenChoices_(teams, mine.classPeriod, mine) };
+    }
+    // cancel: only before a partner joins. A full team is changed by the teacher.
+    if (mine.bEmail) throw refuse_('locked', 'Your team is set. Ask your teacher if your team needs to change.');
+    mine.status = 'Closed'; mine.updated = now;
+    mine.history += ` | ${stamp_(now)} ${firstName_(identity.name)} started over`;
+    writeTeam_(sheet, mine);
+    return { ok: true, team: null, taken: takenChoices_(teams.filter((t) => t !== mine), classPeriod, null) };
+  } finally {
+    SpreadsheetApp.flush();
+    lock.releaseLock();
+  }
+}
+
+function teamsSheet_(book) {
+  return book.getSheetByName(TI_SHEETS.TEAMS) || ensureSheet_(book, TI_SHEETS.TEAMS, TI_HEADERS.TEAMS);
+}
+
+function readTeams_(book, hub) {
+  const sheet = book.getSheetByName(TI_SHEETS.TEAMS);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const width = TI_HEADERS.TEAMS.length;
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, width).getValues().map((cells, i) => {
+    const t = { row: i + 2 };
+    Object.keys(TI_TEAM_COLS).forEach((name) => { t[name] = name === 'updated' ? cells[TI_TEAM_COLS[name]] : String(cells[TI_TEAM_COLS[name]] || '').trim(); });
+    t.aEmail = t.aEmail.toLowerCase(); t.bEmail = t.bEmail.toLowerCase(); t.code = t.code.toUpperCase(); t.mode = t.mode.toLowerCase();
+    return t;
+  }).filter((t) => t.hub === hub && t.status.toLowerCase() !== 'closed' && (t.aEmail || t.bEmail));
+}
+
+function teamHas_(team, email) {
+  return team.aEmail === email || team.bEmail === email;
+}
+
+function teamCells_(t) {
+  return [t.updated, t.hub, t.classPeriod, t.id, t.code, t.mode, t.choice, t.aName, t.aEmail, t.bName, t.bEmail, t.status, t.history];
+}
+
+function writeTeam_(sheet, team) {
+  sheet.getRange(team.row, 1, 1, TI_HEADERS.TEAMS.length).setValues([literalCells_(teamCells_(team))]);
+}
+
+function cleanChoice_(value) {
+  const choice = String(value || '').trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(choice)) throw refuse_('bad_request', 'Pick a veteran first.');
+  return choice;
+}
+
+function assertChoiceFree_(teams, classPeriod, choice, self) {
+  if (teams.some((t) => t !== self && t.classPeriod === classPeriod && t.choice === choice)) {
+    throw refuse_('taken', 'Another team in your class already picked this veteran. Pick a different one.');
+  }
+}
+
+function takenChoices_(teams, classPeriod, mine) {
+  return teams.filter((t) => t !== mine && t.classPeriod === classPeriod && t.choice).map((t) => t.choice);
+}
+
+function shortName_(name) {
+  const text = String(name || '').trim();
+  const first = firstName_(text);
+  const last = text.indexOf(',') !== -1 ? text.split(',')[0].trim() : text.split(/\s+/).slice(1).join(' ');
+  return last ? `${first} ${last.charAt(0).toUpperCase()}.` : first;
+}
+
+function stamp_(date) {
+  return Utilities.formatDate(date, 'America/Detroit', 'MMM d h:mm a');
+}
+
+function teamView_(team, email, withPartner) {
+  const role = team.mode === 'solo' ? 'solo' : team.aEmail === email ? 'A' : 'B';
+  const members = [{ role: team.mode === 'solo' ? 'solo' : 'A', name: shortName_(team.aName), me: team.aEmail === email }];
+  if (team.bEmail) members.push({ role: 'B', name: shortName_(team.bName), me: team.bEmail === email });
+  const view = { id: team.id, mode: team.mode, code: team.mode === 'pair' && !team.bEmail ? team.code : '', choice: team.choice,
+    classPeriod: team.classPeriod, role, members, partner: null };
+  const partnerEmail = role === 'A' ? team.bEmail : role === 'B' ? team.aEmail : '';
+  if (withPartner && partnerEmail) {
+    const draft = findDraft_(partnerEmail, team.hub);
+    view.partner = { name: shortName_(role === 'A' ? team.bName : team.aName), savedAt: draft && draft.savedAt || '',
+      answers: draft ? draft.answers.filter((entry) => /^id:moh-/.test(entry.k)).map((entry) => ({ k: entry.k, a: entry.a })) : [] };
+  }
+  return view;
+}
+
+/* ------------------------------------------------------- teacher reads ---- */
+
+/*
+ * The teacher page needs every team's work at once to print papers and show
+ * the art gallery. It is protected by a long random key that only appears in
+ * the private Turn In workbook. The first request with no key on file creates
+ * one there and tells the teacher where to find it.
+ */
+function teacher_(request) {
+  const props = PropertiesService.getScriptProperties();
+  const device = String(request.device || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64) || 'unknown';
+  let key = props.getProperty('TEACHER_KEY');
+  const book = workbook_();
+  if (!key) {
+    key = Array.from({ length: 4 }, () => Utilities.getUuid().replace(/-/g, '').slice(0, 5)).join('-');
+    props.setProperty('TEACHER_KEY', key);
+    const sheet = book.getSheetByName(TI_SHEETS.TEACHER_KEY) || book.insertSheet(TI_SHEETS.TEACHER_KEY);
+    sheet.getRange(1, 1, 2, 1).setValues([['Paste this key into the teacher project page once on your own computer. Never share it with students.'], [key]]);
+    SpreadsheetApp.flush();
+    throw refuse_('key_created', 'A teacher key was just made. Open your Turn In workbook, go to the Teacher Key tab, and paste the key here.');
+  }
+  assertAttemptsAllowed_(device);
+  if (String(request.key || '').trim() !== key) {
+    recordFailedAttempt_(device);
+    throw refuse_('bad_key', 'That teacher key did not match. Copy it again from the Teacher Key tab.');
+  }
+  const hub = cleanHub_(request.hub);
+  const teams = readTeams_(book, hub);
+  const work = {};
+  const progress = book.getSheetByName(TI_SHEETS.PROGRESS);
+  if (progress && progress.getLastRow() >= 2) {
+    progress.getRange(2, 1, progress.getLastRow() - 1, 13).getValues().forEach((cells) => {
+      if (String(cells[4]) !== hub) return;
+      let data;
+      try { data = JSON.parse(cells[11]); } catch (error) { return; }
+      if (!data || !Array.isArray(data.answers)) return;
+      const email = String(cells[3]).toLowerCase();
+      if (work[email] && Date.parse(work[email].savedAt) >= Date.parse(data.savedAt)) return;
+      work[email] = { name: String(cells[2]), classPeriod: String(cells[1]), savedAt: data.savedAt, finishedAt: data.finishedAt || '', status: String(cells[12] || ''),
+        answers: data.answers.filter((entry) => /^id:moh-/.test(entry.k)).map((entry) => ({ k: entry.k, a: entry.a })) };
+    });
+  }
+  const member = (name, email) => email ? { name, short: shortName_(name), work: work[email] || null } : null;
+  const listed = new Set();
+  const out = teams.map((t) => {
+    listed.add(t.aEmail); listed.add(t.bEmail);
+    return { id: t.id, classPeriod: t.classPeriod, mode: t.mode, choice: t.choice, code: t.bEmail ? '' : t.code, history: t.history,
+      a: member(t.aName, t.aEmail), b: member(t.bName, t.bEmail) };
+  });
+  const loose = Object.keys(work).filter((email) => !listed.has(email)).map((email) => ({ name: work[email].name, classPeriod: work[email].classPeriod, savedAt: work[email].savedAt }));
+  return { ok: true, hub, teams: out, noTeam: loose, at: new Date().toISOString() };
 }
 
 /* ---------------------------------------------------------------- helpers -- */
