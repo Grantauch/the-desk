@@ -167,6 +167,7 @@ await test('annotated exemplar is complete, accessible, printable and never beco
     assert.equal(await page.locator('.explanation:visible').count(), 0, 'clean print hides explanations');
     if (width === 1440) await page.pdf({ path: `${OUT}/exemplar-clean.pdf`, format: 'Letter' });
     await page.emulateMedia({ media: 'screen' });
+    await toggle.focus();
     await page.keyboard.press('Enter');
     assert.equal(await page.locator('.explanation:visible').count(), notes);
   }
