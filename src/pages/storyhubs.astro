@@ -50,6 +50,21 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
   </section>
 
 
+  <section class="daily-feature mt-8" aria-labelledby="daily-feature-heading">
+    <div class="daily-feature__art">
+      {library[0]?.cover && <img id="daily-feature-image" src={library[0].cover} alt={library[0].coverAlt} width="1280" height="720" />}
+      <div class="daily-feature__shade"></div>
+    </div>
+    <div class="daily-feature__content">
+      <p class="daily-feature__eyebrow">the daily feature · one story every day</p>
+      <h2 id="daily-feature-heading">today's featured story</h2>
+      <p id="daily-feature-title" class="daily-feature__title">{library[0]?.title}</p>
+      <p id="daily-feature-question" class="daily-feature__question">{library[0]?.question}</p>
+      <a id="daily-feature-link" class="daily-feature__link" href={library[0]?.href}>explore today's story →</a>
+      <p class="daily-feature__rotation" id="daily-feature-rotation">Every story gets its turn before the rotation repeats.</p>
+    </div>
+  </section>
+
   <section class="mt-8 library-controls" aria-label="Find a Story Hub">
     <div class="library-controls__heading">
       <h2>find your next story<span class="text-accent">.</span></h2>
@@ -94,7 +109,7 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
     </div>
     <div class="library-grid" id="storyhub-library">
       {library.map((hub) => (
-        <article class="library-card" data-course={hub.course.toLowerCase()} data-format={hub.format} data-search={[hub.title,hub.course,hub.period,hub.unit,hub.question,hub.blurb,...hub.topics].join(' ').toLowerCase()}>
+        <article class="library-card" data-course={hub.course.toLowerCase()} data-format={hub.format} data-title={hub.title} data-question={hub.question} data-href={hub.href} data-cover={hub.cover} data-cover-alt={hub.coverAlt} data-search={[hub.title,hub.course,hub.period,hub.unit,hub.question,hub.blurb,...hub.topics].join(' ').toLowerCase()}>
           <a class="library-card__art" href={hub.href} aria-label={`Open ${hub.title}`}>
             {hub.cover ? <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="600" height="338" /> : <span class="library-card__placeholder" aria-hidden="true">historical field guide</span>}
           </a>
@@ -349,6 +364,19 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
 </style>
 
 <style>
+  .daily-feature{position:relative;min-height:clamp(340px,40vw,530px);display:flex;align-items:end;overflow:hidden;background:#172833;color:#fff;border-radius:4px}
+  .daily-feature__art,.daily-feature__shade{position:absolute;inset:0}
+  .daily-feature__art img{width:100%;height:100%;object-fit:cover}
+  .daily-feature__shade{background:linear-gradient(90deg,rgba(11,19,27,.95),rgba(11,19,27,.68) 55%,rgba(11,19,27,.14)),linear-gradient(0deg,rgba(11,19,27,.5),transparent)}
+  .daily-feature__content{position:relative;z-index:1;padding:clamp(1.25rem,4vw,3rem);max-width:760px}
+  .daily-feature__eyebrow{font:700 .73rem var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:#f1cb80}
+  .daily-feature__content h2{font:700 .9rem var(--font-mono);margin-top:1rem;color:#e7d7be}
+  .daily-feature__title{font:800 clamp(2rem,5vw,4.5rem)/1.06 var(--font-display);margin:.3rem 0 1rem}
+  .daily-feature__question{line-height:1.6;max-width:56ch}
+  .daily-feature__link{display:inline-flex;align-items:center;min-height:44px;background:#f1cb80;color:#111b20;font:800 .85rem var(--font-mono);padding:.7rem 1.1rem;margin-top:1.4rem}
+  .daily-feature__link:hover{background:white}
+  .daily-feature__rotation{font:.7rem var(--font-mono);color:#e4dbcc;margin-top:1rem}
+  @media(max-width:600px){.daily-feature__shade{background:linear-gradient(0deg,rgba(11,19,27,.98),rgba(11,19,27,.42))}.daily-feature{min-height:440px}}
   .library-controls {background:#f6f0e4;border:2px solid var(--color-ink);padding:clamp(1rem,3vw,2rem);box-shadow:6px 6px 0 #d7c7a7}
   .library-controls__heading h2,.library-results-header h2{font-family:var(--font-display);font-weight:800;font-size:clamp(1.4rem,3vw,2rem);text-transform:lowercase}
   .library-controls__heading p{color:var(--color-ink-soft);margin:.25rem 0 1.2rem}
@@ -387,6 +415,35 @@ const categories = ['all', 'us history', 'hidden history', 'beyond the scoreboar
   const empty = document.querySelector<HTMLElement>('#storyhub-empty');
   const cards = Array.from(document.querySelectorAll<HTMLElement>('.library-card'));
   const collections = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-collection]'));
+  // Use a shared Eastern calendar day, rather than a student's device timezone.
+  // The ordered catalog cycles without repeats; when it reaches 365 entries,
+  // each entry will be featured on a different day in a 365-day cycle.
+  const dateParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Detroit', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date());
+  const part = (type: string) => Number(dateParts.find(item => item.type === type)?.value || 1);
+  const calendarDay = Math.floor(Date.UTC(part('year'), part('month') - 1, part('day')) / 86400000);
+  const featuredIndex = ((calendarDay % cards.length) + cards.length) % cards.length;
+  const featured = cards[featuredIndex];
+  if (featured) {
+    const setText = (selector: string, value: string) => {
+      const el = document.querySelector<HTMLElement>(selector);
+      if (el) el.textContent = value;
+    };
+    setText('#daily-feature-title', featured.dataset.title || '');
+    setText('#daily-feature-question', featured.dataset.question || '');
+    setText('#daily-feature-rotation', `Story ${featuredIndex + 1} of ${cards.length} in the rotation · changes at midnight Eastern`);
+    const link = document.querySelector<HTMLAnchorElement>('#daily-feature-link');
+    if (link) link.href = featured.dataset.href || '#storyhub-library';
+    const image = document.querySelector<HTMLImageElement>('#daily-feature-image');
+    if (image) {
+      if (featured.dataset.cover) {
+        image.src = featured.dataset.cover;
+        image.alt = featured.dataset.coverAlt || '';
+        image.hidden = false;
+      } else image.hidden = true;
+    }
+  }
   let collection = '';
   const update = () => {
     const term = (search?.value || '').trim().toLowerCase();
