@@ -249,8 +249,10 @@
     const g = this.g;
     const t = g.towers.find((x) => x.id === this.panelFor);
     if (!t) { this.closePanel(); return; }
+    const opts = g.upgradeOptions(t);
     const invKey = Object.keys(g.inv).map((k) => k + g.inv[k]).join("");
-    const key = [t.path.join(">"), t.rank, Math.floor(t.xp / 10), t.priority, Math.floor(g.money / 5), invKey, t.ko > 0, t.manned, g.phase, t.coverVer, g.forts.length].join(",");
+    const affordability = opts.map((n) => g.money >= n.cost ? "1" : "0").join("");
+    const key = [t.path.join(">"), t.rank, Math.floor(t.xp / 10), t.priority, affordability, invKey, t.ko > 0, t.manned, g.phase, g.coverVer, g.forts.length, g.refits || 0].join(",");
     if (!force && key === this.panelKey) return;
     this.panelKey = key;
     const d = BK.GUNS[t.kind];
@@ -295,28 +297,42 @@
     if (help.length) h += `<div class="cover">${help.join("")}</div>`;
     if (!d.support) h += `<button class="pbtn crew" data-a="crew" ${t.ko > 0 ? "disabled" : ""}>${svg("crosshair").replace("<svg", '<svg width="18" height="18"')} ${t.manned ? "Leave gun" : "Crew this gun"} <small style="opacity:.7">E</small></button>`;
     // The next forms this gun can take.
-    const opts = g.upgradeOptions(t);
+    if (g.refits && opts.length) h += `<div class="refit-note"><b>${g.refits} free refit${g.refits === 1 ? "" : "s"} saved</b><small>${g.phase === "deploy" ? "Pick a branch. A refit covers cash, parts, and any required promotion." : "Spend it on any branch between waves."}</small></div>`;
     for (const n of opts) {
       const why = g.upgradeBlock(t, n);
       const needs = [];
       const rankNeed = BK.RANK_FOR_TIER[n.tier];
       if (rankNeed) needs.push(`<span class="${(t.rank || 0) >= rankNeed ? "ok" : "no"}">${BK.RANKS[rankNeed].name}</span>`);
       for (const [k, v] of Object.entries(n.items || {})) needs.push(`<span class="${(g.inv[k] || 0) >= v ? "ok" : "no"}">${v}× ${BK.ITEMS[k].name} (${g.inv[k] || 0})</span>`);
-      h += `<button class="upopt${n.tier === 3 ? " tier3" : ""}" data-a="up" data-n="${n.id}" ${why ? "disabled" : ""} title="${why || "Upgrade"}"><img alt="" src="${BK.Art.formIcon(t.kind, n.id, 48)}"><div><div class="top"><b>${n.name}</b><span class="cost">${n.cost} zł</span></div><small>${n.desc}</small><div class="needs">${needs.join("")}</div></div></button>`;
+      const deltas = (refit) => BK.upgradeDeltas(g, t, n, refit).map((d) => `<span class="${d.good ? "good" : "trade"}">${d.label}</span>`).join("");
+      const canRefit = g.refits && !g.upgradeBlock(t, n, true);
+      h += `<div class="upgrade-choice"><button class="upopt${n.tier === 3 ? " tier3" : ""}" data-a="up" data-n="${n.id}" ${why ? "disabled" : ""} title="${why || "Upgrade"}"><img alt="" src="${BK.Art.formIcon(t.kind, n.id, 48)}"><div><div class="top"><b>${n.name}</b><span class="cost">${n.cost} zł</span></div><small>${n.desc}</small><div class="upgrade-deltas">${deltas(false)}</div><div class="needs">${needs.join("")}</div></div></button>`
+        + (canRefit ? `<button class="refit-spend" data-a="refit" data-n="${n.id}" aria-label="Use one free refit for ${n.name}">Use free refit<div class="upgrade-deltas">${deltas(true)}</div></button>` : "") + "</div>";
     }
     if (!opts.length) h += `<div class="role" style="margin-top:.4em">Final form. This crew has nothing left to learn but the enemy.</div>`;
     const pr = ["first", "last", "strong", "near"];
     if (!d.support) h += `<div class="prio">${pr.map((p) => `<button data-a="prio" data-p="${p}" class="${t.priority === p ? "on" : ""}">${p}</button>`).join("")}</div>`;
-    h += `<div class="prow">${g.phase === "deploy" ? `<button class="pbtn small" data-a="move"><b>Move</b><small>R</small></button>` : ""}<button class="pbtn sell small" data-a="sell"><b>Sell</b><span class="cost">${g.sellValue(t)} zł</span></button><button class="pbtn small" data-a="close"><b>Close</b></button></div>`;
+    h += `<div class="prow">${g.phase === "deploy" && s.mobile ? `<button class="pbtn small" data-a="move"><b>Move</b><small>R</small></button>` : ""}<button class="pbtn sell small" data-a="sell"><b>Sell</b><span class="cost">${g.sellValue(t)} zł</span></button><button class="pbtn small" data-a="close"><b>Close</b></button></div>`;
     const el = $("panel");
+    const scrollTop = el.scrollTop;
+    const focus = el.contains(document.activeElement) ? document.activeElement.dataset : null;
     el.innerHTML = h;
     el.classList.remove("hidden");
+    el.scrollTop = scrollTop;
+    if (focus && focus.a) {
+      const same = [...el.querySelectorAll("button[data-a]")].find((b) =>
+        b.dataset.a === focus.a && b.dataset.n === focus.n && b.dataset.p === focus.p && !b.disabled);
+      (same || el.querySelector('button[data-a="close"]'))?.focus({ preventScroll: true });
+    }
     el.querySelectorAll("button[data-a]").forEach((b) => {
       b.onclick = (ev) => {
         ev.stopPropagation();
         const a = b.dataset.a;
         if (a === "crew") { if (t.manned) g.unman(); else g.man(t); this.app.refreshCrew(); if (t.manned) this.closePanel(); }
-        else if (a === "up") { if (!g.upgrade(t, b.dataset.n)) BK.Audio.ui("deny"); }
+        else if (a === "up" || a === "refit") {
+          if (!g.upgrade(t, b.dataset.n, a === "refit")) BK.Audio.ui("deny");
+          else if (g.phase === "deploy" && g.wave >= 1) BK.RunSave.write(g);
+        }
         else if (a === "prio") { t.priority = b.dataset.p; BK.Audio.ui(); }
         else if (a === "move") { this.app.armRelocate(t); return; }
         else if (a === "sell") { g.sell(t); this.closePanel(); return; }
@@ -375,7 +391,7 @@
     baseNotes.call(this);
     const b = $("notes-body");
     let h = `<h3>New orders</h3>`;
-    h += `<p><b>Battlefields.</b> Seven fields from Smaller to Gigantic. The bigger ones are real battles of September 1939, with more roads in, rivers, bridges and railways. Drag the field, use WASD, or click the corner map to move. Scroll or pinch to zoom.</p>`;
+    h += `<p><b>Battlefields.</b> Campaign fields range from Smaller to Gigantic and draw on battles of September 1939. The clearly labeled Signal Junction and Canal Loop are fictional bonus fields. Drag the field, use WASD, or click the corner map to move. Scroll or pinch to zoom.</p>`;
     h += `<p><b>Guns grow.</b> Every gun earns experience from kills and from time under fire. Each promotion opens a new tier, and each upgrade turns the gun into something new: an MG nest can become a quad flak mount, a concrete pillbox, a 20mm casemate or a flamethrower bunker. Higher tiers also need supplies from the field.</p>`;
     h += `<p><b>More guns.</b> Keys 7, 8, 9, 0 and T build the RKM wz.28 team, the Granatnik, the TKS tankette, the 100mm howitzer and the Observation Post. The tankette and the howitzer are bought with medals in Command. The Observation Post never fires. It makes the guns around it reach farther, and its branches mark targets, call fire missions, charge abilities or train crews faster. One tankette branch carries supplies that pay after every wave and repair the guns nearby.</p>`;
     h += `<p><b>Supplies.</b> Trucks, tanks, officers and specialists drop ammunition, plate, optics, parts, radios and more. Click or mouse over them. Between waves, click a wreck to strip it. After each wave the inventory shows the haul, then Supplies Inbound brings your card.</p>`;

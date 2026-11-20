@@ -141,14 +141,19 @@
       for (let i = 0; i < 60 * 14; i++) { this.bot.update(STEP); this.g.update(STEP); }
       this.g.events.length = 0;
     }
-    startRun(mapIndex, endless) {
+    startRun(mapIndex, endless, opts) {
+      opts = opts || {};
       BK.Audio.unlock();
       BK.Audio.startMusic();
       this.lastMap = mapIndex;
       this.lastEndless = !!endless;
       for (const id of ["title", "maps", "command", "notes", "cards", "pause", "result"]) $(id).classList.add("hidden");
       this.bot = null;
-      this.g = new BK.Game({ map: mapIndex, endless, seed: (Math.random() * 1e9) | 0, save: { unlocks: BK.Save.data.unlocks } });
+      // A saved battle picks up where it left off. Otherwise a new one starts on the chosen difficulty.
+      const diff = opts.diff || BK.Save.data.settings.diff || "regular";
+      this.g = opts.snapshot ? BK.Game.fromSnapshot(opts.snapshot, BK.Save.data.unlocks)
+        : new BK.Game({ map: mapIndex, endless, diff, daily: opts.daily, weather: opts.weather, seed: opts.seed || (Math.random() * 1e9) | 0, save: { unlocks: BK.Save.data.unlocks } });
+      if (opts.daily && !opts.snapshot && this.g.applyDaily) this.g.applyDaily(opts.daily);
       this.R.setGame(this.g);
       this.R.quiet = false;
       this.inRun = true;
@@ -247,6 +252,11 @@
     }
     armRelocate(t) {
       if (!this.inRun || !t) return;
+      if (!this.g.towerStats(t).mobile) {
+        BK.Audio.ui("deny");
+        this.ui.toast("Stationary gun", "Only mobile guns can move between waves.", null, 0, 2);
+        return;
+      }
       this.clearMode();
       this.mode = "relocate";
       this.relocId = t.id;
@@ -294,6 +304,8 @@
         // Crates win over everything else.
         const cr = g.crateAt(p.x, p.y);
         if (cr) { g.openCrate(cr); return; }
+        // The commander: select him, then click where he should go.
+        if (this.fieldClick && this.fieldClick(p, e)) return;
         if (g.crew) {
           g.aim.x = p.x; g.aim.y = p.y;
           const t = this.towerAt(p.x, p.y);
@@ -305,13 +317,13 @@
         }
         if (this.mode === "build") {
           const why = g.canPlace(p.x, p.y, this.buildKind);
-          if (!why) {
-            g.build(this.buildKind, p.x, p.y);
+          this.ghost = { kind: this.buildKind, x: p.x, y: p.y };
+          if (!why && g.build(this.buildKind, p.x, p.y)) {
             this.ui.tipOnce("send", "Add more guns, or hit Send Wave when you are ready. Going early pays a bonus.", null, 0.6);
             if (!e.shiftKey || g.money < BK.GUNS[this.buildKind].cost) this.clearMode();
           } else {
             BK.Audio.ui("deny");
-            const msg = { road: "Too close to the road.", gun: "Too close to another gun.", prop: "Trees and hay are in the way.", edge: "Too close to the edge.", money: "Not enough złoty." }[why];
+            const msg = BK.placementReason(why || "unavailable");
             this.R.fx.text(p.x, p.y - 20, msg, "#ff8a70", 15, { life: 1 });
           }
           return;
@@ -329,8 +341,9 @@
         }
         if (this.mode === "relocate") {
           const t = g.towers.find((x) => x.id === this.relocId);
-          if (t && g.relocate(t, p.x, p.y)) { this.clearMode(); this.selected = t.id; this.ui.openPanel(t); }
-          else { BK.Audio.ui("deny"); this.R.fx.text(p.x, p.y - 20, g.phase !== "deploy" ? "Between waves only." : "Can't set up there.", "#ff8a70", 15); }
+          const why = t ? g.relocate(t, p.x, p.y) : "unavailable";
+          if (!why) { this.clearMode(); this.selected = t.id; this.ui.openPanel(t); }
+          else { BK.Audio.ui("deny"); this.R.fx.text(p.x, p.y - 20, BK.placementReason(why), "#ff8a70", 15); }
           return;
         }
         if (this.mode === "ability") {
@@ -420,6 +433,7 @@
         const k = e.key.toLowerCase();
         if (k === "p" || (k === "escape" && this.paused)) { this.togglePause(); return; }
         if (this.paused || this.g.result) return;
+        if (this.onKey && this.onKey(k, e)) return;
         if (k === "escape") { this.cancel(); return; }
         if (k === " ") { e.preventDefault(); this.sendWave(); return; }
         if (k === "f") { this.toggleSpeed(); return; }
@@ -500,7 +514,7 @@
       if (this.inRun && g.crew && !g.crewTower()) this.refreshCrew();
       if (this.inRun && $("crewbar").classList.contains("hidden") === !!g.crew) this.refreshCrew();
       this.R.draw(this.inRun ? {
-        ghost: this.ghost, ability: this.mode === "ability" ? this.abilityId : null, pointer: this.pointer, selected: this.selected,
+        ghost: this.ghost, building: this.mode === "build", ability: this.mode === "ability" ? this.abilityId : null, pointer: this.pointer, selected: this.selected,
         fortGhost: this.mode === "fort" && this.pointer ? { kind: this.fortKind, x: this.pointer.x, y: this.pointer.y } : null,
         relocate: this.mode === "relocate" ? { id: this.relocId } : null,
       } : null);
