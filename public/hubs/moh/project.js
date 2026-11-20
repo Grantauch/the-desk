@@ -334,7 +334,7 @@
   }
   function fillVeteranParts() {
     var v = currentVet(), parts = M.citationParts(v.citation);
-    $('.cite-part').forEach(function (q) { q.textContent = parts[Number(q.getAttribute('data-part'))] || ''; });
+    $$('.cite-part').forEach(function (q) { q.textContent = parts[Number(q.getAttribute('data-part'))] || ''; });
     var full = $('.full-cite'); full.innerHTML = '';
     var glossary = v.words.slice(), seen = {};
     glossary.forEach(function (w) { seen[w[0].toLowerCase()] = true; });
