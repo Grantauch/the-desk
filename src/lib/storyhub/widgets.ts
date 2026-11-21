@@ -338,6 +338,14 @@ export function mountMap(node: HTMLElement, onPick: Pick) {
     picker.value = id;
     if (layer !== undefined) layerMenu.value = layer;
     shade();
+    if (zoom > 1 && viewport.clientWidth) {
+      const marker = pins.find((pin) => pin.dataset.mapPin === id)!.getBoundingClientRect();
+      const bounds = viewport.getBoundingClientRect();
+      if (marker.left < bounds.left || marker.right > bounds.right || marker.top < bounds.top || marker.bottom > bounds.bottom) {
+        viewport.scrollBy(marker.left + marker.width / 2 - bounds.left - bounds.width / 2,
+          marker.top + marker.height / 2 - bounds.top - bounds.height / 2);
+      }
+    }
     return true;
   }
   for (const button of regions) {

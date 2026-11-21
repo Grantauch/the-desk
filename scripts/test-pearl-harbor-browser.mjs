@@ -128,11 +128,12 @@ async function desktop() {
 
     await chapter(page, 'battleship-row');
     const row = page.locator('#battleship-row [data-map]');
+    assert.ok(await row.locator('[data-map-window]').evaluate((map) => map.scrollHeight <= map.clientHeight + 1), 'Fit includes the entire original station chart');
     await row.locator('[data-place-picker]').selectOption('oklahoma');
     assert.match(await card(row, '[data-place-card]').innerText(), /429 aboard died/);
     await row.locator('[data-place-picker]').selectOption('maryland');
     assert.match(await card(row, '[data-place-card]').innerText(), /remained afloat/);
-    await row.evaluate((map) => map.scrollIntoView({ block: 'start' }));
+    await page.locator('#chart-title').evaluate((heading) => heading.scrollIntoView({ block: 'start' }));
     await page.screenshot({ path: artifact + '/moorings-desktop.png' });
     await chapter(page, 'warnings');
     await page.locator('#warning-chain summary').nth(1).click();
