@@ -67,6 +67,9 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--stamp);outline-
 .bar{background:var(--ink-soft);height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:.4rem;color:var(--paper-3);font-size:.9rem;white-space:nowrap}
 .bar.lit{background:var(--stamp)}
 .bar-label{position:absolute;top:0;bottom:0;display:flex;align-items:center;margin-left:.4rem;font-size:.85rem;color:var(--ink);white-space:nowrap}
+.bar-name{display:flex;justify-content:space-between;gap:.5rem}
+.bar-count{display:none;font-size:.9rem;color:var(--ink);white-space:nowrap}
+@media (max-width:639px){.chart .bar-row{grid-template-columns:1fr;gap:.25rem}.chart .bar-count{display:inline}.chart .bar-in,.chart .bar-label{display:none}}
 .leader-card{display:grid;gap:1rem;grid-template-columns:1fr;margin-top:1rem}
 @media (min-width:640px){.leader-card.has-photo{grid-template-columns:9rem 1fr}}
 .leader-card img{width:100%;border:1.5px solid var(--ink);filter:grayscale(1)}
@@ -353,8 +356,8 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
   var DEAD=[['germany','Germany',2000000,'about 2,000,000'],['france','France',1400000,'about 1,400,000'],['britain','British Empire',900000,'about 900,000'],['italy','Italy',650000,'about 650,000'],['us','United States',116000,'about 116,000']];
   var chart=document.getElementById('chart');var bars={};
   DEAD.forEach(function(d){
-    var r=el('div','bar-row');r.appendChild(el('span',null,d[1]));
-    var t=el('div','bar-track');var w=(d[2]/2000000*100)+'%',sm=d[2]<400000;var b=el('div','bar',sm?'':d[3]);b.style.width=w;
+    var r=el('div','bar-row');var nm=el('span','bar-name');nm.appendChild(el('span',null,d[1]));nm.appendChild(el('span','bar-count',d[3]));r.appendChild(nm);
+    var t=el('div','bar-track');var w=(d[2]/2000000*100)+'%',sm=d[2]<400000;var b=el('div','bar');if(!sm)b.appendChild(el('span','bar-in',d[3]));b.style.width=w;
     t.appendChild(b);if(sm){var lb=el('span','bar-label',d[3]);lb.style.left=w;t.appendChild(lb);}r.appendChild(t);chart.appendChild(r);bars[d[0]]=b;
   });
   var LEADERS={
