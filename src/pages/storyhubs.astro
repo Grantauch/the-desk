@@ -175,11 +175,27 @@ const entries = [...sourceEntries].sort((a, b) => order(a.slug) - order(b.slug))
       <div class="catalog" data-catalog>
         {entries.map((hub) => (
           <article class="card" data-entry data-class={hub.courseID} data-mode={hub.activities.join(' ')} data-terms={hub.searchText}>
-            <div class="card-image">
-              <img src={hub.cover} alt={hub.coverAlt} width="1600" height="900" loading="lazy" decoding="async" />
-              <span class="type">{activityLabels[hub.activities[0] as Activity]}</span>
-            </div>
+            {hub.coverArchive ? (
+              <figure class="card-archive">
+                <div class="card-image card-image--panorama">
+                  <img src={hub.cover} alt={hub.coverAlt} width={hub.coverArchive.width} height={hub.coverArchive.height} loading="lazy" decoding="async" />
+                </div>
+                <figcaption class="archive-credit">
+                  <span>{hub.coverArchive.credit}</span>
+                  <span class="archive-sources">
+                    <a href={hub.coverArchive.record}>Library of Congress record</a>
+                    <a href={hub.coverArchive.scan}>Wikimedia Commons scan</a>
+                  </span>
+                </figcaption>
+              </figure>
+            ) : (
+              <div class="card-image">
+                <img src={hub.cover} alt={hub.coverAlt} width="1600" height="900" loading="lazy" decoding="async" />
+                <span class="type">{activityLabels[hub.activities[0] as Activity]}</span>
+              </div>
+            )}
             <div class="card-body">
+              {hub.coverArchive && <span class="type archive-type">{activityLabels[hub.activities[0] as Activity]}</span>}
               <p class="course-tag"><i class={'code-' + hub.courseID} aria-hidden="true"></i>{hub.courseLabel}</p>
               <h4>{hub.title}</h4>
               <p>{hub.summary}</p>
@@ -388,7 +404,14 @@ const entries = [...sourceEntries].sort((a, b) => order(a.slug) - order(b.slug))
   .card-image img{object-position:center 42%}
   .card[data-mode~="map"] img{object-position:center 59%}
   .card[data-entry]:has(a[href$="bts-the-route-tree.html"]) img{object-position:center 37%}
+  .card-archive .card-image--panorama{height:auto;background:#2b2922}
+  .card-archive .card-image--panorama::after{content:none}
+  .card-archive .card-image--panorama img{height:auto;object-fit:contain}
+  .archive-credit{display:grid;gap:2px;background:#222a28;color:#e5e4d4;border-bottom:1px solid #4f5e60;padding:8px 13px 6px;font-size:.78rem;line-height:1.4}
+  .archive-sources{display:flex;flex-wrap:wrap;column-gap:12px}
+  .archive-sources a{display:inline-flex;align-items:center;min-height:24px;color:#efe0a8;text-decoration:underline;text-underline-offset:.16em}
   .type{position:absolute;z-index:1;bottom:8px;left:9px;padding:4px 7px;background:#172321f0;border:1px solid #9da58c;border-radius:4px;color:#f2ecda;font:700 .65rem var(--mono);letter-spacing:.045em;text-transform:uppercase}
+  .card .archive-type{position:static;margin:0 0 6px}
   .card-body{padding:11px 13px 13px;display:flex;flex-direction:column;align-items:flex-start;flex:1}
   .card-body .course-tag{display:flex;align-items:center;gap:6px;color:var(--secondary);font-size:.74rem;font-weight:640}
   .card h4{font:400 clamp(1.36rem,2.3vw,1.8rem)/1.12 var(--serif);letter-spacing:-.034em;margin:4px 0}

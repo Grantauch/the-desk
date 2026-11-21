@@ -12,6 +12,13 @@ const artifact = (name) => fileURLToPath(new URL(name, artifacts));
 const catalogOnly = process.env.DESK_BROWSER_STORY_LIBRARY_ONLY === '1';
 const storyRoute = '/storyhubs/';
 const protectedStoryLinks = [...storyHubs.map(({ href }) => href), '/hubs/ush9-over-the-somme.html'];
+const archiveSources = '.archive-sources a';
+const storyAnchors = `a:not(${archiveSources})`;
+const l015ArchiveLinks = [
+  'https://www.loc.gov/item/99614203/',
+  'https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_(cropped).jpg',
+];
+const hrefsOf = (links) => links.evaluateAll((anchors) => anchors.map((anchor) => anchor.getAttribute('href')));
 const firstLook = ['The Other Half', 'They Couldn’t Stop', 'The Route Tree', 'Over the Somme'];
 const routes = catalogOnly ? [storyRoute] : [
   '/about/',
@@ -48,12 +55,25 @@ const reflowRoutes = [
   'ush9-the-jungle',
 ];
 
+async function testLibraryArchiveCredit(library) {
+  assert.deepEqual(await hrefsOf(library.locator(`[data-entry] ${archiveSources}`)), l015ArchiveLinks,
+    'Only the two exact archive source links are separate from the lesson route set');
+  const card = library.locator('[data-entry]:has(a[href="/hubs/ush9-l015-who-showed-up.html"])');
+  const credit = card.locator('figcaption.archive-credit');
+  const label = credit.getByText('Wood engraving by M. B. Leiser · Harper’s Weekly, Aug. 11, 1877, pp. 624–625', { exact: true });
+  assert.ok(await label.isVisible(), 'The L015 artwork credit is visible');
+  assert.equal(await label.evaluate((element) => element.closest('a') !== null), false,
+    'The source credit text is separate from links');
+  assert.deepEqual(await hrefsOf(credit.locator(`${archiveSources}:visible`)), l015ArchiveLinks,
+    'Both archive sources are visible inside the L015 artwork credit');
+}
+
 async function testLibrary(page, viewport) {
   const library = page.locator('[data-story-library]');
   const visibleTitles = () => library.locator('[data-entry]:visible h4').allTextContents();
   const pageSize = viewport.width <= 740 ? 2 : 3;
   assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://grant-desk.com/storyhubs/');
-  const hrefs = await library.locator('[data-entry] a').evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+  const hrefs = await hrefsOf(library.locator(`[data-entry] ${storyAnchors}`));
   assert.deepEqual(hrefs.toSorted(), protectedStoryLinks.toSorted(), 'All current catalog URLs and only the Somme cross-list');
   assert.equal(new Set(hrefs).size, hrefs.length, 'Every lesson URL has exactly one catalog card');
   assert.deepEqual(await visibleTitles(), firstLook.slice(0, pageSize), 'Approved top cards, paged for the viewport');
@@ -103,6 +123,9 @@ async function testLibrary(page, viewport) {
     await search.fill(`${alias} Somme Lochnagar`);
     assert.deepEqual(await visibleTitles(), []);
   }
+
+  await search.fill('Who Showed Up');
+  await testLibraryArchiveCredit(library);
 
   await library.getByRole('button', { name: 'Beyond the Scoreboard' }).click();
   await search.fill('boxing Schmeling');
@@ -288,8 +311,9 @@ try {
     await page.goto(origin + storyRoute);
     const library = page.locator('[data-story-library]');
     assert.equal(await library.getByRole('searchbox', { name: 'Search stories' }).count(), 0);
-    const links = await library.locator('[data-entry]:visible a').evaluateAll((entries) => entries.map((entry) => entry.getAttribute('href')));
+    const links = await hrefsOf(library.locator(`[data-entry]:visible ${storyAnchors}`));
     assert.deepEqual(links.toSorted(), protectedStoryLinks.toSorted(), 'Every story remains usable without scripts');
+    await testLibraryArchiveCredit(library);
     results.push({ route: storyRoute, viewport: 'phone-320 no JavaScript', status: 'passed' });
     console.log('PASS phone-320 no JavaScript: all Story Hubs links remain visible');
   } catch (error) {
