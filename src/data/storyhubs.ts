@@ -14,6 +14,8 @@ export interface StoryHub {
   blurb: string;
   cover: string;
   coverAlt: string;
+  /** Native dimensions and credit for an uncropped archival cover on the library shelf. */
+  coverArchive?: { width: number; height: number; credit: string; record: string; scan: string };
   topics: string[];
   inside: string[];
   /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
@@ -1466,8 +1468,14 @@ export const storyHubs: StoryHub[] = [
     question: 'when workers stopped the trains, who arrived to make them move again?',
     blurb:
       'Four strikes across seventeen years reveal a system getting faster and more distant: local militia, outside troops, hired detectives, and finally a court order that could reach a national union without leaving the courtroom.',
-    cover: '/storyhub/ush9/l015/assets/a01-rail-yard.svg',
-    coverAlt: 'Authored paper-and-ink scene of an empty rail yard at first light',
+    cover: '/storyhub/ush9/l015/assets/railroad-strike-1877-archival.jpg',
+    coverAlt: 'Wood engraving of fire and smoke sweeping across Pittsburgh’s rail yards, with railcars, rooftops and crowds below, during the Great Railroad Strike of 1877',
+    coverArchive: {
+      width: 1280, height: 455,
+      credit: 'Wood engraving by M. B. Leiser · Harper’s Weekly, Aug. 11, 1877, pp. 624–625',
+      record: 'https://www.loc.gov/item/99614203/',
+      scan: 'https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_(cropped).jpg',
+    },
     topics: ['great railroad strike', 'haymarket', 'homestead', 'pullman strike', 'labor injunctions'],
     inside: [
       'A rail-network timeline that shows the 1877 strike spreading city by city and records who answered it.',
