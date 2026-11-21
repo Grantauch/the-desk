@@ -1,0 +1,31 @@
+[Unit]
+Description=GrantDesk play server (two player game rooms)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=play
+Group=play
+WorkingDirectory=/srv/play/app
+Environment=NODE_ENV=production
+Environment=PORT=4200
+Environment=HOST=127.0.0.1
+ExecStart=/usr/bin/node /srv/play/app/server.mjs
+Restart=always
+RestartSec=2
+MemoryMax=256M
+CPUQuota=100%
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
