@@ -66,10 +66,11 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--stamp);outline-
 .bar-track{background:var(--paper-2);height:2rem;position:relative}
 .bar{background:var(--ink-soft);height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:.4rem;color:var(--paper-3);font-size:.9rem;white-space:nowrap}
 .bar.lit{background:var(--stamp)}
-.bar.small{justify-content:flex-start;padding-left:calc(100% + .4rem);color:var(--ink)}
+.bar-label{position:absolute;top:0;bottom:0;display:flex;align-items:center;margin-left:.4rem;font-size:.85rem;color:var(--ink);white-space:nowrap}
 .leader-card{display:grid;gap:1rem;grid-template-columns:1fr;margin-top:1rem}
 @media (min-width:640px){.leader-card.has-photo{grid-template-columns:9rem 1fr}}
 .leader-card img{width:100%;border:1.5px solid var(--ink);filter:grayscale(1)}
+.ix-title{font-size:1.25rem;margin:1.6rem 0 .6rem}
 .small-note{font-family:var(--type);font-size:.9rem;color:var(--ink-soft)}
 /* map */
 .map-box{position:relative;background:var(--paper-3);border:1.5px solid var(--ink)}
@@ -139,6 +140,7 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     <p class="onscreen">Fourteen points. Six were rules for every country. Eight named a place on the map.</p>
     <p class="core">The general points asked every nation to change how it behaved, winners included. The place points mostly redrew borders in Europe.</p>
     <p>Wilson's first five points were rules. Make agreements in public. Keep the seas open to all ships. Lower trade barriers. Cut armies and navies. Settle colonial claims fairly and give the colonized people's interests equal weight. Points six through thirteen named places, most of them land held by Germany, Austria Hungary or the Ottoman Empire. Point fourteen, the last, was the association of nations.</p>
+    <h3 class="ix-title">Read the fourteen</h3>
     <div class="btns" role="group" aria-label="Filter the fourteen points">
       <button type="button" data-filter="rules" aria-pressed="false">Rules for every country</button>
       <button type="button" data-filter="places" aria-pressed="false">Places on the map</button>
@@ -147,6 +149,7 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     <p class="hint">Tap a card to read it in plain words.</p>
     <div class="grid14" id="grid14"></div>
     <p class="under" id="under14" aria-live="polite"></p>
+    <p class="cite">Woodrow Wilson, address to Congress, January 8, 1918. Avalon Project, Yale Law School.</p>
   </div>
 </section>
 
@@ -161,13 +164,13 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
       <div class="docfile">
         <div class="hdr">Address to Congress / February 11, 1918</div>
         <blockquote><p>"'Self-determination' is not a mere phrase. It is an imperative principle of action, which statesmen will henceforth ignore at their peril."</p>
-        <p class="cite">Woodrow Wilson, address to Congress, February 11, 1918.</p></blockquote>
+        <p class="cite">Woodrow Wilson, address to Congress, February 11, 1918. Foreign Relations of the United States, 1918, Office of the Historian, US Department of State.</p></blockquote>
       </div>
       <div class="docfile">
         <span class="stamp">Confidential</span>
         <div class="hdr">Private notes / December 30, 1918</div>
         <blockquote><p>"The phrase is simply loaded with dynamite. It will raise hopes which can never be realized."</p>
-        <p class="cite">Robert Lansing, US Secretary of State, private notes, December 30, 1918.</p></blockquote>
+        <p class="cite">Robert Lansing, US Secretary of State, private notes, December 30, 1918. Published in his book The Peace Negotiations: A Personal Narrative, 1921, chapter VII.</p></blockquote>
       </div>
     </div>
   </div>
@@ -193,6 +196,7 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     <p class="core">The Big Four were Wilson, Georges Clemenceau of France, David Lloyd George of Britain and Vittorio Orlando of Italy. France had lost far more men than America had, and its leader wanted Germany too weak to attack again.</p>
     <p>Delegates from about thirty countries came to Paris, but the big decisions were made in private by four leaders, later called the Council of Four. They met more than 140 times between March and June 1919, often in Wilson's study, with no reporters. Clemenceau was 77. He had seen Germany invade France twice in his lifetime, in 1870 and in 1914. Lloyd George had just won an election in December 1918 where voters wanted Germany to pay for the war. Orlando wanted the land the Allies had promised Italy in a secret treaty in 1915. When the others refused to hand Italy the port of Fiume, Orlando walked out of the conference in April 1919.</p>
     <figure><img src="/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919.webp" alt="Black and white photograph of four men in dark suits standing on a doorstep in Paris, two of them talking." width="1400" height="1075" loading="lazy"><figcaption>The Council of Four, Paris, May 27, 1919. Left to right: David Lloyd George, Vittorio Orlando, Georges Clemenceau, Woodrow Wilson. Edward N. Jackson, US Army Signal Corps, public domain.</figcaption></figure>
+    <h3 class="ix-title">What each man carried</h3>
     <div class="btns" role="group" aria-label="Choose a leader">
       <button type="button" data-leader="wilson" aria-pressed="false">Wilson</button>
       <button type="button" data-leader="clemenceau" aria-pressed="false">Clemenceau</button>
@@ -213,6 +217,7 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     <p class="onscreen">People who were not invited wrote to Wilson anyway. They quoted his own words back to him.</p>
     <p class="core">Groups from colonies and occupied countries sent petitions and delegates to Paris asking for self-determination. Europe's new nations got it. Almost no one outside Europe did.</p>
     <p>Poland, Czechoslovakia and the new kingdom that became Yugoslavia were all recognized as countries in 1918 and 1919, along with Finland, Estonia, Latvia and Lithuania. Each had been ruled by one of the empires that lost the war or collapsed during it. People living under the winners' empires, or under Japan, asked for the same principle. Four of their stories are on the map.</p>
+    <h3 class="ix-title">Who got a country</h3>
     <div class="btns" role="group" aria-label="Map view">
       <button type="button" data-map="got" aria-pressed="true">Got a country</button>
       <button type="button" data-map="asked" aria-pressed="false">Asked and turned away</button>
@@ -264,6 +269,7 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     <p class="onscreen">Back to the fourteen cards. Now you know what Paris did with them.</p>
     <p class="core">The points that redrew the losers' maps were mostly kept. The points that would have made the winners change were mostly dropped or bent.</p>
     <p>Historians judge the points differently, and some outcomes are a matter of degree. One common reading is below. Look at which kind of point lands in each column.</p>
+    <h3 class="ix-title">Kept, bent or dropped</h3>
     <p class="hint">Make your call on each point, then see what happened.</p>
     <div class="btns"><button type="button" id="show-all-outcomes">Show all outcomes</button></div>
     <div class="grid14" id="score14"></div>
@@ -348,8 +354,8 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
   var chart=document.getElementById('chart');var bars={};
   DEAD.forEach(function(d){
     var r=el('div','bar-row');r.appendChild(el('span',null,d[1]));
-    var t=el('div','bar-track');var b=el('div','bar'+(d[2]<400000?' small':''),d[3]);b.style.width=(d[2]/2000000*100)+'%';
-    t.appendChild(b);r.appendChild(t);chart.appendChild(r);bars[d[0]]=b;
+    var t=el('div','bar-track');var w=(d[2]/2000000*100)+'%',sm=d[2]<400000;var b=el('div','bar',sm?'':d[3]);b.style.width=w;
+    t.appendChild(b);if(sm){var lb=el('span','bar-label',d[3]);lb.style.left=w;t.appendChild(lb);}r.appendChild(t);chart.appendChild(r);bars[d[0]]=b;
   });
   var LEADERS={
     wilson:['us','Woodrow Wilson, United States. 61 years old in 1918. America fought for about nineteen months and lost about 116,000 soldiers, more than half of them to disease and accidents.','the League of Nations.'],
@@ -358,11 +364,13 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     orlando:['italy','Vittorio Orlando, Italy. 58 years old in 1918. Italy lost about 650,000 soldiers.','the land Italy had been promised in 1915.'],
     germany:['germany','Germany was not in the room. Its delegates were handed the finished treaty on May 7, 1919 and allowed to answer only in writing.',null]
   };
+  var PHOTOS={wilson:['/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919-wilson.webp','Woodrow Wilson'],clemenceau:['/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919-clemenceau.webp','Georges Clemenceau'],lloyd:['/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919-lloyd-george.webp','David Lloyd George'],orlando:['/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919-orlando.webp','Vittorio Orlando']};
   var lbtns=document.querySelectorAll('[data-leader]');var out=document.getElementById('leader-out');
   lbtns.forEach(function(b){b.addEventListener('click',function(){
     var L=LEADERS[b.dataset.leader];lbtns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
     Object.keys(bars).forEach(function(k){bars[k].classList.toggle('lit',k===L[0]);});
-    out.innerHTML='';var card=el('div','docfile leader-card');var body=el('div');
+    out.innerHTML='';var ph=PHOTOS[b.dataset.leader];var card=el('div','docfile leader-card'+(ph?' has-photo':''));var body=el('div');
+    if(ph){var fg=el('figure'),im=el('img');im.src=ph[0];im.alt='Black and white photograph of '+ph[1]+' in 1919.';im.width=320;im.height=390;im.loading='lazy';fg.appendChild(im);fg.appendChild(el('figcaption','credit','Crop from the Council of Four photograph, May 27, 1919. Edward N. Jackson, US Army Signal Corps. Public domain.'));card.appendChild(fg);}
     body.appendChild(el('p',null,L[1]));
     if(L[2]){var w=el('p');w.appendChild(el('strong',null,'He wanted: '));w.appendChild(document.createTextNode(L[2]));body.appendChild(w);}
     card.appendChild(body);out.appendChild(card);
@@ -441,11 +449,11 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     if(!svg)return;
     svg.classList.toggle('show-new',m==='got');
     pinLayer.style.display=m==='asked'?'':'none';
-    if(m!=='asked')out.innerHTML='';
+    if(m!=='asked'){out.innerHTML='';if(pinLayer)pinLayer.querySelectorAll('.pin').forEach(function(g){g.setAttribute('aria-pressed','false');});}
   }
   document.querySelectorAll('[data-map]').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-map'));});});
   fetch('/storyhub/ush9/loaded-with-dynamite/assets/map-1919.svg').then(function(r){return r.text();}).then(function(t){
-    box.innerHTML=t;svg=box.querySelector('svg');
+    box.innerHTML=t;svg=box.querySelector('svg');svg.setAttribute('role','group');svg.setAttribute('aria-label','Map of Europe, North Africa and Asia in 1919');Array.prototype.forEach.call(svg.children,function(ch){ch.setAttribute('aria-hidden','true');});
     pinLayer=document.createElementNS(NS,'g');
     PINS.forEach(function(p){
       var xy=px(p.ll[0],p.ll[1]),g=document.createElementNS(NS,'g');
