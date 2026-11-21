@@ -74,6 +74,9 @@ const GROWTH = Accounts.loadGrowth(path.join(HERE, 'content', 'growth.json'));
 // The Checkling body (care, conditions, diseases, death) is content, checked here before anyone connects.
 const CARE = Care.loadCare(path.join(HERE, 'content'));
 for (const id of Object.keys(CARE.epitaphs)) if (!CARE.diseases[id] && !CARE.rare[id]) throw new Error(`epitaphs.json: ${id} is not a cause of death`);
+const SHOP = Accounts.loadShop(path.join(HERE, 'content', 'shop.json'), CARE);
+if (SHOP.freeCharmsPerDay !== GROWTH.charmsPerDay) throw new Error('shop.json freeCharmsPerDay must match growth.json charmsPerDay');
+if (SHOP.visitCharms !== WILD.charms) throw new Error('shop.json visitCharms must match wild.json charms');
 // Ghosts in the cemetery (content/ghosts.json), checked like everything else.
 const GHOSTS = Ghosts.loadGhosts(process.env.CHECKAVERSE_GHOSTS || path.join(HERE, 'content', 'ghosts.json'), CARE, RULES);
 // Learning and forgetting moves, and the gym's mini games (content/learnsets.json).
@@ -210,6 +213,7 @@ const STORE = Accounts.openStore(db, GROWTH, CARE, {
   levelOffers: (id, from, to) => Moves.levelOffers(LEARN, RULES, id, from, to),
   slots: LEARN.slots,
   learnMove: (known, move, forget) => Moves.learn(LEARN, RULES, known, move, forget),
+  shop: SHOP,
 });
 // The town's memory and its news: the event log, the Gazette, residents' letters and the director's checked lines.
 const NEWS = openNews(db, () => Accounts.todayKey());
@@ -675,7 +679,28 @@ function teamView(p) {
     ...p.caught.map((c, i) => ({ v: `c${i}`, species: c.species, name: SPECIES[c.species].name, type: SPECIES[c.species].type, level: c.level, caught: true })),
   ];
 }
-function charmsOf(p) { return p.pid ? STORE.charmsLeft(p.pid) : p.charms; }
+function charmsOf(p) { return p.pid ? STORE.charmsLeft(p.pid) : p.charms + (p.supplies?.charm || 0); }
+function shelfFor(items, coins) {
+  return {
+    coins,
+    line: PLACE_LINES.store,
+    goods: SHOP.goods.map((g) => ({ id: g.id, name: g.name, price: g.price, blurb: g.blurb, have: items[g.id] || 0, carry: SHOP.carry[g.id], keeps: Boolean(g.keeps) })),
+  };
+}
+function shopView(p, extra = {}) {
+  if (p.pid) return { t: 'shop', ...shelfFor(STORE.bag(p.pid), STORE.coins(p.pid)), ...extra };
+  return { t: 'shop', ...shelfFor(p.supplies || {}, p.coins || 0), visit: true, ...extra };
+}
+function buyVisit(p, id) {
+  const good = SHOP.goods.find((g) => g.id === id);
+  if (!good) return { ok: false, msg: 'The store does not carry that.' };
+  const have = p.supplies[good.id] || 0;
+  if (have >= SHOP.carry[good.id]) return { ok: false, msg: `You cannot carry another ${good.name.toLowerCase()}.` };
+  if ((p.coins || 0) < good.price) return { ok: false, msg: `A ${good.name.toLowerCase()} costs ${good.price} coins, and you have ${p.coins || 0}.` };
+  p.coins -= good.price;
+  p.supplies[good.id] = have + 1;
+  return { ok: true, msg: `Bought a ${good.name.toLowerCase()}.` };
+}
 // One word for the partner list: the worst thing going on with that Checkling's body, if anything.
 function careFlag(pid, r) {
   if (!r.party) return '';
@@ -871,8 +896,9 @@ function handleCharm(p) {
   if (p.pid) {
     if (STORE.denFull(p.pid)) return send(p, { t: 'notice', msg: 'Your Den is full, so there is no room for another Checkling.' });
     if (!STORE.useCharm(p.pid)) return send(p, { t: 'notice', msg: 'Out of catching charms for today. More tomorrow.' });
-  } else {
-    if (p.charms <= 0) return send(p, { t: 'notice', msg: 'Out of catching charms for this visit.' });
+  } else if ((p.supplies?.charm || 0) > 0) p.supplies.charm -= 1;
+  else {
+    if (p.charms <= 0) return send(p, { t: 'notice', msg: 'Out of catching charms for this visit. The general store sells more.' });
     p.charms--;
   }
   const left = charmsOf(p);
@@ -1423,7 +1449,7 @@ function join(ws, ticket) {
     rerolls: REROLLS, look: Math.floor(Math.random() * LOOKS), joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
     partner: STARTERS[Math.floor(Math.random() * STARTERS.length)], battle: 0, watching: 0, record: { w: 0, l: 0, d: 0 },
-    caught: [], charms: WILD.charms, grace: 0,
+    caught: [], charms: SHOP.visitCharms, coins: SHOP.visitPurse, supplies: {}, grace: 0,
   };
   const notes = [];
   if (ticket) {
@@ -1444,13 +1470,14 @@ function join(ws, ticket) {
       const hatched = STORE.team(t.pid).find((r) => r.hatched);
       if (linked.created && hatched) notes.push(KETTLE ? `Welcome to Kettle Creek, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus home with you.` : `Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
       const c = linked.credit;
-      if (c) {
+      if (c?.species) {
         const who = label(c.species, c.nick);
         const times = c.days === 1 ? 'one check-in' : `${c.days} check-ins`;
         notes.push(c.after > c.before ? `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP and grew to level ${c.after}!` : `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP.`);
         if (c.evolved) { notes.push(evolvedLine(c.nick, c.evolved)); NEWS.record('evolve', { trainer: tr.name, from: c.evolved.from, to: c.evolved.to }); }
         for (const mv of c.learned || []) notes.push(`${label(c.species, c.nick)} learned ${RULES.moves[mv].name}!`);
       }
+      if (c?.coins) notes.push(`${c.coins} coins from those check-ins are waiting at the general store.`);
     } else {
       notes.push(TICKET_TROUBLE[checked.why] || TICKET_TROUBLE.default);
       log('ticket refused', checked.why);
@@ -1723,6 +1750,16 @@ function handleMessage(p, msg, now) {
     case 'mail_read': if (p.pid) { NEWS.readAll(p.pid); const box = NEWS.mail(p.pid); send(p, { t: 'mail', letters: box.letters, unread: box.unread }); } return;
     case 'stone': if (now - (p.lastStone || 0) > 300) { p.lastStone = now; lookAtStone(p, Number(msg.x), Number(msg.y)); } return;
     case 'apothecary': if (now - (p.lastBrew || 0) > 400) { p.lastBrew = now; apothecary(p, Boolean(msg.brew)); } return;
+    case 'shop': return send(p, shopView(p));
+    case 'buy': {
+      if (now - (p.lastBuy || 0) < 200) return;
+      p.lastBuy = now;
+      if (typeof msg.id !== 'string') return;
+      const bought = p.pid ? STORE.buy(p.pid, msg.id) : buyVisit(p, msg.id);
+      send(p, shopView(p, bought));
+      if (bought.ok) sendTeam(p);
+      return;
+    }
     case 'hatch': {
       if (!p.pid || !STARTERS.includes(msg.species)) return;
       const got = STORE.hatchEgg(p.pid, msg.species, p.attendance || 0);
