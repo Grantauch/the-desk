@@ -35,5 +35,9 @@ chmod 0600 "$temp"
 mv -- "$temp" "$file"
 trap - EXIT
 
+# Retain 14 days of local staging dumps; the 02:15 archive has its
+# own 14-day rotation. Never delete the last validated dump on failure.
+find "$dest" -maxdepth 1 -type f -name 'schoolwide-synthetic-*.pgcustom' -mtime +14 -delete
+
 echo "Stage database dump format validated and archived: $file"
 echo 'Archive list validation is NOT a restore test; the 02:15 host backup is separately required.'
