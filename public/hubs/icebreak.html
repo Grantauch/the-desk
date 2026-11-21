@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ICEBREAK — First Shift</title>
+<title>ICEBREAK — First Shift · North/South Camera</title>
 <style>
 :root{color-scheme:dark;--ice:#c9faff;--blue:#51d7ff;--red:#ff866d;--ink:#07111f;--muted:#91a4ba}
 *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#06101c;color:#f4faff}button{font:inherit;cursor:pointer}#game{width:100vw;height:100dvh;display:block;touch-action:none}#shell{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 15%,transparent 38%,rgba(3,8,17,.36) 94%);overflow:hidden}
@@ -144,7 +144,10 @@ function spray(x,z,col,n){for(let i=0;i<n;i++){let a=rnd()*6.283,sp=1+rnd()*9;pa
 function updateHUD(){hud.home.textContent=score[0];hud.away.textContent=score[1];let s=Math.max(0,Math.ceil(timeLeft));hud.clock.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');hud.period.textContent=(config.mode==='powerups'?'POWERUPS':'REGULAR')+' · '+config.rink.toUpperCase();hud.power.textContent=control?.powerTime>0?(control.power.toUpperCase()+' · '+control.powerTime.toFixed(0)+'S'):(activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+config.rink.toUpperCase());if(control){hud.name.textContent='#'+String(control.number).padStart(2,'0')+' · '+control.name;hud.energy.style.width=(100*control.energy).toFixed(0)+'%';let charging=control.has&&inputFor(control.device).shoot;hud.status.textContent=charging?'WINDING UP SLAPSHOT':control.has?'YOU HAVE THE PUCK':puck.owner?.team===1?'DEFEND YOUR ZONE':'FIND OPEN ICE';hud.meterLabel.textContent=charging?'SHOT POWER':'SKATING ENERGY';if(charging)hud.energy.style.width=(100*clamp(control.shotCharge/1.5,0,1)).toFixed(0)+'%'}}
 const keyboardMapping={w:['kb1','up'],s:['kb1','down'],a:['kb1','left'],d:['kb1','right'],shift:['kb1','burst'],j:['kb1','pass'],k:['kb1','shoot'],l:['kb1','check'],arrowup:['kb2','up'],arrowdown:['kb2','down'],arrowleft:['kb2','left'],arrowright:['kb2','right'],enter:['kb2','burst'],n:['kb2','pass'],m:['kb2','shoot'],',':['kb2','check']};
 function inputFor(device){if(!inputState.has(device))inputState.set(device,{up:false,down:false,left:false,right:false,burst:false,pass:false,shoot:false,check:false,axisX:0,axisY:0});return inputState.get(device)}
-function getMove(p){const inp=inputFor(p.device);let x=(inp.right?1:0)-(inp.left?1:0)+(inp.axisX||0),z=(inp.down?1:0)-(inp.up?1:0)+(inp.axisY||0);const magnitude=Math.hypot(x,z);return magnitude>1?[x/magnitude,z/magnitude]:[x,z]}
+// Screen-up is attack-north (+world x), screen-right is +world z.
+// Transform keyboard, touch and gamepad axes in exactly the same place so that
+// controls remain screen-relative without changing the simulation axes.
+function getMove(p){const inp=inputFor(p.device);let x=(inp.up?1:0)-(inp.down?1:0)-(inp.axisY||0),z=(inp.right?1:0)-(inp.left?1:0)+(inp.axisX||0);const magnitude=Math.hypot(x,z);return magnitude>1?[x/magnitude,z/magnitude]:[x,z]}
 function goalieClear(p){if(!p.goalie||dist(p,puck)>3.5)return;const direction=p.team===0?1:-1;const aim=getMove(p);puck.owner=null;puck.x=p.x+direction*1.2;puck.z=p.z;puck.vx=direction*28;puck.vz=aim[1]*8;puck.lock=.3;sound('shoot');spray(p.x,p.z,C.white,7)}
 function action(p,key,down){if(!p||phase!=='playing'||paused)return;const input=inputFor(p.device);if(input[key]===down)return;input[key]=down;
  if(key==='pass'&&down){if(p.goalie)goalieClear(p);else pass(p)}
@@ -204,32 +207,57 @@ for(let side of [-1,1]){let ox=-fz*side*.23,oz=fx*side*.23;let legX=p.x+ox+fx*.1
 let stickX=p.x+fx*.56-fz*.38,stickZ=p.z+fz*.56+fx*.38;cube(stickX,bodyY-.28,stickZ,.065,1.66,.065,[.29,.24,.20],turn,1);cube(stickX+fx*.28,.10,stickZ+fz*.28,.55,.13,.16,[.14,.19,.22],turn);if(p.has){ball(puck.x,.09,puck.z,.2,C.deep)}
 if(p.goalie){cube(p.x,1.1,p.z,1.05,.6,1.0,[.91,.95,.99]);cube(p.x+fx*.5,.42,p.z+fz*.5,.55,.6,.8,[.86,.91,.94])}}
 
+function cameraTarget(){
+ if(phase==='menu')return 0;
+ const puckX=puck.x;
+ const carrierX=puck.owner?.x ?? puckX;
+ return clamp(puckX*.72+carrierX*.28,-16,16);
+}
 function render2d(t){
  const ctx=ctx2d,dpr=canvas.width/W;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
  const school=config.rink==='school',park=config.rink==='park',mars=config.rink==='mars';
  let bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,mars?'#291932':park?'#132d45':'#0b2033');bg.addColorStop(.56,mars?'#884251':park?'#396d82':'#19394c');bg.addColorStop(1,mars?'#3d1d27':park?'#c5dfe1':'#061521');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
- const portrait=W<800&&activeHumans<=1;const scale=portrait?Math.min(W/21,H/35):Math.min(W/65,H/38);camFocus=lerp(camFocus,portrait?(control?.x||0)*.84:0,.075);const cx=W/2-camFocus*scale,cy=portrait?H*.465:H*.53;
- const pt=(x,z)=>[cx+x*scale,cy+z*scale*.78];
+ const portrait=asp<.75;
+ const depth=.86;
+ // The long x axis now runs from bottom (Glaciers) to top (Embers).
+ // Landscape intentionally crops the ends so the players are legible; portrait
+ // frames the full rink and does not yank the camera after every loose puck.
+ const scale=portrait?Math.min(W/29.5,H/(59*depth)):Math.min(W/30,H/(36*depth));
+ camFocus=lerp(camFocus,portrait?0:cameraTarget(),.085);
+ const cx=W/2,cy=portrait?H*.49:H*.535;
+ const pt=(x,z)=>[cx+z*scale,cy-(x-camFocus)*scale*depth];
  const path=(pts)=>{ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath()};
  // Deliberate off-rink depth cues, never physics modifiers.
+ // Arena dressing lives outside the two long sideboards.
+ const leftBoard=cx-13.5*scale,rightBoard=cx+13.5*scale;
  if(school){
-  for(let row=0;row<6;row++){ctx.fillStyle=row%2?'#283c52':'#344761';ctx.fillRect(0,cy-(13.2+row*1.4)*scale*.78,W,scale*1.05);ctx.fillRect(0,cy+(12.9+row*.95)*scale*.78,W,scale*.78)}
-  ctx.fillStyle='#c8756d';for(let x=48;x<W-30;x+=116){ctx.fillRect(x,H*.083,72,12);ctx.fillRect(x,H*.9,72,7)}
+  for(let row=0;row<7;row++){
+   const band=scale*.66;ctx.fillStyle=row%2?'#283c52':'#344761';
+   ctx.fillRect(leftBoard-(row+1)*band,0,band-2,H);ctx.fillRect(rightBoard+row*band,0,band-2,H);
+  }
+  ctx.fillStyle='#b95c52';for(let y=34;y<H;y+=115){ctx.fillRect(leftBoard-scale*3,y,scale*1.8,7);ctx.fillRect(rightBoard+scale*1.2,y,scale*1.8,7)}
  }else if(park){
-  ctx.fillStyle='#e0eff1';ctx.fillRect(0,cy+13*scale*.78,W,H);ctx.fillRect(0,0,W,cy-13*scale*.78);
-  for(let i=0;i<25;i++){const x=(i+.35)*W/25,y=i%2===0?cy-13.5*scale*.78:cy+14.5*scale*.78;ctx.fillStyle='#204945';ctx.beginPath();ctx.moveTo(x,y-36);ctx.lineTo(x-16,y+12);ctx.lineTo(x+16,y+12);ctx.fill();ctx.fillStyle='#e5faff';ctx.fillRect(x-2,y-36,4,3)}
+  ctx.fillStyle='#cde5ea';ctx.fillRect(0,0,leftBoard,H);ctx.fillRect(rightBoard,0,W-rightBoard,H);
+  for(let i=0;i<16;i++)for(let side of [-1,1]){
+   const x=cx+side*(15.4+(i%3)*2)*scale,y=(i+.45)*H/16;
+   ctx.fillStyle='#173f41';ctx.beginPath();ctx.moveTo(x,y-30);ctx.lineTo(x-17,y+12);ctx.lineTo(x+17,y+12);ctx.fill();
+   ctx.fillStyle='#f3fcff';ctx.fillRect(x-3,y-31,6,4);
+  }
  }else{
-  ctx.fillStyle='#76343e';for(let i=0;i<24;i++){const x=(i+.2)*W/24,y=i%2?H*.16:H*.86;ctx.beginPath();ctx.ellipse(x,y,14+(i%4)*7,5+(i%3)*6,0,0,Math.PI*2);ctx.fill()}
-  ctx.strokeStyle='#bba4a65f';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(W/2,H*.52,W*.44,H*.49,0,Math.PI,0);ctx.stroke();
+  ctx.fillStyle='#783843';for(let i=0;i<28;i++){
+   const side=i%2?-1:1,x=cx+side*(16+(i%4)*3)*scale,y=(i+.4)*H/28;
+   ctx.beginPath();ctx.ellipse(x,y,12+(i%4)*7,5+(i%3)*6,0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.strokeStyle='#bba4a667';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(W/2,H*.52,W*.45,H*.50,0,Math.PI,0);ctx.stroke();
  }
  // Edge glow and clear rounded boards. The same coordinates and net geometry drive all three rinks.
- const a=pt(-28, -13),b=pt(28,13),rw=b[0]-a[0],rh=b[1]-a[1];
+ const a=pt(28,-13),b=pt(-28,13),rw=b[0]-a[0],rh=b[1]-a[1];
  ctx.shadowBlur=22;ctx.shadowColor=mars?'#dd929a':park?'#ecffff':'#4fcef7';ctx.fillStyle='#112b41';roundRect(ctx,a[0]-6,a[1]-6,rw+12,rh+12,Math.max(17,4.2*scale));ctx.fill();ctx.shadowBlur=0;
  ctx.fillStyle=park?'#edfaff':mars?'#d8f5f8':'#ceeefa';roundRect(ctx,a[0],a[1],rw,rh,Math.max(14,4*scale));ctx.fill();
  ctx.save();roundRect(ctx,a[0],a[1],rw,rh,Math.max(14,4*scale));ctx.clip();
  ctx.fillStyle='#97c9db';for(let i=0;i<65;i++){let x=(i*71%97)/97*rw+a[0],y=(i*59%103)/103*rh+a[1];ctx.globalAlpha=.12;ctx.fillRect(x,y,26+(i%13)*3,.7);ctx.globalAlpha=1}
  const line=(x1,z1,x2,z2,col,width)=>{let p1=pt(x1,z1),p2=pt(x2,z2);ctx.strokeStyle=col;ctx.lineWidth=Math.max(1,width*scale);ctx.beginPath();ctx.moveTo(...p1);ctx.lineTo(...p2);ctx.stroke()};
- const circle=(x,z,r,col,width=0)=>{let [px,py]=pt(x,z);ctx.beginPath();ctx.ellipse(px,py,r*scale,r*scale*.78,0,0,Math.PI*2);if(width){ctx.strokeStyle=col;ctx.lineWidth=width*scale;ctx.stroke()}else{ctx.fillStyle=col;ctx.fill()}};
+ const circle=(x,z,r,col,width=0)=>{let [px,py]=pt(x,z);ctx.beginPath();ctx.ellipse(px,py,r*scale,r*scale*depth,0,0,Math.PI*2);if(width){ctx.strokeStyle=col;ctx.lineWidth=width*scale;ctx.stroke()}else{ctx.fillStyle=col;ctx.fill()}};
  for(let x of [-8.8,8.8])line(x,-13,x,13,'#448cca',.37);line(0,-13,0,13,'#c54d5a',.28);circle(0,0,4.1,'#3877a4',.15);circle(0,0,.36,'#d94f58');for(let x of [-18.2,18.2])for(let z of [-7,7]){circle(x,z,3,'#db5968',.11);circle(x,z,.3,'#dc5360')}
  for(let x of [-25.7,25.7]){circle(x,0,3.1,'#5688b9',.16);line(x,-10.6,x,10.6,'#d35461',.12)}
  ctx.restore();ctx.strokeStyle='#fafefe';ctx.lineWidth=Math.max(5,scale*.48);roundRect(ctx,a[0],a[1],rw,rh,Math.max(14,4*scale));ctx.stroke();
@@ -238,8 +266,8 @@ function render2d(t){
  for(let side of [-1,1]){const x=side*26.35,p1=pt(x,-2.9),p2=pt(x,2.9);ctx.strokeStyle='#e44b5a';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(...p1);ctx.lineTo(...p2);ctx.stroke();ctx.strokeStyle='#839baf';ctx.lineWidth=1;for(let u=0;u<5;u++){const v=pt(x+side*u*.37,-2.9);const w=pt(x+side*u*.37,2.9);ctx.beginPath();ctx.moveTo(...v);ctx.lineTo(...w);ctx.stroke()}}
  // Pickup glow is decorative. Pickups are detected by distance in the shared simulation.
  for(let item of powerItems){let [x,y]=pt(item.x,item.z);ctx.save();ctx.shadowBlur=16;ctx.shadowColor=item.id==='boost'?'#42e7ff':item.id==='magnet'?'#f7ab4a':'#ff5965';ctx.strokeStyle=ctx.shadowColor;ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,11+Math.sin(t*5)*2,0,Math.PI*2);ctx.stroke();ctx.fillStyle=ctx.shadowColor;ctx.beginPath();ctx.arc(x,y-7,5.8,0,Math.PI*2);ctx.fill();ctx.restore()}
- for(let p of [...players].sort((a,b)=>a.z-b.z)){
-  const [x,y]=pt(p.x,p.z),v=Math.hypot(p.vx,p.vz),angle=p.facing,blueTeam=p.team===0;ctx.save();ctx.translate(x,y);ctx.scale(1,.82);
+ for(let p of [...players].sort((a,b)=>b.x-a.x)){
+  const [x,y]=pt(p.x,p.z),v=Math.hypot(p.vx,p.vz),angle=p.facing-Math.PI/2,blueTeam=p.team===0;ctx.save();ctx.translate(x,y);ctx.scale(1,depth);
   ctx.fillStyle='#0c39594d';ctx.beginPath();ctx.ellipse(3,5,p.goalie?14:10,p.goalie?10:7,0,0,Math.PI*2);ctx.fill();
   ctx.rotate(angle);ctx.lineWidth=2.3;ctx.strokeStyle='#223a4c';for(let z of [-5,5]){ctx.beginPath();ctx.moveTo(-8,z);ctx.lineTo(3,z);ctx.stroke()}
   // Offset gloves, pads, helmet and stick draw as layered pseudo-3D volumes.
@@ -250,19 +278,19 @@ function render2d(t){
   if(p.device!=='ai'&&phase!=='menu'){ctx.strokeStyle='#59e7ff';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,15+Math.sin(t*2)*1.5,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#09283e';ctx.beginPath();ctx.arc(x,y-21,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d5fbff';ctx.font='800 9px system-ui';ctx.textAlign='center';ctx.fillText(p.device==='kb1'?'1':p.device==='kb2'?'2':p.device.replace('pad','P'),x,y-18)}
   if(p.powerTime>0){ctx.fillStyle='#ffe174';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(p.power.toUpperCase(),x,y-27)}
  }
- if(!puck.owner){let [x,y]=pt(puck.x,puck.z);ctx.fillStyle='#172938';ctx.beginPath();ctx.ellipse(x,y,5.4,4.2,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#283f51';ctx.fillRect(x-3,y-2,6,1.3)}else{const [x,y]=pt(puck.x,puck.z);ctx.fillStyle='#172938';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()}
+ if(!puck.owner){let [x,y]=pt(puck.x,puck.z);ctx.shadowBlur=8;ctx.shadowColor='#85e5ff';ctx.fillStyle='#101f2b';ctx.beginPath();ctx.ellipse(x,y,6.4,5.2,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#e6fbff';ctx.fillRect(x-2,y-2,3,.9)}else{const [x,y]=pt(puck.x,puck.z);ctx.fillStyle='#172938';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()}
  ctx.fillStyle='#e4faff';for(let part of particles){const [x,y]=pt(part.x,part.z);ctx.globalAlpha=clamp(part.life,0,1);ctx.fillRect(x,y-part.y*5,2,2)}ctx.globalAlpha=1;
 }
 function roundRect(ctx,x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 
-function render(t){if(fallback2d){render2d(t);return}let mobile=asp<1.15;let halfY=mobile?22:18.8;let halfX=halfY*asp;const targetX=mobile?(control?.x||0)*.72:(control?.x||0)*.07;camFocus=lerp(camFocus,targetX,.035);let look=mat.look(V(camFocus,38,30),V(camFocus,0,0));vp=mat.mul(mat.ortho(-halfX,halfX,-halfY,halfY,.1,150),look);gl.clearColor(.018,.055,.089,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);rink();
+function render(t){if(fallback2d){render2d(t);return}let mobile=asp<.75;let halfY=mobile?35:16.7;let halfX=halfY*asp;camFocus=lerp(camFocus,mobile?0:cameraTarget(),.047);let look=mat.look(V(camFocus-28,48,0),V(camFocus,0,0));vp=mat.mul(mat.ortho(-halfX,halfX,-halfY,halfY,.1,150),look);gl.clearColor(.018,.055,.089,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);rink();
 for(let i=0;i<trail.length;i++){let q=trail[i];disk(q.x,.035,q.z,.10,C.white,(1-q.t/.4)*.25)}
 for(let p of players){playerMesh(p,t)}
 if(!puck.owner){disk(puck.x,.022,puck.z,.32,C.deep,.27);cylinder(puck.x,.14,puck.z,.245,.17,[.012,.023,.032]);cylinder(puck.x,.235,puck.z,.20,.02,[.14,.22,.30])}
 for(let item of powerItems){let pulse=Math.sin(t*4)*.14;ring(item.x,.04,item.z,1.1,item.color,.85);ball(item.x,.75+pulse,item.z,.38,item.color);ball(item.x,1.25+pulse,item.z,.11,C.white,.8)}for(let p of particles){ball(p.x,p.y,p.z,p.r,p.c,clamp(p.life*1.3,0,1))}}
 let lastHUD=0;function frame(ms){let t=ms/1000;let dt=lastTime?Math.min(.055,(ms-lastTime)/1000):0;lastTime=ms;accumulator+=dt;let n=0;while(accumulator>=1/90&&n<5){step(1/90);accumulator-=1/90;n++}render(t);if(t-lastHUD>.09){updateHUD();lastHUD=t}requestAnimationFrame(frame)}
 makeTeams();resetFaceoff();phase='menu';requestAnimationFrame(frame);
-window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl'}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.lock=1},physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
+window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.lock=1},physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
 })();
 </script>
 </body>
