@@ -65,7 +65,9 @@
     "checkling:art": "node apps/checklings-tools/art-admission/admit.mjs",
     "companion:browser": "node scripts/test-art-admission.mjs && node scripts/test-checkling-pond-browser.mjs && node scripts/test-pixel-camp-school-browser.mjs && node scripts/test-pixel-camp-five-browser.mjs && node scripts/test-pixel-camp-six-browser.mjs && node scripts/test-pixel-camp-guide-browser.mjs && node scripts/test-pixel-camp-workshop-browser.mjs",
     "atlas:test": "node --test scripts/test-cinematic-atlas.mjs",
-    "atlas:browser": "node scripts/test-cinematic-atlas-browser.mjs"
+    "atlas:browser": "node scripts/test-cinematic-atlas-browser.mjs",
+    "blitzkrieg:versus": "node scripts/test-blitzkrieg-versus.mjs",
+    "play:test": "npm --prefix services/play test"
   },
   "engines": {
     "node": ">=22.12.0"
