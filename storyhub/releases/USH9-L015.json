@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l015-who-showed-up.html",
-      "bytes": 86399,
-      "sha256": "43cc139c6b14d7fb8b54b8554c93b8893d213579856659af4a6ece3664c0295f"
+      "bytes": 86893,
+      "sha256": "79eddae207a861dd1ce84b6d5cb281633417ec247918693054c83e096d4930a1"
     },
     {
       "assetId": "A01",
@@ -129,6 +129,6 @@
       "sha256": "c4fe80d855b466f20574df4f03b7457904fe2d0566cc3f01d3d4630b41eeed65"
     }
   ],
-  "totalBytes": 1786470,
+  "totalBytes": 1786964,
   "sealedAt": "2026-11-21"
 }
