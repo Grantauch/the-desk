@@ -1415,6 +1415,27 @@ export const storyHubs: StoryHub[] = [
     ],
   },
   {
+    slug: 'ush9-l012-loaded-with-dynamite',
+    href: '/hubs/ush9-l012-loaded-with-dynamite.html',
+    title: 'loaded with dynamite',
+    course: 'us history 9',
+    unit: 'world war i / lesson 12',
+    period: 'January 1918 to June 1919',
+    status: 'ready to teach',
+    question: 'wilson promised a peace built on fourteen points. who did the peace leave out?',
+    blurb:
+      'Wilson promised a peace built on fourteen points. Self determination traveled farther than he meant it to. People in Korea, Vietnam, Egypt and China took it as a promise to them. The peace conference kept the points that redrew the losers\' maps and dropped most of the ones that would have bound the winners.',
+    cover: '/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919.webp',
+    coverAlt: 'The Council of Four outside a doorway in Paris, May 27, 1919',
+    topics: ['fourteen points', 'self determination', 'paris peace conference', 'treaty of versailles', 'woodrow wilson'],
+    inside: [
+      'The fourteen points as cards you can sort into rules for every country and places on the map.',
+      'The Big Four and the war dead each one carried to Paris.',
+      'A map of the new countries, and four letters from people who asked and were turned away.',
+      'A scorecard of kept, bent and dropped points, and three short responses with Turn In.',
+    ],
+  },
+  {
     slug: 'ush9-s04-the-weavers-son',
     href: '/hubs/ush9-s04-the-weavers-son.html',
     title: "the weaver's son",
