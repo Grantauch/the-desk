@@ -33,7 +33,26 @@ import { storyHubs } from '../data/storyhubs';
       storyHubs.map((hub) => (
         <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition, 'storyhub-card--bytesize': hub.bytesize }]}>
           <a class="storyhub-card__cover" href={hub.href}>
-            <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
+            {hub.slug === 'bts-l03-not-in-the-room' ? (
+              <div
+                class="owners-ledger-cover"
+                role="img"
+                aria-label="Editorial comparison: National League club owners organize in 1876 while players are absent; in 1879 the clubs reserve five players each. Not an archival document."
+              >
+                <div class="owners-ledger-cover__mast"><span>THE NATIONAL LEAGUE</span><span>1876—1879</span></div>
+                <div class="owners-ledger-cover__index">
+                  <p><span>01 / AT THE TABLE</span><strong>CLUB OWNERS</strong></p>
+                  <p><span>02 / NOT AT THE TABLE</span><strong>THE PLAYERS</strong></p>
+                </div>
+                <div class="owners-ledger-cover__rule">
+                  <span>1879 / RESERVE RULE</span>
+                  <strong>5 PLAYERS PER CLUB</strong>
+                </div>
+                <p class="owners-ledger-cover__disclosure">An editorial explanation · Not an original league document</p>
+              </div>
+            ) : (
+              <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
+            )}
           </a>
 
           <div class="storyhub-card__body">
@@ -108,6 +127,76 @@ import { storyHubs } from '../data/storyhubs';
     display: block;
     overflow: hidden;
     background: #0b1219;
+  }
+
+  /* A bespoke native-document cover replaces BTS L03's crude illustrative SVG.
+     It uses sourced chronology, not a forged historical facsimile or generic AI art. */
+  .owners-ledger-cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: clamp(1.2rem, 2.5vw, 2rem);
+    min-height: 17rem;
+    height: 100%;
+    padding: clamp(1.1rem, 3vw, 2rem);
+    color: #f0e5cd;
+    background:
+      linear-gradient(90deg, #a76e51 0 5px, transparent 5px 100%),
+      repeating-linear-gradient(0deg, transparent 0 30px, #efe1c018 31px 32px),
+      linear-gradient(150deg, #234a46, #132a2a 72%);
+    border: 1px solid #9f8d6c;
+  }
+  .owners-ledger-cover__mast {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .5rem;
+    padding-bottom: .85rem;
+    border-bottom: 2px solid #ccb991;
+    font: 800 .68rem/1.45 ui-monospace,Consolas,monospace;
+    letter-spacing: .11em;
+  }
+  .owners-ledger-cover__index {
+    display: grid;
+    gap: .85rem;
+    padding: .3rem 0;
+  }
+  .owners-ledger-cover__index p { margin: 0; }
+  .owners-ledger-cover__index span,
+  .owners-ledger-cover__rule span {
+    display: block;
+    color: #d2c2a4;
+    font: 650 .66rem/1.5 ui-monospace,Consolas,monospace;
+    letter-spacing: .06em;
+  }
+  .owners-ledger-cover__index strong {
+    display: block;
+    margin-top: .18rem;
+    font: 900 clamp(1.2rem, 3vw, 1.9rem)/1.05 Georgia,'Times New Roman',serif;
+    letter-spacing: -.04em;
+  }
+  .owners-ledger-cover__index p:nth-child(2) strong {
+    color: #eabca4;
+    text-decoration: underline;
+    text-decoration-color: #b85f44;
+    text-underline-offset: 5px;
+  }
+  .owners-ledger-cover__rule {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    padding: .65rem .8rem;
+    border: 1px solid #c3a985;
+    background: #102728bb;
+  }
+  .owners-ledger-cover__rule strong {
+    font: 800 1rem/1.25 ui-monospace,Consolas,monospace;
+    letter-spacing: .045em;
+  }
+  .owners-ledger-cover__disclosure {
+    margin: 0;
+    color: #d7cfbc;
+    font: 550 .58rem/1.35 ui-monospace,Consolas,monospace;
   }
 
   .storyhub-card__cover img {
