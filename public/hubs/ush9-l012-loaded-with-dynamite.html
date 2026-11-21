@@ -75,7 +75,8 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--stamp);outline-
 .map-box{position:relative;background:var(--paper-3);border:1.5px solid var(--ink)}
 .map-box svg{display:block;width:100%;height:auto}
 .map-box .land{fill:var(--paper-2);stroke:var(--rule);stroke-width:.5}
-.map-box .land.new{fill:var(--ink-2)}
+.map-box .land.new{fill:var(--paper-2)}
+.map-box svg.show-new .land.new{fill:var(--ink-2);stroke:var(--paper-3)}
 .pin{cursor:pointer}
 .pin circle{fill:var(--stamp);stroke:var(--paper-3);stroke-width:2}
 .pin text{font-family:var(--type);font-size:13px;fill:var(--ink);font-weight:700}
@@ -216,7 +217,7 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
       <button type="button" data-map="got" aria-pressed="true">Got a country</button>
       <button type="button" data-map="asked" aria-pressed="false">Asked and turned away</button>
     </div>
-    <div class="map-box" id="map-box"><!-- MAP PENDING: local Natural Earth outline --></div>
+    <div class="map-box" id="map-box"></div>
     <p class="under" id="under-map" aria-live="polite"></p>
     <div id="letter-out" aria-live="polite"></div>
   </div>
@@ -396,6 +397,69 @@ footer.sources{padding:2rem 0 3rem;border-top:1.5px solid var(--ink);font-family
     cards.push(function(){if(!revealed[i]){revealed[i]=true;counts[p[4]]++;}render();});
   });
   document.getElementById('show-all-outcomes').addEventListener('click',function(){cards.forEach(function(f){f();});updateTally();});
+})();
+/* Section 6 map: local outline file, toggles, pins, letter cards */
+(function(){
+  var box=document.getElementById('map-box'),under=document.getElementById('under-map'),out=document.getElementById('letter-out');
+  var LINES={got:'Seven new countries in Europe, all carved from empires that lost the war or fell apart during it.',asked:'Four places that asked Paris for self-determination in 1919. None got it.'};
+  function px(l,p){return [((l+20)/160*960),((72-p)/68*520)];}
+  var PINS=[
+    {k:'korea',name:'Korea',ll:[127,37.5],dx:-10,dy:24,anchor:'middle',date:'MARCH 1, 1919',title:'Korea, under Japanese rule since 1910.',
+     text:'On March 1, 1919, thirty three Korean leaders signed a declaration of independence and it was read aloud in Seoul. Crowds marched in cities and villages across Korea for weeks. Korean exiles tried to send a delegation to Paris, and the United States refused a passport to one of them, Syngman Rhee. Japan was one of the winning Allies. Japanese police and soldiers put down the marches. Japanese records counted 553 people killed. A Korean historian of the time counted more than 7,500.',
+     outcome:'Korea stayed under Japanese rule until 1945.'},
+    {k:'vietnam',name:'Vietnam',ll:[105.8,21],dx:0,dy:26,anchor:'middle',date:'JUNE 18, 1919',title:'Vietnam, a French colony.',
+     text:'A young Vietnamese man working in Paris, who signed his name Nguyen Ai Quoc, delivered a petition to the delegations at the conference. It listed eight demands for Vietnamese people under French rule, including freedom of the press, the right to form groups, and equal rights in court. It did not even ask for independence. The American delegation sent back a short note saying the letter had been received. Nothing else came of it.',
+     outcome:'Years later the world knew him by another name, Ho Chi Minh.',
+     source:'Petition title, “Revendications du peuple annamite,” which means Demands of the Annamite People. June 1919.',
+     img:{src:'/storyhub/ush9/loaded-with-dynamite/assets/nguyen-ai-quoc-1921.webp',alt:'Black and white photograph of a young Nguyen Ai Quoc in a suit, 1921.',credit:'Nguyen Ai Quoc, Marseille, 1921. Public domain, via Wikimedia Commons.'}},
+    {k:'egypt',name:'Egypt',ll:[31.2,30],dx:0,dy:26,anchor:'middle',date:'MARCH 8, 1919',title:'Egypt, under British control.',
+     text:'Saad Zaghlul led a group of Egyptian leaders who asked Britain for permission to go to Paris and argue for independence. Britain refused. On March 8, 1919 British authorities arrested Zaghlul and sent him to the island of Malta. Strikes and protests spread across Egypt. Britain released him in April and his delegation reached Paris. That same month, the United States formally recognized Britain’s control over Egypt.',
+     outcome:'Britain granted Egypt limited independence in 1922 and kept its troops there.'},
+    {k:'china',name:'China',ll:[116.4,39.9],dx:-14,dy:-12,anchor:'end',date:'MAY 4, 1919',title:'China, an Ally in the war.',
+     text:'China had sent about 140,000 laborers to France to dig trenches and unload ships for the Allies. China asked for Shandong province back. Before the war Germany had controlled it, and Japan took it in 1914. On April 30, 1919, the Big Four agreed to give Germany’s rights in Shandong to Japan. On May 4, about 3,000 students marched in Beijing in protest. China’s delegates refused to sign the treaty.',
+     outcome:'The protests became known as the May Fourth Movement.'}
+  ];
+  var NS='http://www.w3.org/2000/svg',svg=null,pinLayer=null,mode='got';
+  function card(p,btn){
+    out.innerHTML='';
+    var d=document.createElement('article');d.className='docfile letter';d.tabIndex=-1;
+    d.innerHTML='<span class="stamp">RECEIVED</span><div class="hdr"></div><h3></h3><p class="body"></p><p class="outcome"></p>';
+    d.querySelector('.hdr').textContent=p.date;
+    d.querySelector('h3').textContent=p.title;
+    d.querySelector('.body').textContent=p.text;
+    d.querySelector('.outcome').textContent=p.outcome;
+    if(p.source){var s=document.createElement('p');s.className='small-note';s.textContent=p.source;d.appendChild(s);}
+    if(p.img){var f=document.createElement('figure'),im=document.createElement('img'),c=document.createElement('figcaption');
+      im.src=p.img.src;im.alt=p.img.alt;im.loading='lazy';im.style.maxWidth='18rem';c.className='credit';c.textContent=p.img.credit;f.appendChild(im);f.appendChild(c);d.appendChild(f);}
+    out.appendChild(d);
+    pinLayer.querySelectorAll('.pin').forEach(function(g){g.setAttribute('aria-pressed',g===btn?'true':'false');});
+    d.focus({preventScroll:true});d.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+  function setMode(m){
+    mode=m;under.textContent=LINES[m];
+    document.querySelectorAll('[data-map]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-map')===m?'true':'false');});
+    if(!svg)return;
+    svg.classList.toggle('show-new',m==='got');
+    pinLayer.style.display=m==='asked'?'':'none';
+    if(m!=='asked')out.innerHTML='';
+  }
+  document.querySelectorAll('[data-map]').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-map'));});});
+  fetch('/storyhub/ush9/loaded-with-dynamite/assets/map-1919.svg').then(function(r){return r.text();}).then(function(t){
+    box.innerHTML=t;svg=box.querySelector('svg');
+    pinLayer=document.createElementNS(NS,'g');
+    PINS.forEach(function(p){
+      var xy=px(p.ll[0],p.ll[1]),g=document.createElementNS(NS,'g');
+      g.setAttribute('class','pin');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-pressed','false');g.setAttribute('aria-label',p.name);
+      var c=document.createElementNS(NS,'circle');c.setAttribute('cx',xy[0]);c.setAttribute('cy',xy[1]);c.setAttribute('r','11');
+      var tx=document.createElementNS(NS,'text');tx.setAttribute('x',xy[0]+p.dx);tx.setAttribute('y',xy[1]+p.dy);tx.setAttribute('text-anchor',p.anchor);tx.textContent=p.name;
+      g.appendChild(c);g.appendChild(tx);
+      g.addEventListener('click',function(){card(p,g);});
+      g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();card(p,g);}});
+      pinLayer.appendChild(g);
+    });
+    svg.appendChild(pinLayer);setMode(mode);
+  }).catch(function(){setMode(mode);});
+  setMode('got');
 })();
 </script>
 <!--
