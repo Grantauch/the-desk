@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-11-18",
-  "catalogueCount": 77,
+  "checkedAt": "2026-11-21",
+  "catalogueCount": 78,
   "hubs": [
     {
       "hub": "bts-who-pays-for-friday-night.html",
@@ -384,6 +384,11 @@
     },
     {
       "hub": "bts-route-tree-b.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-l012-loaded-with-dynamite.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }
