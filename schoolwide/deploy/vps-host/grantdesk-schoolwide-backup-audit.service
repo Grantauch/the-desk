@@ -1,0 +1,28 @@
+# Read-only audit after the 02:05 staging dump and 02:15 host archive.
+# Reads protected archives only; no public endpoint, student identity or migration.
+[Unit]
+Description=Validate local Schoolwide/Margin/Checkaverse backup integrity
+Documentation=https://github.com/Grantauch/the-desk/pull/433
+After=postgresql@18-schoolwide_stage.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/grantdesk-schoolwide-backup-audit
+TimeoutStartSec=120
+MemoryMax=512M
+CPUQuota=75%
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
