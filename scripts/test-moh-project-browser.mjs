@@ -166,6 +166,38 @@ await test('guided assignment walkthrough is readable without a PIN and teaches 
   await page.keyboard.press('Enter');
   assert.equal(await page.locator('[data-tour-panel="words"]:visible').count(), 1, 'keyboard activates next');
 
+  const assertFocusedHeadingInView = async (key) => {
+    const heading = page.locator('#tour-' + key + '-heading');
+    const view = await heading.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const header = document.querySelector('.mbar').getBoundingClientRect();
+      return {
+        focused: document.activeElement === element,
+        top: rect.top,
+        bottom: rect.bottom,
+        headerBottom: Math.max(0, header.bottom),
+        viewportHeight: window.innerHeight,
+      };
+    });
+    assert.equal(view.focused, true, 'active step heading receives focus: ' + key);
+    assert.ok(view.top >= view.headerBottom && view.bottom <= view.viewportHeight,
+      'focused step heading stays visible below the mobile header: ' + key + ' ' + JSON.stringify(view));
+  };
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const height of [568, 480]) {
+    await page.setViewportSize({ width: 320, height });
+    await page.locator('[data-tour-link="words"]').click();
+    await assertFocusedHeadingInView('words');
+    await page.locator('#tour-next').focus();
+    await page.keyboard.press('Enter');
+    await assertFocusedHeadingInView('story1');
+    await page.locator('#tour-prev').click();
+    await assertFocusedHeadingInView('words');
+    await page.locator('[data-tour-link="finish"]').click();
+    await assertFocusedHeadingInView('finish');
+  }
+
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.locator('[data-tour-link="art"]').click();

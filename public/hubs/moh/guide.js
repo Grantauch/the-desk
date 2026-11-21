@@ -4,6 +4,7 @@
   var steps = ['facts', 'words', 'story1', 'story2', 'why', 'art', 'finish'];
   var root = document.getElementById('guide-tour');
   if (!root) return;
+  var header = document.querySelector('.mbar');
   var panels = Array.prototype.slice.call(root.querySelectorAll('[data-tour-panel]'));
   var links = Array.prototype.slice.call(root.querySelectorAll('[data-tour-link]'));
   var count = document.getElementById('tour-counter');
@@ -34,9 +35,15 @@
       window.history.replaceState(null, '', '#tour-' + steps[current]);
     }
     if (moveFocus) {
-      document.getElementById('walkthrough').scrollIntoView({ block: 'start' });
       var title = panels[current].querySelector('h3');
-      if (title) title.focus({ preventScroll: true });
+      if (title) {
+        title.focus({ preventScroll: true });
+        // Center in the usable viewport below the sticky header, which can wrap on phones.
+        var titleBox = title.getBoundingClientRect();
+        var headerBottom = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+        var gap = Math.max(0, (window.innerHeight - headerBottom - titleBox.height) / 2);
+        window.scrollBy({ top: titleBox.top - headerBottom - gap });
+      }
     }
   }
 
