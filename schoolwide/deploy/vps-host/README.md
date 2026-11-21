@@ -83,6 +83,21 @@ EXPECTED_RELEASE_SHA="$(git -C /srv/schoolwide/repo rev-parse HEAD)" \
 
 For up to 150 total requests per endpoint, `PROBE_REQUESTS=150 PROBE_CONCURRENCY=10`. The probe is hard-coded to `http://127.0.0.1:18787`, accepts no student IDs/PINs, and only tests the public health route plus unauthorized teacher access. It records p50, p95 and p99 request latency without private payloads. **It is not a true 150-student Check-In/Hall Pass workload test.** That later test needs synthetic authenticated identities and full mutation/queue parity checks; do not claim classroom capacity from a health endpoint test.
 
+### One-time 35-student HTTP Check-In on the actual VPS
+
+The committed `scripts/vps-host-classroom-probe.mjs` is a one-shot synthetic HTTP mutation test, separate from the read-only health probe. It refuses to run unless (1) the operating-system user is `grantdesk_stage`, (2) the expected 40-character release SHA matches localhost staging, (3) a deliberately explicit `VPS_SYNTHETIC_LOAD=yes` flag is present, and (4) the private staging DB has exactly 19 migrations and **zero students, Check-Ins and passes**. The script creates only fictional students with fake one-time proof tokens, makes 35 concurrent POST Check-Ins and 35 matching retries over `127.0.0.1:18787`, then verifies unique attendance, one point each, audit entries and outbox rows. It reports p50/p95/p99 for the first 35 HTTP submissions.
+
+**Run only after** the reviewed commit is installed, migrations pass, staging is confirmed free of real data, and the server is healthy:
+
+```sh
+cd /srv/schoolwide/current
+sudo -u grantdesk_stage env VPS_SYNTHETIC_LOAD=yes \
+  EXPECTED_RELEASE_SHA="$(readlink /srv/schoolwide/current | sed 's#.*/##')" \
+  node scripts/vps-host-classroom-probe.mjs
+```
+
+Do not rerun against the same staging database. The 35 fictional records intentionally remain in the isolated DB as evidence. This test uses seeded synthetic action proofs, **not real PIN authentication**, and does not establish school Chromebook/Wi-Fi performance or production student-data readiness.
+
 ## Rollback / safe stop
 
 ```sh
