@@ -265,6 +265,7 @@
       case 'body': showBody(m); break;
       case 'cared': $('careMsg').textContent = m.msg; if (m.body && careView) { careView.body = m.body; renderCare(); } break;
       case 'shop': showStore(m); break;
+      case 'forage': toast(m.msg); break;
       case 'report': showReport(m); break;
       case 'death': showDeath(m); break;
       case 'cemetery': showCemetery(m); break;
@@ -574,6 +575,7 @@
     if (key === 'notice-board') return askRanks();
     if (key === 'arena') { if (saved) return send({ t: 'gym' }); }
     if (key === 'market-stall') return send({ t: 'shop' });
+    if (key.startsWith('forage-')) return send({ t: 'forage', id: key.slice('forage-'.length) });
     if (key.startsWith('place:')) return openPlace(key.slice(6));
     if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) lookStone(st); return; }
     if (key === 'bus-stop-kc' && saved) return askBus('town');
@@ -2238,6 +2240,12 @@
     const nap = document.createElement('div'); nap.className = 'care-tag';
     nap.textContent = b.sinceNap === 0 ? 'Napped today.' : b.sinceNap === 1 ? 'Last nap: 1 school day ago.' : `Last nap: ${b.sinceNap} school days ago.${b.sinceNap >= 3 ? ' A nap soon keeps it from getting exhausted.' : ''}`;
     if (b.sinceNap >= 3) tags.appendChild(nap);
+    const found = Object.entries(b.foraged || {});
+    if (found.length) {
+      const bag = document.createElement('div'); bag.className = 'care-tag';
+      bag.textContent = `Foraged: ${found.map(([name, n]) => `${n} ${name.toLowerCase()}`).join(', ')}.`;
+      tags.appendChild(bag);
+    }
     const acts = $('careActions');
     acts.textContent = '';
     for (const a of b.actions) {
