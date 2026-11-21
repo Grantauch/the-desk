@@ -1487,8 +1487,8 @@ export const storyHubs: StoryHub[] = [
     question: 'what changes when the people doing the work are missing from the meeting?',
     blurb:
       'Baseball owners create a league, set entry rules, and close the labor market while the players who produce the game are absent from the room. Students follow exactly where control moved and who gained it.',
-    cover: '/storyhub/bts/l03/assets/cover-ledger.svg',
-    coverAlt: 'Editorial ledger cover with an intentionally empty player chair',
+    cover: '/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg',
+    coverAlt: '1876 lithograph of the Chicago White Stockings, one of the original National League clubs, with player portraits around a game scene and manager A. G. Spalding at the top. Public domain, Wikimedia Commons.',
     topics: ['national league origins', 'william hulbert', 'club ownership', 'reserve rule', 'player labor'],
     inside: [
       'A four-clause charter audit that makes students identify the problem each owner rule was designed to solve.',
