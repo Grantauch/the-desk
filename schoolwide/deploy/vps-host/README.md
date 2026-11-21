@@ -68,7 +68,34 @@ A real two-device school browser pilot, production Google identity, district dat
 
 ## Backup and recovery
 
-The host's existing 02:15 filesystem backup includes directories under `/srv/*/data` but does not capture PostgreSQL clusters automatically. Once an isolated synthetic-only database actually exists, run `sudo bash scripts/vps-host-staging-backup.sh` to create a mode-0600 `pg_dump -Fc` in `/srv/schoolwide/data/`, then verify the nightly host backup contains it. The source includes an optional `grantdesk-schoolwide-staging-backup.service` and `.timer` set for 02:05, but neither is installed or enabled by this PR. Enable the timer only after the staging database is ready, the script has succeeded manually, and a disposable restore rehearsal has passed. Monitor job failures and confirm the 02:15 host archive actually includes the dump. Restore rehearsal MUST use a separate disposable database or cluster, never Margin or live Schoolwide. The script rotates matching local staging PostgreSQL dumps after 14 days (and the host archive separately retains 14 days). A successful full restore into a disposable `grantdesk_schoolwide_restore_probe` database was verified on the host: 52 public tables and 19 applied migrations, equal to staging as of November 20, 2026. Off-server encrypted recovery remains unverified. Its failures must not be ignored.
+The host's existing 02:15 filesystem backup includes directories under `/srv/*/data` but does not capture PostgreSQL clusters automatically. Once an isolated synthetic-only database actually exists, run `sudo bash scripts/vps-host-staging-backup.sh` to create a mode-0600 `pg_dump -Fc` in `/srv/schoolwide/data/`, then verify the nightly host backup contains it. The host-native `grantdesk-schoolwide-staging-backup.service` and `.timer` were installed and enabled on `grant-server` at 02:05 America/New_York. The host's existing `/etc/cron.d/backup-srv-data` archives `/srv/*/data` at 02:15. Installation elsewhere still requires local operator review. Enable the timer only after the staging database is ready, the script has succeeded manually, and a disposable restore rehearsal has passed. Monitor job failures and confirm the 02:15 host archive actually includes the dump. Restore rehearsal MUST use a separate disposable database or cluster, never Margin or live Schoolwide. The script rotates matching local staging PostgreSQL dumps after 14 days (and the host archive separately retains 14 days). A successful full restore into a disposable `grantdesk_schoolwide_restore_probe` database was verified on the host: 52 public tables and 19 applied migrations, equal to staging as of November 20, 2026. Off-server encrypted recovery remains unverified. Its failures must not be ignored.
+
+### Scheduled local backup-integrity audit (02:35 Eastern)
+
+`scripts/vps-host-backup-audit.sh` provides a strict, read-only audit of the *on-host* backups after the scheduled 02:05 Schoolwide database dump and 02:15 `/srv/*/data` host archive. It requires root (files remain mode 0600), verifies that the latest Schoolwide `pg_dump -Fc` is byte-identical to the copy inside the newest protected Schoolwide tarball, checks both PostgreSQL custom dump headers, runs `PRAGMA quick_check` on a protected temporary copy of the Checkaverse SQLite backup, verifies service health and exact private release SHA, and rejects backups older than 30 hours. Temporary copies are root-only and destroyed on exit.
+
+Install and schedule **only after a manual dry run passes** and all three archives (Schoolwide, Margin and Checkaverse) are present:
+
+```sh
+sudo bash /srv/schoolwide/repo/schoolwide/scripts/vps-host-backup-audit.sh
+sudo install -o root -g root -m 0750 \
+  /srv/schoolwide/repo/schoolwide/scripts/vps-host-backup-audit.sh \
+  /usr/local/sbin/grantdesk-schoolwide-backup-audit
+sudo install -o root -g root -m 0644 \
+  /srv/schoolwide/repo/schoolwide/deploy/vps-host/grantdesk-schoolwide-backup-audit.service \
+  /etc/systemd/system/
+sudo install -o root -g root -m 0644 \
+  /srv/schoolwide/repo/schoolwide/deploy/vps-host/grantdesk-schoolwide-backup-audit.timer \
+  /etc/systemd/system/
+sudo systemd-analyze verify \
+  /etc/systemd/system/grantdesk-schoolwide-backup-audit.service \
+  /etc/systemd/system/grantdesk-schoolwide-backup-audit.timer
+sudo systemctl daemon-reload
+sudo systemctl start grantdesk-schoolwide-backup-audit.service
+sudo systemctl enable --now grantdesk-schoolwide-backup-audit.timer
+```
+
+Check each morning with `systemctl show grantdesk-schoolwide-backup-audit.service -p Result -p ExecMainStatus`, `journalctl -u grantdesk-schoolwide-backup-audit.service`, and `systemctl list-timers --all`. A failed run is retained as systemd/journald evidence, but does **not** automatically email or alert an operator. A daily **freshness and integrity check is not proof of off-server disaster recovery or full application restoration**. Exact on-host success and scheduled first-run status must be recorded separately.
 
 ### Bounded, read-only staging probe
 
