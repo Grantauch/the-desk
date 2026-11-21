@@ -1238,8 +1238,8 @@ export const storyHubs: StoryHub[] = [
     question: 'politicians did not fix low wages. they made exclusion federal law.',
     blurb:
       'Chinese railroad workers join the labor fight. Economic anger turns against them. Congress answers one labor demand with the Chinese Exclusion Act, and the consequences spread west.',
-    cover: '/storyhub/ush9/l016/assets/sierra.webp',
-    coverAlt: 'AI-authored reconstruction of an empty railroad cut in the Sierra Nevada',
+    cover: '/storyhub/ush9/l016/assets/act.webp',
+    coverAlt: 'First page of the Chinese Exclusion Act of May 6, 1882, held by the National Archives, Record Group 11',
     topics: ['chinese exclusion', 'nativism', 'labor', 'page act', 'rock springs'],
     inside: [
       'Stamp five labor demands and discover which one received federal power.',
@@ -1258,8 +1258,8 @@ export const storyHubs: StoryHub[] = [
     question: 'chinese americans organized, refused, sued—and changed the law.',
     blurb:
       'Exclusion reaches homes, ships, identity papers, and courtrooms. Chinese Americans answer with mass resistance and cases that strengthen equal protection and birthright citizenship.',
-    cover: '/storyhub/ush9/l016/assets/sea.webp',
-    coverAlt: 'AI-authored reconstruction of an 1880s steamship approaching the California coast',
+    cover: '/storyhub/ush9/l016/assets/wong.webp',
+    coverAlt: "Wong Kim Ark’s November 5, 1894 departure statement, including his identification photograph, from the U.S. National Archives",
     topics: ['chinese exclusion', 'civil disobedience', 'equal protection', 'wong kim ark', 'birthright citizenship'],
     inside: [
       'Move a ship carrying a valid return certificate that Congress cancels during the crossing.',
