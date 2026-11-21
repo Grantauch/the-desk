@@ -16,6 +16,17 @@ export interface Hub {
 
 export const interactiveExperiences: Hub[] = [
   {
+    name: 'gridiron blitz',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'free arcade football game',
+    theme: 'scoreboard',
+    previewEyebrow: 'free · 100 yards · two modes',
+    href: '/hubs/gridiron-blitz/',
+    blurb: 'A free, noncommercial arcade football challenge on GrantDesk. Read the defense and run for the end zone in Full Drive or Score Attack. Earn uniforms and save career progress on this device—no sign-in, purchases, tracking, or public leaderboard.',
+  },
+
+  {
     name: 'reconstruction case file',
     section: 'investigation',
     course: 'US History',
@@ -112,9 +123,9 @@ export const interactiveExperiences: Hub[] = [
     course: 'just for fun',
     kind: 'falling-sand sandbox',
     theme: 'lab',
-    previewEyebrow: 'sand · water · fire · life',
+    previewEyebrow: 'mix · paint · explore · discover',
     href: '/hubs/pond/',
-    blurb: 'Paint a tiny world, grow a garden, freeze a lake, or see what happens when lava meets water. Twenty materials and tools, starter scenes, undo, and worlds you can save. No score. Make a mess.',
+    blurb: 'Build a living pond in your own Field Station. Combine discoveries, paint materials, place creatures, expand your world, and map new habitats. Progress saves in this browser; export a world file to keep a backup or move devices. No score. Just experiment.',
   },
   {
     name: 'dry county',

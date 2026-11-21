@@ -1,0 +1,35 @@
+name: Gridiron Blitz B09 staging
+on:
+  pull_request:
+    paths:
+      - 'public/hubs/gridiron-blitz/**'
+      - 'src/data/interactiveExperiences.ts'
+      - 'src/components/GamePreview.astro'
+      - 'scripts/test-gridiron-blitz-b09.mjs'
+      - '.github/workflows/gridiron-blitz-b09.yml'
+      - 'docs/games/GRIDIRON-BLITZ-B09-REVIEW.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out staged game
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Verify prebuild route and privacy
+        run: node --test scripts/test-gridiron-blitz-b09.mjs
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+      - name: Build the Astro site
+        run: npm run build
+      - name: Verify built route, catalog and privacy
+        run: node --test scripts/test-gridiron-blitz-b09.mjs --dist
+      - name: Verify static-site references
+        run: npm run site:validate

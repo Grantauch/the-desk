@@ -738,8 +738,8 @@ export const storyHubs: StoryHub[] = [
     bytesize: 'bytesize no. 3',
     question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
     blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
-    cover: '/storyhub/hh/nuremberg/cover.svg',
-    coverAlt: 'Original documentary illustration of the Nuremberg tribunal courtroom, not an archival photograph',
+    cover: '/storyhub/hh/nuremberg/courtroom-72-906.jpg',
+    coverAlt: 'Archival photograph of a session of the 1945–46 Nuremberg War Crimes Trials; Harry S. Truman Library, photograph 72-906 (public domain)',
     topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
     inside: [
       'Decide how leaders accused of war crimes should be tried, then discover the 1946 verdicts.',
@@ -1257,8 +1257,8 @@ export const storyHubs: StoryHub[] = [
     question: 'politicians did not fix low wages. they made exclusion federal law.',
     blurb:
       'Chinese railroad workers join the labor fight. Economic anger turns against them. Congress answers one labor demand with the Chinese Exclusion Act, and the consequences spread west.',
-    cover: '/storyhub/ush9/l016/assets/sierra.webp',
-    coverAlt: 'AI-authored reconstruction of an empty railroad cut in the Sierra Nevada',
+    cover: '/storyhub/ush9/l016/assets/act.webp',
+    coverAlt: 'First page of the Chinese Exclusion Act of May 6, 1882, held by the National Archives, Record Group 11',
     topics: ['chinese exclusion', 'nativism', 'labor', 'page act', 'rock springs'],
     inside: [
       'Stamp five labor demands and discover which one received federal power.',
@@ -1277,8 +1277,8 @@ export const storyHubs: StoryHub[] = [
     question: 'chinese americans organized, refused, sued—and changed the law.',
     blurb:
       'Exclusion reaches homes, ships, identity papers, and courtrooms. Chinese Americans answer with mass resistance and cases that strengthen equal protection and birthright citizenship.',
-    cover: '/storyhub/ush9/l016/assets/sea.webp',
-    coverAlt: 'AI-authored reconstruction of an 1880s steamship approaching the California coast',
+    cover: '/storyhub/ush9/l016/assets/wong.webp',
+    coverAlt: "Wong Kim Ark’s November 5, 1894 departure statement, including his identification photograph, from the U.S. National Archives",
     topics: ['chinese exclusion', 'civil disobedience', 'equal protection', 'wong kim ark', 'birthright citizenship'],
     inside: [
       'Move a ship carrying a valid return certificate that Congress cancels during the crossing.',
@@ -1487,8 +1487,8 @@ export const storyHubs: StoryHub[] = [
     question: 'what changes when the people doing the work are missing from the meeting?',
     blurb:
       'Baseball owners create a league, set entry rules, and close the labor market while the players who produce the game are absent from the room. Students follow exactly where control moved and who gained it.',
-    cover: '/storyhub/bts/l03/assets/cover-ledger.svg',
-    coverAlt: 'Editorial ledger cover with an intentionally empty player chair',
+    cover: '/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg',
+    coverAlt: '1876 lithograph of the Chicago White Stockings, one of the original National League clubs, with player portraits around a game scene and manager A. G. Spalding at the top. Public domain, Wikimedia Commons.',
     topics: ['national league origins', 'william hulbert', 'club ownership', 'reserve rule', 'player labor'],
     inside: [
       'A four-clause charter audit that makes students identify the problem each owner rule was designed to solve.',

@@ -132,9 +132,9 @@ a {
   position: absolute;
   inset: 0;
   z-index: -4;
-  background: url('/storyhub/hh/nuremberg/cover.svg')
+  background: url('/storyhub/hh/nuremberg/courtroom-72-906.jpg')
     center 33% / cover no-repeat;
-  filter: grayscale(1) contrast(1.55) brightness(0.67);
+  filter: grayscale(1) contrast(1.18) brightness(0.73);
 }
 .cover-grain {
   position: absolute;
@@ -157,6 +157,7 @@ a {
     linear-gradient(90deg, #151a1b 5%, #151a1bee 36%, #151a1b50 76%),
     linear-gradient(0deg, #171a1b 0%, transparent 55%);
 }
+.cover-photo-credit{font:600 11px/1.45 Arial,sans-serif;letter-spacing:.05em;color:#e4d9c9;margin-top:1.3rem;max-width:30rem}
 .cover-content {
   padding: 65px clamp(24px, 7vw, 110px) 95px;
   max-width: 1050px;
@@ -605,9 +606,11 @@ figcaption {
   transform: rotate(2deg);
 }
 .woods-photo img {
-  width: 250px;
-  height: 310px;
-  object-fit: cover;
+  display: block;
+  width: 123px;
+  height: 175px;
+  margin: 26px auto;
+  object-fit: contain;
   filter: grayscale(1) contrast(1.3);
   image-rendering: auto;
 }
@@ -1206,6 +1209,7 @@ figcaption {
                 >OPEN THE EVIDENCE <span>↗</span></a
               ><span class="read-time">7 BYTES · 15–20 MINUTES</span>
             </div>
+            <p class="cover-photo-credit">Courtroom photograph: <a href="https://www.trumanlibrary.gov/photograph-records/72-906" target="_blank" rel="noopener">Harry S. Truman Library, 72-906</a> · public domain.</p>
           </div>
           <div class="cover-stamp">OCT 16<br /><strong>1946</strong></div>
         </div>
@@ -1382,11 +1386,11 @@ figcaption {
               </div>
               <figure class="woods-photo">
                 <img
-                  src="/storyhub/hh/nuremberg/woods-dossier.svg"
-                  alt="Modern personnel dossier illustration identifying John C. Woods; this is not an archival photo or actual likeness"
+                  src="/storyhub/hh/nuremberg/woods-1946.jpg" width="123" height="175"
+                  alt="Period photograph of U.S. Army Sergeant John C. Woods in Nuremberg, 1946"
                   loading="lazy"
                 />
-                <figcaption>JOHN C. WOODS · INTERPRETIVE DOSSIER · NOT A PHOTOGRAPH</figcaption>
+                <figcaption>JOHN C. WOODS · NUREMBERG, 1946 · <a href="https://commons.wikimedia.org/wiki/File:John_C._Woods.jpg" target="_blank" rel="noopener">ARCHIVAL PHOTO</a></figcaption>
               </figure>
             </div>
             <div class="record-card">
@@ -1666,6 +1670,10 @@ figcaption {
             </p>
             <ol>
               <li>
+                <a href="https://www.trumanlibrary.gov/photograph-records/72-906" target="_blank" rel="noopener">Harry S. Truman Library — Nuremberg defendants and counsel photograph (72-906)</a>
+                <small>Archival public-domain photograph used on the cover, not a reconstruction.</small>
+              </li>
+              <li>
                 <a
                   href="https://encyclopedia.ushmm.org/content/en/article/international-military-tribunal-at-nuremberg"
                   target="_blank"
@@ -1674,6 +1682,10 @@ figcaption {
                   Tribunal</a
                 >
                 <small>Trial, charges, convictions and sentences.</small>
+              </li>
+              <li>
+                <a href="https://commons.wikimedia.org/wiki/File:John_C._Woods.jpg" target="_blank" rel="noopener">Wikimedia Commons — John C. Woods, Nuremberg, 1946</a>
+                <small>Period photograph of Woods, marked public domain; original is only 123 × 175 pixels, displayed at native size.</small>
               </li>
               <li>
                 <a
@@ -1720,7 +1732,7 @@ figcaption {
             </ol>
             <p class="footer-fine">
               HIDDEN HISTORY / THE DESK · BYTESIZE NO. 03 · For educational use.
-              Editorial illustrations are original and labeled, not archival photographs.
+              The courtroom and John C. Woods images are period public-domain photographs, credited above.
               Period reporting and historical studies are linked in Sources. No graphic execution images.
             </p>
           </div>
