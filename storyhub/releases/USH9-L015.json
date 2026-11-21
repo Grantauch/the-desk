@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l015-who-showed-up.html",
-      "bytes": 84481,
-      "sha256": "72be23f808790fd86347ada4d03abd0f81a08e824518785d6659f68d04c1e166"
+      "bytes": 86195,
+      "sha256": "9c260c5b9d3d2aa7135a4f34dac62dd567a841e01970adf556177e95dff64818"
     },
     {
       "assetId": "A01",
@@ -109,8 +109,26 @@
       "path": "/storyhub/ush9/l015/assets/a04-pittsburgh-1877.jpg",
       "bytes": 245673,
       "sha256": "d3f25bb6e221199167a1c3a2ac02cf1233352cec80dc08d5eabd6c9596242ed4"
+    },
+    {
+      "assetId": "A17",
+      "path": "/storyhub/ush9/l015/assets/a07-haymarket-1886.jpg",
+      "bytes": 299091,
+      "sha256": "fffd390bcfc0123f33f45aa85785dad164bf8580c3c14e9ea1d61e6a23a8f3d2"
+    },
+    {
+      "assetId": "A18",
+      "path": "/storyhub/ush9/l015/assets/a11-homestead-barges-1892.jpg",
+      "bytes": 214156,
+      "sha256": "be7a4bcb38a898b4967e97731a98d0e736d599d87fe7a3b15b8d7fddf65ded92"
+    },
+    {
+      "assetId": "A19",
+      "path": "/storyhub/ush9/l015/assets/a12-pullman-houses-1890s.jpg",
+      "bytes": 159753,
+      "sha256": "c4fe80d855b466f20574df4f03b7457904fe2d0566cc3f01d3d4630b41eeed65"
     }
   ],
-  "totalBytes": 941964,
-  "sealedAt": "2026-11-20"
+  "totalBytes": 1616678,
+  "sealedAt": "2026-11-21"
 }

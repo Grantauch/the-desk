@@ -100,7 +100,7 @@
     },
     {
       "id": "A07",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Haymarket before-or-after absence",
       "sourceMode": "interpretive-reconstruction",
@@ -108,10 +108,12 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It is explicitly not a depiction of the bombing.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It is explicitly not a depiction of the bombing. Superseded by local historical image a07-haymarket-1886.jpg.",
       "htmlSafeZone": "Upper-right wet dark sky for timestamp; lower foreground stones for body lines.",
       "responsiveCrop": "Preserve empty wagon and wet square while maintaining the two quiet type zones.",
-      "deployPath": "/storyhub/ush9/l015/assets/a07-haymarket-square.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a07-haymarket-square.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original SVG retained at its old public URL; active lesson uses documented period media instead."
     },
     {
       "id": "A08",
@@ -175,7 +177,7 @@
     },
     {
       "id": "A11",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Homestead river landing chronology",
       "sourceMode": "interpretive-reconstruction",
@@ -183,14 +185,16 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It shows the approach atmosphere, not the fighting itself.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It shows the approach atmosphere, not the fighting itself. Superseded by local historical image a11-homestead-barges-1892.jpg.",
       "htmlSafeZone": "Mist band across middle for body lines; sky at top for date.",
       "responsiveCrop": "Keep barge at middle distance and shoreline watchfulness; protect mist band.",
-      "deployPath": "/storyhub/ush9/l015/assets/a11-monongahela.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a11-monongahela.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original SVG retained at its old public URL; active lesson uses documented period media instead."
     },
     {
       "id": "A12",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Pullman company-town ledger substrate",
       "sourceMode": "interpretive-reconstruction",
@@ -200,10 +204,12 @@
       ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The repeating houses carry company-town structure without presenting a false archival photograph.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The repeating houses carry company-town structure without presenting a false archival photograph. Superseded by local historical image a12-pullman-houses-1890s.jpg.",
       "htmlSafeZone": "Lower-third pavement for ledger; flat sky above rooflines for heading.",
       "responsiveCrop": "Preserve repetitive brick-house order and both type zones.",
-      "deployPath": "/storyhub/ush9/l015/assets/a12-pullman-houses.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a12-pullman-houses.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original SVG retained at its old public URL; active lesson uses documented period media instead."
     },
     {
       "id": "A13",
@@ -272,6 +278,48 @@
       "responsiveCrop": "Preserve depot walls and telegraph poles; in-image historical printed caption remains historical artifact.",
       "status": "shipped",
       "deployPath": "/storyhub/ush9/l015/assets/a04-pittsburgh-1877.jpg"
+    },
+    {
+      "id": "A17",
+      "status": "shipped",
+      "type": "wood-engraving",
+      "role": "Restores a07-haymarket-square.svg with period source art",
+      "sourceMode": "contemporary-wood-engraving",
+      "subject": "Harper’s Weekly May 15 1886 Haymarket wood engraving by Thure de Thulstrup",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:HaymarketRiot-Harpers.jpg",
+      "rightsStatus": "Public domain: published in the United States in 1886",
+      "provenance": "Contemporary 1886 newspaper engraving by Thure de Thulstrup via Wikimedia Commons public-domain file. Its staged depiction combines moments inaccurately; classroom caption explicitly identifies it as an illustration, not an eyewitness photograph. Local JPEG optimized from the public-domain engraving.",
+      "htmlSafeZone": "Readable HTML text over responsive CSS gradient",
+      "responsiveCrop": "Historic scene and native HTML source credit remain usable at mobile and desktop widths",
+      "deployPath": "/storyhub/ush9/l015/assets/a07-haymarket-1886.jpg"
+    },
+    {
+      "id": "A18",
+      "status": "shipped",
+      "type": "wood-engraving",
+      "role": "Restores a11-monongahela.svg with period source art",
+      "sourceMode": "contemporary-wood-engraving",
+      "subject": "Homestead burning barges by Charles Mente after photograph by Dabbs in Harper’s Weekly July 16 1892",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Homestead_Strike_-_Barges_on_fire.jpg",
+      "rightsStatus": "Public domain: published in the United States in 1892",
+      "provenance": "Contemporary wood engraving by Charles Mente from a photograph by Dabbs, Harper’s Weekly, July 16 1892; Library of Congress digital ID cph.3b03431, via Wikimedia Commons public-domain copy. Image shows burning barges after the fighting, not the predawn arrival. Local optimized JPEG.",
+      "htmlSafeZone": "Readable HTML text over responsive CSS gradient",
+      "responsiveCrop": "Historic scene and native HTML source credit remain usable at mobile and desktop widths",
+      "deployPath": "/storyhub/ush9/l015/assets/a11-homestead-barges-1892.jpg"
+    },
+    {
+      "id": "A19",
+      "status": "shipped",
+      "type": "archival-photo",
+      "role": "Restores a12-pullman-houses.svg with period source art",
+      "sourceMode": "archival-photograph",
+      "subject": "Pullman workers’ houses, 1890–1901, original Detroit Publishing Company glass negative LC-DIG-det-4a08075",
+      "sourceUrl": "https://www.loc.gov/item/2016801929/",
+      "rightsStatus": "Library of Congress: no known restrictions on publication",
+      "provenance": "Period photograph, Detroit Publishing Company 1890–1901, Library of Congress item 2016801929 and digital ID det.4a08075. Local JPEG from original LOC CDN. Source date is a range; the photo is not represented as necessarily taken during the exact 1894 strike.",
+      "htmlSafeZone": "Readable HTML text over responsive CSS gradient",
+      "responsiveCrop": "Historic scene and native HTML source credit remain usable at mobile and desktop widths",
+      "deployPath": "/storyhub/ush9/l015/assets/a12-pullman-houses-1890s.jpg"
     }
   ]
 }

@@ -43,3 +43,11 @@ Narrative scene images for this lesson are planned separately in `assets.json`. 
 - **Pittsburgh (A16):** Photograph of the ruined Pennsylvania Railroad Union Depot after the fire of 1877, from the Jones & Laughlin Steel Corporation Photographs collection, Detre Library & Archives at the Heinz History Center. [Belt Magazine, historical photograph with attribution](https://beltmag.com/great-railroad-strike-pittsburgh-pennsylvania-labor/). Photograph records damage after the fire; it does **not** depict the roundhouse burning.
 
 Both are period sources displayed as evidence. The previous illustrative SVGs remain at their old public URLs for compatibility but no longer display in the student-facing scenes.
+
+## Additional archival scene restoration: Haymarket, Homestead, Pullman
+
+- **Haymarket (A17)**: Thure de Thulstrup, *The Anarchist Riot in Chicago*, May 15, 1886, wood engraving for *Harper’s Weekly*. [Original and public-domain note](https://commons.wikimedia.org/wiki/File:HaymarketRiot-Harpers.jpg); [Library of Congress 99614182](https://www.loc.gov/item/99614182/). Contemporary engraving is an inaccurate staged depiction, **not a photograph**.
+- **Homestead (A18)**: *The Burning Barges*, wood engraving after a photograph by Dabbs, *Harper’s Weekly*, July 16, 1892. [Wikimedia Commons and public-domain provenance](https://commons.wikimedia.org/wiki/File:Homestead_Strike_-_Barges_on_fire.jpg). LOC cph.3b03431. Illustrates later barge fires, **not** the initial arrival.
+- **Pullman (A19)**: Detroit Publishing Company, *Workmen’s Houses, Pullman*, glass negative, between 1890 and 1901. [Library of Congress item 2016801929](https://www.loc.gov/item/2016801929/) (det.4a08075), no known restrictions on publication. Original period photo but **not necessarily captured during the 1894 strike**.
+
+All new media is local. All former SVG URLs are preserved, and the lesson’s existing student questions, models, and save functions were not changed.
