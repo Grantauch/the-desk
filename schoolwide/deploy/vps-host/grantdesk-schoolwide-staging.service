@@ -1,0 +1,39 @@
+# Isolated synthetic-only Schoolwide staging on the OVH VPS.
+# Never point a public Caddy route or real student traffic to this unit.
+[Unit]
+Description=GrantDesk Schoolwide synthetic-only staging API
+Documentation=https://github.com/Grantauch/the-desk/pull/433
+After=network.target postgresql@18-schoolwide_stage.service
+Requires=postgresql@18-schoolwide_stage.service
+ConditionPathExists=/etc/grantdesk-schoolwide/staging.env
+
+[Service]
+Type=simple
+User=grantdesk_stage
+Group=grantdesk_stage
+WorkingDirectory=/srv/schoolwide/current
+EnvironmentFile=/etc/grantdesk-schoolwide/staging.env
+ExecStartPre=/usr/bin/node /srv/schoolwide/current/dist/db/migrate.js
+ExecStart=/usr/bin/node /srv/schoolwide/current/dist/server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=60
+TimeoutStopSec=15
+MemoryMax=768M
+CPUQuota=100%
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

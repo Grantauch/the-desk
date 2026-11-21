@@ -141,6 +141,116 @@ test('SW-050 student credential and action proof service', { skip: !databaseUrl 
       });
     });
 
+    await t.test('T-PIN-013 exact five-digit lunch PIN including leading zero is accepted, never padded', async () => {
+      await withFixture(pool, async ({ service, database, provider, clock, base }) => {
+        const fiveDigit = '01234'; // Fictional fixture, NOT an actual student's lunch number.
+        await service.provisionPin(base.studentA, fiveDigit);
+        const app = buildApp({
+          config, database, studentIdentityProvider: provider,
+          studentCredentialOptions: {
+            pepper: TEST_PEPPER, legacyPinSalt: TEST_LEGACY_SALT, proofTtlMs: 1_000,
+            maxFailures: 2, attemptWindowMs: 60_000, throttleBlockMs: 30_000, now: clock.now,
+          },
+        });
+        try {
+          const accepted = await app.inject({
+            method: 'POST', url: '/api/v1/student/actions/authorize',
+            headers: { 'x-student-identity-assertion': 'student-a' },
+            payload: { pin: fiveDigit, action: 'CHECKIN', sectionId: base.sectionA1 },
+          });
+          assert.equal(accepted.statusCode, 201);
+          assert.equal(accepted.json().action, 'CHECKIN');
+
+          // The six-digit padded alternative is a DIFFERENT secret and must fail.
+          const padded = await app.inject({
+            method: 'POST', url: '/api/v1/student/actions/authorize',
+            headers: { 'x-student-identity-assertion': 'student-a' },
+            payload: { pin: '001234', action: 'CHECKIN', sectionId: base.sectionA1 },
+          });
+          assert.equal(padded.statusCode, 401);
+          assert.equal(padded.json().code, 'PIN_INVALID');
+        } finally { await app.close(); }
+      });
+    });
+
+    await t.test('T-PIN-014 six-digit leading-zero PIN remains a distinct exact string', async () => {
+      await withFixture(pool, async ({ service, database, provider, clock, base }) => {
+        const sixDigit = '001234'; // Fictional fixture only.
+        await service.provisionPin(base.studentA, sixDigit);
+        const app = buildApp({
+          config, database, studentIdentityProvider: provider,
+          studentCredentialOptions: {
+            pepper: TEST_PEPPER, legacyPinSalt: TEST_LEGACY_SALT, proofTtlMs: 1_000,
+            maxFailures: 2, attemptWindowMs: 60_000, throttleBlockMs: 30_000, now: clock.now,
+          },
+        });
+        try {
+          const accepted = await app.inject({
+            method: 'POST', url: '/api/v1/student/actions/authorize',
+            headers: { 'x-student-identity-assertion': 'student-a' },
+            payload: { pin: sixDigit, action: 'PASS_REQUEST', sectionId: base.sectionA1 },
+          });
+          assert.equal(accepted.statusCode, 201);
+          assert.equal(accepted.json().action, 'PASS_REQUEST');
+
+          const truncated = await app.inject({
+            method: 'POST', url: '/api/v1/student/actions/authorize',
+            headers: { 'x-student-identity-assertion': 'student-a' },
+            payload: { pin: '01234', action: 'PASS_REQUEST', sectionId: base.sectionA1 },
+          });
+          assert.equal(truncated.statusCode, 401);
+          assert.equal(truncated.json().code, 'PIN_INVALID');
+        } finally { await app.close(); }
+      });
+    });
+
+    await t.test('T-PIN-015 reject four/seven digits, non-digits, and numeric coercion', async () => {
+      await withFixture(pool, async ({ service, database, provider, clock, base }) => {
+        for (const invalidPin of ['1234', '1234567', '12a45', ' 12345']) {
+          await expectCode(service.provisionPin(base.studentA, invalidPin), 'PIN_INVALID');
+        }
+        const app = buildApp({
+          config, database, studentIdentityProvider: provider,
+          studentCredentialOptions: {
+            pepper: TEST_PEPPER, legacyPinSalt: TEST_LEGACY_SALT, proofTtlMs: 1_000,
+            maxFailures: 2, attemptWindowMs: 60_000, throttleBlockMs: 30_000, now: clock.now,
+          },
+        });
+        try {
+          for (const invalidPin of ['1234', '1234567', '12a45', 12345]) {
+            const rejected = await app.inject({
+              method: 'POST', url: '/api/v1/student/actions/authorize',
+              headers: { 'x-student-identity-assertion': 'student-a' },
+              payload: { pin: invalidPin, action: 'CHECKIN', sectionId: base.sectionA1 },
+            });
+            assert.equal(rejected.statusCode, 400);
+            assert.equal(rejected.json().code, 'ACTION_AUTHORIZATION_INVALID');
+          }
+        } finally { await app.close(); }
+      });
+    });
+
+    await t.test('T-PIN-016 legacy-compatible five-digit PIN upgrades without padding', async () => {
+      await withFixture(pool, async ({ service, client, base }) => {
+        const fiveDigit = '00012'; // Fictional fixture only.
+        await service.provisionLegacyCompatibilityPin(base.studentA, fiveDigit);
+        const issued = await service.authorizeAction({
+          identityAssertion: 'student-a', pin: fiveDigit,
+          action: 'RETURN', correlationId: randomUUID(),
+        });
+        assert.ok(issued.proof.length > 40);
+        const credential = await client.query<{ verifier_scheme: string }>(
+          'SELECT verifier_scheme FROM student_credentials WHERE student_id=$1 AND status=$2',
+          [base.studentA, 'ACTIVE'],
+        );
+        assert.equal(credential.rows[0]?.verifier_scheme, 'SCRYPT_PEPPER_V1');
+        await expectCode(service.authorizeAction({
+          identityAssertion: 'student-a', pin: '000012',
+          action: 'RETURN', correlationId: randomUUID(),
+        }), 'PIN_INVALID');
+      });
+    });
+
     await t.test('T-PIN-002 wrong PIN creates no proof and records a failed attempt', async () => {
       await withFixture(pool, async ({ service, client, base }) => {
         await service.provisionPin(base.studentA, PIN_A);

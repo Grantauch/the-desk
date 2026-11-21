@@ -1,5 +1,6 @@
 import { Pool, type PoolClient, type QueryResultRow } from 'pg';
 import type { AppConfig } from '../config.js';
+import { databaseConnectionOptions } from './pool-config.js';
 
 export interface QueryExecutor {
   query<T extends QueryResultRow = QueryResultRow>(sql: string, parameters?: readonly unknown[]): Promise<readonly T[]>;
@@ -38,8 +39,7 @@ export class PostgresDatabase implements TransactionalDatabase {
 
   constructor(config: AppConfig) {
     this.#pool = new Pool({
-      connectionString: config.databaseUrl,
-      ...(config.databaseSocketPath ? { host: config.databaseSocketPath } : {}),
+      ...databaseConnectionOptions(config),
       max: config.dbPoolMax,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 5_000,

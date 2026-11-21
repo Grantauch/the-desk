@@ -1,0 +1,22 @@
+# Only for the isolated synthetic Schoolwide staging database.
+# Installs disabled by default. Do not enable until the database, backups and
+# a disposable restore rehearsal have passed review.
+[Unit]
+Description=Archive synthetic Schoolwide staging PostgreSQL database
+After=postgresql@18-schoolwide_stage.service
+Requires=postgresql@18-schoolwide_stage.service
+ConditionPathExists=/srv/schoolwide/current/scripts/vps-host-staging-backup.sh
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/srv/schoolwide/current
+ExecStart=/usr/bin/bash /srv/schoolwide/current/scripts/vps-host-staging-backup.sh
+TimeoutStartSec=180
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/schoolwide/data
+UMask=0077

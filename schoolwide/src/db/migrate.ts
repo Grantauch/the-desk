@@ -2,12 +2,17 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Pool } from 'pg';
 import { readConfig } from '../config.js';
+import { databaseConnectionOptions } from './pool-config.js';
 
 const migrationLock = 'grantdesk-schoolwide-schema-migrations-v1';
 
 async function main(): Promise<void> {
   const config = readConfig();
-  const pool = new Pool({ connectionString: config.databaseUrl, max: 1, application_name: 'grantdesk-schoolwide:migrate' });
+  const pool = new Pool({
+    ...databaseConnectionOptions(config),
+    max: 1,
+    application_name: 'grantdesk-schoolwide:migrate',
+  });
   const client = await pool.connect();
   const migrationsDirectory = join(process.cwd(), 'db', 'migrations');
 
