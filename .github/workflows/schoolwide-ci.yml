@@ -81,7 +81,7 @@ jobs:
         run: node --import tsx --test src/checkins/checkins.concurrency-load.integration.test.ts
 
       - name: Check VPS staging operator scripts syntax
-        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh && node --check scripts/vps-host-probe.mjs && node --check scripts/prepare-ci-load-db.mjs
+        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh && node --check scripts/vps-host-probe.mjs && node --check scripts/vps-host-classroom-probe.mjs && node --check scripts/prepare-ci-load-db.mjs
 
       - name: Verify isolated VPS staging Compose configuration
         env:
