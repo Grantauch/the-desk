@@ -274,6 +274,31 @@ try {
       assert.equal(await page.locator('.desk-search-results a:visible').count(), 1);
       await page.keyboard.press('Enter');
       await page.waitForURL(`${origin}/tools/`);
+
+      await visit(page, '/');
+      await page.keyboard.press('Control+k');
+      const input = page.getByRole('searchbox', { name: 'Search website pages' });
+      const matches = page.locator('.desk-search-results a:visible');
+      assert.ok(await input.evaluate(element => element === document.activeElement));
+      const expectations = [
+        ['practice', ['/practice/', '/learning-hubs/']],
+        ['review', ['/practice/', '/learning-hubs/', '/games/']],
+        ['study', ['/practice/']],
+        ['flashcards', ['/practice/']],
+        ['quiz', ['/practice/']],
+      ];
+      for (const [query, hrefs] of expectations) {
+        await input.fill(query);
+        assert.deepEqual(await matches.evaluateAll(links => links.map(link => link.getAttribute('href'))), hrefs,
+          `Practice & Review leads results for "${query}"`);
+      }
+      await input.fill('practice review');
+      await input.press('ArrowDown');
+      assert.ok(await matches.first().evaluate(link => link === document.activeElement), 'ArrowDown focuses Practice & Review');
+      assert.equal(await matches.first().getAttribute('href'), '/practice/');
+      await page.keyboard.press('Enter');
+      await page.waitForURL(`${origin}/practice/`);
+      assert.ok(await page.getByRole('heading', { level: 1, name: /^practice & review/i }).isVisible());
     });
     await runCase('timer pause reset and fullscreen', viewport, async page => {
       await visit(page, '/tools/');
