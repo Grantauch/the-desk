@@ -1,0 +1,20 @@
+---
+import type { StoryEdition } from '../../lib/storyhub/model';
+import ReferenceLinks from './ReferenceLinks.astro';
+interface Props { story: StoryEdition; scope: string; }
+const { story, scope } = Astro.props;
+---
+<div class="sh-scenarios" style={'--scenario-rows:' + Math.max(1, story.briefing.scenarios.length - 1)}>
+  {story.briefing.scenarios.map((scenario, index) => (
+    <details class:list={['sh-disclosure', 'sh-scenario', { 'sh-scenario--actual': index === 0 }]} name={index === 0 ? undefined : scope + '-scenarios'} open={index < 2}>
+      <summary><span class="sh-label">{index === 0 ? 'Documented history' : 'Possible alternative'}</span>{scenario.title}</summary>
+      <p class="sh-scenario-premise">{scenario.premise}</p>
+      <dl class="sh-facts">
+        <dt>What the record shows</dt><dd>{scenario.documented}</dd>
+        <dt>{index === 0 ? 'Interpretation' : 'What might follow'}</dt><dd>{scenario.possibility}</dd>
+        <dt>Limits of the evidence</dt><dd>{scenario.uncertainty}</dd>
+      </dl>
+      <ReferenceLinks {story} refs={scenario.refs} kinds={['events', 'sources']} label="Compare the evidence" />
+    </details>
+  ))}
+</div>

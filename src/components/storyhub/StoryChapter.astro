@@ -1,0 +1,41 @@
+---
+import { visualOf, type Chapter, type StoryEdition } from '../../lib/storyhub/model';
+import ArchivalFigure from './ArchivalFigure.astro';
+import ReferenceLink from './ReferenceLink.astro';
+import ReferenceLinks from './ReferenceLinks.astro';
+interface Props {
+  story: StoryEdition; chapter: Chapter; index: number;
+  layout?: 'split' | 'wide' | 'break' | 'memorial'; showImage?: boolean;
+}
+const { story, chapter, index, layout = 'split', showImage = true } = Astro.props;
+const previous = story.chapters[index - 1];
+const next = story.chapters[index + 1];
+---
+<section class:list={['sh-chapter', 'sh-chapter--' + layout]} id={chapter.id} data-story-chapter={chapter.id} aria-labelledby={chapter.id + '-title'}>
+  <header class="sh-chapter-head sh-width">
+    <p class="sh-label"><span>Chapter {index + 1}</span><span>{chapter.period}</span></p>
+    <h2 id={chapter.id + '-title'} tabindex="-1">{chapter.title}</h2>
+    <p class="sh-chapter-lead">{chapter.lead}</p>
+  </header>
+  <div class="sh-chapter-frame sh-width">
+    {chapter.visual && showImage && (
+      <ArchivalFigure {story} visual={visualOf(story, chapter.visual)} class="sh-chapter-art" />
+    )}
+    <div class="sh-chapter-text">
+      {chapter.paragraphs.map((paragraph) => (
+        <p>{paragraph.map((segment) => typeof segment === 'string' ? segment : (
+          <ReferenceLink {story} kind={segment.kind} id={segment.id} label={segment.label} inline />
+        ))}</p>
+      ))}
+      <details class="sh-disclosure sh-chapter-sources">
+        <summary>Sources for this chapter</summary>
+        <ReferenceLinks {story} refs={chapter.refs} kinds={['sources']} limit={10} />
+      </details>
+    </div>
+  </div>
+  <div class="sh-width sh-chapter-feature"><slot /></div>
+  <nav class="sh-chapter-travel sh-width" aria-label={'Navigate from ' + chapter.title} data-chapter-travel hidden>
+    <a href={previous ? '#' + previous.id : '#briefing'}>{previous ? '← ' + previous.title : '← Historical briefing'}</a>
+    <a href={next ? '#' + next.id : '#archive'}>{next ? next.title + ' →' : 'Explore the archive →'}</a>
+  </nav>
+</section>

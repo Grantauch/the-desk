@@ -1,0 +1,26 @@
+---
+import type { StoryEdition } from '../../lib/storyhub/model';
+interface Props { story: StoryEdition; }
+const { story } = Astro.props;
+---
+<section class="sh-edition-nav sh-width" id="chapters" aria-labelledby="chapter-index-title">
+  <div class="sh-edition-meta">
+    <p class="sh-label">Classroom route · 45–55 minutes</p>
+    <p>Allow about 7 minutes for the briefing, 35 minutes for the story and evidence stops, and 8 minutes to compare explanations at the end.</p>
+  </div>
+  <details class="sh-chapter-index" data-chapter-index>
+    <summary id="chapter-index-title">Chapter index <span>{story.chapters.length} chapters</span></summary>
+    <nav aria-label="Chapters">
+      <ol>{story.chapters.map((chapter) => (
+        <li><a href={'#' + chapter.id} data-chapter-link={chapter.id}>{chapter.title}<span>{chapter.period}</span></a></li>
+      ))}</ol>
+    </nav>
+  </details>
+  <div class="sh-reading-controls" role="group" aria-label="Reading and presentation options" data-enhance hidden>
+    <button type="button" data-setting="text" aria-pressed="false">Text view</button>
+    <button type="button" data-setting="large" aria-pressed="false">Larger type</button>
+    {story.edition.modes.includes('chapter') && <button type="button" data-setting="chapter" aria-pressed="false">Chapter view</button>}
+    <button type="button" data-setting="presentation" aria-pressed="false">Projector view</button>
+  </div>
+  {story.edition.activity.type === 'assignment-link' && <a class="sh-primary" href={story.edition.activity.href}>Open the assignment</a>}
+</section>

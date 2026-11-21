@@ -1,0 +1,13 @@
+---
+import { referencePrefix, type ReferenceKind, type References, type StoryEdition } from '../../lib/storyhub/model';
+import ReferenceLink from './ReferenceLink.astro';
+interface Props { story: StoryEdition; refs: References; kinds?: ReferenceKind[]; label?: string; limit?: number; }
+const { story, refs, kinds = Object.keys(referencePrefix) as ReferenceKind[], label = 'Related evidence', limit = 3 } = Astro.props;
+const links = kinds.flatMap((kind) => (refs[kind] ?? []).slice(0, limit).map((id) => ({ kind, id })));
+---
+{links.length > 0 && (
+  <div class="sh-related">
+    <p class="sh-label">{label}</p>
+    <ul>{links.map(({ kind, id }) => <li><ReferenceLink {story} {kind} {id} /></li>)}</ul>
+  </div>
+)}

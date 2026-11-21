@@ -1,4 +1,18 @@
 {
+  "pearl-harbor-storyhub-2": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Add the Pearl Harbor documentary and a reusable Astro Story Hub introduction and contextual companion.",
+    "branch": "feat/pearl-harbor-storyhub",
+    "verification_status": "FOCUSED_BUILD_AND_BROWSER_PASS_PROTECTED_HEAD_PENDING",
+    "deployment_status": "PROTECTED_MERGE_AND_NETLIFY_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "The edition is read-only exploration. It uses locally hosted archival media and existing catalog discovery. The story includes five briefing sections, twelve chapters and shared typed relationships.",
+      "Built Chromium exercises keyboard and touch, reference synchronization, focus and reading position, zoom, audio and transcript seeking, fallback when imagery and audio fail, WCAG 2.2 A/AA, reduced motion, and 320, 390 and 1440 pixel layouts.",
+      "Netlify serves grant-desk.com from the protected GitHub main branch. A review build and public-domain readback are distinct release checkpoints."
+    ]
+  },
   "curiosity-catalog-outage-2026-11-18": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
