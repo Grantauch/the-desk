@@ -76,6 +76,10 @@ try {
   const newHtml = await versionHtmlAssets(template, load);
   assert.notEqual(oldHtml, newHtml, 'updated bytes change the HTML address without a restart');
   assert.ok(newHtml.includes('href="/unknown.js"') && newHtml.includes('src="https://example.invalid/x.js"'), 'only registered local assets are versioned');
+  assert.match(pageHtml, /Leave this Chromebook/, 'the menu can leave a shared Chromebook');
+  assert.match(teacherHtml, /Removing a trainer disconnects them\./);
+  assert.match(teacherHtml, /A saved trainer keeps their name and their Checklings/);
+  assert.doesNotMatch(teacherHtml, /come back with a new name/);
   step('student and teacher assets have stable content versions that change with their bytes');
   const arrivals = await Promise.all(Array.from({ length: 35 }, async () => {
     const response = await fetch(`http://127.0.0.1:${PORT}/`);

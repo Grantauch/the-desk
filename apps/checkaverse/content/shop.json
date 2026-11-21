@@ -1,0 +1,15 @@
+{
+  "note": "The general store. Every number Grant might want to change lives here. The Design Bible and the World Depth Pack name the goods (a meal, a treat, a catching charm, a grooming brush) and say check-in pays a daily coin allowance. They do not give amounts, so the amounts below are the conservative ones chosen when the shop opened. freeCharmsPerDay and visitCharms match the free throws the game already had (growth.json charmsPerDay and wild.json charms). The server refuses to start if those copies drift. freeCare means Feed, Treat, and Groom still work when the bag is empty, and a bought meal or treat is used up first. The brush is kept and reused. Bought charms are thrown before the free daily ones, and they do not expire at midnight.",
+  "dayCoins": 30,
+  "visitPurse": 30,
+  "freeCharmsPerDay": 5,
+  "visitCharms": 5,
+  "freeCare": true,
+  "carry": { "meal": 8, "treat": 6, "charm": 10, "brush": 1 },
+  "goods": [
+    { "id": "meal", "name": "Meal", "price": 8, "uses": "feed", "blurb": "A bowl from the sack by the door. Feed uses one." },
+    { "id": "treat", "name": "Treat", "price": 5, "uses": "treat", "blurb": "A berry from the window. A treat uses one." },
+    { "id": "charm", "name": "Catching charm", "price": 12, "uses": "catch", "blurb": "A small wooden charm. It works best when the wild Checkling is already tired." },
+    { "id": "brush", "name": "Grooming brush", "price": 6, "uses": "groom", "keeps": true, "blurb": "Soft bristles. You keep it, and Groom can use it again tomorrow." }
+  ]
+}
