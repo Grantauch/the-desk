@@ -12,18 +12,26 @@ const collections = [
     action: 'open and play',
     items: interactiveExperiences.filter((experience) => experience.section === 'game'),
   },
-  {
-    id: 'practice',
-    title: 'practice & review',
-    intro: 'Flashcards, timelines, quizzes, and guided drills. Useful, but not pretending to be full games.',
-    action: 'open and practice',
-    items: interactiveExperiences.filter((experience) => experience.section === 'practice'),
-  },
 ];
 ---
 
 <Base title="games">
   <PageHeader eyebrow="the play cabinet" title="games" intro="actual games first. classroom competitions, strategic challenges, and places to play." />
+
+  <div class="mt-6 grid gap-3 sm:grid-cols-3" aria-label="Choose an experience">
+    <a class="rounded-lg border-2 border-ink bg-white p-4 transition hover:border-accent hover:bg-accent-soft" href="/games/" aria-current="page">
+      <strong class="block font-display text-lg">Games</strong>
+      <span class="mt-1 block text-sm text-ink-soft">Play, compete, experiment, or explore a sandbox.</span>
+    </a>
+    <a class="rounded-lg border border-line bg-white p-4 transition hover:border-accent hover:bg-accent-soft" href="/simulations/">
+      <strong class="block font-display text-lg">Simulations & investigations</strong>
+      <span class="mt-1 block text-sm text-ink-soft">Explore historical systems, decisions and evidence.</span>
+    </a>
+    <a class="rounded-lg border border-line bg-white p-4 transition hover:border-accent hover:bg-accent-soft" href="/practice/">
+      <strong class="block font-display text-lg">Practice & review</strong>
+      <span class="mt-1 block text-sm text-ink-soft">Study guides, flashcards, drills and review quizzes.</span>
+    </a>
+  </div>
 
   <p class="mt-6 max-w-3xl text-sm leading-relaxed text-ink-soft">
     Looking for a historical decision, a 3D reconstruction, or an evidence investigation?{' '}

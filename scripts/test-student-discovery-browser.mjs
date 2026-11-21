@@ -76,6 +76,14 @@ try {
         'Source investigations are separate from Games');
       assert.equal(await page.getByRole('link', { name: /jeopardy live · student buzzer/ }).getAttribute('href'), '/hubs/jeopardy-buzz.html');
       assert.equal(await page.locator('a[href*="lessonhub-lab"]').count(), 0);
+      assert.equal(await page.locator('a[href="/hubs/ush9-muckrakers-review.html"]').count(), 0,
+        'Practice drills are not mixed into the Games cabinet');
+      await page.getByRole('link', { name: /Practice & review/i }).first().click();
+      await page.waitForURL(origin + '/practice/');
+      assert.ok(await page.getByRole('heading', { name: /practice & review/i }).count());
+      assert.ok(await page.locator('a[href="/hubs/ush9-muckrakers-review.html"]').count(),
+        'The practice activity retains its original student URL');
+      await page.goto(origin + '/games/');
       await page.getByRole('link', { name: 'Explore simulations and investigations' }).click();
       await page.waitForURL(origin + '/simulations/');
       const modelSection = page.locator('section[aria-labelledby="story-simulations-heading"]');
