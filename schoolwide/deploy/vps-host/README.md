@@ -140,6 +140,19 @@ sudo -u grantdesk_stage env \
 
 Review `/srv/LOG.md` and GitHub PR #433 for results. Do not run this in production, do not reset the staging database to force another run, and do not claim it tests actual PIN login, active teacher sessions or 35 physical school devices. Backup the resulting evidence and rehearse a disposable restore before relying on the backup.
 
+### One-time fictional lunch PIN HTTP round-trip without enabling student auth
+
+The optional `scripts/vps-host-pin-http-probe.mjs` is a **separate temporary Fastify test server on an OS-assigned localhost port**. It uses the real Schoolwide routes, the existing isolated Schoolwide stage database, a synthetic identity-provider map and a clearly nonproduction pepper. It never changes the running `grantdesk-schoolwide-staging.service` identity provider or exposes authentication through Caddy. It validates exact five-digit versus six-digit leading-zero PIN strings, wrong PINs, missing/unrecognized identities, numeric PIN rejection, and successful Check-In evidence after PIN authorization. The two new fictional student records are intentionally retained as test evidence. The temporary HTTP listener closes when the test completes.
+
+Strict one-shot guard: must run as `grantdesk_stage`, set `VPS_SYNTHETIC_PIN_HTTP=yes`, pass the exact running SHA in `EXPECTED_RELEASE_SHA`, and match 19 migrations, precisely two existing fictional schools, 70 synthetic students, 35 Check-Ins, 35 Hall Pass requests and two pass records. Any unexpected school data or rerun fails before creation. **Do not run it with actual lunch numbers, real students, real Google identity, shared secrets or a production deployment.** This probe is not a substitute for a district-approved identity-provider integration or school device testing.
+
+```sh
+sudo -u grantdesk_stage env \
+  VPS_SYNTHETIC_PIN_HTTP=yes \
+  EXPECTED_RELEASE_SHA=REVIEWED_40_CHARACTER_RELEASE_SHA \
+  node /srv/schoolwide/current/scripts/vps-host-pin-http-probe.mjs
+```
+
 ## Rollback / safe stop
 
 ```sh
