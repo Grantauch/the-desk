@@ -1,4 +1,12 @@
 {
+  "story-hub-library-2026-11-21": {
+    "status": "IMPLEMENTED_LOCAL_REVIEW",
+    "owner": "ChatGPT",
+    "scope": "Apply the approved Story Hubs catalog UI, retaining all 77 original URLs and adding a direct cross-list to the existing Somme map. Preserve the globe homepage and all assignment systems.",
+    "verification_status": "BUILD_STATIC_LINK_ASSET_AND_FOCUSED_CHROMIUM_PASS",
+    "deployment_status": "EXACT_HEAD_PROTECTED_CI_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING"
+  },
   "pearl-harbor-storyhub-2": {
     "status": "IMPLEMENTED",
     "owner": "Codex",

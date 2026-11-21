@@ -1,3 +1,9 @@
+## November 21 Story Hubs library redesign
+
+Scope: the approved field-atlas library only. The existing 77 Story Hub links remain unchanged. The new Somme listing points to its existing public map and does not change its other listings or lesson. The library adds search, course and activity filters, and responsive paging. Without JavaScript it shows all 78 original destinations. Art uses existing public assets with the Sarajevo illustration credited in the library and full provenance retained in the lessons. No lesson content, assignment systems, or globe homepage changed.
+
+Production build, static link and sealed-asset checks, and focused Chromium at 320, 390 and 1440 pixels passed locally. Exact-head protected CI, production publication and classroom-device acceptance remain separate gates.
+
 ## November 18 Curiosity Desk catalog outage repair
 
 Owner Codex, issue #411. The catalog function now returns one explicitly labeled selected archive record from the existing reviewed data for each collection when the Library of Congress is unavailable, empty, malformed or restricted. Live records remain preferred. Archive responses are not cached, allowing the next request to recover. The browser retains its selected artifact and source links without repeating the upstream request after an explicit server fallback. Live-data validation still reports degraded catalog health when selected records are served.
