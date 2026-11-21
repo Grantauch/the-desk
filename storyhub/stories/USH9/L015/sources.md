@@ -52,3 +52,9 @@ Both are period sources displayed as evidence. The previous illustrative SVGs re
 - **Pullman (A19)**: Detroit Publishing Company, *Workmen’s Houses, Pullman*, glass negative, between 1890 and 1901. [Library of Congress item 2016801929](https://www.loc.gov/item/2016801929/) (det.4a08075), no known restrictions on publication. Original period photo but **not necessarily captured during the 1894 strike**.
 
 All new media is local. All former SVG URLs are preserved, and the lesson’s existing student questions, models, and save functions were not changed.
+
+## Haymarket verdict and sentence clarification
+
+- [Cook County jury verdict for seven defendants](https://www.chicagohistoryresources.org/hadc/manuscripts/m15/M15.htm) and [separate verdict for Oscar Neebe](https://www.chicagohistoryresources.org/hadc/manuscripts/m14/M14.htm), Chicago History Museum Haymarket Affair Digital Collection. These distinguish seven original death penalties from Neebe’s fifteen-year sentence.
+- [Illinois Supreme Court record of the appeal, pp. 2–3](https://chicagohistoryresources.org/hadc/transcript/supreme/000-050/S001-220.htm). The court distinguishes the murder charge, the prosecution’s theory of responsibility and the unidentified person who threw the bomb. The jury returned its verdict August 20, 1886; the verdict manuscripts are dated August 19.
+- [Governor John Peter Altgeld’s 1893 pardon](https://www.chicagohistoryresources.org/hadc/books/b06/B06.htm). The lesson uses the pardon to distinguish later commutations and pardons from the original sentences.
