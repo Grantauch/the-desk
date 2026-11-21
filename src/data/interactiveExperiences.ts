@@ -16,6 +16,17 @@ export interface Hub {
 
 export const interactiveExperiences: Hub[] = [
   {
+    name: 'gridiron blitz',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'free arcade football game',
+    theme: 'scoreboard',
+    previewEyebrow: 'free · 100 yards · two modes',
+    href: '/hubs/gridiron-blitz/',
+    blurb: 'A free, noncommercial arcade football challenge on GrantDesk. Read the defense and run for the end zone in Full Drive or Score Attack. Earn uniforms and save career progress on this device—no sign-in, purchases, tracking, or public leaderboard.',
+  },
+
+  {
     name: 'reconstruction case file',
     section: 'investigation',
     course: 'US History',

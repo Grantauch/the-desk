@@ -13,6 +13,7 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
 const subjectCues: Record<string, { skin: string; cues: string[] }> = {
   'checklings · pixel camp': { skin: 'subject-checklings', cues: ['care for your companion', 'explore the camp', 'grow together'] },
   'pond': { skin: 'subject-pond', cues: ['paint materials', 'combine elements', 'save your world'] },
+  'gridiron blitz': { skin: 'subject-gridiron', cues: ['read the defense', 'make the cut', 'reach the end zone'] },
   'dry county': { skin: 'subject-dry-county', cues: ['run a route', 'avoid roadblocks', 'find the jugs'] },
   'blitzkrieg': { skin: 'subject-blitzkrieg', cues: ['seven battlefields', 'defend the road', 'upgrade the guns'] },
   'robber barons': { skin: 'subject-robber-barons', cues: ['buy railroads', 'negotiate deals', 'survive 1893'] },
@@ -170,6 +171,12 @@ const subject = subjectCues[label.toLowerCase()];
   /* Subject palettes must win over the legacy theme rules below. */
   .game-preview.subject-checklings { background: linear-gradient(135deg, #253d30, #17291e 65%, #476249); }
   .game-preview.subject-pond { background: linear-gradient(135deg, #193b48, #0d2533 65%, #266977); }
+  .game-preview.subject-gridiron { background: radial-gradient(circle at 82% 20%, #365345 0, transparent 48%), linear-gradient(135deg, #071218 0%, #142a30 72%, #244034 100%); color: #f3f5ea; }
+  .game-preview.subject-gridiron .preview-heading strong { color: #d5fc57; font-weight: 900; font-style: italic; letter-spacing: -.035em; text-transform: uppercase; }
+  .game-preview.subject-gridiron .preview-heading span { color: #f3f5ea; }
+  .game-preview.subject-gridiron .subject-strip { border-color: #d5fc57; }
+  .game-preview.subject-gridiron::before { content: ''; position: absolute; top: 0; bottom: 0; right: 18%; width: 34%; transform: skew(-19deg); opacity: .34; background: repeating-linear-gradient(90deg, transparent 0 15px, #a2d69c 15px 16px, transparent 16px 46px); pointer-events: none; }
+
   .game-preview.subject-dry-county { background: linear-gradient(135deg, #442b22, #211d1b 70%, #64513a); }
   .game-preview.subject-blitzkrieg { background: linear-gradient(135deg, #29332d, #161f20 68%, #4e503a); color: #f6f1df; }
   .game-preview.subject-robber-barons { background: linear-gradient(135deg, #2f3b42, #152028 70%, #566066); }
