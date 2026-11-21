@@ -98,6 +98,21 @@ sudo -u grantdesk_stage env VPS_SYNTHETIC_LOAD=yes \
 
 Do not rerun against the same staging database. The 35 fictional records intentionally remain in the isolated DB as evidence. This test uses seeded synthetic action proofs, **not real PIN authentication**, and does not establish school Chromebook/Wi-Fi performance or production student-data readiness.
 
+### One-time 35-student Hall Pass HTTP concurrency and FIFO test
+
+`scripts/vps-host-pass-queue-probe.mjs` checks a synthetic class with **35 simultaneous requests**, a strict **one-active-pass capacity**, **34 waiting requests**, repeated idempotent submissions, an actual student-return request using a fictional single-use action proof, and FIFO promotion of the earliest waiting request. The test verifies the database counts and audit/outbox evidence. It is a *server-side localhost* acceptance test, not a school Chromebook or physical kiosk test.
+
+Strict prerequisites: `grantdesk_stage` OS account; exact reviewed `EXPECTED_RELEASE_SHA`; `VPS_SYNTHETIC_PASS_LOAD=yes`; staging API healthy on `127.0.0.1:18787`; exactly 19 migrations, one pre-existing fictional school, 35 synthetic students, 35 synthetic Check-Ins and **zero Hall Pass requests or passes**. Any unexpected real/student records fail the test before writes. The script creates a *second fictional school*, never alters the existing Check-In fixture, and leaves test evidence intact after completion. Run **only once**, after an exact-head CI-green release:
+
+```sh
+sudo -u grantdesk_stage env \
+  VPS_SYNTHETIC_PASS_LOAD=yes \
+  EXPECTED_RELEASE_SHA=REVIEWED_40_CHARACTER_RELEASE_SHA \
+  node /srv/schoolwide/current/scripts/vps-host-pass-queue-probe.mjs
+```
+
+Review `/srv/LOG.md` and GitHub PR #433 for results. Do not run this in production, do not reset the staging database to force another run, and do not claim it tests actual PIN login, active teacher sessions or 35 physical school devices. Backup the resulting evidence and rehearse a disposable restore before relying on the backup.
+
 ## Rollback / safe stop
 
 ```sh
