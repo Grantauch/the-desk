@@ -198,6 +198,9 @@ export function mountStory(root: HTMLElement) {
 
   function openTool(tool: Tool, trigger: HTMLElement, reference?: Selection) {
     const opening = !panel.open;
+    // Reference selection can change the height of in-story tools above the
+    // trigger. Save its screen position before synchronizing those tools.
+    const readingTop = opening ? trigger.getBoundingClientRect().top : undefined;
     if (opening) invoker = trigger;
     if (reference) pick(reference.kind, reference.id);
     else if (opening && selectionChapter !== active) chooseChapterReferences();
@@ -224,6 +227,12 @@ export function mountStory(root: HTMLElement) {
         panelScroll.scrollTop = detail.getBoundingClientRect().top - panelScroll.getBoundingClientRect().top - 12;
         if (!opening) find(detail, 'summary').focus({ preventScroll: true });
       }
+    }
+    if (readingTop !== undefined) {
+      // A browser may already have anchored the line. Correct only the actual
+      // displacement now; closing must not undo later reader scroll or jumps.
+      const displacement = trigger.getBoundingClientRect().top - readingTop;
+      if (Math.abs(displacement) > 0.5) window.scrollBy({ top: displacement, behavior: 'instant' });
     }
   }
 

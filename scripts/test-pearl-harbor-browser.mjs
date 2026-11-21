@@ -27,6 +27,32 @@ const chapter = async (page, id) => {
     && document.querySelector('[data-chapter-link="' + hash + '"]')?.getAttribute('aria-current') === 'location', id);
 };
 
+// Scroll anchoring can briefly compensate for layout changes elsewhere on the
+// page. Sample the reading line only after fonts and both coordinates settle.
+async function settledReadingLine(locator, stage) {
+  return locator.evaluate(async (line, stage) => {
+    await document.fonts.ready;
+    const read = () => {
+      const top = line.getBoundingClientRect().top;
+      return { top, scrollY: window.scrollY, documentTop: top + window.scrollY };
+    };
+    let baseline = read();
+    let stableFrames = 0;
+    for (let frame = 0; frame < 120; frame++) {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const sample = read();
+      if (Math.abs(sample.top - baseline.top) <= 0.1
+        && Math.abs(sample.scrollY - baseline.scrollY) <= 0.1) {
+        if (++stableFrames === 5) return sample;
+      } else {
+        baseline = sample;
+        stableFrames = 0;
+      }
+    }
+    throw new Error(`Reading line did not settle ${stage}: ${JSON.stringify(read())}`);
+  }, stage);
+}
+
 async function isolated(options = {}, block = () => false) {
   const ctx = await browser.newContext({ ...options, serviceWorkers: 'block' });
   const remote = [];
@@ -63,7 +89,14 @@ async function desktop() {
   try {
     const catalog = await page.goto(origin + '/storyhubs/');
     assert.equal(catalog?.status(), 200);
-    await page.getByRole('link', { name: 'Pearl Harbor: The Morning That Changed the World', exact: true }).click();
+    const title = 'Pearl Harbor: The Morning That Changed the World';
+    const library = page.locator('[data-story-library]');
+    if (await library.count()) {
+      await library.getByRole('searchbox', { name: 'Search stories', exact: true }).fill(title);
+      await library.getByRole('link', { name: `Open story: ${title}`, exact: true }).click();
+    } else {
+      await page.getByRole('link', { name: title, exact: true }).click();
+    }
     await page.locator('[data-setting="text"]').waitFor();
     assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), 'https://grant-desk.com' + route);
     assert.equal(await page.locator('[data-story-chapter]').count(), 12);
@@ -92,19 +125,43 @@ async function desktop() {
     assert.equal(await intro.locator('[data-time-picker]').inputValue(), 'opana-call');
 
     await chapter(page, 'admirals-gamble');
+    // The reading position is a document promise, not a Chromium anchoring side effect.
+    const withoutScrollAnchor = await page.addStyleTag({ content: 'html { overflow-anchor: none; }' });
     const inline = page.locator('#admirals-gamble .sh-reference--inline[data-reference-id="yamamoto"]');
-    await inline.evaluate((link) => link.scrollIntoView({ block: 'center' }));
-    await inline.focus();
-    const oldTop = await inline.evaluate((link) => link.getBoundingClientRect().top);
+    await inline.evaluate(async (link) => {
+      await document.fonts.ready;
+      link.scrollIntoView({ block: 'center', behavior: 'instant' });
+      link.focus({ preventScroll: true });
+    });
+    const beforeOpen = await settledReadingLine(inline, 'before open');
     await inline.press('Enter');
     assert.equal(await card(panel(page), '[data-person-card]').getAttribute('data-person-card'), 'yamamoto');
+    const afterOpen = await settledReadingLine(inline, 'after open');
     await panel(page).getByText('More about Isoroku Yamamoto', { exact: true }).click();
     assert.ok(await panel(page).getByText('Yamamoto grew up', { exact: false }).isVisible());
     await page.screenshot({ path: artifact + '/yamamoto-desktop.png' });
+    const beforeClose = await settledReadingLine(inline, 'before close');
     await close(page);
+    const afterClose = await settledReadingLine(inline, 'after close');
     assert.equal(await inline.evaluate((link) => document.activeElement === link), true);
-    const newTop = await inline.evaluate((link) => link.getBoundingClientRect().top);
-    assert.ok(Math.abs(oldTop - newTop) <= 2, 'close keeps the line at the same viewport position');
+    const geometry = JSON.stringify({ beforeOpen, afterOpen, beforeClose, afterClose });
+    assert.ok(Math.abs(beforeOpen.top - afterOpen.top) <= 2,
+      `opening an inline companion keeps the reading line in place: ${geometry}`);
+    assert.ok(Math.abs(beforeOpen.top - afterClose.top) <= 2,
+      `close keeps the line at the same viewport position: ${geometry}`);
+    assert.ok(Math.abs(beforeClose.top - afterClose.top) <= 2,
+      `Escape alone does not move the line: ${geometry}`);
+
+    // The desktop companion is nonmodal; moving the story while it is open is intentional.
+    await inline.press('Enter');
+    await page.evaluate(() => window.scrollBy({ top: window.innerHeight, behavior: 'instant' }));
+    const scrolledWhileOpen = await settledReadingLine(inline, 'after intentional scroll');
+    assert.ok(scrolledWhileOpen.top < 0, 'The reader intentionally scrolled past the original line');
+    await close(page);
+    const afterScrolledClose = await settledReadingLine(inline, 'after closing at the new position');
+    assert.ok(Math.abs(scrolledWhileOpen.top - afterScrolledClose.top) <= 2,
+      'Closing does not undo the reader’s deliberate scroll');
+    await withoutScrollAnchor.evaluate((element) => element.remove());
 
     await chapter(page, 'first-wave');
     await page.locator('#first-wave [data-time-picker]').selectOption('second-wave');
