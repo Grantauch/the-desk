@@ -1,0 +1,63 @@
+---
+import { clientReferences, validateEdition, type StoryEdition } from '../../lib/storyhub/model';
+import StoryNavigation from './StoryNavigation.astro';
+import ContextualCompanion from './ContextualCompanion.astro';
+import HistoricalContext from './HistoricalContext.astro';
+import './storyhub.css';
+interface Props { story: StoryEdition; cover: string; theme: string; }
+const { story, cover, theme } = Astro.props;
+validateEdition(story);
+const configuration = JSON.stringify(clientReferences(story)).replaceAll('<', '\\u003c');
+const title = story.work.title + ': ' + story.work.subtitle;
+const canonical = new URL(story.edition.route, Astro.site).href;
+---
+<!doctype html>
+<html lang={story.edition.language}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{title} | the desk</title>
+  <meta name="description" content={story.edition.summary} />
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" href="/favicon.svg" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={story.edition.summary} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={new URL(cover, Astro.site).href} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <slot name="head" />
+</head>
+<body class:list={['sh-shell', theme]} data-story-root data-edition={story.edition.id} data-modes={story.edition.modes.join(' ')}>
+  <a class="sh-skip" href="#main-content">Skip to the story</a>
+  <header class="sh-top">
+    <div class="sh-top-inner">
+      <a class="sh-brand" href="/">the desk<span aria-hidden="true">.</span></a>
+      <a class="sh-library" href="/storyhubs/">Story Hubs</a>
+      <a class="sh-top-index" href="#chapters" data-index-link>Chapters <span class="sh-top-position" data-top-position hidden></span><span aria-hidden="true">↘</span></a>
+    </div>
+    <progress data-story-progress max={story.chapters.length} value="0" aria-label="Chapter progress"></progress>
+  </header>
+  <main id="main-content">
+    <slot name="opening" />
+    <StoryNavigation {story} />
+    <slot />
+    <section class="sh-archive sh-width" id="archive" aria-labelledby="archive-title">
+      <p class="sh-label">Historical reference</p>
+      <h2 id="archive-title">The archive</h2>
+      <HistoricalContext {story} scope="archive" anchors />
+    </section>
+  </main>
+  <footer class="sh-footer">
+    <div class="sh-width">
+      <a href="#main-content">Back to the opening ↑</a>
+      <a href="/storyhubs/">Browse Story Hubs</a>
+    </div>
+  </footer>
+  <ContextualCompanion {story} />
+  <script type="application/json" is:inline data-story-config set:html={configuration}></script>
+  <script>
+    import { mountStory } from '../../lib/storyhub/controller';
+    document.querySelectorAll<HTMLElement>('[data-story-root]').forEach(mountStory);
+  </script>
+</body>
+</html>

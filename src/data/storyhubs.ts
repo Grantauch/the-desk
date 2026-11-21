@@ -24,6 +24,25 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'pearl-harbor',
+    href: '/storyhubs/pearl-harbor/',
+    title: 'Pearl Harbor: The Morning That Changed the World',
+    course: 'us history',
+    unit: 'world war ii / the pacific',
+    period: '1931–1945',
+    status: '45–55 minute documentary',
+    question: 'How did decisions across the Pacific converge on one morning, and what did that morning change?',
+    blurb: 'Investigate the road to war, the warnings on Oʻahu and the attack through declassified reports, historic maps and an archival recording of Roosevelt’s address.',
+    cover: '/storyhub/ush9/pearl-harbor/assets/prewar.webp',
+    coverAlt: 'U.S. Navy aerial photograph of Ford Island, Pearl Harbor, on October 30, 1941',
+    topics: ['world war ii', 'pearl harbor', 'hawaiʻi', 'pacific war', 'primary sources'],
+    inside: [
+      'A historical briefing and a 12-chapter documentary.',
+      'A synchronized map, timeline, cast and archive.',
+      'The original radar plot, a Ford Island chart and eyewitness records.',
+    ],
+  },
+  {
     slug: 'bts-who-pays-for-friday-night',
     href: '/hubs/bts-who-pays-for-friday-night.html',
     title: 'who pays for friday night?',

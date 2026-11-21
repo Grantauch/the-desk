@@ -807,3 +807,9 @@ Owner Codex, PR #415 / tracker P415. The Route Tree chooser leads to balanced A/
 Focused Chromium passed at 320, 390 and 1440 pixels with ordinary/reduced motion, keyboard image controls, native disclosures, fit and WCAG A/AA. Synthetic accounts running the real Turn In code passed complete A/B saving, refresh, cross-device restoration, two submissions, shared-device isolation and recovery of the five original responses. No real student service was contacted.
 
 Release review reproduced 109 invisible narrative elements without JavaScript: the preserved edition had lost its original `no-js` class. Restoring the class in the HTML and authoring script fixes the failing regression; the release manifest is resealed. The browser server also uses the platform path separator for Windows/Linux parity. Full canonical `npm run verify` exited 0 on the integrated source: 55 built routes, 186 HTML files and 5,997 local references. Earlier protected checks passed the author's head; these release fixes still require fresh exact-head protected checks, normal merge and exact Netlify/live-browser proof. Physical classroom acceptance remains pending.
+
+## Pearl Harbor Story Hub 2.0
+
+Owner Codex, branch feat/pearl-harbor-storyhub. The Astro edition adds a historical briefing, twelve documentary chapters and a reusable contextual dock. The scope is open exploration. The companion, captioned media, historical data, source notes and implementation guide are part of this change.
+
+Focused built-browser checks passed for desktop and touch widths through 320 pixels, keyboard and touch controls, map and timeline synchronization, reading position, reduced motion, interrupted media and fallbacks. The current candidate goes through the protected full site gate, followed by a Netlify revision check and an independent test on grant-desk.com. Managed Chromebook and classroom acceptance remain open.

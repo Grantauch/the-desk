@@ -1,0 +1,40 @@
+---
+import { visualOf, type StoryEdition } from '../../lib/storyhub/model';
+import ArchivalFigure from './ArchivalFigure.astro';
+interface Props { story: StoryEdition; ids: string[]; scope: string; label?: string; anchors?: boolean; }
+const { story, ids, scope, label = 'Inspect an archival record', anchors = false } = Astro.props;
+const images = ids.map((id) => visualOf(story, id));
+---
+<div class="sh-media-viewer" data-media-viewer>
+  <div class="sh-utility sh-media-controls" data-enhance hidden>
+    {images.length > 1 && (
+      <label for={scope + '-media'}>
+        Record
+        <select id={scope + '-media'} data-media-picker data-desk-skip>
+          {images.map((visual) => <option value={visual.id}>{visual.alt}</option>)}
+        </select>
+      </label>
+    )}
+    <div class="sh-mini-controls" role="group" aria-label="Magnification">
+      <button type="button" data-media-zoom="-1" aria-label="Zoom record out">−</button>
+      <button type="button" data-media-zoom="0">Fit</button>
+      <button type="button" data-media-zoom="1" aria-label="Zoom record in">+</button>
+    </div>
+  </div>
+  {images.map((visual, index) => (
+    <article id={anchors ? 'media-' + visual.id : undefined} data-media-card={visual.id}>
+      <h4 class="sh-label" tabindex="-1" data-record-heading>{label}{images.length > 1 && ' · ' + (index + 1) + ' of ' + images.length}</h4>
+      <div class="sh-media-window" role="region" aria-label={'Scrollable image of ' + visual.alt} data-media-window>
+        <ArchivalFigure {story} {visual} />
+      </div>
+      <p class="sh-rights">{visual.rights}</p>
+      {visual.transcript && (
+        <details class="sh-disclosure">
+          <summary>Read about this record</summary>
+          {visual.transcript.map((line) => <p>{line}</p>)}
+        </details>
+      )}
+      <a class="sh-text-link" href={story.sources.find((source) => source.id === visual.source)?.url}>Open at the archive</a>
+    </article>
+  ))}
+</div>
