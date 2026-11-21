@@ -16,6 +16,14 @@ const browser = await chromium.launch({headless:true});
 const output = resolve('browser-results/boss-fight');
 await mkdir(output,{recursive:true});
 const results=[];
+async function restart(page, keyboard=false) {
+ const button=page.locator('#restartBtn');
+ await Promise.all([
+  page.waitForEvent('domcontentloaded'),
+  keyboard?button.press('Enter'):button.click(),
+ ]);
+ await page.locator('#qText').waitFor({state:'visible'});
+}
 try {
  for (const width of [320,390,1440]) {
   const context = await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
@@ -51,7 +59,7 @@ try {
    assert.match(await page.locator('#endTitle').innerText(),/ALL BOSSES DEFEATED/);
    await page.screenshot({path:resolve(output,`win-${width}.png`),fullPage:true});
    // Repeated rapid Continue activation is consumed once, even across a boss boundary.
-   await page.locator('#restartBtn').press('Enter');
+   await restart(page,true);
    for(let i=0;i<5;i++) {
     const correct=await page.evaluate(()=>bosses[bi].qs[qi].a);
     await page.locator('.opt').nth((correct+1)%4).press('Enter');
@@ -66,7 +74,7 @@ try {
    assert.equal(await page.evaluate(()=>document.activeElement.id),'endTitle');
    assert.deepEqual((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(v=>v.id),[]);
    // Exercise feedback for every question, including those a high combo can skip.
-   await page.locator('#restartBtn').click();
+   await restart(page);
    for(let b=0;b<3;b++) for(let q=0;q<4;q++) {
     await page.evaluate(({b,q})=>{bi=b;startBoss();qi=q;renderQ();},{b,q});
     const correct=await page.evaluate(()=>bosses[bi].qs[qi].a);
