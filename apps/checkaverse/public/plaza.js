@@ -4,6 +4,7 @@
   const canvas = document.getElementById('town');
   const ctx = canvas.getContext('2d');
   const { createWorld, trainerFrame, paintPaths, paintMeadow, paintFlower } = window.CheckaverseWorld;
+  const { generateFen, FEN_SOLID } = window.CheckaverseFen;
   let world = null;
   const residentDialog = document.getElementById('residentDialog'), worldJournal = document.getElementById('worldJournal');
   const conversing = () => residentDialog.open || worldJournal.open;
@@ -52,7 +53,19 @@
   const sparHere = (s) => s.room === room || (s.room === 'kettle' && roomKind === 'kettle');
   const sightMs = () => Math.max(0, ghostView.sightUntil - performance.now());
   // The outdoor map you are on right now: the town, the wilds or your own Kettle Creek. Houses use the house map.
-  const mapNow = () => (roomKind === 'house' ? house : roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : town);
+  const mapNow = () => (roomKind === 'house' ? house : roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : roomKind === 'fen' ? fenMap() : town);
+  // Bramblefen Basin is built here from the town's settings, the same way the town builds it, then checked against
+  // the town's hash. It is built once, a little after a trainer reaches the wilds, so walking in never stalls.
+  let fen = null, fenCfg = null, fenWant = '', fenMs = 0;
+  function fenMap() {
+    if (!fen && fenCfg) {
+      const t0 = performance.now();
+      fen = generateFen(fenCfg);
+      fenMs = Math.round(performance.now() - t0);
+      if (fen.hash !== fenWant) console.warn(`Bramblefen Basin did not match the town (${fen.hash} here, ${fenWant} there).`);
+    }
+    return fen;
+  }
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
   const players = new Map(); // id -> {id,name,x,y,f,c,busy, dx,dy, bubble, bubbleUntil}
@@ -95,6 +108,7 @@
     if (roomKind === 'town') placeEl.textContent = 'Town';
     else if (roomKind === 'kettle') placeEl.textContent = sightMs() ? `Spirit Sight · ${Math.ceil(sightMs() / 60000)} min` : '';
     else if (roomKind === 'wilds') placeEl.textContent = zoneName ? `The wilds · ${zoneName}` : 'The wilds';
+    else if (roomKind === 'fen') placeEl.textContent = zoneName ? `${fenCfg?.name || 'Bramblefen Basin'} · ${zoneName}` : fenCfg?.name || 'Bramblefen Basin';
     else if (roomOwner && roomOwner.owner === me) placeEl.textContent = 'Your house';
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
   }
@@ -157,7 +171,8 @@
         // A tab left open across a server update reconnects to new rules with old code. Load the new code instead.
         if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
         serverVersion = m.version;
-        me = m.you; town = m.town; house = m.house; wilds = m.wilds; kettle = m.kettle || null; stones = m.stones || []; phrases = m.phrases; myPlot = m.myPlot;
+        me = m.you; town = m.town; house = m.house; wilds = m.wilds; kettle = m.kettle || null;
+        if (m.fen && m.fen.hash !== fenWant) { fen = null; fenPicture = null; fenCfg = m.fen.config; fenWant = m.fen.hash; chunks.clear(); } stones = m.stones || []; phrases = m.phrases; myPlot = m.myPlot;
         if (m.world && !world) world = createWorld(m.world);
         team = m.team || []; saved = Boolean(m.saved); egg = m.egg || null; partyMax = m.partyMax || 3; charms = m.charms ?? 0; charmLine(); recordLine(m.record);
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
@@ -196,7 +211,8 @@
         if(residentNav)setTimeout(()=>requestResidentPath(),260);
         zoneName = ''; placeLine(); charmLine();
         if (roomKind === 'house') toast(roomOwner?.resident?`${roomOwner.name}'s home. ${roomOwner.description}`:roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
-        if (roomKind === 'wilds') { toast('You walked out into the wilds.'); tipSoon('wilds', 900); }
+        if (roomKind === 'wilds') { toast('You walked out into the wilds.'); tipSoon('wilds', 900); if (!fen) setTimeout(fenMap, 700); }
+        if (roomKind === 'fen') { toast(`You stepped into ${fenCfg?.name || 'Bramblefen Basin'}.`); tipSoon('fen', 900); }
         break;
       case 'residents':world?.sync(m,document.hidden||Boolean(bt));if(worldJournal.open)renderResidentDirectory();break;
       case 'resident_stories':world?.syncStories(m.stories);break;
@@ -396,6 +412,7 @@
     if (conversing()) return;
     // The gym's mini games take the keyboard while they are open; only Escape leaves.
     if (!$('gameOverlay').hidden) { if (e.code === 'Escape') quitGame(); return; }
+    if (!$('fenMapPop').hidden && (e.code === 'Escape' || e.code === 'KeyM')) { $('fenMapPop').hidden = true; return; }
     if (!$('learnPop').hidden || !$('gymPop').hidden || !$('paperPop').hidden || !$('mailPop').hidden) { if (e.code === 'Escape') { for (const id of ['learnPop', 'gymPop', 'paperPop', 'mailPop']) $(id).hidden = true; } return; }
     // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
@@ -405,6 +422,7 @@
     const d = KEYS[e.code];
     if (d) { e.preventDefault(); cancelResidentNav(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
+    if (e.code === 'KeyM' && !e.repeat && roomKind === 'fen') showFenMap();
     if ((e.code === 'Space' || e.code === 'Enter') && !e.repeat) { e.preventDefault(); lookAhead(true); }
   });
   window.addEventListener('keyup', (e) => { const i = held.indexOf(KEYS[e.code]); if (i >= 0) held.splice(i, 1); });
@@ -434,7 +452,7 @@
     const r = rows();
     if (y < 0 || y >= r.length || x < 0 || x >= r[0].length) return false;
     if (roomKind === 'house') return !HOUSE_SOLID.has(r[y][x]);
-    if (TOWN_SOLID.has(r[y][x])) return false;
+    if ((roomKind === 'fen' ? FEN_SOLID : TOWN_SOLID).has(r[y][x])) return false;
     if (roomKind === 'kettle') return !stones.some((st) => st.x === x && st.y === y);
     return roomKind !== 'town' || !plots.some((pl) => pl.owner && (() => { const g = town.plots.find((q) => q.id === pl.id); return g && x >= g.x && x < g.x + g.w && y >= g.y && y < g.y + g.h - 1; })());
   }
@@ -896,7 +914,7 @@
     const im = ART[name];
     const dw = w * TILE, dh = dw * im.naturalHeight / im.naturalWidth;
     const px = x * TILE, py = b * TILE - dh;
-    const sway = !reduceMotion && world && (name === 'prop-tree' || name === 'prop-bush') ? Math.sin(world.clock() / 1300 + x * 2) * .009 : 0;
+    const sway = !reduceMotion && world && (name === 'prop-tree' || name === 'prop-bush' || name === 'fen-tree' || name === 'fen-tree-rust') ? Math.sin(world.clock() / 1300 + x * 2) * .009 : 0;
     if (sway) { ctx.save(); ctx.translate(px + dw / 2, b * TILE); ctx.rotate(sway); ctx.translate(-px - dw / 2, -b * TILE); }
     if (flip) {
       ctx.save(); ctx.translate(px + dw, py); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, dw, dh); ctx.restore();
@@ -950,6 +968,41 @@
   }
   $('paperBtn').addEventListener('click', () => { closePops(); send({ t: 'gazette' }); });
   $('paperClose').addEventListener('click', () => { $('paperPop').hidden = true; });
+  // ---------- Bramblefen Basin's map ----------
+  // The whole basin at two pixels a tile, drawn once, with the landmarks named and a dot for every trainer in it.
+  let fenPicture = null;
+  const FEN_COLORS = { T: '#22462a', '.': '#7aa05a', m: '#5e9648', M: '#6e5538', w: '#7d9a86', W: '#24525a', G: '#bfae5c', Q: '#58d6c2', P: '#e2c48c', B: '#a8784c', K: '#7a3b30', O: '#9a9a90', U: '#8c6a44', H: '#2b1a12', E: '#e2c48c' };
+  function showFenMap() {
+    const map = fenMap();
+    if (!map) return;
+    closePops();
+    const S = map.rows.length, k = 512 / S;
+    if (!fenPicture) {
+      fenPicture = document.createElement('canvas'); fenPicture.width = fenPicture.height = 512;
+      const g = fenPicture.getContext('2d');
+      map.rows.forEach((row, y) => { for (let x = 0; x < S; x++) { g.fillStyle = FEN_COLORS[row[x]] || '#000'; g.fillRect(x * k, y * k, k, k); } });
+    }
+    const g = $('fenMapCanvas').getContext('2d');
+    g.drawImage(fenPicture, 0, 0);
+    g.font = 'bold 13px ui-monospace, Consolas, monospace'; g.textAlign = 'center'; g.lineWidth = 3;
+    for (const m of map.marks) {
+      const name = fenCfg.landmarks[m.id]?.name || '', label = name ? name[0].toUpperCase() + name.slice(1) : '';
+      g.fillStyle = '#ffd166'; g.strokeStyle = '#2b1a12';
+      g.beginPath(); g.arc((m.x + 0.5) * k, (m.y + 0.5) * k, 5, 0, Math.PI * 2); g.fill(); g.stroke();
+      const ty = m.id === 'gate' || m.y * k <= 30 ? (m.y + 6) * k : (m.y - 3) * k;
+      g.strokeText(label, (m.x + 0.5) * k, ty); g.fillStyle = '#fff6dc'; g.fillText(label, (m.x + 0.5) * k, ty);
+    }
+    for (const p of players.values()) {
+      const mine = p.id === me;
+      g.fillStyle = mine ? '#ffd166' : '#ffffff'; g.strokeStyle = '#2b1a12'; g.lineWidth = 2;
+      g.beginPath(); g.arc((p.x + 0.5) * k, (p.y + 0.5) * k, mine ? 6 : 4, 0, Math.PI * 2); g.fill(); g.stroke();
+    }
+    $('fenMapTitle').textContent = fenCfg.name;
+    $('fenMapPop').hidden = false;
+  }
+  $('fenMapBtn').addEventListener('click', showFenMap);
+  $('fenMapClose').addEventListener('click', () => { $('fenMapPop').hidden = true; });
+  $('fenMapPop').addEventListener('pointerdown', (e) => e.stopPropagation());
   $('mailBtn').addEventListener('click', () => { closePops(); renderMail(); $('mailPop').hidden = false; $('mailClose').focus(); if (mailBox.unread) send({ t: 'mail_read' }); });
   $('mailClose').addEventListener('click', () => { $('mailPop').hidden = true; });
   for (const id of ['paperPop', 'mailPop']) $(id).addEventListener('pointerdown', (e) => e.stopPropagation());
@@ -1238,11 +1291,47 @@
   const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; };
 
   // ---------- ground, drawn once per map into its own canvas ----------
-  function buildGround() {
+  // Small maps are painted whole. Bramblefen Basin is far too big for one canvas, so it is painted in 16 tile chunks
+  // (win), each with a one tile margin so smoothing never shows a seam where two chunks meet.
+  // Tinted copies of the textures are kept until more art finishes loading.
+  const washes = new Map();
+  function washed(name, wash, opacity = 0, size = 1) {
+    if (!has(name)) return null;
+    const key = `${name}|${wash}|${opacity}|${size}`;
+    if (washes.has(key)) return washes.get(key);
+    const im = ART[name], tile = document.createElement('canvas');
+    tile.width = Math.max(1, Math.round(im.naturalWidth * size));
+    tile.height = Math.max(1, Math.round(im.naturalHeight * size));
+    const paint = tile.getContext('2d');
+    paint.imageSmoothingEnabled = false;
+    paint.drawImage(im, 0, 0, tile.width, tile.height);
+    if (wash) { paint.globalAlpha = opacity; paint.fillStyle = wash; paint.fillRect(0, 0, tile.width, tile.height); }
+    washes.set(key, tile);
+    return tile;
+  }
+  // Stand in art for the basin until the Wave 8 sheets arrive: the town's own pictures, recolored once.
+  function tinted(name, base, filter) {
+    if (ART[name]) return ART[name];
+    if (!has(base)) return null;
+    const im = ART[base], c = document.createElement('canvas');
+    c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const g = c.getContext('2d');
+    g.filter = filter;
+    g.drawImage(im, 0, 0);
+    Object.assign(c, { naturalWidth: c.width, naturalHeight: c.height, complete: true });
+    ART[name] = c;
+    return c;
+  }
+  const FEN_DEEP = ['#1f3b37', 0.7], FEN_SHALLOW = ['#6f7d45', 0.52];
+  function buildGround(win) {
     const r = rows();
+    const W = r[0].length, H = r.length;
+    const x0 = win ? Math.max(0, win.x0 - 1) : 0, y0 = win ? Math.max(0, win.y0 - 1) : 0;
+    const x1 = win ? Math.min(W, win.x1 + 1) : W, y1 = win ? Math.min(H, win.y1 + 1) : H;
     const c = document.createElement('canvas');
-    c.width = r[0].length * TILE * GROUND;
-    c.height = r.length * TILE * GROUND;
+    c.width = (x1 - x0) * TILE * GROUND;
+    c.height = (y1 - y0) * TILE * GROUND;
+    Object.assign(c, { x0, y0 });
     const g = c.getContext('2d');
     g.imageSmoothingEnabled = false;
     const T = TILE * GROUND;
@@ -1258,97 +1347,271 @@
       }
       return c;
     }
+    // Every texture below is laid in map coordinates, so chunks line up.
+    g.translate(-x0 * T, -y0 * T);
+    const each = (fn) => { for (let y = y0; y < y1; y++) { const row = r[y]; for (let x = x0; x < x1; x++) fn(row[x], x, y); } };
     // Calm the ground without changing the original art or tinting buildings and trainers.
-    // These small textures are prepared only when the cached map ground is rebuilt.
-    const texture = (name, wash, opacity = 0, size = 1) => {
-      if (!has(name)) return null;
-      if (!wash) return g.createPattern(ART[name], 'repeat');
-      const im = ART[name], tile = document.createElement('canvas');
-      tile.width = Math.max(1, Math.round(im.naturalWidth * size));
-      tile.height = Math.max(1, Math.round(im.naturalHeight * size));
-      const paint = tile.getContext('2d');
-      paint.imageSmoothingEnabled = false;
-      paint.drawImage(im, 0, 0, tile.width, tile.height);
-      paint.globalAlpha = opacity;
-      paint.fillStyle = wash;
-      paint.fillRect(0, 0, tile.width, tile.height);
-      return g.createPattern(tile, 'repeat');
-    };
-    const grass = texture('tile-grass', '#829267', 0.66);
+    const texture = (name, wash, opacity = 0, size = 1) => { const t = washed(name, wash, opacity, size); return t && g.createPattern(t, 'repeat'); };
+    const fenRoom = roomKind === 'fen';
+    const grass = fenRoom ? texture('tile-grass', '#5f8250', 0.58) : texture('tile-grass', '#829267', 0.66);
     const path = texture('tile-path', '#b5aa8c', 0.52, 2 / 3);
-    const water = texture('tile-water');
+    const water = fenRoom ? texture('tile-water', ...FEN_DEEP) : texture('tile-water');
     if (!grass || !path || !water) {
-      g.setTransform(GROUND, 0, 0, GROUND, 0, 0);
-      r.forEach((row, y) => [...row].forEach((ch, x) => townTile(g, ch, x, y)));
+      g.setTransform(GROUND, 0, 0, GROUND, -x0 * TILE * GROUND, -y0 * TILE * GROUND);
+      each((ch, x, y) => townTile(g, ch, x, y));
       return c;
     }
     g.fillStyle = grass;
-    g.fillRect(0, 0, c.width, c.height);
+    g.fillRect(x0 * T, y0 * T, (x1 - x0) * T, (y1 - y0) * T);
     const at = (x, y) => (r[y] && r[y][x]) || 'T';
-    // Wilds terrain. Tall grass and starflowers use their Sprite Book tiles. Rocky ground and scorched heath tint
-    // the path and grass art, so every zone reads as its own place without new pictures.
-    const tall = texture('tile-tall-grass', '#9ccf55', 0.2);
-    const flowers = texture('tile-flowers', '#d8c75a', 0.12);
-    const rocky = texture('tile-path', '#77736b', 0.62, 2 / 3);
-    const heath = texture('tile-grass', '#5a3a22', 0.62);
-    r.forEach((row, y) => [...row].forEach((ch, x) => {
-      const fill = ch === 'W' ? water : ch === 'G' ? tall : ch === 'C' ? flowers : ch === 'R' ? rocky : ch === 'A' ? heath : null;
-      if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
-      const h = hash(x, y);
-      if (ch === 'R') {
-        // Loose stones.
-        for (let i = 0; i < 3; i++) { const k = hash(x * 3 + i, y * 7); g.fillStyle = OUTLINE; g.fillRect(x * T + 6 + (k % 46), y * T + 6 + ((k >>> 8) % 46), 10, 8); g.fillStyle = (k >>> 16) & 1 ? '#a39d90' : '#8c877c'; g.fillRect(x * T + 8 + (k % 46), y * T + 8 + ((k >>> 8) % 46), 6, 4); }
-      } else if (ch === 'A') {
-        // Glowing embers in the ash.
-        for (let i = 0; i < 2; i++) { const k = hash(x * 5 + i, y * 3 + 1); g.fillStyle = (k >>> 16) % 3 ? '#ff9a3c' : '#ffd166'; g.fillRect(x * T + 6 + (k % 50), y * T + 6 + ((k >>> 8) % 50), 4, 4); }
-      } else if (ch === 'C' && h % 4 === 0) {
-        // A starflower or two: tiny pale gold stars.
-        const sx = x * T + 10 + (h % 40), sy = y * T + 10 + ((h >>> 8) % 40);
-        g.fillStyle = '#fff6c2'; g.fillRect(sx, sy + 3, 10, 3); g.fillRect(sx + 3, sy, 3, 10);
-      }
-    }));
-    // Benches and the bus stop sit on a packed dirt pad instead of bare grass.
-    const pads = r.map((row) => [...row]);
-    for (const p of mapNow()?.props || []) {
-      if (!['prop-bench', 'prop-bus-stop'].includes(p.s) || !p.f) continue;
-      for (let y = p.f[1]; y < p.f[1] + p.f[3]; y++) for (let x = p.f[0]; x < p.f[0] + p.f[2]; x++) if (pads[y]) pads[y][x] = 'P';
+    if (fenRoom) {
+      paintFen(g, r, at, T, each, texture, grass);
+    } else {
+      // Wilds terrain. Tall grass and starflowers use their Sprite Book tiles. Rocky ground and scorched heath tint
+      // the path and grass art, so every zone reads as its own place without new pictures.
+      const tall = texture('tile-tall-grass', '#9ccf55', 0.2);
+      const flowers = texture('tile-flowers', '#d8c75a', 0.12);
+      const rocky = texture('tile-path', '#77736b', 0.62, 2 / 3);
+      const heath = texture('tile-grass', '#5a3a22', 0.62);
+      each((ch, x, y) => {
+        const fill = ch === 'W' ? water : ch === 'G' ? tall : ch === 'C' ? flowers : ch === 'R' ? rocky : ch === 'A' ? heath : null;
+        if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
+        const h = hash(x, y);
+        if (ch === 'R') {
+          // Loose stones.
+          for (let i = 0; i < 3; i++) { const k = hash(x * 3 + i, y * 7); g.fillStyle = OUTLINE; g.fillRect(x * T + 6 + (k % 46), y * T + 6 + ((k >>> 8) % 46), 10, 8); g.fillStyle = (k >>> 16) & 1 ? '#a39d90' : '#8c877c'; g.fillRect(x * T + 8 + (k % 46), y * T + 8 + ((k >>> 8) % 46), 6, 4); }
+        } else if (ch === 'A') {
+          // Glowing embers in the ash.
+          for (let i = 0; i < 2; i++) { const k = hash(x * 5 + i, y * 3 + 1); g.fillStyle = (k >>> 16) % 3 ? '#ff9a3c' : '#ffd166'; g.fillRect(x * T + 6 + (k % 50), y * T + 6 + ((k >>> 8) % 50), 4, 4); }
+        } else if (ch === 'C' && h % 4 === 0) {
+          // A starflower or two: tiny pale gold stars.
+          const sx = x * T + 10 + (h % 40), sy = y * T + 10 + ((h >>> 8) % 40);
+          g.fillStyle = '#fff6c2'; g.fillRect(sx, sy + 3, 10, 3); g.fillRect(sx + 3, sy, 3, 10);
+        }
+      });
     }
-    paintPaths(g, pads.map((row) => row.join('')), T);
-    paintMeadow(g, mapNow(), T);
+    // Benches and the bus stop sit on a packed dirt pad instead of bare grass.
+    const padProps = (mapNow()?.props || []).filter((p) => ['prop-bench', 'prop-bus-stop'].includes(p.s) && p.f);
+    let laneRows = r;
+    if (padProps.length) {
+      const pads = r.map((row) => [...row]);
+      for (const p of padProps) for (let y = p.f[1]; y < p.f[1] + p.f[3]; y++) for (let x = p.f[0]; x < p.f[0] + p.f[2]; x++) if (pads[y]) pads[y][x] = 'P';
+      laneRows = pads.map((row) => row.join(''));
+    }
+    const box = { x0, y0, x1, y1 };
+    paintPaths(g, laneRows, T, win ? box : undefined);
+    paintMeadow(g, mapNow(), T, win ? box : undefined);
+    if (fenRoom) return c;
     // A mossy water bank, kept below the residents and the animated ripples.
-    r.forEach((row, y) => [...row].forEach((ch, x) => {
+    each((ch, x, y) => {
       if (ch !== 'W') return;
       g.fillStyle = '#617c59';
       if (at(x, y - 1) !== 'W') g.fillRect(x * T, y * T, T, 6);
       if (at(x, y + 1) !== 'W') g.fillRect(x * T, y * T + T - 4, T, 4);
       if (at(x - 1, y) !== 'W') g.fillRect(x * T, y * T, 5, T);
       if (at(x + 1, y) !== 'W') g.fillRect(x * T + T - 5, y * T, 5, T);
-    }));
+    });
     // Flower patches: small clusters of real flowers, walkable like grass. A flower tile that bridges a lane
     // is painted as lane.
     const lane = (x, y) => 'PE'.includes(at(x, y));
-    r.forEach((row, y) => [...row].forEach((ch, x) => {
+    each((ch, x, y) => {
       if (ch !== 'F' || (lane(x - 1, y) && lane(x + 1, y)) || (lane(x, y - 1) && lane(x, y + 1))) return;
       const kind = hash(x, y) % 5;
       for (let i = 0; i < 4; i++) {
         const h = hash(x * 4 + i, y);
         paintFlower(g, x * T + 10 + (h % 40), y * T + 8 + ((h >>> 8) % 38), kind + (i === 3 ? 1 : 0), 4);
       }
-    }));
+    });
     return c;
+  }
+
+  // Bramblefen's own ground: wet mud, two depths of water, moss, reeds, glowcaps and boardwalks. Every detail is
+  // placed by a hash of its tile, so it is the same on every visit and every Chromebook.
+  function paintFen(g, r, at, T, each, texture, grass) {
+    const mud = texture('tile-path', '#4a3726', 0.66, 2 / 3);
+    const shallow = texture('tile-water', ...FEN_SHALLOW);
+    const deep = texture('tile-water', ...FEN_DEEP);
+    const moss = texture('tile-grass', '#79b04e', 0.42);
+    const reeds = texture('tile-tall-grass', '#c2a94e', 0.28);
+    const wet = (ch) => ch === 'W' || ch === 'w';
+    const dry = (ch) => !wet(ch) && ch !== 'B';
+    // Bushes, rocks and stumps stand on ordinary ground, so their tiles take part in the ragged edges as grass.
+    each((ch, x, y) => {
+      const fill = ch === 'W' ? deep : ch === 'w' ? shallow : ch === 'M' || ch === 'U' ? mud : ch === 'm' || ch === 'Q' ? moss : ch === 'G' ? reeds : null;
+      if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
+    });
+    softEdges(g, at, T, each, { '.': grass, K: grass, O: grass, m: moss, Q: moss, M: mud, U: mud, G: reeds });
+    each((ch, x, y) => {
+      const px = x * T, py = y * T, h = hash(x, y);
+      if (ch === 'M' && h % 3 === 0) {
+        // A puddle catching the sky.
+        const sx = px + 14 + (h % 26), sy = py + 18 + ((h >>> 8) % 26);
+        g.fillStyle = '#2b1a12'; g.fillRect(sx - 2, sy - 2, 20, 10);
+        g.fillStyle = '#5f7c78'; g.fillRect(sx, sy, 16, 6);
+        g.fillStyle = '#b9d3c9'; g.fillRect(sx + 2, sy, 6, 2);
+      }
+      if (ch === 'm' || ch === 'Q') {
+        // Moss flowers like tiny stars, and the odd fallen leaf.
+        for (let i = 0; i < 3; i++) { const k = hash(x * 3 + i, y * 5 + 2); g.fillStyle = '#e4f5a8'; g.fillRect(px + 6 + (k % 50), py + 6 + ((k >>> 8) % 50), 4, 4); }
+        if (h % 13 === 0) {
+          const lx = px + 14 + (h % 30), ly = py + 18 + ((h >>> 8) % 30);
+          g.fillStyle = '#2b1a12'; g.fillRect(lx, ly, 12, 6); g.fillRect(lx + 2, ly - 2, 8, 10);
+          g.fillStyle = h & 8 ? '#d9822b' : '#b8642a'; g.fillRect(lx + 2, ly + 2, 8, 2); g.fillRect(lx + 4, ly, 4, 6);
+          g.fillStyle = '#f2b45a'; g.fillRect(lx + 4, ly, 2, 2);
+        }
+      }
+      if (ch === 'Q') {
+        // Glowcaps: soft teal mushrooms that light the moss around them.
+        for (let i = 0; i < 3; i++) {
+          const k = hash(x * 7 + i, y * 3 + 1), mx = px + 10 + (k % 40), my = py + 16 + ((k >>> 8) % 36);
+          const glow = g.createRadialGradient(mx + 5, my, 1, mx + 5, my, 18); glow.addColorStop(0, '#8ffff066'); glow.addColorStop(1, '#8ffff000');
+          g.fillStyle = glow; g.fillRect(mx - 14, my - 18, 38, 36);
+          g.fillStyle = '#2b1a12'; g.fillRect(mx + 2, my, 6, 10); g.fillRect(mx - 2, my - 6, 14, 8);
+          g.fillStyle = '#f2ead2'; g.fillRect(mx + 4, my + 2, 2, 6);
+          g.fillStyle = '#4fd8c0'; g.fillRect(mx, my - 4, 10, 4);
+          g.fillStyle = '#b6fff2'; g.fillRect(mx + 2, my - 4, 4, 2);
+        }
+      }
+      if (ch === 'G' && h % 3 === 0) {
+        // Cattails standing up out of the reeds.
+        for (let i = 0; i < 2; i++) {
+          const k = hash(x * 5 + i, y * 9), sx = px + 10 + (k % 40), sy = py + 10 + ((k >>> 8) % 20);
+          g.fillStyle = '#4a6a30'; g.fillRect(sx + 2, sy + 10, 2, 26);
+          g.fillStyle = '#2b1a12'; g.fillRect(sx, sy - 2, 6, 14);
+          g.fillStyle = '#7a4a26'; g.fillRect(sx + 1, sy, 4, 10);
+          g.fillStyle = '#a06a3a'; g.fillRect(sx + 1, sy, 2, 4);
+        }
+      }
+      if (wet(ch)) {
+        // Banks: mossy where deep water meets land, muddy where the shallows do.
+        const bank = (ox, oy) => { const n = at(x + ox, y + oy); return ch === 'W' ? n !== 'W' && n !== 'B' : dry(n); };
+        g.fillStyle = ch === 'W' ? (at(x, y - 1) === 'w' ? '#4f6a4a' : '#4d6b44') : '#5d5236';
+        if (bank(0, -1)) g.fillRect(px, py, T, 6);
+        if (bank(0, 1)) g.fillRect(px, py + T - 4, T, 4);
+        if (bank(-1, 0)) g.fillRect(px, py, 5, T);
+        if (bank(1, 0)) g.fillRect(px + T - 5, py, 5, T);
+        // Lily pads in the shallows (deep water gets its own, drawn over the drifting water), and duckweed.
+        if (ch === 'w' && h % 9 === 0) lilyPad(g, px + 12 + (h % 24), py + 16 + ((h >>> 8) % 24), 1, h, '#5e6e3a');
+        if (ch === 'w') for (let i = 0; i < 4; i++) { const k = hash(x * 11 + i, y * 7); g.fillStyle = '#9cbc52'; g.fillRect(px + 4 + (k % 56), py + 4 + ((k >>> 8) % 56), 4, 2); }
+      }
+      if (ch === 'B') {
+        // Boardwalk planks laid across the way it runs, with a dark edge where it meets the water.
+        const lane2 = (n) => n === 'B' || n === 'P' || n === 'E';
+        const ns = lane2(at(x, y - 1)) || lane2(at(x, y + 1)), ew = lane2(at(x - 1, y)) || lane2(at(x + 1, y));
+        const across = ns && !ew; // a north south walk has boards lying east to west
+        g.fillStyle = '#3b2716'; g.fillRect(px, py, T, T);
+        for (let i = 0; i < 8; i++) {
+          const k = hash(x * 8 + i, y), tone = k % 3 === 0 ? '#9a7048' : k % 3 === 1 ? '#8b6440' : '#a57a50';
+          g.fillStyle = tone;
+          if (across) g.fillRect(px + 2, py + i * 8 + 1, T - 4, 6); else g.fillRect(px + i * 8 + 1, py + 2, 6, T - 4);
+          g.fillStyle = '#c9a27066';
+          if (across) g.fillRect(px + 2, py + i * 8 + 1, T - 4, 1); else g.fillRect(px + i * 8 + 1, py + 2, 1, T - 4);
+          g.fillStyle = '#2b1a12';
+          if (across) { g.fillRect(px + 6, py + i * 8 + 3, 2, 2); g.fillRect(px + T - 8, py + i * 8 + 3, 2, 2); }
+          else { g.fillRect(px + i * 8 + 3, py + 6, 2, 2); g.fillRect(px + i * 8 + 3, py + T - 8, 2, 2); }
+        }
+        if (h % 4 === 0) { g.fillStyle = '#6f9a4a'; g.fillRect(px + 8 + (h % 40), py + 10 + ((h >>> 8) % 40), 6, 4); }
+        g.fillStyle = '#2b1a12';
+        if (across) { g.fillRect(px, py, 3, T); g.fillRect(px + T - 3, py, 3, T); }
+        else { g.fillRect(px, py, T, 3); g.fillRect(px, py + T - 3, T, 3); }
+      }
+    });
+  }
+
+  // Where two kinds of ground meet, each pushes a few ragged tongues into the other, so the basin never shows the grid.
+  function softEdges(g, at, T, each, fills) {
+    each((ch, x, y) => {
+      const mine = fills[ch];
+      if (!mine) return;
+      for (const [dx, dy, side] of [[0, -1, 0], [1, 0, 1], [0, 1, 2], [-1, 0, 3]]) {
+        const n = at(x + dx, y + dy);
+        if (n === ch || !fills[n]) continue;
+        g.fillStyle = mine;
+        for (let i = 0; i < 3; i++) {
+          const k = hash(x * 13 + side * 5 + i, y * 7 + side), along = 4 + (k % (T - 20)), len = 10 + ((k >>> 8) % 10), deep = 4 + ((k >>> 16) % 8);
+          const px = x * T, py = y * T;
+          if (side === 0) g.fillRect(px + along, py - deep, len, deep);
+          else if (side === 2) g.fillRect(px + along, py + T, len, deep);
+          else if (side === 1) g.fillRect(px + T, py + along, deep, len);
+          else g.fillRect(px - deep, py + along, deep, len);
+        }
+      }
+    });
+  }
+  // A lily pad: a notched green disc, one in three with a white flower. u is pixels per art pixel pair.
+  function lilyPad(g, lx, ly, u, h, notch) {
+    g.fillStyle = '#2b1a12'; g.beginPath(); g.ellipse(lx, ly, 13 * u, 8 * u, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#4f8a3a'; g.beginPath(); g.ellipse(lx, ly, 11 * u, 6 * u, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#76b04e'; g.fillRect(lx - 6 * u, ly - 4 * u, 6 * u, 2 * u);
+    g.fillStyle = notch; g.fillRect(lx + 2 * u, ly - 1 * u, 10 * u, 2 * u);
+    if (h % 3 === 0) { g.fillStyle = '#fffaf0'; g.fillRect(lx - 4 * u, ly - 6 * u, 8 * u, 6 * u); g.fillStyle = '#ffd95a'; g.fillRect(lx - 2 * u, ly - 4 * u, 4 * u, 2 * u); }
+  }
+  // Pads on the basin's deep water ride on top of the drift and bob a little.
+  function fenPads(now, x0, y0, x1, y1) {
+    const r = rows();
+    for (let y = Math.max(0, y0); y <= Math.min(r.length - 1, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(r[0].length - 1, x1); x++) {
+      if (r[y][x] !== 'W') continue;
+      const h = hash(x, y);
+      if (h % 17) continue;
+      const bob = reduceMotion ? 0 : Math.sin(now / 1400 + (h % 50)) * 0.8;
+      lilyPad(ctx, x * TILE + 6 + (h % 12), y * TILE + 8 + ((h >>> 8) % 12) + bob, 0.5, h, '#1c4a46');
+    }
+  }
+
+  // Bramblefen chunks: built two at a time as they come into view, kept until a dozen newer ones push them out.
+  const CHUNK = 16, chunks = new Map();
+  let chunkBuilds = 0;
+  function chunkAt(cx, cy, build) {
+    const key = `${room}:${artWaiting}:${cx},${cy}`;
+    let c = chunks.get(key);
+    if (c) { chunks.delete(key); chunks.set(key, c); return c; }
+    if (!build) return null;
+    const r = rows();
+    c = buildGround({ x0: cx * CHUNK, y0: cy * CHUNK, x1: Math.min(r[0].length, (cx + 1) * CHUNK), y1: Math.min(r.length, (cy + 1) * CHUNK) });
+    chunks.set(key, c);
+    chunkBuilds++;
+    while (chunks.size > 12) chunks.delete(chunks.keys().next().value);
+    return c;
+  }
+  function drawChunks(cx, cy, vw, vh) {
+    const r = rows(), span = CHUNK * TILE;
+    const ax = Math.max(0, Math.floor(cx / span)), ay = Math.max(0, Math.floor(cy / span));
+    const bx = Math.min(Math.ceil(r[0].length / CHUNK) - 1, Math.floor((cx + vw) / span)), by = Math.min(Math.ceil(r.length / CHUNK) - 1, Math.floor((cy + vh) / span));
+    let budget = 2;
+    for (let y = ay; y <= by; y++) for (let x = ax; x <= bx; x++) {
+      let c = chunkAt(x, y, false);
+      if (!c && budget > 0) { c = chunkAt(x, y, true); budget--; }
+      const dx = x * span, dy = y * span, w = Math.min(span, r[0].length * TILE - dx), h = Math.min(span, r.length * TILE - dy);
+      if (!c) { ctx.fillStyle = '#3f5a3a'; ctx.fillRect(dx, dy, w, h); continue; }
+      // Copy the chunk without its margin. The margin pixels keep smoothing honest at the seam.
+      const sx = (dx / TILE - c.x0) * TILE * GROUND, sy = (dy / TILE - c.y0) * TILE * GROUND;
+      ctx.drawImage(c, sx, sy, w * GROUND, h * GROUND, dx, dy, w, h);
+    }
+    // Spare time goes to the chunks just outside the view, so walking on never waits. It only fills free room in the
+    // cache, so it never pushes out a chunk that is still on screen.
+    if (budget === 2 && chunks.size < 12) {
+      for (let y = Math.max(0, ay - 1); y <= Math.min(Math.ceil(r.length / CHUNK) - 1, by + 1) && budget === 2; y++) {
+        for (let x = Math.max(0, ax - 1); x <= Math.min(Math.ceil(r[0].length / CHUNK) - 1, bx + 1); x++) {
+          if (!chunkAt(x, y, false)) { chunkAt(x, y, true); budget--; break; }
+        }
+      }
+    }
   }
 
   // The pond drifts slowly: the water texture is redrawn over the water tiles a few pixels further along each frame.
   // The bank outline from the ground canvas is drawn back on top so the edge stays crisp.
-  let waterPattern = null;
+  // The basin's deep water drifts too, in its own darker teal.
+  let waterPattern = null, fenWaterPattern = null;
   function shimmer(now, x0, y0, x1, y1) {
     if (!has('tile-water') || reduceMotion) return;
     if (!waterPattern) waterPattern = ctx.createPattern(ART['tile-water'], 'repeat');
+    if (roomKind === 'fen' && !fenWaterPattern) fenWaterPattern = ctx.createPattern(washed('tile-water', ...FEN_DEEP), 'repeat');
+    const pattern = roomKind === 'fen' ? fenWaterPattern : waterPattern;
     const r = rows();
     const off = (now / 90) % 192;
     const m = new DOMMatrix().scale(1 / GROUND).translate(off, off * 0.4);
-    waterPattern.setTransform(m);
-    ctx.fillStyle = waterPattern;
+    pattern.setTransform(m);
+    ctx.fillStyle = pattern;
     const at = (x, y) => (r[y] && r[y][x]) || 'T';
     for (let y = Math.max(0, y0); y <= Math.min(r.length - 1, y1); y++) {
       for (let x = Math.max(0, x0); x <= Math.min(r[0].length - 1, x1); x++) {
@@ -1450,9 +1713,26 @@
   function townThings(x0, y0, x1, y1, list) {
     const map = mapNow();
     const r = map.rows;
+    const fenRoom = roomKind === 'fen';
+    if (fenRoom) {
+      // Willows, rusty cypress, brambles, mossy rocks and stumps, recolored from the town's art until Wave 8 lands.
+      tinted('fen-tree', 'prop-tree', 'hue-rotate(16deg) saturate(0.82) brightness(0.86)');
+      tinted('fen-tree-rust', 'prop-tree', 'hue-rotate(-42deg) saturate(1.05) brightness(0.9)');
+      tinted('fen-bramble', 'prop-bush', 'hue-rotate(28deg) saturate(1.15) brightness(0.78)');
+    }
     for (let y = Math.max(0, y0 - 1); y <= Math.min(r.length - 1, y1 + 3); y++) {
       for (let x = Math.max(0, x0 - 2); x <= Math.min(r[0].length - 1, x1 + 2); x++) {
         const ch = r[y][x];
+        if (fenRoom && 'TKOU'.includes(ch)) {
+          const h = hash(x, y);
+          if (ch === 'T') {
+            const art = h % 7 === 0 && has('fen-tree-rust') ? 'fen-tree-rust' : has('fen-tree') ? 'fen-tree' : 'prop-tree', k = 0.95 + (h % 17) / 100;
+            list.push({ b: y + 1, draw: () => (has(art) ? sprite(art, x + 0.5 - 1.05 * k, y + 1.05, 2.1 * k, h & 1) : boxShape(x + 0.1, y + 1, 0.8, 1, '#2f5b3a')) });
+          } else if (ch === 'K') list.push({ b: y + 1, draw: () => (has('fen-bramble') ? sprite('fen-bramble', x - 0.08, y + 1.04, 1.16, h & 1) : boxShape(x + 0.1, y + 1, 0.8, 0.7, '#5b3a2a')) });
+          else if (ch === 'O') list.push({ b: y + 1, draw: () => (has('prop-rock') ? sprite('prop-rock', x + 0.02, y + 1.02, 0.96, h & 1) : boxShape(x + 0.1, y + 1, 0.8, 0.6, '#8a8a80')) });
+          else list.push({ b: y + 1, draw: () => (has('prop-stump') ? sprite('prop-stump', x + 0.12, y + 1.02, 0.78, h & 1) : boxShape(x + 0.2, y + 1, 0.6, 0.6, '#7a5230')) });
+          continue;
+        }
         if (ch === 'T') {
           const h = hash(x, y);
           list.push({ b: y + 1, draw: () => (has('prop-tree')
@@ -1529,7 +1809,7 @@
     }
     if(p.npc)world?.drawResident(ctx,p,reduceMotion);
     // Standing in tall grass hides your feet, the Red and Blue way.
-    if ((roomKind === 'wilds' || roomKind === 'kettle') && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
+    if ((roomKind === 'wilds' || roomKind === 'kettle' || roomKind === 'fen') && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
       ctx.drawImage(ART['tile-tall-grass'], 0, 30, 64, 34, px, py + 15, 32, 17);
     }
     const top = py + TILE - 50;
@@ -1607,7 +1887,8 @@
     const r = rows();
     if (r.length) {
       const key = `${room}:${artWaiting}`;
-      if (!ground || groundKey !== key) { ground = buildGround(); groundKey = key; }
+      const chunked = roomKind === 'fen';
+      if (!chunked && (!ground || groundKey !== key)) { ground = buildGround(); groundKey = key; }
       const target = cameraTarget();
       cam = target; // locked to your trainer, so the walk never wobbles
       const z = zoom(), vw = VIEW_W / z, vh = VIEW_H / z;
@@ -1616,10 +1897,14 @@
       ctx.scale(z, z);
       ctx.translate(-cx, -cy);
       // Copy only the part of the ground that is on screen; the whole town is far bigger than the view.
-      const gx = Math.max(0, cx), gy = Math.max(0, cy);
-      const gw = Math.min(ground.width / GROUND - gx, vw - (gx - cx)), gh = Math.min(ground.height / GROUND - gy, vh - (gy - cy));
-      if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * GROUND, gy * GROUND, gw * GROUND, gh * GROUND, gx, gy, gw, gh);
+      if (chunked) drawChunks(cx, cy, vw, vh);
+      else {
+        const gx = Math.max(0, cx), gy = Math.max(0, cy);
+        const gw = Math.min(ground.width / GROUND - gx, vw - (gx - cx)), gh = Math.min(ground.height / GROUND - gy, vh - (gy - cy));
+        if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * GROUND, gy * GROUND, gw * GROUND, gh * GROUND, gx, gy, gw, gh);
+      }
       if (roomKind !== 'house') shimmer(world?.clock() ?? now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
+      if (chunked) fenPads(world?.clock() ?? now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];
@@ -1720,6 +2005,7 @@
     sign: 'Face a sign or landmark and press Space (or tap it) to read it.',
     gate: 'The trail north leads out of town into the wilds, where wild Checklings live.',
     wilds: 'Wild Checklings hide in tall grass, starflowers, rocky ground and scorched heath. Walk through to find one.',
+    fen: 'Bramblefen Basin is huge. Follow the trails and read the signposts. Wild Checklings hide in the reeds and the shallows, and the strongest live somewhere under the willows.',
     battle: 'Press 1 to 4 or tap a move. Both trainers pick, then the turn plays out.',
     'wild-battle': 'Wear it down first, then press 5 to throw a charm. Weaker Checklings are easier to catch. Press 6 to run.',
     caught: 'Your catch is yours to keep. Tap your partner button to battle with it, or to move Checklings between your party and your Den.',
@@ -1774,6 +2060,12 @@
     lastSpot = spot;
     if (roomKind === 'wilds') {
       const z = wilds.zones?.[rows()[self.y]?.[self.x]] || '';
+      if (z !== zoneName) { zoneName = z; placeLine(); }
+    } else if (roomKind === 'fen') {
+      // Close to a landmark its name shows; anywhere else, the kind of ground underfoot.
+      const near = (fen?.marks || []).find((k) => Math.abs(k.x - self.x) + Math.abs(k.y - self.y) <= 7);
+      const name = near ? fenCfg.landmarks[near.id]?.name || '' : fenCfg?.zones?.[rows()[self.y]?.[self.x]]?.name || '';
+      const z = name ? name[0].toUpperCase() + name.slice(1) : '';
       if (z !== zoneName) { zoneName = z; placeLine(); }
     } else {
       const gate = (town.exits || [])[0];
@@ -2091,7 +2383,9 @@
   function charmLine() {
     const chip = $('charmChip');
     const visitCatches = saved ? 0 : team.filter((c) => c.caught).length;
-    chip.hidden = roomKind !== 'wilds' && !visitCatches;
+    chip.hidden = roomKind !== 'wilds' && roomKind !== 'fen' && !visitCatches;
+    $('fenMapBtn').hidden = roomKind !== 'fen';
+    if (roomKind !== 'fen') $('fenMapPop').hidden = true;
     chip.textContent = `Charms ${charms}${visitCatches ? ` · Caught ${visitCatches}` : ''}`;
   }
   function recordLine(r) { $('record').textContent = r && (r.w || r.l || r.d) ? `${r.w}W ${r.l}L${r.d ? ` ${r.d}T` : ''}` : ''; }
@@ -2395,7 +2689,7 @@
   });
 
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
-  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), talk: talkTo,visit:visitResident,navigating:()=>residentNav };
+  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), fen: () => ({ map: fen, ms: fenMs, want: fenWant, chunks: chunks.size, built: chunkBuilds }), talk: talkTo,visit:visitResident,navigating:()=>residentNav };
   connect();
   requestAnimationFrame(frame);
 })();

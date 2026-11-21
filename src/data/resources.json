@@ -1,7 +1,7 @@
 {
   "source": "the-desk-public-resource-catalog",
-  "resourceCount": 136,
-  "linkedCount": 133,
+  "resourceCount": 134,
+  "linkedCount": 131,
   "resources": [
     {
       "id": "002-cold-war-timeline-slides",
@@ -733,15 +733,6 @@
       "href": "https://docs.google.com/document/d/1Jg6ZQ4E4DKi7yRTUqesSBgWYBP_s5u2gc51YRCH0viU/view"
     },
     {
-      "id": "488-hidden-history-unit-4-myth-stations-verification-lab",
-      "course": "Hidden History",
-      "unitTopic": "Unit 4 — Trust and Verify",
-      "name": "Myth Stations & Verification Lab",
-      "type": "Activity",
-      "onWebsite": true,
-      "href": "https://docs.google.com/document/d/1hSQVrVkH2JZqjA17yZCn23PGeCVG7zfbsYBWKJfvMWE/view"
-    },
-    {
       "id": "489-hidden-history-unit-4-mkultra-hearing-source-packet",
       "course": "Hidden History",
       "unitTopic": "Unit 4 — Trust and Verify",
@@ -749,15 +740,6 @@
       "type": "Packet",
       "onWebsite": true,
       "href": "https://docs.google.com/document/d/1dhPGLZzz0hmPbZ1PuaAyztZX1ovTqBzrkjujvCoYBCA/view"
-    },
-    {
-      "id": "490-hidden-history-unit-4-performance-task-claim-bank",
-      "course": "Hidden History",
-      "unitTopic": "Unit 4 — Trust and Verify",
-      "name": "Performance Task Claim Bank",
-      "type": "Activity",
-      "onWebsite": true,
-      "href": "https://docs.google.com/document/d/1dnEiGZR1mrRBCZ8hrYET-wHVCZp35tsYUqdB5peeU2w/view"
     },
     {
       "id": "491-hidden-history-unit-5-debate-brief",

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREEA",
+  "title": "The Route Tree — Assignment A",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "cinematic documentary",
+      "guided evidence and comparison",
+      "curious and humane"
+    ],
+    "paletteIntent": "Stadium charcoal, uncoated ivory, field green, restrained copper and slate. Retain route colors as information, remove neon plates and blanket vintage filters.",
+    "typographyIntent": "Self-hosted Anton for display, Archivo normal and italic for reading and voice, Space Mono for data and evidence labels. Font copyright and SIL OFL notices remain with the assets.",
+    "textureLanguage": [
+      "selective hand-ink contours",
+      "localized halftone in illustration shadows",
+      "clean documentary photographs",
+      "paper evidence captions"
+    ],
+    "shapeLanguage": "Wide cinematic frames, fine rules, numbered playbook markers. Historical evidence remains visibly separate from reconstructions.",
+    "motionGrammar": [
+      "comparison: uncover the photograph beneath its overpainting",
+      "branching: illuminate shared routes",
+      "reading: keep text and evidence immediately visible"
+    ],
+    "interactionSignature": [
+      "Read five Start / Door / Result route strips",
+      "Compare original photographic evidence with labeled illustration",
+      "Explore the approximate 1,000-player funnel",
+      "Check five evidence claims with explanation",
+      "Write three responses using shared account saving and Turn In"
+    ],
+    "densityRhythm": "Five NFL cases and one other-sport case, five evidence calls, three written responses of 90–110 words. Alternative 35–45 minute assignment, not the second half of a required sequence.",
+    "archivalBehavior": "Original photographs are separately preserved outside the deployable tree. Date every later portrait. Reconstructed scenes carry persistent labels. Source-to-ink comparison explains preserved evidence and invented surfaces.",
+    "endingLanguage": "Three equal-length responses use historical facts and image evidence. guided evidence and comparison."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Natural field greens and neutral ink shadows from the supplied documentary player-coach benchmark.",
+    "edgeTreatment": "Fine ivory or charcoal rules around images, small offset details on evidence only.",
+    "controlLanguage": "Readable playbook labels and native buttons; image comparison controls describe source and interpretation.",
+    "spacingLanguage": "Wide gutters between panels like a comic page, tight stacks inside props.",
+    "transitionLanguage": "Reading content is immediately visible. Controlled evidence reveals and route drawing carry meaning; reduced motion retains static content."
+  },
+  "assignmentContract": {
+    "variant": "A",
+    "players": [
+      "unitas",
+      "papale",
+      "lewis",
+      "gates",
+      "mailata"
+    ],
+    "nflCases": 5,
+    "otherSport": "Jim Morris",
+    "writtenResponses": 3,
+    "wordsPerResponse": [
+      90,
+      110
+    ],
+    "estimatedMinutes": [
+      35,
+      45
+    ],
+    "difficulty": "guided evidence and comparison",
+    "distribution": "Alternate A and B across seats; students complete one assignment only."
+  }
+}

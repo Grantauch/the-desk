@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { makePublicResources } from './sync-public-resources.mjs';
 import { validatePublicResources, isPublicHref } from './validate-public-resources.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -98,10 +99,36 @@ try {
     passed++;
   }
 
+  // Legacy flags in the ignored authoring inventory must not republish teacher-only Unit 4 records.
+  const teacherIds = [
+    '488-hidden-history-unit-4-myth-stations-verification-lab',
+    '490-hidden-history-unit-4-performance-task-claim-bank',
+  ];
+  const studentIds = ['465-unit-4-student-source-packet', '466-unit-4-trust-and-verify-deck'];
+  const rows = [...teacherIds, ...studentIds].map(id => ({
+    id, course: 'Hidden History', unitTopic: 'Unit 4', name: id,
+    type: 'Packet', onWebsite: true, href: `https://example.org/${id}`,
+  }));
+  const inventory = { resources: rows };
+  const unitAssignments = { version: 1, courses: { 'Hidden History': { 'Unit 4': rows.map(row => row.id) } } };
+  const privateBefore = JSON.stringify([inventory, unitAssignments]);
+  const { catalog, materials } = makePublicResources(inventory, unitAssignments);
+  assert.deepEqual(catalog.resources.map(row => row.id), studentIds);
+  assert.equal(catalog.resourceCount, 2);
+  assert.equal(catalog.linkedCount, 2);
+  assert.deepEqual(materials.courses['Hidden History']['Unit 4'], studentIds);
+  assert.equal(JSON.stringify([inventory, unitAssignments]), privateBefore);
+  for (const row of rows.slice(0, 2)) {
+    assert.match(validatePublicResources({
+      ...catalog, resourceCount: 3, linkedCount: 3, resources: [...catalog.resources, row],
+    }, materials).join('\n'), /not publicly eligible/);
+  }
+  passed++;
+
   // Execute the explicit full verification chain with synthetic stage commands.
   // A failure in each stage must prevent all subsequent stages from running.
   const realPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-  const stages = ['atlas:test', 'gemini:test', 'league:test', 'square-deal:test', 'blacktop:test', 'dry-county:test', 'release:test', 'checkling:test', 'pond:test', 'hall-pass:verify', 'turn-in:test', 'tools:test', 'classroom:test', 'ready:test', 'audit:test', 'resources:validate', 'storyhub:validate', 'check', 'build', 'site:validate'];
+  const stages = ['hall-pass:approval', 'blitzkrieg:visual:test', 'atlas:test', 'gemini:test', 'league:test', 'square-deal:test', 'blacktop:test', 'dry-county:test', 'release:test', 'checkling:test', 'pond:test', 'hall-pass:verify', 'turn-in:test', 'tools:test', 'classroom:test', 'ready:test', 'audit:test', 'resources:validate', 'storyhub:validate', 'check', 'build', 'site:validate'];
   assert.equal(realPackage.scripts['verify:full'], stages.map((stage) => `npm run ${stage}`).join(' && '));
   const npmPath = process.env.npm_execpath;
   assert.ok(npmPath, 'Run these fixtures via npm run resources:validate so npm is available for gate tests.');

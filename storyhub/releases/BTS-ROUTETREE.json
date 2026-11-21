@@ -1,0 +1,636 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREE",
+  "title": "The Route Tree",
+  "route": "/hubs/bts-the-route-tree.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/ROUTETREE/story.json",
+    "note": "Two equal alternative assignments, guided A and more independent B; the complete earlier assignment keeps its original account identity. Six labeled Cinematic Ink scenes and natural source photography."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-the-route-tree.html",
+      "bytes": 7370,
+      "sha256": "b9190982edbd525199b87e16fe549f59303ace8fbde464fca755bade8a2f08d2"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/aircraft.webp",
+      "assetId": "A05",
+      "bytes": 136174,
+      "sha256": "f4bb42322719373318e418ba95e3c3d29e0b0c777353a565283e4a7b7008546f",
+      "width": 960,
+      "height": 772
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/att.webp",
+      "assetId": "A13",
+      "bytes": 284642,
+      "sha256": "a028c3d3f3e9357ddd6bbb8697cb91246978bd56cb7766e85212541f4ca71fdf",
+      "width": 1100,
+      "height": 729
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/grocery.webp",
+      "assetId": "A09",
+      "bytes": 159854,
+      "sha256": "c4b4e5641d692f45924d0241341efb186f26291b2d1ead36f22ec681c9ed7fa3",
+      "width": 1100,
+      "height": 733
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/jfk-aerial.webp",
+      "assetId": "A03",
+      "bytes": 285960,
+      "sha256": "9a0de38c7d8393a5bf1ed3bbaed8714b2d87da5f83ad5632f9797cd24c8d9020",
+      "width": 1100,
+      "height": 706
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/paddy.webp",
+      "assetId": "A08",
+      "bytes": 143670,
+      "sha256": "016b3781e1c947cb4700b2df93db95504e5878b1a2b61a996266a2424ac208f3",
+      "width": 1100,
+      "height": 759
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/rotary.webp",
+      "assetId": "A07",
+      "bytes": 126244,
+      "sha256": "dadac75ed7201a73e9c43a9136a098988014913b7fd670bb925599af51799398",
+      "width": 800,
+      "height": 800
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/rugby.webp",
+      "assetId": "A12",
+      "bytes": 138534,
+      "sha256": "0878e989834133e036b6a1f72487e139b7d0584a9f52de81214e6aa85473385b",
+      "width": 1100,
+      "height": 810
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/tropicana.webp",
+      "assetId": "A15",
+      "bytes": 277006,
+      "sha256": "59e00f2a102241265e95d61345691dc6f4ee0b3f58da7dcbb8546125478f4c83",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/vet-aerial.webp",
+      "assetId": "A01",
+      "bytes": 259588,
+      "sha256": "f432f29de1c8aa446a532ddc037d065ec7297ab2964daa4eeb26e8b25a814109",
+      "width": 1024,
+      "height": 722
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/wrestling.webp",
+      "assetId": "A10",
+      "bytes": 202900,
+      "sha256": "9fc99b0075b9d40b6d75a7ae4ae07f21241aaf12a7deedda00a4116d851dc38d",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/zamboni.webp",
+      "assetId": "A14",
+      "bytes": 162786,
+      "sha256": "cc728ab0cca5ccf7fe3687dc5c825ffef84a798210cbf04f7f9be7b0496354a2",
+      "width": 1100,
+      "height": 686
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-aubrey-anchor.webp",
+      "bytes": 63040,
+      "sha256": "c99b58705b72881dcd3f6ceebbc65456da67a49ddcbfd56de5ede389ce2e3a0b",
+      "width": 640,
+      "height": 973,
+      "assetId": "P10"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-anchor.webp",
+      "bytes": 31926,
+      "sha256": "b077155aa4bf10b26f39b964f40e65ee71160442607408438374fbad308a4931",
+      "width": 640,
+      "height": 428,
+      "assetId": "P03"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-photo-1024.webp",
+      "bytes": 58996,
+      "sha256": "8211c67e5f3dcfa0f6e7bfaf83ff77042df5b7c31a89b0e4b898993e3c1250bd",
+      "width": 1024,
+      "height": 685
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-photo-1536.webp",
+      "bytes": 100826,
+      "sha256": "26d67287fc54661f50ef15f0286e3811e28105151ea8584a07ff2b0b2ca174dd",
+      "width": 1536,
+      "height": 1028
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-photo-640.webp",
+      "bytes": 30000,
+      "sha256": "01e524f0056c5d5ace54b334fabb11bcf71bf51835ec3f08d8eff494fe215c7e",
+      "width": 640,
+      "height": 428
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-rings-ink-1024.webp",
+      "bytes": 164350,
+      "sha256": "d6c52f6193cb9980d7611f09dc2dd1a4d472e0640fcd28cbaefeecbf95b1cfba",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-rings-ink-1536.webp",
+      "bytes": 331650,
+      "sha256": "7a3be6dddc40575c5daaa22218b9453c47819e80e8ea30712dbf053eefec6d3d",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C04"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-bleier-rings-ink-640.webp",
+      "bytes": 62988,
+      "sha256": "9590ec530a476c0db738c108ade40c17881941160bee97c6969b022f5fac9e71",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-cinematic.css",
+      "bytes": 13688,
+      "sha256": "1f3dbccc4dd9db47f9da6ed521c315bb560558cd19e578869d1ffed4bb81a70d"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-cinematic.js",
+      "bytes": 702,
+      "sha256": "a7206744eceea8cc6ba979e226c0eb5dd92e608154b91dbfec3ff28a8440bfa1"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-gates-anchor.webp",
+      "bytes": 72880,
+      "sha256": "01d5cea356dfb28c9ae767eca050f88b2116e25afd5847ecc9cf30bd046ceeaf",
+      "width": 640,
+      "height": 879,
+      "assetId": "P08"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-anchor.webp",
+      "bytes": 75836,
+      "sha256": "fed87a6d16e9727f8a7474830e59a3a8161b203f65aa665a29be8a88e78fed44",
+      "width": 640,
+      "height": 450,
+      "assetId": "P04"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lewis-anchor.webp",
+      "bytes": 30874,
+      "sha256": "095a4d29734dc2ff76a32be98ad78f4084d8694dcefe2c7c61fc747bc16daaa7",
+      "width": 640,
+      "height": 582,
+      "assetId": "P06"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-mailata-anchor.webp",
+      "bytes": 53784,
+      "sha256": "cc35bd1d18259e7e196bba12d77f0d9d73296d0b5edfaa7c67b33c74ffe2d85a",
+      "width": 640,
+      "height": 798,
+      "assetId": "P09"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-neal-anchor.webp",
+      "bytes": 31544,
+      "sha256": "1f466072208d056861592ca6c15fe20c5b484ce36f51871d3a86601421f8c06a",
+      "width": 640,
+      "height": 427,
+      "assetId": "P07"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-anchor.webp",
+      "bytes": 9116,
+      "sha256": "bc0124d905ac79b8a16c4bdba2901f7d7f069879fdce9a16335c72059dec9ad3",
+      "width": 275,
+      "height": 358,
+      "assetId": "P01"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-camp-1024.webp",
+      "bytes": 227968,
+      "sha256": "33e5e333cee937555ec120e937f2baa8c02a4c539ad6622474171cd109bdeacb",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-camp-1536.webp",
+      "bytes": 448204,
+      "sha256": "123a7a51c0da5968e6bd7580311ce8c8e8802325d9915875f6790218e070da99",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C02"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-camp-640.webp",
+      "bytes": 94742,
+      "sha256": "505a7e0d2d4a3128108bb67d77d6df55a60085beb19468ff1e81c678b6e3e73f",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-papale-photo-275.webp",
+      "bytes": 11760,
+      "sha256": "7b08aacc59466d0f847440a884915a7990c76dd903aaf19a2d16665e91c5689f",
+      "width": 275,
+      "height": 358
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-rights.json",
+      "bytes": 55469,
+      "sha256": "feeb152110c68bd6c221ca33288d4f8bc50ed6a8b1395fbb5217352e30b9f3fc"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp",
+      "bytes": 149000,
+      "sha256": "503a27eac20f770add91b7c9102b404c88ad734a15408e53e3f71de650af9c6a",
+      "width": 640,
+      "height": 812,
+      "assetId": "P05"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-ink-1024.webp",
+      "bytes": 308576,
+      "sha256": "4ca572b8b07c12567352a25cab21d3ac449a255ebe2b593e18a256269f346dec",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-ink-1536.webp",
+      "bytes": 683412,
+      "sha256": "bdeb861bf7b18a301931e081eae51080513263fca305e7751d4880a5a8c0d209",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C01"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-ink-640.webp",
+      "bytes": 117568,
+      "sha256": "b27a146149690031af11ae4ed6bca44ad2b538d60a0a6260bc0b322c8b09223e",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-photo-1024.webp",
+      "bytes": 206234,
+      "sha256": "40ba73838d03c84feffd258a98cb1a8d7f6f0ee2520b19f90a8cd2e2c9e98f33",
+      "width": 1024,
+      "height": 722
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-veterans-photo-640.webp",
+      "bytes": 91628,
+      "sha256": "70caa16b19fe7fe14ef2b397aa88ac943a885d55d3c37066b830c40f8836c444",
+      "width": 640,
+      "height": 451
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-anchor.webp",
+      "bytes": 28050,
+      "sha256": "c3a5ba2584103ccb8a7ffbc01c3b845f569af0788d705d75f393609bdf55f8d6",
+      "width": 640,
+      "height": 533,
+      "assetId": "P02"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-night-1024.webp",
+      "bytes": 181434,
+      "sha256": "79d8a899adadc026754dba73419b75e2a25fa3e9e37931ca4c54219714bb9f21",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-night-1536.webp",
+      "bytes": 369624,
+      "sha256": "828f8140d7378a0de6a5470200de67a07fc3800610b47730a7acc8836eeb9088",
+      "width": 1536,
+      "height": 1024,
+      "assetId": "C03"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-night-640.webp",
+      "bytes": 73082,
+      "sha256": "63e6476174fcaa559418c1579b9d7171c736d7627936c6ec73e309520b160b55",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-photo-1024.webp",
+      "bytes": 50492,
+      "sha256": "bc69437106eefdefd8a065a61386f24049463527c5363063547d77fc9cd95a5d",
+      "width": 1024,
+      "height": 852
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-photo-1536.webp",
+      "bytes": 97800,
+      "sha256": "6157a32842d78c413be1f85f01b145fba417eca13ce4ea05bbd394f0dd630c7e",
+      "width": 1536,
+      "height": 1279
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-warner-photo-640.webp",
+      "bytes": 26684,
+      "sha256": "9c8fdeb06f46bd3850e81d87c3f0db8749cb413d884a315b2137eca55e61fcb8",
+      "width": 640,
+      "height": 533
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-anton-normal-400.woff2",
+      "bytes": 18612,
+      "sha256": "d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-archivo-italic-400.woff2",
+      "bytes": 15820,
+      "sha256": "aff750193376fa0cc7299242c3847f3c1189a78a23d526bfc205dbfc526a5403"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-archivo-normal-400.woff2",
+      "bytes": 34928,
+      "sha256": "8f704806dbedeaaeca334b11ec348bc3ac3a439d6431544b3afb54f534ee4967"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-licenses.txt",
+      "bytes": 13256,
+      "sha256": "d1f5b94746d54ecb1fa4b203b6d61748d8433ae94024233c0d04f30c5a6d7f3b"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-space-mono-normal-400.woff2",
+      "bytes": 16520,
+      "sha256": "fb4a81a2d0a893e5c38c394a7e716a1cef0b24610a0af49c96f6d529bd66bf2b"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-font-space-mono-normal-700.woff2",
+      "bytes": 16724,
+      "sha256": "2d46bd159b53f55c41167a4f1540a074649464194fd1e416f5b4694a6c0f282c"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-gates-arena-640.webp",
+      "bytes": 60600,
+      "sha256": "2c54e59d13c089407a29aa6fc0dff5219cd89ee2313756aa3abafe67af64ad6c",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-gates-arena-1100.webp",
+      "assetId": "A11",
+      "bytes": 128564,
+      "sha256": "2a35dae94c5af402593cc2d46fb65a289bca52b41ea693b939cdeef773327a81",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a09-640.webp",
+      "bytes": 31368,
+      "sha256": "18ad4cb6f4ec6ed604cd0459407608cfa20da1ec19ecf38e180c7fb3d5457e00",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a10-640.webp",
+      "bytes": 69990,
+      "sha256": "c337677294b665d4cd2c10827b3247f7e58e08ec2831fdd489ecd067afeb0933",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a09-1100.webp",
+      "assetId": "N09",
+      "bytes": 77906,
+      "sha256": "d7c0e1d5f99a23bbfae5eff6e701707031dffbb36bf9dd1857c18b228a57354b",
+      "width": 1100,
+      "height": 733
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a05-640.webp",
+      "bytes": 43722,
+      "sha256": "44ae2ebc01f0b4da32c3ca9a718d435d24395858b631a50be3d71c0418bc05d2",
+      "width": 640,
+      "height": 514
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a12-1100.webp",
+      "assetId": "N12",
+      "bytes": 104646,
+      "sha256": "5372ed92cff2c1d645862f964b106cb94963c6909b78232791cdd16ef696aeab",
+      "width": 1100,
+      "height": 810
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a13-1100.webp",
+      "assetId": "N13",
+      "bytes": 187050,
+      "sha256": "fc54eef93fa1bd93586e83fc37590ac79513e40936b41a3a6a6933dff20555f7",
+      "width": 1100,
+      "height": 729
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a12-640.webp",
+      "bytes": 40704,
+      "sha256": "13ac069ed679e2e6625cc3fb01d02a18f0da406b39cb5cbc031cad2233495340",
+      "width": 640,
+      "height": 471
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a03-640.webp",
+      "bytes": 83724,
+      "sha256": "322de7c5ad9a880bb56c935aba596b2413b292e6b6adc809b40573bd25e98de9",
+      "width": 640,
+      "height": 411
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a03-1100.webp",
+      "assetId": "N03",
+      "bytes": 284128,
+      "sha256": "51160cd03b63a72c9107c2bcd7d640f2215c52c6bd3196195b9296f3bdef5286",
+      "width": 1100,
+      "height": 707
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a14-640.webp",
+      "bytes": 45300,
+      "sha256": "84b006b9b1420857274a1334f8830c71b97e49c41a8b53f99c7090c285e875ef",
+      "width": 640,
+      "height": 399
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a13-640.webp",
+      "bytes": 73348,
+      "sha256": "e7c9c2734b9d3e3a002b0d1194ec10fe2e43b4d7778536d8229359f975a816b0",
+      "width": 640,
+      "height": 424
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a10-1100.webp",
+      "assetId": "N10",
+      "bytes": 145946,
+      "sha256": "dd041892e5683f91434474903befd6e5ec0eeb9e17e3f3b8d0ef9f7aa4628133",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a08-1100.webp",
+      "assetId": "N08",
+      "bytes": 66850,
+      "sha256": "67493013fef17aca8625a2df9c2f2d8067e7d507d5bd3ea578d4ae1c8fe0a261",
+      "width": 1100,
+      "height": 759
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a08-640.webp",
+      "bytes": 34508,
+      "sha256": "484652ab7ee1ee5d921c8fda48ef9fd69e5db5f98e1653e679d6e3b1379943f2",
+      "width": 640,
+      "height": 442
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a15-640.webp",
+      "bytes": 75282,
+      "sha256": "48aed92901a74909142e17e43a460f59ed68748d6a1c32953a4f1cbbe9aed5e0",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a14-1100.webp",
+      "assetId": "N14",
+      "bytes": 117648,
+      "sha256": "c554f3fffd90f85acc7001b2b6cdcb99b2488c91a5c6ffbed6c45f17f8e5ab12",
+      "width": 1100,
+      "height": 687
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a07-640.webp",
+      "bytes": 40786,
+      "sha256": "3f607ec4f5bb9d7c94d058f8e7cc9b88c39fc510f6138327f048ff7a7191a373",
+      "width": 640,
+      "height": 640
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a15-1100.webp",
+      "assetId": "N15",
+      "bytes": 190484,
+      "sha256": "6095f7ffa9ddad93c24780af1cb5dfbe4b79112fead86bf4267e5f8a50794947",
+      "width": 1100,
+      "height": 825
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a05-1100.webp",
+      "assetId": "N05",
+      "bytes": 100578,
+      "sha256": "ba312f88d667f7d8b974bc8c04397e5714bd9fd66ba5afb30834e67500cce131",
+      "width": 1100,
+      "height": 884
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-context-a07-1100.webp",
+      "assetId": "N07",
+      "bytes": 80104,
+      "sha256": "98395a88b2624bd5f76fd18f02a067a7bd7495fc5bb30f804dcb831bd7845a17",
+      "width": 1100,
+      "height": 1100
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-640.webp",
+      "bytes": 97330,
+      "sha256": "5efcf172c95675cd0068e262955e0eacafad64d6ecfc8bbf1c86a439927efef4",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1024.webp",
+      "bytes": 229776,
+      "sha256": "b14753428c739b867a7b3ac5e3c67b639429cee82540642cc91357a11135967d",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1536.webp",
+      "assetId": "C05",
+      "bytes": 462986,
+      "sha256": "ad6eb7cd135da6b4dc044a8bd4248c05438a53b8d02b3db4f0b8e1b26a660536",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-photo-640.webp",
+      "bytes": 72466,
+      "sha256": "2b78b095709dbd976e1a18c8395a9ef734cbac30cb2d0226edec62ed39966b5d",
+      "width": 640,
+      "height": 450
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-photo-1024.webp",
+      "bytes": 185592,
+      "sha256": "3958f94dcb6ec50080fb017a2add13367b1dc613ef1e0b99e05fc8d960289d15",
+      "width": 1024,
+      "height": 721
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1536.webp",
+      "assetId": "C06",
+      "bytes": 398526,
+      "sha256": "970b926f49241539fd292cbb06a0781676ffc21220b22978c7d00baa25c13a4a",
+      "width": 1536,
+      "height": 1082
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1024.webp",
+      "bytes": 200212,
+      "sha256": "9db8bcafda9f938fd2cc0b1d4d190c9053d3636828f14d7ba39bbca16d848609",
+      "width": 1024,
+      "height": 721
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-640.webp",
+      "bytes": 76532,
+      "sha256": "d37ccd67043491e25273db53d2bb563ab00e470a6dc21249429c002076bbd58c",
+      "width": 640,
+      "height": 451
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/assignments.js",
+      "bytes": 2268,
+      "sha256": "6707949d3a400f3914480c70345544ad3044740c867023057408af6d1d842408"
+    },
+    {
+      "path": "/storyhub/bts/route-tree/assets/assignments.css",
+      "bytes": 14564,
+      "sha256": "b455f3b5e068e9cfe781c07b3b1ec6356b93b4c719efd78df17a65f995df4d0d"
+    },
+    {
+      "path": "/hubs/bts-route-tree-a.html",
+      "bytes": 91958,
+      "sha256": "d10b2774ad25f9c442f11b7514f3fc77c932b03a9f549d18f1beae8a5f383942"
+    },
+    {
+      "path": "/hubs/bts-route-tree-full-reference.html",
+      "bytes": 146377,
+      "sha256": "252a06895b16e5f4cca3239f86cfd2468041db8ada0ba6ae2a2748a3f2c3b043"
+    },
+    {
+      "path": "/hubs/bts-route-tree-b.html",
+      "bytes": 91823,
+      "sha256": "39d003bb1a8aa062eac827b3011635a0a309851944e3ddb1cfb8aa84911f27b1"
+    }
+  ],
+  "totalBytes": 10808161,
+  "sealedAt": "2026-11-19",
+  "assignmentRoutes": [
+    "/hubs/bts-route-tree-a.html",
+    "/hubs/bts-route-tree-b.html"
+  ],
+  "preservedRoute": "/hubs/bts-route-tree-full-reference.html"
+}

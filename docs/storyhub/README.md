@@ -28,6 +28,7 @@ The fast lane is allowed only when the diff is limited to:
 - lesson-specific public assets under `public/storyhub/`, excluding the shared runtime
 - StoryHub manifests and public source notes under `storyhub/stories/`
 - the StoryHub catalog in `src/data/storyhubs.ts`
+- `docs/storyhub/work-panel-catalog.json`, when the only changes add or edit entries for hubs in the StoryHub catalog and `catalogueCount` matches that catalog
 - a course page change whose only semantic difference is its `storyhub: { ... }` block
 
 Those releases still run StoryHub manifest/provenance/asset validation, Astro/TypeScript checks, a production build, static-site/link validation, and focused browser/accessibility checks at 320 px, 390 px, desktop, and reduced motion for the changed StoryHub routes.
@@ -47,3 +48,5 @@ GitHub keeps the required protected-branch check named `build`; the lane changes
 Research → narrative architecture → Story DNA → named-person/source audit → asset plan → batch asset generation → asset review → targeted regeneration → asset-to-interface translation → interaction/motion plan → responsive build → historical QA → visual QA → performance/accessibility QA → publish → archive learnings.
 
 See [GOLD_STANDARD.md](GOLD_STANDARD.md) for the experience standard.
+
+For new Astro editions, see the [Story Hub 2.0 implementation guide](STORY_HUB_2.md) and its Pearl Harbor reference edition.

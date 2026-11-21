@@ -1,0 +1,61 @@
+---
+import type { StoryEdition, Tool } from '../../lib/storyhub/model';
+import MeetTheCast from './MeetTheCast.astro';
+import HistoricalMap from './HistoricalMap.astro';
+import HistoricalTimeline from './HistoricalTimeline.astro';
+import HistoricalContext from './HistoricalContext.astro';
+interface Props { story: StoryEdition; }
+const { story } = Astro.props;
+const items: { id: Tool; label: string; href: string; icon: string }[] = [
+  { id: 'cast', label: 'Cast', href: '#who', icon: 'M15 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2 M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M17 14a4 4 0 0 1 4 4v2 M16 3a4 4 0 0 1 0 8' },
+  { id: 'map', label: 'Map', href: '#where', icon: 'M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2z M9 3v16 M15 5v16' },
+  { id: 'timeline', label: 'Timeline', href: '#when', icon: 'M3 12h18 M5 8v8 M12 7v10 M19 8v8' },
+  { id: 'context', label: 'Context', href: '#archive', icon: 'M4 19V5a2 2 0 0 1 2-2h14v18H6a2 2 0 0 1 0-4h14 M8 7h8 M8 11h6' },
+];
+---
+<nav class="sh-dock" aria-label="Story reference tools" data-companion-dock data-enhance hidden>
+  <a class="sh-dock-progress" href="#chapters" data-index-link>
+    <span class="sh-label" data-chapter-count>Chapter index</span>
+    <span data-dock-title>Historical briefing</span>
+  </a>
+  <div class="sh-dock-tools">
+    {items.map(({ id, label, href, icon }) => (
+      <a href={href} data-open-tool={id} aria-haspopup="dialog" aria-controls="story-companion" aria-expanded="false">
+        <svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d={icon} /></svg>
+        <span>{label}</span>
+      </a>
+    ))}
+  </div>
+</nav>
+<dialog id="story-companion" class="sh-companion" aria-labelledby="companion-title" data-companion>
+  <div class="sh-companion-bar">
+    <div>
+      <p class="sh-label" data-panel-chapter>Historical briefing</p>
+      <h2 id="companion-title" data-panel-title>Cast</h2>
+    </div>
+    <form method="dialog">
+      <button type="submit" class="sh-close" aria-label="Close reference panel" autofocus>×</button>
+    </form>
+  </div>
+  <nav class="sh-inline-tabs sh-panel-tabs" aria-label="Reference tools in panel">
+    {items.map(({ id, label, href }) => <a href={href} data-open-tool={id} aria-current={id === 'cast' ? 'true' : undefined}>{label}</a>)}
+  </nav>
+  <div class="sh-panel-scroll" data-panel-scroll>
+    <div class="sh-panel-tools">
+      <button type="button" data-chapter-references hidden>Use chapter references</button>
+      <a href="#archive" data-close-and-jump hidden data-complete-context>Open full archive</a>
+    </div>
+    <section data-panel-tool="cast" aria-label="Historical cast">
+      <MeetTheCast {story} scope="panel" />
+    </section>
+    <section data-panel-tool="map" aria-label="Historical map" hidden>
+      <HistoricalMap {story} scope="panel" />
+    </section>
+    <section data-panel-tool="timeline" aria-label="Historical timeline" hidden>
+      <HistoricalTimeline {story} scope="panel" />
+    </section>
+    <section data-panel-tool="context" aria-label="Historical context" hidden>
+      <HistoricalContext {story} scope="panel" />
+    </section>
+  </div>
+</dialog>

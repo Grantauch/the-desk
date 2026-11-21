@@ -1,7 +1,17 @@
 {
-  "checkedAt": "2026-10-29",
-  "catalogueCount": 72,
+  "checkedAt": "2026-11-18",
+  "catalogueCount": 77,
   "hubs": [
+    {
+      "hub": "bts-who-pays-for-friday-night.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-the-route-tree.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
     {
       "hub": "hh-they-couldnt-stop.html",
       "mode": "assignment",
@@ -359,6 +369,21 @@
     },
     {
       "hub": "ush9-s03-the-last-morning.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-s04-the-weavers-son.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-route-tree-a.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-route-tree-b.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-S04",
+  "title": "the weaver's son",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "a weaver's wage book read beside an 1812 broadside: plain, counted, angry underneath"
+    ],
+    "paletteIntent": "soot black and raw wool cream, with the natural dyes of the period: madder red for loss and violence, weld yellow for what money could buy, indigo for London and the law",
+    "typographyIntent": "a fat face display type like the broadsides of the 1810s, a Caslon text face for narrative, a ledger mono for dates, wages and records",
+    "textureLanguage": [
+      "woven cloth grain on cream pieces",
+      "loom warp threads on dark pieces",
+      "aged letter paper for the primary source"
+    ],
+    "shapeLanguage": "numbered pieces of cloth with double rule selvedges, stitched picture plates, bolts of cloth that grow, flour sacks that empty",
+    "motionGrammar": [
+      "weaving: a thread runs along the strip as the reader moves through the story",
+      "replacement: the power loom bolt outruns the hand loom bolt three and a half to one",
+      "accumulation and loss: flour sacks fill and empty between 1797 and 1834",
+      "geography: markers light up across the north as the uprising spreads"
+    ],
+    "interactionSignature": [
+      "race the two looms",
+      "decode the Ludd letter",
+      "walk the uprising on a map",
+      "count a week's pay in flour",
+      "sort who came out ahead"
+    ],
+    "densityRhythm": "Ten pieces alternating wool and soot, short reading blocks, one instrument in most pieces, and a quiet glossary and note repair before the questions.",
+    "archivalBehavior": "Period engravings, prints and portraits are captioned and credited. Testimony to Parliament is attributed. The boy's three and a half pieces is labeled as a claim that spread, and contested numbers are named in the limits.",
+    "endingLanguage": "The people who did well understood the work well enough to direct the machines and fix them."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The soot and cream of the 1835 Allom engraving, the madder and weld in the 1812 Leader of the Luddites print, and the cream of the watercolor loom",
+    "edgeTreatment": "Double rule selvedge headers, dashed stitch lines inside picture plates, aged paper for the letter",
+    "controlLanguage": "Square ledger buttons in mono type, a madder fill when chosen, a woven bolt for progress",
+    "spacingLanguage": "Each section is a numbered piece with a ledger tag naming place and date",
+    "transitionLanguage": "Natural scrolling, with state changes driven by the race, the year switch and the map slider"
+  }
+}

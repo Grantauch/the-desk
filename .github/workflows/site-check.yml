@@ -33,6 +33,12 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Test approval guards with fixtures only
+        run: npm run hall-pass:approval:test
+
+      - name: Refuse unapproved Hall Pass ZIP publication
+        run: npm run hall-pass:approval
+
       - name: Install locked dependencies
         run: npm ci --include=dev
 
@@ -141,6 +147,10 @@ jobs:
       - name: Check key site pages in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: npm run browser:test
+
+      - name: Check Curiosity catalog outage and recovery in a real browser
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: npm run curiosity:browser
 
       - name: Check WWI trench models and independent fallbacks
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'

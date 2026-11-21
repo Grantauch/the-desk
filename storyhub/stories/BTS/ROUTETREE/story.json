@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREE",
+  "course": "BTS",
+  "lessonCode": "ROUTETREE",
+  "title": "The Route Tree",
+  "audience": "students",
+  "narrativeQuestion": "How did people the NFL never planned for find their way onto rosters, and what does Invincible change about Vince Papale's real route? How does this illustrated documentary distinguish evidence from interpretation?",
+  "chapters": [
+    {
+      "id": "01-reel",
+      "title": "The Vet, 1976",
+      "claim": "Papale was a pole vaulter with no college football and two WFL seasons who made the Eagles at 30 after an invited workout. Invincible cut the Bell and invented the walk in tryout.",
+      "namedPeople": [
+        {
+          "name": "Vince Papale",
+          "role": "Eagles special teams",
+          "anchorStatus": "anchored",
+          "anchorNote": "Vince Papale in January 2009, more than thirty years after his rookie season. Photo: Philip Nelson, Live Streaming Expert (philipnelson.org).",
+          "visualAnchorId": "P01"
+        },
+        {
+          "name": "Dick Vermeil",
+          "role": "Eagles coach",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Mark Wahlberg",
+          "role": "Actor",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03",
+        "P01",
+        "C02"
+      ],
+      "interactionIds": [
+        "I01",
+        "I02",
+        "I08"
+      ]
+    },
+    {
+      "id": "02-odds",
+      "title": "The Odds",
+      "claim": "Of 1,000 high school players about 73 play NCAA football and about 1 senior in 1,000 is drafted.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "03-tree",
+      "title": "The Route Tree",
+      "claim": "Ten routes into the NFL share a few doors: a walk in, a call, a tryout, another league, another sport, a cut, an injury, a program.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "C01"
+      ],
+      "interactionIds": [
+        "I04",
+        "I09"
+      ]
+    },
+    {
+      "id": "04-lane",
+      "title": "Night Train Lane",
+      "claim": "An Army veteran walked into the Rams office in 1952 and set the 14 interception record.",
+      "namedPeople": [
+        {
+          "name": "Dick Lane",
+          "role": "Cornerback",
+          "anchorStatus": "anchored",
+          "anchorNote": "Lane is number 81, center right, recovering a fumble against the 49ers, September 3, 1953. Full frame retained; his identity is established by the source caption.",
+          "visualAnchorId": "P04"
+        }
+      ],
+      "visualAnchorIds": [
+        "A05",
+        "P04"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "05-unitas",
+      "title": "Johnny Unitas",
+      "claim": "Cut by the Steelers in 1955, he played sandlot ball for $6 a game until an 80 cent call from Baltimore.",
+      "namedPeople": [
+        {
+          "name": "Johnny Unitas",
+          "role": "Quarterback",
+          "anchorStatus": "anchored",
+          "anchorNote": "Johnny Unitas at Harborplace, Maryland, January 20, 1996. Later portrait, not his 1955 sandlot season.",
+          "visualAnchorId": "P05"
+        }
+      ],
+      "visualAnchorIds": [
+        "A07",
+        "P05"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "06-bleier",
+      "title": "Rocky Bleier",
+      "claim": "Pick 417, wounded in Vietnam in 1969, told he would never play, he won four Super Bowls.",
+      "namedPeople": [
+        {
+          "name": "Rocky Bleier",
+          "role": "Running back",
+          "anchorStatus": "anchored",
+          "anchorNote": "Rocky Bleier (left) with Doug Larsen at the National Guard conference in Bismarck, January 24, 2009.",
+          "visualAnchorId": "P03"
+        },
+        {
+          "name": "Art Rooney",
+          "role": "Steelers owner",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A08",
+        "P03",
+        "C04"
+      ],
+      "interactionIds": [
+        "I08",
+        "I09"
+      ]
+    },
+    {
+      "id": "07-warner",
+      "title": "Kurt Warner",
+      "claim": "Undrafted and cut, he stocked shelves for $5.50 an hour, then went through arena football and NFL Europe to two MVPs in 1999.",
+      "namedPeople": [
+        {
+          "name": "Kurt Warner",
+          "role": "Quarterback",
+          "anchorStatus": "anchored",
+          "anchorNote": "Kurt Warner speaking in April 2007. Later identity photograph, not a photograph of his grocery work.",
+          "visualAnchorId": "P02"
+        }
+      ],
+      "visualAnchorIds": [
+        "A09",
+        "P02",
+        "C03"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "08-lewis",
+      "title": "Michael Lewis",
+      "claim": "A beer truck driver with no college set the 2002 NFL record of 2,432 return yards for his hometown Saints.",
+      "namedPeople": [
+        {
+          "name": "Michael Lewis",
+          "role": "Return specialist",
+          "anchorStatus": "anchored",
+          "anchorNote": "Michael Lewis, the wide receiver and return specialist, with San Francisco on November 18, 2007. This is his later 49ers season, not his Saints debut.",
+          "visualAnchorId": "P06"
+        }
+      ],
+      "visualAnchorIds": [
+        "A16",
+        "P06"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "09-neal",
+      "title": "Stephen Neal",
+      "claim": "A world champion wrestler with no college football won three Super Bowls at guard.",
+      "namedPeople": [
+        {
+          "name": "Stephen Neal",
+          "role": "Guard",
+          "anchorStatus": "anchored",
+          "anchorNote": "Stephen Neal with New England against Washington, August 28, 2009. Later NFL photograph, not the 1999 wrestling final.",
+          "visualAnchorId": "P07"
+        },
+        {
+          "name": "Brock Lesnar",
+          "role": "1999 NCAA opponent",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A10",
+        "P07"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "10-gates",
+      "title": "Antonio Gates",
+      "claim": "A Kent State basketball player became the first Hall of Famer who never played college football.",
+      "namedPeople": [
+        {
+          "name": "Antonio Gates",
+          "role": "Tight end",
+          "anchorStatus": "anchored",
+          "anchorNote": "Antonio Gates before a San Diego Chargers game, October 30, 2016. Later NFL photograph, not his college basketball years.",
+          "visualAnchorId": "P08"
+        }
+      ],
+      "visualAnchorIds": [
+        "A11",
+        "P08"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "11-mailata",
+      "title": "Jordan Mailata",
+      "claim": "An Australian rugby league prospect who had never played football went 233rd and won Super Bowl LIX.",
+      "namedPeople": [
+        {
+          "name": "Jordan Mailata",
+          "role": "Left tackle",
+          "anchorStatus": "anchored",
+          "anchorNote": "Jordan Mailata visiting Arlington National Cemetery, April 28, 2025. Later portrait, not a scene from his 2018 draft.",
+          "visualAnchorId": "P09"
+        }
+      ],
+      "visualAnchorIds": [
+        "A12",
+        "P09"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "12-aubrey",
+      "title": "Brandon Aubrey",
+      "claim": "A software engineer who had never kicked in a game made his first 35 NFL field goals.",
+      "namedPeople": [
+        {
+          "name": "Brandon Aubrey",
+          "role": "Kicker",
+          "anchorStatus": "anchored",
+          "anchorNote": "Brandon Aubrey playing soccer for Bethlehem Steel FC against Cincinnati, June 13, 2018. A photograph from the sport he left before becoming an NFL kicker.",
+          "visualAnchorId": "P10"
+        }
+      ],
+      "visualAnchorIds": [
+        "A13",
+        "P10"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "13-board",
+      "title": "The Draft Board",
+      "claim": "Three of ten were drafted, at 102, 233 and 417. Seven were never drafted, and three of those seven reached the Hall of Fame.",
+      "namedPeople": [
+        {
+          "name": "Tom Brady",
+          "role": "Comparison pick",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Brock Purdy",
+          "role": "Comparison pick",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05",
+        "I08"
+      ]
+    },
+    {
+      "id": "14-other",
+      "title": "Other Sports",
+      "claim": "A Zamboni driver won an NHL game in 2020 and a science teacher struck out a big leaguer in 1999.",
+      "namedPeople": [
+        {
+          "name": "Dave Ayres",
+          "role": "Emergency goalie",
+          "anchorStatus": "planned",
+          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+        },
+        {
+          "name": "Jim Morris",
+          "role": "Pitcher",
+          "anchorStatus": "planned",
+          "anchorNote": "Character card slot. The teacher supplies the photo, listed in /storyhub/bts/route-tree/people/people.json. Real footage also plays in the embedded video."
+        }
+      ],
+      "visualAnchorIds": [
+        "A14",
+        "A15"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "16-making-of",
+      "title": "Behind the ink",
+      "claim": "The Route Tree itself moved from comic universes to a source-led illustrated documentary. Photographs, overpaintings and reconstructions support different kinds of historical claims.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "P02",
+        "P03",
+        "C02"
+      ],
+      "interactionIds": [
+        "I09",
+        "I10"
+      ]
+    },
+    {
+      "id": "15-yours",
+      "title": "Your Route",
+      "claim": "Students map their own goal onto the tree and tie it to one universe with evidence.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I06",
+        "I07"
+      ]
+    }
+  ],
+  "editionRoutes": {
+    "chooser": "/hubs/bts-the-route-tree.html",
+    "A": "/hubs/bts-route-tree-a.html",
+    "B": "/hubs/bts-route-tree-b.html",
+    "preservedFullEdition": "/hubs/bts-route-tree-full-reference.html"
+  },
+  "chaptersDescribe": "The preserved full edition; A/B manifests partition the cases with matched workload and different reasoning demand."
+}

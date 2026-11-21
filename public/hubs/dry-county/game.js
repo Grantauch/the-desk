@@ -151,14 +151,38 @@ function streetPatina(){
  g.restore();
 }
 
+// Dedicated, deterministic texture seed: scenery refinement must not consume the
+// gameplay RNG or shift house, traffic, crate, ramp or hidden-jug placements.
+function parcelRandom(id){let seed=2166136261;for(const ch of String(id)){seed^=ch.charCodeAt(0);seed=Math.imul(seed,16777619)}return()=>{seed=(seed+0x6D2B79F5)|0;let x=Math.imul(seed^(seed>>>15),1|seed);x^=x+Math.imul(x^(x>>>7),61|x);return ((x^(x>>>14))>>>0)/4294967296}}
+function paintParcelSurface(a,left,right,top,bottom){
+ const random=parcelRandom(a.id),rx=(l,r)=>l+(r-l)*random(),width=right-left,height=bottom-top,area=width*height;
+ if(a.kind==='field'){
+  // Narrow worn rows, diagonal dry stubble and varying crop density. This layer
+  // is baked once, not recomputed each frame or used for collision decisions.
+  for(let x=left+5;x<right;x+=12){const drift=rx(-2,2);g.fillStyle=random()<.5?'#e6c7841f':'#312c1d35';g.fillRect(x+drift,top,rx(1.5,3),height);
+   g.fillStyle='#d8b86a3a';for(let y=top+rx(0,9);y<bottom;y+=rx(13,24))g.fillRect(x+drift+rx(-2,2),y,rx(2,4),rx(3,7));}
+  for(let i=0;i<Math.min(1300,area/85);i++){const x=rx(left,right),y=rx(top,bottom);g.strokeStyle=random()<.6?'#e4c99530':'#473d2533';g.lineWidth=rx(.4,1.2);g.beginPath();g.moveTo(x,y);g.lineTo(x+rx(-3,3),y-rx(2,8));g.stroke();}
+ }else if(a.kind==='wood'){
+  // Layered crowns read as irregular overlapping woodland rather than flat discs.
+  const count=Math.min(850,Math.max(8,Math.floor(area/2600)));
+  for(let i=0;i<count;i++){const x=rx(left,right),y=rx(top,bottom),rad=rx(13,33);
+   g.fillStyle='#17251c69';g.beginPath();g.ellipse(x+rad*.24,y+rad*.29,rad*1.12,rad*.93,rx(-.45,.45),0,TAU);g.fill();
+   for(let k=0;k<3;k++){const dx=rx(-rad*.44,rad*.44),dy=rx(-rad*.44,rad*.44),rr=rad*rx(.49,.82);g.fillStyle=['#304a32','#42573a','#526244','#263d30','#4e613b'][Math.floor(random()*5)];g.beginPath();g.ellipse(x+dx,y+dy,rr,rr*rx(.73,1.04),rx(-.6,.6),0,TAU);g.fill();}
+   g.strokeStyle='#a9ae7040';g.lineWidth=.8;g.beginPath();g.arc(x-rad*.17,y-rad*.16,rad*.26,Math.PI*1.05,Math.PI*1.65);g.stroke();
+  }
+ }else if(a.kind==='meadow'||a.kind==='park'){
+  // Subtle uneven lawn and grass clusters; no city-block-shaped flat green slabs.
+  for(let i=0;i<Math.min(2200,area/165);i++){const x=rx(left,right),y=rx(top,bottom),len=rx(2,7);g.strokeStyle=random()<.55?'#c4be7548':'#283b265b';g.lineWidth=rx(.5,1.5);g.beginPath();g.moveTo(x,y);g.lineTo(x+rx(-2,2),y-len);g.stroke();}
+  if(a.kind==='park'){g.strokeStyle='#b0ad8555';g.lineWidth=2;for(let y=top+13;y<bottom;y+=28){g.beginPath();g.moveTo(left,y);g.lineTo(right,y);g.stroke();}}
+ }
+}
 function makeCity(){
  WLD.land=window.DryScenery.land.map(a=>({...a,points:a.points.map(p=>WLD.P(...p))}));
  rect(0,0,WORLD,WORLD_H,'#435644');
- // Fields and forest edges are authored shapes, not random blobs in city blocks.
+ // Distinct farm, meadow and woodland textures, clipped to authored parcels.
  for(const a of WLD.land){g.fillStyle=a.color;trace(a.points);g.closePath();g.fill();g.save();trace(a.points);g.closePath();g.clip();
   const xs=a.points.map(p=>p.x),ys=a.points.map(p=>p.y),left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
-  if(a.kind==='field'){for(let x=left;x<right;x+=14){rect(x,top,3,bottom-top,'#d0b57930');rect(x+5,top,1,bottom-top,'#3f422c35')}}
-  else if(a.kind==='wood'){for(let i=0;i<(right-left)*(bottom-top)/2400;i++){const x=sr(left,right),y=sr(top,bottom);g.fillStyle=pickSeed(['#294335','#3d5239','#4d5d3e','#5f6541']);g.beginPath();g.arc(x,y,sr(18,46),0,TAU);g.fill()}}
+  paintParcelSurface(a,left,right,top,bottom);
   g.restore();
  }
  // Small paper-like earth grain is cached once, with no per-frame effects cost.
