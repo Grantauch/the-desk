@@ -1,0 +1,24 @@
+---
+import type { References, StoryEdition } from '../../lib/storyhub/model';
+import ReferenceLinks from './ReferenceLinks.astro';
+interface Entry {
+  title: string; date?: string; description: string; quote?: string; attribution?: string;
+  fields?: { label: string; text: string }[]; refs: References;
+}
+interface Props { story: StoryEdition; id: string; title: string; prompt: string; entries: Entry[]; }
+const { story, id, title, prompt, entries } = Astro.props;
+---
+<section class="sh-evidence" {id} aria-labelledby={id + '-heading'}>
+  <header><h3 id={id + '-heading'}>{title}</h3><p>{prompt}</p></header>
+  {entries.map((entry, index) => (
+    <details class="sh-evidence-file" name={id} open={index === 0}>
+      <summary>{entry.date && <span class="sh-label">{entry.date}</span>}{entry.title}</summary>
+      <div class="sh-evidence-body">
+        <p>{entry.description}</p>
+        {entry.quote && <blockquote><p>{entry.quote}</p>{entry.attribution && <cite>{entry.attribution}</cite>}</blockquote>}
+        {entry.fields && <dl class="sh-facts">{entry.fields.map((field) => <><dt>{field.label}</dt><dd>{field.text}</dd></>)}</dl>}
+        <ReferenceLinks {story} refs={entry.refs} limit={3} />
+      </div>
+    </details>
+  ))}
+</section>

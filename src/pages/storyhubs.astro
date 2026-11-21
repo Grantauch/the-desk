@@ -1,314 +1,448 @@
 ---
-// storyhubs.astro — the landing page for StoryHub lessons.
-// Entries come from src/data/storyhubs.ts. Add a StoryHub there, not here.
 import Base from '../layouts/Base.astro';
-import PageHeader from '../components/PageHeader.astro';
 import { storyHubs } from '../data/storyhubs';
+import { interactiveExperiences } from '../data/interactiveExperiences';
+
+const courses = [
+  { id: 'all', label: 'All courses' },
+  { id: 'us', label: 'U.S. History' },
+  { id: 'hh', label: 'Hidden History' },
+  { id: 'bts', label: 'Beyond the Scoreboard' },
+] as const;
+const activityLabels = {
+  story: 'Read a story',
+  map: 'Explore a map',
+  evidence: 'Investigate evidence',
+} as const;
+type Activity = keyof typeof activityLabels;
+type CardNotes = { title?: string; summary?: string; activities?: Activity[]; keywords?: string; cover?: string; coverAlt?: string };
+
+const featureSlug = 'ush9-bytesize-thirty-seven-days';
+const sommeHref = '/hubs/ush9-over-the-somme.html';
+const somme = interactiveExperiences.find((entry) => entry.href === sommeHref);
+const featured = storyHubs.find((hub) => hub.slug === featureSlug);
+if (!featured || !somme) throw new Error('The Story Hubs library is missing its featured story or Somme map');
+
+const sarajevoPlate = '/storyhub/ush9/thirty-seven-days/assets/domenica-sarajevo.webp';
+const sarajevoAlt = 'Color newspaper illustration of Franz Ferdinand and Sophie’s assassination in Sarajevo';
+const firstLook: Record<string, CardNotes> = {
+  'ush9-the-other-half': {
+    title: 'The Other Half',
+    summary: 'Look through Jacob Riis’s camera at life in New York’s crowded tenements.',
+  },
+  'hh-they-couldnt-stop': {
+    title: 'They Couldn’t Stop',
+    summary: 'People reportedly danced for days. Compare the clues and decide what the records can prove.',
+    activities: ['evidence'],
+    keywords: 'Strasbourg France 1518 dancing plague',
+  },
+  'bts-the-route-tree': {
+    title: 'The Route Tree',
+    summary: 'Follow unexpected paths to the NFL. If it’s assigned, open the A or B version your teacher gave you.',
+    keywords: 'Johnny Unitas Vince Papale football',
+  },
+  'ush9-over-the-somme': {
+    title: 'Over the Somme',
+    summary: 'Explore the battlefield above La Boisselle and see how the terrain shaped what happened.',
+    activities: ['map'],
+    keywords: 'World War I WWI Great War trenches France Lochnagar 1916 battlefield',
+  },
+  'hh-down-the-rabbit-hole': {
+    title: 'Down the Rabbit Hole',
+    summary: 'Follow real historical hoaxes, including the man who sold settlers on a country that didn’t exist.',
+    activities: ['evidence'],
+    keywords: 'Gregor MacGregor Poyais scams',
+  },
+  'bts-two-minutes-four-seconds': {
+    title: 'Two Minutes, Four Seconds',
+    summary: 'See why a 1938 boxing rematch between Joe Louis and Max Schmeling mattered far beyond the ring.',
+    keywords: 'boxing heavyweight radio Detroit',
+  },
+  [featureSlug]: {
+    title: 'Thirty-seven Days',
+    summary: 'Trace the decisions that turned a shooting in Sarajevo into a wider war.',
+    activities: ['story', 'map'],
+    keywords: 'World War I WWI Great War alliances Sarajevo Archduke Franz Ferdinand July Crisis 1914',
+    cover: sarajevoPlate,
+    coverAlt: sarajevoAlt,
+  },
+};
+const additionallyMapped = new Set(['ush9-bytesize-why-they-fought', 'ush9-bytesize-the-line-that-wouldnt-move', 'ush9-bytesize-marne']);
+const additionallyInvestigated = new Set([
+  'hh-l06-two-sources', 'hh-l03-week-roswell-became-roswell', 'hh-follow-the-money', 'hh-room-1018a', 'hh-burn-the-files',
+]);
+const firstSlugs = Object.keys(firstLook);
+
+// The Somme is an existing public map on the Simulations shelf. Cross-list it here
+// without touching the assignment catalog, save identity, or the lesson itself.
+const sourceEntries = storyHubs.some((hub) => hub.href === sommeHref) ? storyHubs : [
+  ...storyHubs,
+  {
+    slug: 'ush9-over-the-somme', href: somme.href, title: somme.name, course: somme.course, unit: 'World War I',
+    period: 'July 1916', status: '', question: '', blurb: somme.blurb,
+    cover: '/hubs/ush9-over-there/img/trench-somme.jpg',
+    coverAlt: 'Archival photograph of soldiers in a trench on the Somme',
+    topics: ['battlefield map', 'the somme', 'military aviation'], inside: [],
+  },
+];
+const courseID = (course: string) => {
+  if (course === 'hidden history') return 'hh';
+  if (course === 'beyond the scoreboard') return 'bts';
+  if (/^u\.?s\.? history\b/i.test(course)) return 'us';
+  return '';
+};
+const order = (slug: string) => {
+  const n = firstSlugs.indexOf(slug);
+  return n < 0 ? firstSlugs.length : n;
+};
+const entries = [...sourceEntries].sort((a, b) => order(a.slug) - order(b.slug)).map((hub) => {
+  const notes: CardNotes = firstLook[hub.slug] ?? {};
+  const activities = notes.activities ?? (additionallyMapped.has(hub.slug) ? ['map']
+    : additionallyInvestigated.has(hub.slug) ? ['evidence'] : ['story']);
+  const course = courseID(hub.course);
+  return {
+    ...hub, title: notes.title ?? hub.title.replace(/^./u, (char) => char.toUpperCase()),
+    summary: notes.summary ?? hub.blurb, cover: notes.cover ?? hub.cover, coverAlt: notes.coverAlt ?? hub.coverAlt,
+    activities, courseID: course, courseLabel: courses.find(({ id }) => id === course)?.label ?? hub.course,
+    searchText: [hub.title, hub.course, hub.unit, hub.period, hub.status, hub.edition, hub.bytesize,
+      hub.question, hub.blurb, ...hub.topics, ...hub.inside, notes.keywords].filter(Boolean).join(' '),
+  };
+});
 ---
 
-<Base
-  title="storyhubs"
-  description="Scrollytelling history lessons built from primary sources and original artwork. One story, told the whole way through."
-  wide
->
-  <PageHeader
-    eyebrow="scrollytelling lessons"
-    title="storyhubs"
-    intro="a full class period told as one story you scroll through, built from real sources and original artwork."
-  >
-    <p class="page-hero__meta">{storyHubs.length} published · more arriving through the year</p>
-  </PageHeader>
+<Base title="Story Hubs" description="Browse interactive history stories, maps and evidence investigations, built with real sources and original artwork." wide>
+  <div class="story-library" data-story-library>
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/"><span aria-hidden="true">←</span> Desk home</a><span aria-hidden="true">/</span><span aria-current="page">Story Hubs</span>
+    </nav>
 
-  <section class="mt-8 storyhub-note" aria-labelledby="storyhub-note-title">
-    <h2 id="storyhub-note-title">what a storyhub is</h2>
-    <p>
-      Not a slideshow and not a worksheet. You scroll, the story moves, and the evidence shows up where
-      the argument needs it. Every figure and date on the screen traces back to a source listed at the
-      bottom of the page, and every photograph of a real person is a real photograph.
-    </p>
-  </section>
+    <div class="intro">
+      <div>
+        <p class="eyebrow"><span aria-hidden="true" class="cross">✦</span> Classroom field atlas <span aria-hidden="true" class="divider"></span> 01 / Library</p>
+        <h1>Story Hubs<span class="gold">.</span></h1>
+      </div>
+      <p class="intro-note">Open a story, follow the evidence, and see what really happened.</p>
+    </div>
 
-  <div class="mt-8 space-y-8">
-    {
-      storyHubs.map((hub) => (
-        <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition, 'storyhub-card--bytesize': hub.bytesize }]}>
-          <a class="storyhub-card__cover" href={hub.href}>
-            <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
-          </a>
+    <section class="feature" aria-labelledby="featured-title">
+      <div class="feature-copy">
+        <p class="eyebrow featured-kicker"><span class="signal" aria-hidden="true"></span> Featured story</p>
+        <p class="feature-meta">U.S. History <span aria-hidden="true">/</span> Sarajevo, 1914</p>
+        <h2 id="featured-title">Thirty-seven days</h2>
+        <p>How did a shooting in Sarajevo pull much of Europe into war in just over a month? Follow the decisions, one at a time.</p>
+        <a class="action" href={featured.href} aria-label="Open the story: Thirty-seven Days">Open the story <span aria-hidden="true">→</span></a>
+      </div>
+      <figure class="feature-image">
+        <img src={sarajevoPlate} alt={sarajevoAlt} fetchpriority="high" width="820" height="1198" />
+        <figcaption><span class="plate-index">PLATE 01</span><span>1914 newspaper illustration</span></figcaption>
+      </figure>
+    </section>
 
-          <div class="storyhub-card__body">
-            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span class="text-xs font-mono lowercase text-accent">{hub.course}</span>
-              <span class="text-xs font-mono lowercase text-ink-soft">· {hub.unit}</span>
-              <span class="text-xs font-mono lowercase text-ink-soft">· {hub.period}</span>
-              <span class="storyhub-card__status">{hub.status}</span>
-              {hub.edition && <span class="storyhub-card__edition">{hub.edition}</span>}
-              {hub.bytesize && <span class="storyhub-card__bytesize">{hub.bytesize}</span>}
+    <section class="find" aria-labelledby="find-title">
+      <div class="find-header">
+        <div><p class="eyebrow"><span class="cross" aria-hidden="true">✦</span> Pick your path</p><h2 id="find-title">Find a story</h2></div>
+        <a class="plain-link" href="#story-library-results">Jump to stories <span aria-hidden="true">↓</span></a>
+      </div>
+
+      <div class="filters" data-filters hidden>
+        <div class="filter-top">
+          <label><span>Search stories</span><span class="search-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
+            <input data-query type="search" placeholder="Try “boxing,” “New York,” or “WWI”" autocomplete="off" />
+          </span></label>
+          <label><span>What do you want to do?</span>
+            <select data-activity>
+              <option value="all">Any activity</option>
+              {Object.entries(activityLabels).map(([value, label]) => <option value={value}>{label}</option>)}
+            </select>
+          </label>
+        </div>
+        <div class="course-list" role="group" aria-label="Filter by course">
+          {courses.map(({ id, label }) => (
+            <button type="button" class="course" data-course={id} aria-pressed={id === 'all' ? 'true' : 'false'}>
+              {id !== 'all' && <i class={'code-' + id} aria-hidden="true"></i>}{label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="result-bar">
+        <h3 id="story-library-results" tabindex="-1">Stories in the library</h3>
+        <p data-count role="status" aria-atomic="true">{entries.length} stories</p>
+        <button type="button" class="text-button" data-reset hidden>Clear filters</button>
+      </div>
+
+      <div class="catalog" data-catalog>
+        {entries.map((hub) => (
+          <article class="card" data-entry data-class={hub.courseID} data-mode={hub.activities.join(' ')} data-terms={hub.searchText}>
+            <div class="card-image">
+              <img src={hub.cover} alt={hub.coverAlt} width="1600" height="900" loading="lazy" decoding="async" />
+              <span class="type">{activityLabels[hub.activities[0] as Activity]}</span>
             </div>
-
-            <h2 class="mt-2 font-display text-3xl font-bold lowercase leading-none">
-              <a href={hub.href}>{hub.title}</a>
-            </h2>
-
-            <p class="storyhub-card__question">{hub.question}</p>
-            <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
-
-            <ul class="storyhub-card__inside">
-              {hub.inside.map((item) => (
-                <li>
-                  <span class="text-accent shrink-0" aria-hidden="true">·</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div class="mt-5 flex flex-wrap items-center gap-3">
-              <a class="storyhub-card__open" href={hub.href}>open the story →</a>
-              <ul class="storyhub-card__topics">
-                {hub.topics.map((topic) => (
-                  <li>{topic}</li>
-                ))}
-              </ul>
+            <div class="card-body">
+              <p class="course-tag"><i class={'code-' + hub.courseID} aria-hidden="true"></i>{hub.courseLabel}</p>
+              <h4>{hub.title}</h4>
+              <p>{hub.summary}</p>
+              <a class="action" href={hub.href} aria-label={`Open ${hub.activities[0] === 'map' ? 'map' : 'story'}: ${hub.title}`}>
+                {hub.activities[0] === 'map' ? 'Open map' : 'Open story'} <span aria-hidden="true">→</span>
+              </a>
             </div>
-          </div>
-        </article>
-      ))
-    }
+          </article>
+        ))}
+      </div>
+
+      <div class="empty" data-empty hidden>
+        <p class="eyebrow">Try another path</p><h4>No stories match</h4>
+        <p>Try a title, person or topic, or clear your filters.</p>
+        <button class="action" type="button" data-reset>Clear filters <span aria-hidden="true">↻</span></button>
+      </div>
+      <nav class="page-controls" data-pager aria-label="Story library pages" hidden>
+        <button type="button" class="secondary" data-prev><span aria-hidden="true">←</span> Previous</button>
+        <span data-page>Page 1</span>
+        <button type="button" class="secondary" data-next>Next <span aria-hidden="true">→</span></button>
+      </nav>
+    </section>
+
+    <div class="bottom">
+      <p>Every story opens at its original address. Look inside the lesson for its sources.</p>
+      <details><summary>Image notes</summary>
+        <p>The Sarajevo plate is a public-domain illustration by Achille Beltrame, published in <cite>La Domenica del Corriere</cite>, July 5–12, 1914. It is not a photograph. The Jacob Riis cover is a colorized photograph. More notes are inside the original lessons.</p>
+      </details>
+    </div>
   </div>
 </Base>
 
+<script>
+  const root = document.querySelector<HTMLElement>('[data-story-library]');
+  if (root) {
+    const required = <T extends HTMLElement = HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
+    const controls = required('[data-filters]');
+    const search = required<HTMLInputElement>('[data-query]');
+    const activity = required<HTMLSelectElement>('[data-activity]');
+    const courses = [...root.querySelectorAll<HTMLButtonElement>('[data-course]')];
+    const results = required('#story-library-results');
+    const count = required('[data-count]');
+    const clear = required('.result-bar [data-reset]');
+    const empty = required('[data-empty]');
+    const pager = required('[data-pager]');
+    const previous = required<HTMLButtonElement>('[data-prev]');
+    const next = required<HTMLButtonElement>('[data-next]');
+    const current = required('[data-page]');
+    const narrow = matchMedia('(max-width: 740px)');
+    const fold = (value: string) => value.toLowerCase().normalize('NFKD')
+      .replace(/\p{M}/gu, '').replace(/[’']/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const normalizeWars = (text: string) => text
+      .replace(/\b(?:wwii|ww2|world war (?:ii|2|two)|second world war)\b/g, 'worldwar2')
+      .replace(/\b(?:wwi|ww1|world war (?:i|1|one)|first world war|great war)\b/g, 'worldwar1');
+    const wars = new Set(['worldwar1', 'worldwar2']);
+    const cards = [...root.querySelectorAll<HTMLElement>('[data-entry]')].map((element) => {
+      const key = fold(`${element.textContent} ${element.dataset.terms}`);
+      return { element, course: element.dataset.class, activities: element.dataset.mode!.split(' '),
+        key, words: new Set(normalizeWars(key).split(' ')) };
+    });
+    let course = 'all';
+    let page = 0;
+    let size = narrow.matches ? 2 : 3;
+
+    function render() {
+      const terms = normalizeWars(fold(search.value)).split(' ').filter(Boolean);
+      const selected = cards.filter((card) => (course === 'all' || card.course === course)
+        && (activity.value === 'all' || card.activities.includes(activity.value))
+        && terms.every((term) => wars.has(term) ? card.words.has(term) : card.key.includes(term)));
+      const pages = Math.ceil(selected.length / size);
+      page = Math.max(0, Math.min(page, pages - 1));
+      const start = page * size;
+      const visible = new Set(selected.slice(start, start + size));
+      for (const card of cards) card.element.hidden = !visible.has(card);
+      empty.hidden = selected.length > 0;
+      pager.hidden = pages < 2;
+      clear.hidden = !search.value && course === 'all' && activity.value === 'all';
+      previous.disabled = page === 0;
+      next.disabled = page >= pages - 1;
+      current.textContent = `Page ${page + 1} of ${pages}`;
+      count.textContent = selected.length > visible.size
+        ? `${start + 1}–${start + visible.size} of ${selected.length} stories`
+        : `${selected.length} ${selected.length === 1 ? 'story' : 'stories'}`;
+      for (const button of courses) button.setAttribute('aria-pressed', String(button.dataset.course === course));
+    }
+
+    const refilter = () => { page = 0; render(); };
+    const move = (delta: number) => {
+      page += delta;
+      render();
+      results.focus();
+    };
+    search.addEventListener('input', refilter);
+    activity.addEventListener('change', refilter);
+    for (const button of courses) button.addEventListener('click', () => {
+      course = button.dataset.course!;
+      refilter();
+    });
+    for (const button of root.querySelectorAll('[data-reset]')) button.addEventListener('click', () => {
+      search.value = '';
+      activity.value = 'all';
+      course = 'all';
+      refilter();
+      search.focus();
+    });
+    previous.addEventListener('click', () => move(-1));
+    next.addEventListener('click', () => move(1));
+    narrow.addEventListener('change', () => {
+      const previousStart = page * size;
+      size = narrow.matches ? 2 : 3;
+      page = Math.floor(previousStart / size);
+      render();
+    });
+
+    render();
+    controls.hidden = false;
+  }
+</script>
+
 <style>
-  .storyhub-note {
-    border-left: 3px solid var(--color-accent);
-    padding: 0.1rem 0 0.1rem 1rem;
+  /* Only this route uses the preview’s field-atlas surface. The site navigation and footer stay shared. */
+  :global(html:root body:has([data-story-library])) { background: radial-gradient(ellipse at 82% 6%, #25343a 0, transparent 45%), #0e1417; }
+  :global(body:has([data-story-library]) > #main) { padding: 0; max-width: none; }
+  :global(body:has([data-story-library]) .site-header) { background: #111719; color: #f6f0df; border-bottom: 1px solid #435153; }
+  :global(body:has([data-story-library]) .site-header .site-wordmark) { color: #f6f0df; font-family: Georgia, serif; font-weight: 400; }
+  :global(body:has([data-story-library]) .site-header .site-wordmark__mark) { border: 1px solid #9e7d47; background: #292720; color: #efbd6a; box-shadow: none; }
+  :global(body:has([data-story-library]) .site-header .site-wordmark .text-accent) { color: #efbd6a; }
+  :global(body:has([data-story-library]) .site-header nav :is(a,summary):not(.nav-menu *, .bg-accent-soft):not(:hover)) { color: #d2d9ce; }
+  :global(body:has([data-story-library]) .site-header :is(a,summary):focus-visible) { outline: 3px solid #efbd6a; outline-offset: 2px; }
+
+  .story-library {
+    color-scheme:dark; --ground:#0e1417; --panel:#151d21; --paper:#f6f0df; --secondary:#c5c9bd;
+    --muted:#aab7b4; --line:#384445; --gold:#efbd6a; --acid:#e4f866; --acid-dark:#152014;
+    --us:#9fc7df; --hh:#e8b982; --bts:#b8d9a8; --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",sans-serif; --serif:Georgia,"Times New Roman",serif;
   }
-
-  .storyhub-note h2 {
-    color: var(--color-accent-dark);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    font-weight: 750;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+  *,*::before,*::after{box-sizing:border-box}
+  [hidden]{display:none!important}
+  .story-library{width:min(1152px,calc(100% - 40px));margin-inline:auto;color:var(--paper);font-family:var(--sans);line-height:1.5}
+  h1,h2,h3,h4,p,figure{margin:0}
+  a,button,input,select,summary{touch-action:manipulation}
+  a{color:inherit}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  button:disabled{cursor:default}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex="-1"]:focus-visible{outline:3px solid #fff;outline-offset:4px}
+  .signal,.course i,.course-tag i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:4px;vertical-align:1px}
+  .gold{color:var(--gold)}
+  .crumbs{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:.86rem;margin-top:9px}
+  .crumbs a{color:var(--paper);font-weight:640;text-underline-offset:3px;display:inline-flex;gap:7px;align-items:center;min-height:44px}
+  .intro{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:4px 0 19px}
+  .eyebrow{font:650 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+  .cross{margin-right:4px}
+  .divider{width:16px;display:inline-block;border-top:1px solid #927b53;vertical-align:middle;margin:0 5px}
+  h1{font:400 clamp(3.1rem,6.2vw,5.5rem)/.98 var(--serif);letter-spacing:-.072em;margin-top:8px}
+  .intro-note{max-width:270px;font-size:1rem;color:var(--secondary);margin-bottom:4px}
+  .feature{display:grid;grid-template-columns:minmax(0,.83fr) minmax(0,1.17fr);min-height:252px;border:1px solid #646052;border-radius:14px;overflow:hidden;background:
+    linear-gradient(117deg,#27302c 0%,#181e20 52%,#1b2020 100%);position:relative}
+  .feature-copy{padding:24px 28px 24px 30px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;z-index:1}
+  .featured-kicker{margin-bottom:9px;color:#e8dea0}
+  .signal{background:var(--acid);box-shadow:0 0 0 3px #e4f86624;margin-right:8px}
+  .feature-meta{font-size:.8rem;font-weight:650;color:var(--secondary);letter-spacing:.02em;margin-bottom:2px}
+  .feature-meta span{color:var(--gold);margin:0 3px}
+  .feature h2{font:400 clamp(2.1rem,4.1vw,3.6rem)/1.02 var(--serif);letter-spacing:-.063em}
+  .feature-copy>p:last-of-type{color:#e1dfd1;max-width:39ch;margin:9px 0 15px;font-size:.96rem}
+  .action{display:inline-flex;justify-content:space-between;align-items:center;gap:15px;min-height:46px;padding:8px 13px;border:1px solid transparent;border-radius:8px;background:var(--acid);color:#172012;font-weight:800;font-size:.93rem;text-decoration:none;line-height:1.22;transition:background .15s}
+  .action:hover{background:#f3ffa1}
+  .action span{font-size:1.15rem;line-height:1}
+  .action:focus-visible{outline-offset:3px}
+  .feature-image{position:relative;min-width:0;min-height:100%;background:#666454;isolation:isolate}
+  .feature-image img,.card-image img{display:block;width:100%;height:100%;object-fit:cover}
+  .feature-image img{position:absolute;inset:0;object-position:center 36%;filter:saturate(.78)}
+  .feature-image::after{position:absolute;z-index:0;content:"";inset:0;background:linear-gradient(90deg,#1a2020a0,transparent 32%),linear-gradient(0deg,#121819b0,transparent 36%);pointer-events:none}
+  .feature-image figcaption{position:absolute;z-index:1;right:13px;bottom:12px;display:flex;align-items:center;gap:9px;border-radius:4px;background:#182022eb;color:#e8e3cc;padding:5px 8px;font-size:.72rem}
+  .plate-index{color:var(--gold);font:650 .68rem var(--mono);letter-spacing:.05em}
+  .find{margin-top:26px}
+  .find-header{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:12px}
+  .find-header h2{font:400 clamp(2.08rem,3.8vw,3.1rem)/1.03 var(--serif);letter-spacing:-.054em;margin-top:4px}
+  .plain-link,.text-button{min-height:44px;display:inline-flex;gap:5px;align-items:center;color:var(--paper);text-underline-offset:4px;font-size:.84rem;font-weight:650}
+  .text-button{padding:0 3px;text-decoration:underline;border:0;background:transparent;color:var(--acid)}
+  .filters{padding:11px 13px 12px;border-radius:11px;background:#192226;border:1px solid var(--line)}
+  .filter-top{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(180px,1fr);gap:12px}
+  .filter-top label{display:grid;gap:4px;font-size:.77rem;font-weight:700;color:#d8ded0}
+  .search-box{position:relative}
+  .search-box svg{position:absolute;inset:11px auto auto 12px;width:21px;height:21px;stroke:#c7d2cf;fill:none;stroke-width:1.6;stroke-linecap:round;pointer-events:none}
+  .filter-top input,.filter-top select{width:100%;min-height:44px;border:1px solid #65716d;border-radius:7px;background:#0f171a;color:var(--paper);font-size:1rem}
+  .filter-top input{padding:8px 10px 8px 40px}
+  .filter-top input::placeholder{color:#a7b5b0;opacity:1}
+  .filter-top select{padding:6px 9px;color-scheme:dark}
+  .course-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .course{min-height:44px;padding:5px 12px;border:1px solid #626f6c;border-radius:6px;background:#242f32;color:#e1e7df;font-size:.82rem;font-weight:660;display:inline-flex;gap:6px;align-items:center;justify-content:center}
+  .course:hover,.secondary:not(:disabled):hover{background:#394948}
+  .course[aria-pressed="true"]{background:var(--acid);border-color:var(--acid);color:var(--acid-dark);font-weight:820}
+  .course[aria-pressed="true"] i{background:#46624a}
+  .course .code-us,.course-tag .code-us{background:var(--us)}
+  .course .code-hh,.course-tag .code-hh{background:var(--hh)}
+  .course .code-bts,.course-tag .code-bts{background:var(--bts)}
+  .course i,.course-tag i{margin:0}
+  .result-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:7px 0 3px;min-height:44px}
+  .result-bar h3{scroll-margin-top:9rem;font:700 .78rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--paper);margin-right:auto}
+  .result-bar p{font-size:.79rem;color:var(--muted)}
+  .catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .card{border:1px solid #4f5e60;border-radius:11px;background:#192124;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+  .card-image{height:133px;isolation:isolate;position:relative;background:#3d4b48;overflow:hidden}
+  .card-image::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#15322d2c,transparent);pointer-events:none}
+  .card-image img{object-position:center 42%}
+  .card[data-mode~="map"] img{object-position:center 59%}
+  .card[data-entry]:has(a[href$="bts-the-route-tree.html"]) img{object-position:center 37%}
+  .type{position:absolute;z-index:1;bottom:8px;left:9px;padding:4px 7px;background:#172321f0;border:1px solid #9da58c;border-radius:4px;color:#f2ecda;font:700 .65rem var(--mono);letter-spacing:.045em;text-transform:uppercase}
+  .card-body{padding:11px 13px 13px;display:flex;flex-direction:column;align-items:flex-start;flex:1}
+  .card-body .course-tag{display:flex;align-items:center;gap:6px;color:var(--secondary);font-size:.74rem;font-weight:640}
+  .card h4{font:400 clamp(1.36rem,2.3vw,1.8rem)/1.12 var(--serif);letter-spacing:-.034em;margin:4px 0}
+  .card-body>p:not(.course-tag){color:#d6ddd4;font-size:.84rem;margin-bottom:12px}
+  .card .action{margin-top:auto;width:100%}
+  .page-controls{display:flex;justify-content:center;align-items:center;gap:14px;margin:14px 0 0}
+  .page-controls [data-page]{font:600 .75rem var(--mono);white-space:nowrap;color:var(--secondary)}
+  .secondary{min-height:44px;padding:6px 10px;border:1px solid #71817a;border-radius:6px;background:#27342e;color:#f1f2e2;font-size:.84rem;font-weight:700}
+  .secondary:disabled{color:#9ca9a1;border-color:#4e5b55;background:#20282a;cursor:default}
+  .empty{border:1px dashed #7b897d;border-radius:11px;padding:22px;text-align:center;background:#182124}
+  .empty h4{font:400 2rem var(--serif);margin:4px 0}
+  .empty p:not(.eyebrow){color:var(--secondary);margin:0 0 12px}
+  .bottom{display:flex;justify-content:space-between;gap:12px;align-items:start;margin:21px 0 0;padding:13px 0 24px;border-top:1px solid #39474a;color:var(--muted);font-size:.8rem}
+  .bottom p{padding:11px 0}
+  .bottom details{max-width:360px}
+  .bottom summary{cursor:pointer;min-height:44px;display:list-item;align-content:center;color:#ede5cd}
+  .bottom details p{padding:0 0 10px}
+  @media(max-width:740px){
+    .story-library{width:calc(100% - 34px)}
+    .intro{align-items:start;flex-direction:column;gap:7px;margin-top:2px;margin-bottom:14px}
+    .intro-note{max-width:38ch}
+    .feature{min-height:228px;grid-template-columns:1fr 1fr}
+    .feature-copy{padding:17px}
+    .catalog{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
   }
-
-  .storyhub-note p {
-    max-width: 46rem;
-    margin-top: 0.5rem;
-    color: var(--color-ink-soft);
-    line-height: 1.65;
+  @media(max-width:500px){
+    .story-library{width:calc(100% - 26px)}
+    .crumbs{margin-top:3px}
+    .intro-note{font-size:.92rem}
+    .intro .eyebrow{font-size:.61rem}
+    h1{font-size:3.36rem;margin-top:5px}
+    .feature{grid-template-columns:1fr;min-height:unset}
+    .feature-image{height:132px;grid-row:1}
+    .feature-image img{object-position:center 36%}
+    .feature-image::after{background:linear-gradient(0deg,#121819a0,transparent 30%)}
+    .feature-copy{padding:13px 14px 15px}
+    .feature h2{font-size:2.25rem}
+    .feature-copy>p:last-of-type{margin:5px 0 12px}
+    .feature-copy .action{width:100%}
+    .featured-kicker{margin-bottom:3px}
+    .find{margin-top:19px}
+    .find-header{gap:6px;margin-bottom:8px}
+    .find-header h2{font-size:2.06rem}
+    .plain-link{font-size:.72rem;text-align:right}
+    .filters{padding:9px}
+    .filter-top{grid-template-columns:1fr;gap:7px}
+    .course-list{display:grid;grid-template-columns:.82fr 1.18fr;gap:6px}
+    .course{font-size:.735rem;padding-inline:5px;gap:5px}
+    .course-list button:nth-child(3){order:0}
+    .catalog{grid-template-columns:1fr}
+    .card-image{height:126px}
+    .card h4{font-size:1.62rem}
+    .card-body>p:not(.course-tag){margin-bottom:9px}
+    .bottom{flex-direction:column;gap:0}
   }
-
-  .storyhub-card {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .storyhub-card__cover {
-    display: block;
-    overflow: hidden;
-    background: #0b1219;
-  }
-
-  .storyhub-card__cover img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 13rem;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
-
-  .storyhub-card__cover:hover img,
-  .storyhub-card__cover:focus-visible img {
-    transform: scale(1.03);
-  }
-
-  .storyhub-card__body {
-    padding: clamp(1.25rem, 3vw, 1.75rem);
-  }
-
-  .storyhub-card__status {
-    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--color-accent-soft) 70%, white);
-    padding: 0.15rem 0.55rem;
-    color: var(--color-accent-dark);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    font-weight: 750;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .storyhub-card__body h2 a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .storyhub-card__body h2 a:hover {
-    color: var(--color-accent);
-  }
-
-  .storyhub-card__question {
-    max-width: 44rem;
-    margin-top: 0.6rem;
-    color: var(--color-ink);
-    font-size: 1.05rem;
-    font-weight: 600;
-    line-height: 1.45;
-  }
-
-  .storyhub-card__inside {
-    margin-top: 1rem;
-    display: grid;
-    gap: 0.5rem;
-    color: var(--color-ink-soft);
-    font-size: 0.9rem;
-    line-height: 1.55;
-  }
-
-  .storyhub-card__inside li {
-    display: flex;
-    gap: 0.6rem;
-  }
-
-  .storyhub-card__open {
-    border: 2px solid var(--color-ink);
-    padding: 0.45rem 0.85rem;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    text-transform: lowercase;
-    transition:
-      background-color 0.2s ease,
-      color 0.2s ease,
-      border-color 0.2s ease;
-  }
-
-  .storyhub-card__open:hover {
-    border-color: var(--color-accent);
-    background: var(--color-accent);
-    color: white;
-  }
-
-  .storyhub-card__topics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    color: var(--color-ink-soft);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    text-transform: lowercase;
-  }
-
-  .storyhub-card__topics li::after {
-    content: ' /';
-    opacity: 0.45;
-  }
-
-  .storyhub-card__topics li:last-child::after {
-    content: '';
-  }
-
-  /* Special Edition line: Friday feature hubs with their own cover treatment. */
-  .storyhub-card--special {
-    background: #16110f;
-    color: #f4e8cb;
-    border-color: #16110f;
-    box-shadow: 6px 6px 0 #ffdd3c;
-  }
-
-  .storyhub-card--special .storyhub-card__body h2 a:hover {
-    color: #ffdd3c;
-  }
-
-  .storyhub-card--special .storyhub-card__question {
-    color: #f4e8cb;
-  }
-
-  .storyhub-card--special .storyhub-card__body p,
-  .storyhub-card--special .storyhub-card__inside,
-  .storyhub-card--special .storyhub-card__topics,
-  .storyhub-card--special .text-ink-soft {
-    color: #d9ccb4;
-  }
-
-  .storyhub-card--special .text-accent {
-    color: #ffdd3c;
-  }
-
-  .storyhub-card--special .storyhub-card__open {
-    border-color: #ffdd3c;
-    color: #ffdd3c;
-  }
-
-  .storyhub-card--special .storyhub-card__open:hover {
-    background: #ffdd3c;
-    border-color: #ffdd3c;
-    color: #16110f;
-  }
-
-  .storyhub-card__edition {
-    background: #ffdd3c;
-    color: #16110f;
-    padding: 0.15rem 0.55rem;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    font-weight: 750;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-
-  /* ByteSize line: short two-president hubs. Cream card with a bite out of the corner. */
-  .storyhub-card--bytesize {
-    position: relative;
-    background: #fbf4e2;
-    box-shadow: 6px 6px 0 #b3341d;
-  }
-
-  .storyhub-card--bytesize::after {
-    content: '';
-    position: absolute;
-    top: -22px;
-    right: -22px;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--color-paper, #fff);
-    z-index: 2;
-    pointer-events: none;
-  }
-
-  .storyhub-card__bytesize {
-    background: #231c17;
-    color: #f4ead2;
-    padding: 0.15rem 0.55rem;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    font-weight: 750;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  @media (min-width: 900px) {
-    .storyhub-card {
-      grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
-    }
-
-    .storyhub-card__cover img {
-      min-height: 100%;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .storyhub-card__cover img {
-      transition: none;
-    }
-
-    .storyhub-card__cover:hover img,
-    .storyhub-card__cover:focus-visible img {
-      transform: none;
-    }
-  }
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 </style>

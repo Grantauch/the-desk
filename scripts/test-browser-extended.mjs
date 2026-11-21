@@ -4,11 +4,16 @@ import { fileURLToPath } from 'node:url';
 import { preview } from 'astro';
 import AxeBuilder from '@axe-core/playwright';
 import { chromium } from 'playwright';
+import { storyHubs } from '../src/data/storyhubs.ts';
 
 const origin = 'http://127.0.0.1:4392';
 const artifacts = new URL('../browser-results/', import.meta.url);
 const artifact = (name) => fileURLToPath(new URL(name, artifacts));
-const routes = [
+const catalogOnly = process.env.DESK_BROWSER_STORY_LIBRARY_ONLY === '1';
+const storyRoute = '/storyhubs/';
+const protectedStoryLinks = [...storyHubs.map(({ href }) => href), '/hubs/ush9-over-the-somme.html'];
+const firstLook = ['The Other Half', 'They Couldn’t Stop', 'The Route Tree', 'Over the Somme'];
+const routes = catalogOnly ? [storyRoute] : [
   '/about/',
   '/announcements/',
   '/curiosity-desk/',
@@ -20,7 +25,7 @@ const routes = [
   '/news/',
   '/showcase/',
   '/simulations/',
-  '/storyhubs/',
+  storyRoute,
   '/us-history/syllabus/',
   '/hidden-history/syllabus/',
   '/beyond-the-scoreboard/syllabus/',
@@ -42,6 +47,68 @@ const reflowRoutes = [
   'ush9-square-deal',
   'ush9-the-jungle',
 ];
+
+async function testLibrary(page, viewport) {
+  const library = page.locator('[data-story-library]');
+  const visibleTitles = () => library.locator('[data-entry]:visible h4').allTextContents();
+  const pageSize = viewport.width <= 740 ? 2 : 3;
+  assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://grant-desk.com/storyhubs/');
+  const hrefs = await library.locator('[data-entry] a').evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+  assert.deepEqual(hrefs.toSorted(), protectedStoryLinks.toSorted(), 'All current catalog URLs and only the Somme cross-list');
+  assert.equal(new Set(hrefs).size, hrefs.length, 'Every lesson URL has exactly one catalog card');
+  assert.deepEqual(await visibleTitles(), firstLook.slice(0, pageSize), 'Approved top cards, paged for the viewport');
+  const feature = library.getByRole('link', { name: 'Open the story: Thirty-seven Days' });
+  assert.equal(await feature.getAttribute('href'), '/hubs/ush9-bytesize-thirty-seven-days.html');
+  assert.ok(await library.locator('.feature img').evaluate(async (img) => {
+    await img.decode();
+    return img.naturalWidth > 0;
+  }), 'The credited existing Sarajevo plate actually loads');
+
+  const next = library.getByRole('button', { name: 'Next' });
+  await next.focus();
+  assert.equal(await next.evaluate((button) => getComputedStyle(button).outlineStyle), 'solid');
+  await next.press('Enter');
+  assert.equal(await page.evaluate(() => document.activeElement?.id), 'story-library-results');
+  assert.equal((await visibleTitles())[0], firstLook[pageSize]);
+
+  const search = library.getByRole('searchbox', { name: 'Search stories' });
+  const activity = library.getByRole('combobox', { name: 'What do you want to do?' });
+  const us = library.getByRole('button', { name: 'U.S. History', exact: true });
+  await us.press('Space');
+  assert.equal(await us.getAttribute('aria-pressed'), 'true');
+  await activity.selectOption('map');
+  await search.fill('WWI Somme Lochnagar');
+  assert.deepEqual(await visibleTitles(), ['Over the Somme']);
+  const somme = library.getByRole('link', { name: 'Open map: Over the Somme' });
+  assert.equal(await somme.getAttribute('href'), '/hubs/ush9-over-the-somme.html');
+
+  await search.fill('not-a-real-story-xyzzy');
+  assert.deepEqual(await visibleTitles(), []);
+  assert.equal(await library.getByRole('status').textContent(), '0 stories');
+  await library.locator('[data-empty]').getByRole('button', { name: 'Clear filters' }).press('Enter');
+  assert.equal(await search.evaluate((element) => document.activeElement === element), true);
+  assert.equal(await activity.inputValue(), 'all');
+  assert.deepEqual(await visibleTitles(), firstLook.slice(0, pageSize));
+
+  const pearlHarbor = library.locator('[data-entry]:visible a[href="/hubs/hh-dont-worry-about-it.html"]');
+  for (const alias of ['WWI', 'WW1', 'World War I', 'World War One', 'Great War']) {
+    await search.fill(`${alias} Pearl Harbor`);
+    assert.equal(await pearlHarbor.count(), 0, `Pearl Harbor does not match ${alias}`);
+    await search.fill(`${alias} Somme Lochnagar`);
+    assert.deepEqual(await visibleTitles(), ['Over the Somme']);
+  }
+  for (const alias of ['WWII', 'WW2', 'World War II', 'World War Two']) {
+    await search.fill(`${alias} Pearl Harbor`);
+    assert.equal(await pearlHarbor.count(), 1, `Pearl Harbor matches ${alias}`);
+    await search.fill(`${alias} Somme Lochnagar`);
+    assert.deepEqual(await visibleTitles(), []);
+  }
+
+  await library.getByRole('button', { name: 'Beyond the Scoreboard' }).click();
+  await search.fill('boxing Schmeling');
+  assert.ok((await visibleTitles()).includes('Two Minutes, Four Seconds'));
+  assert.equal(await library.locator('[data-entry]:visible:not([data-class="bts"])').count(), 0);
+}
 
 await mkdir(artifacts, { recursive: true });
 const results = [];
@@ -105,6 +172,7 @@ try {
         );
         assert.deepEqual(errors, [], `${route} has no uncaught browser errors`);
         await page.screenshot({ path: artifact(`extended-${viewport.name}-${slug}.png`) });
+        if (route === storyRoute) await testLibrary(page, viewport);
         results.push({ route, viewport: viewport.name, status: 'passed' });
         console.log(`PASS ${viewport.name}: ${route}`);
       } catch (error) {
@@ -114,6 +182,10 @@ try {
       } finally {
         await page.close();
       }
+    }
+    if (catalogOnly) {
+      await context.close();
+      continue;
     }
     for (const slug of reflowRoutes) {
       const route = `/hubs/${slug}.html`;
@@ -207,6 +279,24 @@ try {
       await navPage.close();
     }
     await context.close();
+  }
+
+  const noJS = await browser.newContext({ javaScriptEnabled: false, viewport: viewports[0] });
+  try {
+    await noJS.route('**/*', (route) => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await noJS.newPage();
+    await page.goto(origin + storyRoute);
+    const library = page.locator('[data-story-library]');
+    assert.equal(await library.getByRole('searchbox', { name: 'Search stories' }).count(), 0);
+    const links = await library.locator('[data-entry]:visible a').evaluateAll((entries) => entries.map((entry) => entry.getAttribute('href')));
+    assert.deepEqual(links.toSorted(), protectedStoryLinks.toSorted(), 'Every story remains usable without scripts');
+    results.push({ route: storyRoute, viewport: 'phone-320 no JavaScript', status: 'passed' });
+    console.log('PASS phone-320 no JavaScript: all Story Hubs links remain visible');
+  } catch (error) {
+    results.push({ route: storyRoute, viewport: 'phone-320 no JavaScript', status: 'failed', error: error.stack });
+    console.error(`FAIL phone-320 no JavaScript: ${error.message}`);
+  } finally {
+    await noJS.close();
   }
 
   const failed = results.filter((result) => result.status === 'failed');

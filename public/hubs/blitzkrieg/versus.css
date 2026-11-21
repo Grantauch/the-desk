@@ -1,0 +1,64 @@
+/* 1 v 1 */
+#b-versus { background: linear-gradient(180deg, #33402a, #1f2a17); border-color: #9fbf6a; }
+#b-versus:hover { border-color: var(--gold); }
+.vs-mark { font-family: Oswald, sans-serif; font-weight: 700; color: var(--gold); letter-spacing: 0.05em; padding: 0.05em 0.4em; border: 1px solid rgba(255,207,74,0.5); border-radius: 0.3em; font-size: 0.85em; }
+
+#versus { background: linear-gradient(90deg, rgba(8,7,5,0.94) 0%, rgba(8,7,5,0.78) 45%, rgba(8,7,5,0.2) 80%); align-items: flex-start; padding-left: 5em; }
+.vs-lobby { max-width: 34em; display: flex; flex-direction: column; gap: 0.7em; align-items: flex-start; }
+.vs-lobby h2 { font-family: Oswald, sans-serif; font-size: 4.2em; letter-spacing: 0.06em; margin: 0; line-height: 1; }
+.vs-how { color: var(--cream); font-size: 1.2em; line-height: 1.35; margin: 0 0 0.3em; max-width: 30em; }
+.vs-menu { width: 19em; }
+.vs-menu button:disabled { opacity: 0.45; cursor: default; }
+.vs-join { display: grid; grid-template-columns: 1fr auto; gap: 0.4em; align-items: end; margin-top: 0.3em; }
+.vs-join label { grid-column: 1 / -1; font-family: Oswald, sans-serif; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.85em; color: var(--mute); }
+.vs-join input { font-family: Oswald, sans-serif; font-size: 1.6em; letter-spacing: 0.35em; text-transform: uppercase; background: rgba(8,7,5,0.7); color: var(--cream); border: 1px solid var(--line); border-radius: 0.3em; padding: 0.2em 0.4em; width: 100%; box-sizing: border-box; user-select: text; -webkit-user-select: text; }
+.vs-join input:focus { outline: none; border-color: var(--gold); }
+.vs-join button { justify-content: center; }
+.vs-status { min-height: 1.5em; font-size: 1.15em; color: var(--cream); display: flex; flex-direction: column; gap: 0.35em; align-items: flex-start; }
+.vs-status.busy > span:first-child::after { content: ""; display: inline-block; width: 1.2em; text-align: left; animation: vsdots 1.2s steps(4) infinite; }
+@keyframes vsdots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+.vs-code { font-family: Oswald, sans-serif; font-size: 3.6em; letter-spacing: 0.3em; color: var(--gold); line-height: 1; user-select: text; -webkit-user-select: text; }
+.vs-cancel { font-family: Oswald, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; background: var(--panel); border: 1px solid var(--line); border-radius: 0.4em; padding: 0.3em 0.9em; }
+.vs-cancel:hover { border-color: var(--gold); }
+#vs-back { margin-top: 0.4em; }
+
+/* battle bar */
+body.vs-on #b-pause, body.vs-on #b-speed { display: none; }
+body.vs-on #toasts { top: 8.4em; }
+body.vs-on #buffs { top: 8.4em; }
+body.vs-on #bossbar { top: 8.6em; }
+#vs-bar { position: absolute; top: 3.45em; left: 50%; transform: translateX(-50%); display: flex; align-items: stretch; gap: 0.4em; padding: 0.3em; background: var(--panel); border: 1px solid var(--line); border-radius: 0.5em; box-shadow: 0 0.3em 1em rgba(0,0,0,0.45); z-index: 6; }
+.vs-opp, .vs-income { display: flex; align-items: center; gap: 0.55em; padding: 0 0.6em; border-radius: 0.35em; background: rgba(8,7,5,0.55); font-family: Oswald, sans-serif; white-space: nowrap; }
+.vs-opp span, .vs-income span { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.vs-opp b, .vs-income b { font-size: 1.3em; }
+.vs-opp small, .vs-income small { font-family: "Barlow Condensed", sans-serif; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mute); }
+.vs-tag { font-weight: 700; color: #ff7b66; letter-spacing: 0.08em; font-size: 1.05em; }
+.vs-opp.hurt .vs-o-gar b { color: #ff7b66; animation: bump 0.6s infinite alternate; }
+.vs-o-away { font-size: 0.85em; color: var(--gold); }
+.vs-income svg { width: 1.9em; height: 1.9em; }
+.vs-income b { color: var(--gold); }
+.vs-sends { display: flex; gap: 0.25em; }
+.vs-sends button { position: relative; width: 3.6em; height: 3.6em; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; background: rgba(40,20,16,0.85); border: 1px solid rgba(255,123,102,0.35); border-radius: 0.35em; padding: 0 0 0.15em; overflow: hidden; }
+.vs-sends button img { position: absolute; top: 0.1em; left: 50%; transform: translateX(-50%); width: 2.3em; height: 2.3em; object-fit: contain; filter: drop-shadow(0 0.1em 0.15em rgba(0,0,0,0.7)); }
+.vs-sends button:hover:not(:disabled) { border-color: var(--gold); background: rgba(70,30,22,0.95); }
+.vs-sends .sn { display: none; }
+.vs-sends .sc { position: relative; font-family: Oswald, sans-serif; font-size: 0.95em; line-height: 1; color: var(--cream); text-shadow: 0 0.1em 0.2em #000; }
+.vs-sends .se { position: absolute; top: 0.1em; right: 0.2em; font-family: Oswald, sans-serif; font-size: 0.7em; color: var(--green); text-shadow: 0 0.1em 0.2em #000; }
+.vs-sends .sl { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; font-family: Oswald, sans-serif; font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--cream); background: rgba(8,7,5,0.72); }
+.vs-sends button.locked { cursor: default; }
+.vs-sends button.locked .sl { display: flex; }
+.vs-sends button.poor:not(.locked) { opacity: 0.5; }
+.vs-sends button.poor:not(.locked) .sc { color: #ff7b66; }
+.vs-sends button.cool img { opacity: 0.5; }
+.vs-sends button.fired { animation: vsfire 0.35s ease-out; }
+@keyframes vsfire { 0% { transform: scale(0.88); box-shadow: 0 0 0 0 rgba(255,207,74,0.9); } 100% { transform: scale(1); box-shadow: 0 0 0 0.6em rgba(255,207,74,0); } }
+.vs-quit { font-family: Oswald, sans-serif; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8em; padding: 0 0.7em; background: rgba(8,7,5,0.55); border: 1px solid var(--line); border-radius: 0.35em; color: var(--mute); }
+.vs-quit:hover { color: var(--cream); border-color: var(--line); }
+.vs-quit.arm { color: #fff; background: #8c2016; border-color: #ff8a70; }
+.vs-link { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 0.4em; white-space: nowrap; background: #8c2016; border: 1px solid #ff8a70; border-radius: 0.35em; padding: 0.25em 0.8em; font-family: Oswald, sans-serif; letter-spacing: 0.06em; }
+.vs-link.hidden, .vs-o-away.hidden { display: none; }
+
+#vs-result h2 { font-size: 3.6em; }
+#vs-result.win h2 { color: var(--gold); }
+#vs-result.lose h2 { color: #ff7b66; }
+.vs-why { font-size: 1.3em; margin: 0; color: var(--cream); }

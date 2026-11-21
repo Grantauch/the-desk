@@ -1,0 +1,23 @@
+---
+import { visualOf, type StoryEdition } from '../../lib/storyhub/model';
+import ArchivalFigure from './ArchivalFigure.astro';
+interface Props { story: StoryEdition; id: string; title: string; intro: string; pair: [string, string]; labels: [string, string]; }
+const { story, id, title, intro, pair, labels } = Astro.props;
+---
+<section class="sh-comparison" {id} aria-labelledby={id + '-heading'} data-photo-compare>
+  <h3 id={id + '-heading'}>{title}</h3>
+  <p>{intro}</p>
+  <div class="sh-inline-tabs" aria-label="Compare views" role="group" data-enhance hidden>
+    <button type="button" data-photo-view="a" aria-pressed="false">{labels[0]}</button>
+    <button type="button" data-photo-view="both" aria-pressed="true">Side by side</button>
+    <button type="button" data-photo-view="b" aria-pressed="false">{labels[1]}</button>
+  </div>
+  <div class="sh-comparison-grid" data-comparison-grid data-view="both">
+    {pair.map((key, i) => (
+      <div data-comparison-side={i === 0 ? 'a' : 'b'}>
+        <h4 class="sh-label">{labels[i]}</h4>
+        <ArchivalFigure {story} visual={visualOf(story, key)} sizes="(max-width: 620px) 90vw, 42vw" />
+      </div>
+    ))}
+  </div>
+</section>

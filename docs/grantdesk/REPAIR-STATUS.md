@@ -1,3 +1,9 @@
+## November 21 Story Hubs library redesign
+
+Scope: the approved field-atlas library only. The existing 77 Story Hub links remain unchanged. The new Somme listing points to its existing public map and does not change its other listings or lesson. The library adds search, course and activity filters, and responsive paging. Without JavaScript it shows all 78 original destinations. Art uses existing public assets with the Sarajevo illustration credited in the library and full provenance retained in the lessons. No lesson content, assignment systems, or globe homepage changed.
+
+Production build, static link and sealed-asset checks, and focused Chromium at 320, 390 and 1440 pixels passed locally. Exact-head protected CI, production publication and classroom-device acceptance remain separate gates.
+
 ## November 18 Curiosity Desk catalog outage repair
 
 Owner Codex, issue #411. The catalog function now returns one explicitly labeled selected archive record from the existing reviewed data for each collection when the Library of Congress is unavailable, empty, malformed or restricted. Live records remain preferred. Archive responses are not cached, allowing the next request to recover. The browser retains its selected artifact and source links without repeating the upstream request after an explicit server fallback. Live-data validation still reports degraded catalog health when selected records are served.
@@ -801,3 +807,9 @@ Owner Codex, PR #415 / tracker P415. The Route Tree chooser leads to balanced A/
 Focused Chromium passed at 320, 390 and 1440 pixels with ordinary/reduced motion, keyboard image controls, native disclosures, fit and WCAG A/AA. Synthetic accounts running the real Turn In code passed complete A/B saving, refresh, cross-device restoration, two submissions, shared-device isolation and recovery of the five original responses. No real student service was contacted.
 
 Release review reproduced 109 invisible narrative elements without JavaScript: the preserved edition had lost its original `no-js` class. Restoring the class in the HTML and authoring script fixes the failing regression; the release manifest is resealed. The browser server also uses the platform path separator for Windows/Linux parity. Full canonical `npm run verify` exited 0 on the integrated source: 55 built routes, 186 HTML files and 5,997 local references. Earlier protected checks passed the author's head; these release fixes still require fresh exact-head protected checks, normal merge and exact Netlify/live-browser proof. Physical classroom acceptance remains pending.
+
+## Pearl Harbor Story Hub 2.0
+
+Owner Codex, branch feat/pearl-harbor-storyhub. The Astro edition adds a historical briefing, twelve documentary chapters and a reusable contextual dock. The scope is open exploration. The companion, captioned media, historical data, source notes and implementation guide are part of this change.
+
+Focused built-browser checks passed for desktop and touch widths through 320 pixels, keyboard and touch controls, map and timeline synchronization, reading position, reduced motion, interrupted media and fallbacks. The current candidate goes through the protected full site gate, followed by a Netlify revision check and an independent test on grant-desk.com. Managed Chromebook and classroom acceptance remain open.

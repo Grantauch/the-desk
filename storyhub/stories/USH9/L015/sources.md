@@ -8,7 +8,7 @@ This StoryHub follows four major labor conflicts from 1877 through 1894 and comp
 - **Statement of the Pullman strikers to the American Railway Union convention, June 1894.** Printed in the United States Strike Commission's *Report on the Chicago Strike of June and July 1894*. Used for the workers' description of their wage/rent situation and their statement that they struck because they were without hope.
 - **August Spies, scaffold statement, November 11, 1887.** The line used in the lesson is also inscribed on the Haymarket Martyrs' Monument in Forest Park, Illinois.
 - ***In re Debs*, 158 U.S. 564 (1895).** Supreme Court decision of May 27, 1895 upholding federal authority used in the Pullman dispute.
-- **Federal injunction of July 2, 1894.** United States Circuit Court for the Northern District of Illinois; Judges Peter S. Grosscup and William A. Woods. Used for the scope of the order against American Railway Union officers.
+- **[Federal injunction of July 2, 1894](https://www.fjc.gov/sites/default/files/trials/debs.pdf).** United States Circuit Court for the Northern District of Illinois; Judges Peter S. Grosscup and William A. Woods. The writ named union officers and prohibited interference with interstate rail traffic and mail.
 - **Andrew Carnegie, “An Employer's View of the Labor Question,” *The Forum* (1886).** Used for the documented contrast between Carnegie's published defense of workers' right to combine and the later Homestead lockout under Frick.
 - **Governor John Peter Altgeld, pardon message, June 26, 1893.** Used for the later official criticism of the Haymarket trial and the pardons of Fielden, Neebe, and Schwab.
 
@@ -18,6 +18,7 @@ This StoryHub follows four major labor conflicts from 1877 through 1894 and comp
 - **West Virginia Encyclopedia — Railroad Strike of 1877.** Supports the Martinsburg sequence: local militia, Governor Mathews's arrival, and federal troops reaching the city on July 19.
 - **Library of Congress — This Month in Business History, Homestead Strike.** Used for the Homestead chronology and broad context.
 - **Federal Judicial Center — *In re Debs* teaching materials.** Used for the injunction/contempt framework and federal-court chronology.
+- **[Presidential Proclamation 9233](https://www.govinfo.gov/content/pkg/CFR-2016-title3-vol1/pdf/CFR-2016-title3-vol1-proc9233.pdf).** Estimates that about 250,000 workers in 27 states were affected by the Pullman strike at its peak. These are strike figures, not a count of the people covered by the injunction.
 - **Illinois Labor History Society — Haymarket Affair.** Used for event chronology and biographical context.
 - **National Park Service — Pullman National Historical Park.** Used for the company-town structure and to avoid the persistent but incorrect claim that Pullman paid workers in company scrip.
 - **Battle of Homestead Foundation — Homestead Works timeline.** Used for the lockout, Pinkerton landing, state-militia occupation, and strike chronology.
@@ -40,7 +41,7 @@ Narrative scene images for this lesson are planned separately in `assets.json`. 
 ## Restored archival images for A02 and A04
 
 - **Martinsburg (A15):** *The Great Strike—Blockade of Engines at Martinsburg, West Virginia*, wood engraving from *Harper’s Weekly*, August 11, 1877, after a photograph by D. Bendann. [Library of Congress record LCCN 00649601](https://www.loc.gov/item/00649601/). The source is **an engraving**, not a surviving photograph. Locally hosted derivative sourced through Lapham’s Quarterly historical reproduction.
-- **Pittsburgh (A16):** Photograph of the ruined Pennsylvania Railroad Union Depot after the fire of 1877, from the Jones & Laughlin Steel Corporation Photographs collection, Detre Library & Archives at the Heinz History Center. [Belt Magazine, historical photograph with attribution](https://beltmag.com/great-railroad-strike-pittsburgh-pennsylvania-labor/). Photograph records damage after the fire; it does **not** depict the roundhouse burning.
+- **Pittsburgh (A16):** *The Great Strike—Destruction of the Union Depot and Hotel at Pittsburgh*, wood engraving from a drawing by Fred. B. Schell, *Harper’s Weekly*, vol. XXI, no. 1076, August 11, 1877, printed p. 621 (scan leaf 4). [Original issue and caption](https://archive.org/details/sim_harpers-weekly_harpers-weekly_1877-08-11_21_1076/page/n4/mode/1up) · [Matching public-domain scan used to prepare the local image](https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Destruction_of_the_Union_Depot.jpg). The print depicts the fire as interpreted by a newspaper artist, not a photograph or an image of the aftermath.
 
 Both are period sources displayed as evidence. The previous illustrative SVGs remain at their old public URLs for compatibility but no longer display in the student-facing scenes.
 

@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l015-who-showed-up.html",
-      "bytes": 86193,
-      "sha256": "c0701ecd628d57a8139daf82b856c438e514b2d668ae5709662c038f489333f1"
+      "bytes": 86399,
+      "sha256": "43cc139c6b14d7fb8b54b8554c93b8893d213579856659af4a6ece3664c0295f"
     },
     {
       "assetId": "A01",
@@ -107,8 +107,8 @@
     {
       "assetId": "A16",
       "path": "/storyhub/ush9/l015/assets/a04-pittsburgh-1877.jpg",
-      "bytes": 245673,
-      "sha256": "d3f25bb6e221199167a1c3a2ac02cf1233352cec80dc08d5eabd6c9596242ed4"
+      "bytes": 415261,
+      "sha256": "f6d55bcf36f16d05b42444c7ee6ac003c82c77051e6a365a20492b75c62c96dc"
     },
     {
       "assetId": "A17",
@@ -129,6 +129,6 @@
       "sha256": "c4fe80d855b466f20574df4f03b7457904fe2d0566cc3f01d3d4630b41eeed65"
     }
   ],
-  "totalBytes": 1616676,
+  "totalBytes": 1786470,
   "sealedAt": "2026-11-21"
 }
