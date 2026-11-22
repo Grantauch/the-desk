@@ -778,7 +778,7 @@ function render2d(t){
  // Solo landscape zooms into the play for legibility; with two or more human
  // seats, every skater and both goalies must remain inside the full-rink view.
  const tracking=portrait&&followActive();
- const scale=portrait?(tracking?Math.min(W/25,H/(46*depth)):multiplayer?Math.min(W/36,H/(76*depth)):Math.min(W/29.5,H/(59*depth))):multiplayer?Math.min(W/34,H/(70*depth)):Math.min(W/30,H/(36*depth));
+ const scale=portrait?(tracking?Math.min(W/25,H/(46*depth)):multiplayer?Math.min(W/36,H/(76*depth)):Math.min(W/29.5,H/(59*depth))):multiplayer?Math.min(W/34,H/(78*depth)):Math.min(W/30,H/(36*depth));
  camFocus=multiplayer?0:lerp(camFocus,!portrait||tracking?cameraTarget():0,.085);
  camFocusZ=multiplayer?0:lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.085);
  const cx=W/2,cy=portrait?H*.49:H*.535;
@@ -864,7 +864,7 @@ function render2d(t){
 function roundRect(ctx,x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 
 function renderScene(t){if(fallback2d){render2d(t);return}let mobile=W<=760||asp<.75,multiplayer=activeHumans>1,tracking=mobile&&followActive();
- let halfY=mobile?(tracking?24.5:multiplayer?47:35):multiplayer?33:16.7,halfX=halfY*asp;
+ let halfY=mobile?(tracking?24.5:multiplayer?47:35):multiplayer?38:16.7,halfX=halfY*asp;
  camFocus=multiplayer?0:lerp(camFocus,!mobile||tracking?cameraTarget():0,.047);
  camFocusZ=multiplayer?0:lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.047);let look=mat.look(V(camFocus-28,48,camFocusZ),V(camFocus,0,camFocusZ));vp=mat.mul(mat.ortho(-halfX,halfX,-halfY,halfY,.1,150),look);gl.clearColor(.018,.055,.089,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);rink();
 for(let i=0;i<trail.length;i++){let q=trail[i];disk(q.x,.035,q.z,.10,C.white,(1-q.t/.4)*.25)}
