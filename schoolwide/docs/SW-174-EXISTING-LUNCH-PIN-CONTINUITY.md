@@ -25,6 +25,7 @@ The credential-continuity planner currently receives **redacted coverage** (whet
 - `T-PIN-013` to `T-PIN-016`: exact 5/6-digit strings and leading zeros.
 - `T-PIN-017` to `T-PIN-019`: pending/inactive enrollment gating and two-teacher isolation.
 - `SW-174` crypto unit test: independent reproduction of the Apps Script source digest without real salts/PINs.
+- `T-PIN-022` database-backed fictional import: insert a synthetic Apps Script-format hash, verify that the same six-digit PIN authorizes Check-In, upgrades the verifier to strong scrypt on successful authentication, and still authorizes another class without a replacement PIN. This test is **not** a real-data importer or a deployed authentication bridge.
 - `SW-174` continuity integration: source `hasCredential=true` with no Schoolwide verifier reports **REVIEW**, even when identity matches; all mapped students already having active Schoolwide verifier records may report PASS without altering hashes or versions. Neither result substitutes for same-PIN live functional proof.
 
 ## Remaining deployment decision
