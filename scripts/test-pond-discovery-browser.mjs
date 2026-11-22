@@ -50,8 +50,11 @@ async function run(viewport) {
   try {
     const response = await page.goto(url, { waitUntil: "load" });
     assert.equal(response.status(), 200);
+    // The first impression is an intentional, typed HTML fieldbook; no
+    // synthetic illustration or misleading scientific instrumentation.
+    await page.getByRole("heading", { name: /A little water.*A whole world/ }).waitFor();
     await page.getByRole("button", { name: "Make a mess" }).click();
-    await page.getByRole("heading", { name: /Make a living world/ }).waitFor();
+    await page.getByRole("heading", { name: /Begin with a drop/ }).waitFor();
     // Desktop keeps three concurrent columns. Mobile presents the pond and
     // ONE real workbench panel, without mounting duplicate stateful controls.
     const mobile = viewport.width <= 800;
@@ -79,6 +82,12 @@ async function run(viewport) {
       assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
     }
     assert.ok(await page.locator(".field-stage-plinth").isVisible(), "bespoke glass field stage must render");
+    assert.ok(await page.getByText("THE POND · YOUR LITTLE WORLD").isVisible());
+    const plate = page.locator(".field-panel").first();
+    const plateColor = await plate.evaluate(el => getComputedStyle(el).backgroundColor);
+    // Workbench panels should read as paper, not generic black dashboard cards.
+    assert.notEqual(plateColor, "rgb(0, 0, 0)");
+    assert.ok(await page.locator(".field-brand .field-monogram").isVisible(), "Pond has a bespoke typographic mark");
     // The field route makes the previously separate workbenches reachable
     // without rewriting any physics, recipes, world, or save state.
     const stations = page.getByRole("navigation", { name: "Pond field workflow" });
@@ -116,6 +125,10 @@ async function run(viewport) {
     await stations.getByRole("button", { name: "Go to discovery mixing" }).click();
     await page.getByRole("button", { name: "Mix Fire" }).click();
     await page.getByRole("button", { name: "Mix Water" }).click();
+    const catalogMark = page.locator(".field-specimen-card svg").first();
+    assert.ok(await catalogMark.isVisible());
+    assert.ok((await catalogMark.locator("rect").count()) >= 1,
+      "catalog marks are engraved abstract symbols rather than generated cartoon portraits");
     await page.getByText(/Fire \+ Water = Steam/).waitFor();
     assert.ok(await page.getByRole("button", { name: "Place in pond" }).isVisible());
     await page.getByRole("button", { name: "Place in pond" }).click();
