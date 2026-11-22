@@ -135,8 +135,25 @@ const results=[];
       window.__icebreakVirtualPads[0]=null;
       f.pollGamepads();
       const disconnected=f.inputFor('pad0'),unaffected=f.inputFor('pad1');
+      // Force a frame at the actual multiplayer zoom. Render-only markers
+      // must expose all eight players, not just the six outfield skaters.
+      f.render(.28);f.updateHUD();f.possessionHUD();
+      document.getElementById('prompt').classList.remove('show');
+      const nodes=[...document.querySelectorAll('.player-marker')].filter(n=>!n.hidden);
+      const markerSeats=nodes.map(n=>Number(n.textContent.match(/P([1-8])(?:\\b|$)/)?.[1])).sort((a,b)=>a-b);
+      const occluders=[document.querySelector('.topbar'),document.getElementById('possessionReadout')];
+      if(innerWidth<=760)occluders.push(document.querySelector('.dpad'),document.querySelector('.actions'));
+      const boxes=occluders.filter(Boolean).filter(n=>!n.hidden&&getComputedStyle(n).display!=='none').map(n=>n.getBoundingClientRect());
+      const crosses=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+      const goalieMarkers=nodes.filter(n=>/P(?:4|8)(?:\\b|$)/.test(n.textContent));
+      const goalieSafe=goalieMarkers.length===2&&goalieMarkers.every(n=>{
+       const rect=n.getBoundingClientRect();
+       return rect.left>=0&&rect.right<=innerWidth&&rect.top>=0&&rect.bottom<=innerHeight
+        &&boxes.every(box=>!crosses(rect,box));
+      });
       return {devices,inputs,finite,moved,pad0:{axisX:disconnected.axisX,axisY:disconnected.axisY,burst:disconnected.burst},
-       pad1:unaffected.axisX,seatCount:document.getElementById('seatCount').textContent};
+       pad1:unaffected.axisX,seatCount:document.getElementById('seatCount').textContent,
+       markerSeats,goalieSafe,goalieMarkers:goalieMarkers.map(n=>({label:n.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}))};
      });
      assert.equal(new Set(pads.devices).size,8);
      assert.equal(pads.devices.length,8);
@@ -147,6 +164,9 @@ const results=[];
      assert.equal(pads.pad0.burst,false);
      assert.ok(Math.abs(pads.pad1)>.2,'disconnect must not erase another controller input');
      assert.match(pads.seatCount,/8 HUMANS/);
+     assert.deepEqual(pads.markerSeats,[1,2,3,4,5,6,7,8],
+      'multiplayer camera must keep all eight human position markers visible');
+     assert.equal(pads.goalieSafe,true,'both goalie markers must clear the HUD, touch controls, and screen edges: '+JSON.stringify(pads.goalieMarkers));
      // Goalies share the same Gamepad API but A is a puck clear, not a
      // regular outfield pass. The position stays inside the goal crease.
      const goalie=await page.evaluate(()=>{
