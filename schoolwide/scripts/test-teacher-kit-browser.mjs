@@ -103,8 +103,8 @@ try {
   await call('Page.navigate', { url: html });
   await waitForPage();
   const desktop = await evaluate('({width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth})');
-  assert.equal(desktop.width, 1440);
-  assert.equal(desktop.scrollWidth, desktop.width, 'Desktop preview must not overflow');
+  assert.ok(desktop.width >= 1400 && desktop.width <= 1440, 'Desktop width must account for OS scrollbar');
+  assert.equal(desktop.scrollWidth, desktop.width, 'Desktop preview must not overflow horizontally');
   assert.equal(await evaluate('document.querySelector("[data-page]:not([hidden])").getAttribute("data-page")'), '0');
 
   console.log(JSON.stringify({
