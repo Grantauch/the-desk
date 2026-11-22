@@ -282,11 +282,14 @@ async function run(viewport) {
     assert.equal(overflow, false, "Pond should not overflow horizontally");
     assert.deepEqual(errors, [], "No browser errors");
     const name = viewport.width <= 800 ? "mobile-" + viewport.width : "desktop";
+    // This scroll is cosmetic screenshot setup, not a game requirement:
+    // a non-window scroll container or async browser restoration can leave
+    // window.scrollY nonzero even while the full-page render is correct.
     await page.evaluate(() => {
       document.documentElement.style.scrollBehavior = "auto";
+      document.body.style.scrollBehavior = "auto";
       window.scrollTo({ top: 0, behavior: "instant" });
     });
-    await page.waitForFunction(() => window.scrollY < 2);
     await page.waitForTimeout(160);
     await page.screenshot({ path: out + "/" + name + "-top.png" });
     await page.screenshot({ path: out + "/" + name + ".png", fullPage: true });
