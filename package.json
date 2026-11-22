@@ -26,7 +26,7 @@
     "league:test": "node scripts/test-the-league.mjs",
     "square-deal:test": "node scripts/test-square-deal.cjs",
     "blacktop:test": "node scripts/test-blacktop-art.cjs && node scripts/test-blacktop-audio.cjs && node scripts/test-blacktop-assets.cjs && node scripts/test-blacktop-gameplay.cjs && node scripts/test-blacktop-poses.cjs && node scripts/test-blacktop-feel.cjs && npm run blacktop:balance",
-    "icebreak:test": "node --test tests/icebreak/checks.cjs tests/icebreak/physics.cjs tests/icebreak/foundation.cjs tests/icebreak/drama.cjs tests/icebreak/first-touch.cjs tests/icebreak/goalie.cjs tests/icebreak/combinations.cjs tests/icebreak/contact-visual.cjs",
+    "icebreak:test": "node --test tests/icebreak/checks.cjs tests/icebreak/physics.cjs tests/icebreak/foundation.cjs tests/icebreak/drama.cjs tests/icebreak/first-touch.cjs tests/icebreak/goalie.cjs tests/icebreak/combinations.cjs tests/icebreak/contact-visual.cjs tests/icebreak/progression.cjs",
     "icebreak:browser": "node tests/icebreak/browser.cjs && node tests/icebreak/first-touch-browser.cjs && node tests/icebreak/goalie-browser.cjs && node tests/icebreak/combinations-browser.cjs && node tests/icebreak/contact-visual-browser.cjs",
     "storyhub:browser:test": "node scripts/test-storyhub-release-browser.mjs",
     "storyhub:pearl:browser": "node scripts/test-pearl-harbor-browser.mjs",
