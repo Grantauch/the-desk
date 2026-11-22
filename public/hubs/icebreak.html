@@ -76,6 +76,7 @@ const SKATE=Object.freeze({acceleration:34,topSpeed:10.2,burstAcceleration:46,bu
   quickTurnUnder:3.4,quickTurnBoost:.55});
 const CONTACT=Object.freeze({bodyRadius:.54,goalieRadius:.64,restitution:.12,boardRetention:.15});
 const IMPACT_FEEL=Object.freeze({minVisual:.45,baseDuration:.18,addedDuration:.14,bodyRecoil:.23,ringExpand:.72});
+const reducedImpactMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 // Mass is relative to a center. Impact thresholds use reduced-mass energy in game units.
 const CHECK=Object.freeze({
  window:.29,cooldown:.76,effortRecovery:.72,minEnergy:.12,baseCost:.17,speedCost:.21,
@@ -258,7 +259,7 @@ function registerImpact(p,nx,nz,energy,share=1){
 }
 function impactPose(p){
  if(p.impactTime<=0||p.impactSpan<=0)return 0;
- return Math.sin(Math.PI*clamp(1-p.impactTime/p.impactSpan,0,1))*p.impactPower;
+ return Math.sin(Math.PI*clamp(1-p.impactTime/p.impactSpan,0,1))*p.impactPower*(reducedImpactMotion?.25:1);
 }
 function impactSound(energy){
  if(energy<CHECK.wobble)return;
@@ -657,7 +658,7 @@ if(p.device!=='ai'&&phase!=='menu'){ring(p.x,.045,p.z,1.17,C.cyan,.96);disk(p.x,
 if(p.has)ring(p.x,.052,p.z,.91,C.gold,1);
  if(passPreview(control)===p&&p!==control)ring(p.x,.047,p.z,1.35,C.cyan,.82);
  if(p.oneTimerFlash>0)ring(p.x,.072,p.z,1.57,C.gold,p.oneTimerFlash/.34);
- if(p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
+ if(!reducedImpactMotion&&p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
   const fade=p.impactTime/p.impactSpan,col=p.impactTier>=2?C.gold:p.impactTier>=1?C.redLight:C.white;
   ring(p.x,.065,p.z,1.08+(1-fade)*IMPACT_FEEL.ringExpand,col,fade*p.impactPower*.75);
  }
@@ -777,7 +778,7 @@ function render2d(t){
   if(p.has){ctx.strokeStyle='#ffe379';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.stroke()}
    if(passPreview(control)===p&&p!==control){ctx.strokeStyle='#61dfff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.stroke()}
    if(p.oneTimerFlash>0){ctx.strokeStyle='#ffd966';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,24,0,Math.PI*2);ctx.stroke()}
-   if(p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
+   if(!reducedImpactMotion&&p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
     const fade=p.impactTime/p.impactSpan;
     ctx.strokeStyle=p.impactTier>=2?'#ffcf65':p.impactTier>=1?'#ff937d':'#ffffff';
     ctx.globalAlpha=fade*p.impactPower*.8;ctx.lineWidth=2+p.impactTier;
