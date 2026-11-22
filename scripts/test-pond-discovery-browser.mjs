@@ -53,6 +53,7 @@ async function run(viewport) {
     // The first impression is an intentional, typed HTML fieldbook; no
     // synthetic illustration or misleading scientific instrumentation.
     await page.getByRole("heading", { name: /A little water.*A whole world/ }).waitFor();
+    await page.waitForTimeout(480); // allow intentional first-run entrance motion to settle
     await page.screenshot({ path: out + "/" + (viewport.width <= 800 ? "mobile-" + viewport.width : "desktop") + "-welcome.png" });
     await page.getByRole("button", { name: "Make a mess" }).click();
     await page.getByRole("heading", { name: /Begin with a drop/ }).waitFor();
@@ -281,8 +282,12 @@ async function run(viewport) {
     assert.equal(overflow, false, "Pond should not overflow horizontally");
     assert.deepEqual(errors, [], "No browser errors");
     const name = viewport.width <= 800 ? "mobile-" + viewport.width : "desktop";
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      document.documentElement.style.scrollBehavior = "auto";
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+    await page.waitForFunction(() => window.scrollY < 2);
+    await page.waitForTimeout(160);
     await page.screenshot({ path: out + "/" + name + "-top.png" });
     await page.screenshot({ path: out + "/" + name + ".png", fullPage: true });
     console.log("PASS Pond discovery, placement, undo, autosave, export on " + name);
