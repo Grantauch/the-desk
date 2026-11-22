@@ -67,6 +67,18 @@ jobs:
 
       - name: Verify Schoolwide foundation
         run: npm run verify
+      - name: Verify offline teacher preview and build reproducible training-only ZIP
+        run: python3 scripts/test-teacher-kit.py && python3 scripts/build-teacher-kit.py && python3 scripts/build-teacher-kit.py --verify
+
+      - name: Upload PRELAUNCH teacher preview (not a student installer)
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: schoolwide-teacher-prelaunch-v0.1.0-${{ github.sha }}
+          path: schoolwide/out/Schoolwide_Teacher_Prelaunch_v0.1.0.zip
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Create isolated synthetic classroom-load database
         run: node scripts/prepare-ci-load-db.mjs
 
