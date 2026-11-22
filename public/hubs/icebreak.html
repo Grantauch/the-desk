@@ -216,7 +216,7 @@ const SHIFT_CHALLENGES=Object.freeze([
  {id:'shots',label:'Three Shot Shift',metric:'shots',target:3,detail:'Take three shots with your skater in one complete solo match.'},
  {id:'passes',label:'Tape-to-Tape',metric:'passes',target:3,detail:'Complete three intended passes with your skater in one complete solo match.'},
  {id:'checks',label:'Clean Contact',metric:'checks',target:2,detail:'Land two solid puck-disrupting checks in one complete solo match.'},
- {id:'win',label:'Take the Ice',metric:'win',target:1,detail:'Win one complete solo match against the AI.'}
+ {id:'win',label:'Take the Ice',metric:'win',target:1,detail:'Win one complete solo match after contributing a shot, completed pass, clean check or save.'}
 ]);
 const SHIFT_BADGES=Object.freeze([
  {id:'first-win',label:'First Victory'},{id:'opening-goal',label:'Goal Scorer'},
@@ -276,17 +276,18 @@ function trackGoal(team,shot){
  if(shot&&shot.team===team&&isSoloSkater(shot)){matchStats.human.goals++;if(shot.oneTimer)matchStats.human.oneTimers++}
  if(matchStats.solo&&score[matchStats.humanTeam]<score[1-matchStats.humanTeam])matchStats.trailed=true;
 }
+function hadSoloImpact(m){const h=m.human;return h.shots+h.passes+h.checks+h.saves>0}
 function challengeValue(m,challenge=challengeForDay(m.day)){
- if(challenge.metric==='win')return m.final&&m.won?1:0;
+ if(challenge.metric==='win')return m.final&&m.won&&hadSoloImpact(m)?1:0;
  return safeCount(m.human[challenge.metric]);
 }
 function badgeConditions(m){
  return {
-  'first-win':m.won,'opening-goal':m.human.goals>=1,
+  'first-win':m.won&&hadSoloImpact(m),'opening-goal':m.human.goals>=1,
   'playmaker':m.human.passes>=3,'checker':m.human.checks>=2,
   'one-timer':m.human.oneTimers>=1,'hat-trick':m.human.goals>=3,
-  'last-line':m.human.saves>=3,'shutout':m.won&&score[1-m.humanTeam]===0,
-  'comeback':m.won&&m.trailed
+  'last-line':m.human.saves>=3,'shutout':m.won&&hadSoloImpact(m)&&score[1-m.humanTeam]===0,
+  'comeback':m.won&&hadSoloImpact(m)&&m.trailed
  };
 }
 function awardDaily(p,day){
