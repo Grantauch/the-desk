@@ -8,7 +8,7 @@ SW-175 and SW-176 include the experimental signed PIN attestation and PostgreSQL
 ## Enforced boundary
 - `npm run handoff:guard` parses non-test Schoolwide TypeScript source using Babel's TypeScript parser, rejecting direct imports, re-exports, literal dynamic imports, and `require()` references to either protected experimental module.
 - Nonliteral dynamic `import()` or `require()` in non-test source requires manual review and fails closed; no inferred exemptions.
-- `src/server.ts` must call `buildApp({ config, database })` exactly once, without injecting a new student, staff, classroom, or other identity provider.
+- `src/server.ts` must call `buildApp({ config, database })` exactly once, without injecting a new student, staff, classroom, or other identity provider. `src/app.ts` must also retain explicitly disabled staff, student, and classroom provider defaults.
 - The existing synthetic unit and PostgreSQL integration tests are still permitted to import the experimental modules; there is no changed API route, secret, migration, database or production deployment.
 - The gate runs automatically as part of `npm run verify`, including Schoolwide CI. Its own tests check deliberate boundary violations and legitimate test-only imports.
 
