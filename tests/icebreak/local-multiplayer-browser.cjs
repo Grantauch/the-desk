@@ -163,13 +163,18 @@ const results=[];
      await page.screenshot({path:path.join(out,'local-multiplayer-'+renderer+'-'+viewport.width+'-eight-pads.png')});
      // Physically simulated injury with two keyboard seats, followed by a
      // real keyboard Enter event to skip while the clock remains unchanged.
+     // Stage on the exact keydown event; the live requestAnimationFrame loop
+     // must not collide the pair a frame before the check is armed.
      await page.evaluate(()=>{
-      const f=window.fixture,api=window.__ICEBREAK_TEST__;
-      api.setSeat(0,0,'kb1');api.setSeat(1,0,'kb2');api.reset();f.clear();f.setDrop(0);
-      const h=f.players.find(p=>p.device==='kb1'),v=f.players.find(p=>p.device==='kb2');
-      Object.assign(h,{x:0,z:0,vx:13,vz:0,facing:0,stun:0,check:0,checkWindow:0,energy:1});
-      Object.assign(v,{x:1.06,z:0,vx:0,vz:0,facing:Math.PI,stun:0,energy:1,balance:1,brace:0});
-      f.give(v);
+      window.addEventListener('keydown',e=>{
+       if(e.key.toLowerCase()!=='l')return;
+       const f=window.fixture,api=window.__ICEBREAK_TEST__;
+       api.setSeat(0,0,'kb1');api.setSeat(1,0,'kb2');api.reset();f.clear();f.setDrop(0);
+       const h=f.players.find(p=>p.device==='kb1'),v=f.players.find(p=>p.device==='kb2');
+       Object.assign(h,{x:0,z:0,vx:13,vz:0,facing:0,stun:0,check:0,checkWindow:0,energy:1});
+       Object.assign(v,{x:1.06,z:0,vx:0,vz:0,facing:Math.PI,stun:0,energy:1,balance:1,brace:0});
+       f.give(v);
+      },{capture:true,once:true});
      });
      await page.keyboard.down('l');
      const contact=await page.evaluate(()=>{
