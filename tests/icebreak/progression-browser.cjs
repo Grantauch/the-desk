@@ -98,7 +98,7 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
    const changed=await page.evaluate(()=>({mode:window.fixture.config.mode,record:document.getElementById('dailyChallengeRecord').textContent,
      reportHidden:document.getElementById('matchReport').hidden}));
    assert.equal(changed.mode,'powerups');assert.equal(changed.reportHidden,true);
-   assert.match(changed.record,/No completed solo matches in powerups/);
+   assert.match(changed.record,/No completed solo matches in standard powerups/);
    await page.locator('button[data-mode="regular"]').click();
    await page.locator('#playBtn').click();
    const newShift=await page.evaluate(()=>({phase:window.fixture.phase,shots:window.fixture.matchStats.human.shots,
