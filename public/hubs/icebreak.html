@@ -46,6 +46,14 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
 .match-report[hidden],.shiftbook[hidden],.daily-ticker[hidden]{display:none!important}
 .daily-ticker{position:absolute;z-index:1;left:50%;top:147px;transform:translateX(-50%);padding:5px 10px;border:1px solid #a4ddf066;border-radius:20px;background:#04182bdc;font-size:10px;line-height:1.4;letter-spacing:.5px;font-weight:850;color:#fce8ac;white-space:nowrap;text-align:center;pointer-events:none;max-width:90vw}
 @media(max-width:760px){.daily-ticker{top:103px;padding:4px 7px;font-size:9px;white-space:normal;max-width:86vw}.shiftbook{padding:11px}.shiftbook-head{flex-wrap:wrap;gap:3px}}
+
+.match-report .report-teams{white-space:pre-line;line-height:1.65!important}
+.panel .secondary{display:block;width:100%;margin:8px 0 4px;padding:10px 13px;border:1px solid #78aecd99;border-radius:7px;background:#0e3049;color:#aaf0fd;letter-spacing:1.1px;font-size:11px;font-weight:900;cursor:pointer}
+.panel .secondary:hover,.panel .secondary:focus-visible{background:#19445a;border-color:#a4edff}
+.panel .secondary[hidden]{display:none!important}
+.guide{margin-top:14px;border:1px solid #7ab7ca4f;border-radius:7px;padding:9px 12px;background:#071d2bc7}
+.guide summary{cursor:pointer;font-size:10px;letter-spacing:1px;font-weight:900;color:#b6e5f3}
+.guide p{margin:8px 0 0!important;text-align:left!important;max-width:none!important;font-size:12px!important;line-height:1.5!important}
 </style>
 </head>
 <body>
@@ -70,13 +78,14 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
         <p class="earned" id="finalAchievements"></p>
         <p id="finalDaily"></p>
       </section>
+      <button class="secondary" id="changeSetupBtn" type="button" hidden>CHANGE TEAMS, RINK OR MODE</button>
       <div id="setup" class="setup">
         <div class="setup-head">01 / GAME MODE</div>
         <div class="modes" role="group" aria-label="Game mode"><button data-mode="regular" class="choice selected" aria-pressed="true"><strong>REGULAR</strong><span>Pure skill. No pickups.</span></button><button data-mode="powerups" class="choice" aria-pressed="false"><strong>POWERUPS</strong><span>Boost · Magnet · Cannon</span></button></div>
         <div class="setup-head">02 / SELECT RINK <em>IDENTICAL ICE PHYSICS</em></div>
         <div class="rinks" role="group" aria-label="Rink"><button class="rink-card selected school" data-rink="school" aria-pressed="true"><span class="rink-art"><i></i></span><strong>SCHOOL</strong><small>Friday night lights</small></button><button class="rink-card park" data-rink="park" aria-pressed="false"><span class="rink-art"><i></i></span><strong>PARK</strong><small>Open-air winter</small></button><button class="rink-card mars" data-rink="mars" aria-pressed="false"><span class="rink-art"><i></i></span><strong>MARS</strong><small>Red planet arena</small></button></div>
         <details class="seats"><summary>03 / PLAYER SEATS <span id="seatCount">1 HUMAN · 7 AI</span></summary><p>Each team has exactly one center, one wing, one defender and one goalie. Assign a unique input to any seat; unassigned seats are AI. Up to eight local gamepads are supported. Online multiplayer is not yet available.</p><div id="seatGrid" class="seat-grid"></div><div class="controls-note"><b>Keyboard 1:</b> WASD · J pass · K shoot · L check · Shift burst<br><b>Keyboard 2:</b> arrows · N pass · M shoot · , check · Enter burst<br><b>Gamepads:</b> left stick · A pass · X shoot · B check · RT burst</div></details>
-      <p>Build speed, glide and brake into sharp turns. Pass to the highlighted open teammate. After a completed pass, watch for a gold GIVE & GO ring and return the puck to the open runner. Hold SHOOT as an incoming pass reaches your blade for a one-timer, or shoot immediately after receiving for a one-touch finish. Missed checks cost energy and balance.</p>
+      <details class="guide"><summary>HOW TO PLAY · SKATING, PASSING AND CHECKING</summary><p>Build speed, glide and brake into sharp turns. Pass to the highlighted open teammate. After a completed pass, watch for a gold GIVE & GO ring and return the puck to the open runner. Hold SHOOT as an incoming pass reaches your blade for a one-timer, or shoot immediately after receiving for a one-touch finish. Missed checks cost energy and balance.</p></details>
         <section id="shiftBook" class="shiftbook" aria-label="Daily challenge and personal records">
           <div class="shiftbook-head">SHIFT BOOK <small>Solo vs AI · This device only</small></div>
           <strong id="dailyChallengeName">TODAY'S CHALLENGE</strong>
@@ -92,7 +101,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
 <script>
 (() => {'use strict';
 const $=id=>document.getElementById(id), canvas=$('game');let gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'})||canvas.getContext('webgl',{antialias:true,alpha:false});
-const hud={home:$('homeScore'),away:$('awayScore'),clock:$('clock'),period:$('period'),name:$('playerName'),energy:$('energy'),status:$('statusText'),meterLabel:$('meterLabel'),prompt:$('prompt'),moment:$('momentLabel'),flash:$('flash'),overlay:$('overlay'),title:$('overlayTitle'),mode:$('overlayMode'),desc:$('overlayDesc'),footer:$('overlayFooter'),play:$('playBtn'),setup:$('setup'),power:$('powerStatus'),seatCount:$('seatCount'),seatGrid:$('seatGrid'),shiftBook:$('shiftBook'),dailyName:$('dailyChallengeName'),dailyDetail:$('dailyChallengeDetail'),dailyRecord:$('dailyChallengeRecord'),dailyTicker:$('dailyTicker'),report:$('matchReport'),reportTeams:$('finalTeamStats'),reportSolo:$('finalSoloStats'),reportAchievements:$('finalAchievements'),reportDaily:$('finalDaily')};
+const hud={home:$('homeScore'),away:$('awayScore'),clock:$('clock'),period:$('period'),name:$('playerName'),energy:$('energy'),status:$('statusText'),meterLabel:$('meterLabel'),prompt:$('prompt'),moment:$('momentLabel'),flash:$('flash'),overlay:$('overlay'),title:$('overlayTitle'),mode:$('overlayMode'),desc:$('overlayDesc'),footer:$('overlayFooter'),play:$('playBtn'),setup:$('setup'),power:$('powerStatus'),seatCount:$('seatCount'),seatGrid:$('seatGrid'),changeSetup:$('changeSetupBtn'),shiftBook:$('shiftBook'),dailyName:$('dailyChallengeName'),dailyDetail:$('dailyChallengeDetail'),dailyRecord:$('dailyChallengeRecord'),dailyTicker:$('dailyTicker'),report:$('matchReport'),reportTeams:$('finalTeamStats'),reportSolo:$('finalSoloStats'),reportAchievements:$('finalAchievements'),reportDaily:$('finalDaily')};
 const fallback2d=!gl,ctx2d=fallback2d?canvas.getContext('2d'):null;if(fallback2d){gl=new Proxy({getShaderParameter:()=>true,getProgramParameter:()=>true},{get:(t,k)=>t[k]||(()=>undefined)})}
 const V=(x=0,y=0,z=0)=>({x,y,z}), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t, len=(x,z)=>Math.hypot(x,z), normalize=(x,z)=>{const d=Math.hypot(x,z)||1;return [x/d,z/d]};
 const UP=V(0,1,0), C={blue:[.15,.64,.95],cyan:[.41,.93,1],red:[1,.31,.23],redLight:[1,.57,.39],ice:[.73,.92,.98],white:[.95,1,1],navy:[.04,.11,.19],deep:[.018,.05,.09],lineBlue:[.12,.40,.79],lineRed:[.77,.15,.24],gold:[1,.88,.45]};
@@ -340,10 +349,16 @@ function makeTeams(){players=[makePlayer(0,0,-8,0),makePlayer(0,1,-13,-6),makePl
 function resetFaceoff(){for(let p of players){p.x=p.goalie?(p.team===0?-25.4:25.4):(p.team===0?-8-2*(p.id>0):8+2*(p.id>0));p.z=p.goalie?0:(p.id===1?(p.team===0?-6:6):p.id===2?(p.team===0?6:-6):0);p.vx=p.vz=p.stun=p.fallTime=p.fallSpan=p.receiveWait=p.skid=p.checkWindow=p.checkRecovery=p.brace=p.puckWobble=p.hitFlash=0;p.balance=1;p.checkConnected=false;p.has=false;p.shotCharge=p.oneTimerBuffer=p.receiveWindow=p.oneTimerFlash=p.saveFlash=0;p.saveSide=0;p.saveKind='';p.impactDir=p.fallSide=1;p.impactLevel=p.standPose=p.bracePose=0;p.cutTime=p.comboCooldown=0;p.cutReceiver=null;p.facing=p.team===0?0:Math.PI}control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0];puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0,passFrom:null,passTarget:null};trail=[];replayHistory=[];replayFrames=[];replaySample=0;replayElapsed=0;hud.moment.classList.remove('show');dropDelay=1.35;prompt('FACE OFF',1.15)}
 function fullReset(){makeTeams();score=[0,0];matchStats=newMatchStats();hud.report.hidden=true;timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;accumulator=0;lastShot=null;goalMoment=null;inputState.clear();lastInputButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD();renderShiftBook()}
 function prompt(text,secs=1.2,orange=false){hud.prompt.textContent=text;hud.prompt.className='prompt show'+(orange?' orange':'');msgTimer=secs}function updatePrompt(dt){if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)hud.prompt.classList.remove('show')}}
-function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu'&&phase!=='finished';hud.report.hidden=phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden')}
+function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu';hud.report.hidden=phase!=='finished';hud.changeSetup.hidden=phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden');if(phase==='finished'||phase==='menu')hud.overlay.querySelector?.('.panel')?.scrollTo?.({top:0})}
 function hideOverlay(){hud.overlay.classList.add('hidden');hud.overlay.setAttribute('aria-hidden','true')}
 function start(){if(phase==='injury'){endInjury();return}if(phase==='menu'||phase==='finished')fullReset();else paused=false;const btn=$('pauseBtn');btn.textContent='Ⅱ';btn.setAttribute('aria-label','Pause game');btn.title='Pause game';hideOverlay();audioInit()}
 hud.play.addEventListener('click',start);
+hud.changeSetup.addEventListener('click',()=>{
+ if(phase!=='finished')return;
+ phase='menu';
+ showOverlay('ICE<span>BREAK</span>','Choose your rink, rules and local player seats.','DROP THE PUCK →','FIRST SHIFT · 4 ON 4 · EIGHT FIXED ROLES');
+ renderShiftBook();updateDailyTicker();
+});
 function togglePause(){if(phase==='menu'||phase==='finished'||phase==='injury')return;paused=!paused;const btn=$('pauseBtn');btn.textContent=paused?'▶':'Ⅱ';btn.setAttribute('aria-label',paused?'Resume game':'Pause game');btn.title=paused?'Resume game':'Pause game';if(paused){showOverlay('PAUSED','Catch your breath. The ice is right where you left it.','RESUME SHIFT →','TIMEOUT')}else hideOverlay()}
 $('pauseBtn').addEventListener('click',togglePause);
 function syncSoundButton(){const button=$('soundBtn');button.textContent=sfxEnabled?'♪':'×';button.title=sfxEnabled?'Mute sound':'Unmute sound';button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(!sfxEnabled))}
