@@ -4,6 +4,7 @@
  * Apps Script. Caller must supply server-trusted tenant/school/issuer scope.
  */
 import type { QueryExecutor } from '../db/database.js';
+import type { SyntheticNonceConsumption } from './synthetic-pin-attestation.js';
 
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISSUER = /^[a-zA-Z0-9][a-zA-Z0-9_.:@-]{0,191}$/;
@@ -30,12 +31,18 @@ export type SyntheticNonceReplayScope = Readonly<{
 export function createSyntheticPostgresNonceConsumer(
   database: Pick<QueryExecutor, 'query'>,
   scope: SyntheticNonceReplayScope,
-): (nonceDigest: string, expiresAtEpochSeconds: number) => Promise<boolean> {
+): (consumption: SyntheticNonceConsumption) => Promise<boolean> {
   if (!GUID.test(scope.organizationId) || !GUID.test(scope.schoolId) || !ISSUER.test(scope.issuer)) {
     throw new Error('Synthetic replay scope rejected.');
   }
-  return async (nonceDigest, expiresAtEpochSeconds) => {
-    if (typeof nonceDigest !== 'string' || !DIGEST.test(nonceDigest)
+  return async (consumption) => {
+    // The signed payload's issuer/school must match this server-trusted
+    // database scope. A wrong consumer cannot burn a token in another school
+    // or accept the same signed nonce a second time under that other scope.
+    if (!consumption || typeof consumption !== 'object') return false;
+    const { nonceDigest, expiresAtEpochSeconds, schoolId, issuer } = consumption;
+    if (schoolId !== scope.schoolId || issuer !== scope.issuer
+      || typeof nonceDigest !== 'string' || !DIGEST.test(nonceDigest)
       || !Number.isSafeInteger(expiresAtEpochSeconds) || expiresAtEpochSeconds <= 0) return false;
     try {
       const rows = await database.query<{ accepted: number }>(
