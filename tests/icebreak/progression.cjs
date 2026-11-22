@@ -187,3 +187,26 @@ test('blocked localStorage never prevents play or falsely claims persisted recor
  assert.equal(m.f.matchStats.recordSaved,false);
  assert.match(m.elements.get('finalDaily').textContent,/Not saved/i);
 });
+
+test('passive AI-team victory records the team win but earns no unplayed badges or daily credit',()=>{
+ const store=memoryStorage(),m=run(store),{api,f}=m;
+ f.matchStats.day=dayFor(f,'win');api.goal(0);f.finish();
+ assert.equal(f.matchStats.won,true,'team win is honestly recorded');
+ assert.equal(f.shiftProgress.modes.regular.wins,1);
+ assert.equal(f.matchStats.human.shots,0);
+ assert.equal(f.shiftProgress.daily.completed,0);
+ assert.equal(f.matchStats.dailyEarned,false);
+ assert.equal(f.shiftProgress.badges.includes('first-win'),false);
+ assert.equal(f.shiftProgress.badges.includes('shutout'),false);
+});
+test('a contributed shot qualifies an earned win and shutout even when AI scores',()=>{
+ const store=memoryStorage(),m=run(store),{api,f,skater}=m;
+ f.matchStats.day=dayFor(f,'win');
+ f.give(skater);f.shot(skater,.25);
+ api.goal(0);f.finish();
+ assert.equal(f.matchStats.human.shots,1);
+ assert.equal(f.matchStats.dailyEarned,true);
+ assert.equal(f.shiftProgress.daily.completed,1);
+ assert.equal(f.shiftProgress.badges.includes('first-win'),true);
+ assert.equal(f.shiftProgress.badges.includes('shutout'),true);
+});
