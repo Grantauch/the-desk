@@ -20,7 +20,7 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
    await page.waitForFunction(()=>window.fixture&&window.__ICEBREAK_TEST__);
    const state=await page.evaluate(()=>{
     const f=window.fixture,api=window.__ICEBREAK_TEST__;
-    api.setSeat(0,0,'ai');api.setSeat(0,1,'kb1');api.start();f.clear();
+    api.setSeat(0,0,'ai');api.setSeat(0,1,'kb1');api.start();f.clear();f.setPaused(true);
     const p=f.players[0],receiver=f.players[1],third=f.players[2];
     Object.assign(p,{x:0,z:0,vx:0,vz:0,facing:0,stun:0});
     Object.assign(receiver,{x:3,z:.38,vx:0,vz:0,facing:0,stun:0});
