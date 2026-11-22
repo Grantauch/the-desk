@@ -98,12 +98,22 @@ const results=[];
         assert.match(await page.locator('#overlayTitle').textContent(),/INJURY TIMEOUT/);
         assert.equal(state.fall,1,'injured player must remain down while play stops');
         const pause=await page.evaluate(()=>{
-         const f=window.fixture,api=window.__ICEBREAK_TEST__,clock=api.getState().timeLeft;
+         // A SwiftShader screenshot may take longer than the five-second
+         // stoppage; stage a fresh injury for synchronous clock assertions.
+         const f=window.fixture,api=window.__ICEBREAK_TEST__;
+         api.reset();f.clear();
+         const a=f.players.find(p=>p.device==='kb1'),b=f.players.find(p=>p.device==='kb2');
+         Object.assign(a,{x:0,z:0,vx:13,vz:0,facing:0,stun:0,energy:1,check:0,checkWindow:0});
+         Object.assign(b,{x:1.06,z:0,vx:0,vz:0,facing:Math.PI,stun:0,energy:1,brace:0});
+         f.give(b);f.beginCheck(a);f.collideSkaters(a,b);
+         const started=f.phase==='injury'&&f.fallAmount(b)===1;
+         const clock=api.getState().timeLeft;
          api.step(2);f.render(.2);
-         const held=f.fallAmount(f.injured),frozen=api.getState().timeLeft===clock;
+         const held=f.fallAmount(b),frozen=api.getState().timeLeft===clock;
          f.endInjury();
-         return {held,frozen,restarted:f.phase==='playing'};
+         return {started,held,frozen,restarted:f.phase==='playing'};
         });
+        assert.equal(pause.started,true);
         assert.equal(pause.held,1);
         assert.equal(pause.frozen,true);
         assert.equal(pause.restarted,true);
