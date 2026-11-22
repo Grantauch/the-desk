@@ -14,7 +14,7 @@ Turn goalie stops from automatic contacts into understandable hockey moments, pr
 ## Automated evidence
 - New `tests/icebreak/goalie.cjs`: prediction without teleportation, no slow-puck speed gain, directional glove/pad rebound plus pose reset, no false anticipation of outgoing pucks.
 - Existing physics, checking, dribbling, goal, one-timer, and equal-rink trajectories remain in the same release suite.
-- Initial TheAtlas isolated checkout: **41/41 source tests pass**, 0 failed. Browser parity suite `tests/icebreak/goalie-browser.cjs` added for desktop/mobile WebGL and Canvas; run with `npm run icebreak:browser` after Playwright dependencies are installed.
+- Initial TheAtlas isolated checkout: **41/41 source tests pass**, 0 failed. TheAtlas Chromium 143 / Playwright 1.57: dedicated `tests/icebreak/goalie-browser.cjs` **4/4 PASS** — WebGL 1440×900 and 390×844; Canvas fallback 1440×900 and 390×844; 0 JavaScript page errors. Screenshots written to `browser-results/icebreak`. The combined existing browser suite is a separate required gate.
 
 ## Art pipeline / Blender
 Skater and goalie rig work is independently tracked as Team Desk #97. ICEBREAK currently draws skaters using procedural WebGL primitives plus a Canvas fallback. Do not import Blender GLBs to production until there is an appropriate runtime loader, animation rig validation, reasonable browser performance and Canvas parity. Small pose-state polish in this batch provides immediate visible feedback without adding a fragile loader.
