@@ -111,6 +111,21 @@ jobs:
           SCHOOLWIDE_SYNTHETIC_RECOVERY: 'true'
         run: bash scripts/ci-synthetic-encrypted-recovery.sh
 
+      - name: Prove recovery source database and container were removed
+        run: |
+          if docker inspect "sw180-restore-$GITHUB_RUN_ID" >/dev/null 2>&1; then
+            echo "SW180_CLEANUP_FAIL: isolated recovery container still exists" >&2
+            exit 1
+          fi
+          remaining=$(docker run --rm --network host -e PGPASSWORD=grantdesk postgres:18-alpine \
+            psql -X -A -t -q -v ON_ERROR_STOP=1 -h 127.0.0.1 -U grantdesk \
+            -d postgres -c "SELECT datname FROM pg_database WHERE datname='sw180_ci_source'")
+          if [[ -n "$remaining" ]]; then
+            echo "SW180_CLEANUP_FAIL: CI-only source database still exists" >&2
+            exit 1
+          fi
+          echo "SW180_CI_CLEANUP_PASS: synthetic source DB and recovery container absent"
+
       - name: Check VPS staging operator scripts syntax
         run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh scripts/vps-host-backup-audit.sh scripts/ci-synthetic-encrypted-recovery.sh && node --check scripts/vps-host-probe.mjs && node --check scripts/vps-host-classroom-probe.mjs && node --check scripts/vps-host-pass-queue-probe.mjs && node --check scripts/vps-host-pin-http-probe.mjs && node --check scripts/prepare-ci-load-db.mjs
 

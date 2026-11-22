@@ -14,7 +14,7 @@ SW-180 creates the next layer of **synthetic-only automated evidence**:
 4. Prove both a different passphrase and a corrupted encrypted payload **fail decryption**; never promote an incorrectly decrypted file.
 5. Initialize a **separate clean PostgreSQL 18 container** with no network connection or published ports. Require it to be empty before restoring the decrypted archive.
 6. Restore with `pg_restore --exit-on-error`; compare the restored public table count, migration count, synthetic row count and a SHA-256 digest of the ordered fictional canary rows to the source.
-7. Remove the disposable source database, independent container, GPG test passphrase, encrypted test archive and temporary files, even when a test fails.
+7. Remove the disposable source database, independent container, GPG test passphrase, encrypted test archive and temporary files, even when a test fails. A separate CI step checks that both the source database and restore container are absent afterward.
 
 The source-to-recovery process runs in a disposable GitHub-hosted runner, not a school server. GitHub CI runs the guard's explicit-denial test before the positive drill. The script does not touch the nightly VPS backup jobs.
 
