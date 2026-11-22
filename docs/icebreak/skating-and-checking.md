@@ -12,6 +12,14 @@ Each attempt spends 17% to 38% of full stamina depending on approach speed. The 
 
 The largest hit freezes the game clock and stops play for five seconds. The timeout can be skipped using the button, Enter, Space or an assigned controller’s A button. The injured skater returns in the same seat for the next faceoff. Stamina and check cooldown carry across the stoppage.
 
+## First Shift polish pass (November 22)
+
+- On portrait phones with **one** human seat, the camera now follows the controlled skater and nearby puck with smoother world-space tracking. A button in the top bar switches to the whole rink. With multiple humans, the full-rink view is retained for fairness.
+- An offscreen puck-direction cue helps a solo phone player recover their bearings; it appears only when the puck is far away.
+- Mobile touch controls have larger tap targets, stronger contrast and safe-area spacing. Keyboard focus rings and reduced-motion CSS improve usability.
+- Sound mute survives reload using the local browser setting, and pause/resume buttons update their accessible labels.
+- Browser acceptance verifies the solo follow/full-rink toggle, mute persistence, puck direction, pause labeling, all four rendering/device layouts, and the unchanged 4-on-4 gameplay matrix.
+
 ## Verification
 
 - Run node tests with `node --test tests/icebreak/*.cjs`.

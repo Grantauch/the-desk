@@ -22,6 +22,24 @@ const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/ht
    if(renderer==='webgl'&&detected!=='webgl'){report.scenarios.push({renderer,viewport,status:'unavailable'});await context.close();continue}
    assert.equal(detected,renderer);
    await page.screenshot({path:path.join(out,`${renderer}-${viewport.width}-lobby.png`)});
+   if(mobile){
+    const solo=await context.newPage();await solo.goto(url);await solo.waitForFunction(()=>window.__ICEBREAK_TEST__);
+    await solo.locator('#playBtn').click();await solo.locator('#soundBtn').click();
+    assert.equal(await solo.locator('#soundBtn').getAttribute('aria-pressed'),'true');
+    await solo.reload();assert.equal(await solo.locator('#soundBtn').getAttribute('aria-pressed'),'true','mute setting survives reload');
+    await solo.locator('#playBtn').click();await solo.locator('#soundBtn').click();
+    assert.equal(await solo.locator('#soundBtn').getAttribute('aria-pressed'),'false');await solo.waitForTimeout(300);
+    assert.equal(await solo.evaluate(()=>window.__ICEBREAK_TEST__.getState().followCamera),true,'solo mobile follows action');
+    await solo.screenshot({path:path.join(out,`${renderer}-${viewport.width}-solo-follow.png`)});
+    await solo.evaluate(()=>window.__ICEBREAK_TEST__.setPuck(25,0));
+    await solo.waitForFunction(()=>!document.getElementById('puckGuide').hidden);
+    assert.match(await solo.locator('#puckGuide').innerText(),/PUCK ↑/);
+    await solo.locator('#viewBtn').click();assert.equal(await solo.evaluate(()=>window.__ICEBREAK_TEST__.getState().followCamera),false,'full rink camera available');
+    await solo.screenshot({path:path.join(out,`${renderer}-${viewport.width}-solo-full-rink.png`)});
+    await solo.locator('#pauseBtn').click();assert.equal(await solo.locator('#pauseBtn').getAttribute('aria-label'),'Resume game');
+    await solo.locator('#playBtn').click();assert.equal(await solo.locator('#pauseBtn').getAttribute('aria-label'),'Pause game');
+    await solo.close();
+   }
    // Exercise the real lobby and real DOM keyboard/pointer controls.
    await page.locator('[data-rink="park"]').click();await page.locator('[data-mode="powerups"]').click();await page.locator('.seats summary').click();
    await page.locator('select').nth(4).selectOption('kb2');await page.locator('#playBtn').click();

@@ -12,17 +12,34 @@
 @media(max-width:760px){.scorecard{min-width:210px;height:58px}.score{font-size:25px}.team{width:65px}.teamname{font-size:8px;letter-spacing:1px}.clockzone{min-width:67px;padding:4px}.clock{font-size:15px}.brand .eyebrow,.brandname,.corner-info,.status,.trailtag{display:none}.topbar{left:12px;right:12px;top:12px}.rightTools .tool{width:36px;height:36px}.badge-mark{width:36px;height:36px}.mobilecontrols{display:block}.prompt{top:23%;font-size:30px}.panel h1{font-size:58px}.panel{padding:20px}.panel h1{font-size:52px}.rinks{gap:6px}.rink-art{height:53px}.rink-card>strong{font-size:11px}.seat-grid{grid-template-columns:1fr}.seat-col{gap:4px}.setup-head em{font-size:8px}.panel{max-height:94dvh}}
 .possession-readout{position:absolute;top:110px;left:50%;transform:translateX(-50%);max-width:92vw;padding:7px 12px;border:1px solid #a5d9eb55;border-radius:5px;background:#071827e8;color:#effcff;font-size:11px;font-weight:800;text-align:center;line-height:1.4}.possession-readout[hidden]{display:none}.player-marker{position:absolute;transform:translate(-50%,-100%);padding:2px 5px;border:1px solid #8beaff;border-radius:4px;background:#071827ef;color:#d6fbff;font-size:10px;line-height:1.3;font-weight:900;white-space:nowrap}.player-marker.carrier{border-color:#ffe379;color:#ffe379}.ctrl{-webkit-user-select:none}@media(max-width:760px){.possession-readout{top:78px;font-size:10px;width:max-content;max-width:94vw;padding:5px 8px}.player-marker{font-size:9px}}
 .panel>small[hidden]{display:none}
+.puck-guide{display:none;position:absolute;left:50%;top:110px;transform:translateX(-50%);padding:6px 11px;border:1px solid #ffe58c80;border-radius:18px;background:#071521eb;color:#ffe79a;font-size:11px;font-weight:950;letter-spacing:1px;white-space:nowrap;text-align:center;box-shadow:0 3px 12px #0019}
+@media(max-width:760px){.puck-guide:not([hidden]){display:block}}
 .overlay{z-index:1}
 .overlay[aria-hidden="true"]{visibility:hidden}
+/* Touch-first release polish: clear sightlines, safe-area controls and accessible focus. */
+#viewBtn{display:none}
+button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3px solid #f9e38d;outline-offset:3px}
+@media(max-width:760px){
+ .brand{display:none}#viewBtn{display:block}
+ .topbar{align-items:center;gap:6px}.rightTools{gap:5px}
+ .scorecard{min-width:0;flex:1;max-width:245px;height:58px}.scorecard .team{width:66px}
+ .dpad{bottom:calc(20px + env(safe-area-inset-bottom));left:12px;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
+ .actions{bottom:calc(20px + env(safe-area-inset-bottom));right:12px;gap:6px}
+ .actions .ctrl{width:68px;height:58px}
+ .ctrl{background:#09263ee3;border:1px solid #d0f4ffb0;box-shadow:0 2px 10px #001a2dc0,inset 0 1px 0 #ffffff1c;text-shadow:0 1px 2px #000}
+ .possession-readout{top:76px;max-width:calc(100vw - 24px);padding:5px 9px;background:#071827f2;border-color:#9dddf3a0;font-size:10px;white-space:normal}
+ .panel{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){.prompt,.overlay,.rink-card,.meter>div{transition:none!important}.flash.active{animation:none;opacity:.12}}
 </style>
 </head>
 <body>
 <canvas id="game" aria-label="Interactive 3D arcade ice hockey rink"></canvas>
 <div id="shell">
-  <header class="topbar"><div class="brand"><div class="badge-mark"><svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><path d="M16 1 7 16h8l-3 13 13-18h-9l5-10Z" fill="#7ee9fc"/></svg></div><div><div class="brandname">ICE<b>BREAK</b></div><div class="eyebrow">THE FIRST SHIFT / PRE-ALPHA</div></div></div><div class="scorecard" role="status" aria-live="off"><div class="team"><div class="teamname home">GLACIERS</div><div class="score" id="homeScore">0</div></div><div class="clockzone"><div class="period" id="period">1ST PERIOD</div><div class="clock" id="clock">02:00</div></div><div class="team"><div class="teamname away">EMBERS</div><div class="score" id="awayScore">0</div></div></div><div class="rightTools"><button class="tool" id="soundBtn" aria-label="Toggle sound" title="Sound">♪</button><button class="tool" id="pauseBtn" aria-label="Pause game" title="Pause">Ⅱ</button></div></header>
+  <header class="topbar"><div class="brand"><div class="badge-mark"><svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><path d="M16 1 7 16h8l-3 13 13-18h-9l5-10Z" fill="#7ee9fc"/></svg></div><div><div class="brandname">ICE<b>BREAK</b></div><div class="eyebrow">THE FIRST SHIFT / PUBLIC BETA</div></div></div><div class="scorecard" role="status" aria-live="off"><div class="team"><div class="teamname home">GLACIERS</div><div class="score" id="homeScore">0</div></div><div class="clockzone"><div class="period" id="period">1ST PERIOD</div><div class="clock" id="clock">02:00</div></div><div class="team"><div class="teamname away">EMBERS</div><div class="score" id="awayScore">0</div></div></div><div class="rightTools"><button class="tool" id="viewBtn" type="button" aria-label="Switch to full-rink camera" aria-pressed="true" title="Camera: follow puck">◎</button><button class="tool" id="soundBtn" aria-label="Mute sound" aria-pressed="false" title="Mute sound">♪</button><button class="tool" id="pauseBtn" aria-label="Pause game" title="Pause">Ⅱ</button></div></header>
   <div class="corner-info"><div class="hint"><span class="key">W A S D</span> Skate &nbsp; <span class="key">SHIFT</span> Burst<br/><span class="key">J</span> Pass &nbsp; <span class="key">K</span> Hold to shoot<br/><span class="key">L</span> Check on contact &nbsp; <span class="key">ESC</span> Pause</div></div>
   <div class="status"><div class="tlabel" id="playerName">#09 · CENTER</div><div class="indicator" id="powerStatus">REGULAR · SCHOOL</div><div class="indicator" id="statusText">READY FOR THE DROP</div><div class="meter"><div id="energy"></div></div><div class="indicator" id="meterLabel">SKATING ENERGY</div></div>
-  <div id="possessionReadout" class="possession-readout" hidden></div>
+  <div id="possessionReadout" class="possession-readout" hidden></div><div id="puckGuide" class="puck-guide" aria-live="off" hidden></div>
   <div id="prompt" class="prompt" aria-live="polite"></div><div id="flash" class="flash"></div>
   <div class="mobilecontrols" aria-label="Touch game controls"><div class="dpad"><span></span><button class="ctrl" data-key="w" aria-label="Skate up">▲</button><span></span><button class="ctrl" data-key="a" aria-label="Skate left">◀</button><span></span><button class="ctrl" data-key="d" aria-label="Skate right">▶</button><span></span><button class="ctrl" data-key="s" aria-label="Skate down">▼</button><span></span></div><div class="actions"><button class="ctrl" data-key="j">PASS</button><button class="ctrl shoot" data-key="k">SHOOT</button><button class="ctrl check" data-key="l">CHECK</button><button class="ctrl" data-key="shift">BURST</button></div></div>
   <div class="trailtag">FIRST SHIFT · ORIGINAL TEAMS · 3 RINKS · 2 MODES</div>
@@ -68,11 +85,11 @@ const STICK=Object.freeze({forward:.92,side:.38,releaseClearance:.10,releaseLock
 const inputLabel=device=>device==='kb1'?'K1':device==='kb2'?'K2':device.startsWith('pad')?'P'+(Number(device.slice(3))+1):'AI';
 const stickPoint=p=>{const side=STICK.side+p.puckWobble;return {x:p.x+Math.cos(p.facing)*STICK.forward-Math.sin(p.facing)*side,z:p.z+Math.sin(p.facing)*STICK.forward+Math.cos(p.facing)*side}};
 const ROLES=['CENTER','WING','DEFENDER','GOALIE'];
-const config={mode:'regular',rink:'school',seats:['kb1','ai','ai','ai','ai','ai','ai','ai']};
+const config={mode:'regular',rink:'school',seats:['kb1','ai','ai','ai','ai','ai','ai','ai']};let followCamera=true;
 const inputState=new Map(),lastInputButtons=new Map();let powerItems=[],powerSpawn=6,activeHumans=1;
 const activeInputs=()=>new Set(config.seats.filter(v=>v!=='ai'));
 const humanFor=key=>players.find(p=>p.device===key);
-function updateSeatCount(){activeHumans=config.seats.filter(v=>v!=='ai').length;hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI'}
+function updateSeatCount(){activeHumans=config.seats.filter(v=>v!=='ai').length;hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI';syncViewButton()}
 function setupLobby(){
  const options=[['ai','AI'],['kb1','Keyboard 1'],['kb2','Keyboard 2'],...Array.from({length:8},(_,i)=>['pad'+i,'Gamepad '+(i+1)])];
  for(let team=0;team<2;team++){
@@ -105,7 +122,10 @@ let fs=`precision mediump float;varying vec3 vNormal;varying vec3 vWorld;uniform
 function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);const loc={pos:gl.getAttribLocation(prog,'aPosition'),normal:gl.getAttribLocation(prog,'aNormal'),mvp:gl.getUniformLocation(prog,'uMVP'),model:gl.getUniformLocation(prog,'uModel'),color:gl.getUniformLocation(prog,'uColor'),alpha:gl.getUniformLocation(prog,'uAlpha'),unlit:gl.getUniformLocation(prog,'uUnlit')};gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);let vp=mat.id();
 function draw(m,x,y,z,sx,sy,sz,color,rotation=0,alpha=1,unlit=0,rz=0){let model=mat.mul(mat.tr(x,y,z),mat.mul(mat.ry(rotation),mat.mul(mat.rz(rz),mat.scale(sx,sy,sz))));gl.uniformMatrix4fv(loc.model,false,model);gl.uniformMatrix4fv(loc.mvp,false,mat.mul(vp,model));gl.uniform3fv(loc.color,color);gl.uniform1f(loc.alpha,alpha);gl.uniform1f(loc.unlit,unlit);gl.bindBuffer(gl.ARRAY_BUFFER,m.buffer);gl.vertexAttribPointer(loc.pos,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(loc.normal,3,gl.FLOAT,false,24,12);gl.enableVertexAttribArray(loc.pos);gl.enableVertexAttribArray(loc.normal);if(alpha<1)gl.depthMask(false);gl.drawArrays(gl.TRIANGLES,0,m.count);if(alpha<1)gl.depthMask(true)}
 const cube=(x,y,z,w,h,d,c,angle=0,alpha=1)=>draw(meshes.box,x,y,z,w,h,d,c,angle,alpha), cylinder=(x,y,z,r,h,c,angle=0,alpha=1)=>draw(meshes.cyl,x,y,z,r,h,r,c,angle,alpha), ball=(x,y,z,r,c,alpha=1)=>draw(meshes.sphere,x,y,z,r,r,r,c,0,alpha), disk=(x,y,z,r,c,alpha=1)=>draw(meshes.disc,x,y,z,r,1,r,c,0,alpha,1), ring=(x,y,z,r,c,alpha=1)=>draw(meshes.ring,x,y,z,r,1,r,c,0,alpha,1);
-const OUTX=27.95, OUTZ=12.95, GOALX=26.35, GOALZ=2.9;let W=0,H=0,asp=1,camFocus=0;
+const OUTX=27.95, OUTZ=12.95, GOALX=26.35, GOALZ=2.9;let W=0,H=0,asp=1,camFocus=0,camFocusZ=0;
+const followActive=()=>W<=760&&activeHumans===1&&followCamera&&phase!=='menu'&&phase!=='finished';
+function syncViewButton(){const el=$('viewBtn'),follow=followCamera&&activeHumans===1;el.disabled=activeHumans>1;el.textContent=follow?'◎':'▤';el.setAttribute('aria-pressed',String(follow));el.setAttribute('aria-label',activeHumans>1?'Full-rink camera for multiplayer':follow?'Switch to full-rink camera':'Switch to follow-puck camera');el.title=activeHumans>1?'Full rink for multiplayer':follow?'Camera: follow puck':'Camera: full rink'}
+$('viewBtn').addEventListener('click',()=>{followCamera=!followCamera;syncViewButton()});
 function resize(){W=Math.max(1,innerWidth);H=Math.max(1,innerHeight);let dpr=Math.min(devicePixelRatio||1,1.8);canvas.width=Math.floor(W*dpr);canvas.height=Math.floor(H*dpr);gl.viewport(0,0,canvas.width,canvas.height);asp=W/H}window.addEventListener('resize',resize);resize();
 const staticLines=[];const addLine=(x,z,w,d,color,alpha=1)=>staticLines.push([x,z,w,d,color,alpha]);
 addLine(0,0,.33,25.9,C.lineRed,.83);addLine(-8.8,0,.40,25.9,C.lineBlue,.79);addLine(8.8,0,.40,25.9,C.lineBlue,.79);addLine(-26.2,0,.17,18.0,C.lineRed,.7);addLine(26.2,0,.17,18.0,C.lineRed,.7);
@@ -149,10 +169,13 @@ function fullReset(){makeTeams();score=[0,0];timeLeft=120;period=1;goalDelay=inj
 function prompt(text,secs=1.2,orange=false){hud.prompt.textContent=text;hud.prompt.className='prompt show'+(orange?' orange':'');msgTimer=secs}function updatePrompt(dt){if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)hud.prompt.classList.remove('show')}}
 function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu'&&phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden')}
 function hideOverlay(){hud.overlay.classList.add('hidden');hud.overlay.setAttribute('aria-hidden','true')}
-function start(){if(phase==='injury'){endInjury();return}if(phase==='menu'||phase==='finished')fullReset();else paused=false;hideOverlay();audioInit()}
+function start(){if(phase==='injury'){endInjury();return}if(phase==='menu'||phase==='finished')fullReset();else paused=false;const btn=$('pauseBtn');btn.textContent='Ⅱ';btn.setAttribute('aria-label','Pause game');btn.title='Pause game';hideOverlay();audioInit()}
 hud.play.addEventListener('click',start);
-function togglePause(){if(phase==='menu'||phase==='finished'||phase==='injury')return;paused=!paused;if(paused){showOverlay('PAUSED','Catch your breath. The ice is right where you left it.','RESUME SHIFT →','TIMEOUT')}else hideOverlay()}
-$('pauseBtn').addEventListener('click',togglePause);$('soundBtn').addEventListener('click',()=>{sfxEnabled=!sfxEnabled;$('soundBtn').textContent=sfxEnabled?'♪':'×';$('soundBtn').title=sfxEnabled?'Mute':'Unmute'});
+function togglePause(){if(phase==='menu'||phase==='finished'||phase==='injury')return;paused=!paused;const btn=$('pauseBtn');btn.textContent=paused?'▶':'Ⅱ';btn.setAttribute('aria-label',paused?'Resume game':'Pause game');btn.title=paused?'Resume game':'Pause game';if(paused){showOverlay('PAUSED','Catch your breath. The ice is right where you left it.','RESUME SHIFT →','TIMEOUT')}else hideOverlay()}
+$('pauseBtn').addEventListener('click',togglePause);
+function syncSoundButton(){const button=$('soundBtn');button.textContent=sfxEnabled?'♪':'×';button.title=sfxEnabled?'Mute sound':'Unmute sound';button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(!sfxEnabled))}
+try{sfxEnabled=localStorage.getItem('icebreak:muted')!=='1'}catch{}syncSoundButton();
+$('soundBtn').addEventListener('click',()=>{sfxEnabled=!sfxEnabled;syncSoundButton();try{localStorage.setItem('icebreak:muted',sfxEnabled?'0':'1')}catch{}if(sfxEnabled)audioInit()});
 let audio=null;function audioInit(){if(!sfxEnabled)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume?.()}catch{}}
 function tone(freq=440,dur=.12,type='triangle',volume=.035,freqEnd=null){if(!sfxEnabled||!audio)return;try{let o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;o.type=type;o.frequency.setValueAtTime(freq,t);if(freqEnd)o.frequency.exponentialRampToValueAtTime(Math.max(30,freqEnd),t+dur);g.gain.setValueAtTime(volume,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+dur+.01)}catch{}}
 function sound(kind){if(kind==='shoot'){tone(142,.22,'sawtooth',.041,65);tone(430,.06,'square',.018,180)}else if(kind==='pass'){tone(205,.09,'triangle',.03,115)}else if(kind==='hit'){tone(95,.18,'sawtooth',.052,41)}else if(kind==='grab'){tone(400,.055,'triangle',.012,220)}else if(kind==='goal'){tone(185,.7,'sawtooth',.075,320);setTimeout(()=>tone(277,.6,'sawtooth',.05,380),140);setTimeout(()=>tone(370,.8,'sawtooth',.05,420),280)}}
@@ -421,9 +444,14 @@ function possessionHUD(){
  const stamina=humans.length&&W<=760?' · '+inputLabel(control.device)+' energy '+Math.round(control.energy*100)+'%':'';
  const next=(seats||'AI exhibition')+' · '+possession+stamina;
  if(el.textContent!==next)el.textContent=next;
+ const guide=$('puckGuide'),tracking=followActive()&&!paused&&control;
+ const dx=tracking?puck.x-control.x:0,dz=tracking?puck.z-control.z:0,distance=Math.hypot(dx,dz);
+ guide.hidden=!tracking||phase!=='playing'||control.has||distance<18;
+ if(!guide.hidden){const dir=(dx>3?'↑':dx<-3?'↓':'')+(dz>3?' →':dz<-3?' ←':'');guide.textContent='PUCK '+(dir||'NEARBY')+' · '+Math.round(distance)+'m'}
 }
 function cameraTarget(){
  if(phase==='menu')return 0;
+ if(followActive()&&control){const distance=Math.hypot(puck.x-control.x,puck.z-control.z);const weight=clamp(.5+(distance-14)*.024,.5,.85);return clamp(control.x*weight+puck.x*(1-weight),-17,17)}
  const puckX=puck.x;
  const carrierX=puck.owner?.x ?? puckX;
  return clamp(puckX*.72+carrierX*.28,-16,16);
@@ -437,10 +465,12 @@ function render2d(t){
  // The long x axis now runs from bottom (Glaciers) to top (Embers).
  // Landscape intentionally crops the ends so the players are legible; portrait
  // frames the full rink and does not yank the camera after every loose puck.
- const scale=portrait?Math.min(W/29.5,H/(59*depth)):Math.min(W/30,H/(36*depth));
- camFocus=lerp(camFocus,portrait?0:cameraTarget(),.085);
+ const tracking=portrait&&followActive();
+ const scale=portrait?(tracking?Math.min(W/25,H/(46*depth)):Math.min(W/29.5,H/(59*depth))):Math.min(W/30,H/(36*depth));
+ camFocus=lerp(camFocus,!portrait||tracking?cameraTarget():0,.085);
+ camFocusZ=lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.085);
  const cx=W/2,cy=portrait?H*.49:H*.535;
- const pt=(x,z)=>[cx+z*scale,cy-(x-camFocus)*scale*depth];
+ const pt=(x,z)=>[cx+(z-camFocusZ)*scale,cy-(x-camFocus)*scale*depth];
  const path=(pts)=>{ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath()};
  // Deliberate off-rink depth cues, never physics modifiers.
  // Arena dressing lives outside the two long sideboards.
@@ -503,14 +533,14 @@ function render2d(t){
 }
 function roundRect(ctx,x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 
-function render(t){if(fallback2d){render2d(t);return}let mobile=asp<.75;let halfY=mobile?35:16.7;let halfX=halfY*asp;camFocus=lerp(camFocus,mobile?0:cameraTarget(),.047);let look=mat.look(V(camFocus-28,48,0),V(camFocus,0,0));vp=mat.mul(mat.ortho(-halfX,halfX,-halfY,halfY,.1,150),look);gl.clearColor(.018,.055,.089,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);rink();
+function render(t){if(fallback2d){render2d(t);return}let mobile=asp<.75,tracking=mobile&&followActive();let halfY=mobile?(tracking?24.5:35):16.7;let halfX=halfY*asp;camFocus=lerp(camFocus,!mobile||tracking?cameraTarget():0,.047);camFocusZ=lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.047);let look=mat.look(V(camFocus-28,48,camFocusZ),V(camFocus,0,camFocusZ));vp=mat.mul(mat.ortho(-halfX,halfX,-halfY,halfY,.1,150),look);gl.clearColor(.018,.055,.089,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);rink();
 for(let i=0;i<trail.length;i++){let q=trail[i];disk(q.x,.035,q.z,.10,C.white,(1-q.t/.4)*.25)}
 for(let p of players){playerMesh(p,t);const x=p.x,y=3,z=p.z,w=vp[3]*x+vp[7]*y+vp[11]*z+vp[15];playerMarker(p,((vp[0]*x+vp[4]*y+vp[8]*z+vp[12])/w*.5+.5)*W,(.5-(vp[1]*x+vp[5]*y+vp[9]*z+vp[13])/w*.5)*H)}
 ring(puck.x,.04,puck.z,.39,puck.owner?C.gold:C.white);cylinder(puck.x,.14,puck.z,.28,.17,[.012,.023,.032]);cylinder(puck.x,.235,puck.z,.20,.02,[.14,.22,.30]);
 for(let item of powerItems){let pulse=Math.sin(t*4)*.14;ring(item.x,.04,item.z,1.1,item.color,.85);ball(item.x,.75+pulse,item.z,.38,item.color);ball(item.x,1.25+pulse,item.z,.11,C.white,.8)}for(let p of particles){ball(p.x,p.y,p.z,p.r,p.c,clamp(p.life*1.3,0,1))}}
 let lastHUD=0;function frame(ms){let t=ms/1000;let dt=lastTime?Math.min(.055,(ms-lastTime)/1000):0;lastTime=ms;accumulator+=dt;let n=0;while(accumulator>=1/90&&n<5){step(1/90);accumulator-=1/90;n++}render(t);if(t-lastHUD>.09){updateHUD();possessionHUD();lastHUD=t}requestAnimationFrame(frame)}
 makeTeams();resetFaceoff();phase='menu';requestAnimationFrame(frame);
-window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.lock=1},physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
+window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus,cameraFocusZ:camFocusZ,followCamera:followActive()}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.lock=1},physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
 })();
 </script>
 </body>
