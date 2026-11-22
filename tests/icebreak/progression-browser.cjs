@@ -81,6 +81,28 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
    assert.match(completion.daily,/COMPLETE!/);
    assert.match(completion.stats,/GLACIERS/);assert.match(completion.stats,/EMBERS/);
    await page.screenshot({path:path.join(out,'shift-book-final-'+renderer+'-'+viewport.width+'.png')});
+   const access=await page.evaluate(()=>{
+    const play=document.getElementById('playBtn').getBoundingClientRect(),change=document.getElementById('changeSetupBtn').getBoundingClientRect();
+    const panel=document.querySelector('#overlay .panel');
+    return {playTop:play.top,playBottom:play.bottom,changeBottom:change.bottom,scrollTop:panel.scrollTop,
+      setupHidden:document.getElementById('setup').hidden};
+   });
+   assert.equal(access.setupHidden,true,'finished match must not bury replay under the setup form');
+   assert.ok(access.playTop>=0&&access.playBottom<=viewport.height,'Play Again must be in view without scrolling');
+   assert.ok(access.changeBottom<=viewport.height,'Change Setup must also be visible');
+   assert.equal(access.scrollTop,0,'previous setup scroll cannot hide finished-match title');
+   await page.locator('#changeSetupBtn').click();
+   assert.equal(await page.evaluate(()=>window.fixture.phase),'menu');
+   await page.locator('button[data-mode="powerups"]').click();
+   const changed=await page.evaluate(()=>({mode:window.fixture.config.mode,record:document.getElementById('dailyChallengeRecord').textContent,
+     reportHidden:document.getElementById('matchReport').hidden}));
+   assert.equal(changed.mode,'powerups');assert.equal(changed.reportHidden,true);
+   assert.match(changed.record,/No completed solo matches in powerups/);
+   await page.locator('button[data-mode="regular"]').click();
+   await page.locator('#playBtn').click();
+   const newShift=await page.evaluate(()=>({phase:window.fixture.phase,shots:window.fixture.matchStats.human.shots,
+     stored:JSON.parse(localStorage.getItem('icebreak:shift-book:v1')).modes.regular.games}));
+   assert.equal(newShift.phase,'playing');assert.equal(newShift.shots,0);assert.equal(newShift.stored,1);
    await page.reload();await page.waitForFunction(()=>window.fixture&&window.__ICEBREAK_TEST__);
    const persisted=await page.evaluate(()=>{
     const f=window.fixture,name=document.getElementById('dailyChallengeName').textContent,
