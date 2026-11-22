@@ -102,7 +102,7 @@ const config={mode:'regular',rink:'school',seats:['kb1','ai','ai','ai','ai','ai'
 const inputState=new Map(),lastInputButtons=new Map();let powerItems=[],powerSpawn=6,activeHumans=1;
 const activeInputs=()=>new Set(config.seats.filter(v=>v!=='ai'));
 const humanFor=key=>players.find(p=>p.device===key);
-function updateSeatCount(){activeHumans=config.seats.filter(v=>v!=='ai').length;hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI';document.body.classList.toggle('no-touch-seat',!config.seats.includes('kb1'));syncViewButton()}
+function updateSeatCount(){activeHumans=config.seats.filter(v=>v!=='ai').length;hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI';document.body?.classList?.toggle('no-touch-seat',!config.seats.includes('kb1'));syncViewButton()}
 function setupLobby(){
  const options=[['ai','AI'],['kb1','Keyboard 1'],['kb2','Keyboard 2'],...Array.from({length:8},(_,i)=>['pad'+i,'Gamepad '+(i+1)])];
  for(let team=0;team<2;team++){
