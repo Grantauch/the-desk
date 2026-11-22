@@ -43,7 +43,14 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
    if(renderer==='webgl'){
     assert.equal(down.ink.lost,false);
     assert.equal(down.ink.error,0);
-    assert.ok(down.ink.ice[0]>down.ink.boards[0]+40,'painted WebGL ice must contrast with the dark boards');
+    // ICEBREAK's painted ice is blue: use perceived luminance rather than red alone.
+    const luminance=([r,g,b])=>.2126*r+.7152*g+.0722*b;
+    const contrast=luminance(down.ink.ice)-luminance(down.ink.boards);
+    if(!(contrast>40)){
+      await page.screenshot({path:path.join(out,'contrast-diagnostic-'+renderer+'-'+viewport.width+'.png')});
+      console.error('WEBGL CONTRAST DIAGNOSTIC '+JSON.stringify({viewport,ink:down.ink,contrast}));
+    }
+    assert.ok(contrast>40,'painted WebGL ice must have clear luminance contrast with dark boards: '+contrast.toFixed(1));
    }
    await page.waitForTimeout(90); // allow the browser compositor to present the finished frame
    await page.screenshot({path:path.join(out,'body-check-down-'+renderer+'-'+viewport.width+'.png')});
