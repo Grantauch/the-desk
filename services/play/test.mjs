@@ -8,13 +8,13 @@ let url = process.env.PLAY_URL;
 let child;
 if (!url) {
   const port = 4299;
-  child = spawn(process.execPath, ["server.mjs"], { env: { ...process.env, PORT: String(port), ALLOW_LOCAL: "1", GRACE_MS: "1500" }, stdio: ["ignore", "pipe", "inherit"] });
+  child = spawn(process.execPath, ["server.mjs"], { env: { ...process.env, PORT: String(port), ALLOW_LOCAL: "1", GRACE_MS: "1500", ORIGINS: "https://grant-desk.com,https://freegameplace.com" }, stdio: ["ignore", "pipe", "inherit"] });
   await new Promise((ok) => child.stdout.once("data", ok));
   url = `ws://127.0.0.1:${port}/ws`;
 }
 
-function client() {
-  const ws = new WebSocket(url, { origin: ORIGIN });
+function client(origin = ORIGIN) {
+  const ws = new WebSocket(url, { origin });
   const inbox = [];
   const waiters = [];
   ws.on("message", (d) => {
@@ -96,6 +96,29 @@ try {
   assert.equal(end.win, true);
   assert.equal(end.why, "disconnected");
 
+  // Players from freegameplace.com never meet players from the class site.
+  if (!process.env.PLAY_URL) {
+    const pub1 = client("https://freegameplace.com"), pub2 = client("https://freegameplace.com"), cls = client();
+    await Promise.all([pub1.open(), pub2.open(), cls.open()]);
+    pub1.send({ t: "quick", game: "blitzkrieg" });
+    await pub1.next("waiting");
+    cls.send({ t: "quick", game: "blitzkrieg" });
+    await cls.next("waiting");
+    pub2.send({ t: "quick", game: "blitzkrieg" });
+    const [p1, p2] = await Promise.all([pub1.next("start"), pub2.next("start")]);
+    assert.equal(p1.code, p2.code);
+    cls.send({ t: "leave" });
+    const cls2 = client();
+    await cls2.open();
+    cls2.send({ t: "create", game: "blitzkrieg" });
+    const room = await cls2.next("waiting");
+    const pub3 = client("https://freegameplace.com");
+    await pub3.open();
+    pub3.send({ t: "join", game: "blitzkrieg", code: room.code });
+    await pub3.next("error");
+    for (const x of [pub1, pub2, cls, cls2, pub3]) x.close();
+  }
+
   // Unknown origins are refused.
   if (!process.env.PLAY_URL) {
     const bad = new WebSocket(url, { origin: "https://example.com" });
@@ -103,7 +126,7 @@ try {
   }
 
   for (const x of [a2, b, c, q2]) x.close();
-  console.log("PASS play server: codes, join, relay, full room, bad code, reconnect, loss, quick match, disconnect forfeit, origin check");
+  console.log("PASS play server: codes, join, relay, full room, bad code, reconnect, loss, quick match, disconnect forfeit, site separation, origin check");
 } finally {
   if (child) child.kill();
 }
