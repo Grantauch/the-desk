@@ -371,6 +371,145 @@ test('SW-050 student credential and action proof service', { skip: !databaseUrl 
       });
     });
 
+    await t.test('T-PIN-017 unassigned directory student cannot use either kiosk until a section is activated', async () => {
+      await withFixture(pool, async ({ service, client, base }) => {
+        await service.provisionPin(base.studentA2, PIN_A2);
+        // The directory is not the roster. Pending membership means no kiosk access.
+        await client.query(
+          "UPDATE enrollments SET status='PENDING_REVIEW' WHERE school_id=$1 AND student_id=$2",
+          [base.schoolA, base.studentA2],
+        );
+        await expectCode(service.authorizeAction({
+          identityAssertion: 'student-a2', pin: PIN_A2, action: 'CHECKIN',
+          sectionId: base.sectionA1, correlationId: randomUUID(),
+        }), 'ACTION_WRONG_CONTEXT');
+        await expectCode(service.authorizeAction({
+          identityAssertion: 'student-a2', pin: PIN_A2, action: 'PASS_REQUEST',
+          sectionId: base.sectionA2, correlationId: randomUUID(),
+        }), 'ACTION_WRONG_CONTEXT');
+        const denied = await client.query<{ count: string }>(
+          'SELECT count(*)::text AS count FROM action_proofs WHERE student_id=$1', [base.studentA2],
+        );
+        assert.equal(denied.rows[0]?.count, '0');
+
+        // Teacher B activates only their own section, never teacher A's section.
+        await client.query(
+          "UPDATE enrollments SET status='ACTIVE' WHERE school_id=$1 AND student_id=$2 AND section_id=$3",
+          [base.schoolA, base.studentA2, base.sectionA2],
+        );
+        const secondSection = await service.authorizeAction({
+          identityAssertion: 'student-a2', pin: PIN_A2, action: 'PASS_REQUEST',
+          sectionId: base.sectionA2, correlationId: randomUUID(),
+        });
+        assert.equal(secondSection.studentId, base.studentA2);
+        assert.equal(secondSection.sectionId, base.sectionA2);
+        await expectCode(service.authorizeAction({
+          identityAssertion: 'student-a2', pin: PIN_A2, action: 'CHECKIN',
+          sectionId: base.sectionA1, correlationId: randomUUID(),
+        }), 'ACTION_WRONG_CONTEXT');
+      });
+    });
+
+    await t.test('T-PIN-018 inactive student is denied despite valid PIN and prior class membership', async () => {
+      await withFixture(pool, async ({ service, client, base }) => {
+        await service.provisionPin(base.studentA, PIN_A);
+        await client.query("UPDATE students SET status='INACTIVE' WHERE id=$1", [base.studentA]);
+        for (const sectionId of [base.sectionA1, base.sectionA2]) {
+          await expectCode(service.authorizeAction({
+            identityAssertion: 'student-a', pin: PIN_A, action: 'PASS_REQUEST',
+            sectionId, correlationId: randomUUID(),
+          }), 'STUDENT_AUTH_REQUIRED');
+        }
+        await expectCode(service.rotatePin(base.studentA, '99999'), 'STUDENT_AUTH_REQUIRED');
+        const denied = await client.query<{ count: string }>(
+          'SELECT count(*)::text AS count FROM action_proofs WHERE student_id=$1', [base.studentA],
+        );
+        assert.equal(denied.rows[0]?.count, '0');
+      });
+    });
+
+    await t.test('T-PIN-019 two staff accounts isolate sections while a shared student keeps one PIN', async () => {
+      await withFixture(pool, async ({ service, database, provider, client, base }) => {
+        const teacherTwo = randomUUID();
+        await client.query(
+          "INSERT INTO users (id,organization_id,primary_email,display_name,google_subject_id) VALUES ($1,$2,'synthetic-second-teacher@example.invalid','Synthetic Teacher Two','synthetic-staff-second')",
+          [teacherTwo, base.orgA],
+        );
+        await client.query(
+          "INSERT INTO staff_profiles (user_id,organization_id,title) VALUES ($1,$2,'Teacher')",
+          [teacherTwo, base.orgA],
+        );
+        await client.query(
+          "INSERT INTO user_roles (organization_id,school_id,user_id,role) VALUES ($1,$2,$3,'TEACHER')",
+          [base.orgA, base.schoolA, teacherTwo],
+        );
+        await client.query(
+          "INSERT INTO section_staff_assignments (organization_id,school_id,section_id,user_id,assignment_role) VALUES ($1,$2,$3,$4,'PRIMARY_TEACHER')",
+          [base.orgA, base.schoolA, base.sectionA2, teacherTwo],
+        );
+        const staffProvider = {
+          async verify(assertion: string) {
+            if (assertion === 'synthetic-teacher-one') return { provider: 'SYNTHETIC' as const, subject: 'google-teacher-alpha' };
+            if (assertion === 'synthetic-teacher-two') return { provider: 'SYNTHETIC' as const, subject: 'synthetic-staff-second' };
+            throw new Error('Unknown fictional staff identity');
+          },
+        };
+        const app = buildApp({
+          config, database, identityProvider: staffProvider, studentIdentityProvider: provider,
+          studentCredentialOptions: { pepper: TEST_PEPPER, legacyPinSalt: TEST_LEGACY_SALT },
+        });
+        try {
+          const firstLogin = await app.inject({
+            method: 'POST', url: '/auth/session', payload: { assertion: 'synthetic-teacher-one' },
+          });
+          const secondLogin = await app.inject({
+            method: 'POST', url: '/auth/session', payload: { assertion: 'synthetic-teacher-two' },
+          });
+          assert.equal(firstLogin.statusCode, 201, firstLogin.body);
+          assert.equal(secondLogin.statusCode, 201, secondLogin.body);
+          const token1 = firstLogin.json<{ token: string }>().token;
+          const token2 = secondLogin.json<{ token: string }>().token;
+          for (const [token, allowed, denied] of [
+            [token1, base.sectionA1, base.sectionA2],
+            [token2, base.sectionA2, base.sectionA1],
+          ]) {
+            const own = await app.inject({
+              method: 'GET', url: '/api/sections/' + allowed + '/teacher-context',
+              headers: { authorization: 'Bearer ' + token },
+            });
+            const other = await app.inject({
+              method: 'GET', url: '/api/sections/' + denied + '/teacher-context',
+              headers: { authorization: 'Bearer ' + token },
+            });
+            assert.equal(own.statusCode, 200, own.body);
+            assert.equal(other.statusCode, 403, other.body);
+          }
+          await service.provisionPin(base.studentA, PIN_A);
+          const first = await service.authorizeAction({
+            identityAssertion: 'student-a', pin: PIN_A, action: 'CHECKIN',
+            sectionId: base.sectionA1, correlationId: randomUUID(),
+          });
+          const second = await service.authorizeAction({
+            identityAssertion: 'student-a', pin: PIN_A, action: 'PASS_REQUEST',
+            sectionId: base.sectionA2, correlationId: randomUUID(),
+          });
+          assert.equal(first.studentId, second.studentId);
+          assert.notEqual(first.proof, second.proof);
+          await expectCode(service.consumeActionProof({
+            proof: first.proof, studentId: base.studentA, action: 'CHECKIN',
+            sectionId: base.sectionA2,
+          }), 'ACTION_WRONG_CONTEXT');
+          const correct = await service.consumeActionProof({
+            proof: first.proof, studentId: base.studentA, action: 'CHECKIN',
+            sectionId: base.sectionA1,
+          });
+          assert.equal(correct.studentId, base.studentA);
+        } finally {
+          await app.close();
+        }
+      });
+    });
+
     await t.test('T-PIN-012 throttling is student-scoped and does not deny an unrelated student', async () => {
       await withFixture(pool, async ({ service, base }) => {
         await service.provisionPin(base.studentA, PIN_A);
