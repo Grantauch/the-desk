@@ -687,11 +687,11 @@ if(p.checkWindow>0||p.hitFlash>0||p.checkRecovery>0&&!p.checkConnected)
  ring(p.x,.058,p.z,1.38,p.hitFlash>0?C.gold:p.checkRecovery>0&&!p.checkConnected?C.redLight:C.white);
 // Body and kit are separate 3D volumes: jersey, shoulder pads, helmet, legs, gloves, stick.
 const lean=clamp(p.skid*.025,-.18,.18)+p.fallSide*fall*1.05+pose.side*pose.hit*.44+pose.swing*.28-pose.miss*.32;
- const tiltX=-fz*(p.fallSide*fall*.55+pose.side*pose.hit*.21),tiltZ=fx*(p.fallSide*fall*.55+pose.side*pose.hit*.21);
+ const tiltX=-fz*(p.fallSide*fall*1.05+pose.side*pose.hit*.28),tiltZ=fx*(p.fallSide*fall*1.05+pose.side*pose.hit*.28);
  draw(meshes.cyl,p.x+tiltX*.4,bodyY,p.z+tiltZ*.4,.50,.90,.44,col,-turn,1,0,lean);
  cylinder(p.x+tiltX*.4,bodyY+.42-fall*.13,p.z+tiltZ*.4,.38,.12,highlight);
- ball(p.x+tiltX+fx*.17,bodyY+.87-fall*.46,p.z+tiltZ+fz*.17,.38,[.09,.17,.24]);
- ball(p.x+tiltX+fx*.34,bodyY+.91-fall*.46,p.z+tiltZ+fz*.17,.12,C.white);
+ ball(p.x+tiltX+fx*.17,bodyY+.87-fall*.67,p.z+tiltZ+fz*.17,.38,[.09,.17,.24]);
+ ball(p.x+tiltX+fx*.34,bodyY+.91-fall*.67,p.z+tiltZ+fz*.17,.12,C.white);
  cube(p.x+tiltX*.28,bodyY+.04-fall*.12,p.z+tiltZ*.28,.93,.11,.87,p.team===0?[.93,.98,1]:[.99,.93,.88],-turn);
 for(let side of [-1,1]){let ox=-fz*side*.23,oz=fx*side*.23;let legX=p.x+ox+fx*.1,legZ=p.z+oz+fz*.1;cube(legX,bodyY-.67+fall*.24+pose.stand*.08,legZ,.22,.68,.25,[.07,.17,.24],-turn+skate*side*(1-fall*.8)+pose.side*pose.hit*.23*side);cube(legX+fx*.16,.22,legZ+fz*.16,.49,.10,.19,[.035,.08,.15],-turn);ball(p.x+ox*1.75+fx*(.11+pose.swing*.24-pose.miss*.13),bodyY+.20+pose.swing*.20-pose.stand*.13-pose.hit*.11,p.z+oz*1.75+fz*(.11+pose.swing*.24-pose.miss*.13),.23,col)}
 const blade=stickPoint(p),stickX=blade.x-fx*.28,stickZ=blade.z-fz*.28;if(cheer){cube(p.x-fz*.42,bodyY+1.02,p.z+fx*.42,.065,1.9,.065,[.29,.24,.20],-turn);cube(p.x-fz*.42,bodyY+1.95,p.z+fx*.42,.65,.10,.14,[.14,.19,.22],-turn)}else{cube(stickX+fx*pose.swing*.21,bodyY-.28+fall*.42+pose.swing*.20,stickZ+fz*pose.swing*.21,.065,1.66*(1-fall*.55),.065,[.29,.24,.20],-turn+pose.swing*.21-pose.miss*.16,1);cube(blade.x,.10,blade.z,.55,.13,.16,[.14,.19,.22],-turn)}
@@ -785,7 +785,7 @@ function render2d(t){
  for(let p of [...players].sort((a,b)=>b.x-a.x)){
   const [x,y]=pt(p.x,p.z),v=Math.hypot(p.vx,p.vz),angle=p.facing-Math.PI/2,blueTeam=p.team===0;ctx.save();ctx.translate(x,y);const bodyScale=clamp(scale/18,1,1.5);ctx.scale(bodyScale,depth*bodyScale);
   ctx.fillStyle='#0c39594d';ctx.beginPath();ctx.ellipse(3,5,p.goalie?14:10,p.goalie?10:7,0,0,Math.PI*2);ctx.fill();
-  const pose=bodyPose(p),fall=pose.fall;ctx.translate(p.fallSide*fall*7+pose.side*pose.hit*5,pose.stand*2+pose.brace);ctx.rotate(angle+p.fallSide*fall*.42+pose.side*pose.hit*.20+pose.swing*.17-pose.miss*.17);ctx.scale(1+fall*.46+pose.swing*.10,1-fall*.25-pose.stand*.12);ctx.lineWidth=2.3;ctx.strokeStyle='#223a4c';for(let z of [-5,5]){ctx.beginPath();ctx.moveTo(-8,z);ctx.lineTo(3,z);ctx.stroke()}
+  const pose=bodyPose(p),fall=pose.fall;ctx.translate(p.fallSide*fall*11+pose.side*pose.hit*5,pose.stand*2+pose.brace);ctx.rotate(angle+p.fallSide*fall*.42+pose.side*pose.hit*.20+pose.swing*.17-pose.miss*.17);ctx.scale(1+fall*.62+pose.swing*.10,1-fall*.32-pose.stand*.12);ctx.lineWidth=2.3;ctx.strokeStyle='#223a4c';for(let z of [-5,5]){ctx.beginPath();ctx.moveTo(-8,z);ctx.lineTo(3,z);ctx.stroke()}
   // Offset gloves, pads, helmet and stick draw as layered pseudo-3D volumes.
   ctx.fillStyle=p.goalie?'#f5faff':blueTeam?'#20a3ec':'#e85247';roundRect(ctx,-8,-8,17,16,5);ctx.fill();ctx.fillStyle=blueTeam?'#b1f6ff':'#ffe0c9';ctx.fillRect(-2,-8,5,16);
   ctx.fillStyle=blueTeam?'#143e5b':'#6c2833';for(let side of [-1,1]){ctx.beginPath();ctx.arc(-4,side*9,3.8,0,Math.PI*2);ctx.fill()}
