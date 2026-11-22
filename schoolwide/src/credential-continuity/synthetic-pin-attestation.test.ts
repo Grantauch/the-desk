@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
   issueSyntheticLegacyPinAttestation,
   verifySyntheticLegacyPinAttestation,
+  type SyntheticNonceConsumption,
+  type LegacyPinAttestationVerification,
 } from './synthetic-pin-attestation.js';
 
 const secret = Buffer.alloc(32, 0x55); // Fictional development key only.
@@ -20,18 +22,20 @@ const base = {
 
 function nonceGuard() {
   const seen = new Set<string>();
-  return async (digest: string, expires: number) => {
-    assert.match(digest, /^[a-f0-9]{64}$/);
-    assert.equal(expires, now + 60);
-    if (seen.has(digest)) return false;
-    seen.add(digest);
+  return async ({ nonceDigest, expiresAtEpochSeconds, issuer, schoolId }: SyntheticNonceConsumption) => {
+    assert.match(nonceDigest, /^[a-f0-9]{64}$/);
+    assert.equal(expiresAtEpochSeconds, now + 60);
+    assert.equal(issuer, base.issuer);
+    assert.equal(schoolId, base.schoolId);
+    if (seen.has(nonceDigest)) return false;
+    seen.add(nonceDigest);
     return true;
   };
 }
 
 function verify(
   token: string,
-  consumeNonceDigest: (digest: string, expires: number) => Promise<boolean>,
+  consumeNonceDigest: LegacyPinAttestationVerification['consumeNonceDigest'],
   overrides: Partial<Parameters<typeof verifySyntheticLegacyPinAttestation>[0]> = {},
 ) {
   return verifySyntheticLegacyPinAttestation({
