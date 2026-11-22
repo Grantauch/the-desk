@@ -153,7 +153,7 @@ const results=[];
       });
       return {devices,inputs,finite,moved,pad0:{axisX:disconnected.axisX,axisY:disconnected.axisY,burst:disconnected.burst},
        pad1:unaffected.axisX,seatCount:document.getElementById('seatCount').textContent,
-       markerSeats,goalieSafe,goalieMarkers:goalieMarkers.map(n=>({label:n.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}))};
+       markerSeats,goalieSafe,touchControlsHidden:getComputedStyle(document.querySelector('.mobilecontrols')).display==='none',goalieMarkers:goalieMarkers.map(n=>({label:n.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}))};
      });
      assert.equal(new Set(pads.devices).size,8);
      assert.equal(pads.devices.length,8);
@@ -167,6 +167,7 @@ const results=[];
      assert.deepEqual(pads.markerSeats,[1,2,3,4,5,6,7,8],
       'multiplayer camera must keep all eight human position markers visible');
      assert.equal(pads.goalieSafe,true,'both goalie markers must clear the HUD, touch controls, and screen edges: '+JSON.stringify(pads.goalieMarkers));
+     assert.equal(pads.touchControlsHidden,true,'touch overlays must hide when no keyboard-1 touch seat is assigned');
      // Goalies share the same Gamepad API but A is a puck clear, not a
      // regular outfield pass. The position stays inside the goal crease.
      const goalie=await page.evaluate(()=>{
@@ -213,6 +214,8 @@ const results=[];
      assert.equal(contact.frozen,true);
      await page.keyboard.press('Enter');
      assert.equal(await page.evaluate(()=>window.fixture.phase),'playing');
+     if(mobile)assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('.mobilecontrols')).display),'block',
+      'touch controls must return when the keyboard-1 seat is reassigned');
      assert.equal(await page.evaluate(()=>window.fixture.players.filter(p=>['kb1','kb2'].includes(p.device)).length),2);
      await page.screenshot({path:path.join(out,'local-multiplayer-'+renderer+'-'+viewport.width+'-restarted.png')});
      assert.deepEqual(errors,[],'no browser page errors');
