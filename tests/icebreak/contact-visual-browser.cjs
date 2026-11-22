@@ -30,7 +30,10 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
     f.updateHUD();f.render(.18);
     const canvas=document.getElementById('game'),gl=canvas.getContext('webgl2')||canvas.getContext('webgl');
     const pixel=(x,y)=>{const bytes=new Uint8Array(4);gl.readPixels(Math.floor(canvas.width*x),Math.floor(canvas.height*y),1,1,gl.RGBA,gl.UNSIGNED_BYTE,bytes);return [...bytes]};
-    const ink=gl?{ice:pixel(.5,.60),boards:pixel(.07,.60),lost:gl.isContextLost(),error:gl.getError()}:null;
+    // Use the median of separate ice interior points. A full-rink camera
+    // can put the blue/red painted lines under any single fixed pixel.
+    const iceSamples=gl?[pixel(.50,.45),pixel(.50,.51),pixel(.50,.57)]:[];
+    const ink=gl?{ice:iceSamples.sort((a,b)=>a[0]-b[0])[1],boards:pixel(.07,.60),lost:gl.isContextLost(),error:gl.getError()}:null;
     const marker=[...document.querySelectorAll('.player-marker')].find(x=>!x.hidden&&x.textContent.includes('DOWN'));
     const pose=f.bodyPose(target);
     return {renderer:api.getState().renderer,contact,down:target.fallTime>0,pose,marker:marker?.textContent||null,
