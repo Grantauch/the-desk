@@ -18,6 +18,7 @@ const subjectCues: Record<string, { skin: string; cues: string[] }> = {
   'blitzkrieg': { skin: 'subject-blitzkrieg', cues: ['10 playable maps', 'defend the road', 'upgrade the guns'] },
   'robber barons': { skin: 'subject-robber-barons', cues: ['buy railroads', 'negotiate deals', 'survive 1893'] },
   'bridge lab': { skin: 'subject-bridge-lab', cues: ['lay the road', 'add triangles', 'send the truck'] },
+  'manifest: 1848': { skin: 'subject-manifest', cues: ['pick your wagon', 'play the trail', 'beat the snow'] },
 };
 const subject = subjectCues[label.toLowerCase()];
 ---
@@ -196,6 +197,11 @@ const subject = subjectCues[label.toLowerCase()];
     text-transform: uppercase;
   }
   .game-preview.subject-blitzkrieg .preview-heading span { color: #dedcbb; }
+  /* Manifest: 1848: prairie storm light, wood type gold on dark sky. */
+  .game-preview.subject-manifest { background: linear-gradient(180deg, #2c3442 0%, #4a3a2a 55%, #7a5524 100%); color: #f6ead0; }
+  .game-preview.subject-manifest .preview-heading strong { color: #f1cf72; font-family: Georgia, serif; font-weight: 700; letter-spacing: .01em; }
+  .game-preview.subject-manifest .preview-heading span { color: #f0e2c4; }
+  .game-preview.subject-manifest .subject-strip { border-color: #f1cf72; }
   /* Bridge Lab: alpine dusk over the gorge, with a gold Warren truss along the bottom edge. */
   .game-preview.subject-bridge-lab { background: linear-gradient(180deg, #4d6f8c 0%, #23394a 58%, #10202a 100%); color: #eef3f4; }
   .game-preview.subject-bridge-lab .preview-heading strong { color: #f4b942; font-weight: 800; letter-spacing: -.02em; text-transform: uppercase; }
