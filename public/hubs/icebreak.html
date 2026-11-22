@@ -61,6 +61,33 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
 .ai-level select{flex:1;min-width:0;max-width:270px;border-radius:5px;border:1px solid #64acc8;color:#e9f9ff;background:#15394b;padding:8px;font-size:11px;font-weight:800;cursor:pointer}
 .ai-level small{display:block;font-size:9px!important;letter-spacing:.2px!important;color:#90bdcb!important;margin:0!important;flex:1;text-align:right}
 @media(max-width:760px){.ai-level{margin:10px 0 4px;gap:7px}.ai-level small{display:none}.ai-level label{font-size:9px;letter-spacing:1px}.ai-level select{padding:7px 5px;font-size:10px}}
+
+/* Keep the full start action above the fold after adding fair AI selection. */
+@media(max-width:760px){
+ .panel{padding:15px 18px 17px}
+ .panel h1{font-size:48px;margin:3px 0}
+ .panel>.accentline{margin:8px auto}
+ .panel>p{font-size:12px;line-height:1.4;margin:8px auto 11px}
+ .setup-head{margin:8px 0 6px}
+ .modes .choice{min-height:52px;padding:8px 12px}
+ .rink-art{height:49px}
+ .rink-card>strong{padding-top:5px}
+ .seats{margin-top:9px;padding:9px 11px}
+ .guide{margin-top:9px;padding:8px 11px}
+ .shiftbook{margin:9px 0 2px;padding:9px;gap:4px}
+ .ai-level{margin:8px 0 4px;padding:4px 7px}
+ .ai-level select{min-height:42px}
+ .panel>.primary{margin:11px auto 0;padding:14px 26px}
+ .panel>small{margin-top:11px}
+}
+@media(min-width:761px){
+ .panel{padding-top:24px;padding-bottom:24px}
+ .panel>.accentline{margin:9px auto}
+ .panel>p{margin:9px auto 14px}
+ .setup-head{margin:9px 0 6px}
+ .shiftbook{margin-top:10px}
+ .panel>.primary{margin-top:13px}
+}
 </style>
 </head>
 <body>
