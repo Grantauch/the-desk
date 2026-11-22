@@ -27,6 +27,7 @@ const paths = [
   '/simulations/',
   '/games/',
   '/hubs/blitzkrieg/',
+  '/hubs/bridge-lab/',
   '/hubs/boss-fight-review.html',
   '/hubs/evidence-locker.html',
   '/hubs/reconstruction-case-file-student.html',

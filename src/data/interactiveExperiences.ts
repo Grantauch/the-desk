@@ -16,6 +16,16 @@ export interface Hub {
 
 export const interactiveExperiences: Hub[] = [
   {
+    name: 'bridge lab',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'bridge engineering game',
+    theme: 'lab',
+    previewEyebrow: 'ten levels · real physics',
+    href: '/hubs/bridge-lab/',
+    blurb: 'Build a bridge across the gorge, then send the traffic over and watch which pieces hold and which ones snap. Ten levels run from a first timber truss to a heavy hauler towing a loaded trailer. Progress saves on this device and nothing is sent anywhere.',
+  },
+  {
     name: 'gridiron blitz',
     section: 'game',
     course: 'just for fun',
