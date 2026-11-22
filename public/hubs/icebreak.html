@@ -436,19 +436,28 @@ function ai(p,dt){
   const shotLane=clearLane(p.x,p.z,enemyGoal,clamp(p.z*.35,-GOALZ+0.6,GOALZ-0.6),defenders,1.5);
   const underPressure=enemies.some(e=>dist(e,p)<3.8);
   const receiver=bestPass(p);
+  // Allow an actual receiver's passer to finish the cut before the return pass.
+  // An immediate clear shot near goal still wins over the set play.
+  const returnReady=p.comboCooldown<=0&&receiver?.lane&&receiver.t.cutReceiver===p
+   &&receiver.t.cutTime>0&&receiver.t.cutTime<COMBO.window-COMBO.goDelay
+   &&(receiver.tx-p.x)*attack>COMBO.minProgress;
   if(Math.abs(enemyGoal-p.x)<14&&Math.abs(p.z)<8&&p.shootWait<=0&&shotLane&&rnd()<dt*.9){
    shot(p,clamp((14-Math.abs(enemyGoal-p.x))/12,.15,.7));
-  }else if(underPressure&&p.shootWait<=0&&receiver&&receiver.lane&&receiver.score>0&&rnd()<dt*1.3){
-   pass(p);
-  }
+  }else if(returnReady&&p.shootWait<=0){pass(p)}
+  else if(underPressure&&p.shootWait<=0&&receiver&&receiver.lane&&receiver.score>0&&rnd()<dt*1.3){pass(p)}
+
  }else if(teamHas){
-  const partner=mates.filter(t=>t!==carrier).sort((a,b)=>a.id-b.id);
-  const rank=partner.indexOf(p),side=rank===0?-1:1;
-  const baseX=clamp(carrier.x+attack*(rank===0?5.7:9),-23.5,23.5);
-  let baseZ=clamp(carrier.z+side*(rank===0?6.6:7.9),-10.2,10.2);
-  // Open a passing window rather than skating straight into a defender.
-  for(const enemy of enemies)if(Math.hypot(enemy.x-baseX,enemy.z-baseZ)<3.2)baseZ=clamp(baseZ+(baseZ>=enemy.z?1:-1)*2.3,-10.2,10.2);
-  target={x:baseX,z:baseZ};
+  if(p.cutTime>0&&p.cutReceiver===carrier&&p.device==='ai'){
+   target=giveGoTarget(p,carrier,enemies);
+  }else{
+   const partner=mates.filter(t=>t!==carrier).sort((a,b)=>a.id-b.id);
+   const rank=partner.indexOf(p),side=rank===0?-1:1;
+   const baseX=clamp(carrier.x+attack*(rank===0?5.7:9),-23.5,23.5);
+   let baseZ=clamp(carrier.z+side*(rank===0?6.6:7.9),-10.2,10.2);
+   // Open a passing window rather than skating straight into a defender.
+   for(const enemy of enemies)if(Math.hypot(enemy.x-baseX,enemy.z-baseZ)<3.2)baseZ=clamp(baseZ+(baseZ>=enemy.z?1:-1)*2.3,-10.2,10.2);
+   target={x:baseX,z:baseZ};
+  }
  }else{
   // The first defender closes on projected puck travel; the second cuts off
   // the middle lane and the last protects the slot instead of all chasing.
