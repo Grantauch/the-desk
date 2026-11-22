@@ -772,15 +772,15 @@ function render2d(t){
  const ctx=ctx2d,dpr=canvas.width/W;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
  const school=config.rink==='school',park=config.rink==='park',mars=config.rink==='mars';
  let bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,mars?'#291932':park?'#132d45':'#0b2033');bg.addColorStop(.56,mars?'#884251':park?'#396d82':'#19394c');bg.addColorStop(1,mars?'#3d1d27':park?'#c5dfe1':'#061521');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
- const portrait=asp<.75;
+ const portrait=W<=760||asp<.75,multiplayer=activeHumans>1;
  const depth=.86;
  // The long x axis now runs from bottom (Glaciers) to top (Embers).
- // Landscape intentionally crops the ends so the players are legible; portrait
- // frames the full rink and does not yank the camera after every loose puck.
+ // Solo landscape zooms into the play for legibility; with two or more human
+ // seats, every skater and both goalies must remain inside the full-rink view.
  const tracking=portrait&&followActive();
- const scale=portrait?(tracking?Math.min(W/25,H/(46*depth)):Math.min(W/29.5,H/(59*depth))):Math.min(W/30,H/(36*depth));
- camFocus=lerp(camFocus,!portrait||tracking?cameraTarget():0,.085);
- camFocusZ=lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.085);
+ const scale=portrait?(tracking?Math.min(W/25,H/(46*depth)):multiplayer?Math.min(W/36,H/(76*depth)):Math.min(W/29.5,H/(59*depth))):multiplayer?Math.min(W/34,H/(70*depth)):Math.min(W/30,H/(36*depth));
+ camFocus=multiplayer?0:lerp(camFocus,!portrait||tracking?cameraTarget():0,.085);
+ camFocusZ=multiplayer?0:lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.085);
  const cx=W/2,cy=portrait?H*.49:H*.535;
  const pt=(x,z)=>[cx+(z-camFocusZ)*scale,cy-(x-camFocus)*scale*depth];
  const path=(pts)=>{ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath()};
@@ -863,7 +863,10 @@ function render2d(t){
 }
 function roundRect(ctx,x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 
-function renderScene(t){if(fallback2d){render2d(t);return}let mobile=asp<.75,tracking=mobile&&followActive();let halfY=mobile?(tracking?24.5:35):16.7;let halfX=halfY*asp;camFocus=lerp(camFocus,!mobile||tracking?cameraTarget():0,.047);camFocusZ=lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.047);let look=mat.look(V(camFocus-28,48,camFocusZ),V(camFocus,0,camFocusZ));vp=mat.mul(mat.ortho(-halfX,halfX,-halfY,halfY,.1,150),look);gl.clearColor(.018,.055,.089,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);rink();
+function renderScene(t){if(fallback2d){render2d(t);return}let mobile=W<=760||asp<.75,multiplayer=activeHumans>1,tracking=mobile&&followActive();
+ let halfY=mobile?(tracking?24.5:multiplayer?47:35):multiplayer?33:16.7,halfX=halfY*asp;
+ camFocus=multiplayer?0:lerp(camFocus,!mobile||tracking?cameraTarget():0,.047);
+ camFocusZ=multiplayer?0:lerp(camFocusZ,tracking&&control?clamp(control.z*.68+puck.z*.32,-3.2,3.2):0,.047);let look=mat.look(V(camFocus-28,48,camFocusZ),V(camFocus,0,camFocusZ));vp=mat.mul(mat.ortho(-halfX,halfX,-halfY,halfY,.1,150),look);gl.clearColor(.018,.055,.089,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);rink();
 for(let i=0;i<trail.length;i++){let q=trail[i];disk(q.x,.035,q.z,.10,C.white,(1-q.t/.4)*.25)}
 for(let p of players){playerMesh(p,t);const x=p.x,y=3,z=p.z,w=vp[3]*x+vp[7]*y+vp[11]*z+vp[15];playerMarker(p,((vp[0]*x+vp[4]*y+vp[8]*z+vp[12])/w*.5+.5)*W,(.5-(vp[1]*x+vp[5]*y+vp[9]*z+vp[13])/w*.5)*H)}
 ring(puck.x,.04,puck.z,.39,puck.owner?C.gold:C.white);cylinder(puck.x,.14,puck.z,.28,.17,[.012,.023,.032]);cylinder(puck.x,.235,puck.z,.20,.02,[.14,.22,.30]);
