@@ -11,8 +11,8 @@ import json
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-VERSION = "0.1.0-prelaunch"
-FILE_NAME = "Schoolwide_Teacher_Prelaunch_v0.1.0.zip"
+VERSION = "0.2.0-prelaunch"
+FILE_NAME = "Schoolwide_Teacher_Prelaunch_v0.2.0.zip"
 ASSETS = ("START-HERE.html", "START-HERE.txt")
 ARCHIVE_ASSETS = (*ASSETS, "PACKAGE-MANIFEST.json")
 FIXED_DATE = (2026, 1, 1, 0, 0, 0)
