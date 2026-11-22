@@ -38,6 +38,7 @@ const results=[];
      try{
       await page.goto(url);
       await page.waitForFunction(()=>window.fixture&&window.__ICEBREAK_TEST__);
+      await page.locator('#playBtn').click(); // Hide the lobby before capturing game-state evidence.
       const actual=await page.evaluate(()=>window.__ICEBREAK_TEST__.getState().renderer);
       if(actual!==renderer&&renderer==='webgl'){
        results.push({renderer,viewport,reduced,status:'unavailable',actual});
@@ -87,6 +88,7 @@ const results=[];
        await page.screenshot({path:path.join(out,prefix+'-tier-'+tier+'.png')});
        if(tier===3){
         assert.equal(state.phase,'injury');
+        assert.match(await page.locator('#overlayTitle').innerText(),/INJURY TIMEOUT/);
         assert.equal(state.fall,1,'injured player must remain down while play stops');
         const pause=await page.evaluate(()=>{
          const f=window.fixture,api=window.__ICEBREAK_TEST__,clock=api.getState().timeLeft;
