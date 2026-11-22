@@ -46,6 +46,10 @@ test('whiff leaves real steering and acceleration recovery without applying a da
  const before=a.facing;
  f.skate(a,0,1,DT);f.skate(baseline,0,1,DT);
  assert.ok(a.facing-before<baseline.facing-before,'whiff should reduce immediate turning authority');
+ const slow=f.makePlayer(0,0,0,0),fresh=f.makePlayer(0,0,0,0);
+ slow.checkRecovery=.2;slow.energy=fresh.energy=a.energy;
+ f.skate(slow,1,0,DT);f.skate(fresh,1,0,DT);
+ assert.ok(slow.vx<fresh.vx,'a missed check must also reduce acceleration');
  api.step(.3);
  assert.equal(a.checkRecovery,0,'normal control returns after a short recovery');
 });
