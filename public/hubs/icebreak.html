@@ -58,6 +58,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
 /* Difficulty changes opponent decisions, never skating or puck physics. */
 .ai-level{display:flex;gap:9px;align-items:center;margin:12px 0 5px;padding:8px 10px;background:#0c2739;border:1px solid #78b5c65b;border-radius:8px}
 .ai-level label{font-size:10px;color:#bce8f2;font-weight:950;letter-spacing:1.5px;white-space:nowrap}
+.ai-level select:disabled{opacity:.72;cursor:not-allowed;border-style:dashed}
 .ai-level select{flex:1;min-width:0;max-width:270px;border-radius:5px;border:1px solid #64acc8;color:#e9f9ff;background:#15394b;padding:8px;font-size:11px;font-weight:800;cursor:pointer}
 .ai-level small{display:block;font-size:9px!important;letter-spacing:.2px!important;color:#90bdcb!important;margin:0!important;flex:1;text-align:right}
 @media(max-width:760px){.ai-level{margin:10px 0 4px;gap:7px}.ai-level small{display:none}.ai-level label{font-size:9px;letter-spacing:1px}.ai-level select{padding:7px 5px;font-size:10px}}
@@ -182,7 +183,15 @@ const config={mode:'regular',difficulty:'standard',rink:'school',seats:['kb1','a
 const inputState=new Map(),lastInputButtons=new Map();let powerItems=[],powerSpawn=6,activeHumans=1;
 const activeInputs=()=>new Set(config.seats.filter(v=>v!=='ai'));
 const humanFor=key=>players.find(p=>p.device===key);
-function updateSeatCount(){activeHumans=config.seats.filter(v=>v!=='ai').length;hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI';syncViewButton()}
+function updateSeatCount(){
+ activeHumans=config.seats.filter(v=>v!=='ai').length;
+ hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI';
+ const localVersus=activeHumans>1;
+ hud.difficulty.disabled=localVersus;
+ hud.difficulty.value=localVersus?'standard':config.difficulty;
+ hud.difficulty.title=localVersus?'Local multiplayer always uses balanced Standard AI for both teams.':'Change AI decisions for the opposing team only. Skating and physics stay equal.';
+ syncViewButton();
+}
 function setupLobby(){
  hud.difficulty.value=config.difficulty;hud.difficulty.addEventListener('change',()=>{if(AI_LEVELS[hud.difficulty.value])config.difficulty=hud.difficulty.value;renderShiftBook()});
  const options=[['ai','AI'],['kb1','Keyboard 1'],['kb2','Keyboard 2'],...Array.from({length:8},(_,i)=>['pad'+i,'Gamepad '+(i+1)])];
