@@ -89,6 +89,7 @@ const ROLE_MASS=[1,.90,1.16,1.35];
 const STICK=Object.freeze({forward:.92,side:.38,releaseClearance:.10,releaseLock:.055,recatchDelay:.24});
 const ONE_TIMER=Object.freeze({buffer:.48,receiveWindow:.30,baseCharge:.35,shotBoost:1.14,accuracy:.75,catchReach:12});
 const MOMENT=Object.freeze({sample:1/30,history:78,goalSeconds:3.25,replayStart:.48,replayEnd:2.55});
+const KEEPER=Object.freeze({readHorizon:.75,readMinSpeed:9,aimBlend:.95,slotLimit:2.55,saveDrag:.76,reboundLock:.23,savePose:.47});
 const inputLabel=device=>device==='kb1'?'K1':device==='kb2'?'K2':device.startsWith('pad')?'P'+(Number(device.slice(3))+1):'AI';
 const stickPoint=p=>{const side=STICK.side+p.puckWobble;return {x:p.x+Math.cos(p.facing)*STICK.forward-Math.sin(p.facing)*side,z:p.z+Math.sin(p.facing)*STICK.forward+Math.cos(p.facing)*side}};
 const ROLES=['CENTER','WING','DEFENDER','GOALIE'];
@@ -167,12 +168,12 @@ function arenaScenery(){
  }
 }
 const labels=['CENTER','WING','DEFENDER'];
-function makePlayer(team,id,x,z,goalie=false){return {team,id,x,z,vx:0,vz:0,facing:team===0?0:Math.PI,energy:1,balance:1,goalie,check:0,checkWindow:0,checkEffort:0,checkConnected:false,checkRecovery:0,effortRecovery:0,brace:0,puckWobble:0,hitFlash:0,stun:0,shootWait:0,shotCharge:0,receiveWait:0,receiveWindow:0,oneTimerBuffer:0,oneTimerFlash:0,skid:0,fallTime:0,fallSpan:0,fallSide:1,step:0,has:false,number:goalie?1:[9,16,27][id],name:goalie?'GOALIE':labels[id],device:'ai',power:null,powerTime:0}}
+function makePlayer(team,id,x,z,goalie=false){return {team,id,x,z,vx:0,vz:0,facing:team===0?0:Math.PI,energy:1,balance:1,goalie,check:0,checkWindow:0,checkEffort:0,checkConnected:false,checkRecovery:0,effortRecovery:0,brace:0,puckWobble:0,hitFlash:0,stun:0,shootWait:0,shotCharge:0,receiveWait:0,receiveWindow:0,oneTimerBuffer:0,oneTimerFlash:0,skid:0,saveFlash:0,saveSide:0,saveKind:'',saves:0,fallTime:0,fallSpan:0,fallSide:1,step:0,has:false,number:goalie?1:[9,16,27][id],name:goalie?'GOALIE':labels[id],device:'ai',power:null,powerTime:0}}
 let players=[], puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0}, score=[0,0],timeLeft=120,period=1,control=null,phase='menu',paused=false,dropDelay=0,goalDelay=0,injuryTime=0,injured=null,goalTeam=-1,lastTime=-1,accumulator=0,trail=[],particles=[],msgTimer=0,sfxEnabled=true;
  let replayHistory=[],replayFrames=[],replayElapsed=0,replaySample=0,lastShot=null,goalMoment=null;
 const keys=new Set(), blue=()=>players.filter(p=>p.team===0&&!p.goalie), red=()=>players.filter(p=>p.team===1&&!p.goalie), dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z), nearest=(list,t)=>list.reduce((best,p)=>!best||dist(p,t)<dist(best,t)?p:best,null);
 function makeTeams(){players=[makePlayer(0,0,-8,0),makePlayer(0,1,-13,-6),makePlayer(0,2,-19,6),makePlayer(1,0,8,0),makePlayer(1,1,13,6),makePlayer(1,2,19,-6),makePlayer(0,3,-25.4,0,true),makePlayer(1,3,25.4,0,true)];for(let p of players)p.device=config.seats[p.team*4+p.id];control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0]}
-function resetFaceoff(){for(let p of players){p.x=p.goalie?(p.team===0?-25.4:25.4):(p.team===0?-8-2*(p.id>0):8+2*(p.id>0));p.z=p.goalie?0:(p.id===1?(p.team===0?-6:6):p.id===2?(p.team===0?6:-6):0);p.vx=p.vz=p.stun=p.fallTime=p.fallSpan=p.receiveWait=p.skid=p.checkWindow=p.checkRecovery=p.brace=p.puckWobble=p.hitFlash=0;p.balance=1;p.checkConnected=false;p.has=false;p.shotCharge=p.oneTimerBuffer=p.receiveWindow=p.oneTimerFlash=0;p.facing=p.team===0?0:Math.PI}control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0];puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0,passFrom:null,passTarget:null};trail=[];replayHistory=[];replayFrames=[];replaySample=0;replayElapsed=0;hud.moment.classList.remove('show');dropDelay=1.35;prompt('FACE OFF',1.15)}
+function resetFaceoff(){for(let p of players){p.x=p.goalie?(p.team===0?-25.4:25.4):(p.team===0?-8-2*(p.id>0):8+2*(p.id>0));p.z=p.goalie?0:(p.id===1?(p.team===0?-6:6):p.id===2?(p.team===0?6:-6):0);p.vx=p.vz=p.stun=p.fallTime=p.fallSpan=p.receiveWait=p.skid=p.checkWindow=p.checkRecovery=p.brace=p.puckWobble=p.hitFlash=0;p.balance=1;p.checkConnected=false;p.has=false;p.shotCharge=p.oneTimerBuffer=p.receiveWindow=p.oneTimerFlash=p.saveFlash=0;p.saveSide=0;p.saveKind='';p.facing=p.team===0?0:Math.PI}control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0];puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0,passFrom:null,passTarget:null};trail=[];replayHistory=[];replayFrames=[];replaySample=0;replayElapsed=0;hud.moment.classList.remove('show');dropDelay=1.35;prompt('FACE OFF',1.15)}
 function fullReset(){makeTeams();score=[0,0];timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;accumulator=0;lastShot=null;goalMoment=null;inputState.clear();lastInputButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD()}
 function prompt(text,secs=1.2,orange=false){hud.prompt.textContent=text;hud.prompt.className='prompt show'+(orange?' orange':'');msgTimer=secs}function updatePrompt(dt){if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)hud.prompt.classList.remove('show')}}
 function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu'&&phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden')}
@@ -186,7 +187,7 @@ try{sfxEnabled=localStorage.getItem('icebreak:muted')!=='1'}catch{}syncSoundButt
 $('soundBtn').addEventListener('click',()=>{sfxEnabled=!sfxEnabled;syncSoundButton();try{localStorage.setItem('icebreak:muted',sfxEnabled?'0':'1')}catch{}if(sfxEnabled)audioInit()});
 let audio=null;function audioInit(){if(!sfxEnabled)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume?.()}catch{}}
 function tone(freq=440,dur=.12,type='triangle',volume=.035,freqEnd=null){if(!sfxEnabled||!audio)return;try{let o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;o.type=type;o.frequency.setValueAtTime(freq,t);if(freqEnd)o.frequency.exponentialRampToValueAtTime(Math.max(30,freqEnd),t+dur);g.gain.setValueAtTime(volume,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+dur+.01)}catch{}}
-function sound(kind){if(kind==='shoot'){tone(142,.22,'sawtooth',.041,65);tone(430,.06,'square',.018,180)}else if(kind==='pass'){tone(205,.09,'triangle',.03,115)}else if(kind==='oneTimer'){tone(180,.15,'sawtooth',.065,75);tone(530,.12,'square',.04,270)}else if(kind==='hit'){tone(95,.18,'sawtooth',.052,41)}else if(kind==='grab'){tone(400,.055,'triangle',.012,220)}else if(kind==='goal'){if(config.rink==='park'){tone(720,.8,'triangle',.052,410);setTimeout(()=>tone(920,.7,'triangle',.048,640),165)}else if(config.rink==='mars'){tone(92,1.1,'sawtooth',.075,270);setTimeout(()=>tone(350,.75,'sine',.047,700),220)}else{tone(185,.7,'sawtooth',.075,320);setTimeout(()=>tone(277,.6,'sawtooth',.05,380),140);setTimeout(()=>tone(370,.8,'sawtooth',.05,420),280)}}}
+function sound(kind){if(kind==='shoot'){tone(142,.22,'sawtooth',.041,65);tone(430,.06,'square',.018,180)}else if(kind==='pass'){tone(205,.09,'triangle',.03,115)}else if(kind==='oneTimer'){tone(180,.15,'sawtooth',.065,75);tone(530,.12,'square',.04,270)}else if(kind==='hit'){tone(95,.18,'sawtooth',.052,41)}else if(kind==='save'){tone(185,.13,'triangle',.042,90);tone(680,.15,'square',.017,310)}else if(kind==='grab'){tone(400,.055,'triangle',.012,220)}else if(kind==='goal'){if(config.rink==='park'){tone(720,.8,'triangle',.052,410);setTimeout(()=>tone(920,.7,'triangle',.048,640),165)}else if(config.rink==='mars'){tone(92,1.1,'sawtooth',.075,270);setTimeout(()=>tone(350,.75,'sine',.047,700),220)}else{tone(185,.7,'sawtooth',.075,320);setTimeout(()=>tone(277,.6,'sawtooth',.05,380),140);setTimeout(()=>tone(370,.8,'sawtooth',.05,420),280)}}}
 function releasePuck(owner,dx,dz,speed){const [ux,uz]=normalize(dx,dz),blade=stickPoint(owner);owner.has=false;owner.receiveWindow=0;owner.oneTimerBuffer=0;owner.receiveWait=STICK.recatchDelay;puck.owner=null;puck.passFrom=null;puck.passTarget=null;puck.x=blade.x+ux*STICK.releaseClearance;puck.z=blade.z+uz*STICK.releaseClearance;puck.vx=ux*speed+owner.vx*.3;puck.vz=uz*speed+owner.vz*.3;puck.lock=STICK.releaseLock}
 function shot(p,charge=0,oneTime=false){if(!p.has)return;let sx=p.team===0?1:-1;let aim=getMove(p);let goalZ=clamp(aim[1],-1,1)*2.15;let tgt=goalZ+(p.team===0?0:0);let dx=sx*28-p.x,dz=tgt-p.z;let dir=p.facing;let facingX=Math.cos(dir),facingZ=Math.sin(dir);let aimX=facingX*.50+normalize(dx,dz)[0]*.50,aimZ=facingZ*.50+normalize(dx,dz)[1]*.50;if(p.device!=='ai'){aimX=normalize(dx,dz)[0]*.7+facingX*.3;aimZ=normalize(dx,dz)[1]*.7+facingZ*.3}const variation=(rnd()-.5)*(oneTime?ONE_TIMER.accuracy:1)*(1.0-charge*.72);const a=Math.atan2(aimZ,aimX)+variation*.22;releasePuck(p,Math.cos(a),Math.sin(a),(25+charge*17)*(oneTime?ONE_TIMER.shotBoost:1)*(p.power==='cannon'&&p.powerTime>0?1.33:1));p.shotCharge=0;p.shootWait=.45;p.oneTimerFlash=oneTime?.34:0;lastShot={team:p.team,number:p.number,name:p.name,age:0,oneTimer:oneTime};trail=[];sound(oneTime?'oneTimer':'shoot');spray(p.x,p.z,oneTime?C.gold:C.cyan,oneTime?18:9)}
 // An unobstructed lane and a receiver with space beat an automatic nearest-player pass.
@@ -397,9 +398,14 @@ function steer(p,dx,dz,dt){const d=Math.hypot(dx,dz),max=p.goalie?SKATE.goalieSp
 function ai(p,dt){
  if(p.goalie){
   const goalSide=p.team===0?-1:1;
-  let targetZ=clamp(puck.z*.74+(puck.owner?0:puck.vz*.08),-2.5,2.5),targetX=goalSide*25.3;
-  if(puck.owner&&puck.owner.team===p.team)targetZ=clamp(puck.z*.45,-1.6,1.6);
-  steer(p,targetX-p.x,targetZ-p.z,dt);return;
+  const danger=!puck.owner&&puck.vx*goalSide>KEEPER.readMinSpeed&&Math.abs(puck.x)<Math.abs(p.x);
+  const eta=danger?(p.x-puck.x)/puck.vx:0;
+  const incoming=danger&&eta>0&&eta<KEEPER.readHorizon;
+  // Anticipate the real incoming puck trajectory; a save still requires contact.
+  const projectedZ=incoming?puck.z+puck.vz*eta:puck.z;
+  const base=puck.owner?.team===p.team?puck.z*.45:puck.z*.74;
+  const targetZ=clamp(incoming?lerp(base,projectedZ,KEEPER.aimBlend):base,-KEEPER.slotLimit,KEEPER.slotLimit);
+  steer(p,goalSide*25.3-p.x,targetZ-p.z,dt);return;
  }
  const mates=players.filter(t=>t.team===p.team&&!t.goalie),enemies=players.filter(t=>t.team!==p.team&&!t.goalie);
  const attack=p.team===0?1:-1,teamHas=puck.owner?.team===p.team,carrier=puck.owner;
@@ -453,7 +459,7 @@ function updatePlayers(dt){
    p.balance=Math.max(CHECK.balanceMin,p.balance-CHECK.whiffBalanceLoss);
    if(p===control)prompt('MISSED CHECK',.42);
   }
-  p.checkRecovery=Math.max(0,p.checkRecovery-dt);
+  p.checkRecovery=Math.max(0,p.checkRecovery-dt);p.saveFlash=Math.max(0,p.saveFlash-dt);
   p.effortRecovery=Math.max(0,p.effortRecovery-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);p.oneTimerFlash=Math.max(0,p.oneTimerFlash-dt);p.oneTimerBuffer=Math.max(0,p.oneTimerBuffer-dt);p.receiveWindow=Math.max(0,p.receiveWindow-dt);
   p.puckWobble*=Math.exp(-9*dt);
   p.shootWait=Math.max(0,p.shootWait-dt);p.stun=Math.max(0,p.stun-dt);
@@ -561,12 +567,20 @@ function puckPhysics(dt){
  const friction=Math.exp(-1.12*dt);puck.vx*=friction;puck.vz*=friction;
  if(first?.kind==='goal'){goal(first.team);return}
  if(first?.kind==='save'){
-  const keeper=first.goalie;
+  const keeper=first.goalie,incident=Math.hypot(puck.vx,puck.vz);
   puck.x=x0+(x1-x0)*first.t;puck.z=z0+(z1-z0)*first.t;
   const [ux,uz]=normalize(puck.x-keeper.x||-Math.sign(keeper.x),puck.z-keeper.z);
   puck.x=keeper.x+ux*1.06;puck.z=keeper.z+uz*1.06;
-  puck.vx=ux*11-Math.sign(keeper.x)*9;puck.vz=uz*8;
-  puck.lock=.27;puck.passFrom=null;puck.passTarget=null;sound('hit');spray(puck.x,puck.z,C.white,5);
+  // Pad and glove saves redirect actual momentum; never accelerate a slow puck.
+  const clearX=-Math.sign(keeper.x),offset=clamp((puck.z-keeper.z)/1.06,-1,1);
+  const [rx,rz]=normalize(clearX,offset*.88+uz*.22);
+  const reboundSpeed=incident*KEEPER.saveDrag;
+  puck.vx=rx*reboundSpeed;puck.vz=rz*reboundSpeed;
+  puck.lock=KEEPER.reboundLock;puck.passFrom=null;puck.passTarget=null;
+  keeper.saves++;keeper.saveFlash=KEEPER.savePose;keeper.saveSide=offset;
+  keeper.saveKind=Math.abs(offset)>.52?'GLOVE':'PAD';
+  if(incident>21)prompt('BIG SAVE!',.55);
+  sound('save');spray(puck.x,puck.z,C.white,incident>21?13:7);
  }else if(first?.kind==='catch'){
   const receiver=first.skater;
   const intendedPass=puck.passFrom?.team===receiver.team&&puck.passFrom!==receiver&&puck.passTarget===receiver;
@@ -609,7 +623,7 @@ function step(dt){
  if(phase!=='playing')return;
  puckPhysics(dt);if(phase==='playing')recordMoment(dt);updatePowerups(dt);if(timeLeft<=0&&phase==='playing')finish();
 }
-function playerMesh(p,t){const col=p.team===0?C.blue:C.red,highlight=p.team===0?C.cyan:C.redLight;const pace=Math.min(1,Math.hypot(p.vx,p.vz)/10),skate=Math.sin(t*15+p.id*2)*.25*pace,turn=p.facing,fx=Math.cos(turn),fz=Math.sin(turn);const fall=fallAmount(p),cheer=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie,slump=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team!==goalTeam&&p.goalie,bodyY=(p.goalie?1.3:1.25)-fall*.45+(cheer?Math.sin(t*21+p.id)*.19+.13:0)-(slump?.22:0);
+function playerMesh(p,t){const col=p.team===0?C.blue:C.red,highlight=p.team===0?C.cyan:C.redLight;const pace=Math.min(1,Math.hypot(p.vx,p.vz)/10),skate=Math.sin(t*15+p.id*2)*.25*pace,turn=p.facing,fx=Math.cos(turn),fz=Math.sin(turn);const fall=fallAmount(p),saveReach=p.goalie&&p.saveFlash>0?Math.sin((1-p.saveFlash/KEEPER.savePose)*Math.PI)*p.saveSide*.5:0,cheer=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie,slump=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team!==goalTeam&&p.goalie,bodyY=(p.goalie?1.3:1.25)-fall*.45+(cheer?Math.sin(t*21+p.id)*.19+.13:0)-(slump?.22:0);
 // Ice shadows: translucent grounding under each animated skater.
 disk(p.x,.03,p.z,p.goalie?.96:.72,[.015,.06,.11],.19);
 // Cyan = assigned input; gold = possession. Facing stays separate from velocity.
@@ -629,14 +643,14 @@ const lean=clamp(p.skid*.025,-.18,.18)+p.fallSide*fall*1.05;
  cube(p.x+tiltX*.28,bodyY+.04-fall*.12,p.z+tiltZ*.28,.93,.11,.87,p.team===0?[.93,.98,1]:[.99,.93,.88],-turn);
 for(let side of [-1,1]){let ox=-fz*side*.23,oz=fx*side*.23;let legX=p.x+ox+fx*.1,legZ=p.z+oz+fz*.1;cube(legX,bodyY-.67+fall*.24,legZ,.22,.68,.25,[.07,.17,.24],-turn+skate*side);cube(legX+fx*.16,.22,legZ+fz*.16,.49,.10,.19,[.035,.08,.15],-turn);ball(p.x+ox*1.75+fx*.11,bodyY+.20,p.z+oz*1.75+fz*.11,.23,col)}
 const blade=stickPoint(p),stickX=blade.x-fx*.28,stickZ=blade.z-fz*.28;if(cheer){cube(p.x-fz*.42,bodyY+1.02,p.z+fx*.42,.065,1.9,.065,[.29,.24,.20],-turn);cube(p.x-fz*.42,bodyY+1.95,p.z+fx*.42,.65,.10,.14,[.14,.19,.22],-turn)}else{cube(stickX,bodyY-.28+fall*.42,stickZ,.065,1.66*(1-fall*.55),.065,[.29,.24,.20],-turn,1);cube(blade.x,.10,blade.z,.55,.13,.16,[.14,.19,.22],-turn)}
-if(p.goalie){cube(p.x,1.1,p.z,1.05,.6,1.0,[.91,.95,.99]);cube(p.x+fx*.5,.42,p.z+fz*.5,.55,.6,.8,[.86,.91,.94])}}
+if(p.goalie){cube(p.x,1.1,p.z+saveReach,1.05,.6,1.0,[.91,.95,.99]);cube(p.x+fx*.5,.42,p.z+fz*.5+saveReach,.55,.6,.8,[.86,.91,.94]);if(p.saveFlash>0){ball(p.x+fx*.32,1.18,p.z+saveReach*2,.23,C.white);ring(p.x,.052,p.z,1.5,C.gold,p.saveFlash/KEEPER.savePose)}}}
 
 const markerNodes=Array.from({length:8},()=>{const node=document.createElement('div');node.className='player-marker';node.hidden=true;$('shell').appendChild(node);return node});
 function playerMarker(p,x,y){
  const node=markerNodes[players.indexOf(p)],show=phase!=='menu'&&(p.device!=='ai'||p.has||p===injured)&&x>0&&x<W&&y>0&&y<H;
  node.hidden=!show;if(!show)return;
  const label=p.device==='ai'?p.name[0]:inputLabel(p.device);
- const status=p.oneTimerFlash>0?'ONE-TIMER':passPreview(control)===p?'PASS LANE':phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie?'CELEBRATING':p===injured?'INJURED':p.has?'● PUCK':p.fallTime>0?'DOWN':p.stun>0?'STAGGERED':p.checkRecovery>0&&!p.checkConnected?'MISSED':p.balance<.58?'UNSTEADY':p.energy<CHECK.minEnergy?'EXHAUSTED':'';
+ const status=p.goalie&&p.saveFlash>0?'SAVE!':p.oneTimerFlash>0?'ONE-TIMER':passPreview(control)===p?'PASS LANE':phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie?'CELEBRATING':p===injured?'INJURED':p.has?'● PUCK':p.fallTime>0?'DOWN':p.stun>0?'STAGGERED':p.checkRecovery>0&&!p.checkConnected?'MISSED':p.balance<.58?'UNSTEADY':p.energy<CHECK.minEnergy?'EXHAUSTED':'';
  const next=status?status+' · '+label:label;
  if(node.textContent!==next)node.textContent=next;
  node.className='player-marker'+(p.has?' carrier':'');node.style.left=x+'px';node.style.top=y+'px';
@@ -724,7 +738,7 @@ function render2d(t){
   ctx.fillStyle=p.goalie?'#f5faff':blueTeam?'#20a3ec':'#e85247';roundRect(ctx,-8,-8,17,16,5);ctx.fill();ctx.fillStyle=blueTeam?'#b1f6ff':'#ffe0c9';ctx.fillRect(-2,-8,5,16);
   ctx.fillStyle=blueTeam?'#143e5b':'#6c2833';for(let side of [-1,1]){ctx.beginPath();ctx.arc(-4,side*9,3.8,0,Math.PI*2);ctx.fill()}
   ctx.fillStyle='#f4fafc';ctx.beginPath();ctx.arc(1,-1,p.goalie?6.7:5.7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#223044';ctx.beginPath();ctx.arc(4,-2,2,0,Math.PI*2);ctx.fill();
-  if(p.skid>2){ctx.strokeStyle='#ffffffa0';ctx.lineWidth=1.4;for(let z of [-6,6]){ctx.beginPath();ctx.moveTo(-9,z);ctx.lineTo(-17-Math.min(p.skid,8),z);ctx.stroke()}}ctx.restore();
+  if(p.skid>2){ctx.strokeStyle='#ffffffa0';ctx.lineWidth=1.4;for(let z of [-6,6]){ctx.beginPath();ctx.moveTo(-9,z);ctx.lineTo(-17-Math.min(p.skid,8),z);ctx.stroke()}}if(p.goalie&&p.saveFlash>0){ctx.fillStyle='#ffffff';ctx.fillRect(10,p.saveSide*9-4,10,9);ctx.strokeStyle='#ffd68b';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.stroke()}ctx.restore();
   const blade=stickPoint(p),[bx,by]=pt(blade.x,blade.z),[hx,hy]=pt(p.x-Math.sin(p.facing)*.38,p.z+Math.cos(p.facing)*.38);ctx.strokeStyle='#725b48';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(bx,by);ctx.stroke();ctx.strokeStyle='#172938';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bx-Math.cos(angle)*3,by-Math.sin(angle)*3);ctx.lineTo(bx+Math.cos(angle)*3,by+Math.sin(angle)*3);ctx.stroke();
   if(phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie){ctx.strokeStyle=blueTeam?'#d8fcff':'#ffe0c9';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y-8);ctx.lineTo(x,y-43-Math.sin(t*19+p.id)*4);ctx.stroke()}
   if(p.device!=='ai'&&phase!=='menu'){ctx.strokeStyle='#41dcff';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.stroke();const [fx,fy]=pt(p.x+Math.cos(p.facing)*1.35,p.z+Math.sin(p.facing)*1.35);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(fx,fy,3,0,Math.PI*2);ctx.fill()}
