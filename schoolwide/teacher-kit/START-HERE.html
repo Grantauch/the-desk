@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none';">
+<title>Schoolwide · Start Here · Teacher Setup Preview</title>
+<style>
+:root{--ink:#1d3045;--muted:#5d6d7e;--line:#dbe4e9;--paper:#f5f7f7;--card:#fff;--teal:#0b6c69;--green:#17684b;--amber:#a86c0c;--radius:16px;color-scheme:light;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;color:var(--ink);background:var(--paper)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #0c7d92;outline-offset:3px}button:disabled{opacity:.4;cursor:not-allowed}
+.top{background:var(--ink);color:white;padding:16px clamp(16px,4vw,48px);display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap}.brand{font-weight:850;letter-spacing:-.025em;font-size:1.2rem}.brand small{display:block;font-weight:450;font-size:.75rem;color:#d6e3e8;letter-spacing:.08em;text-transform:uppercase}.tag{border:1px solid #e2b87b;color:#ffe6b4;padding:7px 12px;font-size:.78rem;border-radius:999px;font-weight:750;letter-spacing:.05em}
+.shell{max-width:1220px;margin:34px auto;padding:0 18px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:22px}.nav,.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 8px 34px #20324a08}.nav{align-self:start;padding:18px;position:sticky;top:16px}.navtitle{font-weight:750;color:var(--muted);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}.nav button{width:100%;text-align:left;display:flex;align-items:center;gap:12px;border:0;background:transparent;border-radius:10px;padding:13px;color:var(--muted);font-weight:650}.nav button.active{background:#e4f3f1;color:#095552}.num{height:27px;min-width:27px;display:grid;place-items:center;border-radius:50%;border:1px solid currentColor;font-size:.8rem}.panel{padding:clamp(20px,4vw,42px);min-height:520px}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--teal)}h1{letter-spacing:-.04em;line-height:1.12;font-size:clamp(1.8rem,4vw,2.8rem);margin:13px 0 17px}h2{font-size:1.16rem;margin:27px 0 12px;letter-spacing:-.02em}p{line-height:1.65;color:#425365;max-width:71ch}.lead{font-size:1.09rem}.notice{border-left:5px solid var(--amber);background:#fcf7ed;padding:14px 17px;border-radius:9px;color:#4b421e;margin:22px 0;line-height:1.55}.notice strong{display:block}.good{border-color:var(--green);background:#edf7f2;color:#1b503a}.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.tile{border:1px solid var(--line);background:#fafcfc;border-radius:13px;padding:16px}.tile strong{display:block;margin-bottom:6px}.tile p{font-size:.92rem;margin:0}.list{padding-left:1.3rem;line-height:1.8;color:#415365}.check{display:flex;gap:11px;align-items:flex-start;border-bottom:1px solid #e9eef0;padding:12px 0;line-height:1.5}.check input{width:21px;height:21px;accent-color:var(--teal);flex:0 0 auto;margin-top:2px}.actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:32px;padding-top:22px;border-top:1px solid var(--line)}.btn{border-radius:10px;padding:11px 18px;border:1px solid #c4d4da;background:white;color:var(--ink);font-weight:700;min-height:44px}.primary{background:var(--teal);border-color:var(--teal);color:white}.status{font-size:.88rem;color:var(--muted)}.demo{border:1px solid #b9d1cf;border-radius:15px;background:#eff8f7;padding:22px}.demo-screen{border:2px solid var(--ink);background:white;border-radius:11px;min-height:166px;padding:22px;display:grid;place-content:center;text-align:center;margin:16px 0}.demo-label{font-size:.77rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-weight:700}.demo-value{font-size:1.4rem;font-weight:800;margin:10px 0;color:var(--ink)}.demo-caption{color:var(--muted);font-size:.86rem}.demo-controls{display:flex;gap:9px;flex-wrap:wrap}.demo button{flex:1;min-width:138px}.fine{font-size:.85rem;color:var(--muted)}.progress{height:5px;background:#dce6e9;border-radius:99px;margin-top:17px;overflow:hidden}.progress span{display:block;background:#0d7971;height:100%;width:20%;transition:width .2s}.footer{max-width:1220px;margin:0 auto 24px;padding:0 18px;color:var(--muted);font-size:.8rem}.page[hidden]{display:none!important}
+@media(max-width:760px){.shell{grid-template-columns:1fr;margin:14px auto;gap:12px}.nav{position:static;padding:12px}.navtitle{margin:0 0 8px}.nav-items{display:flex;overflow-x:auto;gap:6px}.nav button{min-width:154px;justify-content:center;padding:11px 8px;font-size:.85rem}.split{grid-template-columns:1fr}.panel{min-height:0}.top{padding:15px}.actions button{flex:1}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media print{.nav,.actions,.demo-controls,.tag,.progress{display:none!important}.shell{display:block}.panel{box-shadow:none;border:0;padding:0}.page[hidden]{display:block!important;break-before:page}.page:first-child{break-before:auto}body{background:#fff}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand">GrantDesk <small>Schoolwide · Independent teacher setup</small></div><span class="tag">PRE-LAUNCH · TRAINING ONLY</span></header>
+<main class="shell">
+<nav class="nav" aria-label="Setup stages"><div class="navtitle">Start here · v0.1.0</div><div class="nav-items" id="steps">
+<button type="button" data-step-button="0" class="active"><span class="num">1</span> Before you begin</button>
+<button type="button" data-step-button="1"><span class="num">2</span> Two-device setup</button>
+<button type="button" data-step-button="2"><span class="num">3</span> Student PINs</button>
+<button type="button" data-step-button="3"><span class="num">4</span> Privacy rehearsal</button>
+<button type="button" data-step-button="4"><span class="num">5</span> Release checklist</button>
+</div><div class="progress" role="progressbar" aria-label="Setup stage" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" id="progress"><span id="bar"></span></div></nav>
+<div class="panel">
+<section class="page" data-page="0"><span class="eyebrow">01 / Setup orientation</span><h1>One system. Independent classrooms.</h1><p class="lead">This preview introduces the Schoolwide Hall Pass and Check-In workflow. It is not an installer for the live school system. No student sign-in is enabled here.</p>
+<div class="notice"><strong>No student records in this package.</strong> Do not type real student names, lunch numbers, PINs, or passwords into this preview. Existing classroom Hall Pass remains the active system.</div>
+<div class="split"><div class="tile"><strong>Teacher dashboard</strong><p>Use a teacher-controlled computer for live queues, active passes, and private history after authorization.</p></div><div class="tile"><strong>Door Chromebook</strong><p>Use a dedicated student-facing kiosk near the door. It never displays the teacher dashboard or full roster.</p></div></div>
+<h2>What this preview can do</h2><p>Walk through equipment setup, demonstrate a fictional privacy reset, and prepare an approval checklist. It cannot log students in, grant passes, validate real PINs, or publish Schoolwide.</p>
+</section>
+<section class="page" data-page="1" hidden><span class="eyebrow">02 / Physical classroom</span><h1>Two screens. Two different roles.</h1><p class="lead">Keep the kiosk and teacher controls separate. A kiosk should never inherit the teacher's signed-in browser session.</p>
+<div class="split"><div class="tile"><strong>At the classroom door</strong><ul class="list"><li>Dedicated Chromebook and reliable power</li><li>Restricted student-facing kiosk session</li><li>No saved passwords or staff profile</li><li>Screen positioned away from public viewing of private data</li><li>Network tested on the school's Wi-Fi</li></ul></div><div class="tile"><strong>At the teacher desk</strong><ul class="list"><li>Independent authenticated staff device</li><li>Only assigned classes and sections visible</li><li>Pass timers and history on staff screen only</li><li>Teacher-controlled correction and return actions</li><li>Sign-out procedure when leaving the room</li></ul></div></div>
+<div class="notice"><strong>Not ready for production access.</strong> Do not bookmark a guessed student kiosk URL. The production address will be supplied only after the district-approved cutover.</div>
+</section>
+<section class="page" data-page="2" hidden><span class="eyebrow">03 / Existing credentials</span><h1>Keep the lunch PINs students already know.</h1><p class="lead">The working Hall Pass already has the lunch-number PINs. Teachers should not recreate or reset them for Schoolwide.</p>
+<ul class="list"><li>Five- and six-digit PINs must remain <strong>exact text</strong>, including leading zeros.</li><li>Students are visible in Schoolwide only after approved identity matching and active section membership.</li><li>One student can belong to two teachers' classes without a separate PIN for each teacher.</li><li>The old Hall Pass keeps working until the new credentials and history are verified under an authorized rollout.</li></ul>
+<div class="notice"><strong>Credential transfer has not been activated.</strong> Existing PINs are <em>not</em> being imported by this ZIP. Never export PIN Cards, real PIN hashes, or secret salts to a classroom setup file.</div>
+</section>
+<section class="page" data-page="3" hidden><span class="eyebrow">04 / Hands-on rehearsal</span><h1>Try the kiosk privacy reset.</h1><p class="lead">Use fictional samples only. Start a demo, finish it, or switch browser tabs. The preview should return to an empty welcome screen and retain nothing.</p>
+<div class="demo"><div class="demo-label">Offline · fictional kiosk</div><div class="demo-screen" role="status" aria-live="polite"><div class="demo-label" id="demo-mode">READY FOR NEXT STUDENT</div><div class="demo-value" id="demo-value">Welcome</div><div class="demo-caption" id="demo-caption">No real student credentials or network connection</div></div><div class="demo-controls"><button class="btn primary" type="button" id="demo-five">Demo 5-digit PIN</button><button class="btn primary" type="button" id="demo-six">Demo 6-digit PIN</button><button class="btn" type="button" id="demo-clear">Finish & clear</button></div><p class="fine" id="demo-help">Each fictional session automatically clears after 15 seconds of inactivity, on tab hide, or when you finish. There is no storage or network call.</p></div>
+<div class="notice good"><strong>Privacy principle</strong>The next student must see an empty screen—not the prior student's pass, identity, PIN, or teacher information.</div>
+</section>
+<section class="page" data-page="4" hidden><span class="eyebrow">05 / School release gate</span><h1>Ready for review—not live student use.</h1><p class="lead">These checks prepare your classroom for an approved Schoolwide pilot. Completing them does not deploy or enable anything.</p>
+<div id="checks">
+<label class="check"><input type="checkbox">Our district has approved identity and existing-PIN handling.</label>
+<label class="check"><input type="checkbox">Teacher account roles and assigned sections were reviewed.</label>
+<label class="check"><input type="checkbox">A dedicated Chromebook and separate staff device are available.</label>
+<label class="check"><input type="checkbox">Student history, backups, and rollback were verified by the rollout team.</label>
+<label class="check"><input type="checkbox">A supervised school-network test and PIN recovery plan are complete.</label>
+</div><div class="actions"><button class="btn primary" type="button" id="review-button" disabled>Mark local checklist complete</button><span class="status" id="review-status" role="status">All five checks are required.</span></div>
+<div class="notice"><strong>No self-service go-live switch.</strong> Only an approved administrator may authorize a real pilot. This package deliberately contains no production URL, tokens, student roster, or activation feature.</div>
+</section>
+<div class="actions"><button class="btn" id="back" type="button" disabled>Previous</button><span class="status" id="stage-status">Stage 1 of 5</span><button class="btn primary" id="next" type="button">Next step</button></div>
+</div></main>
+<footer class="footer">Schoolwide Teacher Setup Preview v0.1.0 · Fictional browser rehearsal · No network · No stored data · Not a live Hall Pass installer</footer>
+<script>
+(()=>{'use strict';
+const pages=[...document.querySelectorAll('[data-page]')];
+const tabs=[...document.querySelectorAll('[data-step-button]')];
+let stage=0, timeout=null, active=false;
+const byId=id=>document.getElementById(id);
+function resetDemo(){
+ if(timeout!==null){clearTimeout(timeout);timeout=null;}
+ active=false;
+ byId('demo-mode').textContent='READY FOR NEXT STUDENT';
+ byId('demo-value').textContent='Welcome';
+ byId('demo-caption').textContent='No real student credentials or network connection';
+}
+function demo(digits){
+ resetDemo();active=true;
+ byId('demo-mode').textContent='FICTIONAL SESSION · '+digits+' DIGIT FORMAT';
+ byId('demo-value').textContent='Sample request recorded';
+ byId('demo-caption').textContent='Training animation only · not sent to any server';
+ timeout=setTimeout(resetDemo,15000);
+}
+function show(index){
+ if(!Number.isInteger(index)||index<0||index>=pages.length)return;
+ resetDemo();stage=index;
+ for(let i=0;i<pages.length;i++){pages[i].hidden=i!==index;tabs[i].classList.toggle('active',i===index);tabs[i].setAttribute('aria-current',i===index?'step':'false');}
+ byId('back').disabled=index===0;byId('next').disabled=index===pages.length-1;
+ byId('stage-status').textContent='Stage '+(index+1)+' of '+pages.length;
+ byId('progress').setAttribute('aria-valuenow',String(index+1));
+ byId('bar').style.width=((index+1)/pages.length*100)+'%';
+ window.scrollTo({top:0,behavior:'instant'});
+}
+tabs.forEach((button,i)=>button.addEventListener('click',()=>show(i)));
+byId('next').addEventListener('click',()=>show(stage+1));
+byId('back').addEventListener('click',()=>show(stage-1));
+byId('demo-five').addEventListener('click',()=>demo(5));
+byId('demo-six').addEventListener('click',()=>demo(6));
+byId('demo-clear').addEventListener('click',resetDemo);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)resetDemo();});
+window.addEventListener('pagehide',resetDemo);
+window.addEventListener('blur',resetDemo);
+const boxes=[...byId('checks').querySelectorAll('input[type=checkbox]')];
+boxes.forEach(item=>item.addEventListener('change',()=>{byId('review-button').disabled=!boxes.every(box=>box.checked);byId('review-status').textContent='Local checklist only; no deployment or student connection.';}));
+byId('review-button').addEventListener('click',()=>{if(boxes.every(box=>box.checked))byId('review-status').textContent='Locally reviewed. An administrator must authorize any real pilot.';});
+show(0);
+})();
+</script>
+</body></html>
