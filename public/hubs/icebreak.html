@@ -79,7 +79,7 @@ const CHECK=Object.freeze({
  fullEffort:.78,recoveryRate:.15,exhaustedDrive:.70,facingMin:.55,
  wobble:1.4,loose:9,heavy:25,injury:37,injurySeconds:5,
  aiReach:2.8,aiClosingSpeed:2.5,aiEnergy:.42,
- balanceMin:.35,balanceRecover:.30,balanceSkidLoss:.74,
+ balanceMin:.35,balanceRecover:.30,balanceSkidLoss:1.45,
  whiffBalanceLoss:.22,whiffRecovery:.27,contactRecovery:.11,
  recoveryDrive:.77,recoveryTurn:.56,offBalanceVulnerability:.32
 });
@@ -336,7 +336,7 @@ function skate(p,dx,dz,dt,burst=false){
  // Sideways slip at speed unsettles the skater; sustained clean edges and
  // a planted brake rebuild balance. This is shared by AI and human skating.
  const slip=clamp(p.skid/Math.max(3,speed),0,1);
- const loss=active&&p.brace===0?CHECK.balanceSkidLoss*Math.max(0,slip-.24)*dt:0;
+ const loss=active&&p.brace===0?CHECK.balanceSkidLoss*Math.max(0,slip-.16)*dt:0;
  const returnRate=CHECK.balanceRecover*(p.brace>0?1:1-.50*slip);
  p.balance=clamp(p.balance+returnRate*dt-loss,CHECK.balanceMin,1);
  if(!active&&Math.hypot(p.vx,p.vz)<SKATE.stopSpeed){p.vx=p.vz=0}
