@@ -210,3 +210,12 @@ test('a contributed shot qualifies an earned win and shutout even when AI scores
  assert.equal(f.shiftProgress.badges.includes('first-win'),true);
  assert.equal(f.shiftProgress.badges.includes('shutout'),true);
 });
+
+test('a real 120-second simulated game clock finalizes and commits once',()=>{
+ const store=memoryStorage(),m=run(store);
+ m.api.step(120.5);
+ assert.equal(m.f.phase,'finished');
+ assert.equal(m.f.matchStats.final,true);
+ assert.equal(m.f.shiftProgress.modes.regular.games,1);
+ assert.equal(store.writes,1);
+});
