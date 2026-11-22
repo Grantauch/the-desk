@@ -161,11 +161,11 @@ function arenaScenery(){
 }
 const labels=['CENTER','WING','DEFENDER'];
 function makePlayer(team,id,x,z,goalie=false){return {team,id,x,z,vx:0,vz:0,facing:team===0?0:Math.PI,energy:1,goalie,check:0,checkWindow:0,checkEffort:0,effortRecovery:0,brace:0,puckWobble:0,hitFlash:0,stun:0,shootWait:0,shotCharge:0,receiveWait:0,skid:0,step:0,has:false,number:goalie?1:[9,16,27][id],name:goalie?'GOALIE':labels[id],device:'ai',power:null,powerTime:0}}
-let players=[], puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0}, score=[0,0],timeLeft=120,period=1,control=null,phase='menu',paused=false,dropDelay=0,goalDelay=0,injuryTime=0,injured=null,goalTeam=-1,lastTime=0,accumulator=0,trail=[],particles=[],msgTimer=0,sfxEnabled=true;
+let players=[], puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0}, score=[0,0],timeLeft=120,period=1,control=null,phase='menu',paused=false,dropDelay=0,goalDelay=0,injuryTime=0,injured=null,goalTeam=-1,lastTime=-1,accumulator=0,trail=[],particles=[],msgTimer=0,sfxEnabled=true;
 const keys=new Set(), blue=()=>players.filter(p=>p.team===0&&!p.goalie), red=()=>players.filter(p=>p.team===1&&!p.goalie), dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z), nearest=(list,t)=>list.reduce((best,p)=>!best||dist(p,t)<dist(best,t)?p:best,null);
 function makeTeams(){players=[makePlayer(0,0,-8,0),makePlayer(0,1,-13,-6),makePlayer(0,2,-19,6),makePlayer(1,0,8,0),makePlayer(1,1,13,6),makePlayer(1,2,19,-6),makePlayer(0,3,-25.4,0,true),makePlayer(1,3,25.4,0,true)];for(let p of players)p.device=config.seats[p.team*4+p.id];control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0]}
 function resetFaceoff(){for(let p of players){p.x=p.goalie?(p.team===0?-25.4:25.4):(p.team===0?-8-2*(p.id>0):8+2*(p.id>0));p.z=p.goalie?0:(p.id===1?(p.team===0?-6:6):p.id===2?(p.team===0?6:-6):0);p.vx=p.vz=p.stun=p.receiveWait=p.skid=p.checkWindow=p.brace=p.puckWobble=p.hitFlash=0;p.has=false;p.shotCharge=0;p.facing=p.team===0?0:Math.PI}control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0];puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0};trail=[];dropDelay=1.35;prompt('FACE OFF',1.15)}
-function fullReset(){makeTeams();score=[0,0];timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;inputState.clear();lastInputButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD()}
+function fullReset(){makeTeams();score=[0,0];timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;accumulator=0;inputState.clear();lastInputButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD()}
 function prompt(text,secs=1.2,orange=false){hud.prompt.textContent=text;hud.prompt.className='prompt show'+(orange?' orange':'');msgTimer=secs}function updatePrompt(dt){if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)hud.prompt.classList.remove('show')}}
 function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu'&&phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden')}
 function hideOverlay(){hud.overlay.classList.add('hidden');hud.overlay.setAttribute('aria-hidden','true')}
@@ -347,17 +347,21 @@ function updatePlayers(dt){
   p.energy=clamp(p.energy+(burst?-.34:p.effortRecovery>0?0:CHECK.recoveryRate)*dt,0,1);
   p.x+=p.vx*dt;p.z+=p.vz*dt;limitPlayer(p);
  }
- for(let sweep=0;sweep<2;sweep++){
+ // Iterative mass-weighted position correction. At a sideboard, one skater
+ // may be pinned, so two passes leave visible overlaps. Exit early on clean ice.
+ for(let sweep=0;sweep<12;sweep++){
+  let overlapping=false;
   for(let i=0;i<players.length;i++)for(let j=i+1;j<players.length;j++){
-   collideSkaters(players[i],players[j]);
+   if(collideSkaters(players[i],players[j]))overlapping=true;
    if(phase==='injury')return;
   }
+  if(!overlapping)break;
  }
 }
 function collideSkaters(a,b){
  const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);
  const separation=(a.goalie?CONTACT.goalieRadius:CONTACT.bodyRadius)+(b.goalie?CONTACT.goalieRadius:CONTACT.bodyRadius);
- if(d>=separation)return;
+ if(d>=separation)return false;
  const nx=d>.001?dx/d:1,nz=d>.001?dz/d:0;
  const ia=1/ROLE_MASS[a.id],ib=1/ROLE_MASS[b.id],reducedMass=1/(ia+ib);
  const overlap=(separation-d)*reducedMass;
@@ -377,18 +381,82 @@ function collideSkaters(a,b){
   }
  }
  limitPlayer(a);limitPlayer(b);
+ return true;
 }
 function sprayMini(x,z){if(particles.length>145)return;particles.push({x,z,y:.09,vx:(rnd()-.5)*.5,vz:(rnd()-.5)*.5,vy:0,life:.13+rnd()*.2,c:C.white,r:.02+rnd()*.045})}
-function puckPhysics(dt){puck.lock=Math.max(0,puck.lock-dt);if(puck.owner){let p=puck.owner;Object.assign(puck,stickPoint(p));puck.vx=p.vx;puck.vz=p.vz;if(Math.abs(puck.x)>GOALX&&Math.abs(puck.z)<GOALZ-.2){goal(puck.x>0?0:1);return}const keeper=players.find(g=>g.goalie&&g.team!==p.team);if(keeper&&dist(keeper,puck)<1.08){releasePuck(p,-Math.sign(p.x),(.5-rnd())*.6,12);puck.lock=.24;sound('hit');spray(puck.x,puck.z,C.white,7)}return}
-let oldX=puck.x;const friction=Math.exp(-1.12*dt);puck.x+=puck.vx*dt;puck.z+=puck.vz*dt;puck.vx*=friction;puck.vz*=friction;
-if(Math.abs(puck.x)>GOALX && Math.abs(puck.z)<GOALZ-.21){goal(puck.x>0?0:1);return}
-if(Math.abs(puck.x)>27.2){puck.x=Math.sign(puck.x)*27.2;puck.vx*=-.80;sound('pass')}
-if(Math.abs(puck.z)>12.3){puck.z=Math.sign(puck.z)*12.3;puck.vz*=-.82;sound('pass')}
-if(Math.abs(puck.x)>24&&Math.abs(puck.z)>9.8){puck.x=Math.sign(puck.x)*24;puck.vx*=-.63;puck.z=Math.sign(puck.z)*9.8;puck.vz*=-.63}
-// A goalie can stop a loose puck without teleporting it.
-for(let p of players){if(!p.goalie)continue;if(dist(p,puck)<1.05){let dx=puck.x-p.x,dz=puck.z-p.z;let [ux,uz]=normalize(dx||-Math.sign(p.x),dz);puck.x=p.x+ux*1.06;puck.z=p.z+uz*1.06;puck.vx=ux*11-Math.sign(p.x)*9;puck.vz=uz*8;sound('hit');spray(puck.x,puck.z,C.white,5);puck.lock=.27}}
-if(puck.lock<=0){let receivers=players.filter(p=>!p.goalie&&p.stun<=0&&p.receiveWait<=0).sort((a,b)=>dist(a,puck)-dist(b,puck));let near=receivers[0];if(near&&dist(near,puck)<(near.power==='magnet'&&near.powerTime>0?1.5:1.04)){puck.owner=near;near.has=true;Object.assign(puck,stickPoint(near));puck.vx=near.vx;puck.vz=near.vz;near.shootWait=.25;near.shotCharge=0;sound('grab')}}
-trail.push({x:puck.x,z:puck.z,t:0});if(trail.length>16)trail.shift()}
+// A puck can travel several body radii per physics step when shot hard.
+// Segment tests choose the FIRST event in time, not the endpoint occupant.
+function segmentCircleTime(x0,z0,x1,z1,cx,cz,r){
+ const vx=x1-x0,vz=z1-z0,ox=x0-cx,oz=z0-cz;
+ const a=vx*vx+vz*vz,c=ox*ox+oz*oz-r*r;
+ if(c<=0)return a<1e-12||ox*vx+oz*vz<0?0:null; // moving away from initial overlap is not a new impact
+ if(a<1e-12)return null;
+ const b=2*(ox*vx+oz*vz),disc=b*b-4*a*c;
+ if(disc<0)return null;
+ const t=(-b-Math.sqrt(disc))/(2*a);
+ return t>=0&&t<=1?t:null;
+}
+function goalCrossing(x0,z0,x1,z1){
+ const side=x0<GOALX&&x1>=GOALX?1:x0>-GOALX&&x1<=-GOALX?-1:0;
+ if(!side||x1===x0)return null;
+ const t=(side*GOALX-x0)/(x1-x0);
+ const z=z0+(z1-z0)*t;
+ return Math.abs(z)<GOALZ-.21?{kind:'goal',team:side===1?0:1,t}:null;
+}
+function puckPhysics(dt){
+ puck.lock=Math.max(0,puck.lock-dt);
+ if(puck.owner){
+  const carrier=puck.owner,x0=puck.x,z0=puck.z;
+  Object.assign(puck,stickPoint(carrier));puck.vx=carrier.vx;puck.vz=carrier.vz;
+  const scoreEvent=goalCrossing(x0,z0,puck.x,puck.z);
+  if(scoreEvent){goal(scoreEvent.team);return}
+  const keeper=players.find(p=>p.goalie&&p.team!==carrier.team);
+  if(keeper&&dist(keeper,puck)<1.08){
+   releasePuck(carrier,-Math.sign(carrier.x),(.5-rnd())*.6,12);
+   puck.lock=.24;sound('hit');spray(puck.x,puck.z,C.white,7);
+  }
+  return;
+ }
+ const x0=puck.x,z0=puck.z,x1=x0+puck.vx*dt,z1=z0+puck.vz*dt;
+ let first=goalCrossing(x0,z0,x1,z1);
+ for(const goalie of players){
+  if(!goalie.goalie)continue;
+  const t=segmentCircleTime(x0,z0,x1,z1,goalie.x,goalie.z,1.05);
+  if(t!==null&&(!first||t<first.t))first={kind:'save',t,goalie};
+ }
+ if(puck.lock<=0){
+  for(const skater of players){
+   if(skater.goalie||skater.stun>0||skater.receiveWait>0)continue;
+   const range=skater.power==='magnet'&&skater.powerTime>0?1.5:1.04;
+   const t=segmentCircleTime(x0,z0,x1,z1,skater.x,skater.z,range);
+   if(t!==null&&(!first||t<first.t))first={kind:'catch',t,skater};
+  }
+ }
+ puck.x=x1;puck.z=z1;
+ const friction=Math.exp(-1.12*dt);puck.vx*=friction;puck.vz*=friction;
+ if(first?.kind==='goal'){goal(first.team);return}
+ if(first?.kind==='save'){
+  const keeper=first.goalie;
+  puck.x=x0+(x1-x0)*first.t;puck.z=z0+(z1-z0)*first.t;
+  const [ux,uz]=normalize(puck.x-keeper.x||-Math.sign(keeper.x),puck.z-keeper.z);
+  puck.x=keeper.x+ux*1.06;puck.z=keeper.z+uz*1.06;
+  puck.vx=ux*11-Math.sign(keeper.x)*9;puck.vz=uz*8;
+  puck.lock=.27;sound('hit');spray(puck.x,puck.z,C.white,5);
+ }else if(first?.kind==='catch'){
+  const receiver=first.skater;
+  puck.owner=receiver;receiver.has=true;Object.assign(puck,stickPoint(receiver));
+  puck.vx=receiver.vx;puck.vz=receiver.vz;
+  receiver.shootWait=.25;receiver.shotCharge=0;sound('grab');
+ }else{
+  if(Math.abs(puck.x)>27.2){puck.x=Math.sign(puck.x)*27.2;puck.vx*=-.80;sound('pass')}
+  if(Math.abs(puck.z)>12.3){puck.z=Math.sign(puck.z)*12.3;puck.vz*=-.82;sound('pass')}
+  if(Math.abs(puck.x)>24&&Math.abs(puck.z)>9.8){
+   puck.x=Math.sign(puck.x)*24;puck.vx*=-.63;
+   puck.z=Math.sign(puck.z)*9.8;puck.vz*=-.63;
+  }
+ }
+ trail.push({x:puck.x,z:puck.z,t:0});if(trail.length>16)trail.shift();
+}
 const powerDefinitions=[{id:'boost',color:[.20,.90,1]},{id:'magnet',color:[.98,.65,.23]},{id:'cannon',color:[1,.29,.34]}];
 function updatePowerups(dt){if(config.mode!=='powerups')return;powerSpawn-=dt;if(powerSpawn<=0&&powerItems.length<2){let entry=powerDefinitions[Math.floor(rnd()*powerDefinitions.length)];const locations=[[0,8],[0,-8],[-7,0],[7,0]];let [x,z]=locations[Math.floor(rnd()*locations.length)];powerItems.push({...entry,x,z,life:14});powerSpawn=8+rnd()*4}
  for(let item of powerItems){item.life-=dt;for(let p of players){if(p.goalie||p.stun>0||dist(p,item)>1.1)continue;p.power=item.id;p.powerTime=9;item.life=0;prompt(item.id.toUpperCase()+' ACTIVATED',.85);sound('grab');spray(item.x,item.z,item.color,15);break}}
@@ -538,7 +606,20 @@ for(let i=0;i<trail.length;i++){let q=trail[i];disk(q.x,.035,q.z,.10,C.white,(1-
 for(let p of players){playerMesh(p,t);const x=p.x,y=3,z=p.z,w=vp[3]*x+vp[7]*y+vp[11]*z+vp[15];playerMarker(p,((vp[0]*x+vp[4]*y+vp[8]*z+vp[12])/w*.5+.5)*W,(.5-(vp[1]*x+vp[5]*y+vp[9]*z+vp[13])/w*.5)*H)}
 ring(puck.x,.04,puck.z,.39,puck.owner?C.gold:C.white);cylinder(puck.x,.14,puck.z,.28,.17,[.012,.023,.032]);cylinder(puck.x,.235,puck.z,.20,.02,[.14,.22,.30]);
 for(let item of powerItems){let pulse=Math.sin(t*4)*.14;ring(item.x,.04,item.z,1.1,item.color,.85);ball(item.x,.75+pulse,item.z,.38,item.color);ball(item.x,1.25+pulse,item.z,.11,C.white,.8)}for(let p of particles){ball(p.x,p.y,p.z,p.r,p.c,clamp(p.life*1.3,0,1))}}
-let lastHUD=0;function frame(ms){let t=ms/1000;let dt=lastTime?Math.min(.055,(ms-lastTime)/1000):0;lastTime=ms;accumulator+=dt;let n=0;while(accumulator>=1/90&&n<5){step(1/90);accumulator-=1/90;n++}render(t);if(t-lastHUD>.09){updateHUD();possessionHUD();lastHUD=t}requestAnimationFrame(frame)}
+const FIXED_STEP=1/90,MAX_FRAME_DT=.1,MAX_CATCHUP_STEPS=9;
+// The simulation remains 90 Hz even on 30/60/120 Hz screens. Cap long stalls
+// instead of launching hundreds of physics ticks on tab resume.
+function advanceFrame(elapsed){
+ const sample=Number.isFinite(elapsed)?Math.min(MAX_FRAME_DT,Math.max(0,elapsed)):0;
+ accumulator=Math.min(MAX_CATCHUP_STEPS*FIXED_STEP,accumulator+sample);
+ let steps=0;
+ while(steps<MAX_CATCHUP_STEPS&&accumulator+1e-10>=FIXED_STEP){
+  step(FIXED_STEP);accumulator-=FIXED_STEP;steps++;
+ }
+ accumulator=Math.max(0,accumulator);
+ return steps;
+}
+let lastHUD=0;function frame(ms){const t=ms/1000,dt=lastTime>=0?(ms-lastTime)/1000:0;lastTime=ms;advanceFrame(dt);render(t);if(t-lastHUD>.09){updateHUD();possessionHUD();lastHUD=t}requestAnimationFrame(frame)}
 makeTeams();resetFaceoff();phase='menu';requestAnimationFrame(frame);
 window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus,cameraFocusZ:camFocusZ,followCamera:followActive()}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.lock=1},physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
 })();
