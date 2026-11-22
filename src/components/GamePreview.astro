@@ -17,6 +17,7 @@ const subjectCues: Record<string, { skin: string; cues: string[] }> = {
   'dry county': { skin: 'subject-dry-county', cues: ['run a route', 'avoid roadblocks', 'find the jugs'] },
   'blitzkrieg': { skin: 'subject-blitzkrieg', cues: ['seven battlefields', 'defend the road', 'upgrade the guns'] },
   'robber barons': { skin: 'subject-robber-barons', cues: ['buy railroads', 'negotiate deals', 'survive 1893'] },
+  'bridge lab': { skin: 'subject-bridge-lab', cues: ['lay the road', 'add triangles', 'send the truck'] },
 };
 const subject = subjectCues[label.toLowerCase()];
 ---
@@ -195,6 +196,19 @@ const subject = subjectCues[label.toLowerCase()];
     text-transform: uppercase;
   }
   .game-preview.subject-blitzkrieg .preview-heading span { color: #dedcbb; }
+  /* Bridge Lab: alpine dusk over the gorge, with a gold Warren truss along the bottom edge. */
+  .game-preview.subject-bridge-lab { background: linear-gradient(180deg, #4d6f8c 0%, #23394a 58%, #10202a 100%); color: #eef3f4; }
+  .game-preview.subject-bridge-lab .preview-heading strong { color: #f4b942; font-weight: 800; letter-spacing: -.02em; text-transform: uppercase; }
+  .game-preview.subject-bridge-lab .preview-heading span { color: #d8e4e8; }
+  .game-preview.subject-bridge-lab .subject-strip { border-color: #f4b942; }
+  .game-preview.subject-bridge-lab::before {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26%; opacity: .3; pointer-events: none;
+    background:
+      linear-gradient(#f4b942, #f4b942) top / 100% 3px no-repeat,
+      linear-gradient(#f4b942, #f4b942) bottom / 100% 2px no-repeat,
+      repeating-linear-gradient(60deg, transparent 0 14px, #f4b942 14px 16px, transparent 16px 30px),
+      repeating-linear-gradient(-60deg, transparent 0 14px, #f4b942 14px 16px, transparent 16px 30px);
+  }
 
   .game-preview.featured {
     min-height: 10.5rem;
