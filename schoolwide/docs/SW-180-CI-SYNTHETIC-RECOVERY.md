@@ -12,7 +12,7 @@ SW-180 creates the next layer of **synthetic-only automated evidence**:
 2. Create a **new disposable source database**, run all Schoolwide migrations, and insert only three explicitly fictional recovery-canary records.
 3. Produce a PostgreSQL 18 custom-format dump, verify its format, and encrypt it with standard GPG/OpenPGP AES-256 using a 384-bit randomly generated **test-only passphrase** held in a temporary restricted file.
 4. Prove both a different passphrase and a corrupted encrypted payload **fail decryption**; never promote an incorrectly decrypted file.
-5. Initialize a **separate clean PostgreSQL 18 container** with no network connection or published ports. Require it to be empty before restoring the decrypted archive.
+5. Initialize a **separate clean PostgreSQL 18 container** with no network connection or published ports. Wait for the official PostgreSQL init-complete marker **and an actual successful query of the named target database** (a simple server readiness probe can succeed prematurely); require zero tables before restore.
 6. Restore with `pg_restore --exit-on-error`; compare the restored public table count, migration count, synthetic row count and a SHA-256 digest of the ordered fictional canary rows to the source.
 7. Remove the disposable source database, independent container, GPG test passphrase, encrypted test archive and temporary files, even when a test fails. A separate CI step checks that both the source database and restore container are absent afterward.
 

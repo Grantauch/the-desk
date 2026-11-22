@@ -137,10 +137,16 @@ docker run -d --name "$container" --network none \
   -e POSTGRES_PASSWORD=synthetic_ci_only_not_a_real_secret \
   -e POSTGRES_DB="$restore_db" postgres:18-alpine >/dev/null
 ready=0
-for attempt in $(seq 1 60); do
-  if docker exec "$container" pg_isready -U sw180_restore -d "$restore_db" >/dev/null 2>&1; then
-    ready=1
-    break
+for attempt in $(seq 1 80); do
+  # pg_isready can report that the temporary initdb server is accepting
+  # connections *before* the target database exists. Wait for Docker's
+  # official completed-init marker and query the actual target database.
+  if docker logs "$container" 2>&1 | grep -F 'PostgreSQL init process complete; ready for start up.' >/dev/null; then
+    if docker exec "$container" psql -X -A -t -q -v ON_ERROR_STOP=1 \
+      -U sw180_restore -d "$restore_db" -c 'SELECT 1' >/dev/null 2>&1; then
+      ready=1
+      break
+    fi
   fi
   sleep 0.5
 done
