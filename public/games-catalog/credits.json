@@ -1,5 +1,31 @@
 [
   {
+    "game": "icebreak",
+    "route": "/hubs/icebreak.html",
+    "source": "https://grant-desk.com/hubs/icebreak",
+    "credit": null,
+    "depicted": "Original School rink at a fresh First Shift faceoff, captured from the public game in a signed-out isolated Chromium context immediately after pressing Drop the Puck, before any skating, shot or body-check.",
+    "rights": "Native, self-contained game graphics; capture of the original rink, teams and UI only. No separate artwork, real avatars, copyrighted team logos or third-party imagery in frame.",
+    "sourceImageSha256": "64d07d166bdd9b963f7fbc82eda85d020bf3a2c3882c92080d4e2d2b0dcd60e5",
+    "covers": [
+      {
+        "file": "icebreak-384.webp",
+        "sha256": "4be72a64cecc9c86444c951b17809363bb8530637a9cd1ecc0777ff75ef2bd81",
+        "width": 384,
+        "height": 216,
+        "bytes": 9494
+      },
+      {
+        "file": "icebreak-768.webp",
+        "sha256": "03e6442c0c7f514f50dc98829aecafecdae09d7d0097ace08965d5ef77f751a0",
+        "width": 768,
+        "height": 432,
+        "bytes": 21894
+      }
+    ],
+    "sourceBuildSha256": "6230968f1a3cd7df73ff7af54b23a8500435fb3dc7546fd643154b7053f35a48"
+  },
+  {
     "game": "bridge lab",
     "route": "/hubs/bridge-lab/",
     "source": "https://grant-desk.com/hubs/bridge-lab/",
