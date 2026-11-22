@@ -651,7 +651,7 @@ export function PondApp() {
                 </div>
                 <div className="field-mix-result">
                   {featured ? <DiscoveryGlyph outcome={featured} size={72} className="field-feature-glyph shrink-0" /> :
-                    <span className="field-feature-placeholder" aria-hidden="true"><Sparkles size={27}/></span>}
+                    <span className="field-feature-placeholder" aria-hidden="true"><span className="field-unmixed-mark">?</span></span>}
                   <div className="min-w-0">
                     <p className="field-eyebrow">LATEST FIND</p>
                     <p role="status" aria-live="polite" className="field-mix-message">{lastMix}</p>
