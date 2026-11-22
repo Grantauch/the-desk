@@ -138,3 +138,37 @@ test('faceoff clears Rookie tactical state without affecting personal bests',()=
  assert.equal(bot.aiPlanTime,0);assert.equal(bot.aiTarget,null);
  assert.equal(f.shiftProgress.byDifficulty.rookie.regular.games,0);
 });
+
+test('a pressured AI carrier no longer hoards the puck indefinitely while near goal',()=>{
+ const {f}=match('standard'),p=f.players.find(p=>p.team===1&&p.id===0);
+ const blocking=f.players.find(p=>p.team===0&&p.id===1);
+ Object.assign(p,{x:-23,z:0,facing:Math.PI,vx:0,vz:0,stun:0,shootWait:0});
+ Object.assign(blocking,{x:-25,z:0,stun:0});
+ f.give(p);p.carryTime=5;
+ let released=false;
+ for(let i=0;i<450;i++){
+  f.ai(p,dt);
+  if(!p.has){released=true;break}
+ }
+ assert.equal(released,true,'real shot/pass should release after extended possession in attack zone');
+ assert.equal(p.carryTime,0,'a release resets puck-control age');
+ assert.ok(f.matchStats.teamShots[1]+f.matchStats.teamPasses[1]>0,'AI creates a real event, not a fake score');
+ assert.equal(f.score[1],0,'shooting cannot grant an automatic goal');
+});
+test('holding the puck as a human never triggers automatic offensive decisions',()=>{
+ const {f,api}=match('veteran'),human=f.players.find(p=>p.device==='kb1');
+ for(const player of f.players)if(player!==human){player.stun=999;player.x=player.team===1?25:-25;player.z=10}
+ f.give(human);human.stun=0;
+ api.step(6);
+ assert.equal(f.puck.owner,human);
+ assert.ok(human.carryTime>5);
+ assert.equal(f.matchStats.human.shots,0);
+ assert.equal(f.matchStats.teamPasses[0],0);
+});
+test('carrying timers clear at faceoffs and on normal passes',()=>{
+ const {f}=match('standard'),p=f.players.find(p=>p.device==='kb1');
+ f.give(p);p.carryTime=7;f.pass(p);
+ assert.equal(p.carryTime,0);
+ f.give(p);p.carryTime=5;f.resetFaceoff();
+ assert.equal(p.carryTime,0);
+});
