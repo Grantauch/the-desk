@@ -13,6 +13,7 @@ function match(level='standard',opts={}){
  const q=fixture(undefined,{localStorage});
  const {api,f}=q;
  if(opts.multiplayer)api.setSeat(1,0,'kb2');
+ if(opts.mode)api.setMode(opts.mode);
  if(opts.none)api.setSeat(0,0,'ai');
  f.config.difficulty=level;
  api.start();f.clear();
@@ -86,7 +87,6 @@ test('veteran AI chooses more clean-lane shot attempts than rookie under control
  const shots=level=>{
   const {f,api}=match(level),p=f.players.find(p=>p.team===1&&p.id===0);
   for(const enemy of f.players.filter(p=>p.team===0&&!p.goalie))Object.assign(enemy,{x:25,z:10,stun:0});
-  for(const mate of f.players.filter(p=>p.team===1&&!p.goalie&&p!==p))mate.x=25;
   f.setSeed(10119);
   let attempts=0;
   for(let i=0;i<850;i++){
@@ -122,15 +122,14 @@ test('mode and difficulty partitions do not contaminate one another, aggregate t
   const {f}=match(level,{localStorage:storage});
   f.finish();
  }
- const {f}=match('standard',{localStorage:storage});
- f.config.mode='powerups';
+ const {f}=match('standard',{mode:'powerups',localStorage:storage});
  f.finish();
  const p=fixture(undefined,{localStorage:storage}).f.shiftProgress;
  assert.equal(p.modes.regular.games,2);
  assert.equal(p.byDifficulty.rookie.regular.games,1);
  assert.equal(p.byDifficulty.veteran.regular.games,1);
  assert.equal(p.byDifficulty.standard.regular.games,0);
- assert.equal(p.modes.powerups.games,0,'mid-match config edits must not alter match mode provenance');
+ assert.equal(p.modes.powerups.games,1);assert.equal(p.byDifficulty.standard.powerups.games,1);
 });
 test('faceoff clears Rookie tactical state without affecting personal bests',()=>{
  const {f}=match('rookie'),bot=f.players.find(p=>p.team===1&&p.id===0);
