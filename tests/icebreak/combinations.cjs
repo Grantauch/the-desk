@@ -70,7 +70,7 @@ test('return-pass cooldown prevents runaway give-and-go ping pong',()=>{
  third.x=-16;for(const enemy of f.players.filter(p=>p.team===1&&!p.goalie))Object.assign(enemy,{x:19,z:-9});f.give(receiver);f.ai(receiver,dt);
  assert.equal(f.puck.passTarget,passer);
  // Safely move the puck into the valid swept catch segment without AI ticks.
- f.puck.x=passer.x-1.25;f.puck.z=passer.z;f.puck.vx=22;f.puck.vz=0;f.puck.lock=0;
+ passer.receiveWait=0;f.puck.x=passer.x-1.25;f.puck.z=passer.z;f.puck.vx=22;f.puck.vz=0;f.puck.lock=0;
  for(let i=0;i<15&&!f.puck.owner;i++)f.puckPhysics(dt);
  assert.equal(f.puck.owner,passer);
  assert.equal(receiver.cutTime,0,'the returning receiver must not begin a new cut');
