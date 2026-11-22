@@ -706,10 +706,17 @@ function ai(p,dt){
   const returnReady=p.comboCooldown<=0&&receiver?.lane&&receiver.t.cutReceiver===p
    &&receiver.t.cutTime>0&&receiver.t.cutTime<COMBO.window-COMBO.goDelay
    &&(receiver.tx-p.x)*attack>COMBO.minProgress;
-  if(Math.abs(enemyGoal-p.x)<14&&Math.abs(p.z)<8&&p.shootWait<=0&&shotLane&&rnd()<dt*.9*level.shotRate){
-   shot(p,clamp((14-Math.abs(enemyGoal-p.x))/12,.15,.7));
+  const goalDistance=Math.abs(enemyGoal-p.x);
+  const inShotZone=goalDistance<OFFENSE.shotZone&&Math.abs(p.z)<10.8;
+  const shotUrgency=p.carryTime>OFFENSE.carryUrgency?3.8:1;
+  // Hockey players fire through traffic, not just from mathematically empty
+  // lanes. The *same* puck, swept save and goal-line physics resolve each shot.
+  const canShoot=inShotZone&&(shotLane||goalDistance<OFFENSE.shootFromTraffic||(underPressure&&p.carryTime>2));
+  if(canShoot&&p.shootWait<=0&&rnd()<dt*(shotLane?1.45:1.05)*shotUrgency*level.shotRate){
+   shot(p,clamp((OFFENSE.shotZone-goalDistance)/17,.12,.75));
   }else if(level.allowReturns&&returnReady&&p.shootWait<=0){pass(p)}
-  else if(underPressure&&p.shootWait<=0&&receiver&&receiver.lane&&receiver.score>0&&rnd()<dt*1.3*level.passRate){pass(p)}
+  else if((underPressure||p.carryTime>OFFENSE.passUrgency)&&p.shootWait<=0&&receiver?.lane&&receiver.score>-1&&
+    rnd()<dt*(underPressure?1.3:2.2)*level.passRate){pass(p)}
 
  }else if(teamHas){
   if(p.cutTime>0&&p.cutReceiver===carrier&&p.device==='ai'){
