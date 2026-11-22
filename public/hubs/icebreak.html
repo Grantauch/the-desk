@@ -500,12 +500,15 @@ function updatePlayers(dt){
    if(p===control)prompt('MISSED CHECK',.42);
   }
   p.checkRecovery=Math.max(0,p.checkRecovery-dt);p.saveFlash=Math.max(0,p.saveFlash-dt);
+  p.standPose=Math.max(0,p.standPose-dt);p.bracePose=Math.max(0,p.bracePose-dt);
   p.cutTime=Math.max(0,p.cutTime-dt);p.comboCooldown=Math.max(0,p.comboCooldown-dt);
    if(p.cutTime<=0||(puck.owner&&puck.owner!==p.cutReceiver)){p.cutTime=0;p.cutReceiver=null}
    p.effortRecovery=Math.max(0,p.effortRecovery-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);p.oneTimerFlash=Math.max(0,p.oneTimerFlash-dt);p.oneTimerBuffer=Math.max(0,p.oneTimerBuffer-dt);p.receiveWindow=Math.max(0,p.receiveWindow-dt);
   p.puckWobble*=Math.exp(-9*dt);
   p.shootWait=Math.max(0,p.shootWait-dt);p.stun=Math.max(0,p.stun-dt);
-  p.fallTime=Math.max(0,p.fallTime-dt);p.receiveWait=Math.max(0,p.receiveWait-dt);p.powerTime=Math.max(0,p.powerTime-dt);
+  const wasFallen=p.fallTime>0;
+  p.fallTime=Math.max(0,p.fallTime-dt);if(wasFallen&&p.fallTime===0)p.standPose=BODY.standDuration;
+  p.receiveWait=Math.max(0,p.receiveWait-dt);p.powerTime=Math.max(0,p.powerTime-dt);
   if(p.powerTime<=0)p.power=null;
   let burst=false;
   if(p.device!=='ai'){
@@ -517,6 +520,7 @@ function updatePlayers(dt){
    if(p.has&&input.shoot&&p.stun<=0)p.shotCharge=Math.min(1.5,p.shotCharge+dt);
   }else if(p.stun<=0&&p.checkWindow<=0)ai(p,dt);
   else skate(p,0,0,dt);
+  if(p.brace>.1)p.bracePose=BODY.braceDuration;
   p.energy=clamp(p.energy+(burst?-.34:p.effortRecovery>0?0:CHECK.recoveryRate)*dt,0,1);
   p.x+=p.vx*dt;p.z+=p.vz*dt;limitPlayer(p);
  }
