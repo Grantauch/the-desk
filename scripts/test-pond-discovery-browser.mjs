@@ -51,39 +51,55 @@ async function run(viewport) {
     const response = await page.goto(url, { waitUntil: "load" });
     assert.equal(response.status(), 200);
     await page.getByRole("button", { name: "Make a mess" }).click();
-    await page.getByRole("heading", { name: "Discovery lab" }).waitFor();
-    // Layout contract: desktop has a three-zone field station; mobile puts
-    // the living pond first, tools second and the ledger below.
+    await page.getByRole("heading", { name: /Make a living world/ }).waitFor();
+    // Desktop keeps three concurrent columns. Mobile presents the pond and
+    // ONE real workbench panel, without mounting duplicate stateful controls.
+    const mobile = viewport.width <= 800;
     const chamber = page.locator(".field-observation");
     const notebook = page.locator(".field-ledger");
     const fieldKit = page.locator(".field-materials");
-    assert.ok(await chamber.isVisible() && await notebook.isVisible() && await fieldKit.isVisible());
-    const [chamberBox, notebookBox, kitBox] = await Promise.all([
-      chamber.boundingBox(), notebook.boundingBox(), fieldKit.boundingBox(),
-    ]);
-    assert.ok(chamberBox && notebookBox && kitBox);
-    if (viewport.width <= 400) {
-      assert.ok(chamberBox.y < kitBox.y && kitBox.y < notebookBox.y, "mobile should keep observation above tools and discovery");
+    assert.ok(await chamber.isVisible());
+    const chamberBox = await chamber.boundingBox();
+    assert.ok(chamberBox);
+    if (mobile) {
+      assert.ok(await fieldKit.isVisible(), "materials are the initial workbench");
+      assert.equal(await notebook.isVisible(), false, "hidden notebook must not lengthen mobile page");
+      const kitBox = await fieldKit.boundingBox();
+      assert.ok(kitBox && chamberBox.y < kitBox.y);
+      assert.ok(await page.locator(".field-mobile-pane-status").isVisible());
+      assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
       assert.ok(chamberBox.width > 300, "mobile observation must use the device width");
     } else {
-      assert.ok(notebookBox.x < chamberBox.x && chamberBox.x < kitBox.x, "desktop should use ledger / chamber / tools columns");
-      assert.ok(Math.abs(notebookBox.y - chamberBox.y) < 70, "desktop regions begin at the same baseline");
+      assert.ok(await notebook.isVisible() && await fieldKit.isVisible());
+      const [notebookBox, kitBox] = await Promise.all([notebook.boundingBox(), fieldKit.boundingBox()]);
+      assert.ok(notebookBox && kitBox);
+      assert.ok(notebookBox.x < chamberBox.x && chamberBox.x < kitBox.x);
+      assert.ok(Math.abs(notebookBox.y - chamberBox.y) < 70);
+      assert.ok(await page.getByRole("group", { name: "Crafting slots" }).isVisible());
+      assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
     }
     assert.ok(await page.locator(".field-stage-plinth").isVisible(), "bespoke glass field stage must render");
-    assert.ok(await page.getByRole("group", { name: "Crafting slots" }).isVisible());
-    assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
     // The field route makes the previously separate workbenches reachable
     // without rewriting any physics, recipes, world, or save state.
     const stations = page.getByRole("navigation", { name: "Pond field workflow" });
     assert.ok(await stations.isVisible());
     await stations.getByRole("button", { name: "Go to discovery mixing" }).click();
     await page.waitForFunction(() => document.activeElement?.id === "pond-discovery-lab");
+    assert.ok(await page.getByRole("group", { name: "Crafting slots" }).isVisible());
+    if (mobile) {
+      assert.equal(await fieldKit.isVisible(), false, "only selected mobile pane should be visible");
+    }
     await stations.getByRole("button", { name: "Go to materials and painting" }).click();
     await page.waitForFunction(() => document.activeElement?.id === "pond-field-kit");
     await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
     await page.waitForFunction(() => document.activeElement?.id === "pond-world-controls");
     await stations.getByRole("button", { name: "Go to world backups and imports" }).click();
     await page.waitForFunction(() => document.activeElement?.id === "pond-field-archive");
+    if (mobile) {
+      assert.ok(await page.locator("#pond-field-archive").isVisible());
+      assert.equal(await notebook.isVisible(), false);
+      assert.equal(await page.locator("#pond-field-kit").isVisible(), false);
+    }
     assert.ok(await page.locator(".field-specimen-grid button").count() <= 12,
       "initial discovery list should not bury the Atlas on mobile");
 
@@ -94,7 +110,10 @@ async function run(viewport) {
       assert.equal(await quick.getByRole("button", { name: "Quick Water" }).getAttribute("aria-pressed"), "true");
       await quick.getByRole("button", { name: "Quick Sand" }).click();
       assert.equal(await quick.getByRole("button", { name: "Quick Sand" }).getAttribute("aria-pressed"), "true");
+      await quick.getByRole("button", { name: "Open full material kit" }).click();
+      await page.waitForFunction(() => document.activeElement?.id === "pond-field-kit");
     }
+    await stations.getByRole("button", { name: "Go to discovery mixing" }).click();
     await page.getByRole("button", { name: "Mix Fire" }).click();
     await page.getByRole("button", { name: "Mix Water" }).click();
     await page.getByText(/Fire \+ Water = Steam/).waitFor();
@@ -105,6 +124,7 @@ async function run(viewport) {
     assert.ok(box);
     await canvas.click({ position: { x: box.width * 0.5, y: box.height * 0.5 } });
     await page.getByText(/1 living creations/).waitFor();
+    await stations.getByRole("button", { name: "Go to materials and painting" }).click();
     await page.getByRole("button", { name: "Undo" }).click();
     await page.getByText(/0 living creations/).waitFor();
 
@@ -114,6 +134,7 @@ async function run(viewport) {
     // The richer graphics are a real render option, not just a CSS label.
     // Undo has paused physics, so compare the same world in both render modes.
     const graphics = pressed => page.getByRole("button", { name: "Rich pixel graphics", exact: true, pressed });
+    await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
     await graphics(true).click();
     await graphics(false).waitFor();
     await page.waitForTimeout(100);
@@ -129,23 +150,30 @@ async function run(viewport) {
     assert.equal(await page.evaluate(() => localStorage.getItem("pond-rich-graphics")), "0");
     await page.reload({ waitUntil: "load" });
     await page.getByRole("button", { name: "Make a mess" }).click();
+    await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
     await graphics(false).waitFor();
     await graphics(false).click();
     await graphics(true).waitFor();
     await page.getByText(/1 living creations/).waitFor();
+    await stations.getByRole("button", { name: "Go to discovery mixing" }).click();
     await page.getByRole("button", { name: "Mix Steam" }).waitFor();
 
     // Expansion must add real simulation cells, not simply stretch the canvas.
+    await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
     await page.getByRole("button", { name: /Expand pond to 256/ }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
     await page.getByText("256 × 256", { exact: false }).first().waitFor();
     await page.getByRole("button", { name: /Expand pond to 320/ }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
+    await stations.getByRole("button", { name: "Go to materials and painting" }).click();
     await page.getByRole("button", { name: "Undo" }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 256, "undo must restore the previous stage");
     await page.getByText(/1 living creations/).waitFor();
+    await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
+    if (mobile) await page.getByRole("button", { name: "Shape or expand the world" }).click();
     await page.getByRole("button", { name: /Expand pond to 320/ }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
+    await stations.getByRole("button", { name: "Go to discovery mixing" }).click();
     await page.getByRole("button", { name: "Mix Steam" }).click();
     await page.getByRole("button", { name: "Place in pond" }).click();
     const expandedCanvas = page.getByRole("application");
@@ -158,6 +186,8 @@ async function run(viewport) {
     await page.getByRole("button", { name: "Make a mess" }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 320);
     await page.getByText(/2 living creations/).waitFor();
+    await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
+    if (mobile) await page.getByRole("button", { name: "Shape or expand the world" }).click();
 
     // Build a world far beyond one viewport. The camera renders a crop instead
     // of scaling all 768 cells into the original circular canvas.
@@ -173,12 +203,13 @@ async function run(viewport) {
     await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
     await page.waitForFunction(() => document.activeElement?.id === "pond-field-atlas");
 
-    const nav = page.getByRole("region", { name: "World navigation" });
     const atlas = page.getByRole("region", { name: "Exploration atlas" });
     await atlas.getByRole("heading", { name: "World atlas" }).waitFor();
     await atlas.getByText(/% explored/).waitFor();
     await atlas.getByText("Discovered locations").waitFor();
     assert.ok(await atlas.getByRole("button", { name: "Select a location on the world map to explore" }).isVisible());
+    if (mobile) await page.getByRole("button", { name: "Shape or expand the world" }).click();
+    const nav = page.getByRole("region", { name: "World navigation" });
     const beforePan = await nav.locator(".field-nav-top small").textContent();
     const largeCanvas = page.getByRole("application");
     const rect = await largeCanvas.boundingBox();
@@ -191,12 +222,15 @@ async function run(viewport) {
     for (let n = 0; n < 6; n++) await page.getByRole("button", { name: "Pan world right" }).click();
     const afterPan = await nav.locator(".field-nav-top small").textContent();
     assert.notEqual(afterPan, beforePan, "drag-and-pan changes the world camera");
+    if (mobile) await page.getByRole("button", { name: "Open the world Atlas" }).click();
     await atlas.getByRole("button", { name: "Select a location on the world map to explore" })
       .click({ position: { x: 235, y: 155 } });
+    if (mobile) await page.getByRole("button", { name: "Shape or expand the world" }).click();
     const afterAtlasJump = await nav.locator(".field-nav-top small").textContent();
     assert.notEqual(afterAtlasJump, afterPan, "the atlas should navigate the world camera");
     await page.getByRole("button", { name: "Explore: on" }).click();
     // Selection still works when returning to painting/placement mode.
+    await stations.getByRole("button", { name: "Go to discovery mixing" }).click();
     await page.getByRole("button", { name: "Mix Steam" }).click();
     await page.getByRole("button", { name: "Place in pond" }).click();
     const farCanvas = page.getByRole("application");
@@ -209,6 +243,7 @@ async function run(viewport) {
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 256, "large world uses camera viewport");
     await page.getByText(/3 living creations/).waitFor();
 
+    await stations.getByRole("button", { name: "Go to world backups and imports" }).click();
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Export world" }).click();
     const download = await downloadPromise;
@@ -231,7 +266,7 @@ async function run(viewport) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     assert.equal(overflow, false, "Pond should not overflow horizontally");
     assert.deepEqual(errors, [], "No browser errors");
-    const name = viewport.width <= 400 ? "mobile" : "desktop";
+    const name = viewport.width <= 800 ? "mobile-" + viewport.width : "desktop";
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(150);
     await page.screenshot({ path: out + "/" + name + "-top.png" });
@@ -247,6 +282,7 @@ try {
     ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?
       { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {}),
   });
+  await run({ width: 320, height: 568 });
   await run({ width: 390, height: 844 });
   await run({ width: 1365, height: 900 });
   console.log("PASS " + cases + " Pond browser acceptance scenarios");
