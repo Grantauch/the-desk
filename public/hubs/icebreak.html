@@ -200,7 +200,7 @@ function clearLane(ax,az,bx,bz,defenders,clearance=1.65){
  return defenders.every(e=>{const t=clamp(((e.x-ax)*dx+(e.z-az)*dz)/mag,0,1);return Math.hypot(e.x-ax-t*dx,e.z-az-t*dz)>clearance});
 }
 function bestPass(p){
- const attack=p.team===0?1:-1,mates=players.filter(t=>t.team===p.team&&!t.goalie&&t!==p),enemies=players.filter(t=>t.team!==p.team&&!t.goalie);
+ const attack=p.team===0?1:-1,mates=players.filter(t=>t.team===p.team&&!t.goalie&&t!==p&&t.stun<=0&&t.fallTime<=0&&t.checkWindow<=0&&t.checkRecovery<=0),enemies=players.filter(t=>t.team!==p.team&&!t.goalie);
  let dirx=Math.cos(p.facing),dirz=Math.sin(p.facing);
  if(p.device!=='ai'){const v=getMove(p);if(Math.hypot(...v)>.1)[dirx,dirz]=normalize(...v)}
  const options=mates.map(t=>{
@@ -242,6 +242,8 @@ function beginCheck(p){
  p.checkEffort=clamp(p.energy/CHECK.fullEffort,0,1)*(.70+.30*p.balance);
  p.energy=Math.max(0,p.energy-CHECK.baseCost-CHECK.speedCost*clamp(speed/SKATE.burstSpeed,0,1));
  p.check=CHECK.cooldown;p.checkWindow=CHECK.window;p.checkConnected=false;p.checkRecovery=0;p.effortRecovery=CHECK.effortRecovery;
+ // Committing to body contact abandons an active offensive cutting lane.
+ p.cutTime=0;p.cutReceiver=null;
  return true;
 }
 function beginInjury(target){
