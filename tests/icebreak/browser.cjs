@@ -55,6 +55,19 @@ const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/ht
    assert.ok((await page.evaluate(()=>window.__ICEBREAK_TEST__.getState().players.find(p=>p.device==='kb2').z))>0);
    await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>window.__ICEBREAK_TEST__.getState().paused),true);await page.locator('#playBtn').click();
    await page.screenshot({path:path.join(out,`${renderer}-${viewport.width}-live.png`)});
+   // A tab can be hidden without window blur. It must pause until manually resumed.
+   await page.waitForFunction(()=>window.__ICEBREAK_TEST__.getState().phase==='playing',null,{timeout:10000});
+   const visibility=await page.evaluate(()=>{
+    const before=window.__ICEBREAK_TEST__.getState();
+    Object.defineProperty(document,'hidden',{configurable:true,value:true});
+    document.dispatchEvent(new Event('visibilitychange'));
+    const after=window.__ICEBREAK_TEST__.getState();
+    return {hidden:document.hidden,phase:before.phase,beforePaused:before.paused,afterPaused:after.paused};
+   });
+   assert.equal(visibility.afterPaused,true,'backgrounding pauses play '+JSON.stringify(visibility));
+   await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'))});
+   assert.equal(await page.evaluate(()=>window.__ICEBREAK_TEST__.getState().paused),true,'restoring visibility does not auto-resume');
+   await page.locator('#playBtn').click();
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
    // Deterministic controlled scene: scenario hook is present only in this test URL.
    await page.goto(url+'/fixture');await page.locator('#playBtn').click();

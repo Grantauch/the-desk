@@ -113,3 +113,25 @@ test('ordinary input reaches the hardest check in Regular, identically across ri
  }
  assert.deepEqual(results[0],results[1]);assert.deepEqual(results[1],results[2]);
 });
+
+test('hidden tabs pause once and discard charged shots and held controls safely',()=>{
+ const {f,api,document,documentEvents,events,elements}=fixture();
+ api.start();f.clear();
+ const player=f.players.find(p=>p.device==='kb1');
+ player.stun=0;f.give(player);
+ api.input('w',true);api.input('k',true);api.step(.12);
+ assert.ok(player.shotCharge>0,'holding shoot should charge before losing focus');
+ assert.equal(api.getState().paused,false);
+ document.hidden=true;documentEvents.visibilitychange();
+ assert.equal(api.getState().paused,true,'hiding the tab must pause the game');
+ assert.equal(player.shotCharge,0,'a hidden tab cannot preserve a charged shot');
+ events.blur();assert.equal(api.getState().paused,true,'a subsequent blur must not resume play');
+ document.hidden=false;documentEvents.visibilitychange();
+ assert.equal(api.getState().paused,true,'returning to a tab must require deliberate resume');
+ elements.get('playBtn').events.click();
+ assert.equal(api.getState().paused,false);
+ api.input('k',false);
+ assert.equal(f.puck.owner,player,'releasing the formerly held shoot key cannot fire');
+ const x=player.x;api.step(.2);
+ assert.ok(player.x-x<2.1,'stale movement input must not keep accelerating the player');
+});

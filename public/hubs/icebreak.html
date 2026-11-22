@@ -270,7 +270,18 @@ window.addEventListener('keydown',e=>{
  if(e.target?.closest?.('select,button,input,textarea')&&(phase==='menu'||paused||phase==='finished'))return;
  if(keyboardMapping[key]||key==='escape'||key===' '){e.preventDefault();inputKey(key,true,e.repeat)}
 });
-window.addEventListener('keyup',e=>inputKey(e.key,false));window.addEventListener('blur',()=>{inputState.clear();lastInputButtons.clear();if(phase==='playing'&&!paused)togglePause()});
+window.addEventListener('keyup',e=>inputKey(e.key,false));
+// Switching browser tabs can hide the page without causing a window blur.
+// Release all held controls and unfinished shots before leaving play so
+// returning to the tab cannot trigger an unintended pass or slapshot.
+function suspendForLostFocus(){
+ inputState.clear();lastInputButtons.clear();
+ for(const p of players)p.shotCharge=0;
+ for(const button of document.querySelectorAll('[data-key].pressed'))button.classList.remove('pressed');
+ if(phase==='playing'&&!paused)togglePause();
+}
+window.addEventListener('blur',suspendForLostFocus);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)suspendForLostFocus()});
 for(let el of document.querySelectorAll('[data-key]')){let key=el.dataset.key,pointer=null;el.addEventListener('pointerdown',e=>{if(pointer!==null||e.button>0)return;e.preventDefault();pointer=e.pointerId;el.setPointerCapture(pointer);inputKey(key,true);el.classList.add('pressed')});for(let event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,e=>{if(e.pointerId!==pointer)return;e.preventDefault();pointer=null;if(event!=='pointerup'){const [device,act]=keyboardMapping[key];inputFor(device)[act]=false;const p=humanFor(device);if(p&&act==='shoot')p.shotCharge=0}else inputKey(key,false);el.classList.remove('pressed')})}
 function pollGamepads(){
  if(!navigator.getGamepads)return;

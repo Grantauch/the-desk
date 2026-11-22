@@ -25,3 +25,11 @@ This draft batch is stacked on PR #473 (the ICEBREAK physics foundation), which 
 - PR #455 remains an older draft proof of the skating/checking pass and its initial fall version. Do not merge it over Batch 01.
 - PR #473 is the immediately preceding foundation and should be reviewed first.
 - This Batch 02 PR should target `icebreak/batch-01-physics-foundation`, not main.
+
+## Follow-up: tab-visibility and input-safety polish (November 22)
+
+- Browsers can stop displaying a tab without firing a window `blur`. Both events now use the same idempotent focus-suspension path: clear held keyboard/touch/gamepad input, cancel shot windups, remove stuck pressed styling, and pause an active game.
+- Regaining visibility never automatically resumes the game. Users must select Resume. Releasing a previously held shoot key afterward cannot fire an unintentional shot.
+- Regression coverage: `tests/icebreak/checks.cjs` simulates background, blur, foreground, controlled resume and released shoot; `tests/icebreak/browser.cjs` dispatches tab visibility in actual Chromium WebGL and Canvas rendering, desktop and emulated touch.
+- Local native checks on the updated Batch 02 tree: **28/28** source tests and **4/4** Chromium matrix (0 page errors). Browser-run results are emulated mobile viewports, not physical-phone or controller trials.
+- No changes to skating speeds, injury rules, scoring, roster, power-ups, or deployed production. Keep PR #473 physics foundation ahead of this Batch 02 branch in the release sequence.

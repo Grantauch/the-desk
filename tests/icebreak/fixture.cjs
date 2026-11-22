@@ -10,11 +10,12 @@ function fixture(source=fs.readFileSync(file,'utf8')) {
   const classList={add(){},remove(){},toggle(){}};
   const context2d=new Proxy({}, {get:(_,k)=>k==='createLinearGradient'?()=>({addColorStop(){}}):()=>{}});
   const element=id=>({id,style:{},dataset:{},classList,hidden:false,textContent:'',innerHTML:'',value:'',appendChild(){},focus(){},blur(){},setAttribute(){},removeAttribute(){},addEventListener(type,fn){this.events??={};this.events[type]=fn},querySelectorAll(){return []},getContext:type=>type==='2d'?context2d:null});
-  const document={getElementById(id){if(!elements.has(id))elements.set(id,element(id));return elements.get(id)},querySelectorAll(){return []},createElement:()=>element('new')};
+  const documentEvents={};
+  const document={hidden:false,addEventListener(type,handler){documentEvents[type]=handler},getElementById(id){if(!elements.has(id))elements.set(id,element(id));return elements.get(id)},querySelectorAll(){return []},createElement:()=>element('new')};
   const window={addEventListener:(type,fn)=>events[type]=fn};
   const sandbox={window,document,navigator:{getGamepads:()=>pads},innerWidth:1440,innerHeight:900,devicePixelRatio:1,console,structuredClone,setTimeout(){},requestAnimationFrame(){}};
   vm.createContext(sandbox);
   vm.runInContext(instrument(source).match(/<script>([\s\S]*?)<\/script>/)[1],sandbox,{filename:'icebreak.html'});
-  return {f:window.fixture,api:window.__ICEBREAK_TEST__,elements,events,pads,sandbox};
+  return {f:window.fixture,api:window.__ICEBREAK_TEST__,elements,events,document,documentEvents,pads,sandbox};
 }
 module.exports={fixture,instrument,file};
