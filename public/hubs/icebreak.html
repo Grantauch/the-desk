@@ -689,7 +689,7 @@ function step(dt){
  if(phase!=='playing')return;
  puckPhysics(dt);if(phase==='playing')recordMoment(dt);updatePowerups(dt);if(timeLeft<=0&&phase==='playing')finish();
 }
-function playerMesh(p,t){const col=p.team===0?C.blue:C.red,highlight=p.team===0?C.cyan:C.redLight;const pace=Math.min(1,Math.hypot(p.vx,p.vz)/10),skate=Math.sin(t*15+p.id*2)*.25*pace,turn=p.facing,fx=Math.cos(turn),fz=Math.sin(turn);const fall=fallAmount(p),saveReach=p.goalie&&p.saveFlash>0?Math.sin((1-p.saveFlash/KEEPER.savePose)*Math.PI)*p.saveSide*.5:0,cheer=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie,slump=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team!==goalTeam&&p.goalie,bodyY=(p.goalie?1.3:1.25)-fall*.45+(cheer?Math.sin(t*21+p.id)*.19+.13:0)-(slump?.22:0);
+function playerMesh(p,t){const col=p.team===0?C.blue:C.red,highlight=p.team===0?C.cyan:C.redLight;const pace=Math.min(1,Math.hypot(p.vx,p.vz)/10),skate=Math.sin(t*15+p.id*2)*.25*pace,turn=p.facing,fx=Math.cos(turn),fz=Math.sin(turn);const fall=fallAmount(p),recoil=impactPose(p),recoilX=p.impactX*recoil*IMPACT_FEEL.bodyRecoil,recoilZ=p.impactZ*recoil*IMPACT_FEEL.bodyRecoil,saveReach=p.goalie&&p.saveFlash>0?Math.sin((1-p.saveFlash/KEEPER.savePose)*Math.PI)*p.saveSide*.5:0,cheer=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie,slump=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team!==goalTeam&&p.goalie,bodyY=(p.goalie?1.3:1.25)-fall*.45+(cheer?Math.sin(t*21+p.id)*.19+.13:0)-(slump?.22:0);
 // Ice shadows: translucent grounding under each animated skater.
 disk(p.x,.03,p.z,p.goalie?.96:.72,[.015,.06,.11],.19);
 // Cyan = assigned input; gold = possession. Facing stays separate from velocity.
@@ -698,14 +698,18 @@ if(p.has)ring(p.x,.052,p.z,.91,C.gold,1);
  if(passPreview(control)===p&&p!==control)ring(p.x,.047,p.z,1.35,C.cyan,.82);
  if(p.cutTime>0&&p.cutReceiver===puck.owner&&!p.has)ring(p.x,.053,p.z,1.48,C.gold,clamp(p.cutTime/COMBO.window,.18,.82));
  if(p.oneTimerFlash>0)ring(p.x,.072,p.z,1.57,C.gold,p.oneTimerFlash/.34);
+ if(!reducedImpactMotion&&p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
+  const fade=p.impactTime/p.impactSpan,col=p.impactTier>=2?C.gold:p.impactTier>=1?C.redLight:C.white;
+  ring(p.x,.065,p.z,1.08+(1-fade)*IMPACT_FEEL.ringExpand,col,fade*p.impactPower*.75);
+ }
 if(p.checkWindow>0||p.hitFlash>0||p.checkRecovery>0&&!p.checkConnected)
  ring(p.x,.058,p.z,1.38,p.hitFlash>0?C.gold:p.checkRecovery>0&&!p.checkConnected?C.redLight:C.white);
 // Body and kit are separate 3D volumes: jersey, shoulder pads, helmet, legs, gloves, stick.
-const lean=clamp(p.skid*.025,-.18,.18)+p.fallSide*fall*1.05;
+const lean=clamp(p.skid*.025,-.18,.18)+p.fallSide*fall*1.05+(-fz*p.impactX+fx*p.impactZ)*recoil*.24;
  const tiltX=-fz*p.fallSide*fall*.55,tiltZ=fx*p.fallSide*fall*.55;
- draw(meshes.cyl,p.x+tiltX*.4,bodyY,p.z+tiltZ*.4,.50,.90,.44,col,-turn,1,0,lean);
+ draw(meshes.cyl,p.x+tiltX*.4+recoilX,bodyY-recoil*.07,p.z+tiltZ*.4+recoilZ,.50,.90,.44,col,-turn,1,0,lean);
  cylinder(p.x+tiltX*.4,bodyY+.42-fall*.13,p.z+tiltZ*.4,.38,.12,highlight);
- ball(p.x+tiltX+fx*.17,bodyY+.87-fall*.46,p.z+tiltZ+fz*.17,.38,[.09,.17,.24]);
+ ball(p.x+tiltX+fx*.17+recoilX*1.35,bodyY+.87-fall*.46-recoil*.08,p.z+tiltZ+fz*.17+recoilZ*1.35,.38,[.09,.17,.24]);
  ball(p.x+tiltX+fx*.34,bodyY+.91-fall*.46,p.z+tiltZ+fz*.17,.12,C.white);
  cube(p.x+tiltX*.28,bodyY+.04-fall*.12,p.z+tiltZ*.28,.93,.11,.87,p.team===0?[.93,.98,1]:[.99,.93,.88],-turn);
 for(let side of [-1,1]){let ox=-fz*side*.23,oz=fx*side*.23;let legX=p.x+ox+fx*.1,legZ=p.z+oz+fz*.1;cube(legX,bodyY-.67+fall*.24,legZ,.22,.68,.25,[.07,.17,.24],-turn+skate*side);cube(legX+fx*.16,.22,legZ+fz*.16,.49,.10,.19,[.035,.08,.15],-turn);ball(p.x+ox*1.75+fx*.11,bodyY+.20,p.z+oz*1.75+fz*.11,.23,col)}
@@ -800,7 +804,9 @@ function render2d(t){
  for(let p of [...players].sort((a,b)=>b.x-a.x)){
   const [x,y]=pt(p.x,p.z),v=Math.hypot(p.vx,p.vz),angle=p.facing-Math.PI/2,blueTeam=p.team===0;ctx.save();ctx.translate(x,y);const bodyScale=clamp(scale/18,1,1.5);ctx.scale(bodyScale,depth*bodyScale);
   ctx.fillStyle='#0c39594d';ctx.beginPath();ctx.ellipse(3,5,p.goalie?14:10,p.goalie?10:7,0,0,Math.PI*2);ctx.fill();
-  const fall=fallAmount(p);ctx.translate(p.fallSide*fall*7,0);ctx.rotate(angle+p.fallSide*fall*.42);ctx.scale(1+fall*.46,1-fall*.25);ctx.lineWidth=2.3;ctx.strokeStyle='#223a4c';for(let z of [-5,5]){ctx.beginPath();ctx.moveTo(-8,z);ctx.lineTo(3,z);ctx.stroke()}
+  const fall=fallAmount(p),recoil=impactPose(p);
+   ctx.translate(p.fallSide*fall*7+p.impactZ*recoil*5,-p.impactX*recoil*5);
+   ctx.rotate(angle+p.fallSide*fall*.42+(-Math.sin(p.facing)*p.impactX+Math.cos(p.facing)*p.impactZ)*recoil*.16);ctx.scale(1+fall*.46,1-fall*.25);ctx.lineWidth=2.3;ctx.strokeStyle='#223a4c';for(let z of [-5,5]){ctx.beginPath();ctx.moveTo(-8,z);ctx.lineTo(3,z);ctx.stroke()}
   // Offset gloves, pads, helmet and stick draw as layered pseudo-3D volumes.
   ctx.fillStyle=p.goalie?'#f5faff':blueTeam?'#20a3ec':'#e85247';roundRect(ctx,-8,-8,17,16,5);ctx.fill();ctx.fillStyle=blueTeam?'#b1f6ff':'#ffe0c9';ctx.fillRect(-2,-8,5,16);
   ctx.fillStyle=blueTeam?'#143e5b':'#6c2833';for(let side of [-1,1]){ctx.beginPath();ctx.arc(-4,side*9,3.8,0,Math.PI*2);ctx.fill()}
@@ -813,6 +819,12 @@ function render2d(t){
    if(passPreview(control)===p&&p!==control){ctx.strokeStyle='#61dfff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.stroke()}
    if(p.cutTime>0&&p.cutReceiver===puck.owner&&!p.has){ctx.strokeStyle='#ffd766';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,25,0,Math.PI*2);ctx.stroke()}
    if(p.oneTimerFlash>0){ctx.strokeStyle='#ffd966';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,24,0,Math.PI*2);ctx.stroke()}
+   if(!reducedImpactMotion&&p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
+    const fade=p.impactTime/p.impactSpan;
+    ctx.strokeStyle=p.impactTier>=2?'#ffcf65':p.impactTier>=1?'#ff937d':'#ffffff';
+    ctx.globalAlpha=fade*p.impactPower*.8;ctx.lineWidth=2+p.impactTier;
+    ctx.beginPath();ctx.arc(x,y,15+(1-fade)*20,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;
+   }
   if(p.checkWindow>0||p.hitFlash>0||p.checkRecovery>0&&!p.checkConnected){ctx.strokeStyle=p.hitFlash>0?'#ffc34d':p.checkRecovery>0&&!p.checkConnected?'#ff9275':'#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,19,0,Math.PI*2);ctx.stroke()}
   playerMarker(p,x,y-Math.max(26,scale*1.6));
   if(p.powerTime>0){ctx.fillStyle='#ffe174';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(p.power.toUpperCase(),x,y-27)}
