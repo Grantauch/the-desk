@@ -95,8 +95,24 @@ jobs:
           DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide_load
         run: node --import tsx --test src/checkins/checkins.concurrency-load.integration.test.ts
 
+      - name: Reject unauthorized recovery-drill invocation before any database access
+        run: |
+          set +e
+          bash scripts/ci-synthetic-encrypted-recovery.sh
+          status=$?
+          set -e
+          if [[ "$status" -ne 3 ]]; then
+            echo "SW-180 safety guard expected exit code 3, received $status" >&2
+            exit 1
+          fi
+
+      - name: Prove encrypted backup and fresh-container restore with fictional data only
+        env:
+          SCHOOLWIDE_SYNTHETIC_RECOVERY: 'true'
+        run: bash scripts/ci-synthetic-encrypted-recovery.sh
+
       - name: Check VPS staging operator scripts syntax
-        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh scripts/vps-host-backup-audit.sh && node --check scripts/vps-host-probe.mjs && node --check scripts/vps-host-classroom-probe.mjs && node --check scripts/vps-host-pass-queue-probe.mjs && node --check scripts/vps-host-pin-http-probe.mjs && node --check scripts/prepare-ci-load-db.mjs
+        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh scripts/vps-host-backup-audit.sh scripts/ci-synthetic-encrypted-recovery.sh && node --check scripts/vps-host-probe.mjs && node --check scripts/vps-host-classroom-probe.mjs && node --check scripts/vps-host-pass-queue-probe.mjs && node --check scripts/vps-host-pin-http-probe.mjs && node --check scripts/prepare-ci-load-db.mjs
 
       - name: Verify isolated VPS staging Compose configuration
         env:
