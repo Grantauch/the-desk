@@ -313,7 +313,7 @@ function inputFor(device){if(!inputState.has(device))inputState.set(device,{up:f
 // Transform keyboard, touch and gamepad axes in exactly the same place so that
 // controls remain screen-relative without changing the simulation axes.
 function getMove(p){const inp=inputFor(p.device);let x=(inp.up?1:0)-(inp.down?1:0)-(inp.axisY||0),z=(inp.right?1:0)-(inp.left?1:0)+(inp.axisX||0);const magnitude=Math.hypot(x,z);return magnitude>1?[x/magnitude,z/magnitude]:[x,z]}
-function goalieClear(p){if(!p.goalie||puck.owner||dist(p,puck)>3.5)return;const direction=p.team===0?1:-1;const aim=getMove(p);puck.x=p.x+direction*1.2;puck.z=p.z;puck.vx=direction*28;puck.vz=aim[1]*8;puck.lock=.3;sound('shoot');spray(p.x,p.z,C.white,7)}
+function goalieClear(p){if(!p.goalie||puck.owner||dist(p,puck)>3.5)return;const direction=p.team===0?1:-1;const aim=getMove(p);puck.x=p.x+direction*1.2;puck.z=p.z;puck.vx=direction*28;puck.vz=aim[1]*8;puck.lock=.3;puck.passFrom=null;puck.passTarget=null;sound('shoot');spray(p.x,p.z,C.white,7)}
 function action(p,key,down){if(!p)return;const input=inputFor(p.device);if(input[key]===down)return;input[key]=down;if(phase!=='playing'||paused||dropDelay>0){if(!down&&key==='shoot'){p.shotCharge=0;p.oneTimerBuffer=0}return}
  if(key==='pass'&&down){if(p.goalie)goalieClear(p);else pass(p)}
  if(key==='check'&&down)beginCheck(p);
@@ -566,7 +566,7 @@ function puckPhysics(dt){
   const [ux,uz]=normalize(puck.x-keeper.x||-Math.sign(keeper.x),puck.z-keeper.z);
   puck.x=keeper.x+ux*1.06;puck.z=keeper.z+uz*1.06;
   puck.vx=ux*11-Math.sign(keeper.x)*9;puck.vz=uz*8;
-  puck.lock=.27;sound('hit');spray(puck.x,puck.z,C.white,5);
+  puck.lock=.27;puck.passFrom=null;puck.passTarget=null;sound('hit');spray(puck.x,puck.z,C.white,5);
  }else if(first?.kind==='catch'){
   const receiver=first.skater;
   const intendedPass=puck.passFrom?.team===receiver.team&&puck.passFrom!==receiver&&puck.passTarget===receiver;
@@ -576,8 +576,8 @@ function puckPhysics(dt){
   receiver.shootWait=.25;receiver.shotCharge=0;receiver.receiveWindow=intendedPass?ONE_TIMER.receiveWindow:0;sound('grab');
   if(fireOnCatch){receiver.oneTimerBuffer=0;shot(receiver,ONE_TIMER.baseCharge,true);prompt('ONE-TIMER!',.62)}
  }else{
-  if(Math.abs(puck.x)>27.2){puck.x=Math.sign(puck.x)*27.2;puck.vx*=-.80;sound('pass')}
-  if(Math.abs(puck.z)>12.3){puck.z=Math.sign(puck.z)*12.3;puck.vz*=-.82;sound('pass')}
+  if(Math.abs(puck.x)>27.2){puck.x=Math.sign(puck.x)*27.2;puck.vx*=-.80;puck.passFrom=null;puck.passTarget=null;sound('pass')}
+  if(Math.abs(puck.z)>12.3){puck.z=Math.sign(puck.z)*12.3;puck.vz*=-.82;puck.passFrom=null;puck.passTarget=null;sound('pass')}
   if(Math.abs(puck.x)>24&&Math.abs(puck.z)>9.8){
    puck.x=Math.sign(puck.x)*24;puck.vx*=-.63;
    puck.z=Math.sign(puck.z)*9.8;puck.vz*=-.63;
@@ -780,7 +780,7 @@ function advanceFrame(elapsed){
 }
 let lastHUD=0;function frame(ms){const t=ms/1000,dt=lastTime>=0?(ms-lastTime)/1000:0;lastTime=ms;advanceFrame(dt);render(t);if(t-lastHUD>.09){updateHUD();possessionHUD();lastHUD=t}requestAnimationFrame(frame)}
 makeTeams();resetFaceoff();phase='menu';requestAnimationFrame(frame);
-window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus,cameraFocusZ:camFocusZ,followCamera:followActive()}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.lock=1},replay:()=>({frames:replayFrames.length,history:replayHistory.length,elapsed:replayElapsed,moment:goalMoment?{...goalMoment}:null}),touch:()=>({passTarget:puck.passTarget?.number??null,passFrom:puck.passFrom?.number??null,buffer:control.oneTimerBuffer,receiveWindow:control.receiveWindow,oneTimerFlash:control.oneTimerFlash,lastShot:lastShot?{...lastShot}:null}),physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
+window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus,cameraFocusZ:camFocusZ,followCamera:followActive()}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.passFrom=null;puck.passTarget=null;puck.lock=1},replay:()=>({frames:replayFrames.length,history:replayHistory.length,elapsed:replayElapsed,moment:goalMoment?{...goalMoment}:null}),touch:()=>({passTarget:puck.passTarget?.number??null,passFrom:puck.passFrom?.number??null,buffer:control.oneTimerBuffer,receiveWindow:control.receiveWindow,oneTimerFlash:control.oneTimerFlash,lastShot:lastShot?{...lastShot}:null}),physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
 })();
 </script>
 </body>
