@@ -707,7 +707,7 @@ export function PondApp() {
             </aside>
 
             <aside className="field-materials" aria-label="Materials and world controls">
-              <section id="pond-field-kit" className="field-panel field-tool-panel">
+              <section id="pond-field-kit" tabIndex={-1} className="field-panel field-tool-panel">
                 <div className="field-panel-header">
                   <p className="field-eyebrow">04 / THE MATERIAL LIBRARY</p>
                   <div className="field-panel-heading">
@@ -753,7 +753,7 @@ export function PondApp() {
                 </div>
               </section>
 
-              <section className="field-panel field-world-panel">
+              <section id="pond-world-controls" tabIndex={-1} className="field-panel field-world-panel">
                 <div className="field-panel-header">
                   <p className="field-eyebrow">05 / TERRAIN & EXPLORATION</p>
                   <div className="field-panel-heading"><h2>Shape the world</h2><Compass size={22} strokeWidth={1.5}/></div>
