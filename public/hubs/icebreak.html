@@ -73,7 +73,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
       <p id="overlayDesc">Choose your rules and rink. Four positions per side. Fill the seats with people or AI, then drop the puck.</p>
       <section id="matchReport" class="match-report" aria-label="Finished match statistics" hidden>
         <h3>FINAL SHIFT REPORT</h3>
-        <p id="finalTeamStats"></p>
+        <p class="report-teams" id="finalTeamStats"></p>
         <p id="finalSoloStats"></p>
         <p class="earned" id="finalAchievements"></p>
         <p id="finalDaily"></p>
@@ -331,14 +331,16 @@ function updateDailyTicker(){
 function renderFinalReport(){
  const m=matchStats;if(!m?.final){hud.report.hidden=true;return}
  hud.report.hidden=false;
- hud.reportTeams.textContent='GLACIERS: '+score[0]+' goals · '+m.teamShots[0]+' shots · '+m.teamPasses[0]+' passes · '+m.teamChecks[0]+' clean checks · '+m.teamSaves[0]+' saves. EMBERS: '+score[1]+' goals · '+m.teamShots[1]+' shots · '+m.teamPasses[1]+' passes · '+m.teamChecks[1]+' clean checks · '+m.teamSaves[1]+' saves.';
+ const n=(count,word)=>count+' '+word+(count===1?'':'s');
+ const row=(team,name)=>name+' · '+n(score[team],'goal')+' · '+n(m.teamShots[team],'shot')+' · '+n(m.teamPasses[team],'completed pass').replace('passs','passes')+' · '+n(m.teamChecks[team],'clean check')+' · '+n(m.teamSaves[team],'save');
+ hud.reportTeams.textContent=row(0,'GLACIERS')+'\n'+row(1,'EMBERS');
  if(!m.solo){
   hud.reportSolo.textContent='Local multiplayer: team statistics only. Solo records and daily challenges are not awarded.';
   hud.reportAchievements.textContent='';
   hud.reportDaily.textContent='Select one human versus AI for personal-best and daily-challenge progress.';return;
  }
  const h=m.human;
- hud.reportSolo.textContent='YOUR SHIFT: '+h.goals+' goals · '+h.shots+' shots · '+h.passes+' completed passes · '+h.checks+' clean checks · '+h.saves+' saves'+(h.oneTimers?' · '+h.oneTimers+' one-timer goals':'');
+ hud.reportSolo.textContent='YOUR SHIFT · '+n(h.goals,'goal')+' · '+n(h.shots,'shot')+' · '+n(h.passes,'completed pass').replace('passs','passes')+' · '+n(h.checks,'clean check')+' · '+n(h.saves,'save')+(h.oneTimers?' · '+n(h.oneTimers,'one-timer goal'):'');
  hud.reportAchievements.textContent=m.unlocked.length?'NEW BADGES · '+m.unlocked.join(' · '):'No new badges this match. Keep improving your personal best.';
  const ch=challengeForDay(m.day),value=challengeValue(m,ch);
  hud.reportDaily.textContent='DAILY · '+ch.label+' · '+Math.min(value,ch.target)+'/'+ch.target+(m.dailyEarned?' · COMPLETE!':'')+
