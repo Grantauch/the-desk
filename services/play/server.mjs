@@ -43,7 +43,7 @@ function makeRoom(game, isQuick) {
   if (rooms.size >= MAX_ROOMS) return null;
   const code = newCode();
   if (!code) return null;
-  const room = { code, game, quick: isQuick, seats: [null, null], made: Date.now(), touched: Date.now(), started: false, over: false };
+  const room = { code, game, site: "", qkey: "", quick: isQuick, seats: [null, null], made: Date.now(), touched: Date.now(), started: false, over: false };
   rooms.set(code, room);
   return room;
 }
@@ -70,7 +70,7 @@ function start(room) {
 function close(room, why) {
   if (!rooms.has(room.code)) return;
   rooms.delete(room.code);
-  if (quick.get(room.game) === room) quick.delete(room.game);
+  if (room.qkey && quick.get(room.qkey) === room) quick.delete(room.qkey);
   for (const s of room.seats) if (s && s.awayTimer) clearTimeout(s.awayTimer);
   log("close", room.code, why);
 }
@@ -107,16 +107,20 @@ function onMessage(ws, raw) {
   switch (m.t) {
     case "quick": {
       if (ws.room || !game) return;
-      const waiting = quick.get(game);
+      // Players from the public game site and from the class site never get paired with each other.
+      const qkey = game + "|" + ws.site;
+      const waiting = quick.get(qkey);
       if (waiting && !waiting.started && waiting.seats[0] && waiting.seats[0].ws.readyState === 1) {
-        quick.delete(game);
+        quick.delete(qkey);
         seat(waiting, ws);
         start(waiting);
       } else {
         const room = makeRoom(game, true);
         if (!room) return send(ws, { t: "error", msg: "The server is full. Try again in a minute." });
+        room.site = ws.site;
+        room.qkey = qkey;
         seat(room, ws);
-        quick.set(game, room);
+        quick.set(qkey, room);
         send(ws, { t: "waiting", quick: true });
       }
       return;
@@ -125,6 +129,7 @@ function onMessage(ws, raw) {
       if (ws.room || !game) return;
       const room = makeRoom(game, false);
       if (!room) return send(ws, { t: "error", msg: "The server is full. Try again in a minute." });
+      room.site = ws.site;
       seat(room, ws);
       send(ws, { t: "waiting", code: room.code });
       return;
@@ -133,7 +138,7 @@ function onMessage(ws, raw) {
       if (ws.room) return;
       const code = String(m.code || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4);
       const room = rooms.get(code);
-      if (!room || room.quick) return send(ws, { t: "error", msg: "No room with that code. Check the letters with your opponent." });
+      if (!room || room.quick || room.site !== ws.site) return send(ws, { t: "error", msg: "No room with that code. Check the letters with your opponent." });
       if (room.started) return send(ws, { t: "error", msg: "That room already has two players." });
       if (game && room.game !== game) return send(ws, { t: "error", msg: "That code is for a different game." });
       seat(room, ws);
@@ -226,7 +231,13 @@ http.on("upgrade", (req, socket, head) => {
   wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws, req));
 });
 
-wss.on("connection", (ws) => {
+// Which site a player came from. Rooms and quick matches stay inside one site.
+function siteOf(origin) {
+  try { return /(^|\.)freegameplace\.com$/.test(new URL(origin).hostname) ? "public" : "class"; } catch { return "class"; }
+}
+
+wss.on("connection", (ws, req) => {
+  ws.site = siteOf(req && req.headers.origin);
   ws.alive = true;
   ws.windowStart = Date.now();
   ws.count = 0;
