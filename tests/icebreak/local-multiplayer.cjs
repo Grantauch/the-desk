@@ -140,5 +140,5 @@ test('a second local human disables solo-follow camera while preserving eight pl
  const {api,elements}=match();
  assert.equal(api.getState().players.length,8);
  assert.equal(elements.get('viewBtn').disabled,true);
- assert.match(elements.get('viewBtn').getAttribute?.('aria-label')||'',/./);
+ assert.match(elements.get('seatCount').textContent,/2 HUMANS/);
 });
