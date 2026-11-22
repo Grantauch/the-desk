@@ -61,10 +61,10 @@ This batch changes presentation and counters only. It does not alter the 90 Hz f
 
 ## Verification — TheAtlas, November 22, 2026
 
-- New `tests/icebreak/progression.cjs`: **16 focused source tests** cover provenance, non-participating AI wins, goal and save credit, intended-pass interceptions, real checking, daily streak calendar boundaries, idempotent finish, incomplete games, separate mode records, hostile/corrupt/blocked storage, and multiplayer isolation.
-- Existing source suites + new Shift Book suite: **73/73 source tests PASS**, on the game-code candidate ending with `7b28330`.
+- New `tests/icebreak/progression.cjs`: **17 focused source tests** cover provenance, non-participating AI wins, goal and save credit, intended-pass interceptions, real checking, daily streak calendar boundaries, idempotent finish, incomplete games, natural 120-second clock expiration, separate mode records, hostile/corrupt/blocked storage, and multiplayer isolation.
+- Existing source suites + new Shift Book suite: **74/74 source tests PASS**, on the game-code candidate ending with `7b28330`.
 - `tests/icebreak/progression-browser.cjs`: desktop 1440×900 and mobile-emulated 390×844 on both WebGL and Canvas; real Play Again/Change Setup navigation; final score, daily challenge, saved records after reload, multiplayer isolation; and blocked-storage fallback. New browser runner: **5/5 PASS** on the candidate.
-- Entire Chromium browser chain (original game, first-touch, goalie, combinations, body-contact, progression) is an integration gate; verify its final process exit before promotion.
+- Entire Chromium browser chain (original game, first-touch, goalie, combinations, body-contact, progression): **25/25 browser scenarios PASS**, full process exit 0 on the final gameplay candidate. The head's subsequent test/doc changes do not modify ICEBREAK runtime code.
 - Desktop WebGL and mobile Canvas screenshots of the final report were manually inspected. A UI defect was discovered and fixed: Play Again had been buried below the full settings list. The final report now displays immediately with Play Again and the optional Change Setup action accessible without scrolling.
 
 ## Release blockers and follow-on
