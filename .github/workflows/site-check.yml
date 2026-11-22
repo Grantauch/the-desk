@@ -42,6 +42,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --include=dev
 
+      - name: Verify ICEBREAK physics, gameplay and progression
+        run: npm run icebreak:test
+
       - name: Report dependency advisories
         run: npm run security:audit:report
 
@@ -130,6 +133,10 @@ jobs:
             npx playwright install-deps chromium
             check_launch
           fi
+
+      - name: Exercise ICEBREAK WebGL, Canvas, touch layouts and game progression
+        if: steps.browser.outputs.needed == 'true'
+        run: npm run icebreak:browser
 
       - name: Check changed StoryHub pages in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode == 'storyhub'
