@@ -66,6 +66,23 @@ test('mass contact alone or a whiff cannot take possession or injure',()=>{
  a.x=-1;b.x=0;a.team=b.team;assert.equal(a.checkWindow,0);
  assert.equal(f.beginCheck(a),true);a.vx=13;f.collideSkaters(a,b);assert.equal(f.puck.owner,b);
 });
+test('heavy hits topple a skater, transfer momentum into a sliding fall, then permit recovery',()=>{
+ const m=match(),{f,api,a,b}=m;
+ const originalEnergy=b.energy;
+ const impact=contact(m,11);
+ assert.equal(impact.phase,'playing');assert.ok(b.fallTime>.5);
+ assert.equal(b.fallSpan,b.fallTime);assert.ok(b.energy<originalEnergy);
+ assert.ok(Math.hypot(b.vx,b.vz)>0,'collision delivers a physical slide rather than teleporting the player');
+ const upright=f.makePlayer(1,0,0,0);
+ upright.vx=b.vx;upright.vz=b.vz;
+ f.skate(b,0,0,dt);f.skate(upright,0,0,dt);
+ assert.ok(Math.hypot(b.vx,b.vz)<Math.hypot(upright.vx,upright.vz),'pads have greater ice drag than skates');
+ api.step(.9);
+ assert.equal(b.fallTime,0);assert.equal(b.stun,0);
+ assert.equal(f.phase,'playing');
+ f.resetFaceoff();
+ assert.equal(b.fallSpan,0,'faceoffs clear knockdown animations');
+});
 test('injury freezes match physics for five seconds or skips through keyboard, mouse and gamepad',()=>{
  for(const method of ['automatic','keyboard','button','gamepad']){
   const m=match(),{f,api,a,b,events,elements,pads}=m;
