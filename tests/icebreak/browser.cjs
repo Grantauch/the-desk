@@ -42,7 +42,7 @@ const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/ht
    }
    // Exercise the real lobby and real DOM keyboard/pointer controls.
    await page.locator('[data-rink="park"]').click();await page.locator('[data-mode="powerups"]').click();await page.locator('.seats summary').click();
-   await page.locator('select').nth(4).selectOption('kb2');await page.locator('#playBtn').click();
+   await page.locator('#seatGrid select').nth(4).selectOption('kb2');await page.locator('#playBtn').click();
    await page.waitForTimeout(1500);
    const before=await page.evaluate(()=>window.__ICEBREAK_TEST__.getState().players.find(p=>p.device==='kb1'));
    const touch=mobile?await context.newCDPSession(page):null;

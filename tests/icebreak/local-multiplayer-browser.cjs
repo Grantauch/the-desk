@@ -46,7 +46,7 @@ const results=[];
      }
      assert.equal(actual,renderer);
      await page.locator('.seats summary').click();
-     await page.locator('select').nth(4).selectOption('kb2');
+     await page.locator('#seatGrid select').nth(4).selectOption('kb2');
      await page.locator('#playBtn').click();
      const started=await page.evaluate(()=>{
       const f=window.fixture,a=window.__ICEBREAK_TEST__;
@@ -56,11 +56,13 @@ const results=[];
       Object.assign(v,{x:14,z:5,vx:0,vz:0,facing:Math.PI,stun:0,energy:1});
       return {players:a.getState().players.length,h:{x:h.x,z:h.z},v:{x:v.x,z:v.z},
        seatCount:document.getElementById('seatCount').textContent,
+       kb2IsAwayCenter:v.team===1&&v.id===0&&!v.goalie,
        noFollow:!a.getState().followCamera,
        viewDisabled:document.getElementById('viewBtn').disabled};
      });
      assert.equal(started.players,8);
      assert.match(started.seatCount,/2 HUMANS/);
+     assert.equal(started.kb2IsAwayCenter,true,'keyboard 2 must own Embers center, never the goalie');
      if(mobile){assert.equal(started.noFollow,true);assert.equal(started.viewDisabled,true)}
      // Native browser keyboard events: keys overlap in time but control
      // separate teams and never interfere with the other player's direction.
