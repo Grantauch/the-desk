@@ -28,7 +28,7 @@ test('a timed human shot while the intended pass approaches becomes a one-timer'
  const {f,api,receiver}=setupPass();
  api.input('m',true);
  assert.ok(receiver.oneTimerBuffer>0,'the button arms a finite reception window');
- travel(f);
+ for(let i=0;i<35&&!api.touch().lastShot?.oneTimer;i++)f.puckPhysics(dt);
  assert.equal(f.puck.owner,null,'one-timer releases the puck instead of sticking');
  assert.equal(receiver.has,false);
  assert.equal(api.touch().lastShot?.oneTimer,true);
@@ -70,7 +70,9 @@ test('unintended catches are not treated as one-timers',()=>{
  const {f,api,receiver}=setupPass();
  // Intercept before the intended recipient: an AI player may not inherit
  // the human receiver's armed shoot command or the passer bonus.
- const enemy=f.players[3];Object.assign(enemy,{x:1.6,z:.13,stun:0,receiveWait:0});
+ const enemy=f.players[3];Object.assign(enemy,{x:4.5,z:.13,stun:0,receiveWait:0});
+ // The original intended receiver cuts away after the pass has launched.
+ receiver.x=9;
  api.input('m',true);
  travel(f);
  assert.equal(f.puck.owner,enemy);
