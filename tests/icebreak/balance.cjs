@@ -73,6 +73,18 @@ test('poor defender balance changes a near-threshold hit without creating moment
  assert.ok(Math.abs(momentum(stable)-9.4)<1e-9);
  assert.ok(Math.abs(momentum(unsteady)-9.4)<1e-9);
 });
+test('AI check commitment uses the same coast-only movement as a human check',()=>{
+ const {f,a}=stage(7);
+ const initial=a.vx;
+ a.device='ai';
+ f.ai(a,DT);
+ assert.ok(a.checkWindow>0,'AI must arm when closing on the carrier');
+ const human=f.makePlayer(0,0,0,0);
+ human.vx=initial;human.vz=0;
+ f.skate(human,0,0,DT);
+ assert.ok(Math.abs(a.vx-human.vx)<1e-9,'AI may not steer or accelerate while committing');
+ assert.equal(a.facing,human.facing);
+});
 test('faceoff clears overcommit and restores neutral footing but preserves stamina',()=>{
  const {f,a}=stage(6);
  a.balance=.4;a.checkRecovery=.20;a.checkConnected=false;a.energy=.33;a.check=.55;
