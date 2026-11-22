@@ -1,3 +1,9 @@
+## November 21 ICEBREAK skating and checking draft
+
+Codex, [draft PR #455](https://github.com/Grantauch/the-desk/pull/455). Skaters carve, glide and brake with shared physics across School, Park and Mars. Checks require real contact and consume stamina even on misses. Impact can wobble the carrier's puck, knock it loose, stagger a skater, or trigger a skippable five-second injury timeout and faceoff. The existing modes, north–south direction and eight local seats are preserved.
+
+Focused deterministic physics and Chromium desktop/emulated mobile passed. WebGL 2 was observed using SwiftShader and Canvas 2D was tested separately. Draft only. Physical device acceptance, hit balance over full local games and production release remain separate. See [ICEBREAK tuning and tests](../icebreak/skating-and-checking.md).
+
 ## November 18 Curiosity Desk catalog outage repair
 
 Owner Codex, issue #411. The catalog function now returns one explicitly labeled selected archive record from the existing reviewed data for each collection when the Library of Congress is unavailable, empty, malformed or restricted. Live records remain preferred. Archive responses are not cached, allowing the next request to recover. The browser retains its selected artifact and source links without repeating the upstream request after an explicit server fallback. Live-data validation still reports degraded catalog health when selected records are served.

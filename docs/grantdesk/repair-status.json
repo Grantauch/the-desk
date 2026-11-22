@@ -1,4 +1,16 @@
 {
+  "icebreak-skating-checking-2026-11-21": {
+    "status": "DRAFT_PROTOTYPE",
+    "owner": "Codex",
+    "scope": "Draft PR #455: skating, stick and puck readability, stamina and momentum-based checks, skippable five-second injury stoppage.",
+    "verification_status": "FOCUSED_PHYSICS_AND_DESKTOP_MOBILE_CHROMIUM_PASS",
+    "deployment_status": "DRAFT_ONLY_NO_PRODUCTION_RELEASE",
+    "field_status": "PHYSICAL_DEVICE_ACCEPTANCE_PENDING",
+    "evidence": [
+      "Shared skating and check trajectories across School, Park and Mars. Both modes and eight unique seat assignments verified.",
+      "Chromium desktop and emulated touch passed with WebGL 2 software rendering and forced Canvas 2D. Physical devices and online multiplayer are outside this evidence."
+    ]
+  },
   "curiosity-catalog-outage-2026-11-18": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
