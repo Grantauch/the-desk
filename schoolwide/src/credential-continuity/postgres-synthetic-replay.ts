@@ -63,3 +63,51 @@ export function createSyntheticPostgresNonceConsumer(
     }
   };
 }
+
+
+const MAX_REPLAY_CLEANUP_BATCH = 500;
+
+/**
+ * SW-184: bounded maintenance for an individual trusted replay scope.
+ *
+ * This helper is intentionally NOT wired to any runtime route or scheduler.
+ * The replay table contains only one-way nonce digests (never source PINs).
+ * When later authorized, a trusted maintenance service can call this in small
+ * batches. Expiration is evaluated by the DB clock, not a caller-supplied time.
+ *
+ * FOR UPDATE SKIP LOCKED allows parallel workers without blocking each other.
+ * The statement deletes only expired rows belonging to the exact organization,
+ * school and issuer, and never touches an unexpired replay guard.
+ */
+export async function pruneExpiredSyntheticNonceReplays(
+  database: Pick<QueryExecutor, 'query'>,
+  scope: SyntheticNonceReplayScope,
+  limit = 250,
+): Promise<number> {
+  if (!scope || typeof scope !== 'object'
+    || !GUID.test(scope.organizationId) || !GUID.test(scope.schoolId)
+    || !ISSUER.test(scope.issuer)) {
+    throw new Error('Synthetic replay cleanup scope rejected.');
+  }
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > MAX_REPLAY_CLEANUP_BATCH) {
+    throw new Error('Synthetic replay cleanup batch rejected.');
+  }
+  try {
+    const removed = await database.query<{ removed: number }>(
+      'WITH expired AS MATERIALIZED (' +
+        ' SELECT ctid FROM legacy_pin_handoff_replays' +
+        ' WHERE organization_id = $1::uuid AND school_id = $2::uuid AND issuer = $3::text' +
+        ' AND expires_at <= clock_timestamp()' +
+        ' ORDER BY expires_at, nonce_digest' +
+        ' LIMIT $4::integer FOR UPDATE SKIP LOCKED' +
+      ') DELETE FROM legacy_pin_handoff_replays AS replay' +
+        ' USING expired WHERE replay.ctid = expired.ctid' +
+        ' RETURNING 1::integer AS removed',
+      [scope.organizationId, scope.schoolId, scope.issuer, limit],
+    );
+    return removed.length;
+  } catch {
+    // No database details or identifiers should reach a teacher/student.
+    throw new Error('Synthetic replay cleanup unavailable.');
+  }
+}
