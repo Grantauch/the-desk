@@ -59,6 +59,8 @@ const results=[];
         const momentumBefore=a.vx*mass[a.id]+b.vx*mass[b.id];
         const armed=f.beginCheck(a);f.collideSkaters(a,b);
         const momentumAfter=a.vx*mass[a.id]+b.vx*mass[b.id];
+        // Allow the same 90 Hz simulation to start the fall before screenshot.
+        api.step(.08);
         // Render the middle of the physical response; no new impulse is introduced.
         a.impactTime=a.impactSpan*.52;b.impactTime=b.impactSpan*.52;
         const before=JSON.stringify([a.x,a.z,a.vx,a.vz,b.x,b.z,b.vx,b.vz,f.puck.owner?.id]);
