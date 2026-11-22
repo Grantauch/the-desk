@@ -354,7 +354,10 @@ const carrier=puck.owner;
 if(carrier&&carrier.team!==p.team&&p.energy>=CHECK.aiEnergy&&dist(p,carrier)<CHECK.aiReach){
  const [nx,nz]=normalize(carrier.x-p.x,carrier.z-p.z);
  const closing=(p.vx-carrier.vx)*nx+(p.vz-carrier.vz)*nz;
- if(closing>CHECK.aiClosingSpeed&&Math.cos(p.facing)*nx+Math.sin(p.facing)*nz>.78)beginCheck(p);
+ if(closing>CHECK.aiClosingSpeed&&Math.cos(p.facing)*nx+Math.sin(p.facing)*nz>.78&&beginCheck(p)){
+   // The AI commits to the same coast-only check frame as a human input.
+   skate(p,0,0,dt);return;
+  }
 }
 steer(p,target.x-p.x,target.z-p.z,dt);
 }
