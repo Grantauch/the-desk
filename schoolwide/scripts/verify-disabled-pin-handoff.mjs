@@ -84,6 +84,33 @@ export function inspectServer(source) {
     ? [] : ['server.ts must not inject an unreviewed identity or credential provider'];
 }
 
+export function inspectAppDefaults(source) {
+  const tree = parsed('app.ts', source);
+  const definitions = [];
+  walk(tree, node => {
+    if (node.type === 'FunctionDeclaration' && node.id?.name === 'buildApp') definitions.push(node);
+  });
+  if (definitions.length !== 1 || definitions[0].params[0]?.type !== 'ObjectPattern') {
+    return ['app.ts must define one buildApp function with explicit disabled provider defaults'];
+  }
+  const fields = definitions[0].params[0].properties;
+  const required = {
+    identityProvider: 'DisabledStaffIdentityProvider',
+    studentIdentityProvider: 'DisabledStudentIdentityProvider',
+    classroomProvider: 'DisabledClassroomProvider',
+  };
+  const violations = [];
+  for (const [name, provider] of Object.entries(required)) {
+    const field = fields.find(f => f.type === 'ObjectProperty' && f.key?.name === name);
+    const value = field?.value;
+    if (value?.type !== 'AssignmentPattern' || value.right?.type !== 'NewExpression'
+        || value.right.callee?.type !== 'Identifier' || value.right.callee.name !== provider) {
+      violations.push('app.ts must default ' + name + ' to new ' + provider + '()');
+    }
+  }
+  return violations;
+}
+
 async function sourceFiles(dir) {
   const files = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -101,6 +128,7 @@ export async function verifyDisabledPinHandoff(root = resolve('src')) {
     const source = await readFile(file, 'utf8');
     violations.push(...inspectSource(name, source));
     if (name === 'server.ts') violations.push(...inspectServer(source));
+    if (name === 'app.ts') violations.push(...inspectAppDefaults(source));
   }
   if (violations.length) throw new Error('SW-178 DISABLED HANDOFF BOUNDARY FAILED:\n' + violations.join('\n'));
   return 'SW-178 PASS: experimental PIN handoff stays unimported by application code; server retains disabled identity-provider defaults.';

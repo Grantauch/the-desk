@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { inspectSource, inspectServer, verifyDisabledPinHandoff } from './verify-disabled-pin-handoff.mjs';
+import { inspectSource, inspectServer, inspectAppDefaults, verifyDisabledPinHandoff } from './verify-disabled-pin-handoff.mjs';
 
 test('SW-178 current runtime keeps the experimental PIN handoff disconnected', async () => {
   assert.match(await verifyDisabledPinHandoff(), /PASS/);
@@ -29,4 +29,12 @@ test('SW-178 protects server identity-provider defaults against accidental activ
   assert.equal(inspectServer("const app = buildApp({ config, database, studentIdentityProvider });").length, 1);
   assert.equal(inspectServer("const app = buildApp({ config, database, identityProvider });").length, 1);
   assert.equal(inspectServer("const app = buildApp(options);").length, 1);
+});
+
+test('SW-178 application defaults stay disabled even when server supplies no providers', () => {
+  const safe = "function buildApp({ identityProvider = new DisabledStaffIdentityProvider(), studentIdentityProvider = new DisabledStudentIdentityProvider(), classroomProvider = new DisabledClassroomProvider() }) {}";
+  assert.deepEqual(inspectAppDefaults(safe), []);
+  const unsafe = safe.replace('new DisabledStudentIdentityProvider()', 'new LiveStudentIdentityProvider()');
+  assert.equal(inspectAppDefaults(unsafe).length, 1);
+  assert.equal(inspectAppDefaults('function buildApp(options) {}').length, 1);
 });
