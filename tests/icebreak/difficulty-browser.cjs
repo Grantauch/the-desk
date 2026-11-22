@@ -78,6 +78,16 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
     aggregate:window.fixture.shiftProgress.modes.regular.games
    }));
    assert.deepEqual(persisted,{defaultDifficulty:'standard',rookie:1,veteran:1,aggregate:2});
+   await page.locator('.seats summary').click();
+   await chooser.selectOption('veteran');
+   const seat=page.locator('#seatGrid select').nth(4);
+   await seat.selectOption('kb2');
+   assert.equal(await chooser.isDisabled(),true,'AI selector is neutralized when two humans play');
+   assert.equal(await chooser.inputValue(),'standard');
+   assert.match(await chooser.getAttribute('title'),/Standard AI/);
+   await seat.selectOption('ai');
+   assert.equal(await chooser.isDisabled(),false);
+   assert.equal(await chooser.inputValue(),'veteran','previous solo preference returns');
    assert.deepEqual(errors,[]);
    results.push({renderer,viewport,levelSwitch:'pass',separateRecords:'pass',visibleButtons:'pass',pageErrors:0});
    await context.close();
