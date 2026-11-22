@@ -4,7 +4,7 @@
  * Apps Script. Caller must supply server-trusted tenant/school/issuer scope.
  */
 import type { QueryExecutor } from '../db/database.js';
-import type { SyntheticNonceConsumption } from './synthetic-pin-attestation.js';
+import type { SyntheticNonceConsumption } from './synthetic-nonce-contract.js';
 
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISSUER = /^[a-zA-Z0-9][a-zA-Z0-9_.:@-]{0,191}$/;

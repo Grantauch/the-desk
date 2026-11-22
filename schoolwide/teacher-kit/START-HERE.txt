@@ -1,5 +1,5 @@
 SCHOOLWIDE · START HERE
-Teacher Setup Preview v0.2.0 — November 2026
+Teacher Setup Preview v0.2.1 — November 2026
 =============================================================
 
 STATUS: TRAINING ONLY. NOT STUDENT-FACING. NOT A LIVE INSTALLER.
@@ -55,4 +55,4 @@ An offline checklist checkmark is NOT approval to go live.
 
 PACKAGE-MANIFEST.json includes the packaged file SHA-256 hashes.
 SOURCE: Grantauch/the-desk, schoolwide/teacher-kit
-RELEASE: v0.2.0-prelaunch
+RELEASE: v0.2.1-prelaunch

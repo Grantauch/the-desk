@@ -72,7 +72,7 @@ class TeacherKitTests(unittest.TestCase):
                 self.assertEqual(archive.namelist(),
                                  ["PACKAGE-MANIFEST.json", "START-HERE.html", "START-HERE.txt"])
                 manifest = json.loads(archive.read("PACKAGE-MANIFEST.json"))
-                self.assertEqual(manifest["kit_version"], "0.2.0-prelaunch")
+                self.assertEqual(manifest["kit_version"], "0.2.1-prelaunch")
                 self.assertEqual(manifest["release_authority"], "TRAINING_ONLY_NOT_STUDENT_FACING")
                 self.assertFalse(manifest["student_data"])
                 self.assertFalse(manifest["live_credentials"])
@@ -81,6 +81,32 @@ class TeacherKitTests(unittest.TestCase):
                     data = archive.read(entry["file"])
                     self.assertEqual(entry["size"], len(data))
                     self.assertEqual(entry["sha256"], sha256(data).hexdigest())
+
+    def test_cross_platform_checkout_line_endings_are_identical(self):
+        # SW-182: a versioned ZIP should be identical from CRLF and LF copies
+        # of the same two allowlisted text files, regardless of git.autocrlf.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("sw182_kit_builder", BUILDER)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        with tempfile.TemporaryDirectory(prefix="sw182-kit-newlines-") as tmp:
+            outputs = []
+            for variant in ("lf", "crlf"):
+                folder = Path(tmp) / variant
+                folder.mkdir()
+                for name in builder.ASSETS:
+                    source = (ROOT / "teacher-kit" / name).read_bytes()
+                    normalized = source.replace(b"\r\n", b"\n")
+                    content = normalized if variant == "lf" else normalized.replace(b"\n", b"\r\n")
+                    (folder / name).write_bytes(content)
+                builder.source_root = lambda directory=folder: directory
+                archive = Path(tmp) / f"{variant}.zip"
+                builder.build(archive)
+                builder.verify(archive)
+                outputs.append(archive.read_bytes())
+            self.assertEqual(outputs[0], outputs[1])
 
     def test_modified_archive_is_rejected(self):
         with tempfile.TemporaryDirectory(prefix="sw177-kit-") as tmp:

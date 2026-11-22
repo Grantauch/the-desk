@@ -11,8 +11,8 @@ import json
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-VERSION = "0.2.0-prelaunch"
-FILE_NAME = "Schoolwide_Teacher_Prelaunch_v0.2.0.zip"
+VERSION = "0.2.1-prelaunch"
+FILE_NAME = "Schoolwide_Teacher_Prelaunch_v0.2.1.zip"
 ASSETS = ("START-HERE.html", "START-HERE.txt")
 ARCHIVE_ASSETS = (*ASSETS, "PACKAGE-MANIFEST.json")
 FIXED_DATE = (2026, 1, 1, 0, 0, 0)
@@ -44,7 +44,12 @@ def build(destination: Path) -> None:
         source = source_root() / name
         if source.is_symlink() or not source.is_file():
             raise ValueError(f"Required teacher preview source missing or unsafe: {name}")
-        data = source.read_bytes()
+        # The same versioned preview must have identical bytes when built
+        # from a Windows CRLF checkout or a Linux LF checkout. Both allowlisted
+        # inputs are UTF-8 text; normalize source line endings before hashing.
+        data = source.read_bytes().replace(b'\r\n', b'\n')
+        if b'\r' in data:
+            raise ValueError(f"Unsupported bare CR in preview text: {name}")
         if not data or len(data) > 250_000:
             raise ValueError(f"Unsafe preview source size: {name}")
         assets[name] = data

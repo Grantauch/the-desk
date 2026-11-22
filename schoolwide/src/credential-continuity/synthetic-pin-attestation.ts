@@ -7,6 +7,8 @@
  * Deployment/real-data use requires a separate architecture and privacy review.
  */
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import type { SyntheticNonceConsumption } from './synthetic-nonce-contract.js';
+export type { SyntheticNonceConsumption } from './synthetic-nonce-contract.js';
 
 const VERSION = 1 as const;
 const MAX_TTL_SECONDS = 60;
@@ -37,13 +39,6 @@ export type LegacyPinAttestationRequest = {
   nowEpochSeconds: number;
   ttlSeconds?: number;
 };
-
-export type SyntheticNonceConsumption = Readonly<{
-  nonceDigest: string;
-  expiresAtEpochSeconds: number;
-  issuer: string;
-  schoolId: string;
-}>;
 
 export type LegacyPinAttestationVerification = {
   token: string;
