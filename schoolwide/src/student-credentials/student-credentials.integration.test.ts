@@ -374,6 +374,11 @@ test('SW-050 student credential and action proof service', { skip: !databaseUrl 
     await t.test('T-PIN-017 unassigned directory student cannot use either kiosk until a section is activated', async () => {
       await withFixture(pool, async ({ service, client, base }) => {
         await service.provisionPin(base.studentA2, PIN_A2);
+        // Simulate a shared student imported to two classrooms, both pending approval.
+        await client.query(
+          "INSERT INTO enrollments (school_id,section_id,student_id,source,status) VALUES ($1,$2,$3,'MANUAL','PENDING_REVIEW')",
+          [base.schoolA, base.sectionA2, base.studentA2],
+        );
         // The directory is not the roster. Pending membership means no kiosk access.
         await client.query(
           "UPDATE enrollments SET status='PENDING_REVIEW' WHERE school_id=$1 AND student_id=$2",
