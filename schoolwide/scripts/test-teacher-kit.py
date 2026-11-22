@@ -83,11 +83,11 @@ class TeacherKitTests(unittest.TestCase):
             altered = Path(tmp) / "bad.zip"
             run("--out", original)
             with ZipFile(original) as src, ZipFile(altered, "w", compression=ZIP_DEFLATED) as dst:
-                for name in src.namelist():
-                    data = src.read(name)
-                    if name == "START-HERE.txt":
+                for info in src.infolist():
+                    data = src.read(info.filename)
+                    if info.filename == "START-HERE.txt":
                         data += b"UNEXPECTED CHANGE"
-                    dst.writestr(name, data)
+                    dst.writestr(info, data)
             result = subprocess.run(
                 [sys.executable, str(BUILDER), "--out", str(altered), "--verify"],
                 capture_output=True, text=True,
