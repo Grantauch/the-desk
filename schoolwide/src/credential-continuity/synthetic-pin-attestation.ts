@@ -38,6 +38,13 @@ export type LegacyPinAttestationRequest = {
   ttlSeconds?: number;
 };
 
+export type SyntheticNonceConsumption = Readonly<{
+  nonceDigest: string;
+  expiresAtEpochSeconds: number;
+  issuer: string;
+  schoolId: string;
+}>;
+
 export type LegacyPinAttestationVerification = {
   token: string;
   expectedIssuer: string;
@@ -48,7 +55,7 @@ export type LegacyPinAttestationVerification = {
   secret: Buffer;
   nowEpochSeconds: number;
   /** Must atomically insert a nonce digest with uniqueness & expiry. Fail closed. */
-  consumeNonceDigest: (nonceDigest: string, expiresAtEpochSeconds: number) => Promise<boolean>;
+  consumeNonceDigest: (consumption: SyntheticNonceConsumption) => Promise<boolean>;
 };
 
 export type VerifiedLegacyPinAttestation = {
@@ -198,7 +205,12 @@ export async function verifySyntheticLegacyPinAttestation(
     .digest('hex');
   let consumed = false;
   try {
-    consumed = await request.consumeNonceDigest(nonceDigest, claims.expiresAt);
+    consumed = await request.consumeNonceDigest({
+      nonceDigest,
+      expiresAtEpochSeconds: claims.expiresAt,
+      issuer: claims.issuer,
+      schoolId: claims.schoolId,
+    });
   } catch { reject(); }
   if (consumed !== true) reject();
 

@@ -112,14 +112,64 @@ if (!databaseUrl) {
         assert.equal(count.rows[0]?.count, '0');
       });
 
+      await t.test('SW-181 valid signed token cannot be replayed with a wrong-school or wrong-issuer SQL consumer', async () => {
+        // This is different from mismatching expectedSchoolId: the signature,
+        // expected-school and expected-issuer all agree. Only the *SQL callback*
+        // points at a different school/issuer. Previous callback contract could
+        // accept that discrepancy and burn the nonce in the wrong school.
+        const tokenForSchool = issueSyntheticLegacyPinAttestation({
+          issuer, audience, schoolId: school, studentAlias, pin, secret,
+          nowEpochSeconds: Math.floor(Date.now() / 1000),
+        });
+        const useConsumer = (consumeNonceDigest: typeof consumeA) =>
+          verifySyntheticLegacyPinAttestation({
+            token: tokenForSchool, secret, expectedIssuer: issuer,
+            expectedAudience: audience, expectedSchoolId: school,
+            expectedStudentAlias: studentAlias, pin,
+            nowEpochSeconds: Math.floor(Date.now() / 1000),
+            consumeNonceDigest,
+          });
+        const wrongSchoolConsumer = createSyntheticPostgresNonceConsumer(executor(poolB), {
+          organizationId: org, schoolId: otherSchool, issuer,
+        });
+        const wrongIssuerConsumer = createSyntheticPostgresNonceConsumer(executor(poolB), {
+          organizationId: org, schoolId: school, issuer: 'sw181-different-synthetic-issuer',
+        });
+        await assert.rejects(useConsumer(wrongSchoolConsumer), /Legacy PIN handoff rejected/);
+        await assert.rejects(useConsumer(wrongIssuerConsumer), /Legacy PIN handoff rejected/);
+        const wrongSchoolRows = await poolB.query<{ count: string }>(
+          'SELECT count(*)::text AS count FROM legacy_pin_handoff_replays WHERE school_id=$1',
+          [otherSchool],
+        );
+        assert.equal(wrongSchoolRows.rows[0]?.count, '0');
+        const wrongIssuerRows = await poolB.query<{ count: string }>(
+          'SELECT count(*)::text AS count FROM legacy_pin_handoff_replays WHERE school_id=$1 AND issuer=$2',
+          [school, 'sw181-different-synthetic-issuer'],
+        );
+        assert.equal(wrongIssuerRows.rows[0]?.count, '0');
+        // Neither misconfigured adapter may consume the signed token. Once
+        // wired correctly, exactly one legitimate attempt succeeds.
+        assert.equal((await useConsumer(consumeA)).schoolId, school);
+        await assert.rejects(useConsumer(consumeB), /Legacy PIN handoff rejected/);
+      });
+
       await t.test('invalid tenant and expired nonce are rejected without DB writes', async () => {
         const digest = createHash('sha256').update('synthetic-nonce-only').digest('hex');
         const badTenant = createSyntheticPostgresNonceConsumer(executor(poolA), {
           organizationId: randomUUID(), schoolId: school, issuer,
         });
-        assert.equal(await badTenant(digest, Math.floor(Date.now() / 1000) + 60), false);
-        assert.equal(await consumeA(digest, Math.floor(Date.now() / 1000) - 1), false);
-        assert.equal(await consumeA('not-a-digest', Math.floor(Date.now() / 1000) + 60), false);
+        assert.equal(await badTenant({
+          nonceDigest: digest, expiresAtEpochSeconds: Math.floor(Date.now() / 1000) + 60,
+          schoolId: school, issuer,
+        }), false);
+        assert.equal(await consumeA({
+          nonceDigest: digest, expiresAtEpochSeconds: Math.floor(Date.now() / 1000) - 1,
+          schoolId: school, issuer,
+        }), false);
+        assert.equal(await consumeA({
+          nonceDigest: 'not-a-digest', expiresAtEpochSeconds: Math.floor(Date.now() / 1000) + 60,
+          schoolId: school, issuer,
+        }), false);
         const rows = await poolA.query<{ count: string }>(
           'SELECT count(*)::text AS count FROM legacy_pin_handoff_replays WHERE nonce_digest=$1', [digest],
         );
