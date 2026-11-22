@@ -8,7 +8,10 @@ for(const level of ['rookie','standard','veteran']){
  const samples=[];
  for(const seed of seeds){
   const {api,f}=fixture();
-  f.setSeed(seed);f.config.difficulty=level;api.setMode('regular');api.start();
+  f.setSeed(seed);f.config.difficulty=level;api.setMode('regular');
+  // Keep the human seat in goal. An idle human center otherwise hoards the puck
+  // and invalidates every AI-offense measurement.
+  api.setSeat(0,0,'ai');api.setSeat(0,3,'kb1');api.start();
   let wall=0,simSeconds=0,matchStart=performance.now();
   while(f.phase!=='finished'&&wall<190){
    api.step(1);wall++;simSeconds++;
@@ -32,7 +35,7 @@ for(const level of ['rookie','standard','veteran']){
   passes:perLevel[level].averageOpposingPasses,checks:perLevel[level].averageOpposingChecks,
   wins:perLevel[level].opposingWins}));
 }
-const report={method:'6 fixed seeds per level, 18 full 120-game-second solo matches with an idle human Glaciers center; same goalie/skater physical constants, all teammates Standard',seedCount:seeds.length,
+const report={method:'6 fixed seeds per level, 18 complete 120-game-second solo matches with a stationary human Glaciers goalie (NOT an idle puck-carrying skater); other Glaciers skaters Standard AI; opponent Embers skaters chosen difficulty; same goalie/skater physical constants',seedCount:seeds.length,
 wallClockMs:Math.round(performance.now()-started),results:perLevel};
 console.log('BENCHMARK_JSON='+JSON.stringify(report));
 if(!Number.isFinite(report.wallClockMs))process.exitCode=1;
