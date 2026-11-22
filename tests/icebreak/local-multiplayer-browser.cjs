@@ -179,8 +179,9 @@ const results=[];
      await page.keyboard.down('l');
      const contact=await page.evaluate(()=>{
       const f=window.fixture,api=window.__ICEBREAK_TEST__,h=f.players.find(p=>p.device==='kb1'),v=f.players.find(p=>p.device==='kb2');
-      const armed=h.checkWindow>0;
-      f.collideSkaters(h,v);
+      // A browser paint may have advanced the hit before this read.
+      const armed=h.checkWindow>0||f.phase==='injury';
+      if(f.phase==='playing')f.collideSkaters(h,v);
       const clock=api.getState().timeLeft;
       api.step(2);
       return {armed,phase:f.phase,down:f.fallAmount(v),frozen:api.getState().timeLeft===clock};
