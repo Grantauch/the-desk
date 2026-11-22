@@ -9,9 +9,9 @@ for(const level of ['rookie','standard','veteran']){
  for(const seed of seeds){
   const {api,f}=fixture();
   api.setSeed(seed);f.config.difficulty=level;api.setMode('regular');api.start();
-  let wall=0,simSeconds=0;
+  let wall=0,simSeconds=0,matchStart=performance.now();
   while(f.phase!=='finished'&&wall<190){
-   const t=performance.now();api.step(1);wall++;simSeconds++;
+   api.step(1);wall++;simSeconds++;
   }
   assert.equal(f.phase,'finished','match must naturally complete for '+level+' seed '+seed);
   const m=f.matchStats;
@@ -22,7 +22,7 @@ for(const level of ['rookie','standard','veteran']){
   samples.push({seed,elapsedSteps:simSeconds,
     score:[...f.score],shots:m.teamShots[1],passes:m.teamPasses[1],
     cleanChecks:m.teamChecks[1],saves:m.teamSaves[1],
-    opposingWins:f.score[1]>f.score[0]?1:0,simulatedWallMs:Math.round(performance.now()-t)});
+    opposingWins:f.score[1]>f.score[0]?1:0,simulatedWallMs:Math.round(performance.now()-matchStart)});
  }
  const average=key=>Number((samples.reduce((sum,s)=>sum+s[key],0)/samples.length).toFixed(2));
  perLevel[level]={averageOpposingShots:average('shots'),averageOpposingPasses:average('passes'),
