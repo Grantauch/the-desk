@@ -140,7 +140,7 @@ test('completing a solo shift saves one match once, with earned badges and local
  assert.ok(m.f.shiftProgress.badges.includes('first-win'));
  assert.ok(m.f.shiftProgress.badges.includes('opening-goal'));
  assert.ok(m.f.matchStats.unlocked.includes('First Victory'));
- assert.match(m.elements.get('finalSoloStats').textContent,/1 goals/);
+ assert.match(m.elements.get('finalSoloStats').textContent,/1 goal/);
  const reloaded=fixture(undefined,{localStorage:store});
  assert.equal(reloaded.f.shiftProgress.modes.regular.games,1);
  assert.equal(reloaded.f.shiftProgress.modes.regular.bestGoals,1);
