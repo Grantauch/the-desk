@@ -824,14 +824,20 @@ function render2d(t){
  for(let p of [...players].sort((a,b)=>b.x-a.x)){
   const [x,y]=pt(p.x,p.z),v=Math.hypot(p.vx,p.vz),angle=p.facing-Math.PI/2,blueTeam=p.team===0;ctx.save();ctx.translate(x,y);const bodyScale=clamp(scale/18,1,1.5);ctx.scale(bodyScale,depth*bodyScale);
   ctx.fillStyle='#0c39594d';ctx.beginPath();ctx.ellipse(3,5,p.goalie?14:10,p.goalie?10:7,0,0,Math.PI*2);ctx.fill();
-  const fall=fallAmount(p),recoil=impactPose(p);
-   ctx.translate(p.fallSide*fall*7+p.impactZ*recoil*5,-p.impactX*recoil*5);
-   ctx.rotate(angle+p.fallSide*fall*.42+(-Math.sin(p.facing)*p.impactX+Math.cos(p.facing)*p.impactZ)*recoil*.16);ctx.scale(1+fall*.46,1-fall*.25);ctx.lineWidth=2.3;ctx.strokeStyle='#223a4c';for(let z of [-5,5]){ctx.beginPath();ctx.moveTo(-8,z);ctx.lineTo(3,z);ctx.stroke()}
+  const pose=bodyPose(p),fall=pose.fall,recoil=impactPose(p);
+   ctx.translate(p.fallSide*fall*9+p.impactZ*recoil*5,-p.impactX*recoil*5+pose.stand*2+pose.brace);
+   ctx.rotate(angle+p.fallSide*fall*.42+(-Math.sin(p.facing)*p.impactX+Math.cos(p.facing)*p.impactZ)*recoil*.16+pose.swing*.17-pose.miss*.16);ctx.scale(1+fall*.56+pose.swing*.10,1-fall*.28-pose.stand*.12);ctx.lineWidth=2.3;ctx.strokeStyle='#223a4c';for(let z of [-5,5]){ctx.beginPath();ctx.moveTo(-8,z);ctx.lineTo(3,z);ctx.stroke()}
   // Offset gloves, pads, helmet and stick draw as layered pseudo-3D volumes.
   ctx.fillStyle=p.goalie?'#f5faff':blueTeam?'#20a3ec':'#e85247';roundRect(ctx,-8,-8,17,16,5);ctx.fill();ctx.fillStyle=blueTeam?'#b1f6ff':'#ffe0c9';ctx.fillRect(-2,-8,5,16);
   ctx.fillStyle=blueTeam?'#143e5b':'#6c2833';for(let side of [-1,1]){ctx.beginPath();ctx.arc(-4,side*9,3.8,0,Math.PI*2);ctx.fill()}
   ctx.fillStyle='#f4fafc';ctx.beginPath();ctx.arc(1,-1,p.goalie?6.7:5.7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#223044';ctx.beginPath();ctx.arc(4,-2,2,0,Math.PI*2);ctx.fill();
-  if(p.skid>2){ctx.strokeStyle='#ffffffa0';ctx.lineWidth=1.4;for(let z of [-6,6]){ctx.beginPath();ctx.moveTo(-9,z);ctx.lineTo(-17-Math.min(p.skid,8),z);ctx.stroke()}}if(p.goalie&&p.saveFlash>0){ctx.fillStyle='#ffffff';ctx.fillRect(10,p.saveSide*9-4,10,9);ctx.strokeStyle='#ffd68b';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.stroke()}ctx.restore();
+  if(p.skid>2){ctx.strokeStyle='#ffffffa0';ctx.lineWidth=1.4;for(let z of [-6,6]){ctx.beginPath();ctx.moveTo(-9,z);ctx.lineTo(-17-Math.min(p.skid,8),z);ctx.stroke()}}
+   // Contact lean is already handled by impactPose. These remaining gestures
+   // communicate committed checks, a recovering player, and hands on ice.
+   if(pose.swing>.05){ctx.strokeStyle='#ecffff';ctx.lineWidth=2+pose.swing*2;ctx.beginPath();ctx.moveTo(4,-6);ctx.lineTo(9+pose.swing*6,-12);ctx.stroke()}
+   if(pose.hit>.05){ctx.strokeStyle='#fff2d4';ctx.lineWidth=1.4+pose.hit*2;ctx.beginPath();ctx.moveTo(12*pose.side,-3);ctx.lineTo((16+pose.hit*9)*pose.side,-8);ctx.moveTo(12*pose.side,4);ctx.lineTo((16+pose.hit*7)*pose.side,9);ctx.stroke()}
+   if(pose.stand>.05){ctx.strokeStyle='#edffff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-9,-9);ctx.lineTo(-14,-14-pose.stand*3);ctx.moveTo(-9,9);ctx.lineTo(-14,14+pose.stand*3);ctx.stroke()}
+   if(p.goalie&&p.saveFlash>0){ctx.fillStyle='#ffffff';ctx.fillRect(10,p.saveSide*9-4,10,9);ctx.strokeStyle='#ffd68b';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.stroke()}ctx.restore();
   const blade=stickPoint(p),[bx,by]=pt(blade.x,blade.z),[hx,hy]=pt(p.x-Math.sin(p.facing)*.38,p.z+Math.cos(p.facing)*.38);ctx.strokeStyle='#725b48';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(bx,by);ctx.stroke();ctx.strokeStyle='#172938';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bx-Math.cos(angle)*3,by-Math.sin(angle)*3);ctx.lineTo(bx+Math.cos(angle)*3,by+Math.sin(angle)*3);ctx.stroke();
   if(phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie){ctx.strokeStyle=blueTeam?'#d8fcff':'#ffe0c9';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y-8);ctx.lineTo(x,y-43-Math.sin(t*19+p.id)*4);ctx.stroke()}
   if(p.device!=='ai'&&phase!=='menu'){ctx.strokeStyle='#41dcff';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.stroke();const [fx,fy]=pt(p.x+Math.cos(p.facing)*1.35,p.z+Math.sin(p.facing)*1.35);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(fx,fy,3,0,Math.PI*2);ctx.fill()}
