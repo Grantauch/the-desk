@@ -59,7 +59,10 @@ if (outside.length) {
 // broader GitHub authority, secrets, deploy triggers or production resources.
 const crossRunnerFile = '.github/workflows/schoolwide-cross-runner-recovery.yml';
 if (changes.includes(crossRunnerFile)) {
-  const workflow = await readFile(join(process.cwd(), '..', crossRunnerFile), 'utf8');
+  // Normalize Git checkout newline conventions before applying the same strict
+  // security-marker checks. CRLF on Windows must not weaken or falsely fail CI.
+  const workflow = (await readFile(join(process.cwd(), '..', crossRunnerFile), 'utf8'))
+    .replace(/\r\n/g, '\n');
   const required = [
     'name: Schoolwide Cross-Runner Synthetic Recovery',
     'permissions:\n  contents: read',
