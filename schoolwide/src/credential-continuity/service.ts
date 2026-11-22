@@ -70,7 +70,12 @@ function rollbackFor(row: CandidateRow): ContinuityRecord['rollbackAction'] {
   return row.legacy_credential_present ? 'RECONCILE_LEGACY_AUTHORITY' : 'NO_LEGACY_CREDENTIAL_OBSERVED';
 }
 function statusFor(records: readonly ContinuityRecord[]): CredentialContinuityResult['status'] {
-  return records.some((record) => record.continuityAction === 'BLOCKED') ? 'REVIEW' : 'PASS';
+  // A PIN existing in the legacy Hall Pass is only *source coverage*. It does not
+  // prove that the separate Schoolwide verifier can authenticate that same PIN.
+  // A cutover with PROVISION_REQUIRED would strand those students at the kiosk.
+  // Never report PASS until every mapped student already has a credential in
+  // Schoolwide; approved verifier handoff is a separate, reviewed migration.
+  return records.some((record) => record.continuityAction !== 'PRESERVE') ? 'REVIEW' : 'PASS';
 }
 function resultFromRows(run: QueryResultRow & { id:string; source_snapshot_fingerprint:string; status:'PASS'|'REVIEW'|'FAIL'; preserve_count:number; provision_required_count:number; blocked_count:number; artifact_digest:string }, records: readonly ContinuityRecord[], artifact: CredentialContinuityResult['recoveryArtifact'], replayed: boolean): CredentialContinuityResult {
   return { mode:'CREDENTIAL_CONTINUITY_PLAN', continuityRunId:run.id, replayed, sourceSnapshotFingerprint:run.source_snapshot_fingerprint, status:run.status, counts:{preserve:Number(run.preserve_count),provisionRequired:Number(run.provision_required_count),blocked:Number(run.blocked_count)}, artifactDigest:run.artifact_digest, legacyWrites:0, credentialSecretWrites:0, records, recoveryArtifact:artifact };
