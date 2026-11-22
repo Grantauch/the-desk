@@ -44,6 +44,7 @@ test('an AI receiver returns to a clear advancing cutter after the cut matures',
  Object.assign(passer,{x:12,z:5,vx:0,vz:0,stun:0,cutTime:1.6});
  Object.assign(receiver,{x:6,z:0,vx:0,vz:0,facing:0,stun:0,shootWait:0,comboCooldown:0});
  third.x=-16;third.z=7;
+ for(const enemy of f.players.filter(p=>p.team===1&&!p.goalie))Object.assign(enemy,{x:19,z:-9});
  f.give(receiver);f.ai(receiver,dt);
  assert.equal(f.puck.owner,null,'receiver returns the puck');
  assert.equal(f.puck.passTarget,passer,'AI must target the runner');
@@ -56,6 +57,7 @@ test('a blocked passing lane does not trigger a forced return',()=>{
  Object.assign(passer,{x:12,z:5,vx:0,vz:0,stun:0,cutTime:1.6});
  Object.assign(receiver,{x:6,z:0,vx:0,vz:0,facing:0,stun:0,shootWait:0,comboCooldown:0});
  third.x=-16;third.z=7;
+ for(const enemy of f.players.filter(p=>p.team===1&&!p.goalie))Object.assign(enemy,{x:19,z:-9});
  const defender=f.players[3];Object.assign(defender,{x:9,z:2.5,stun:0});
  f.give(receiver);f.ai(receiver,dt);
  assert.equal(f.puck.owner,receiver,'do not pass through a blocked return lane');
@@ -65,7 +67,7 @@ test('return-pass cooldown prevents runaway give-and-go ping pong',()=>{
  const {f,passer,receiver,third}=setup();deliver(f);
  Object.assign(passer,{x:12,z:5,vx:0,vz:0,stun:0,cutTime:1.6});
  Object.assign(receiver,{x:6,z:0,vx:0,vz:0,facing:0,stun:0,shootWait:0,comboCooldown:0});
- third.x=-16;f.give(receiver);f.ai(receiver,dt);
+ third.x=-16;for(const enemy of f.players.filter(p=>p.team===1&&!p.goalie))Object.assign(enemy,{x:19,z:-9});f.give(receiver);f.ai(receiver,dt);
  assert.equal(f.puck.passTarget,passer);
  // Safely move the puck into the valid swept catch segment without AI ticks.
  f.puck.x=passer.x-1.25;f.puck.z=passer.z;f.puck.vx=22;f.puck.vz=0;f.puck.lock=0;
