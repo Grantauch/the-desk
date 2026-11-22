@@ -59,9 +59,9 @@ No player names, account IDs, student data, network activity, telemetry, or rank
 
 - Dedicated difficulty physics tests check profile immutability, opponent-only solo selection, neutral multi-human AI, same human/AI movement constants at every level, goalie anticipation with normal acceleration, planning delay, relative clean-lane shot frequency, v1 record migration, per-level/mode records, safe faceoff reset, escape from stalled AI carrying, and no forced human shooting.
 - Existing tests cover deterministic 90 Hz physics, skating, shots, checking, boards, puck/save/goal intersections, powerups/Regular modes, all three rinks, goalie reactions, give-and-go, replay integrity, contact animations, local Shift Book storage, and two-minute final-horn commits.
-- TheAtlas on November 22, 2026: **88 of 88 source tests passed**, including the new difficulty/offense cases.
+- TheAtlas on November 22, 2026: **88 of 88 source tests passed**, including 14 new difficulty/offense cases, on the tested game-code candidate `23a4e53` (later branch changes were test-only, documentation, and multiplayer selector presentation).
 - The new Chromium difficulty acceptance checks the selector, solo opponent-vs-teammate AI mapping, separate saved records, page reload, accessible Play Again and Drop the Puck, and disabled/equal difficulty when a second human joins. It runs on WebGL and Canvas, desktop 1440×900 and mobile emulation 390×844. A mobile above-the-fold regression was found and repaired: the final 390×844 start button is at y=707–752, fully visible, with no inner setup scroll.
-- Full combined browser acceptance (original, first-touch, goalie, offensive combinations, contact body language, Shift Book, difficulty) is required to pass before any promotion.
+- TheAtlas full combined browser acceptance (original smoke, first-touch, goalie, offensive combinations, contact body language, Shift Book, difficulty): **29/29 scenarios PASS**, all seven runners completed in sequence with process exit 0, Chromium 143 / Playwright 1.57. Desktop 1440×900 and mobile-emulated 390×844, both WebGL and Canvas fallback, zero JavaScript page errors. This is **not** a physical phone or real-gamepad acceptance test.
 
 ## Release readiness audit / blockers
 
