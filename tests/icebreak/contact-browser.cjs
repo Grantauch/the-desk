@@ -121,8 +121,10 @@ const results=[];
        if(reduced){
         assert.ok(state.recoil<=state.power*.251,'reduced motion must limit recoil amplitude');
         assert.ok(state.gesture<=state.impactLevel*.251,'reduced motion must also tone down skater gestures');
-       }else assert.ok(state.gesture>state.impactLevel*.40,'normal motion must keep body language readable');
-       else assert.ok(state.recoil>state.power*.9,'normal motion should show full recoil');
+       }else {
+        assert.ok(state.gesture>state.impactLevel*.40,'normal motion must keep body language readable');
+        assert.ok(state.recoil>state.power*.9,'normal motion should show full recoil');
+       }
       }
       // A passing combination must stop on a real puck-strip, even in the browser.
       const combo=await page.evaluate(()=>{
