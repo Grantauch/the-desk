@@ -50,12 +50,14 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
       f.give(p);f.pass(p);for(let t=0;t<42&&!f.puck.owner;t++)f.puckPhysics(dt);
      }
     }else if(challenge.metric==='checks'){
+     f.setPaused(false); // direct QA impact requires an active physics state
      const rival=f.players.find(q=>q.team!==p.team&&!q.goalie);
      for(let i=0;i<challenge.target;i++){
       f.clear();Object.assign(p,{x:0,z:0,vx:8,vz:0,energy:1,stun:0,facing:0,check:0});
       Object.assign(rival,{x:1.06,z:0,vx:0,vz:0,stun:0,brace:0});
       f.beginCheck(p);f.collideSkaters(p,rival);
      }
+     f.setPaused(true);
     }else if(challenge.metric==='win'){
      api.goal(p.team);
     }
