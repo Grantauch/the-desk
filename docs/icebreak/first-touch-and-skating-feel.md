@@ -15,16 +15,16 @@ Respond to the 2/4-star critical review by improving player agency and visible a
 
 ## Test evidence (TheAtlas, Nov 22, 2026)
 - Source test runner `node --test tests/icebreak/checks.cjs tests/icebreak/physics.cjs tests/icebreak/foundation.cjs tests/icebreak/drama.cjs tests/icebreak/first-touch.cjs`: **37 pass / 0 fail** on current candidate.
-- Existing Chromium smoke (`tests/icebreak/browser.cjs`) ran on the Batch 05 code before the final pass-provenance cleanup: **4/4 scenarios pass** across desktop/mobile WebGL and Canvas; no page errors; goal/faceoff/controls/physics matrix.
+- Final combined `npm run icebreak:browser` ran on the completed candidate: **8/8 scenarios pass** across desktop/mobile WebGL and Canvas; no page errors; goal/faceoff/controls/physics matrix.
 - Dedicated Chromium first-touch browser test on the final candidate (`tests/icebreak/first-touch-browser.cjs`): **4/4 scenarios pass** (desktop 1440×900 and mobile 390×844, WebGL and Canvas); one-timer release measured at **35.283 units/sec**, correct goal caption and shot number, no page errors.
-- No actual multiplayer human-playtest, physical phone/controller test, full-site build or final protected CI pass is claimed yet.
+- Detached full-repository QA: `npm run check` **PASS** (0 errors, 0 warnings, 250 hints across 465 files), `npm run build` **PASS** (57 Astro pages), `npm run site:validate` **PASS** (199 HTML files, 6,437 references, 38 StoryHub releases and 401 sealed assets). Vercel returned a build-rate-limit status failure. No real two-player or physical-device test, protected CI pass, or production release is claimed.
 
 ## Why Blender isn't integrated in this batch
 Current ICEBREAK draws athletes and rink objects using custom WebGL meshes and a Canvas fallback, not a glTF animation pipeline. Adding Blender assets now would require a mesh/animation loader, fallback parity, performance budgets and reliable rigging; it would not solve the main criticism that controlling the skater and making plays must be fun. Use Blender in a dedicated subsequent animation batch: rig a skater with skate strides, a planted stop, an off-balance stumble, an impact fall, a recover-to-feet pose and a one-timer windup, then validate actual exported GLB quality and WebGL/Canvas degradation before replacing primitives. Do not replace responsive physics with baked movement.
 
 ## Review and release gates
 - Draft PR stacked on **#482** (which is stacked on #478 → #477 → #473); do not merge ahead of its base.
-- Run the new combined `npm run icebreak:browser` and full release build/CI against the integrated candidate.
+- Local combined browser gate, full build, and site validation passed. Re-run protected release CI after upstream integration; Vercel build-rate-limit blocks its current hosted check.
 - Have two real players test breakaways, receiving a pass, one-timer timing, shift-to-shift pace and injury frequency; tune measured failure patterns.
 - Keep production unchanged until the chain passes its release gate and deployment is independently verified.
 
