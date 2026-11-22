@@ -16,6 +16,17 @@ export interface Hub {
 
 export const interactiveExperiences: Hub[] = [
   {
+    name: 'manifest: 1848',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'deck building trail game',
+    theme: 'lab',
+    previewEyebrow: '2,000 miles · three acts',
+    featured: true,
+    href: '/hubs/manifest-1848/',
+    blurb: 'Lead a wagon company from Independence to Oregon City in 1848. Your deck is your wagon: play cards to push past rivers, storms and mountain passes, recruit a crew, and reach Independence Rock by the Fourth of July. Runs save on this device and nothing is sent anywhere.',
+  },
+  {
     name: 'icebreak',
     section: 'game',
     course: 'just for fun',
