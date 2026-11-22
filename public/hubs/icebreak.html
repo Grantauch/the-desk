@@ -630,20 +630,21 @@ function steer(p,dx,dz,dt){const d=Math.hypot(dx,dz),max=p.goalie?SKATE.goalieSp
  const strength=Math.min(1,m/3);skate(p,m?x/m*strength:0,m?z/m*strength:0,dt)
 }
 function ai(p,dt){
+ const level=aiLevelFor(p);
  if(p.goalie){
   const goalSide=p.team===0?-1:1;
   const danger=!puck.owner&&puck.vx*goalSide>KEEPER.readMinSpeed&&Math.abs(puck.x)<Math.abs(p.x);
   const eta=danger?(p.x-puck.x)/puck.vx:0;
-  const incoming=danger&&eta>0&&eta<KEEPER.readHorizon;
+  const incoming=danger&&eta>0&&eta<level.goalHorizon;
   // Anticipate the real incoming puck trajectory; a save still requires contact.
   const projectedZ=incoming?puck.z+puck.vz*eta:puck.z;
   const base=puck.owner?.team===p.team?puck.z*.45:puck.z*.74;
-  const targetZ=clamp(incoming?lerp(base,projectedZ,KEEPER.aimBlend):base,-KEEPER.slotLimit,KEEPER.slotLimit);
+  const targetZ=clamp(incoming?lerp(base,projectedZ,level.goalBlend):base,-KEEPER.slotLimit,KEEPER.slotLimit);
   steer(p,goalSide*25.3-p.x,targetZ-p.z,dt);return;
  }
  const mates=players.filter(t=>t.team===p.team&&!t.goalie),enemies=players.filter(t=>t.team!==p.team&&!t.goalie);
  const attack=p.team===0?1:-1,teamHas=puck.owner?.team===p.team,carrier=puck.owner;
- const predicted={x:clamp(puck.x+puck.vx*.35,-26,26),z:clamp(puck.z+puck.vz*.35,-10,10)};
+ const predicted={x:clamp(puck.x+puck.vx*level.puckLead,-26,26),z:clamp(puck.z+puck.vz*level.puckLead,-10,10)};
  let target={x:0,z:0};
  if(p.has){
   const enemyGoal=attack*GOALX;
@@ -657,10 +658,10 @@ function ai(p,dt){
   const returnReady=p.comboCooldown<=0&&receiver?.lane&&receiver.t.cutReceiver===p
    &&receiver.t.cutTime>0&&receiver.t.cutTime<COMBO.window-COMBO.goDelay
    &&(receiver.tx-p.x)*attack>COMBO.minProgress;
-  if(Math.abs(enemyGoal-p.x)<14&&Math.abs(p.z)<8&&p.shootWait<=0&&shotLane&&rnd()<dt*.9){
+  if(Math.abs(enemyGoal-p.x)<14&&Math.abs(p.z)<8&&p.shootWait<=0&&shotLane&&rnd()<dt*.9*level.shotRate){
    shot(p,clamp((14-Math.abs(enemyGoal-p.x))/12,.15,.7));
-  }else if(returnReady&&p.shootWait<=0){pass(p)}
-  else if(underPressure&&p.shootWait<=0&&receiver&&receiver.lane&&receiver.score>0&&rnd()<dt*1.3){pass(p)}
+  }else if(level.allowReturns&&returnReady&&p.shootWait<=0){pass(p)}
+  else if(underPressure&&p.shootWait<=0&&receiver&&receiver.lane&&receiver.score>0&&rnd()<dt*1.3*level.passRate){pass(p)}
 
  }else if(teamHas){
   if(p.cutTime>0&&p.cutReceiver===carrier&&p.device==='ai'){
@@ -683,10 +684,21 @@ function ai(p,dt){
   else target={x:clamp(predicted.x-attack*11,-23,23),z:clamp(predicted.z*.30,-5,5)};
   if(carrier&&carrier.team!==p.team&&rank===0)target={x:carrier.x+carrier.vx*.18,z:carrier.z+carrier.vz*.18};
  }
- if(carrier&&carrier.team!==p.team&&p.energy>=CHECK.aiEnergy&&dist(p,carrier)<CHECK.aiReach){
+ if(carrier&&carrier.team!==p.team&&p.energy>=CHECK.aiEnergy&&dist(p,carrier)<CHECK.aiReach&&
+     (level.checkChance===1||rnd()<dt*12*level.checkChance)){
   const [nx,nz]=normalize(carrier.x-p.x,carrier.z-p.z),closing=(p.vx-carrier.vx)*nx+(p.vz-carrier.vz)*nz;
   if(closing>CHECK.aiClosingSpeed&&Math.cos(p.facing)*nx+Math.sin(p.facing)*nz>.78&&beginCheck(p)){skate(p,0,0,dt);return}
  }
+ // Beginner agents read the ice less frequently, but still skate with the
+ // same fixed-step acceleration, top speed, stamina, collision and mass.
+ if(level.thinkDelay>0){
+  if(p.aiPlanTime>0&&p.aiTarget){
+   p.aiPlanTime=Math.max(0,p.aiPlanTime-dt);
+   steer(p,p.aiTarget.x-p.x,p.aiTarget.z-p.z,dt);return;
+  }
+  p.aiPlanTime=level.thinkDelay;
+  p.aiTarget={x:target.x,z:target.z};
+ }else{p.aiPlanTime=0;p.aiTarget=null}
  steer(p,target.x-p.x,target.z-p.z,dt);
 }
 function updatePlayers(dt){
