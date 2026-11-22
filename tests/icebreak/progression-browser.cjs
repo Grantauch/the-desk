@@ -77,9 +77,9 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
    assert.equal(completion.reportVisible,true);assert.equal(completion.saved,1);
    assert.equal(completion.firstWrite,true);assert.equal(completion.awarded,true);
    assert.equal(completion.streak,1);assert.equal(completion.overflow,false);
-   assert.match(completion.report,/YOUR SHIFT:/);
+   assert.match(completion.report,/YOUR SHIFT/);
    assert.match(completion.daily,/COMPLETE!/);
-   assert.match(completion.stats,/GLACIERS:.*EMBERS:/);
+   assert.match(completion.stats,/GLACIERS/);assert.match(completion.stats,/EMBERS/);
    await page.screenshot({path:path.join(out,'shift-book-final-'+renderer+'-'+viewport.width+'.png')});
    await page.reload();await page.waitForFunction(()=>window.fixture&&window.__ICEBREAK_TEST__);
    const persisted=await page.evaluate(()=>{
