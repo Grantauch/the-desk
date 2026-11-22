@@ -28,15 +28,24 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
     f.setPaused(true); // freeze the autonomous frame while documenting exact poses
     for(let i=0;i<16;i++)f.updatePlayers(1/90);
     f.updateHUD();f.render(.18);
+    const canvas=document.getElementById('game'),gl=canvas.getContext('webgl2')||canvas.getContext('webgl');
+    const pixel=(x,y)=>{const bytes=new Uint8Array(4);gl.readPixels(Math.floor(canvas.width*x),Math.floor(canvas.height*y),1,1,gl.RGBA,gl.UNSIGNED_BYTE,bytes);return [...bytes]};
+    const ink=gl?{ice:pixel(.5,.60),boards:pixel(.07,.60),lost:gl.isContextLost(),error:gl.getError()}:null;
     const marker=[...document.querySelectorAll('.player-marker')].find(x=>!x.hidden&&x.textContent.includes('DOWN'));
     const pose=f.bodyPose(target);
     return {renderer:api.getState().renderer,contact,down:target.fallTime>0,pose,marker:marker?.textContent||null,
-      overflow:document.documentElement.scrollWidth>innerWidth};
+      overflow:document.documentElement.scrollWidth>innerWidth,ink};
    });
    assert.equal(down.renderer,renderer);assert.equal(down.contact,true);assert.equal(down.down,true);
    assert.ok(down.pose.fall>.1,'body must be visibly horizontal/leaning after a real impact');
    assert.ok(down.pose.hit>0,'contact flash must come from collision');
    assert.match(down.marker,/DOWN/);assert.equal(down.overflow,false);
+   if(renderer==='webgl'){
+    assert.equal(down.ink.lost,false);
+    assert.equal(down.ink.error,0);
+    assert.ok(down.ink.ice[0]>down.ink.boards[0]+40,'painted WebGL ice must contrast with the dark boards');
+   }
+   await page.waitForTimeout(90); // allow the browser compositor to present the finished frame
    await page.screenshot({path:path.join(out,'body-check-down-'+renderer+'-'+viewport.width+'.png')});
    const rise=await page.evaluate(()=>{
     const f=window.fixture,target=f.players.find(p=>p.device==='kb2');
