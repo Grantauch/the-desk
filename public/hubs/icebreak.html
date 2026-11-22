@@ -249,7 +249,10 @@ const SHIFT_BADGES=Object.freeze([
 const SHIFT_METRICS=['games','wins','bestGoals','bestPasses','bestChecks','bestSaves'];
 const SHIFT_METRIC_LABEL={bestGoals:'Goals',bestPasses:'Passes',bestChecks:'Checks',bestSaves:'Saves'};
 const newMode=()=>({games:0,wins:0,bestGoals:0,bestPasses:0,bestChecks:0,bestSaves:0});
-const newProgress=()=>({version:SHIFT_VERSION,modes:{regular:newMode(),powerups:newMode()},badges:[],daily:{day:'',streak:0,bestStreak:0,completed:0}});
+const newByDifficulty=()=>Object.fromEntries(Object.keys(AI_LEVELS).map(level=>[level,{regular:newMode(),powerups:newMode()}]));
+// Backward-compatible extension of v1: pre-difficulty records belong to Standard,
+// while aggregate 'modes' counters stay intact for existing local progress.
+const newProgress=()=>({version:SHIFT_VERSION,modes:{regular:newMode(),powerups:newMode()},byDifficulty:newByDifficulty(),badges:[],daily:{day:'',streak:0,bestStreak:0,completed:0}});
 const safeCount=(n,max=100000)=>Number.isSafeInteger(n)&&n>=0?Math.min(n,max):0;
 const localDay=(date=new Date())=>String(date.getFullYear()).padStart(4,'0')+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
 function dayOrdinal(day){
@@ -261,6 +264,13 @@ function challengeForDay(day){const ordinal=dayOrdinal(day);return SHIFT_CHALLEN
 function sanitizedProgress(value){
  const p=newProgress();if(!value||value.version!==SHIFT_VERSION||typeof value!=='object')return p;
  for(const mode of ['regular','powerups'])for(const key of SHIFT_METRICS)p.modes[mode][key]=safeCount(value.modes?.[mode]?.[key]);
+ if(value.byDifficulty&&typeof value.byDifficulty==='object'){
+  for(const level of Object.keys(AI_LEVELS))for(const mode of ['regular','powerups'])for(const key of SHIFT_METRICS)
+   p.byDifficulty[level][mode][key]=safeCount(value.byDifficulty[level]?.[mode]?.[key]);
+ }else{
+  // Existing v1 records were earned on the only pre-existing AI level: Standard.
+  for(const mode of ['regular','powerups'])for(const key of SHIFT_METRICS)p.byDifficulty.standard[mode][key]=p.modes[mode][key];
+ }
  if(Array.isArray(value.badges))p.badges=[...new Set(value.badges.filter(id=>SHIFT_BADGES.some(b=>b.id===id)))].slice(0,SHIFT_BADGES.length);
  const d=value.daily;
  if(d&&typeof d==='object'){p.daily.day=dayOrdinal(d.day)!==null?d.day:'';p.daily.streak=safeCount(d.streak,10000);p.daily.bestStreak=safeCount(d.bestStreak,10000);p.daily.completed=safeCount(d.completed);if(!p.daily.day)p.daily.streak=0;}
@@ -282,7 +292,7 @@ function saveShiftProgress(){
 }
 function newMatchStats(){
  const humans=players.filter(p=>p.device!=='ai'),human=humans.length===1?humans[0]:null;
- return {mode:config.mode,day:localDay(),solo:!!human,humanDevice:human?.device??null,humanTeam:human?.team??null,
+ return {mode:config.mode,difficulty:config.difficulty,day:localDay(),solo:!!human,humanDevice:human?.device??null,humanTeam:human?.team??null,
   teamShots:[0,0],teamPasses:[0,0],teamChecks:[0,0],teamSaves:[0,0],
   human:{shots:0,passes:0,checks:0,goals:0,oneTimers:0,saves:0},
   trailed:false,final:false,won:false,unlocked:[],dailyEarned:false,recordSaved:false};
@@ -322,12 +332,13 @@ function finalizeMatch(){
  const m=matchStats;m.final=true;
  if(!m.solo)return m;
  m.won=score[m.humanTeam]>score[1-m.humanTeam];
- const rec=shiftProgress.modes[m.mode];
- rec.games++;if(m.won)rec.wins++;
- rec.bestGoals=Math.max(rec.bestGoals,m.human.goals);
- rec.bestPasses=Math.max(rec.bestPasses,m.human.passes);
- rec.bestChecks=Math.max(rec.bestChecks,m.human.checks);
- rec.bestSaves=Math.max(rec.bestSaves,m.human.saves);
+ for(const rec of [shiftProgress.modes[m.mode],shiftProgress.byDifficulty[m.difficulty][m.mode]]){
+  rec.games++;if(m.won)rec.wins++;
+  rec.bestGoals=Math.max(rec.bestGoals,m.human.goals);
+  rec.bestPasses=Math.max(rec.bestPasses,m.human.passes);
+  rec.bestChecks=Math.max(rec.bestChecks,m.human.checks);
+  rec.bestSaves=Math.max(rec.bestSaves,m.human.saves);
+ }
  const conditions=badgeConditions(m);
  m.unlocked=SHIFT_BADGES.filter(b=>conditions[b.id]&&!shiftProgress.badges.includes(b.id)).map(b=>b.label);
  for(const b of SHIFT_BADGES)if(conditions[b.id]&&!shiftProgress.badges.includes(b.id))shiftProgress.badges.push(b.id);
@@ -337,10 +348,10 @@ function finalizeMatch(){
  return m;
 }
 function renderShiftBook(){
- const day=localDay(),challenge=challengeForDay(day),rec=shiftProgress.modes[config.mode],done=shiftProgress.daily.day===day;
+ const day=localDay(),challenge=challengeForDay(day),rec=shiftProgress.byDifficulty[config.difficulty][config.mode],done=shiftProgress.daily.day===day;
  hud.dailyName.textContent=(done?'COMPLETE · ':'TODAY · ')+challenge.label;
  hud.dailyDetail.textContent=challenge.detail+(done?' Challenge complete for today.':' Solo vs AI; full games count.');
- hud.dailyRecord.textContent=(rec.games?config.mode.toUpperCase()+' · '+rec.wins+'/'+rec.games+' wins · Best: '+rec.bestGoals+' goals, '+rec.bestPasses+' passes, '+rec.bestChecks+' checks, '+rec.bestSaves+' saves':'No completed solo matches in '+config.mode+'.')+
+ hud.dailyRecord.textContent=(rec.games?config.difficulty.toUpperCase()+' '+config.mode.toUpperCase()+' · '+rec.wins+'/'+rec.games+' wins · Best: '+rec.bestGoals+' goals, '+rec.bestPasses+' passes, '+rec.bestChecks+' checks, '+rec.bestSaves+' saves':'No completed solo matches in '+config.difficulty+' '+config.mode+'.')+
   ' · '+shiftProgress.badges.length+' badges · '+shiftProgress.daily.streak+'-day streak'+(shiftStorageAvailable?'':' · storage unavailable');
 }
 function updateDailyTicker(){
@@ -362,7 +373,7 @@ function renderFinalReport(){
   hud.reportDaily.textContent='Select one human versus AI for personal-best and daily-challenge progress.';return;
  }
  const h=m.human;
- hud.reportSolo.textContent='YOUR SHIFT · '+n(h.goals,'goal')+' · '+n(h.shots,'shot')+' · '+n(h.passes,'completed pass').replace('passs','passes')+' · '+n(h.checks,'clean check')+' · '+n(h.saves,'save')+(h.oneTimers?' · '+n(h.oneTimers,'one-timer goal'):'');
+ hud.reportSolo.textContent=AI_LEVELS[m.difficulty].label+' AI · YOUR SHIFT · '+n(h.goals,'goal')+' · '+n(h.shots,'shot')+' · '+n(h.passes,'completed pass').replace('passs','passes')+' · '+n(h.checks,'clean check')+' · '+n(h.saves,'save')+(h.oneTimers?' · '+n(h.oneTimers,'one-timer goal'):'');
  hud.reportAchievements.textContent=m.unlocked.length?'NEW BADGES · '+m.unlocked.join(' · '):'No new badges this match. Keep improving your personal best.';
  const ch=challengeForDay(m.day),value=challengeValue(m,ch);
  hud.reportDaily.textContent='DAILY · '+ch.label+' · '+Math.min(value,ch.target)+'/'+ch.target+(m.dailyEarned?' · COMPLETE!':'')+
