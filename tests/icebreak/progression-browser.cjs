@@ -59,6 +59,7 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
      }
      f.setPaused(true);
     }else if(challenge.metric==='win'){
+     p.stun=0;f.give(p);f.shot(p,.3); // win must include human contribution
      api.goal(p.team);
     }
     const valueBefore=f.challengeValue(m,challenge);
