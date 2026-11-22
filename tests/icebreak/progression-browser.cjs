@@ -61,12 +61,12 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
     }else if(challenge.metric==='win'){
      api.goal(p.team);
     }
-    const value=f.challengeValue(m,challenge);
+    const valueBefore=f.challengeValue(m,challenge);
     const writesBefore=localStorage.getItem('icebreak:shift-book:v1');
     f.finish();
     const saved=JSON.parse(localStorage.getItem('icebreak:shift-book:v1'));
     const report=document.getElementById('matchReport');
-    return {metric:challenge.metric,target:challenge.target,value,solo:m.solo,final:m.final,
+    return {metric:challenge.metric,target:challenge.target,value:f.challengeValue(m,challenge),valueBefore,solo:m.solo,final:m.final,
      reportVisible:!report.hidden,report:document.getElementById('finalSoloStats').textContent,
      daily:document.getElementById('finalDaily').textContent,stats:document.getElementById('finalTeamStats').textContent,
      saved:saved.modes.regular.games,streak:saved.daily.streak,badges:saved.badges,
