@@ -84,6 +84,7 @@ const results=[];
        assert.equal(state.puckLoose,tier>=1);
        assert.equal(state.overflow,false);
        if(tier===2)assert.ok(state.fall>0);
+       await page.screenshot({path:path.join(out,prefix+'-tier-'+tier+'.png')});
        if(tier===3){
         assert.equal(state.phase,'injury');
         assert.equal(state.fall,1,'injured player must remain down while play stops');
@@ -100,7 +101,6 @@ const results=[];
        }
        if(reduced)assert.ok(state.recoil<=state.power*.251,'reduced motion must limit recoil amplitude');
        else assert.ok(state.recoil>state.power*.9,'normal motion should show full recoil');
-       await page.screenshot({path:path.join(out,prefix+'-tier-'+tier+'.png')});
       }
       // A passing combination must stop on a real puck-strip, even in the browser.
       const combo=await page.evaluate(()=>{
