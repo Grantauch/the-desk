@@ -116,9 +116,14 @@ test('SW-175 invalid secrets, padded PINs, tampering and malformed envelopes are
   const json = JSON.parse(Buffer.from(payload!, 'base64url').toString('utf8')) as Record<string, unknown>;
   json.schoolId = 'synthetic-school-two';
   const changedPayload = Buffer.from(JSON.stringify(json)).toString('base64url');
+  // The old replacement used 'A' unconditionally. Random HMAC signatures
+  // occasionally begin with 'A', making the "tampered" MAC unchanged and
+  // incorrectly accepting the original token (flaky CI failure).
+  const alteredMac = (mac![0] === 'A' ? 'B' : 'A') + mac!.slice(1);
+  assert.notEqual(alteredMac, mac);
   for (const invalid of [
     changedPayload + '.' + mac,
-    payload + '.' + mac!.replace(/[a-zA-Z0-9_-]/, 'A'),
+    payload + '.' + alteredMac,
     token + '.extra',
     token + '=',
     token.slice(0, 15),

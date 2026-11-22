@@ -27,6 +27,7 @@ Standalone isolated tests (including spec files) remain allowed to exercise the 
 - The test confirms isolated test/spec files remain exempt; a normal runtime import to the shared **type-only contract** and a safe filename with `.test-data` remain allowed.
 - Local `npm run handoff:guard`: 7/7 pass, after the new test initially failed against the old guard.
 - Local TypeScript check, build, and production firewall pass.
+- Initial GitHub CI exposed a pre-existing intermittent synthetic SW-175 tamper-test defect: replacing the first random MAC character with a hard-coded `A` is a no-op whenever the original MAC already starts with `A`. The test now chooses a **different** first character and asserts the MAC changes before verifying rejection. No production HMAC logic is changed.
 - GitHub exact-head CI and independent security review are still required before integrating this into the synthetic staging candidate.
 
 ## Limits / rollout gates
