@@ -199,7 +199,7 @@ const entries = [...sourceEntries].sort((a, b) => order(a.slug) - order(b.slug))
               <p class="course-tag"><i class={'code-' + hub.courseID} aria-hidden="true"></i>{hub.courseLabel}</p>
               <h4>{hub.title}</h4>
               <p>{hub.summary}</p>
-              <a class="action" href={hub.href} aria-label={`Open ${hub.activities[0] === 'map' ? 'map' : 'story'}: ${hub.title}`}>
+              <a class="action" href={hub.href} aria-label={`Open ${hub.activities[0] === 'map' ? 'map' : 'story'}: ${hub.title.replaceAll("'", '’')}`}>
                 {hub.activities[0] === 'map' ? 'Open map' : 'Open story'} <span aria-hidden="true">→</span>
               </a>
             </div>
