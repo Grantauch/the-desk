@@ -181,7 +181,7 @@ test("field silhouettes render all six locomotion modes without mutating residen
   const life = new PondEcosystem();
   // Classic and procedural identities cover all six existing locomotion modes.
   const modes = new Map<string, string>();
-  for (const id of ["Fish", "Bird", "Plant", "Robot", "Animal", "Cloud", ...Array.from({ length: 250 }, (_, n) => "v:" + n.toString(36))]) {
+  for (const id of ["Fish", "Bird", "Plant", "Robot", "Animal", "Cloud", ...Array.from({ length: 40 }, (_, n) => idFromFacets({ form: n, habitat: 0, force: 0, trait: 0 }))]) {
     const outcome = getOutcome(id);
     if (!outcome) continue;
     const mode = residentProfile(outcome).mode;
