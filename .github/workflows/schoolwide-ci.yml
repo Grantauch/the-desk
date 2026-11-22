@@ -77,8 +77,8 @@ jobs:
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
-          name: schoolwide-teacher-prelaunch-v0.1.0-${{ github.sha }}
-          path: schoolwide/out/Schoolwide_Teacher_Prelaunch_v0.1.0.zip
+          name: schoolwide-teacher-prelaunch-v0.2.0-${{ github.sha }}
+          path: schoolwide/out/Schoolwide_Teacher_Prelaunch_v0.2.0.zip
           if-no-files-found: error
           retention-days: 14
 
