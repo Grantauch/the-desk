@@ -137,7 +137,7 @@ function setupLobby(){
    select.value=config.seats[index];select.onchange=()=>{const device=select.value;if(device!=='ai')for(let i=0;i<config.seats.length;i++)if(i!==index&&config.seats[i]===device){config.seats[i]='ai';hud.seatGrid.querySelectorAll('select')[i].value='ai'}config.seats[index]=device;updateSeatCount()};row.appendChild(select);col.appendChild(row)
   }hud.seatGrid.appendChild(col)
  }
- document.querySelectorAll('[data-mode]').forEach(el=>el.addEventListener('click',()=>{config.mode=el.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>{const yes=x.dataset.mode===config.mode;x.classList.toggle('selected',yes);x.setAttribute('aria-pressed',yes)})}));
+ document.querySelectorAll('[data-mode]').forEach(el=>el.addEventListener('click',()=>{config.mode=el.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>{const yes=x.dataset.mode===config.mode;x.classList.toggle('selected',yes);x.setAttribute('aria-pressed',yes)});renderShiftBook()}));
  document.querySelectorAll('[data-rink]').forEach(el=>el.addEventListener('click',()=>{config.rink=el.dataset.rink;document.querySelectorAll('[data-rink]').forEach(x=>{const yes=x.dataset.rink===config.rink;x.classList.toggle('selected',yes);x.setAttribute('aria-pressed',yes)})}));
  updateSeatCount()
 }
@@ -334,9 +334,9 @@ function renderFinalReport(){
 const keys=new Set(), blue=()=>players.filter(p=>p.team===0&&!p.goalie), red=()=>players.filter(p=>p.team===1&&!p.goalie), dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z), nearest=(list,t)=>list.reduce((best,p)=>!best||dist(p,t)<dist(best,t)?p:best,null);
 function makeTeams(){players=[makePlayer(0,0,-8,0),makePlayer(0,1,-13,-6),makePlayer(0,2,-19,6),makePlayer(1,0,8,0),makePlayer(1,1,13,6),makePlayer(1,2,19,-6),makePlayer(0,3,-25.4,0,true),makePlayer(1,3,25.4,0,true)];for(let p of players)p.device=config.seats[p.team*4+p.id];control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0]}
 function resetFaceoff(){for(let p of players){p.x=p.goalie?(p.team===0?-25.4:25.4):(p.team===0?-8-2*(p.id>0):8+2*(p.id>0));p.z=p.goalie?0:(p.id===1?(p.team===0?-6:6):p.id===2?(p.team===0?6:-6):0);p.vx=p.vz=p.stun=p.fallTime=p.fallSpan=p.receiveWait=p.skid=p.checkWindow=p.checkRecovery=p.brace=p.puckWobble=p.hitFlash=0;p.balance=1;p.checkConnected=false;p.has=false;p.shotCharge=p.oneTimerBuffer=p.receiveWindow=p.oneTimerFlash=p.saveFlash=0;p.saveSide=0;p.saveKind='';p.impactDir=p.fallSide=1;p.impactLevel=p.standPose=p.bracePose=0;p.cutTime=p.comboCooldown=0;p.cutReceiver=null;p.facing=p.team===0?0:Math.PI}control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0];puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0,passFrom:null,passTarget:null};trail=[];replayHistory=[];replayFrames=[];replaySample=0;replayElapsed=0;hud.moment.classList.remove('show');dropDelay=1.35;prompt('FACE OFF',1.15)}
-function fullReset(){makeTeams();score=[0,0];timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;accumulator=0;lastShot=null;goalMoment=null;inputState.clear();lastInputButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD()}
+function fullReset(){makeTeams();score=[0,0];matchStats=newMatchStats();hud.report.hidden=true;timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;accumulator=0;lastShot=null;goalMoment=null;inputState.clear();lastInputButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD();renderShiftBook()}
 function prompt(text,secs=1.2,orange=false){hud.prompt.textContent=text;hud.prompt.className='prompt show'+(orange?' orange':'');msgTimer=secs}function updatePrompt(dt){if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)hud.prompt.classList.remove('show')}}
-function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu'&&phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden')}
+function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu'&&phase!=='finished';hud.report.hidden=phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden')}
 function hideOverlay(){hud.overlay.classList.add('hidden');hud.overlay.setAttribute('aria-hidden','true')}
 function start(){if(phase==='injury'){endInjury();return}if(phase==='menu'||phase==='finished')fullReset();else paused=false;const btn=$('pauseBtn');btn.textContent='Ⅱ';btn.setAttribute('aria-label','Pause game');btn.title='Pause game';hideOverlay();audioInit()}
 hud.play.addEventListener('click',start);
@@ -349,7 +349,7 @@ let audio=null;function audioInit(){if(!sfxEnabled)return;try{audio=audio||new (
 function tone(freq=440,dur=.12,type='triangle',volume=.035,freqEnd=null){if(!sfxEnabled||!audio)return;try{let o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;o.type=type;o.frequency.setValueAtTime(freq,t);if(freqEnd)o.frequency.exponentialRampToValueAtTime(Math.max(30,freqEnd),t+dur);g.gain.setValueAtTime(volume,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+dur+.01)}catch{}}
 function sound(kind){if(kind==='shoot'){tone(142,.22,'sawtooth',.041,65);tone(430,.06,'square',.018,180)}else if(kind==='pass'){tone(205,.09,'triangle',.03,115)}else if(kind==='oneTimer'){tone(180,.15,'sawtooth',.065,75);tone(530,.12,'square',.04,270)}else if(kind==='hit'){tone(95,.18,'sawtooth',.052,41)}else if(kind==='save'){tone(185,.13,'triangle',.042,90);tone(680,.15,'square',.017,310)}else if(kind==='grab'){tone(400,.055,'triangle',.012,220)}else if(kind==='goal'){if(config.rink==='park'){tone(720,.8,'triangle',.052,410);setTimeout(()=>tone(920,.7,'triangle',.048,640),165)}else if(config.rink==='mars'){tone(92,1.1,'sawtooth',.075,270);setTimeout(()=>tone(350,.75,'sine',.047,700),220)}else{tone(185,.7,'sawtooth',.075,320);setTimeout(()=>tone(277,.6,'sawtooth',.05,380),140);setTimeout(()=>tone(370,.8,'sawtooth',.05,420),280)}}}
 function releasePuck(owner,dx,dz,speed){const [ux,uz]=normalize(dx,dz),blade=stickPoint(owner);owner.has=false;owner.receiveWindow=0;owner.oneTimerBuffer=0;owner.receiveWait=STICK.recatchDelay;puck.owner=null;puck.passFrom=null;puck.passTarget=null;puck.x=blade.x+ux*STICK.releaseClearance;puck.z=blade.z+uz*STICK.releaseClearance;puck.vx=ux*speed+owner.vx*.3;puck.vz=uz*speed+owner.vz*.3;puck.lock=STICK.releaseLock}
-function shot(p,charge=0,oneTime=false){if(!p.has)return;let sx=p.team===0?1:-1;let aim=getMove(p);let goalZ=clamp(aim[1],-1,1)*2.15;let tgt=goalZ+(p.team===0?0:0);let dx=sx*28-p.x,dz=tgt-p.z;let dir=p.facing;let facingX=Math.cos(dir),facingZ=Math.sin(dir);let aimX=facingX*.50+normalize(dx,dz)[0]*.50,aimZ=facingZ*.50+normalize(dx,dz)[1]*.50;if(p.device!=='ai'){aimX=normalize(dx,dz)[0]*.7+facingX*.3;aimZ=normalize(dx,dz)[1]*.7+facingZ*.3}const variation=(rnd()-.5)*(oneTime?ONE_TIMER.accuracy:1)*(1.0-charge*.72);const a=Math.atan2(aimZ,aimX)+variation*.22;releasePuck(p,Math.cos(a),Math.sin(a),(25+charge*17)*(oneTime?ONE_TIMER.shotBoost:1)*(p.power==='cannon'&&p.powerTime>0?1.33:1));p.shotCharge=0;p.shootWait=.45;p.oneTimerFlash=oneTime?.34:0;lastShot={team:p.team,number:p.number,name:p.name,age:0,oneTimer:oneTime};trail=[];sound(oneTime?'oneTimer':'shoot');spray(p.x,p.z,oneTime?C.gold:C.cyan,oneTime?18:9)}
+function shot(p,charge=0,oneTime=false){if(!p.has)return;let sx=p.team===0?1:-1;let aim=getMove(p);let goalZ=clamp(aim[1],-1,1)*2.15;let tgt=goalZ+(p.team===0?0:0);let dx=sx*28-p.x,dz=tgt-p.z;let dir=p.facing;let facingX=Math.cos(dir),facingZ=Math.sin(dir);let aimX=facingX*.50+normalize(dx,dz)[0]*.50,aimZ=facingZ*.50+normalize(dx,dz)[1]*.50;if(p.device!=='ai'){aimX=normalize(dx,dz)[0]*.7+facingX*.3;aimZ=normalize(dx,dz)[1]*.7+facingZ*.3}const variation=(rnd()-.5)*(oneTime?ONE_TIMER.accuracy:1)*(1.0-charge*.72);const a=Math.atan2(aimZ,aimX)+variation*.22;releasePuck(p,Math.cos(a),Math.sin(a),(25+charge*17)*(oneTime?ONE_TIMER.shotBoost:1)*(p.power==='cannon'&&p.powerTime>0?1.33:1));p.shotCharge=0;p.shootWait=.45;p.oneTimerFlash=oneTime?.34:0;lastShot={team:p.team,number:p.number,name:p.name,device:p.device,age:0,oneTimer:oneTime};trackShot(p);trail=[];sound(oneTime?'oneTimer':'shoot');spray(p.x,p.z,oneTime?C.gold:C.cyan,oneTime?18:9)}
 // An unobstructed lane and a receiver with space beat an automatic nearest-player pass.
 function clearLane(ax,az,bx,bz,defenders,clearance=1.65){
  const dx=bx-ax,dz=bz-az,mag=dx*dx+dz*dz;
@@ -436,6 +436,7 @@ function checkOutcome(attacker,target,nx,nz,closing,reducedMass,alignment,veloci
  target.impactDir=contactSide>=0?1:-1;
  target.impactLevel=clamp((impact-CHECK.wobble)/(CHECK.injury-CHECK.wobble),.08,1);
  const loose=impact>=CHECK.loose,heavy=impact>=CHECK.heavy;
+ if(loose)trackCheck(attacker);
  // Contact destabilizes even when the puck survives. The fall and velocity
  // response still come from the existing mass-weighted collision solver.
  target.balance=Math.max(CHECK.balanceMin,target.balance-(heavy?.18:loose?.10:.025));
@@ -477,7 +478,8 @@ function bodyPose(p){
 }
 function goal(team){
  if(goalDelay>0)return;
- score[team]++;goalTeam=team;goalDelay=MOMENT.goalSeconds;phase='goal';replayElapsed=0;
+ score[team]++;const creditedShot=lastShot&&lastShot.team===team&&lastShot.age<2.6?lastShot:null;trackGoal(team,creditedShot);
+ goalTeam=team;goalDelay=MOMENT.goalSeconds;phase='goal';replayElapsed=0;
  replayFrames=replayHistory.slice();replayFrames.push({puck:[puck.x,puck.z],players:players.map(p=>[p.x,p.z,p.facing])});
  const shooter=lastShot&&lastShot.team===team&&lastShot.age<2.6?' · SHOT BY #'+String(lastShot.number).padStart(2,'0')+' '+lastShot.name:'';
  goalMoment={team,shooter,rink:config.rink};
@@ -781,7 +783,7 @@ function puckPhysics(dt){
   const reboundSpeed=incident*KEEPER.saveDrag;
   puck.vx=rx*reboundSpeed;puck.vz=rz*reboundSpeed;
   puck.lock=KEEPER.reboundLock;puck.passFrom=null;puck.passTarget=null;
-  keeper.saves++;keeper.saveFlash=KEEPER.savePose;keeper.saveSide=offset;
+  keeper.saves++;trackSave(keeper);keeper.saveFlash=KEEPER.savePose;keeper.saveSide=offset;
   keeper.saveKind=Math.abs(offset)>.52?'GLOVE':'PAD';
   if(incident>21)prompt('BIG SAVE!',.55);
   sound('save');spray(puck.x,puck.z,C.white,incident>21?13:7);
@@ -789,6 +791,7 @@ function puckPhysics(dt){
   const receiver=first.skater;
   const intendedPass=puck.passFrom?.team===receiver.team&&puck.passFrom!==receiver&&puck.passTarget===receiver;
   const passer=intendedPass?puck.passFrom:null;
+  if(passer)trackPass(passer);
   const fireOnCatch=intendedPass&&receiver.oneTimerBuffer>0&&receiver.device!=='ai';
   puck.owner=receiver;receiver.has=true;Object.assign(puck,stickPoint(receiver));
   puck.vx=receiver.vx;puck.vz=receiver.vz;puck.passFrom=null;puck.passTarget=null;
@@ -813,7 +816,13 @@ function updatePowerups(dt){if(config.mode!=='powerups')return;powerSpawn-=dt;if
  powerItems=powerItems.filter(p=>p.life>0)
 }
 function updateParticles(dt){for(let p of particles){p.life-=dt;p.x+=p.vx*dt;p.z+=p.vz*dt;p.y+=p.vy*dt;p.vy-=9*dt}particles=particles.filter(p=>p.life>0);for(let t of trail)t.t+=dt;trail=trail.filter(t=>t.t<.4)}
-function finish(){phase='finished';let txt=score[0]>score[1]?'GLACIERS WIN':score[1]>score[0]?'EMBERS WIN':'THE GAME IS TIED';showOverlay(txt,'Final horn. '+score[0]+'–'+score[1]+'. Every shift is another chance to get better.','PLAY AGAIN →','FINAL SCORE');hud.clock.textContent='00:00';sound('goal')}
+function finish(){
+ if(phase==='finished')return;
+ phase='finished';finalizeMatch();
+ const txt=score[0]>score[1]?'GLACIERS WIN':score[1]>score[0]?'EMBERS WIN':'THE GAME IS TIED';
+ showOverlay(txt,'Final horn. '+score[0]+'–'+score[1]+'. Every shift is another chance to get better.','PLAY AGAIN →','FINAL SCORE');
+ renderShiftBook();renderFinalReport();updateDailyTicker();hud.clock.textContent='00:00';sound('goal');
+}
 function step(dt){
  updatePrompt(dt);updateParticles(dt);
  if(phase==='injury'){
@@ -1010,7 +1019,7 @@ function advanceFrame(elapsed){
  return steps;
 }
 let lastHUD=0;function frame(ms){const t=ms/1000,dt=lastTime>=0?(ms-lastTime)/1000:0;lastTime=ms;advanceFrame(dt);render(t);if(t-lastHUD>.09){updateHUD();possessionHUD();lastHUD=t}requestAnimationFrame(frame)}
-makeTeams();resetFaceoff();phase='menu';requestAnimationFrame(frame);
+makeTeams();resetFaceoff();phase='menu';renderShiftBook();updateDailyTicker();requestAnimationFrame(frame);
 window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus,cameraFocusZ:camFocusZ,followCamera:followActive()}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.passFrom=null;puck.passTarget=null;puck.lock=1},replay:()=>({frames:replayFrames.length,history:replayHistory.length,elapsed:replayElapsed,moment:goalMoment?{...goalMoment}:null}),touch:()=>({passTarget:puck.passTarget?.number??null,passFrom:puck.passFrom?.number??null,buffer:control.oneTimerBuffer,receiveWindow:control.receiveWindow,oneTimerFlash:control.oneTimerFlash,lastShot:lastShot?{...lastShot}:null}),physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
 })();
 </script>
