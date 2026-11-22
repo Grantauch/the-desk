@@ -6,7 +6,8 @@ import { ActionProofService } from './proofs.js';
 import { StudentPinAttemptControl, type AttemptControlOptions } from './throttle.js';
 import { StudentCredentialError, type ConsumedActionProof, type CreatedActionProof, type StudentAction, type StudentIdentityProvider } from './types.js';
 
-const PIN_PATTERN = /^\d{6}$/;
+// Lunch-number credentials are exact 5- or 6-digit strings; never pad or coerce.
+const PIN_PATTERN = /^\d{5,6}$/;
 
 interface StudentRow extends QueryResultRow {
   id: string;

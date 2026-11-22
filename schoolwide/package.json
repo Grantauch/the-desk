@@ -17,6 +17,6 @@
     "staging:smoke": "node scripts/staging-smoke.mjs",
     "start": "node dist/server.js"
   },
-  "dependencies": { "fastify": "^5.12.3", "pg": "^8.23.0", "zod": "^4.5.4" },
+  "dependencies": { "fastify": "^5.12.3", "pg": "^8.23.0", "pg-connection-string": "^2.14.1", "zod": "^4.5.4" },
   "devDependencies": { "@types/node": "^22.20.1", "@types/pg": "^8.23.1", "tsx": "^4.23.13", "typescript": "^7.0.2" }
 }

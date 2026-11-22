@@ -49,3 +49,92 @@ test('staging accepts an exact release SHA and Cloud SQL Unix socket', () => {
   assert.equal(config.releaseSha, releaseSha);
   assert.equal(config.databaseSocketPath, socketPath);
 });
+
+test('VPS staging accepts only an internal dedicated PostgreSQL database', () => {
+  const config = readConfig({
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/grantdesk_schoolwide_stage',
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps',
+    RELEASE_SHA: 'b'.repeat(40),
+  });
+  assert.equal(config.stagingPlatform, 'vps');
+  assert.equal(config.databaseSocketPath, undefined);
+});
+
+test('VPS staging refuses public database hosts and shared production databases', () => {
+  const staging = {
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps',
+    RELEASE_SHA: 'b'.repeat(40),
+  };
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@203.0.113.10:5432/grantdesk_schoolwide_stage',
+  }), /dedicated internal postgres service/);
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/margin',
+  }), /dedicated internal postgres service/);
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/grantdesk_schoolwide_stage',
+    DATABASE_SOCKET_PATH: '/cloudsql/unexpected',
+  }), /must not set DATABASE_SOCKET_PATH/);
+  assert.throws(() => readConfig({
+    ...staging,
+    DATABASE_URL: 'postgresql://grantdesk_stage@postgres:5432/grantdesk_schoolwide_stage',
+  }), /dedicated internal postgres service/);
+});
+
+test('VPS staging cannot silently become a production configuration', () => {
+  assert.throws(() => readConfig({
+    DATABASE_URL: 'postgresql://grantdesk_stage:synthetic-secret@postgres:5432/grantdesk_schoolwide_stage',
+    DEPLOYMENT_TIER: 'production',
+    STAGING_PLATFORM: 'vps',
+    RELEASE_SHA: 'b'.repeat(40),
+  }), /cannot be used as a production cutover flag/);
+});
+
+test('VPS host staging accepts the isolated local PostgreSQL 18 cluster with peer auth', () => {
+  const config = readConfig({
+    DATABASE_URL: 'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage',
+    DATABASE_SOCKET_PATH: '/var/run/postgresql',
+    HOST: '127.0.0.1',
+    PORT: '18787',
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps-host',
+    RELEASE_SHA: 'c'.repeat(40),
+  });
+  assert.equal(config.stagingPlatform, 'vps-host');
+  assert.equal(config.databaseSocketPath, '/var/run/postgresql');
+  assert.equal(config.legacyProductionWrites, 'forbidden');
+});
+
+test('VPS host staging fails closed for Margin DB, alternate role, port, socket, or password', () => {
+  const safe = {
+    DATABASE_URL: 'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage',
+    DATABASE_SOCKET_PATH: '/var/run/postgresql',
+    HOST: '127.0.0.1',
+    PORT: '18787',
+    DEPLOYMENT_TIER: 'staging',
+    STAGING_PLATFORM: 'vps-host',
+    RELEASE_SHA: 'c'.repeat(40),
+  };
+  for (const databaseUrl of [
+    'postgresql://margin@localhost:5432/margin',
+    'postgresql://margin@localhost:55432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage@localhost:5432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage@203.0.113.3:55432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage:guess@localhost:55432/grantdesk_schoolwide_stage',
+    'postgresql://grantdesk_stage@localhost:55432/margin',
+    'postgresql://grantdesk_stage@localhost:55432/grantdesk_schoolwide_stage?sslmode=disable',
+  ]) {
+    assert.throws(() => readConfig({ ...safe, DATABASE_URL: databaseUrl }), /dedicated PostgreSQL cluster/);
+  }
+  assert.throws(() => readConfig({ ...safe, DATABASE_SOCKET_PATH: '/tmp' }), /local PostgreSQL Unix socket/);
+  assert.throws(() => readConfig({ ...safe, DEPLOYMENT_TIER: 'production' }), /production cutover flag/);
+  assert.throws(() => readConfig({ ...safe, HOST: '0.0.0.0' }), /bind localhost/);
+  assert.throws(() => readConfig({ ...safe, PORT: '18788' }), /bind localhost/);
+  assert.throws(() => readConfig({ ...safe, OPERATIONS_WORKERS_ENABLED: 'true' }), /bind localhost/);
+  assert.throws(() => readConfig({ ...safe, LEGACY_READ_ADAPTER_MODE: 'shadow-read' }), /bind localhost/);
+});

@@ -57,7 +57,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install Schoolwide dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Apply database migrations
         run: npm run db:migrate
@@ -67,3 +67,39 @@ jobs:
 
       - name: Verify Schoolwide foundation
         run: npm run verify
+      - name: Verify offline teacher preview and build reproducible training-only ZIP
+        run: python3 scripts/test-teacher-kit.py && python3 scripts/build-teacher-kit.py && python3 scripts/build-teacher-kit.py --verify
+
+      - name: Verify teacher preview in real Chrome at mobile and desktop sizes
+        run: node scripts/test-teacher-kit-browser.mjs
+
+      - name: Upload PRELAUNCH teacher preview (not a student installer)
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: schoolwide-teacher-prelaunch-v0.1.0-${{ github.sha }}
+          path: schoolwide/out/Schoolwide_Teacher_Prelaunch_v0.1.0.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Create isolated synthetic classroom-load database
+        run: node scripts/prepare-ci-load-db.mjs
+
+      - name: Apply migrations to isolated classroom-load database
+        env:
+          DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide_load
+        run: npm run db:migrate
+
+      - name: Verify 35 simultaneous synthetic Check-Ins and retries
+        env:
+          DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide_load
+        run: node --import tsx --test src/checkins/checkins.concurrency-load.integration.test.ts
+
+      - name: Check VPS staging operator scripts syntax
+        run: bash -n scripts/vps-host-preflight.sh scripts/vps-staging-backup.sh scripts/vps-host-staging-backup.sh scripts/vps-host-backup-audit.sh && node --check scripts/vps-host-probe.mjs && node --check scripts/vps-host-classroom-probe.mjs && node --check scripts/vps-host-pass-queue-probe.mjs && node --check scripts/vps-host-pin-http-probe.mjs && node --check scripts/prepare-ci-load-db.mjs
+
+      - name: Verify isolated VPS staging Compose configuration
+        env:
+          SCHOOLWIDE_DB_PASSWORD: synthetic_ci_only_1234567890
+          SCHOOLWIDE_RELEASE_SHA: ${{ github.sha }}
+        run: docker compose -f deploy/vps-staging.compose.yml config --format json | node scripts/verify-vps-staging-compose.mjs

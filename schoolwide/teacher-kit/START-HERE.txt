@@ -1,0 +1,44 @@
+SCHOOLWIDE · START HERE
+Teacher Setup Preview v0.1.0 — November 2026
+=============================================================
+
+STATUS: TRAINING ONLY. NOT STUDENT-FACING. NOT A LIVE INSTALLER.
+
+1. Unzip this package into a folder on your own computer.
+2. Double-click START-HERE.html to open the guided local preview.
+3. Follow the five steps:
+   - What this system will do once approved
+   - Door Chromebook versus private teacher computer
+   - Existing lunch-number PIN preservation
+   - Fictional kiosk session/privacy reset test
+   - School-approved release-readiness checklist
+4. On the privacy test, choose a fictional 5-digit or 6-digit
+   sample. Click "Finish & clear" or switch browser tabs. The
+   demonstration must return to "Welcome".
+5. Do not enter real student IDs, PINs, email addresses, names,
+   teacher credentials, recovery codes, or school secrets.
+
+NO SCHOOLWIDE ACCESS IS ENABLED BY THIS PACKAGE.
+
+The working classroom Hall Pass and Check-In systems remain
+authoritative. The existing lunch-number PINs must be preserved,
+not bulk reset or exported into a classroom installer.
+
+The standalone page contains no external libraries, images, server
+addresses, analytics, storage writes, or network requests. It uses
+fictional, local browser-only interaction and cannot submit a pass.
+
+For a real pilot, the rollout team still needs district approval
+for student identity/PIN use, verified Google staff/student auth,
+two physical devices and campus Wi-Fi testing, historical data
+reconciliation, backup/rollback evidence, and monitoring.
+
+Do not put a real kiosk URL on the school network until the
+student-facing pilot is explicitly authorized and tested.
+
+The ZIP has PACKAGE-MANIFEST.json with SHA-256 file checksums.
+Unzipping and completing the preview is not authorization to
+activate any account or student record.
+
+SOURCE: Grantauch/the-desk, schoolwide/teacher-kit
+RELEASE: v0.1.0-prelaunch

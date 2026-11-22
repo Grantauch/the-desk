@@ -1,0 +1,12 @@
+# First regular audit follows the staging 02:05 and host 02:15 backups.
+[Unit]
+Description=Audit staged and live-service on-host backups daily
+
+[Timer]
+OnCalendar=*-*-* 02:35:00
+Persistent=true
+AccuracySec=1min
+Unit=grantdesk-schoolwide-backup-audit.service
+
+[Install]
+WantedBy=timers.target

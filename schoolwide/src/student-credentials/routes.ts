@@ -7,7 +7,7 @@ import { StudentCredentialError, studentActionValues } from './types.js';
 const correlationIdSchema = z.string().uuid();
 const databaseIdSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 const bodySchema = z.object({
-  pin: z.string().regex(/^\d{6}$/),
+  pin: z.string().regex(/^\d{5,6}$/),
   action: z.enum(studentActionValues),
   sectionId: databaseIdSchema.optional(),
   clientAttemptNonce: z.string().min(1).max(256).optional(),
