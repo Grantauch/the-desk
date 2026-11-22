@@ -451,10 +451,10 @@ export function PondApp() {
 
   // These buttons connect existing systems; they never mutate the simulation.
   const jumpToStation = (station: "materials" | "discoveries" | "inhabitants" | "atlas" | "archive") => {
-    if (station === "atlas") setAtlasOpen(true);
+    if (station === "atlas" && pondSize > 192) setAtlasOpen(true);
     const targetId = station === "materials" ? "pond-field-kit"
       : station === "archive" ? "pond-field-archive"
-      : station === "atlas" ? "pond-field-atlas"
+      : station === "atlas" ? (pondSize === 192 ? "pond-world-controls" : "pond-field-atlas")
       : station === "inhabitants" && specimenId ? "pond-field-canvas"
       : station === "inhabitants" && featured ? "pond-place-action"
       : "pond-discovery-lab";
@@ -581,7 +581,7 @@ export function PondApp() {
                 <button type="button" onClick={() => jumpToStation("inhabitants")} aria-label="Go to placing living discoveries" data-suggested={suggestedStation === "inhabitants"}>
                   <Leaf size={16} aria-hidden="true"/><span>Populate</span>
                 </button>
-                <button type="button" onClick={() => jumpToStation("atlas")} aria-label="Open and navigate the world Atlas" data-suggested={suggestedStation === "atlas"}>
+                <button type="button" onClick={() => jumpToStation("atlas")} aria-label="Go to world expansion or Atlas" data-suggested={suggestedStation === "atlas"}>
                   <Map size={16} aria-hidden="true"/><span>Explore</span>
                 </button>
                 <button type="button" onClick={() => jumpToStation("archive")} aria-label="Go to world backups and imports" data-suggested={suggestedStation === "archive"}>
