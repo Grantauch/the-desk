@@ -13,6 +13,8 @@ SW-183 adds `.github/workflows/schoolwide-cross-runner-recovery.yml` with two di
 
 Both modes fail closed unless they are on a hosted GitHub Linux runner with `NODE_ENV=test`, forbidden legacy production writes, explicit synthetic opt-in, the exact short-lived workflow job name and the exact known disposable local PostgreSQL URL. Without opt-in, the workflow expects exit status 3. Neither workflow uses organization credentials, a live SQL service, a production URL, the old Apps Script, or the actual Hall Pass roster. GitHub-hosted worker disks and services are ephemeral.
 
+The standard Schoolwide production firewall permits this **one exact workflow filename only**, not a general `.github/workflows/` exception or filename-prefix match. It statically requires separate hosted source/restore jobs, read-only token permissions, short-lived ciphertext-only artifact tooling, and synthetic opt-in; it rejects manual dispatch, privileged token scopes, release-target authentication, and GitHub secrets. An adversarial local check appended `workflow_dispatch:` and verified the firewall refused it, then restored the original workflow bytes and verified the firewall passed. The first Linux composite CI exposed the missing exact path allowlist entry; that failure was corrected without weakening the isolation rule.
+
 ## Security limitations (important)
 
 - The encryption passphrase is intentionally **public** in the test source. Its purpose is to exercise interoperable encryption/decryption and ciphertext-integrity denial, **NOT to protect a confidential production backup**. Never copy this passphrase into a real script, production key store or offsite backup.
