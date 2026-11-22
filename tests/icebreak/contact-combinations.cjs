@@ -56,6 +56,26 @@ test('glancing check does not arbitrarily erase a viable pass combination',()=>{
  assert.equal(passer.cutReceiver,receiver);
  assert.equal(passer.fallTime,0);
 });
+test('a skater cannot retain a give-and-go run while committing to a check',()=>{
+ const {f,passer,receiver}=readyCut();
+ assert.ok(passer.cutTime>0);
+ assert.equal(f.beginCheck(passer),true);
+ assert.equal(passer.cutTime,0);
+ assert.equal(passer.cutReceiver,null);
+ assert.equal(f.puck.owner,receiver,'a check away from the puck cannot break teammate possession');
+});
+test('passing ignores fallen, stunned and check-committed teammates',()=>{
+ const {f,passer,receiver}=readyCut();
+ const third=f.players[2];
+ Object.assign(passer,{x:13,z:0,stun:.52,fallTime:.52,checkWindow:0,checkRecovery:0});
+ Object.assign(third,{x:7,z:-2,stun:0,fallTime:0,checkWindow:0,checkRecovery:0});
+ Object.assign(receiver,{x:4,z:0,facing:0,stun:0});
+ f.give(receiver);f.pass(receiver);
+ assert.equal(f.puck.passTarget,third,'an upright open player must be chosen over a fallen teammate');
+ f.give(receiver);third.checkWindow=.20;
+ f.pass(receiver);
+ assert.equal(f.puck.owner,receiver,'if all receiving players are checking or down, keep possession');
+});
 test('combination cancellation and recoil stay symmetric across all three rinks and modes',()=>{
  let expected=null;
  for(const mode of ['regular','powerups']){
