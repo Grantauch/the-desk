@@ -42,9 +42,10 @@ test('impact intensity is calculated from actual contact energy',()=>{
 });
 test('impact direction comes from collision side rather than a canned animation',()=>{
  const right=check(8,.11),left=check(8,-.11);
- assert.equal(right.b.impactDir,1);assert.equal(left.b.impactDir,-1);
- assert.equal(right.f.bodyPose(right.b).side,1);
- assert.equal(left.f.bodyPose(left.b).side,-1);
+ // The recipient faces -X: +Z contact arrives on their negative local side.
+ assert.equal(right.b.impactDir,-1);assert.equal(left.b.impactDir,1);
+ assert.equal(right.f.bodyPose(right.b).side,-1);
+ assert.equal(left.f.bodyPose(left.b).side,1);
  assert.ok(right.b.hitFlash>0&&left.b.hitFlash>0);
 });
 test('ordinary unarmed bump has no artificial check animation',()=>{
