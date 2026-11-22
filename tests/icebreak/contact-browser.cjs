@@ -69,7 +69,7 @@ const results=[];
         const after=JSON.stringify([a.x,a.z,a.vx,a.vz,b.x,b.z,b.vx,b.vz,f.puck.owner?.id]);
         return {
          armed,tier:b.impactTier,phase:f.phase,fall:f.fallAmount(b),
-         puckLoose:f.puck.owner===null,recoil:f.impactPose(b),
+         puckLoose:f.puck.owner===null,recoil:f.impactPose(b),gesture:f.bodyPose(b).hit,impactLevel:b.impactLevel,
          power:b.impactPower,span:b.impactSpan,
          counter:a.impactX===-b.impactX&&a.impactZ===-b.impactZ,
          momentumError:Math.abs(momentumAfter-momentumBefore),
@@ -118,7 +118,10 @@ const results=[];
         assert.equal(pause.frozen,true);
         assert.equal(pause.restarted,true);
        }
-       if(reduced)assert.ok(state.recoil<=state.power*.251,'reduced motion must limit recoil amplitude');
+       if(reduced){
+        assert.ok(state.recoil<=state.power*.251,'reduced motion must limit recoil amplitude');
+        assert.ok(state.gesture<=state.impactLevel*.251,'reduced motion must also tone down skater gestures');
+       }else assert.ok(state.gesture>state.impactLevel*.40,'normal motion must keep body language readable');
        else assert.ok(state.recoil>state.power*.9,'normal motion should show full recoil');
       }
       // A passing combination must stop on a real puck-strip, even in the browser.
