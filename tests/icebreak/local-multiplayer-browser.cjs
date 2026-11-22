@@ -140,12 +140,12 @@ const results=[];
       f.render(.28);f.updateHUD();f.possessionHUD();
       document.getElementById('prompt').classList.remove('show');
       const nodes=[...document.querySelectorAll('.player-marker')].filter(n=>!n.hidden);
-      const markerSeats=nodes.map(n=>Number(n.textContent.match(/P([1-8])(?:\\b|$)/)?.[1])).sort((a,b)=>a-b);
+      const markerSeats=nodes.map(n=>Number(n.textContent.match(/P([1-8])$/)?.[1])).sort((a,b)=>a-b);
       const occluders=[document.querySelector('.topbar'),document.getElementById('possessionReadout')];
       if(innerWidth<=760)occluders.push(document.querySelector('.dpad'),document.querySelector('.actions'));
       const boxes=occluders.filter(Boolean).filter(n=>!n.hidden&&getComputedStyle(n).display!=='none').map(n=>n.getBoundingClientRect());
       const crosses=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
-      const goalieMarkers=nodes.filter(n=>/P(?:4|8)(?:\\b|$)/.test(n.textContent));
+      const goalieMarkers=nodes.filter(n=>/P(?:4|8)$/.test(n.textContent));
       const goalieSafe=goalieMarkers.length===2&&goalieMarkers.every(n=>{
        const rect=n.getBoundingClientRect();
        return rect.left>=0&&rect.right<=innerWidth&&rect.top>=0&&rect.bottom<=innerHeight
