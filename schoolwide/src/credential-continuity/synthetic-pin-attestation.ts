@@ -7,6 +7,8 @@
  * Deployment/real-data use requires a separate architecture and privacy review.
  */
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import type { SyntheticNonceConsumption } from './synthetic-nonce-contract.js';
+export type { SyntheticNonceConsumption } from './synthetic-nonce-contract.js';
 
 const VERSION = 1 as const;
 const MAX_TTL_SECONDS = 60;
@@ -48,7 +50,7 @@ export type LegacyPinAttestationVerification = {
   secret: Buffer;
   nowEpochSeconds: number;
   /** Must atomically insert a nonce digest with uniqueness & expiry. Fail closed. */
-  consumeNonceDigest: (nonceDigest: string, expiresAtEpochSeconds: number) => Promise<boolean>;
+  consumeNonceDigest: (consumption: SyntheticNonceConsumption) => Promise<boolean>;
 };
 
 export type VerifiedLegacyPinAttestation = {
@@ -198,7 +200,12 @@ export async function verifySyntheticLegacyPinAttestation(
     .digest('hex');
   let consumed = false;
   try {
-    consumed = await request.consumeNonceDigest(nonceDigest, claims.expiresAt);
+    consumed = await request.consumeNonceDigest({
+      nonceDigest,
+      expiresAtEpochSeconds: claims.expiresAt,
+      issuer: claims.issuer,
+      schoolId: claims.schoolId,
+    });
   } catch { reject(); }
   if (consumed !== true) reject();
 

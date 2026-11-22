@@ -1,44 +1,58 @@
 SCHOOLWIDE · START HERE
-Teacher Setup Preview v0.1.0 — November 2026
+Teacher Setup Preview v0.2.1 — November 2026
 =============================================================
 
 STATUS: TRAINING ONLY. NOT STUDENT-FACING. NOT A LIVE INSTALLER.
 
 1. Unzip this package into a folder on your own computer.
 2. Double-click START-HERE.html to open the guided local preview.
-3. Follow the five steps:
-   - What this system will do once approved
-   - Door Chromebook versus private teacher computer
-   - Existing lunch-number PIN preservation
-   - Fictional kiosk session/privacy reset test
-   - School-approved release-readiness checklist
-4. On the privacy test, choose a fictional 5-digit or 6-digit
-   sample. Click "Finish & clear" or switch browser tabs. The
-   demonstration must return to "Welcome".
-5. Do not enter real student IDs, PINs, email addresses, names,
-   teacher credentials, recovery codes, or school secrets.
+3. Follow the six steps:
+   - What Schoolwide would do after school/district approval
+   - Door Chromebook versus a separate teacher computer
+   - Run OFFLINE browser/layout self-check
+   - Keep existing student lunch PINs; never export PIN Cards
+   - Fictional kiosk session and privacy reset test
+   - Administrator-approved readiness checklist
+4. Read the diagnostic codes on step 3:
+   SW-LOCAL-100: local preview JavaScript works.
+   SW-LOCAL-101: narrow browser screen; recheck full Chromebook.
+   SW-LOCAL-102: pointer support not detected in browser.
+   SW-LOCAL-103: fictional privacy reset still needs rehearsal.
+   SW-REAL-001: school Wi-Fi and Chromebook policy NOT TESTED.
+   SW-REAL-002: real staff identity/section access NOT TESTED.
+   SW-REAL-003: student PIN/roster/recovery NOT TESTED.
+5. On privacy test (step 5), use fictional sample PIN FORMATS
+   only. Click "Finish & clear" or switch browser tabs.
+   The preview must return to "Welcome". The fictional demo
+   clears 15 seconds after starting even without interaction.
+6. For keyboard access, use Tab/Shift+Tab; on the numbered
+   step buttons, use arrow keys or Home/End to navigate.
+   Step 6 provides a printable full setup guide.
+7. NEVER type real student names, lunch numbers, PINs,
+   emails, staff credentials or any recovery code here.
 
 NO SCHOOLWIDE ACCESS IS ENABLED BY THIS PACKAGE.
 
 The working classroom Hall Pass and Check-In systems remain
-authoritative. The existing lunch-number PINs must be preserved,
-not bulk reset or exported into a classroom installer.
+authoritative. Existing student lunch-number PINs must be
+preserved, not bulk reset or exported into the installer.
 
-The standalone page contains no external libraries, images, server
-addresses, analytics, storage writes, or network requests. It uses
-fictional, local browser-only interaction and cannot submit a pass.
+The local device self-check only inspects viewport size and
+the browser's pointer capabilities. It cannot prove the
+Chromebook's touch hardware, Wi-Fi access, school policies,
+real teacher login, roster, student recovery or go-live readiness.
+No network requests, browser storage or school information
+are used by this offline preview.
 
-For a real pilot, the rollout team still needs district approval
-for student identity/PIN use, verified Google staff/student auth,
-two physical devices and campus Wi-Fi testing, historical data
-reconciliation, backup/rollback evidence, and monitoring.
+Before a real pilot, the rollout team still needs district
+approval of student identity/PIN handling, verified Google
+staff/student authentication, both actual physical devices,
+school Wi-Fi, student history reconciliation, PIN recovery,
+backup/rollback proof, privacy review and monitoring.
 
-Do not put a real kiosk URL on the school network until the
-student-facing pilot is explicitly authorized and tested.
+Do not publish or bookmark a real kiosk URL before authorization.
+An offline checklist checkmark is NOT approval to go live.
 
-The ZIP has PACKAGE-MANIFEST.json with SHA-256 file checksums.
-Unzipping and completing the preview is not authorization to
-activate any account or student record.
-
+PACKAGE-MANIFEST.json includes the packaged file SHA-256 hashes.
 SOURCE: Grantauch/the-desk, schoolwide/teacher-kit
-RELEASE: v0.1.0-prelaunch
+RELEASE: v0.2.1-prelaunch
