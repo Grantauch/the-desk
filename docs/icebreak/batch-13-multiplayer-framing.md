@@ -22,6 +22,7 @@ The Batch 12 Chromium multiplayer test now explicitly renders the exact eight-ga
 
 - All **eight human position markers (P1–P8)** are visible, not merely that all eight skaters exist in simulation state.
 - Both goalie marker bounding boxes are inside the viewport and do **not overlap** the scoreboard, possession readout, touch D-pad, or action buttons.
+- The WebGL ice/boards contrast test samples the **median of three interior ice pixels** instead of assuming one fixed pixel cannot contain a blue/red painted rink line when the camera zoom changes. The original brightness contrast threshold is retained.
 - Virtual eight-gamepad play has hidden touch controls because keyboard-1 is unassigned; returning keyboard-1 makes the mobile controls visible again.
 - The inherited keyboard/gampad movement, independent shots, goalie clear, injury skip and basic browser-error tests remain in force.
 
