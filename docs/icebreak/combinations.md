@@ -14,9 +14,11 @@ The critical review identified one-note attack patterns. Batch 07 makes the team
 
 ## Tests (TheAtlas — Nov 22, 2026)
 - Node suite `tests/icebreak/combinations.cjs`: **7 tests** — intended catch, opponent interception, unintended same-team catch, off-puck AI skating, open return, blocked return, and return cooldown.
-- All source ICEBREAK gameplay, physics, injury, one-timer, goalie and arena-equivalence checks: **48/48 pass** on this batch before the final onboarding-copy update.
+- All source ICEBREAK gameplay, physics, injury, one-timer, goalie and arena-equivalence checks: **48/48 pass** on the final gameplay/onboarding implementation (isolated TheAtlas checkout, head `6dc590a`).
 - Dedicated Playwright/Chromium WebGL and Canvas, desktop 1440×900 and touch-sized 390×844: **4/4 combinations acceptance scenarios pass**, including real browser HUD, visible runner marker, return target and no page errors.
-- Combined release browser gate now includes original smoke, first-touch, goalie and combination scenarios; full final gate is required for the ultimate candidate.
+- The combined original smoke + first-touch + goalie + combinations Chromium browser gate: **16/16 pass**, process exit 0 on the final gameplay/onboarding implementation; no JavaScript page errors. A subsequent test-only screenshot cleanup on `8c1c9b8` also passed the dedicated four-scenario browser test.
+- Captured and visually inspected WebGL desktop and Canvas mobile screenshots to verify gold runner halos and visible GIVE & GO labels. Screenshots are QA artifacts in TheAtlas's separate `browser-results/icebreak` checkout, not deployment assets.
+- CI Vercel status for this draft reports `failure` with a `build-rate-limit` upgrade URL, **not** a confirmed ICEBREAK code failure.
 
 ## Dependencies and gaps
 - Draft stacked on Batch 06 PR #490 (upstream chain #473 → #477 → #478 → #482 → #486 → #490).
