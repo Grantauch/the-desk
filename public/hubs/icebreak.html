@@ -708,7 +708,7 @@ function step(dt){
  if(phase!=='playing')return;
  puckPhysics(dt);if(phase==='playing')recordMoment(dt);updatePowerups(dt);if(timeLeft<=0&&phase==='playing')finish();
 }
-function playerMesh(p,t){const col=p.team===0?C.blue:C.red,highlight=p.team===0?C.cyan:C.redLight;const pace=Math.min(1,Math.hypot(p.vx,p.vz)/10),skate=Math.sin(t*15+p.id*2)*.25*pace,turn=p.facing,fx=Math.cos(turn),fz=Math.sin(turn);const fall=fallAmount(p),recoil=impactPose(p),recoilX=p.impactX*recoil*IMPACT_FEEL.bodyRecoil,recoilZ=p.impactZ*recoil*IMPACT_FEEL.bodyRecoil,saveReach=p.goalie&&p.saveFlash>0?Math.sin((1-p.saveFlash/KEEPER.savePose)*Math.PI)*p.saveSide*.5:0,cheer=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie,slump=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team!==goalTeam&&p.goalie,bodyY=(p.goalie?1.3:1.25)-fall*.45+(cheer?Math.sin(t*21+p.id)*.19+.13:0)-(slump?.22:0);
+function playerMesh(p,t){const col=p.team===0?C.blue:C.red,highlight=p.team===0?C.cyan:C.redLight;const pace=Math.min(1,Math.hypot(p.vx,p.vz)/10),skate=Math.sin(t*15+p.id*2)*.25*pace,turn=p.facing,fx=Math.cos(turn),fz=Math.sin(turn);const pose=bodyPose(p),fall=pose.fall,recoil=impactPose(p),recoilX=p.impactX*recoil*IMPACT_FEEL.bodyRecoil,recoilZ=p.impactZ*recoil*IMPACT_FEEL.bodyRecoil,saveReach=p.goalie&&p.saveFlash>0?Math.sin((1-p.saveFlash/KEEPER.savePose)*Math.PI)*p.saveSide*.5:0,cheer=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie,slump=phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team!==goalTeam&&p.goalie,bodyY=(p.goalie?1.3:1.25)-fall*.58-pose.stand*.15-pose.brace*.08+(cheer?Math.sin(t*21+p.id)*.19+.13:0)-(slump?.22:0);
 // Ice shadows: translucent grounding under each animated skater.
 disk(p.x,.03,p.z,p.goalie?.96:.72,[.015,.06,.11],.19);
 // Cyan = assigned input; gold = possession. Facing stays separate from velocity.
@@ -717,6 +717,7 @@ if(p.has)ring(p.x,.052,p.z,.91,C.gold,1);
  if(passPreview(control)===p&&p!==control)ring(p.x,.047,p.z,1.35,C.cyan,.82);
  if(p.cutTime>0&&p.cutReceiver===puck.owner&&!p.has)ring(p.x,.053,p.z,1.48,C.gold,clamp(p.cutTime/COMBO.window,.18,.82));
  if(p.oneTimerFlash>0)ring(p.x,.072,p.z,1.57,C.gold,p.oneTimerFlash/.34);
+ if(pose.stand>0)ring(p.x,.063,p.z,1.23,C.white,pose.stand*.34);
  if(!reducedImpactMotion&&p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
   const fade=p.impactTime/p.impactSpan,col=p.impactTier>=2?C.gold:p.impactTier>=1?C.redLight:C.white;
   ring(p.x,.065,p.z,1.08+(1-fade)*IMPACT_FEEL.ringExpand,col,fade*p.impactPower*.75);
@@ -724,23 +725,23 @@ if(p.has)ring(p.x,.052,p.z,.91,C.gold,1);
 if(p.checkWindow>0||p.hitFlash>0||p.checkRecovery>0&&!p.checkConnected)
  ring(p.x,.058,p.z,1.38,p.hitFlash>0?C.gold:p.checkRecovery>0&&!p.checkConnected?C.redLight:C.white);
 // Body and kit are separate 3D volumes: jersey, shoulder pads, helmet, legs, gloves, stick.
-const lean=clamp(p.skid*.025,-.18,.18)+p.fallSide*fall*1.05+(-fz*p.impactX+fx*p.impactZ)*recoil*.24;
+const lean=clamp(p.skid*.025,-.18,.18)+p.fallSide*fall*1.05+(-fz*p.impactX+fx*p.impactZ)*recoil*.24+pose.swing*.26-pose.miss*.30;
  const tiltX=-fz*p.fallSide*fall*.55,tiltZ=fx*p.fallSide*fall*.55;
  draw(meshes.cyl,p.x+tiltX*.4+recoilX,bodyY-recoil*.07,p.z+tiltZ*.4+recoilZ,.50,.90,.44,col,-turn,1,0,lean);
  cylinder(p.x+tiltX*.4,bodyY+.42-fall*.13,p.z+tiltZ*.4,.38,.12,highlight);
  ball(p.x+tiltX+fx*.17+recoilX*1.35,bodyY+.87-fall*.46-recoil*.08,p.z+tiltZ+fz*.17+recoilZ*1.35,.38,[.09,.17,.24]);
  ball(p.x+tiltX+fx*.34,bodyY+.91-fall*.46,p.z+tiltZ+fz*.17,.12,C.white);
  cube(p.x+tiltX*.28,bodyY+.04-fall*.12,p.z+tiltZ*.28,.93,.11,.87,p.team===0?[.93,.98,1]:[.99,.93,.88],-turn);
-for(let side of [-1,1]){let ox=-fz*side*.23,oz=fx*side*.23;let legX=p.x+ox+fx*.1,legZ=p.z+oz+fz*.1;cube(legX,bodyY-.67+fall*.24,legZ,.22,.68,.25,[.07,.17,.24],-turn+skate*side);cube(legX+fx*.16,.22,legZ+fz*.16,.49,.10,.19,[.035,.08,.15],-turn);ball(p.x+ox*1.75+fx*.11,bodyY+.20,p.z+oz*1.75+fz*.11,.23,col)}
-const blade=stickPoint(p),stickX=blade.x-fx*.28,stickZ=blade.z-fz*.28;if(cheer){cube(p.x-fz*.42,bodyY+1.02,p.z+fx*.42,.065,1.9,.065,[.29,.24,.20],-turn);cube(p.x-fz*.42,bodyY+1.95,p.z+fx*.42,.65,.10,.14,[.14,.19,.22],-turn)}else{cube(stickX,bodyY-.28+fall*.42,stickZ,.065,1.66*(1-fall*.55),.065,[.29,.24,.20],-turn,1);cube(blade.x,.10,blade.z,.55,.13,.16,[.14,.19,.22],-turn)}
+for(let side of [-1,1]){let ox=-fz*side*.23,oz=fx*side*.23;let legX=p.x+ox+fx*.1,legZ=p.z+oz+fz*.1;cube(legX,bodyY-.67+fall*.24+pose.stand*.08,legZ,.22,.68,.25,[.07,.17,.24],-turn+skate*side);cube(legX+fx*.16,.22,legZ+fz*.16,.49,.10,.19,[.035,.08,.15],-turn);ball(p.x+ox*1.75+fx*(.11+pose.swing*.22-pose.miss*.12),bodyY+.20+pose.swing*.16-pose.stand*.12-pose.hit*.09,p.z+oz*1.75+fz*(.11+pose.swing*.22-pose.miss*.12),.23,col)}
+const blade=stickPoint(p),stickX=blade.x-fx*.28,stickZ=blade.z-fz*.28;if(cheer){cube(p.x-fz*.42,bodyY+1.02,p.z+fx*.42,.065,1.9,.065,[.29,.24,.20],-turn);cube(p.x-fz*.42,bodyY+1.95,p.z+fx*.42,.65,.10,.14,[.14,.19,.22],-turn)}else{cube(stickX+fx*pose.swing*.20,bodyY-.28+fall*.42+pose.swing*.17,stickZ+fz*pose.swing*.20,.065,1.66*(1-fall*.55),.065,[.29,.24,.20],-turn+pose.swing*.19-pose.miss*.14,1);cube(blade.x,.10,blade.z,.55,.13,.16,[.14,.19,.22],-turn)}
 if(p.goalie){cube(p.x,1.1,p.z+saveReach,1.05,.6,1.0,[.91,.95,.99]);cube(p.x+fx*.5,.42,p.z+fz*.5+saveReach,.55,.6,.8,[.86,.91,.94]);if(p.saveFlash>0){ball(p.x+fx*.32,1.18,p.z+saveReach*2,.23,C.white);ring(p.x,.052,p.z,1.5,C.gold,p.saveFlash/KEEPER.savePose)}}}
 
 const markerNodes=Array.from({length:8},()=>{const node=document.createElement('div');node.className='player-marker';node.hidden=true;$('shell').appendChild(node);return node});
 function playerMarker(p,x,y){
- const node=markerNodes[players.indexOf(p)],show=phase!=='menu'&&(p.device!=='ai'||p.has||p===injured||(p.cutTime>0&&p.cutReceiver===puck.owner))&&x>0&&x<W&&y>0&&y<H;
+ const node=markerNodes[players.indexOf(p)],show=phase!=='menu'&&(p.device!=='ai'||p.has||p===injured||p.fallTime>0||p.standPose>0||p.hitFlash>.08||(p.cutTime>0&&p.cutReceiver===puck.owner))&&x>0&&x<W&&y>0&&y<H;
  node.hidden=!show;if(!show)return;
  const label=p.device==='ai'?p.name[0]:inputLabel(p.device);
- const status=p.goalie&&p.saveFlash>0?'SAVE!':p.cutTime>0&&p.cutReceiver===puck.owner?'GIVE & GO':p.oneTimerFlash>0?'ONE-TIMER':passPreview(control)===p?'PASS LANE':phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie?'CELEBRATING':p===injured?'INJURED':p.has?'● PUCK':p.fallTime>0?'DOWN':p.stun>0?'STAGGERED':p.checkRecovery>0&&!p.checkConnected?'MISSED':p.balance<.58?'UNSTEADY':p.energy<CHECK.minEnergy?'EXHAUSTED':'';
+ const status=p.goalie&&p.saveFlash>0?'SAVE!':p.cutTime>0&&p.cutReceiver===puck.owner?'GIVE & GO':p.oneTimerFlash>0?'ONE-TIMER':passPreview(control)===p?'PASS LANE':phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie?'CELEBRATING':p===injured?'INJURED':p.fallTime>0?'DOWN':p.standPose>0?'GETTING UP':p.hitFlash>0?'STAGGERED':p.has?'● PUCK':p.stun>0?'STAGGERED':p.checkRecovery>0&&!p.checkConnected?'MISSED':p.balance<.58?'UNSTEADY':p.energy<CHECK.minEnergy?'EXHAUSTED':'';
  const next=status?status+' · '+label:label;
  if(node.textContent!==next)node.textContent=next;
  node.className='player-marker'+(p.has?' carrier':'');node.style.left=x+'px';node.style.top=y+'px';
