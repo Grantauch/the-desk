@@ -32,6 +32,20 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
 }
 @media(prefers-reduced-motion:reduce){.prompt,.overlay,.rink-card,.meter>div{transition:none!important}.flash.active{animation:none;opacity:.12}}
 .moment-label{position:absolute;top:clamp(112px,15vh,180px);left:50%;transform:translateX(-50%);padding:10px 18px;border:1px solid #b4efff77;border-radius:7px;background:#061a2cdd;color:#eafbff;box-shadow:0 10px 38px #0009;letter-spacing:2px;font-weight:950;font-size:clamp(11px,1.4vw,17px);text-align:center;white-space:nowrap;opacity:0;transition:opacity .16s;pointer-events:none}.moment-label.show{opacity:1}@media(max-width:550px){.moment-label{top:100px;max-width:94vw;white-space:normal;letter-spacing:1px;padding:7px 10px}}
+/* Shift Book: device-local, solo-only progression; no network telemetry. */
+.shiftbook{margin:15px 0 3px;padding:13px 15px;border:1px solid #73c9df70;background:#09253bc8;border-radius:10px;display:grid;gap:6px}
+.shiftbook-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;font-weight:950;letter-spacing:1.6px;color:#90e9ff}
+.shiftbook-head small{margin:0;letter-spacing:0;font-size:10px;color:#a3bdce}
+.shiftbook strong{font-size:14px;letter-spacing:.2px;color:#f7fbff}
+.shiftbook p{margin:0!important;max-width:none!important;text-align:left!important;line-height:1.4!important;font-size:11px!important;color:#b6d3df}
+.shiftbook .meta{font-size:11px;color:#ffeaa3;letter-spacing:.2px;font-weight:750}
+.match-report{margin:14px 0 2px;padding:15px;border:1px solid #7ad9f899;background:#082338e8;border-radius:10px;display:grid;gap:9px}
+.match-report h3{font-size:11px;letter-spacing:2px;color:#8be7ff;margin:0}
+.match-report p{font-size:12px!important;line-height:1.5!important;color:#d9ecf7!important;text-align:left!important;margin:0!important;max-width:none!important}
+.match-report .earned{color:#ffe5a0!important;font-weight:850}
+.match-report[hidden],.shiftbook[hidden],.daily-ticker[hidden]{display:none!important}
+.daily-ticker{position:absolute;z-index:1;left:50%;top:147px;transform:translateX(-50%);padding:5px 10px;border:1px solid #a4ddf066;border-radius:20px;background:#04182bdc;font-size:10px;line-height:1.4;letter-spacing:.5px;font-weight:850;color:#fce8ac;white-space:nowrap;text-align:center;pointer-events:none;max-width:90vw}
+@media(max-width:760px){.daily-ticker{top:103px;padding:4px 7px;font-size:9px;white-space:normal;max-width:86vw}.shiftbook{padding:11px}.shiftbook-head{flex-wrap:wrap;gap:3px}}
 </style>
 </head>
 <body>
@@ -40,7 +54,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
   <header class="topbar"><div class="brand"><div class="badge-mark"><svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><path d="M16 1 7 16h8l-3 13 13-18h-9l5-10Z" fill="#7ee9fc"/></svg></div><div><div class="brandname">ICE<b>BREAK</b></div><div class="eyebrow">THE FIRST SHIFT / PUBLIC BETA</div></div></div><div class="scorecard" role="status" aria-live="off"><div class="team"><div class="teamname home">GLACIERS</div><div class="score" id="homeScore">0</div></div><div class="clockzone"><div class="period" id="period">1ST PERIOD</div><div class="clock" id="clock">02:00</div></div><div class="team"><div class="teamname away">EMBERS</div><div class="score" id="awayScore">0</div></div></div><div class="rightTools"><button class="tool" id="viewBtn" type="button" aria-label="Switch to full-rink camera" aria-pressed="true" title="Camera: follow puck">◎</button><button class="tool" id="soundBtn" aria-label="Mute sound" aria-pressed="false" title="Mute sound">♪</button><button class="tool" id="pauseBtn" aria-label="Pause game" title="Pause">Ⅱ</button></div></header>
   <div class="corner-info"><div class="hint"><span class="key">W A S D</span> Skate &nbsp; <span class="key">SHIFT</span> Burst<br/><span class="key">J</span> Pass &nbsp; <span class="key">K</span> Hold to shoot<br/><span class="key">L</span> Check on contact &nbsp; <span class="key">ESC</span> Pause</div></div>
   <div class="status"><div class="tlabel" id="playerName">#09 · CENTER</div><div class="indicator" id="powerStatus">REGULAR · SCHOOL</div><div class="indicator" id="statusText">READY FOR THE DROP</div><div class="meter"><div id="energy"></div></div><div class="indicator" id="meterLabel">SKATING ENERGY</div></div>
-  <div id="possessionReadout" class="possession-readout" hidden></div><div id="puckGuide" class="puck-guide" aria-live="off" hidden></div>
+  <div id="possessionReadout" class="possession-readout" hidden></div><div id="puckGuide" class="puck-guide" aria-live="off" hidden></div><div id="dailyTicker" class="daily-ticker" aria-live="off" hidden></div>
   <div id="prompt" class="prompt" aria-live="polite"></div><div id="momentLabel" class="moment-label" aria-live="polite"></div><div id="flash" class="flash"></div>
   <div class="mobilecontrols" aria-label="Touch game controls"><div class="dpad"><span></span><button class="ctrl" data-key="w" aria-label="Skate up">▲</button><span></span><button class="ctrl" data-key="a" aria-label="Skate left">◀</button><span></span><button class="ctrl" data-key="d" aria-label="Skate right">▶</button><span></span><button class="ctrl" data-key="s" aria-label="Skate down">▼</button><span></span></div><div class="actions"><button class="ctrl" data-key="j">PASS</button><button class="ctrl shoot" data-key="k">SHOOT</button><button class="ctrl check" data-key="l">CHECK</button><button class="ctrl" data-key="shift">BURST</button></div></div>
   <div class="trailtag">FIRST SHIFT · ORIGINAL TEAMS · 3 RINKS · 2 MODES</div>
@@ -56,7 +70,20 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
         <div class="rinks" role="group" aria-label="Rink"><button class="rink-card selected school" data-rink="school" aria-pressed="true"><span class="rink-art"><i></i></span><strong>SCHOOL</strong><small>Friday night lights</small></button><button class="rink-card park" data-rink="park" aria-pressed="false"><span class="rink-art"><i></i></span><strong>PARK</strong><small>Open-air winter</small></button><button class="rink-card mars" data-rink="mars" aria-pressed="false"><span class="rink-art"><i></i></span><strong>MARS</strong><small>Red planet arena</small></button></div>
         <details class="seats"><summary>03 / PLAYER SEATS <span id="seatCount">1 HUMAN · 7 AI</span></summary><p>Each team has exactly one center, one wing, one defender and one goalie. Assign a unique input to any seat; unassigned seats are AI. Up to eight local gamepads are supported. Online multiplayer is not yet available.</p><div id="seatGrid" class="seat-grid"></div><div class="controls-note"><b>Keyboard 1:</b> WASD · J pass · K shoot · L check · Shift burst<br><b>Keyboard 2:</b> arrows · N pass · M shoot · , check · Enter burst<br><b>Gamepads:</b> left stick · A pass · X shoot · B check · RT burst</div></details>
       <p>Build speed, glide and brake into sharp turns. Pass to the highlighted open teammate. After a completed pass, watch for a gold GIVE & GO ring and return the puck to the open runner. Hold SHOOT as an incoming pass reaches your blade for a one-timer, or shoot immediately after receiving for a one-touch finish. Missed checks cost energy and balance.</p>
+        <section id="shiftBook" class="shiftbook" aria-label="Daily challenge and personal records">
+          <div class="shiftbook-head">SHIFT BOOK <small>Solo vs AI · This device only</small></div>
+          <strong id="dailyChallengeName">TODAY'S CHALLENGE</strong>
+          <p id="dailyChallengeDetail">Finish a solo match to attempt today's skill challenge.</p>
+          <div class="meta" id="dailyChallengeRecord">No completed solo matches recorded.</div>
+        </section>
       </div>
+      <section id="matchReport" class="match-report" aria-label="Finished match statistics" hidden>
+        <h3>FINAL SHIFT REPORT</h3>
+        <p id="finalTeamStats"></p>
+        <p id="finalSoloStats"></p>
+        <p class="earned" id="finalAchievements"></p>
+        <p id="finalDaily"></p>
+      </section>
       <button class="primary" id="playBtn">DROP THE PUCK →</button>
       <small id="overlayFooter">GAMEPAD SUPPORTED · LOCAL PLAY · NETWORK PLAY IN A LATER BATCH</small>
     </section>
@@ -65,7 +92,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
 <script>
 (() => {'use strict';
 const $=id=>document.getElementById(id), canvas=$('game');let gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'})||canvas.getContext('webgl',{antialias:true,alpha:false});
-const hud={home:$('homeScore'),away:$('awayScore'),clock:$('clock'),period:$('period'),name:$('playerName'),energy:$('energy'),status:$('statusText'),meterLabel:$('meterLabel'),prompt:$('prompt'),moment:$('momentLabel'),flash:$('flash'),overlay:$('overlay'),title:$('overlayTitle'),mode:$('overlayMode'),desc:$('overlayDesc'),footer:$('overlayFooter'),play:$('playBtn'),setup:$('setup'),power:$('powerStatus'),seatCount:$('seatCount'),seatGrid:$('seatGrid')};
+const hud={home:$('homeScore'),away:$('awayScore'),clock:$('clock'),period:$('period'),name:$('playerName'),energy:$('energy'),status:$('statusText'),meterLabel:$('meterLabel'),prompt:$('prompt'),moment:$('momentLabel'),flash:$('flash'),overlay:$('overlay'),title:$('overlayTitle'),mode:$('overlayMode'),desc:$('overlayDesc'),footer:$('overlayFooter'),play:$('playBtn'),setup:$('setup'),power:$('powerStatus'),seatCount:$('seatCount'),seatGrid:$('seatGrid'),shiftBook:$('shiftBook'),dailyName:$('dailyChallengeName'),dailyDetail:$('dailyChallengeDetail'),dailyRecord:$('dailyChallengeRecord'),dailyTicker:$('dailyTicker'),report:$('matchReport'),reportTeams:$('finalTeamStats'),reportSolo:$('finalSoloStats'),reportAchievements:$('finalAchievements'),reportDaily:$('finalDaily')};
 const fallback2d=!gl,ctx2d=fallback2d?canvas.getContext('2d'):null;if(fallback2d){gl=new Proxy({getShaderParameter:()=>true,getProgramParameter:()=>true},{get:(t,k)=>t[k]||(()=>undefined)})}
 const V=(x=0,y=0,z=0)=>({x,y,z}), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t, len=(x,z)=>Math.hypot(x,z), normalize=(x,z)=>{const d=Math.hypot(x,z)||1;return [x/d,z/d]};
 const UP=V(0,1,0), C={blue:[.15,.64,.95],cyan:[.41,.93,1],red:[1,.31,.23],redLight:[1,.57,.39],ice:[.73,.92,.98],white:[.95,1,1],navy:[.04,.11,.19],deep:[.018,.05,.09],lineBlue:[.12,.40,.79],lineRed:[.77,.15,.24],gold:[1,.88,.45]};
