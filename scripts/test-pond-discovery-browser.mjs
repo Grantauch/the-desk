@@ -53,6 +53,7 @@ async function run(viewport) {
     // The first impression is an intentional, typed HTML fieldbook; no
     // synthetic illustration or misleading scientific instrumentation.
     await page.getByRole("heading", { name: /A little water.*A whole world/ }).waitFor();
+    await page.screenshot({ path: out + "/" + (viewport.width <= 800 ? "mobile-" + viewport.width : "desktop") + "-welcome.png" });
     await page.getByRole("button", { name: "Make a mess" }).click();
     await page.getByRole("heading", { name: /Begin with a drop/ }).waitFor();
     // Desktop keeps three concurrent columns. Mobile presents the pond and
