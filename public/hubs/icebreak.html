@@ -348,9 +348,11 @@ function bodyPose(p){
  const swing=p.checkWindow>0?Math.sin(Math.PI*(1-clamp(p.checkWindow/CHECK.window,0,1))):0;
  const miss=p.checkRecovery>0&&!p.checkConnected?clamp(p.checkRecovery/CHECK.whiffRecovery,0,1):0;
  const follow=p.checkRecovery>0&&p.checkConnected?clamp(p.checkRecovery/CHECK.contactRecovery,0,1):0;
- return {fall,swing,miss,follow,hit:clamp(p.hitFlash/BODY.hitDuration,0,1)*p.impactLevel,
-  stand:clamp(p.standPose/BODY.standDuration,0,1),brace:clamp(p.bracePose/BODY.braceDuration,0,1),
-  side:p.impactDir||1};
+ const motion=reducedImpactMotion?.25:1;
+ return {fall,swing:swing*motion,miss:miss*motion,follow:follow*motion,
+  hit:clamp(p.hitFlash/BODY.hitDuration,0,1)*p.impactLevel*motion,
+  stand:clamp(p.standPose/BODY.standDuration,0,1)*motion,
+  brace:clamp(p.bracePose/BODY.braceDuration,0,1)*motion,side:p.impactDir||1};
 }
 function goal(team){
  if(goalDelay>0)return;
@@ -717,7 +719,7 @@ if(p.has)ring(p.x,.052,p.z,.91,C.gold,1);
  if(passPreview(control)===p&&p!==control)ring(p.x,.047,p.z,1.35,C.cyan,.82);
  if(p.cutTime>0&&p.cutReceiver===puck.owner&&!p.has)ring(p.x,.053,p.z,1.48,C.gold,clamp(p.cutTime/COMBO.window,.18,.82));
  if(p.oneTimerFlash>0)ring(p.x,.072,p.z,1.57,C.gold,p.oneTimerFlash/.34);
- if(pose.stand>0)ring(p.x,.063,p.z,1.23,C.white,pose.stand*.34);
+ if(!reducedImpactMotion&&pose.stand>0)ring(p.x,.063,p.z,1.23,C.white,pose.stand*.34);
  if(!reducedImpactMotion&&p.impactTime>0&&p.impactSpan>0&&p.impactPower>.12){
   const fade=p.impactTime/p.impactSpan,col=p.impactTier>=2?C.gold:p.impactTier>=1?C.redLight:C.white;
   ring(p.x,.065,p.z,1.08+(1-fade)*IMPACT_FEEL.ringExpand,col,fade*p.impactPower*.75);
@@ -834,9 +836,9 @@ function render2d(t){
   if(p.skid>2){ctx.strokeStyle='#ffffffa0';ctx.lineWidth=1.4;for(let z of [-6,6]){ctx.beginPath();ctx.moveTo(-9,z);ctx.lineTo(-17-Math.min(p.skid,8),z);ctx.stroke()}}
    // Contact lean is already handled by impactPose. These remaining gestures
    // communicate committed checks, a recovering player, and hands on ice.
-   if(pose.swing>.05){ctx.strokeStyle='#ecffff';ctx.lineWidth=2+pose.swing*2;ctx.beginPath();ctx.moveTo(4,-6);ctx.lineTo(9+pose.swing*6,-12);ctx.stroke()}
-   if(pose.hit>.05){ctx.strokeStyle='#fff2d4';ctx.lineWidth=1.4+pose.hit*2;ctx.beginPath();ctx.moveTo(12*pose.side,-3);ctx.lineTo((16+pose.hit*9)*pose.side,-8);ctx.moveTo(12*pose.side,4);ctx.lineTo((16+pose.hit*7)*pose.side,9);ctx.stroke()}
-   if(pose.stand>.05){ctx.strokeStyle='#edffff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-9,-9);ctx.lineTo(-14,-14-pose.stand*3);ctx.moveTo(-9,9);ctx.lineTo(-14,14+pose.stand*3);ctx.stroke()}
+   if(!reducedImpactMotion&&pose.swing>.05){ctx.strokeStyle='#ecffff';ctx.lineWidth=2+pose.swing*2;ctx.beginPath();ctx.moveTo(4,-6);ctx.lineTo(9+pose.swing*6,-12);ctx.stroke()}
+   if(!reducedImpactMotion&&pose.hit>.05){ctx.strokeStyle='#fff2d4';ctx.lineWidth=1.4+pose.hit*2;ctx.beginPath();ctx.moveTo(12*pose.side,-3);ctx.lineTo((16+pose.hit*9)*pose.side,-8);ctx.moveTo(12*pose.side,4);ctx.lineTo((16+pose.hit*7)*pose.side,9);ctx.stroke()}
+   if(!reducedImpactMotion&&pose.stand>.05){ctx.strokeStyle='#edffff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-9,-9);ctx.lineTo(-14,-14-pose.stand*3);ctx.moveTo(-9,9);ctx.lineTo(-14,14+pose.stand*3);ctx.stroke()}
    if(p.goalie&&p.saveFlash>0){ctx.fillStyle='#ffffff';ctx.fillRect(10,p.saveSide*9-4,10,9);ctx.strokeStyle='#ffd68b';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.stroke()}ctx.restore();
   const blade=stickPoint(p),[bx,by]=pt(blade.x,blade.z),[hx,hy]=pt(p.x-Math.sin(p.facing)*.38,p.z+Math.cos(p.facing)*.38);ctx.strokeStyle='#725b48';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(bx,by);ctx.stroke();ctx.strokeStyle='#172938';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bx-Math.cos(angle)*3,by-Math.sin(angle)*3);ctx.lineTo(bx+Math.cos(angle)*3,by+Math.sin(angle)*3);ctx.stroke();
   if(phase==='goal'&&replayElapsed<MOMENT.replayStart&&p.team===goalTeam&&!p.goalie){ctx.strokeStyle=blueTeam?'#d8fcff':'#ffe0c9';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y-8);ctx.lineTo(x,y-43-Math.sin(t*19+p.id)*4);ctx.stroke()}
