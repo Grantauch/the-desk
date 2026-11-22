@@ -35,8 +35,8 @@ test('pass selects a more open lane instead of forcing the blocked straight pass
  const {api,f}=fixture();api.start();f.clear();
  const p=f.players[0],mateA=f.players[1],mateB=f.players[2];
  Object.assign(p,{x:0,z:0,facing:0,stun:0});
- Object.assign(mateA,{x:9,z:0,vx:0,vz:0});
- Object.assign(mateB,{x:8,z:6,vx:0,vz:0});
+ Object.assign(mateA,{x:9,z:0,vx:0,vz:0,stun:0});
+ Object.assign(mateB,{x:8,z:6,vx:0,vz:0,stun:0});
  const blockers=f.players.filter(q=>q.team!==p.team&&!q.goalie);
  Object.assign(blockers[0],{x:4,z:0});
  Object.assign(blockers[1],{x:20,z:-8});
