@@ -34,7 +34,9 @@ function walk(root, visitor) {
 
 export function inspectSource(relativeName, source) {
   const normalized = relativeName.replaceAll('\\', '/');
-  if (/\.test\.tsx?$/.test(normalized)) return [];
+  // Standalone synthetic tests may exercise disabled credential modules,
+  // but production source must not import/re-export those test modules.
+  if (/(?:^|\/)[^/]+\.(?:test|spec)\.tsx?$/i.test(normalized)) return [];
   const findings = [];
   const tree = parsed(normalized, source);
   function checkImport(specifier) {
@@ -43,6 +45,12 @@ export function inspectSource(relativeName, source) {
       .replace(/\.(?:[cm]?js|tsx?)$/, '');
     const relativeTarget = relative('/schoolwide/src', target).split(sep).join('/');
     if (blocked.has(relativeTarget)) findings.push(normalized + ' imports protected experimental module ' + relativeTarget);
+    // A production module could otherwise import a *.test.ts fixture which
+    // imports a protected experimental module. The fixture itself is excluded
+    // from scanning by design, so its importers must be rejected instead.
+    if (/(?:^|\/)[^/]+\.(?:test|spec)(?:\/|$)/i.test(relativeTarget)) {
+      findings.push(normalized + ' imports test-only module ' + relativeTarget);
+    }
   }
   walk(tree, node => {
     if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type)

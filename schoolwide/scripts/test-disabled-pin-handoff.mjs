@@ -38,3 +38,42 @@ test('SW-178 application defaults stay disabled even when server supplies no pro
   assert.equal(inspectAppDefaults(unsafe).length, 1);
   assert.equal(inspectAppDefaults('function buildApp(options) {}').length, 1);
 });
+
+
+test('SW-185 refuses application imports of test/spec modules that bypass isolated synthetic source rules', () => {
+  const unsafe = [
+    ['app.ts', "import './credential-continuity/unsafe.test.js';"],
+    ['app.ts', "import type { SyntheticScope } from './credential-continuity/unsafe.test.js';"],
+    ['credential-continuity/routes.ts', "export * from './unsafe.test.js';"],
+    ['student-credentials/session.ts', "await import('../credential-continuity/unsafe.test.js');"],
+    ['student-credentials/session.ts', "require('../credential-continuity/unsafe.spec.js');"],
+    ['app.ts', "import './credential-continuity/unsafe.test';"],
+    ['app.ts', "export { testHelper } from './credential-continuity/nested/unsafe.spec.ts';"],
+  ];
+  for (const [file, source] of unsafe) {
+    assert.ok(inspectSource(file, source).some(message => /test-only|test module|spec module/i.test(message)),
+      'non-test runtime module should be denied: ' + file + ' => ' + source);
+  }
+  // A normal test may import the protected experimental modules to exercise
+  // their disabled contract. The guard must NOT reject isolated test code.
+  assert.deepEqual(
+    inspectSource('credential-continuity/unsafe.test.ts',
+      "import { issueSyntheticLegacyPinAttestation } from './synthetic-pin-attestation.js';"),
+    [],
+  );
+  assert.deepEqual(
+    inspectSource('credential-continuity/unsafe.spec.ts',
+      "export { issueSyntheticLegacyPinAttestation } from './synthetic-pin-attestation.js';"),
+    [],
+  );
+  // Neither an ordinary runtime module nor its normal imports are affected.
+  assert.deepEqual(
+    inspectSource('credential-continuity/routes.ts',
+      "import { foo } from './synthetic-nonce-contract.js';"),
+    [],
+  );
+  assert.deepEqual(
+    inspectSource('app.ts', "import './credential-continuity/ordinary.test-data.js';"),
+    [],
+  );
+});
