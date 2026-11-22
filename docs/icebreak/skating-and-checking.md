@@ -10,11 +10,17 @@ Check arms a 0.29-second contact window. The skater commits to their glide durin
 
 Each attempt spends 17% to 38% of full stamina depending on approach speed. The cooldown is 0.76 seconds and regeneration waits 0.72 seconds after an attempt. Below 62% stamina, acceleration and top speed begin to fall. Under 12%, Check is unavailable. Recovery is 15 percentage points per second while neither bursting nor inside the recovery delay. AI uses the same system to check an opposing carrier when closing from in front.
 
+Heavy checks now also cause a physics-driven knockdown rather than only a stagger: impact severity controls a 0.52–0.82-second fall and recovery, additional 5–16 percentage points of energy loss, and a sliding state with drag of 1.9 per second instead of the upright coast drag of 0.55. The equal-and-opposite impact impulse remains authoritative; visual fall direction is calculated from impact direction. Both WebGL and Canvas show the skater topple and recover, and faceoffs clear the down state. Knockdown severity is an arcade tuning parameter, not a medical injury estimate.
+
 The largest hit freezes the game clock and stops play for five seconds. The timeout can be skipped using the button, Enter, Space or an assigned controller’s A button. The injured skater returns in the same seat for the next faceoff. Stamina and check cooldown carry across the stoppage.
 
 ## Verification
 
 - Run node tests with `node --test tests/icebreak/*.cjs`.
 - Run Chromium playtests with `node tests/icebreak/browser.cjs` after installing the repository's Playwright browser. Screenshots and a renderer report go to `browser-results/icebreak` by default.
-- The focused suite checks impulse and momentum, missed and repeated check costs, natural burst-to-check reach in all three rinks, hit outcomes, injury countdown and skip paths, skating, puck attachment and release, both goal directions, the mode/rink matrix, and eight unique assignments. Chromium checks cover 1440×900 desktop and 390×844 emulated touch in WebGL 2 via SwiftShader and forced Canvas 2D.
+- The focused suite additionally checks knockdown momentum, increased pad friction, defender fatigue, and recovery (18 checks total). It checks impulse and momentum, missed and repeated check costs, natural burst-to-check reach in all three rinks, hit outcomes, injury countdown and skip paths, skating, puck attachment and release, both goal directions, the mode/rink matrix, and eight unique assignments. Chromium checks cover 1440×900 desktop and 390×844 emulated touch in WebGL 2 via SwiftShader and forced Canvas 2D.
 - Physical phones, gamepads, hardware GPU performance and long-session hit balance still need playtesting. Online multiplayer is unimplemented.
+
+## November 22 refinement
+
+The knockdown and recovery implementation is committed to the unmerged feature branch (commits `73e30549` and `8c443840`). All 18 focused tests were executed successfully against the current browser script in an isolated JavaScript harness with mocked DOM and Canvas. This is not a substitute for running the repository's Node test runner, Chromium/WebGL screenshot QA, physical controllers, or real playtesting against another person; those remain release gates for this refinement.
