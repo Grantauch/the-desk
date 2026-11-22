@@ -1663,3 +1663,28 @@
 @media (prefers-reduced-motion: reduce) {
   .field-specimen-card { transition: none; transform: none !important; }
 }
+
+/* The unopened field note is a typeset question, not a glowing AI spark. */
+.field-unmixed-mark {
+  color: #607b64;
+  font: italic 650 2.7rem/.9 "Fraunces", Georgia, serif;
+  transform: rotate(-7deg);
+}
+/* Very short phones: keep the paint strip touchable but reduce the amount of
+   world glass it can obscure before the player scrolls. */
+@media (max-width: 420px) and (max-height: 660px) {
+  .field-mobile-dock {
+    min-height: 51px;
+    padding: 3px;
+    gap: 2px;
+    bottom: max(4px, env(safe-area-inset-bottom));
+    width: min(calc(100% - 10px), 410px);
+  }
+  .field-mobile-dock-tool,
+  .field-mobile-dock-more {
+    gap: 2px;
+    padding: 3px 0;
+    font-size: .54rem;
+  }
+  .field-mobile-dock-color { width: 19px; height: 19px; }
+}
