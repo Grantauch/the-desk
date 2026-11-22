@@ -90,7 +90,7 @@ test('veteran AI chooses more clean-lane shot attempts than rookie under control
   f.setSeed(10119);
   let attempts=0;
   for(let i=0;i<850;i++){
-   Object.assign(p,{x:16,z:0,stun:0,shootWait:0,facing:Math.PI,aiPlanTime:0});
+   Object.assign(p,{x:-16,z:0,stun:0,shootWait:0,facing:Math.PI,aiPlanTime:0});
    f.give(p);f.ai(p,dt);
    if(!p.has)attempts++;
   }
