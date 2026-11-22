@@ -70,6 +70,9 @@ jobs:
       - name: Verify offline teacher preview and build reproducible training-only ZIP
         run: python3 scripts/test-teacher-kit.py && python3 scripts/build-teacher-kit.py && python3 scripts/build-teacher-kit.py --verify
 
+      - name: Verify teacher preview in real Chrome at mobile and desktop sizes
+        run: node scripts/test-teacher-kit-browser.mjs
+
       - name: Upload PRELAUNCH teacher preview (not a student installer)
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
