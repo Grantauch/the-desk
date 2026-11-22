@@ -238,8 +238,12 @@ function sanitizedProgress(value){
 }
 let shiftStorageAvailable=false;
 function loadShiftProgress(){
- try{const json=localStorage.getItem(SHIFT_KEY);shiftStorageAvailable=true;return json?sanitizedProgress(JSON.parse(json)):newProgress()}
+ let json;
+ try{json=localStorage.getItem(SHIFT_KEY);shiftStorageAvailable=true}
  catch{shiftStorageAvailable=false;return newProgress()}
+ if(!json)return newProgress();
+ try{return sanitizedProgress(JSON.parse(json))}
+ catch{return newProgress()} // malformed local data is ignored, not an unavailable browser
 }
 let shiftProgress=loadShiftProgress(),matchStats=null;
 function saveShiftProgress(){
@@ -329,7 +333,7 @@ function renderFinalReport(){
  hud.reportAchievements.textContent=m.unlocked.length?'NEW BADGES · '+m.unlocked.join(' · '):'No new badges this match. Keep improving your personal best.';
  const ch=challengeForDay(m.day),value=challengeValue(m,ch);
  hud.reportDaily.textContent='DAILY · '+ch.label+' · '+Math.min(value,ch.target)+'/'+ch.target+(m.dailyEarned?' · COMPLETE!':'')+
-  ' · '+shiftProgress.daily.streak+'-day streak'+(m.recordSaved?' · Saved on this device':' · Not saved (browser storage unavailable)');
+  ' · '+shiftProgress.daily.streak+'-day streak'+(m.recordSaved?' · Saved on this device':' · Not saved (browser storage unavailable)')+(shiftProgress.daily.day===m.day&&!m.dailyEarned?' · Already completed today':'');
 }
 const keys=new Set(), blue=()=>players.filter(p=>p.team===0&&!p.goalie), red=()=>players.filter(p=>p.team===1&&!p.goalie), dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z), nearest=(list,t)=>list.reduce((best,p)=>!best||dist(p,t)<dist(best,t)?p:best,null);
 function makeTeams(){players=[makePlayer(0,0,-8,0),makePlayer(0,1,-13,-6),makePlayer(0,2,-19,6),makePlayer(1,0,8,0),makePlayer(1,1,13,6),makePlayer(1,2,19,-6),makePlayer(0,3,-25.4,0,true),makePlayer(1,3,25.4,0,true)];for(let p of players)p.device=config.seats[p.team*4+p.id];control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0]}
