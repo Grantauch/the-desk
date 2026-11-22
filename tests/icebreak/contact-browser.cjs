@@ -136,6 +136,8 @@ const results=[];
   }
   assert.ok(results.filter(r=>r.status==='pass'&&r.renderer==='canvas-2d').length===4,
    'all four Canvas/reduced-motion configurations must pass');
+  assert.ok(results.some(r=>r.status==='pass'&&r.renderer==='webgl'),
+   'WebGL must actually be exercised; an unavailable renderer cannot be reported as verified');
   console.log(JSON.stringify({suite:'ICEBREAK contact and passing browser QA',results},null,2));
  }finally{
   await browser.close();server.close();
