@@ -174,3 +174,36 @@ test("machines irrigate rooted neighbours without changing the particle schema",
   assert.equal(sim.grid[sim.idx(96, 98)], E.WATER);
   assert.ok([...sim.grid].every((material) => material <= 20));
 });
+
+
+test("field silhouettes render all six locomotion modes without mutating residents", () => {
+  const sim = newPond();
+  const life = new PondEcosystem();
+  // Classic and procedural identities cover all six existing locomotion modes.
+  const modes = new Map<string, string>();
+  for (const id of ["Fish", "Bird", "Plant", "Robot", "Animal", "Cloud", ...Array.from({ length: 40 }, (_, n) => idFromFacets({ form: n, habitat: 0, force: 0, trait: 0 }))]) {
+    const outcome = getOutcome(id);
+    if (!outcome) continue;
+    const mode = residentProfile(outcome).mode;
+    if (!modes.has(mode)) modes.set(mode, id);
+  }
+  assert.deepEqual([...modes.keys()].sort(), ["drift", "fly", "mechanical", "root", "swim", "walk"]);
+  let x = 75;
+  for (const id of modes.values()) assert.ok(life.add(id, x += 6, 96, sim));
+  const before = life.snapshot();
+  const rectangles: Array<[number, number, number, number]> = [];
+  const context = {
+    canvas: { width: 192, height: 192 },
+    imageSmoothingEnabled: true,
+    fillStyle: "",
+    save() {},
+    restore() {},
+    fillRect(px: number, py: number, width: number, height: number) {
+      assert.ok(width > 0 && height > 0, "silhouette strokes must be positive");
+      rectangles.push([px, py, width, height]);
+    },
+  } as unknown as CanvasRenderingContext2D;
+  life.render(context);
+  assert.ok(rectangles.length > 30, "each mode should draw multiple details");
+  assert.deepEqual(life.snapshot(), before, "drawing cannot advance or change ecology");
+});
