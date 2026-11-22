@@ -16,6 +16,16 @@ export interface Hub {
 
 export const interactiveExperiences: Hub[] = [
   {
+    name: 'icebreak',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'arcade ice hockey game',
+    theme: 'scoreboard',
+    previewEyebrow: '4 on 4 · local multiplayer · beta',
+    href: '/hubs/icebreak.html',
+    blurb: 'Take the ice in a fast local arcade hockey game. Skate, pass, shoot, body-check, and choose School, Park, or Mars. Play against AI or share the rink with up to eight local controller seats using keyboard, touch, or gamepads. First Shift beta; online multiplayer is not available.',
+  },
+  {
     name: 'bridge lab',
     section: 'game',
     course: 'just for fun',
