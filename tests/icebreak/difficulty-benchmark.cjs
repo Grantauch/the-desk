@@ -8,7 +8,7 @@ for(const level of ['rookie','standard','veteran']){
  const samples=[];
  for(const seed of seeds){
   const {api,f}=fixture();
-  api.setSeed(seed);f.config.difficulty=level;api.setMode('regular');api.start();
+  f.setSeed(seed);f.config.difficulty=level;api.setMode('regular');api.start();
   let wall=0,simSeconds=0,matchStart=performance.now();
   while(f.phase!=='finished'&&wall<190){
    api.step(1);wall++;simSeconds++;
