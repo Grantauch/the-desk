@@ -75,6 +75,8 @@ function statusFor(records: readonly ContinuityRecord[]): CredentialContinuityRe
   // A cutover with PROVISION_REQUIRED would strand those students at the kiosk.
   // Never report PASS until every mapped student already has a credential in
   // Schoolwide; approved verifier handoff is a separate, reviewed migration.
+  // An empty source is not evidence that students will be able to sign in.
+  if (records.length === 0) return 'REVIEW';
   return records.some((record) => record.continuityAction !== 'PRESERVE') ? 'REVIEW' : 'PASS';
 }
 function resultFromRows(run: QueryResultRow & { id:string; source_snapshot_fingerprint:string; status:'PASS'|'REVIEW'|'FAIL'; preserve_count:number; provision_required_count:number; blocked_count:number; artifact_digest:string }, records: readonly ContinuityRecord[], artifact: CredentialContinuityResult['recoveryArtifact'], replayed: boolean): CredentialContinuityResult {
