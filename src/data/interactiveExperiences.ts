@@ -74,7 +74,7 @@ export const interactiveExperiences: Hub[] = [
     theme: 'press',
     previewEyebrow: 'september 1939 · invasion of poland',
     href: '/hubs/blitzkrieg/',
-    blurb: 'Hold the road on seven battlefields of September 1939, from a single farm road to the Bzura and Warsaw. Guns earn rank and grow into new forms, blasts leave craters and ruins, and each real battle opens with a briefing on what happened there.',
+    blurb: 'Hold the road on 10 playable maps. Explore scenarios inspired by the September 1939 invasion of Poland, including Bzura and Warsaw, or try two fictional bonus challenges: Signal Junction and Canal Loop.',
   },
   {
     name: 'the roswell signal',
