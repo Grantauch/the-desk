@@ -1,0 +1,67 @@
+# Temporary, branch-scoped authoring workflow.
+# Rebuilds generated Pond assets from their React/TypeScript source.
+# Never deploys to production or writes to main.
+name: Pond field-flow author build
+
+on:
+  push:
+    branches:
+      - feat/pond-cohesive-field-flow-20261122
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pond-field-flow-author-build
+  cancel-in-progress: false
+
+jobs:
+  pond-author:
+    if: github.repository == 'Grantauch/the-desk' && github.ref == 'refs/heads/feat/pond-cohesive-field-flow-20261122' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out the isolated author branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Pond source dependencies
+        run: npm ci --prefix apps/pond --include=dev --no-audit --no-fund
+      - name: Test Pond engine and ecology
+        run: npm --prefix apps/pond run test
+      - name: Build and publish Pond assets inside this branch checkout
+        run: npm --prefix apps/pond run build
+      - name: Verify source and published asset checksums
+        run: node scripts/validate-pond-build.mjs
+      - name: Install site browser-test dependencies
+        run: npm ci --include=dev --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify connected field route, real interactions and save compatibility
+        run: node scripts/test-pond-discovery-browser.mjs
+      - name: Upload acceptance screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pond-field-flow-acceptance
+          path: browser-results/pond-discovery/
+          if-no-files-found: ignore
+          retention-days: 10
+      - name: Commit only rebuilt public Pond bundle on the feature branch
+        if: success()
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- public/hubs/pond/
+          if git diff --cached --quiet; then
+            echo 'Pond assets were already synchronized.'
+            exit 0
+          fi
+          git commit -m 'Pond: publish verified field-flow bundle'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
