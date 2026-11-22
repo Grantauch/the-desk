@@ -519,7 +519,7 @@ export function PondApp() {
             <div>
               <p className="field-eyebrow">01 / OBSERVATION CHAMBER</p>
               <h2>Make a living world<span className="field-heading-dot">.</span></h2>
-              <p className="field-observation-sub">An endless experiment in little things.</p>
+              <p className="field-observation-sub">Paint a habitat, make discoveries, add life, and explore what grows.</p>
             </div>
             <span className="field-chamber-stamp" aria-hidden="true">EST. ∞</span>
           </div>
@@ -712,7 +712,7 @@ export function PondApp() {
                   <p className="field-eyebrow">04 / THE MATERIAL LIBRARY</p>
                   <div className="field-panel-heading">
                     <h2>Field kit</h2>
-                    <span className="field-kit-number">18 MATERIALS</span>
+                    <span className="field-kit-number">18 MATERIALS · 2 TOOLS</span>
                   </div>
                   <p className="field-panel-description">Choose a substance, then paint the world.</p>
                 </div>
