@@ -9,7 +9,7 @@ permissions:
   contents: write
 concurrency:
   group: pond-c03-ink-water
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   pond-author:
     if: github.repository == 'Grantauch/the-desk' && github.ref == 'refs/heads/feat/pond-naturalist-worktable-c03-20261122' && github.actor != 'github-actions[bot]'
@@ -59,6 +59,6 @@ jobs:
             exit 0
           fi
           git commit -m 'Pond C03: commit verified ink-and-water bundle'
-          git fetch origin "${GITHUB_REF_NAME}"
-          git rebase "origin/${GITHUB_REF_NAME}"
+          # A competing branch update must fail rather than silently merge
+          # independently built bundles; rerun from the new branch head instead.
           git push origin "HEAD:${GITHUB_REF_NAME}"
