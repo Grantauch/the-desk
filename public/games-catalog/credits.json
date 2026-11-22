@@ -1,0 +1,477 @@
+[
+  {
+    "game": "bridge lab",
+    "route": "/hubs/bridge-lab/",
+    "source": "https://grant-desk.com/hubs/bridge-lab/",
+    "credit": null,
+    "depicted": "Chromium captured locally while playing the synthetic First Crossing worked example. Car is actually driving across the truss, paused for the still.",
+    "rights": "Own game capture only; does not assert licensing for all underlying game art.",
+    "sourceImageSha256": "1eb3512692e8803008597ae3ed6e4faaec0610a220fef7d6b27ee64675477e1f",
+    "covers": [
+      {
+        "file": "bridge-lab-384.webp",
+        "sha256": "9fe0813dc895339975441fd4bb463f343a43953f310ddebc9b8bb6114ad2a3da",
+        "width": 384,
+        "height": 216,
+        "bytes": 21574
+      },
+      {
+        "file": "bridge-lab-768.webp",
+        "sha256": "c7177c1529c5f96600b4ac544b4570f1a07ab198d547cc8e2ca2110bc830bf05",
+        "width": 768,
+        "height": 432,
+        "bytes": 66148
+      }
+    ]
+  },
+  {
+    "game": "gridiron blitz",
+    "route": "/hubs/gridiron-blitz/",
+    "source": "https://grant-desk.com/hubs/gridiron-blitz/",
+    "credit": null,
+    "depicted": "Fresh solo Full Drive kickoff, centered stadium view at 0 yards and 0 points in the free GrantDesk edition. No move or ability input and no contact.",
+    "rights": "Native procedural stadium, field, generic athletes and HUD painted by the public HTML/JS; no separate raster model, commercial build, uploaded photo, or third-party sports logo in frame. In-site reproduction only; this is not a transferable or blanket IP license.",
+    "sourceImageSha256": "7595bc96075f8ce176519b73f4f71641677477569fb31965696296b558821a7a",
+    "covers": [
+      {
+        "file": "gridiron-blitz-384.webp",
+        "sha256": "8c0ee8d214de4463ca6b1b9f8f410bcba94392836e8616388aff0b6d0ba847b8",
+        "width": 384,
+        "height": 216,
+        "bytes": 14334
+      },
+      {
+        "file": "gridiron-blitz-768.webp",
+        "sha256": "6c347039828dfa6468d213d93127d67f0e35b980dc447a6286abae156faa0ce4",
+        "width": 768,
+        "height": 432,
+        "bytes": 37084
+      }
+    ]
+  },
+  {
+    "game": "blitzkrieg",
+    "route": "/hubs/blitzkrieg/",
+    "source": "https://grant-desk.com/hubs/blitzkrieg/",
+    "credit": null,
+    "depicted": "Play opened the Choose a battlefield menu and rendered ten canvas thumbnails; no map selected, no run and no combat. Cropped x=37–229, y=109–217 (exclusive at right and bottom) from the normal native 480×270 fifth-menu canvas, Mława Line, preserving just illustrated farmland, barns and an unmarked road. The 192×108 crop was resized to 768×432 and encoded, not composited. The artwork is a real in-game menu still, not an archival scene.",
+    "rights": "Procedural game scenery. Source maps mark Mława Line procedural, and public render2.js uses code-drawn terrain for this flag, not assets/terrain.jpg. Independent offline reproduction disabled only drawImage calls to the three uncertain prop-hay, prop-pine and prop-tree rasters; the entire selected crop was exact pixel-identical to the unmodified capture. The alternate test render is not the delivered image. No OG/promo art included. Reuse only in the owner-approved GrantDesk catalog; no wider license or archival authenticity claimed.",
+    "sourceImageSha256": "cd3dc2177a6886f5c4c60fcbf555c12f908f7bc23c8f16da51af07760d6c2cc8",
+    "covers": [
+      {
+        "file": "blitzkrieg-384.webp",
+        "sha256": "704718576020390c96904cdc6fce083401372243bd7085cff40500ebb903e26e",
+        "width": 384,
+        "height": 216,
+        "bytes": 15758
+      },
+      {
+        "file": "blitzkrieg-768.webp",
+        "sha256": "c4e140c98aada2f5962f00e7646a50ad6878e3fcca98f40e33d087dfdba93cc7",
+        "width": 768,
+        "height": 432,
+        "bytes": 36830
+      }
+    ]
+  },
+  {
+    "game": "boss fight review",
+    "route": "/hubs/boss-fight-review.html",
+    "source": "https://grant-desk.com/hubs/boss-fight-review",
+    "credit": null,
+    "depicted": "Opening Gilded Tycoon pre-answer review, showing title and full health/confidence meters. The question and all answer choices are out of frame; no answer, score change or attack taken.",
+    "rights": "Native GrantDesk text, system emoji, and CSS-only page framing and bars; shared OG not used. In-site reproduction only; this is not a transferable or blanket IP license.",
+    "sourceImageSha256": "f2378ae274582360616e622306af653d4e9232bf479fa2c84d462cfb31586c3b",
+    "covers": [
+      {
+        "file": "boss-fight-review-384.webp",
+        "sha256": "b25cf4635758af5b92970eb6d3bc03893358f134ecbd3f88bb7f612abc32cd36",
+        "width": 384,
+        "height": 216,
+        "bytes": 7428
+      },
+      {
+        "file": "boss-fight-review-768.webp",
+        "sha256": "599757e00727e11e439dc37a4a58f1db8053db36344ecbe9afd57d72c11280d8",
+        "width": 768,
+        "height": 432,
+        "bytes": 20030
+      }
+    ]
+  },
+  {
+    "game": "checklings · pixel camp",
+    "route": "/checklings/",
+    "source": "https://grant-desk.com/hubs/checkling/pets/bolt/idle-1.png",
+    "credit": "https://github.com/Grantauch/the-desk/blob/47aac4343722aaf4df4de2e6db776309392595a1/docs/checkling-pond/PIXEL-CAMP.md",
+    "depicted": "Original public Bolt sprite on an explicitly labeled editorial matte. Not a screenshot of a school camp and no sign-in was performed.",
+    "rights": "Documented released original game founder sprite. Simple local editorial background and text; no new generated art and no external overlay or student data.",
+    "sourceImageSha256": "473893077eb0512db965b3d96713875c3ca32e7fffdcc783748baa277da78429",
+    "covers": [
+      {
+        "file": "checklings-384.webp",
+        "sha256": "7c51d1f180686e3c932db0de460f93d29347c0371fa75ccd133c416003d92ea7",
+        "width": 384,
+        "height": 216,
+        "bytes": 6078
+      },
+      {
+        "file": "checklings-768.webp",
+        "sha256": "7edaf58f992672e504aaf7b983808eae3769d8e963e4287953d81a58d7971f75",
+        "width": 768,
+        "height": 432,
+        "bytes": 13002
+      }
+    ]
+  },
+  {
+    "game": "pond",
+    "route": "/hubs/pond/",
+    "source": "https://grant-desk.com/hubs/pond/",
+    "credit": null,
+    "depicted": "Chromium captured the live game dish during a wholly synthetic Fire + Water experiment. The edge fill outside the dish is a simple derived crop backdrop; simulation pixels are from gameplay.",
+    "rights": "Own game capture only; does not assert licensing for all underlying game art.",
+    "sourceImageSha256": "a3bc8b35ec872099d171ed3aa03ab1074fc3fb7661c5163a04f7670d84fa83f3",
+    "covers": [
+      {
+        "file": "pond-384.webp",
+        "sha256": "f0e8142d37d51c6db34c3611c9f1be72ed2567fde98a7fda18da5f8fdae40251",
+        "width": 384,
+        "height": 216,
+        "bytes": 6078
+      },
+      {
+        "file": "pond-768.webp",
+        "sha256": "b241313fe76c301c22890850ce8d5e4d65b618c5b089ee0da9b5d285aed6bb88",
+        "width": 768,
+        "height": 432,
+        "bytes": 17570
+      }
+    ]
+  },
+  {
+    "game": "dry county",
+    "route": "/hubs/dry-county/",
+    "source": "https://grant-desk.com/hubs/dry-county/",
+    "credit": null,
+    "depicted": "How to play panel shown from the initial menu, before Enter Mt. Morris. The application renders its ordinary scene canvas beneath the Help panel; HUD hidden, no route or run started. Crop shows only a quiet rail crossing and houses. No relabeling, only 16:9 crop, resize and WebP encoding.",
+    "rights": "First-party game-code canvas, not a period photo or generated promo illustration. The documented generated assets/noir-title-v1.webp was blocked during capture. In-repository dry-county/NOIR-ART.md describes the operational world textures/lighting/roof geometry separately from the excluded illustrated title. Only repurpose inside owner-approved GrantDesk distribution; no wider license claimed.",
+    "sourceImageSha256": "0ef110b25068f8d7b54906bfede8b135a13ee576f4b99709c4453ea008def9c3",
+    "covers": [
+      {
+        "file": "dry-county-384.webp",
+        "sha256": "d451ca9ad5b508c93d3089f30e562122615da9274e254c74ab988dd744f917ca",
+        "width": 384,
+        "height": 216,
+        "bytes": 9888
+      },
+      {
+        "file": "dry-county-768.webp",
+        "sha256": "d8e6e1fe6f3e1a2a28902fc37ac873724c943f84d8dfbbe1d7481f5138b772dd",
+        "width": 768,
+        "height": 432,
+        "bytes": 21858
+      }
+    ]
+  },
+  {
+    "game": "stop the presses",
+    "route": "/hubs/ush9-stop-the-presses.html",
+    "source": "https://www.loc.gov/item/2018675526/",
+    "credit": "Lewis Wickes Hine, Newsboys, Utica, New York, February 1910. Library of Congress, National Child Labor Committee Collection, nclc 03437.",
+    "depicted": "Three Utica newsboys with newspapers at the edge of frame; a landscape crop from the credited in-game home-screen photograph.",
+    "rights": "Library of Congress item rights advisory: No known restrictions on publication. Crop of existing in-game derivative; not a fresh original scan comparison and explicitly labeled archival, not gameplay.",
+    "sourceImageSha256": "a0526ef4cd84366e6d02b0b2ec4f104f774140e816dd8d5c496179a58f0b7eaf",
+    "covers": [
+      {
+        "file": "ush9-stop-the-presses-384.webp",
+        "sha256": "adfefb04b5493ca82861e8d2f73a122e410a6132a4eb0598097dfea3a379cebc",
+        "width": 384,
+        "height": 216,
+        "bytes": 8742
+      },
+      {
+        "file": "ush9-stop-the-presses-768.webp",
+        "sha256": "d77b20ba5ae0dda0792e81554921edcfc2d377ac652fed199cb42789fe5d1e4e",
+        "width": 768,
+        "height": 432,
+        "bytes": 19288
+      }
+    ]
+  },
+  {
+    "game": "the square deal",
+    "route": "/hubs/ush9-square-deal.html",
+    "source": "https://www.loc.gov/pictures/item/2002718861/",
+    "credit": "The Bosses of the Senate, lithograph by J. Ottmann after Joseph Keppler, Puck, January 23, 1889. Library of Congress Prints and Photographs Division, 2002718861.",
+    "depicted": "A row of industry magnates looms above senators in the existing game’s title cartoon.",
+    "rights": "Library of Congress item rights advisory: No known restrictions on publication. It is a satirical primary-source illustration, not a photograph or a depiction of an actual match.",
+    "sourceImageSha256": "83ea0e83ead05560f97851fa18537fe26dec7d7dd4875a0745dafd1a5de7210d",
+    "covers": [
+      {
+        "file": "ush9-square-deal-384.webp",
+        "sha256": "d7ee7cabdb13dc9691382b6899f5c8a895778f11102eb6a108e0a500fff4a0c7",
+        "width": 384,
+        "height": 216,
+        "bytes": 32096
+      },
+      {
+        "file": "ush9-square-deal-768.webp",
+        "sha256": "e84eabb568074b3f9801ed0e516ea48b242e766d7b23382df6b9c8295253bb8d",
+        "width": 768,
+        "height": 432,
+        "bytes": 122736
+      }
+    ]
+  },
+  {
+    "game": "progressive era jeopardy",
+    "route": "/hubs/ush9-progressive-era-jeopardy-v3.html",
+    "source": "https://grant-desk.com/hubs/ush9-progressive-era-jeopardy-v3",
+    "credit": "GrantDesk in-game interface, offline screenshot of the original student-accessible route.",
+    "depicted": "Actual Front Page board before play: six Progressive Era columns from The Muckrakers through Big Ideas, and 30 point tiles.",
+    "rights": "First-party board UI only. URL blocked offline except the exact HTML fixture; no third-party graphics/fonts loaded. No clue, answer key, team names, host controls, student data or room. No license claim on the Jeopardy name.",
+    "sourceImageSha256": "5baee0a2aa7753026c03f1d170b472aa7f0d2da707969ab6c28860f0ec21a245",
+    "covers": [
+      {
+        "file": "ush9-progressive-era-jeopardy-v3-384.webp",
+        "sha256": "20f4f845d8ae981a3eb830d2f256b0889009c38d06173a342a290701064a3585",
+        "width": 384,
+        "height": 216,
+        "bytes": 13166
+      },
+      {
+        "file": "ush9-progressive-era-jeopardy-v3-768.webp",
+        "sha256": "29c69ca12203a855bf35bf6b65d246654ffb7a9fd73b27c470d67d2e3748ecf9",
+        "width": 768,
+        "height": 432,
+        "bytes": 32258
+      }
+    ]
+  },
+  {
+    "game": "world war i jeopardy",
+    "route": "/hubs/ush9-wwi-jeopardy.html",
+    "source": "https://grant-desk.com/hubs/ush9-wwi-jeopardy",
+    "credit": "GrantDesk in-game interface, offline screenshot of the original student-accessible route.",
+    "depicted": "Actual Studio board before play: six World War I columns from Lighting the Fuse through The Home Front, and 30 point tiles.",
+    "rights": "First-party board UI only. URL blocked offline except the exact HTML fixture; no third-party graphics/fonts loaded. No clue, answer key, team names, host controls, student data or room. No license claim on the Jeopardy name.",
+    "sourceImageSha256": "6d0da274ed3b4ef9794442f41b8f412bf762df6a4fcd6619eada299ef523d532",
+    "covers": [
+      {
+        "file": "ush9-wwi-jeopardy-384.webp",
+        "sha256": "1778a6d29d9525a14699402b1197abbb7f790536188437409695b99b61bbf69d",
+        "width": 384,
+        "height": 216,
+        "bytes": 18416
+      },
+      {
+        "file": "ush9-wwi-jeopardy-768.webp",
+        "sha256": "306bd333a9055b3b3b1cbeb7c606aa88034ebece4f22cb6a2401175e659e865f",
+        "width": 768,
+        "height": 432,
+        "bytes": 45060
+      }
+    ]
+  },
+  {
+    "game": "jeopardy live · student buzzer",
+    "route": "/hubs/jeopardy-buzz.html",
+    "source": "https://grant-desk.com/hubs/jeopardy-buzz",
+    "credit": null,
+    "depicted": "Unmodified public student Join the game screen, offline replay, both fields blank. ABCD is the built-in placeholder, not a room code. No submission or join.",
+    "rights": "Publisher-owned GrantDesk public game UI captured from the unmodified offline page; external fonts/scripts and connections blocked. No imported or generated art.",
+    "sourceImageSha256": "dae7e19237d85e2d4932ab23127006439fea173d86a04d412cec34cc65ed1907",
+    "covers": [
+      {
+        "file": "jeopardy-buzz-384.webp",
+        "sha256": "48f417790ca0d4f61e23023dc8a565ae113b644874efbe9fc2bbb40dfbd82f07",
+        "width": 384,
+        "height": 216,
+        "bytes": 3776
+      },
+      {
+        "file": "jeopardy-buzz-768.webp",
+        "sha256": "8be900e3609ac11e0bcdc7bcf0965f4315554049f3750eec35b747e58d71a329",
+        "width": 768,
+        "height": 432,
+        "bytes": 8602
+      }
+    ]
+  },
+  {
+    "game": "blacktop kings",
+    "route": "/hubs/blacktop-kings.html",
+    "source": "https://grant-desk.com/hubs/blacktop-kings",
+    "credit": null,
+    "depicted": "Solo Quick Game opening intro at fictional Lincoln Lot, no input after selecting Ball, 0–0. Uses the game’s own real procedural fallback court, crowd, players, and HUD; not a claim this is its fully textured live appearance.",
+    "rights": "Code-painted court and ballers from the repo (art-court.js, art-baller.js, game-render.js). Generated raster requests were blocked so only the authored procedural fallback appears; no third-party fonts, game music, or social OG loaded. Owner should retain fallback disclosure with credit. In-site reproduction only; this is not a transferable or blanket IP license.",
+    "sourceImageSha256": "8de477b7c5e8ea718d844f79dfa294e0cc5f1b46d7ae688eedc1162f8a630c68",
+    "covers": [
+      {
+        "file": "blacktop-kings-384.webp",
+        "sha256": "4627a69fee0e1788f39e40e78213fe440a2aec7bd7dfdf220278cfa206bb6da2",
+        "width": 384,
+        "height": 216,
+        "bytes": 14510
+      },
+      {
+        "file": "blacktop-kings-768.webp",
+        "sha256": "1077a233fc1eec6e613c5448550196d18da4ea6075247d47f00f86c00f91cd19",
+        "width": 768,
+        "height": 432,
+        "bytes": 35202
+      }
+    ]
+  },
+  {
+    "game": "tale of the tape",
+    "route": "/hubs/tale-of-the-tape.html",
+    "source": "https://grant-desk.com/hubs/tale-of-the-tape",
+    "credit": null,
+    "depicted": "1934 career creator with all names blanked through the actual UI and the first-party preview portrait visible. Reduced motion prevented the title’s auto demo; no fight, career submission, or save made.",
+    "rights": "Native portrait canvas (portrait.js), authored CSS and browser system fonts. The promotional OG and external fonts were not used. In-site reproduction only; this is not a transferable or blanket IP license.",
+    "sourceImageSha256": "cd4cb60ad479f4613048675497a3d4852d0a95c106417cc3c765e508cf75816a",
+    "covers": [
+      {
+        "file": "tale-of-the-tape-384.webp",
+        "sha256": "3c70b40d0cbd18f2b650a1b4d08a34697ea4ff7d2ff304ea455b5f959c59e6e3",
+        "width": 384,
+        "height": 216,
+        "bytes": 12120
+      },
+      {
+        "file": "tale-of-the-tape-768.webp",
+        "sha256": "8295cb434dc4e80bd03a013dbab58818a76398f16348d8e72c814dd544005bd4",
+        "width": 768,
+        "height": 432,
+        "bytes": 47840
+      }
+    ]
+  },
+  {
+    "game": "the league",
+    "route": "/hubs/the-league.html",
+    "source": "https://grant-desk.com/hubs/the-league",
+    "credit": null,
+    "depicted": "Fresh solo franchise with synthetic local Harbor Comets and built-in fictional opponents. Displays first lot at its $1 opening price before any bid. Local sandbox state only; no contact, network, or student data.",
+    "rights": "Native GrantDesk markup, inline item SVG, and authored CSS. No archival or third-party image; Harbor Comets is a synthetic session input, not a real class or person. In-site reproduction only; this is not a transferable or blanket IP license.",
+    "sourceImageSha256": "7d6488023dabc166ee29d861e97b2b7b3cf56f6fe0fb90097d033b2c58289cc6",
+    "covers": [
+      {
+        "file": "the-league-384.webp",
+        "sha256": "7a2cfe588106364ca329cb61633c54c24a9387d63aeca3a36ab062a689b46e37",
+        "width": 384,
+        "height": 216,
+        "bytes": 9458
+      },
+      {
+        "file": "the-league-768.webp",
+        "sha256": "661263c7fc9773d8031d055bc7f9a9647507941ad0463c36c168acf1282dcaca",
+        "width": 768,
+        "height": 432,
+        "bytes": 23616
+      }
+    ]
+  },
+  {
+    "game": "classroom jeopardy",
+    "route": "/hubs/classroom-jeopardy.html",
+    "source": "https://grant-desk.com/hubs/classroom-jeopardy",
+    "credit": null,
+    "depicted": "Fresh offline selected category board using exact game runtime. Prices/category headings only; no clue opened, answer, teacher session, or learner data.",
+    "rights": "Publisher-owned GrantDesk public game UI captured from the unmodified offline page; external fonts/scripts and connections blocked. No imported or generated art.",
+    "sourceImageSha256": "e82d32bcb6f8a22ee79c3c0cb09cfa946e353b33370bf38e3c9a689b5061c78c",
+    "covers": [
+      {
+        "file": "classroom-jeopardy-384.webp",
+        "sha256": "13d957c88b214c05415280c269c1e52e91c0d24602f3e3997715a85ac548adc2",
+        "width": 384,
+        "height": 216,
+        "bytes": 17580
+      },
+      {
+        "file": "classroom-jeopardy-768.webp",
+        "sha256": "c9871f86e20b06f074547ef22af1dc0827557a9bfccb9bf99185685d525b30bf",
+        "width": 768,
+        "height": 432,
+        "bytes": 42340
+      }
+    ]
+  },
+  {
+    "game": "robber barons",
+    "route": "/hubs/robber-barons.html",
+    "source": "https://grant-desk.com/hubs/robber-barons",
+    "credit": "GrantDesk Classic board interface and built-in minimal game tokens, offline screenshot.",
+    "depicted": "Bottom of the actual Classic 32-space board in its untouched opening state: Gilded Age board styling, industrial properties, railroads and four starting tokens by Payday. No sidebar, player labels or online setup.",
+    "rights": "Only the first-party offline fallback board UI is included. Unverified menu poster, portraits, remote assets and external VFX were excluded. No purchase, roll, personal name, join code or connected session; screenshot does not represent the optional poster.",
+    "sourceImageSha256": "abb7ab3f1ef3ab15a45d059a02eeeb1081f3c52778b011890fce244314a2274c",
+    "covers": [
+      {
+        "file": "robber-barons-384.webp",
+        "sha256": "3fdaa793112ca249769f779fa985844e08f51b6480a78e9a39616385859e6c1c",
+        "width": 384,
+        "height": 216,
+        "bytes": 12358
+      },
+      {
+        "file": "robber-barons-768.webp",
+        "sha256": "f6a40749f731c30ea24db87b01482616e93ce504fb83739d4daa2133955fa97e",
+        "width": 768,
+        "height": 432,
+        "bytes": 47358
+      }
+    ]
+  },
+  {
+    "game": "jeopardy: hidden history unit 1",
+    "route": "/hubs/jeopardy-hidden-history-unit1.html",
+    "source": "https://grant-desk.com/hubs/jeopardy-hidden-history-unit1",
+    "credit": null,
+    "depicted": "Fresh offline selected category board using exact game runtime. Prices/category headings only; no clue opened, answer, teacher session, or learner data.",
+    "rights": "Publisher-owned GrantDesk public game UI captured from the unmodified offline page; external fonts/scripts and connections blocked. No imported or generated art.",
+    "sourceImageSha256": "f124d31262fdd3a49f1d82990198b3c445448e0e475893ffc8c140a469e48eed",
+    "covers": [
+      {
+        "file": "jeopardy-hidden-history-unit1-384.webp",
+        "sha256": "5fd250f04cdab4f1236ef691985a6fd9c18458b401f0c10ef64b52419cf606d1",
+        "width": 384,
+        "height": 216,
+        "bytes": 12126
+      },
+      {
+        "file": "jeopardy-hidden-history-unit1-768.webp",
+        "sha256": "ccc4506547a29c765c905c12cd5ebde131af6dd815bd9530a7cbdb8935cad564",
+        "width": 768,
+        "height": 432,
+        "bytes": 29416
+      }
+    ]
+  },
+  {
+    "game": "jeopardy: scoreboard unit 1",
+    "route": "/hubs/jeopardy-scoreboard-unit1.html",
+    "source": "https://grant-desk.com/hubs/jeopardy-scoreboard-unit1",
+    "credit": null,
+    "depicted": "Fresh offline selected category board using exact game runtime. Prices/category headings only; no clue opened, answer, teacher session, or learner data.",
+    "rights": "Publisher-owned GrantDesk public game UI captured from the unmodified offline page; external fonts/scripts and connections blocked. No imported or generated art.",
+    "sourceImageSha256": "130a1fc310b8e4fd1d8dc14f60ec1405389a470f83fc52a27dccd769b56df8c9",
+    "covers": [
+      {
+        "file": "jeopardy-scoreboard-unit1-384.webp",
+        "sha256": "a852b0856cf654f5bb092c10bcc95e5a138c85744fb61021d8d59ad309755ca6",
+        "width": 384,
+        "height": 216,
+        "bytes": 14508
+      },
+      {
+        "file": "jeopardy-scoreboard-unit1-768.webp",
+        "sha256": "8275a9116186634662022c9d41022023b4d0ead0d6c79f8391b3b3eed78d4b8a",
+        "width": 768,
+        "height": 432,
+        "bytes": 41898
+      }
+    ]
+  }
+]
