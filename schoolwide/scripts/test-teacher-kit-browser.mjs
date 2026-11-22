@@ -70,7 +70,7 @@ try {
   }
   async function waitForPage() {
     for (let attempt = 0; attempt < 60; attempt += 1) {
-      const ready = await evaluate('document.readyState==="complete" && document.querySelectorAll("[data-page]").length===5');
+      const ready = await evaluate('document.readyState==="complete" && document.querySelectorAll("[data-page]").length===6');
       if (ready) return;
       await new Promise(resolve => setTimeout(resolve, 60));
     }
@@ -86,32 +86,60 @@ try {
   assert.equal(mobile.width, 390);
   assert.equal(mobile.innerWidth, 390);
   assert.equal(mobile.scrollWidth, 390, 'Mobile preview must never scroll horizontally');
+  await call('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 1, mobile: true });
+  const small = await evaluate('({width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth})');
+  assert.equal(small.width, 320);
+  assert.equal(small.scrollWidth, 320, 'Narrow 320px view must not scroll horizontally');
+  await call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
 
-  await evaluate('document.querySelectorAll("[data-step-button]")[3].click()');
-  assert.equal(await evaluate('document.querySelector("[data-page]:not([hidden])").getAttribute("data-page")'), '3');
+  await evaluate('document.querySelectorAll("[data-step-button]")[2].click()');
+  assert.equal(await evaluate('document.querySelector("[data-page]:not([hidden])").getAttribute("data-page")'), '2');
+  assert.match(await evaluate('(document.getElementById("device-run").click(),document.getElementById("device-results").innerText)'), /SW-LOCAL-101/);
+  assert.match(await evaluate('document.getElementById("device-results").innerText'), /SW-REAL-003/);
+  assert.match(await evaluate('document.getElementById("device-status").textContent'), /unverified/);
+
+  await evaluate('document.querySelectorAll("[data-step-button]")[4].click()');
+  assert.equal(await evaluate('document.querySelector("[data-page]:not([hidden])").getAttribute("data-page")'), '4');
   assert.equal(await evaluate('(document.getElementById("demo-five").click(),document.getElementById("demo-value").textContent)'), 'Sample request recorded');
   assert.equal(await evaluate('(window.dispatchEvent(new Event("blur")),document.getElementById("demo-value").textContent)'), 'Welcome', 'Kiosk session must reset on focus loss');
   assert.equal(await evaluate('(document.getElementById("demo-six").click(),document.getElementById("demo-clear").click(),document.getElementById("demo-value").textContent)'), 'Welcome', 'Kiosk session must reset on finish');
+  assert.equal(await evaluate('(document.getElementById("demo-five").click(),window.dispatchEvent(new Event("pagehide")),document.getElementById("demo-value").textContent)'), 'Welcome', 'Kiosk session must reset on pagehide');
+  assert.equal(await evaluate('(()=>{const original=window.setTimeout;let task;window.setTimeout=(fn,ms)=>{task={fn,ms};return 9999};document.getElementById("demo-five").click();window.setTimeout=original;if(task?.ms!==15000)return false;task.fn();return document.getElementById("demo-value").textContent==="Welcome"})()'), true, 'Fictional session must register a 15-second automatic reset');
 
-  await evaluate('document.querySelectorAll("[data-step-button]")[4].click()');
+  await evaluate('document.querySelectorAll("[data-step-button]")[5].click()');
   assert.equal(await evaluate('document.getElementById("review-button").disabled'), true);
   assert.equal(await evaluate('(document.querySelectorAll("#checks input").forEach(x=>{x.checked=true;x.dispatchEvent(new Event("change"))}),document.getElementById("review-button").disabled)'), false);
   await evaluate('document.getElementById("review-button").click()');
   assert.match(await evaluate('document.getElementById("review-status").textContent'), /administrator must authorize/);
+  assert.equal(await evaluate('(()=>{window.print=()=>{window.__printed=true};document.getElementById("print-guide").click();return window.__printed})()'), true);
+  await evaluate('document.querySelectorAll("[data-step-button]")[2].focus()');
+  await evaluate('document.querySelectorAll("[data-step-button]")[2].dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight",bubbles:true}))');
+  assert.equal(await evaluate('document.querySelector("[data-page]:not([hidden])").getAttribute("data-page")'), '3');
+  assert.equal(await evaluate('document.activeElement.getAttribute("data-step-button")'), '3');
 
   await call('Emulation.setDeviceMetricsOverride', { width: 1440, height: 950, deviceScaleFactor: 1, mobile: false });
   await call('Page.navigate', { url: html });
   await waitForPage();
   const desktop = await evaluate('({width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth})');
+  await evaluate('document.querySelectorAll("[data-step-button]")[2].click()');
+  const desktopChecks = await evaluate('(document.getElementById("device-run").click(),document.getElementById("device-results").innerText)');
+  assert.match(desktopChecks, /SW-LOCAL-110/);
+  assert.match(desktopChecks, /SW-REAL-001/);
   assert.ok(desktop.width >= 1400 && desktop.width <= 1440, 'Desktop width must account for OS scrollbar');
   assert.equal(desktop.scrollWidth, desktop.width, 'Desktop preview must not overflow horizontally');
-  assert.equal(await evaluate('document.querySelector("[data-page]:not([hidden])").getAttribute("data-page")'), '0');
+  await call('Emulation.setEmulatedMedia', { media: 'print' });
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-page][hidden]")).display'), 'block', 'Printed guide must include all six stages');
+  await call('Emulation.setEmulatedMedia', { media: 'screen' });
+  assert.equal(await evaluate('document.querySelector("[data-page]:not([hidden])").getAttribute("data-page")'), '2');
 
   console.log(JSON.stringify({
     result: 'TEACHER_PRELAUNCH_CHROME_PASS',
     mobile, desktop,
     privacyReset: true,
     uncheckedReviewDenied: true,
+    offlineDiagnostics: true,
+    keyboardNavigation: true,
+    printControl: true,
     realNetworkRequired: false,
     studentDataUsed: false,
   }));
