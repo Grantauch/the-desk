@@ -15,8 +15,10 @@ grant-server (OVH VPS, Virginia). Owner Claude. Port 4200 on 127.0.0.1, range 42
 | `/srv/play/app` | server.mjs, package.json, package-lock.json and node_modules |
 | `/etc/systemd/system/play.service` | the service, runs as the `play` system user |
 | `/etc/caddy/sites/play.caddy` | the public site |
+| `/etc/caddy/sites/play-freegameplace.caddy` | `play.freegameplace.com`, the same server for games on freegameplace.com |
+| `/etc/systemd/system/play.service.d/origins.conf` | sets `ORIGINS` to grant-desk.com and freegameplace.com |
 
-DNS: `play.grant-desk.com` A record to the server's IPv4, DNS only.
+DNS: `play.grant-desk.com` and `play.freegameplace.com` A records to the server's IPv4, DNS only.
 
 ## Deploy
 
@@ -24,9 +26,11 @@ Copy `server.mjs`, `package.json` and `package-lock.json` to `/srv/play/app`, ru
 
 ## Test
 
-`npm test` starts a private copy and checks codes, joining, relaying, a full room, a bad code, reconnecting, losing, quick match, a disconnect forfeit and the origin check. `PLAY_URL=wss://play.grant-desk.com/ws PLAY_ORIGIN=https://grant-desk.com npm test` runs the same checks against the live server.
+`npm test` starts a private copy and checks codes, joining, relaying, a full room, a bad code, reconnecting, losing, quick match, a disconnect forfeit, site separation and the origin check. `PLAY_URL=wss://play.grant-desk.com/ws PLAY_ORIGIN=https://grant-desk.com npm test` runs the same checks against the live server.
 
-Only pages served from `https://grant-desk.com` may connect. Set `ORIGINS` in the unit to allow another site.
+Only pages served from `https://grant-desk.com` and `https://freegameplace.com` (with their www addresses) may connect. `ORIGINS` is set in `/etc/systemd/system/play.service.d/origins.conf`.
+
+Players from freegameplace.com and players from grant-desk.com never meet. Quick match keeps a separate queue for each site, and a room code only works for players from the site that made it. The site comes from the page's origin when the player connects.
 
 ## Games
 
