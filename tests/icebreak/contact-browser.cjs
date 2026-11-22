@@ -88,10 +88,14 @@ const results=[];
        assert.equal(state.puckLoose,tier>=1);
        assert.equal(state.overflow,false);
        if(tier===2)assert.ok(state.fall>0);
+       if(tier===3){
+        // The overlay fades in; ensure screenshots show the stopped-play UI.
+        await page.waitForFunction(()=>getComputedStyle(document.getElementById('overlay')).opacity==='1',null,{timeout:3000});
+       }
        await page.screenshot({path:path.join(out,prefix+'-tier-'+tier+'.png')});
        if(tier===3){
         assert.equal(state.phase,'injury');
-        assert.match(await page.locator('#overlayTitle').innerText(),/INJURY TIMEOUT/);
+        assert.match(await page.locator('#overlayTitle').textContent(),/INJURY TIMEOUT/);
         assert.equal(state.fall,1,'injured player must remain down while play stops');
         const pause=await page.evaluate(()=>{
          const f=window.fixture,api=window.__ICEBREAK_TEST__,clock=api.getState().timeLeft;
