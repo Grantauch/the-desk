@@ -1,0 +1,117 @@
+name: Schoolwide Cross-Runner Synthetic Recovery
+
+on:
+  push:
+    branches:
+      - 'schoolwide/**'
+    paths:
+      - 'schoolwide/scripts/ci-cross-runner-synthetic-recovery.sh'
+      - 'schoolwide/db/migrations/**'
+      - '.github/workflows/schoolwide-cross-runner-recovery.yml'
+  pull_request:
+    paths:
+      - 'schoolwide/scripts/ci-cross-runner-synthetic-recovery.sh'
+      - 'schoolwide/db/migrations/**'
+      - '.github/workflows/schoolwide-cross-runner-recovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package_synthetic:
+    name: Generate fictional encrypted backup
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: grantdesk_schoolwide_export_ci
+          POSTGRES_USER: grantdesk
+          POSTGRES_PASSWORD: grantdesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U grantdesk -d grantdesk_schoolwide_export_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: schoolwide
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide_export_ci
+      LEGACY_PRODUCTION_WRITES: forbidden
+    steps:
+      - name: Checkout isolated Schoolwide sources
+        uses: actions/checkout@v7
+      - name: Node 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install and apply migrations to fresh fictional database
+        run: npm ci --no-audit --no-fund && npm run db:migrate
+      - name: Deny recovery export without synthetic opt-in
+        run: |
+          set +e
+          bash scripts/ci-cross-runner-synthetic-recovery.sh export
+          status=$?
+          set -e
+          test "$status" -eq 3
+      - name: Encrypt synthetic PostgreSQL backup in first CI runner
+        env:
+          SCHOOLWIDE_CROSS_RUNNER_SYNTHETIC: 'true'
+        run: bash scripts/ci-cross-runner-synthetic-recovery.sh export
+      - name: Transfer ONLY fictional encrypted archive and manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: schoolwide-sw183-fictional-encrypted
+          path: schoolwide/out/sw183-cross-runner/
+          if-no-files-found: error
+          retention-days: 1
+
+  restore_synthetic:
+    name: Restore fictional backup on separate CI runner
+    needs: package_synthetic
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: grantdesk_schoolwide_restore_ci
+          POSTGRES_USER: grantdesk
+          POSTGRES_PASSWORD: grantdesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U grantdesk -d grantdesk_schoolwide_restore_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: schoolwide
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide_restore_ci
+      LEGACY_PRODUCTION_WRITES: forbidden
+    steps:
+      - name: Checkout recovery test (not a deployment)
+        uses: actions/checkout@v7
+      - name: Download only encrypted fictional backup into second runner
+        uses: actions/download-artifact@v4
+        with:
+          name: schoolwide-sw183-fictional-encrypted
+          path: schoolwide/out/sw183-cross-runner/
+      - name: Deny recovery restore without synthetic opt-in
+        run: |
+          set +e
+          bash scripts/ci-cross-runner-synthetic-recovery.sh restore
+          status=$?
+          set -e
+          test "$status" -eq 3
+      - name: Verify artifact and restore fictional PostgreSQL on separate runner
+        env:
+          SCHOOLWIDE_CROSS_RUNNER_SYNTHETIC: 'true'
+        run: bash scripts/ci-cross-runner-synthetic-recovery.sh restore
