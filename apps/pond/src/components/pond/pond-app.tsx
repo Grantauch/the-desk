@@ -64,6 +64,7 @@ export function PondApp() {
   const lastAtlasRefresh = useRef(0);
   const [panMode, setPanMode] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
+  const dishRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
   const [saveMessage, setSaveMessage] = useState("Saves in this browser. Export to keep a copy.");
@@ -491,7 +492,7 @@ export function PondApp() {
             </div>
             <span className="field-chamber-stamp" aria-hidden="true">EST. ∞</span>
           </div>
-          <div className="field-stage-plinth">
+          <div className="field-stage-plinth" ref={dishRef}>
             <span className="field-plinth-tick field-plinth-tick--top" aria-hidden="true">N · 00</span>
             <span className="field-plinth-tick field-plinth-tick--left" aria-hidden="true">FIELD / A</span>
             <span className="field-plinth-tick field-plinth-tick--right" aria-hidden="true">SPECIMEN / 01</span>
@@ -588,6 +589,13 @@ export function PondApp() {
                       setSpecimenId(featured.id);
                       setPanMode(false);
                       setLastMix("Place " + featured.name + ": tap or press Enter on the pond to add a living specimen. Each creation moves and affects its surroundings.");
+                      if (window.matchMedia("(max-width: 800px)").matches) {
+                        window.requestAnimationFrame(() => {
+                          const canvas = dishRef.current?.querySelector("canvas");
+                          canvas?.scrollIntoView({ block: "center", behavior: "instant" });
+                          canvas?.focus({ preventScroll: true });
+                        });
+                      }
                     }} className="field-secondary-action">
                       <Leaf size={15} aria-hidden="true"/> Place in pond
                     </button>
