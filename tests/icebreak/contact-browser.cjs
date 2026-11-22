@@ -61,6 +61,7 @@ const results=[];
         const momentumAfter=a.vx*mass[a.id]+b.vx*mass[b.id];
         // Allow the same 90 Hz simulation to start the fall before screenshot.
         api.step(.08);
+        if(f.phase!=='injury')f.setPaused(true); // Freeze the pose for reproducible screenshots.
         // Render the middle of the physical response; no new impulse is introduced.
         a.impactTime=a.impactSpan*.52;b.impactTime=b.impactSpan*.52;
         const before=JSON.stringify([a.x,a.z,a.vx,a.vz,b.x,b.z,b.vx,b.vz,f.puck.owner?.id]);
@@ -119,7 +120,7 @@ const results=[];
        const activated=passer.cutTime>0&&passer.cutReceiver===receiver&&f.puck.owner===receiver;
        Object.assign(hitter,{x:receiver.x-1.06,z:receiver.z,vx:8,vz:0,facing:0,stun:0,energy:1,check:0,checkWindow:0});
        Object.assign(receiver,{vx:0,vz:0,stun:0,balance:1,brace:0});
-       f.beginCheck(hitter);f.collideSkaters(hitter,receiver);f.render(.2);
+       f.beginCheck(hitter);f.collideSkaters(hitter,receiver);f.setPaused(true);f.render(.2);
        return {activated,loose:f.puck.owner===null,canceled:passer.cutTime===0&&passer.cutReceiver===null,impact:receiver.impactPower>0};
       });
       assert.deepEqual(combo,{activated:true,loose:true,canceled:true,impact:true});
