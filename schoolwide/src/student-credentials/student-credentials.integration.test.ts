@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { randomUUID, scryptSync } from 'node:crypto';
+import { createHash, randomUUID, scryptSync } from 'node:crypto';
 import test from 'node:test';
 import { Pool, type PoolClient, type QueryResultRow } from 'pg';
 import { buildApp } from '../app.js';
@@ -512,6 +512,56 @@ test('SW-050 student credential and action proof service', { skip: !databaseUrl 
         } finally {
           await app.close();
         }
+      });
+    });
+
+    await t.test('T-PIN-022 imported fictional Hall Pass PIN hash upgrades on original PIN without resetting it', async () => {
+      await withFixture(pool, async ({ service, client, base }) => {
+        const existingPin = '001234'; // Fictional six-digit lunch-number form.
+        // Simulate receiving only the existing Apps Script SHA-256/WebSafe verifier,
+        // not the PIN Cards sheet or any real student's secret.
+        const existingWebSafeHash = createHash('sha256')
+          .update(TEST_LEGACY_SALT + ':' + existingPin, 'utf8')
+          .digest('base64').replace(/\+/g, '-').replace(/\//g, '_');
+        await client.query(
+          `INSERT INTO student_credentials
+             (school_id, student_id, verifier_scheme, secret_hash, verifier_params)
+           VALUES ($1,$2,'LEGACY_SHA256_SALT_V1',$3,'{"compatibilityOnly":true}'::jsonb)`,
+          [base.schoolA, base.studentA, existingWebSafeHash],
+        );
+
+        // A numerically similar five-digit PIN must not be silently padded.
+        await expectCode(service.authorizeAction({
+          identityAssertion: 'student-a', pin: '01234',
+          action: 'CHECKIN', sectionId: base.sectionA1, correlationId: randomUUID(),
+        }), 'PIN_INVALID');
+
+        // The same six-digit PIN used in the existing Hall Pass authorizes the
+        // first action. This is a verifier upgrade, NOT an issuance or rotation.
+        const first = await service.authorizeAction({
+          identityAssertion: 'student-a', pin: existingPin,
+          action: 'CHECKIN', sectionId: base.sectionA1, correlationId: randomUUID(),
+        });
+        assert.equal(first.studentId, base.studentA);
+        const after = await client.query<{
+          verifier_scheme: string; credential_version: number; secret_hash: string; secret_salt: string | null;
+        }>(
+          'SELECT verifier_scheme, credential_version, secret_hash, secret_salt FROM student_credentials WHERE student_id=$1',
+          [base.studentA],
+        );
+        assert.equal(after.rows[0]?.verifier_scheme, 'SCRYPT_PEPPER_V1');
+        assert.equal(after.rows[0]?.credential_version, 2);
+        assert.notEqual(after.rows[0]?.secret_hash, existingWebSafeHash);
+        assert.ok((after.rows[0]?.secret_salt?.length ?? 0) >= 16);
+
+        // That *unchanged* original PIN now verifies through strong scrypt,
+        // including for another actively enrolled class of the same student.
+        const second = await service.authorizeAction({
+          identityAssertion: 'student-a', pin: existingPin,
+          action: 'PASS_REQUEST', sectionId: base.sectionA2, correlationId: randomUUID(),
+        });
+        assert.equal(second.studentId, base.studentA);
+        assert.notEqual(second.proof, first.proof);
       });
     });
 
