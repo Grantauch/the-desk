@@ -30,6 +30,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
  .possession-readout{top:76px;max-width:calc(100vw - 24px);padding:5px 9px;background:#071827f2;border-color:#9dddf3a0;font-size:10px;white-space:normal}
  .panel{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
 }
+@media(max-width:760px){body.no-touch-seat .mobilecontrols{display:none}}
 @media(prefers-reduced-motion:reduce){.prompt,.overlay,.rink-card,.meter>div{transition:none!important}.flash.active{animation:none;opacity:.12}}
 .moment-label{position:absolute;top:clamp(112px,15vh,180px);left:50%;transform:translateX(-50%);padding:10px 18px;border:1px solid #b4efff77;border-radius:7px;background:#061a2cdd;color:#eafbff;box-shadow:0 10px 38px #0009;letter-spacing:2px;font-weight:950;font-size:clamp(11px,1.4vw,17px);text-align:center;white-space:nowrap;opacity:0;transition:opacity .16s;pointer-events:none}.moment-label.show{opacity:1}@media(max-width:550px){.moment-label{top:100px;max-width:94vw;white-space:normal;letter-spacing:1px;padding:7px 10px}}
 </style>
@@ -101,7 +102,7 @@ const config={mode:'regular',rink:'school',seats:['kb1','ai','ai','ai','ai','ai'
 const inputState=new Map(),lastInputButtons=new Map();let powerItems=[],powerSpawn=6,activeHumans=1;
 const activeInputs=()=>new Set(config.seats.filter(v=>v!=='ai'));
 const humanFor=key=>players.find(p=>p.device===key);
-function updateSeatCount(){activeHumans=config.seats.filter(v=>v!=='ai').length;hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI';syncViewButton()}
+function updateSeatCount(){activeHumans=config.seats.filter(v=>v!=='ai').length;hud.seatCount.textContent=activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+(8-activeHumans)+' AI';document.body.classList.toggle('no-touch-seat',!config.seats.includes('kb1'));syncViewButton()}
 function setupLobby(){
  const options=[['ai','AI'],['kb1','Keyboard 1'],['kb2','Keyboard 2'],...Array.from({length:8},(_,i)=>['pad'+i,'Gamepad '+(i+1)])];
  for(let team=0;team<2;team++){
