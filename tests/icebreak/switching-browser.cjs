@@ -49,12 +49,13 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
     f.updateHUD();f.render(0);
     return {renderer:window.__ICEBREAK_TEST__.getState().renderer,role:f.control.id,device:f.control.device,
       humans:f.players.filter(p=>p.device!=='ai').length,player:document.getElementById('playerName').textContent,
-      prompt:document.getElementById('prompt').textContent,overflow:document.documentElement.scrollWidth>innerWidth};
+      prompt:document.getElementById('prompt').textContent,readout:document.getElementById('possessionReadout').textContent,callout:(()=>{const b=document.getElementById('prompt').getBoundingClientRect();return [b.left,b.right]})(),overflow:document.documentElement.scrollWidth>innerWidth};
    });
    assert.equal(switched.renderer,renderer);
    assert.equal(switched.role,2);assert.equal(switched.device,'kb1');assert.equal(switched.humans,1);
-   assert.match(switched.player,/DEFENDER/);assert.match(switched.prompt,/SKATER SWITCH/);
-   assert.equal(switched.overflow,false);
+   assert.match(switched.player,/DEFENDER/);assert.match(switched.prompt,/SWITCH/);
+   assert.equal(switched.overflow,false);assert.match(switched.readout,/defender/i);
+   assert.ok(switched.callout[0]>=-1&&switched.callout[1]<=viewport.width+1,'Switch feedback must fit viewport');
    await page.screenshot({path:path.join(out,'switch-'+renderer+'-'+viewport.width+'.png')});
    const completion=await page.evaluate(()=>{
     const f=window.fixture,p=f.humanFor('kb1'),receiver=f.players[1],other=f.players[0];
@@ -68,14 +69,15 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
     f.updateHUD();f.render(0);
     return {target,received:f.puck.owner===receiver,control:f.control.id,oldAI:p.device==='ai',
       passes:f.matchStats.human.passes,prompt:document.getElementById('prompt').textContent,
-      player:document.getElementById('playerName').textContent,
+      player:document.getElementById('playerName').textContent,readout:document.getElementById('possessionReadout').textContent,callout:(()=>{const b=document.getElementById('prompt').getBoundingClientRect();return [b.left,b.right]})(),
       overflow:document.documentElement.scrollWidth>innerWidth};
    });
    assert.equal(completion.target,1);assert.equal(completion.received,true);
    assert.equal(completion.control,1);assert.equal(completion.oldAI,true);
    assert.equal(completion.passes,1);assert.match(completion.player,/WING/);
-   assert.match(completion.prompt,/PASS COMPLETE/);
-   assert.equal(completion.overflow,false);
+   assert.match(completion.prompt,/PASS/);
+   assert.equal(completion.overflow,false);assert.match(completion.readout,/wing/i);
+   assert.ok(completion.callout[0]>=-1&&completion.callout[1]<=viewport.width+1,'Completed-pass callout must fit viewport');
    await page.screenshot({path:path.join(out,'pass-follow-'+renderer+'-'+viewport.width+'.png')});
    await page.reload();
    await page.waitForFunction(()=>window.fixture&&window.__ICEBREAK_TEST__);
