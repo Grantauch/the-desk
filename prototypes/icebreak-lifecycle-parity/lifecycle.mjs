@@ -100,7 +100,8 @@ export function advanceLifecycle(state,dt,worldStep=null){
  if(!Number.isFinite(dt)||dt<=0||dt>1/30)throw Error('INVALID_TICK');
  if(state.phase==='injury'){
   state.injuryTime-=dt;
-  return state.injuryTime<1e-6?(skipInjury(state),'faceoff'):'injury';
+  if(state.injuryTime<1e-6){skipInjury(state);return state.phase==='finished'?'finished':'faceoff'}
+  return 'injury';
  }
  if(state.paused)return 'paused';
  if(state.phase==='goal'){
