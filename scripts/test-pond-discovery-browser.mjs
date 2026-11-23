@@ -72,6 +72,21 @@ async function run(viewport) {
     assert.ok(await page.locator(".field-stage-plinth").isVisible(), "bespoke glass field stage must render");
     assert.ok(await page.getByRole("group", { name: "Crafting slots" }).isVisible());
     assert.ok(await page.getByRole("group", { name: "Materials" }).isVisible());
+    // The field route makes the previously separate workbenches reachable
+    // without rewriting any physics, recipes, world, or save state.
+    const stations = page.getByRole("navigation", { name: "Pond field workflow" });
+    assert.ok(await stations.isVisible());
+    await stations.getByRole("button", { name: "Go to discovery mixing" }).click();
+    await page.waitForFunction(() => document.activeElement?.id === "pond-discovery-lab");
+    await stations.getByRole("button", { name: "Go to materials and painting" }).click();
+    await page.waitForFunction(() => document.activeElement?.id === "pond-field-kit");
+    await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
+    await page.waitForFunction(() => document.activeElement?.id === "pond-world-controls");
+    await stations.getByRole("button", { name: "Go to world backups and imports" }).click();
+    await page.waitForFunction(() => document.activeElement?.id === "pond-field-archive");
+    assert.ok(await page.locator(".field-specimen-grid button").count() <= 12,
+      "initial discovery list should not bury the Atlas on mobile");
+
     if (viewport.width <= 400) {
       const quick = page.getByRole("navigation", { name: "Quick material tools" });
       assert.ok(await quick.isVisible(), "mobile quick-material dock must be reachable");
@@ -155,6 +170,8 @@ async function run(viewport) {
     await page.getByRole("button", { name: /Expand pond to 576/ }).click();
     await page.getByRole("button", { name: /Expand pond to 768/ }).click();
     assert.equal(await page.getByRole("application").evaluate(el => el.width), 256);
+    await stations.getByRole("button", { name: "Go to world expansion or Atlas" }).click();
+    await page.waitForFunction(() => document.activeElement?.id === "pond-field-atlas");
 
     const nav = page.getByRole("region", { name: "World navigation" });
     const atlas = page.getByRole("region", { name: "Exploration atlas" });

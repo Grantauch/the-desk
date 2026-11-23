@@ -82,6 +82,7 @@ export function PondApp() {
   const [discoveryLoaded, setDiscoveryLoaded] = useState(false);
   const [firstMix, setFirstMix] = useState<string | null>(null);
   const [mixSearch, setMixSearch] = useState("");
+  const [showAllDiscoveries, setShowAllDiscoveries] = useState(false);
   const [featuredId, setFeaturedId] = useState<string | null>(null);
   const [lastMix, setLastMix] = useState("Pick two discoveries. Familiar mixes make familiar things; other pairs can make new species.");
   const [scene, setScene] = useState<SceneId | "custom">("garden");
@@ -435,8 +436,8 @@ export function PondApp() {
       .map((id) => getOutcome(id))
       .filter((outcome): outcome is NonNullable<ReturnType<typeof getOutcome>> => outcome !== null)
       .filter((outcome) => !needle || outcome.name.toLowerCase().includes(needle))
-      .slice(0, 72);
-  }, [discovered, mixSearch]);
+      .slice(0, mixSearch.trim() || showAllDiscoveries ? 72 : 12);
+  }, [discovered, mixSearch, showAllDiscoveries]);
   const featured = featuredId ? getOutcome(featuredId) : null;
   const featuredProfile = featured ? residentProfile(featured) : null;
 
@@ -448,6 +449,36 @@ export function PondApp() {
     });
   };
 
+  // These buttons connect existing systems; they never mutate the simulation.
+  const jumpToStation = (station: "materials" | "discoveries" | "inhabitants" | "atlas" | "archive") => {
+    if (station === "atlas" && pondSize > 192) setAtlasOpen(true);
+    const targetId = station === "materials" ? "pond-field-kit"
+      : station === "archive" ? "pond-field-archive"
+      : station === "atlas" ? (pondSize === 192 ? "pond-world-controls" : "pond-field-atlas")
+      : station === "inhabitants" && specimenId ? "pond-field-canvas"
+      : station === "inhabitants" && featured ? "pond-place-action"
+      : "pond-discovery-lab";
+    window.requestAnimationFrame(() => {
+      const target = targetId === "pond-field-canvas"
+        ? dishRef.current?.querySelector<HTMLCanvasElement>("canvas")
+        : document.getElementById(targetId);
+      target?.scrollIntoView({
+        block: "center",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
+      target?.focus({ preventScroll: true });
+    });
+  };
+  const suggestedStation = discovered.length <= STARTERS.length ? "discoveries"
+    : residentCount === 0 ? "inhabitants"
+    : pondSize === 192 ? "atlas" : "archive";
+  const suggestedText = suggestedStation === "discoveries"
+    ? "Combine two discoveries to see what emerges."
+    : suggestedStation === "inhabitants"
+    ? "Choose a discovery and place it in the living pond."
+    : suggestedStation === "atlas"
+    ? "Expand the world, then open the Atlas to explore."
+    : "Keep exploring. Export a copy when you want to take this world with you.";
   const selected = toolById(tool);
 
   return (
@@ -488,7 +519,7 @@ export function PondApp() {
             <div>
               <p className="field-eyebrow">01 / OBSERVATION CHAMBER</p>
               <h2>Make a living world<span className="field-heading-dot">.</span></h2>
-              <p className="field-observation-sub">An endless experiment in little things.</p>
+              <p className="field-observation-sub">Paint a habitat, make discoveries, add life, and explore what grows.</p>
             </div>
             <span className="field-chamber-stamp" aria-hidden="true">EST. ∞</span>
           </div>
@@ -534,6 +565,32 @@ export function PondApp() {
               <span className="field-world-size">{pondSize} × {pondSize} · {residentCount} living creations</span>
             </div>
           ) : null}
+          {started ? (
+            <nav className="field-route" aria-label="Pond field workflow">
+              <div className="field-route-heading">
+                <p className="field-eyebrow">HOW EVERYTHING CONNECTS</p>
+                <p>Paint a habitat. Make discoveries. Bring them to life. Explore the world. Keep what you create.</p>
+              </div>
+              <div className="field-route-actions" role="group" aria-label="Jump to a Pond station">
+                <button type="button" onClick={() => jumpToStation("materials")} aria-label="Go to materials and painting">
+                  <Layers3 size={16} aria-hidden="true"/><span>Paint</span>
+                </button>
+                <button type="button" onClick={() => jumpToStation("discoveries")} aria-label="Go to discovery mixing" data-suggested={suggestedStation === "discoveries"}>
+                  <FlaskConical size={16} aria-hidden="true"/><span>Discover</span>
+                </button>
+                <button type="button" onClick={() => jumpToStation("inhabitants")} aria-label="Go to placing living discoveries" data-suggested={suggestedStation === "inhabitants"}>
+                  <Leaf size={16} aria-hidden="true"/><span>Populate</span>
+                </button>
+                <button type="button" onClick={() => jumpToStation("atlas")} aria-label="Go to world expansion or Atlas" data-suggested={suggestedStation === "atlas"}>
+                  <Map size={16} aria-hidden="true"/><span>Explore</span>
+                </button>
+                <button type="button" onClick={() => jumpToStation("archive")} aria-label="Go to world backups and imports" data-suggested={suggestedStation === "archive"}>
+                  <Download size={16} aria-hidden="true"/><span>Preserve</span>
+                </button>
+              </div>
+              <p className="field-route-suggestion"><strong>A place to start:</strong> {suggestedText} <span>Everything is optional.</span></p>
+            </nav>
+          ) : null}
           {started && ecosystemNews ? (
             <p className="field-ecosystem-ticker" aria-live="off"><Leaf size={14}/> <span>From the field:</span> {ecosystemNews}</p>
           ) : null}
@@ -542,7 +599,7 @@ export function PondApp() {
         {started ? (
           <>
             <aside className="field-ledger" aria-label="Discovery notebook">
-              <section aria-label="Discovery workbench" className="field-panel field-discovery-panel">
+              <section id="pond-discovery-lab" tabIndex={-1} aria-label="Discovery workbench" className="field-panel field-discovery-panel">
                 <div className="field-panel-header">
                   <p className="field-eyebrow">02 / THE SPECIMEN LEDGER</p>
                   <div className="field-panel-heading">
@@ -596,7 +653,7 @@ export function PondApp() {
                           canvas?.focus({ preventScroll: true });
                         });
                       }
-                    }} className="field-secondary-action">
+                    }} id="pond-place-action" className="field-secondary-action">
                       <Leaf size={15} aria-hidden="true"/> Place in pond
                     </button>
                     {featuredProfile ? <p className="field-specimen-profile">{featuredProfile.mode} · {featuredProfile.influence} · Size {featuredProfile.size}</p> : null}
@@ -618,10 +675,18 @@ export function PondApp() {
                     </button>
                   ))}
                 </div>
-                <p className="field-ledger-footnote">{visibleDiscoveries.length} specimens shown · Try combining a discovery with itself.</p>
+                <div className="field-discovery-footer">
+                  <p className="field-ledger-footnote">{visibleDiscoveries.length} discoveries shown · Search the entire collection or combine a discovery with itself.</p>
+                  {!mixSearch.trim() && discovered.length > 12 ? (
+                    <button type="button" className="field-discovery-more"
+                      aria-expanded={showAllDiscoveries} onClick={() => setShowAllDiscoveries(value => !value)}>
+                      {showAllDiscoveries ? "Show fewer" : "Show up to 72 recent discoveries"}
+                    </button>
+                  ) : null}
+                </div>
               </section>
 
-              <section className="field-panel field-atlas-panel">
+              <section id="pond-field-atlas" tabIndex={-1} className="field-panel field-atlas-panel">
                 <div className="field-panel-header field-atlas-heading">
                   <p className="field-eyebrow">03 / THE EXPLORER'S MAP</p>
                   <div className="field-panel-heading">
@@ -642,12 +707,12 @@ export function PondApp() {
             </aside>
 
             <aside className="field-materials" aria-label="Materials and world controls">
-              <section id="pond-field-kit" className="field-panel field-tool-panel">
+              <section id="pond-field-kit" tabIndex={-1} className="field-panel field-tool-panel">
                 <div className="field-panel-header">
                   <p className="field-eyebrow">04 / THE MATERIAL LIBRARY</p>
                   <div className="field-panel-heading">
                     <h2>Field kit</h2>
-                    <span className="field-kit-number">18 MATERIALS</span>
+                    <span className="field-kit-number">18 MATERIALS · 2 TOOLS</span>
                   </div>
                   <p className="field-panel-description">Choose a substance, then paint the world.</p>
                 </div>
@@ -688,7 +753,7 @@ export function PondApp() {
                 </div>
               </section>
 
-              <section className="field-panel field-world-panel">
+              <section id="pond-world-controls" tabIndex={-1} className="field-panel field-world-panel">
                 <div className="field-panel-header">
                   <p className="field-eyebrow">05 / TERRAIN & EXPLORATION</p>
                   <div className="field-panel-heading"><h2>Shape the world</h2><Compass size={22} strokeWidth={1.5}/></div>
@@ -744,7 +809,7 @@ export function PondApp() {
                   </button>
                 </div>
               </section>
-              <section className="field-panel field-storage-panel">
+              <section id="pond-field-archive" tabIndex={-1} className="field-panel field-storage-panel">
                 <div className="field-panel-header">
                   <p className="field-eyebrow">06 / FIELD ARCHIVE</p>
                   <div className="field-panel-heading"><h2>Preserve your pond</h2><BookOpen size={19} strokeWidth={1.5}/></div>
