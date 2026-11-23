@@ -2111,5 +2111,13 @@
     ],
     "deployment_status": "NOT_DEPLOYED",
     "next_action": "Publish/retarget PR239 above PR240; inspect new native/browser/protected CI and independent source review. Then staging package and concrete resource decisions."
+  },
+  "manifest-audio-2026-11-22": {
+    "status": "IMPLEMENTED_LOCAL_REVIEW",
+    "owner": "Codex",
+    "scope": "Approved main theme Copper and Talon; West of the Divide gated to full-game victory; procedural effects and ambience.",
+    "verification_status": "SYNTAX_AND_AUDIO_STATE_REGRESSIONS_PASS_CANONICAL_VERIFICATION_RUNNING",
+    "deployment_status": "PROTECTED_PR_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_DEVICE_LISTENING_PENDING"
   }
 }
