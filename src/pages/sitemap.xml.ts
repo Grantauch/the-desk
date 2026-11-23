@@ -28,6 +28,7 @@ const paths = [
   '/games/',
   '/hubs/blitzkrieg/',
   '/hubs/bridge-lab/',
+  '/hubs/breakaway/',
   '/hubs/boss-fight-review.html',
   '/hubs/evidence-locker.html',
   '/hubs/reconstruction-case-file-student.html',

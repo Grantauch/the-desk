@@ -47,6 +47,16 @@ export const interactiveExperiences: Hub[] = [
     blurb: 'Build a bridge across the gorge, then send the traffic over and watch which pieces hold and which ones snap. Ten levels run from a first timber truss to a heavy hauler towing a loaded trailer. Progress saves on this device and nothing is sent anywhere.',
   },
   {
+    name: 'breakaway',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'arcade football game',
+    theme: 'scoreboard',
+    previewEyebrow: '60 seconds · dodge the pursuit',
+    href: '/hubs/breakaway/',
+    blurb: 'Beat pursuing defenders and sprint for touchdowns in a 60 second arcade football challenge. Use keyboard, touch, or a controller. Fallen defenders stay down, and slow runs draw fresh end zone pursuit. No account or downloads needed.',
+  },
+  {
     name: 'gridiron blitz',
     section: 'game',
     course: 'just for fun',
