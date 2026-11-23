@@ -110,8 +110,16 @@ try{
       assert.ok(!network.requests.some(url=>url.includes('copyright-photo.example')),'No publisher photo requests');
       await page.locator('[data-atlas-filter=both]').click();assert.equal(await page.locator('.atlas-choice').count(),8);
       await page.locator('[data-atlas-filter=history]').click();
-      await page.keyboard.press('Escape');assert.equal(await dialog.evaluate(d=>d.open),false);
-      assert.ok(await trigger.evaluate(el=>el===document.activeElement),'Focus returns to the Explore trigger');
+      await page.keyboard.press('Escape');
+      // Native dialog closure can precede the queued close event that moves the globe home and restores focus.
+      await page.waitForFunction(()=>{
+        const panel=document.querySelector('[data-atlas-dialog]');
+        const button=document.querySelector('[data-atlas-explore]');
+        return panel&&!panel.open&&button&&!panel.contains(button)&&document.activeElement===button;
+      },undefined,{timeout:2000}).catch(error=>{
+        if(error.name!=='TimeoutError')throw error;
+        assert.fail('Focus returns to the Explore trigger after closing the dialog');
+      });
       await trigger.click();await page.locator('[data-atlas-return]').click();
       assert.equal(await dialog.evaluate(d=>d.open),false);
     });
