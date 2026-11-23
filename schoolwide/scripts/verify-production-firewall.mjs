@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { verifySyntheticRecoveryWorkflow } from './validate-synthetic-recovery-workflow.mjs';
 
 const allowedChangedPaths = [
   'schoolwide/',
@@ -55,44 +56,14 @@ if (outside.length) {
   throw new Error(`Schoolwide production firewall: changes outside the isolated Schoolwide lane: ${outside.join(', ')}`);
 }
 
-// The one newly allowed workflow is itself test-only and cannot request
-// broader GitHub authority, secrets, deploy triggers or production resources.
+// SW-187: validate the parsed YAML structure with a closed set of exact
+// triggers, permissions, job keys, step behavior and immutable action SHAs.
+// Substring denial alone misses job-level permissions, write-all and secret
+// expressions. This workflow is not allowed to deploy or touch real records.
 const crossRunnerFile = '.github/workflows/schoolwide-cross-runner-recovery.yml';
 if (changes.includes(crossRunnerFile)) {
-  // Normalize Git checkout newline conventions before applying the same strict
-  // security-marker checks. CRLF on Windows must not weaken or falsely fail CI.
-  const workflow = (await readFile(join(process.cwd(), '..', crossRunnerFile), 'utf8'))
-    .replace(/\r\n/g, '\n');
-  const required = [
-    'name: Schoolwide Cross-Runner Synthetic Recovery',
-    'permissions:\n  contents: read',
-    'package_synthetic:',
-    'restore_synthetic:',
-    'needs: package_synthetic',
-    'SCHOOLWIDE_CROSS_RUNNER_SYNTHETIC:',
-    'postgres:18-alpine',
-    'actions/upload-artifact@v4',
-    'actions/download-artifact@v4',
-    'retention-days: 1',
-  ];
-  for (const marker of required) {
-    if (!workflow.includes(marker)) {
-      throw new Error(`Schoolwide production firewall: unsafe synthetic recovery workflow, missing ${marker}.`);
-    }
-  }
-  if ((workflow.match(/runs-on: ubuntu-latest/g) ?? []).length !== 2) {
-    throw new Error('Schoolwide production firewall: recovery requires exactly two ephemeral hosted runners.');
-  }
-  const forbidden = [
-    'workflow_dispatch:', 'pull_request_target:', 'repository_dispatch:',
-    'workflow_run:', 'id-token: write', 'contents: write', 'secrets.',
-    'credentials_json:', 'environment: production', 'google-github-actions/auth',
-  ];
-  for (const marker of forbidden) {
-    if (workflow.includes(marker)) {
-      throw new Error(`Schoolwide production firewall: unauthorized recovery workflow token ${marker}.`);
-    }
-  }
+  const workflow = await readFile(join(process.cwd(), '..', crossRunnerFile), 'utf8');
+  verifySyntheticRecoveryWorkflow(workflow);
 }
 
 const trackedEnvironmentFile = changes.find((path) => /^schoolwide\/\.env(?:\.|$)/.test(path) && path !== 'schoolwide/.env.example');

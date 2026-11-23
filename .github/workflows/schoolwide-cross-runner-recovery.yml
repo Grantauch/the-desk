@@ -44,9 +44,9 @@ jobs:
       LEGACY_PRODUCTION_WRITES: forbidden
     steps:
       - name: Checkout isolated Schoolwide sources
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Node 22
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '22'
           package-manager-cache: false
@@ -64,7 +64,7 @@ jobs:
           SCHOOLWIDE_CROSS_RUNNER_SYNTHETIC: 'true'
         run: bash scripts/ci-cross-runner-synthetic-recovery.sh export
       - name: Transfer ONLY fictional encrypted archive and manifest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: schoolwide-sw183-fictional-encrypted
           path: schoolwide/out/sw183-cross-runner/
@@ -98,9 +98,9 @@ jobs:
       LEGACY_PRODUCTION_WRITES: forbidden
     steps:
       - name: Checkout recovery test (not a deployment)
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Download only encrypted fictional backup into second runner
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: schoolwide-sw183-fictional-encrypted
           path: schoolwide/out/sw183-cross-runner/
