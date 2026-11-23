@@ -52,7 +52,10 @@ for(const width of [1440,390,320]){
 for(const mode of ['javascript-disabled','verdict-script-unavailable']){
  const page=await browser.newPage({javaScriptEnabled:mode!=='javascript-disabled',viewport:{width:390,height:844}});
  if(mode==='verdict-script-unavailable'){
-  await page.route('**/*',route=>route.request().resourceType()==='script'?route.abort():route.continue());
+  await page.route(root+'/storyhubs/the-long-fuse/part-3/',async route=>{
+   const response=await route.fetch();
+   await route.fulfill({response,headers:{...response.headers(),'content-security-policy':"script-src 'none'"}});
+  });
  }
  const requests=[];
  page.on('request',request=>requests.push({url:request.url(),body:request.postData(),navigation:request.isNavigationRequest()}));
