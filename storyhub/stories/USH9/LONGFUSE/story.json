@@ -69,7 +69,9 @@
       "visualAnchorIds": [
         "europe-schematic"
       ],
-      "interactionIds": []
+      "interactionIds": [
+        "crisis-evidence-stage"
+      ]
     },
     {
       "id": "the-gates",
@@ -97,9 +99,14 @@
       "claim": "Industrial war reached beyond the front",
       "namedPeople": [],
       "visualAnchorIds": [
-        "europe-schematic"
+        "europe-schematic",
+        "trench-aisne",
+        "soldiers-rest",
+        "refugees-paris"
       ],
-      "interactionIds": []
+      "interactionIds": [
+        "front-evidence-stage"
+      ]
     },
     {
       "id": "peace-request",
@@ -161,7 +168,9 @@
       "visualAnchorIds": [
         "inflation"
       ],
-      "interactionIds": []
+      "interactionIds": [
+        "weimar-evidence-stage"
+      ]
     },
     {
       "id": "depression-and-vote",

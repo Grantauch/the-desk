@@ -57,6 +57,39 @@
       "staticFallback": "Printable response prompt with no login required.",
       "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
       "status": "implemented"
+    },
+    {
+      "id": "crisis-evidence-stage",
+      "chapterId": "forty-eight-hours",
+      "type": "Crisis decisions in four source plates",
+      "teaches": "Distinguish illustrated representations, schematics, primary documents and photographs during 1914 escalation.",
+      "studentAction": "Select dated source plates, read the larger image/statistic, compare established facts with interpretive limitations.",
+      "feedback": "Each panel presents documented chronology, limits and linked archive records.",
+      "staticFallback": "All panels and sourced text remain in document order when JavaScript is disabled.",
+      "identityFit": "Period editorial documentary source plate with minimalist date selector, paper ledger and dark film surround.",
+      "status": "implemented"
+    },
+    {
+      "id": "front-evidence-stage",
+      "chapterId": "industrial-war",
+      "type": "The war seen from four places",
+      "teaches": "Compare what military, soldier-rest, civilian, and conference photographs establish and cannot establish.",
+      "studentAction": "Select dated source plates, read the larger image/statistic, compare established facts with interpretive limitations.",
+      "feedback": "Each panel presents documented chronology, limits and linked archive records.",
+      "staticFallback": "All panels and sourced text remain in document order when JavaScript is disabled.",
+      "identityFit": "Period editorial documentary source plate with minimalist date selector, paper ledger and dark film surround.",
+      "status": "implemented"
+    },
+    {
+      "id": "weimar-evidence-stage",
+      "chapterId": "paper-money",
+      "type": "Weimar recovery and interruption",
+      "teaches": "Demonstrate that 1923 hyperinflation was followed by partial stabilization, then new 1929 and 1932 pressures; the 1933 appointment was a political decision.",
+      "studentAction": "Select dated source plates, read the larger image/statistic, compare established facts with interpretive limitations.",
+      "feedback": "Each panel presents documented chronology, limits and linked archive records.",
+      "staticFallback": "All panels and sourced text remain in document order when JavaScript is disabled.",
+      "identityFit": "Period editorial documentary source plate with minimalist date selector, paper ledger and dark film surround.",
+      "status": "implemented"
     }
   ]
 }

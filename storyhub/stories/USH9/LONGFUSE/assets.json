@@ -97,6 +97,51 @@
       "htmlSafeZone": "Image has separate legible caption and source outside the image.",
       "responsiveCrop": "Preserve original in archive; CSS crops only hero presentation.",
       "deployPath": "/storyhub/ush9/long-fuse/assets/decision-geography.svg"
+    },
+    {
+      "id": "trench-aisne",
+      "status": "approved",
+      "type": "photo",
+      "role": "Documentary evidence",
+      "sourceMode": "archival",
+      "subject": "German trenches on the Aisne, 1914–15. Bain negative.",
+      "namedPeople": [],
+      "sourceUrl": "https://www.loc.gov/pictures/item/2014699692/",
+      "rightsStatus": "Library of Congress catalog: no known restrictions on publication (not legal guarantee)",
+      "provenance": "Bain News Service, Library of Congress Prints & Photographs. Reused approved WebP derivative from Grant Desk USH9-MARNE source package. Caption strip/paper margin cropped; light grayscale/contrast adjustment in existing package; no artificial coloring.",
+      "htmlSafeZone": "Caption and rights/source metadata separate from image; no document text baked into photograph.",
+      "responsiveCrop": "Natural aspect in archive; editorial crop via CSS only in evidence stage.",
+      "deployPath": "/storyhub/ush9/long-fuse/assets/trench-aisne.webp"
+    },
+    {
+      "id": "soldiers-rest",
+      "status": "approved",
+      "type": "photo",
+      "role": "Documentary evidence",
+      "sourceMode": "archival",
+      "subject": "French soldiers resting after a march, dated September 14, 1914.",
+      "namedPeople": [],
+      "sourceUrl": "https://www.loc.gov/pictures/item/2014697032/",
+      "rightsStatus": "Library of Congress catalog: no known restrictions on publication (not legal guarantee)",
+      "provenance": "Bain News Service, Library of Congress Prints & Photographs. Reused approved WebP derivative from Grant Desk USH9-MARNE source package. Caption strip/paper margin cropped; light grayscale/contrast adjustment in existing package; no artificial coloring.",
+      "htmlSafeZone": "Caption and rights/source metadata separate from image; no document text baked into photograph.",
+      "responsiveCrop": "Natural aspect in archive; editorial crop via CSS only in evidence stage.",
+      "deployPath": "/storyhub/ush9/long-fuse/assets/soldiers-rest.webp"
+    },
+    {
+      "id": "refugees-paris",
+      "status": "approved",
+      "type": "photo",
+      "role": "Documentary evidence",
+      "sourceMode": "archival",
+      "subject": "Fugitives at Gare du Nord in Paris, 1914.",
+      "namedPeople": [],
+      "sourceUrl": "https://www.loc.gov/pictures/item/2014697722/",
+      "rightsStatus": "Library of Congress catalog: no known restrictions on publication (not legal guarantee)",
+      "provenance": "Bain News Service, Library of Congress Prints & Photographs. Reused approved WebP derivative from Grant Desk USH9-MARNE source package. Caption strip/paper margin cropped; light grayscale/contrast adjustment in existing package; no artificial coloring.",
+      "htmlSafeZone": "Caption and rights/source metadata separate from image; no document text baked into photograph.",
+      "responsiveCrop": "Natural aspect in archive; editorial crop via CSS only in evidence stage.",
+      "deployPath": "/storyhub/ush9/long-fuse/assets/refugees-paris.webp"
     }
   ]
 }

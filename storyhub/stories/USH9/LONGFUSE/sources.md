@@ -9,6 +9,12 @@ Historical teaching source is the 40-slide The Long Fuse Batch24 master, compile
 - **Inflation banknote wallpaper, Germany, 1923.** Bundesarchiv Bild 102-00104 / Georg Pahl, [Commons](https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_102-00104,_Inflation,_Tapezieren_mit_Geldscheinen.jpg), CC BY-SA 3.0 DE. Cropped/resized WebP derivative; credit, license and change notice included.
 - **Berlin crowd around Hitler car, Jan 30 1933.** Bundesarchiv Bild 102-15347, [Commons](https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_102-15347,_Berlin,_Ernennung_Adolf_Hitlers_zum_Reichskanzler.jpg), CC BY-SA 3.0 DE. Cropped/resized WebP derivative; credit, license and change notice included.
 
+## Additional period photography (cinematic middle-chapter pass)
+- **German trenches on the Aisne, c. 1914–1915.** Bain News Service / Library of Congress, [item 2014699692](https://www.loc.gov/pictures/item/2014699692/). LOC rights: no known restrictions on publication. The negative does not represent all trenches.
+- **French soldiers resting after a march, 14 September 1914.** Bain News Service / Library of Congress, [item 2014697032](https://www.loc.gov/pictures/item/2014697032/). LOC rights: no known restrictions on publication.
+- **Fugitives at Gare du Nord, Paris, 1914.** Bain News Service / Library of Congress, [item 2014697722](https://www.loc.gov/pictures/item/2014697722/). LOC rights: no known restrictions on publication. Individual origins and experiences cannot be inferred.
+- The three new WebP assets are copies of existing Grant Desk Marne Story Hub derivatives, originally cropped (removing photograph-margin/caption strips), converted to grayscale, and contrast adjusted. No additional alteration was applied in this batch.
+
 ## Research anchors
 - [July 1914 Austrian ultimatum](https://www.firstworldwar.com/source/austrianultimatum.htm) — teacher paraphrase, not a forged facsimile
 - [Serbia's response to the ultimatum](https://www.firstworldwar.com/source/serbianreply.htm) — compared for disputed judicial inquiry participation

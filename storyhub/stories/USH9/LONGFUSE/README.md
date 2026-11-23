@@ -33,3 +33,16 @@ node scripts/long-fuse/test-accessibility.mjs
 The focused browser checks cover landing and all three episode routes at 1440, 390 and 320px; graphical chart and evidence verdict events; missing eager images and horizontal overflow. Axe WCAG 2 A/AA and 2.1 A/AA is checked at desktop and mobile widths. A manual screen-reader and Chromebook/Promethean acceptance still must be completed.
 
 **Status:** Safe feature-branch review candidate. No public site deployment/teacher assignment change. Source history: the original 40-slide *The Long Fuse* Batch 18–24 production and source/rights ledger.
+
+## Cinematic middle-chapter upgrade
+
+Three interactive **source stages** have been added without changing the original 16 chapter count:
+- Part I, **Six Weeks: No Automatic Switch** (four stages): illustration, German assurance, July diplomatic exchange, movement into Belgium.
+- Part II, **Four Views: One Enormous War** (four stages): Aisne trench, soldiers resting, Gare du Nord civilians, 1919 peace conference.
+- Part III, **Not One Uninterrupted Collapse** (five stages): 1923 hyperinflation, subsequent recovery and 1928 vote, Depression, two 1932 elections, January 1933 appointment.
+
+Each step includes contemporary/period evidence or an explicitly labeled typographic/schematic panel, source link, historical explanation, and **what the evidence does not prove**. Controls are native buttons with aria-pressed and live feedback, one visible stage when enhanced, all panels in reading order without JS. Optional animations respect reduced motion.
+
+Three new period photographs reuse the already sourced Library of Congress Bain WebP derivatives from the Marne Story Hub (Aisne German trench, Sep. 14, 1914 resting French soldiers, 1914 Gare du Nord fugitives). They are not newly generated, colorized, or represented as evidence of exact personal motives. See `sources.md` and `assets.json`. Existing rights metadata: LOC lists **no known restrictions on publication**, not a legal guarantee of worldwide commercial clearance.
+
+QA scripts: `node scripts/long-fuse/test-scenes.mjs` for each part at desktop, phone and narrow-phone widths, including no-JavaScript fallback, in addition to `test-browser.mjs` and `test-accessibility.mjs`.
