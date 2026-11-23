@@ -1,0 +1,59 @@
+name: Pond paint and fall browser QA
+
+on:
+  pull_request:
+    paths:
+      - "apps/pond/**"
+      - "scripts/test-pond-paint-fall-browser.mjs"
+      - ".github/workflows/pond-paint-fall-browser.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  paint-flow:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Use Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked browser and Pond dependencies
+        run: |
+          npm ci --include=dev --no-audit --no-fund
+          npm ci --prefix apps/pond --no-audit --no-fund
+
+      - name: Install Chromium
+        run: |
+          npx playwright install chromium
+          node --input-type=module -e "import { chromium } from 'playwright'; const b = await chromium.launch(); await b.close();" || {
+            npx playwright install-deps chromium
+            node --input-type=module -e "import { chromium } from 'playwright'; const b = await chromium.launch(); await b.close();"
+          }
+
+      - name: Author and validate Pond assets without deploying
+        run: |
+          npm run pond:build
+          node scripts/validate-pond-build.mjs
+
+      - name: Browser acceptance — real sand and water placement
+        run: node scripts/test-pond-paint-fall-browser.mjs
+
+      - name: Save paused and falling screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pond-paint-fall-${{ github.event.pull_request.head.sha }}
+          path: browser-results/pond-paint-fall/
+          if-no-files-found: ignore
+          retention-days: 7
