@@ -10,9 +10,9 @@
   var list = window.MI_ATHLETES || [], records = {};
   // [exact Commons file name, author/collection, license (when verified)]
   var FILES = {
-    "joe-louis": ["Joe Louis cph.3b09981.jpg", "Library of Congress", "Public domain"],
-    "claressa-shields": ["Claressa Shields enters.jpg", "Harvey Krausz", "CC BY 2.0"],
-    "thomas-hearns": ["Tommy Hearns ca. Dec. 1981, Detroit Michigan USA.jpg", "Carptrash", ""],
+    "joe-louis": ["Joe Louis cph.3b09981.jpg", "Ivan Busatt / Library of Congress", "Public domain"],
+    "claressa-shields": ["Claressa Shields enters.jpg", "theharv58", "CC BY 2.0"],
+    "thomas-hearns": ["Tommy Hearns ca. Dec. 1981, Detroit Michigan USA.jpg", "Carptrash", "CC BY-SA 3.0"],
     "serena-williams": ["Serena Williams Doha 2013 (cropped).jpg", "Vinod Divakaran / Doha Stadium Plus Qatar", "CC BY 2.0"],
     "magic-johnson": ["Magic Johnson 2014 (cropped).jpg", "Neon Tommy", "CC BY-SA 2.0"],
     "draymond-green": ["Draymond Green 2016.jpg", "Fernando Frazão / Agência Brasil", "CC BY 2.0"],
@@ -20,20 +20,20 @@
     "george-gervin": ["George Gervin ABA.jpeg", "Kevin Fitzgerald", "Public domain"],
     "mateen-cleaves": ["Mateen Cleaves (100071202) (cropped).jpg", "Jeramey Jannene", "CC BY 2.0"],
     "jim-abbott": ["Jim Abbott Cannons.jpg", "John Traub / Albuquerque Isotopes Baseball Club", "CC BY-SA 3.0"],
-    "derek-jeter": ["Derek Jeter 2007 by Keith Allison.jpg", "Keith Allison", ""],
+    "derek-jeter": ["Derek Jeter 2007 by Keith Allison.jpg", "Keith Allison", "CC BY-SA 2.0"],
     "willie-horton": ["Willie Horton 1975.jpg", "Detroit Tigers", "Public domain"],
     "kirk-gibson": ["Kirk Gibson by Gage Skidmore.jpg", "Gage Skidmore", "CC BY-SA 3.0"],
     "jerome-bettis": ["Jerome Bettis 2016.jpg", "Veronica Davison / USDA", "CC BY-SA 2.0"],
     "hayes-jones": ["Hayes Jones 1963.jpg", "Publicity photograph", "Public domain"],
-    "eddie-tolan": ["Eddie Tolan 1932.jpg", "Keystone-France", ""],
+    "eddie-tolan": ["Eddie Tolan 1932.jpg", "Keystone-France", "Public domain"],
     "sheila-young": ["Sheila Young 1975.jpg", "Hans Peters / Anefo / Dutch National Archives", "CC0"],
     "jordyn-wieber": ["Jordyn Wieber Detroit.jpg", "Dave Hogg", "CC BY 2.0"],
     "davis-and-white": ["Meryl Davis and Charlie White - World Champions 2013 (retouched).jpg", "Ludwig Welnicki; retouched by MagentaGreen", "CC BY-SA 3.0"],
     "allison-schmitt": ["Allison Schmitt (USA) 2016.jpg", "Fernando Frazão / Agência Brasil", "CC BY 2.0"],
     "mike-modano": ["Modano stars 2007 (467934429) (cropped).jpg", "Paul Hoch", "CC BY 2.0"],
     "dylan-larkin": ["Dylan Larkin 20180125 212425.jpg", "SecretName101", "CC BY 4.0"],
-    "brad-keselowski": ["Brad Keselowski Driver Introductions Las Vegas Fall 2026.jpg", "TaurusEmerald", ""],
-    "the-sheik": ["The Sheik 1973.jpg", "Wikimedia Commons", ""]
+    "brad-keselowski": ["Brad Keselowski Driver Introductions Las Vegas Fall 2026.jpg", "TaurusEmerald", "CC BY-SA 4.0"],
+    "the-sheik": ["The Sheik 1973.jpg", "Ben Strong Wrestling", "Public domain"]
   };
   var COLORS = { Boxing: '#8c2b22', Basketball: '#b4561c', Baseball: '#1f4e7a', Football: '#3d5a2a', Hockey: '#2b5f73', Tennis: '#6a7d1f' };
   function commonsPhoto(a) {
