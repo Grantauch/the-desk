@@ -91,6 +91,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
 }
 
 /* Batch 11: position switching, no additional simulation forces. */
+.prompt{max-width:calc(100vw - 24px);white-space:normal;text-align:center;line-height:1.05}
 .actions .switch{grid-column:1/-1;width:100%;height:42px;min-height:42px;background:#174b62d9;border-color:#8de1f2c4;letter-spacing:1.1px}
 .actions .switch[hidden]{display:none!important}
 .guide .follow-option{display:flex;gap:9px;align-items:center;margin-top:9px;color:#c7ebf4;font-size:11px;font-weight:800;cursor:pointer}
@@ -501,10 +502,12 @@ function switchPlayer(device,target=null,follow=false){
  current.device='ai';current.shotCharge=0;current.oneTimerBuffer=0;
  next.device=device;next.shotCharge=0;
  control=next;
+ // Update both the desktop role label and the mobile possession readout now.
+ possessionHUD();
  // Preserve held movement while preventing inherited shoot/pass/check actions.
  const input=inputFor(device);input.pass=false;input.shoot=false;input.check=false;
  updateHUD();
- prompt((follow?'PASS COMPLETE':'SKATER SWITCH')+' · #'+next.number+' '+next.name,.66);
+ prompt((follow?'PASS':'SWITCH')+' · #'+next.number,.66);
  return true;
 }
 function beginCheck(p){
