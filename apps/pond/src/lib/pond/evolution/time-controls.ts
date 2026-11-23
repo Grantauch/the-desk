@@ -20,6 +20,13 @@
  * does, or if it throws, the clock is put back to that day's snapshot.
  * Day N is checked against the clock's day limit BEFORE its callback runs,
  * so ecology never commits a day the clock cannot publish.
+ *
+ * Synchronous rule: a day commits when its callback RETURNS, so the callback
+ * must finish its work before returning. Async callbacks are rejected by the
+ * type (SyncEcologyDay), and at runtime a callback that returns a promise or
+ * any other thenable is treated like a throw: the clock goes back to that
+ * day's snapshot, the day is not published and stays queued. The returned
+ * thenable is never awaited, chained or called.
  */
 import { ECO_DAY_REAL_MS, EvolutionClock, MAX_CATCHUP_DAYS_PER_CALL, MAX_PENDING_DAYS, TIME_SPEEDS, type ClockSnapshot, type TimeSpeed } from "./clock.ts";
 import type { PondRegion } from "../sim.ts";
@@ -28,6 +35,23 @@ import type { PondRegion } from "../sim.ts";
 export type PhysicsStepper = { step(region?: PondRegion): void };
 
 export type EcologyDay = (day: number) => void;
+
+/**
+ * Compile-time half of the synchronous rule: resolves to never for a callback
+ * whose declared return type is a promise or thenable, so async functions do
+ * not type-check as ecology callbacks. Runtime rejection covers the rest.
+ */
+export type SyncEcologyDay<F extends EcologyDay> =
+  F extends (day: number) => infer R
+    ? 0 extends 1 & R ? F // any: left to the runtime check
+    : [Extract<R, PromiseLike<unknown>>] extends [never] ? F : never
+    : never;
+
+/** Reads then at most once; a throwing then getter propagates like a callback error. */
+function isThenable(value: unknown): boolean {
+  if ((typeof value !== "object" || value === null) && typeof value !== "function") return false;
+  return typeof (value as { then?: unknown }).then === "function";
+}
 
 export type FrameReport = Readonly<{
   physicsSteps: 1;
@@ -55,14 +79,18 @@ function sameClock(a: ClockSnapshot, b: ClockSnapshot): boolean {
   return a.day === b.day && a.pendingMillis === b.pendingMillis && a.speed === b.speed && a.paused === b.paused;
 }
 
-export class EvolutionTimeControls {
+/**
+ * F only exists so the constructor can reject promise-returning callbacks at
+ * compile time; it defaults to EcologyDay and no member depends on it.
+ */
+export class EvolutionTimeControls<F extends EcologyDay = EcologyDay> {
   readonly clock: EvolutionClock;
   private readonly onDay: EcologyDay;
   private readonly dayBudget: number;
   private busy = false;
 
   /** An ecology callback is required: there is no running biology clock without real ecology behind it. */
-  constructor(onDay: EcologyDay, options: { clock?: EvolutionClock; dayBudget?: number } = {}) {
+  constructor(onDay: F & SyncEcologyDay<F>, options: { clock?: EvolutionClock; dayBudget?: number } = {}) {
     if (typeof onDay !== "function") throw new TypeError("EvolutionTimeControls needs an ecology day callback");
     this.clock = options.clock ?? new EvolutionClock();
     this.onDay = onDay;
@@ -113,9 +141,12 @@ export class EvolutionTimeControls {
         // Preflight: never let ecology commit a day the clock cannot publish.
         if (before.day + 1 > MAX_DAY) throw new RangeError("Evolution clock overflow");
         try {
-          this.onDay(before.day + 1);
+          const result: unknown = this.onDay(before.day + 1);
+          if (isThenable(result)) {
+            throw new TypeError("Ecology day callback must be synchronous; it returned a promise or thenable");
+          }
         } catch (error) {
-          // Undo anything the callback did to the clock before it threw.
+          // Undo anything the callback did to the clock before it threw or returned a thenable.
           this.clock.restore(before);
           throw error;
         }
