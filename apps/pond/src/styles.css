@@ -1156,3 +1156,99 @@
 @media (prefers-reduced-motion: reduce) {
   .field-route-actions button { transition: none; }
 }
+
+/* MOBILE PANE DECK
+   Keep the living simulation and five-station route in view above one focused
+   workbench panel. The original panels stay mounted and keep their own state.
+   Desktop / tablet above 800px retains the original three-column Field Station. */
+.field-mobile-pane-status,
+.field-mobile-pane-jump { display: none; }
+@media (max-width: 800px) {
+  .field-workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .field-observation { width: 100%; }
+  .field-ledger, .field-materials {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+  }
+  .field-mobile-pane-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 5px 10px;
+    padding: 11px 14px;
+    margin-top: -2px;
+    border: 1px solid rgb(222 203 149 / 46%);
+    border-bottom: 0;
+    background: #20382e;
+    color: #f5e9c8;
+  }
+  .field-mobile-pane-status .field-eyebrow {
+    width: 100%;
+    margin: 0;
+    color: #d1bd85;
+    font-size: .59rem;
+  }
+  .field-mobile-pane-status strong {
+    font: 600 1.02rem "Fraunces", Georgia, serif;
+  }
+  .field-mobile-pane-status small {
+    color: #bdcebf;
+    font-size: .7rem;
+    line-height: 1.4;
+  }
+  .field-mobile-pane-jump {
+    display: inline-flex;
+    width: 100%;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 0 13px;
+    padding: 9px 11px;
+    border: 1px solid #baa87884;
+    border-radius: 5px;
+    background: #28443a;
+    color: #efdfb7;
+    font: 700 .76rem "Outfit", sans-serif;
+  }
+  .field-mobile-pane-jump:hover { background: #385849; }
+  .field-route-actions button[data-current="true"] {
+    border-color: #d9c38f;
+    background: rgb(224 205 143 / 23%);
+    box-shadow: inset 0 -2px #d9c38f;
+  }
+  .field-station[data-mobile-pane="materials"] .field-ledger,
+  .field-station[data-mobile-pane="world"] .field-ledger,
+  .field-station[data-mobile-pane="archive"] .field-ledger,
+  .field-station[data-mobile-pane="discoveries"] .field-materials,
+  .field-station[data-mobile-pane="atlas"] .field-materials {
+    display: none;
+  }
+  .field-station[data-mobile-pane="discoveries"] .field-atlas-panel,
+  .field-station[data-mobile-pane="atlas"] .field-discovery-panel,
+  .field-station[data-mobile-pane="materials"] .field-world-panel,
+  .field-station[data-mobile-pane="materials"] .field-storage-panel,
+  .field-station[data-mobile-pane="world"] .field-tool-panel,
+  .field-station[data-mobile-pane="world"] .field-storage-panel,
+  .field-station[data-mobile-pane="archive"] .field-tool-panel,
+  .field-station[data-mobile-pane="archive"] .field-world-panel {
+    display: none;
+  }
+  .field-station #pond-discovery-lab,
+  .field-station #pond-field-kit,
+  .field-station #pond-world-controls,
+  .field-station #pond-field-atlas,
+  .field-station #pond-field-archive {
+    scroll-margin-block: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field-mobile-pane-jump { transition: none; }
+}
