@@ -1,0 +1,37 @@
+name: ICEBREAK match lifecycle parity
+
+on:
+  pull_request:
+    paths:
+      - 'public/hubs/icebreak.html'
+      - 'tests/icebreak/fixture.cjs'
+      - 'prototypes/icebreak-lifecycle-parity/**'
+      - 'prototypes/icebreak-parity/**'
+      - '.github/workflows/icebreak-lifecycle-parity.yml'
+  push:
+    branches:
+      - qa/icebreak-match-lifecycle-parity
+    paths:
+      - 'prototypes/icebreak-lifecycle-parity/**'
+      - '.github/workflows/icebreak-lifecycle-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lifecycle:
+    name: Compare authoritative stoppages and browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Check syntax
+        run: |
+          node --check prototypes/icebreak-lifecycle-parity/lifecycle.mjs
+          node --check prototypes/icebreak-lifecycle-parity/verification.test.mjs
+      - name: Browser-vs-server lifecycle parity
+        run: node --test prototypes/icebreak-lifecycle-parity/verification.test.mjs
