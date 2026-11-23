@@ -467,6 +467,17 @@ img{-webkit-user-drag:none}
 #title .compare-links a{color:#f4d67c;text-decoration:underline;outline-offset:4px}
 #title .credit{left:1rem;right:auto;z-index:4;background:rgba(0,0,0,.7);padding:.5rem;color:#f8e6c0;border-radius:4px}
 @media(max-width:760px){#title .expanse-brand{left:3%;right:3%;top:5%;min-height:24%;padding:.4rem}#title .compare-links{bottom:.4rem;right:.4rem;font-size:11px;max-width:50%}#title .credit{font-size:10px;max-width:39%}}
+/* Expanse: prevent expanded settings from hiding the primary journey controls. */
+#title .menu{
+  left:3%;right:3%;width:auto;bottom:8%;transform:none;
+  max-height:48%;z-index:6;overflow-y:auto;overscroll-behavior:contain;
+  justify-content:center;align-content:flex-end;gap:.55rem;padding:.65rem;
+}
+#title .menu .btn{font-size:clamp(12px,1vw,17px);padding:.55em .8em}
+@media(max-width:760px){
+  #title .menu{top:32%;bottom:9%;max-height:none;align-content:flex-start}
+  #title .menu .btn{flex:1 1 calc(50% - .6rem);min-width:0;font-size:12px;padding:.55em .5em}
+}
 </style>
 </head>
 <body>
