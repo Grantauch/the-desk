@@ -86,6 +86,28 @@ try {
       await page.goto(origin + '/games/');
       await page.getByRole('link', { name: 'Explore simulations and investigations' }).click();
       await page.waitForURL(origin + '/simulations/');
+      const namedActivityLinks = new Set();
+      for (const [headingId, action] of [
+        ['interactive-simulations-heading', 'open simulation'],
+        ['investigation-heading', 'open investigation'],
+        ['story-simulations-heading', 'try the model inside this Story Hub'],
+      ]) {
+        const cards = page.locator(`section[aria-labelledby="${headingId}"] article`);
+        assert.ok((await cards.count()) > 0, `The ${headingId} section still has activities`);
+        for (const card of await cards.all()) {
+          const heading = card.getByRole('heading', { level: 3 });
+          assert.equal(await heading.count(), 1);
+          const title = (await heading.textContent()).trim().replace(/\s+/g, ' ');
+          assert.ok(title, 'Each activity has a visible title');
+          assert.equal(await card.getByRole('heading', { level: 3, name: title, exact: true }).isVisible(), true);
+          const name = `${action}: ${title}`;
+          assert.equal(await card.getByRole('link').count(), 1);
+          assert.equal(await card.getByRole('link', { name, exact: true }).isVisible(), true,
+            `The link names this activity without announcing its decorative arrow: ${name}`);
+          assert.ok(!namedActivityLinks.has(name), `Activity link name is unique: ${name}`);
+          namedActivityLinks.add(name);
+        }
+      }
       const modelSection = page.locator('section[aria-labelledby="story-simulations-heading"]');
       assert.equal(await modelSection.locator('article').count(), 8,
         'All eight substantive Story Hub models must be discoverable in Simulations');
@@ -108,7 +130,7 @@ try {
         'Students can see what variable they will actually test');
       const investigation = page.locator('section[aria-labelledby="investigation-heading"] article')
         .filter({ has: page.getByRole('heading', { name: /constitution day · case files/ }) });
-      const investigationLink = investigation.getByRole('link', { name: 'open investigation' });
+      const investigationLink = investigation.getByRole('link', { name: 'open investigation: constitution day · case files', exact: true });
       assert.equal(await investigationLink.getAttribute('href'), route, 'The assignment keeps its original URL');
       const assignmentOpened = page.waitForEvent('popup');
       await investigationLink.click();
