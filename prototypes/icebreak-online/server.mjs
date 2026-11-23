@@ -59,6 +59,11 @@ export function createIcebreakServer(options={}){
  let physicsTimer,snapshotTimer;
  async function listen(){
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,host,resolve)});
+  if(options.serveDemo){
+   const localPort=server.address().port;
+   allowedOrigins.add('http://127.0.0.1:'+localPort);
+   allowedOrigins.add('http://localhost:'+localPort);
+  }
   let last=performance.now(),accumulator=0;
   physicsTimer=setInterval(()=>{
    const now=performance.now();
