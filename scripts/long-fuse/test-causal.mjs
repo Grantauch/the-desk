@@ -1,7 +1,7 @@
 import {chromium} from 'playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
-const site='http://127.0.0.1:4350/storyhubs/the-long-fuse/';
+const site=(process.env.LONG_FUSE_TEST_ORIGIN||'http://127.0.0.1:4350')+'/storyhubs/the-long-fuse/';
 const dir=resolve('scripts/long-fuse/qa-causal');
 await mkdir(dir,{recursive:true});
 const browser=await chromium.launch({headless:true});

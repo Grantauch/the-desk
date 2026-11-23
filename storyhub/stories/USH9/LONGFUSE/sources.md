@@ -31,3 +31,8 @@ All dossier assertions are **authored summaries, not facsimiles**. The answer ch
 
 ## Exclusions
 The potentially disputed IWM-use photographs of Somme and Armistice Day, and the Topical Press/Getty 1922 portrait, are **not included** in this new public-facing Story Hub. No false documentary facsimiles, fabricated voices or invented quotes. This register is a production review, not a legal opinion.
+
+## July decision geography — precise source links
+- German support to Vienna, July 5: [Austrian ambassador Szögyény’s dispatch (GHDI)](https://germanhistorydocs.org/en/wilhelmine-germany-and-the-first-world-war-1890-1918/ghdi:document-800). This supports the German assurance, unlike the later Austrian ultimatum text.
+- Russian mobilization decision, July 30: [Open University July Crisis chronology](https://www.open.edu/openlearn/history-the-arts/history/world-history/the-july-crisis-chronology). Timeline facts summarized without reproducing source prose or images.
+- German entry into Belgium, August 4: [National Army Museum timeline](https://ww1.nam.ac.uk/timeline/germany-invades-belgium/) and [British declaration of war, August 4](https://ww1.nam.ac.uk/timeline/britain-declares-war-germany/). Diagram connections represent political consequences, not troop routes or treaty automation.

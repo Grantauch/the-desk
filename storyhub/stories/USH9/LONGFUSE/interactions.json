@@ -123,6 +123,17 @@
       "staticFallback": "All folios and source links are visible without JavaScript; radio question remains readable.",
       "identityFit": "Archive dossier design with large source dates, paper two-column interpretation and institutional evidence.",
       "status": "implemented"
+    },
+    {
+      "id": "july-animated-decision-map",
+      "chapterId": "the-map-before",
+      "type": "Dated July 1914 political-decision map",
+      "teaches": "The escalation from Sarajevo to an expanded European war involved separate government decisions, not literal automatic treaty obligations.",
+      "studentAction": "Select six dated turning points and watch a political-relationship schematic highlight relevant capitals and connections.",
+      "feedback": "Source-linked narrative identifies the action, its significance and what is not established.",
+      "staticFallback": "A full static decision map and six dated text records remain available with JavaScript disabled.",
+      "identityFit": "Original archival map schematic, constrained motion and two-column editorial ledger; reduced-motion support.",
+      "status": "implemented"
     }
   ]
 }

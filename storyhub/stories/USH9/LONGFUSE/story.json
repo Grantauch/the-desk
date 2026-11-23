@@ -47,7 +47,9 @@
       "visualAnchorIds": [
         "europe-schematic"
       ],
-      "interactionIds": []
+      "interactionIds": [
+        "july-animated-decision-map"
+      ]
     },
     {
       "id": "blank-cheque-chapter",

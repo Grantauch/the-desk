@@ -8,6 +8,9 @@ import EvidenceExplorer from '../../../components/storyhub/EvidenceExplorer.astr
 import PhotoComparison from '../../../components/storyhub/PhotoComparison.astro';
 import LongFuseEvidenceStage from '../../../components/storyhub/LongFuseEvidenceStage.astro';
 import LongFuseCausalLab from '../../../components/storyhub/LongFuseCausalLab.astro';
+import LongFuseDecisionMap from '../../../components/storyhub/LongFuseDecisionMap.astro';
+import LongFuseInterlude from '../../../components/storyhub/LongFuseInterlude.astro';
+import LongFuseClassroomTheater from '../../../components/storyhub/LongFuseClassroomTheater.astro';
 import { makeLongFusePart, parts } from '../../../../storyhub/stories/USH9/LONGFUSE/edition';
 import './long-fuse.css';
 
@@ -51,7 +54,7 @@ const prev=n>1 ? n-1 : null;
         <h1 id="fuse-main-title">The <em>Long Fuse</em></h1>
         <p class="fuse-hero-part">{info.title}</p>
         <p class="fuse-hero-question">{info.question}</p>
-        <div class="fuse-actions"><a href="#briefing" class="sh-primary">Begin the briefing <span aria-hidden="true">↓</span></a><a href={'#'+story.chapters[0].id} class="sh-secondary">Enter Part {n} <span aria-hidden="true">↘</span></a><a href={'#'+story.chapters[0].id} data-resume-story hidden>Resume this part</a></div>
+        <div class="fuse-actions"><a href="#briefing" class="sh-primary">Begin the briefing <span aria-hidden="true">↓</span></a><a href={'#'+story.chapters[0].id} class="sh-secondary">Enter Part {n} <span aria-hidden="true">↘</span></a><button class="lf-classroom-launch" type="button" data-lf-theater-launch hidden>Classroom Theater <span aria-hidden="true">↗</span></button><a href={'#'+story.chapters[0].id} data-resume-story hidden>Resume this part</a></div>
       </div>
       <div class="fuse-hero-bottom"><span>THE LONG FUSE · THREE-PART SERIES</span><span>RESEARCH BEFORE CERTAINTY</span></div>
     </section>
@@ -65,9 +68,10 @@ const prev=n>1 ? n-1 : null;
   <StoryIntro {story} />
   <div class="fuse-documentary" data-fuse-part={n}>
     {story.chapters.map((ch,index)=>(
+      <>
       <StoryChapter {story} chapter={ch} {index} layout={ch.interaction==='verdict'?'memorial':(['split','wide','split','break','wide'] as const)[index%5]} showImage={!['map','decisions','documents','cost','timeline','votes','verdict','inflation','appointment'].includes(ch.interaction??'')}>
         {ch.interaction==='photo'&&<aside class="fuse-source-prompt"><span class="fuse-label">Read the negative</span><p>Is this photograph or illustration? What does it prove about public representation—and what political decision would require a written source?</p></aside>}
-        {ch.interaction==='map'&&<section class="fuse-feature"><header><span class="fuse-label">A map of decision points</span><h3>The crisis was not a domino machine.</h3><p>Select cities to connect the places of diplomacy and mobilization. The base plate is a schematic, not a 1914 border map.</p></header><HistoricalMap {story} scope="decisions" regionIds={['europe']} /></section>}
+        {ch.interaction==='map' && <LongFuseDecisionMap />}
         {ch.interaction==='decisions'&&<section class="fuse-feature"><header><span class="fuse-label">Decision file 01 / diplomatic pressure</span><h3>The July ledger</h3><p>Three governments, three different decisions. Open each file and look for the option leaders still possessed.</p></header><EvidenceExplorer {story} id="july-files" title="Three moments, three decisions" prompt="Open the records. What did leaders know, what did they choose, and what did they not control?" entries={features.decisions}/></section>}
         {ch.interaction==='documents' && n===1 && <LongFuseCausalLab {story} kind="ultimatum" />}
         {ch.interaction==='documents' && n!==1 && <section class="fuse-document-panel"><div><span class="fuse-label">Interpretive context / teaching summary</span><h3>The Weimar Republic inherited the war.</h3><p>The elected republic emerged as Germany's imperial state collapsed in 1918. It did not begin the war and was not simply a dictatorship waiting to happen.</p></div><ol><li><strong>1918.</strong> The German Empire collapses; the new republic faces defeat.</li><li><strong>1919.</strong> An elected National Assembly establishes a new constitutional system.</li><li><strong>1923.</strong> Currency and political crises test the republic.</li></ol></section>}
@@ -84,9 +88,12 @@ const prev=n>1 ? n-1 : null;
         {ch.interaction==='verdict'&&<section class="fuse-verdict" aria-labelledby="verdict-title" data-fuse-verdict><p class="fuse-label">Final evidence verdict · self-guided writing</p><h3 id="verdict-title">Pressure is not destiny.</h3><p>Choose one documented moment when the next action was a choice. Use one source. Describe a plausible alternative, and state what we cannot know.</p><form class="fuse-verdict-form"><label>1. The documented decision<textarea name="decision" rows="3" required placeholder="On [date], [government/person] decided to…"></textarea></label><label>2. Source evidence<textarea name="evidence" rows="3" required placeholder="The [document or photograph] shows…"></textarea></label><label>3. A plausible alternative<textarea name="alternative" rows="3" required placeholder="A different decision might have…"></textarea></label><label>4. The uncertainty<textarea name="uncertainty" rows="3" required placeholder="The evidence cannot prove…"></textarea></label><div class="fuse-verdict-actions"><button type="submit">Check my evidence structure</button><button type="reset">Clear this response</button></div><p class="fuse-verdict-status" role="status" aria-live="polite">Your writing stays in this browser tab. It is not graded or submitted.</p></form></section>}
         {ch.interaction==='photo' && n===2 && index===3 && <PhotoComparison {story} id="war-and-peace-plates" title="Two kinds of evidence" intro="The troop photograph shows movement through Belgium. The leaders' photograph shows a later negotiation. Neither can establish the private decisions by itself." pair={['belgium','big-four']} labels={['A war enters Belgium','Leaders meet in Paris']} />}
       </StoryChapter>
+      {((n===1 && index===1)||(n===2 && index===1)||(n===3 && index===2)) && <LongFuseInterlude part={n as 1|2|3} />}
+      </>
     ))}
   </div>
   <aside class="fuse-next" aria-label="The Long Fuse series navigation"><div class="sh-width"><p class="fuse-label">Three-part documentary · The Long Fuse</p><h2>{next? 'The story continues.':'The fuse ends here. The questions do not.'}</h2><div class="fuse-next-links">{prev&&<a href={'/storyhubs/the-long-fuse/part-'+prev+'/'}>← Part {prev}: {parts[prev].title}</a>}{next&&<a class="fuse-next-primary" href={'/storyhubs/the-long-fuse/part-'+next+'/'}>Part {next}: {parts[next].title} →</a>}{!next&&<a class="fuse-next-primary" href="/storyhubs/the-long-fuse/">Return to all three parts →</a>}</div></div></aside>
+  <LongFuseClassroomTheater {story} part={n as 1|2|3} />
 </StoryShell>
 <script>
   document.querySelectorAll<HTMLElement>('[data-fuse-votes]').forEach(root=>{

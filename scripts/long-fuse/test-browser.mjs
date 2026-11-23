@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import { mkdir,writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-const root='http://127.0.0.1:4350';
+const root=process.env.LONG_FUSE_TEST_ORIGIN||'http://127.0.0.1:4350';
 const screenshots=resolve('scripts/long-fuse/qa');
 await mkdir(screenshots,{recursive:true});
 const browser=await chromium.launch({headless:true});

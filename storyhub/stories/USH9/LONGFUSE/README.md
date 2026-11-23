@@ -59,3 +59,19 @@ Each dossier uses a cinematic editorial source layout, legible full-source link,
 Validation: `node scripts/long-fuse/test-causal.mjs` tests each dossier at 1440px, 390px and 320px, correct/incorrect feedback, no overflow and the non-JS fallback. `node scripts/long-fuse/test-accessibility.mjs` separately audits all four routes on mobile and desktop. Primary sources and interpretation limits are listed in `sources.md`.
 
 The narrative explicitly avoids claiming war or dictatorship were inevitable, that Serbia simply rejected the ultimatum, that an armistice was a treaty, or that German voters directly elected Hitler chancellor.
+
+## Cinematic connections and classroom theater (current pass)
+
+### Decision geography
+The Part I geography chapter now includes an original six-stage **July 1914 political decision map** with highlighted links for Sarajevo, Berlin’s assurance to Vienna, Austria-Hungary’s ultimatum, Serbia’s reply, Austria-Hungary’s war declaration / Russia’s mobilization, and Germany’s Belgian invasion / Britain’s entry. The backing schematic retains an explicit **not historic borders / not troop routes** caption. Each stage has a source link, what happened, what it helps explain, and what the record cannot establish. Controls are large accessible buttons. On small screens the 780-pixel schematic can be panned horizontally, with the selected city group brought into view automatically. Without JS the base map and all six dated records remain visible.
+
+### Chapter transitions
+Three short full-bleed editorial interludes appear **between historical chapters**: the July period of political choice; the wartime shift from industrial fighting to an armistice request; and 1923 hyperinflation followed by recovery before the Depression. The historical photos and the illustrated Sarajevo newspaper cover remain captioned with provenance. Subtle visual motion uses view-timeline only where supported, and is disabled in reduced-motion mode.
+
+### Classroom Theater
+Each episode offers **Classroom Theater** from its opening. It is a full-viewport modal presentation with one large-type, source-linked chapter panel at a time; dated archival visuals; a distinct teacher-led whole-class question for every chapter (16 total); visible Previous/Next buttons; large 1–6 touch targets; arrow-key / Page Up / Page Down / Home / End controls; Escape to close; and Alt+P toggle. Focus returns to the launch button, and modal controls remain keyboard accessible. This is an additive teaching surface: the original Story Hub scrolling, reading settings, source interactions, and chapter navigation remain intact.
+
+There is **no student submission, grading, login, network request, or new student data path**. Teacher Mode is a browser-local view of already published content. It is not a remote-control receiver, screen-sharing service, or a replacement for a teacher's existing projector software.
+
+### Verification and review boundaries
+Run `node scripts/long-fuse/test-cinematic-classroom.mjs` against the local Astro preview alongside the earlier route, source stage and causal dossier browser suites. The tests cover desktop, phone and narrow-phone widths; all three Theater episodes, navigation, keyboard/exit/focus restoration, actual chapter prompts, automated axe A/AA scans with the modal open, responsive six-stage map, and non-JavaScript fallback. Actual school Promethean/touch hardware and a human screen-reader listening pass remain acceptance steps. The original rights limitations described in `sources.md` still apply to commercial publication.
