@@ -34,6 +34,8 @@ export function createIcebreakServer(options={}){
   }
   return fail(res,404,'Not found');
  });
+ const tcpSockets=new Set();
+ server.on('connection',socket=>{tcpSockets.add(socket);socket.on('close',()=>tcpSockets.delete(socket))});
  const ws=attachWebSockets(server,{
   allowedOrigins,maxConnections:options.maxConnections||128,
   allowMissingOrigin:!!options.allowMissingOrigin,
