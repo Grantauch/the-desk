@@ -34,7 +34,7 @@ function scene(s){
  assert.ok(a&&b);
  Object.assign(a,{x:0,z:0,vx:s.speed??11,vz:s.tangent??0,facing:s.angle??0,
   stun:0,check:0,checkWindow:0,checkRecovery:0,energy:s.energy??1,balance:s.attackerBalance??1});
- Object.assign(b,{x:1.06,z:0,vx:s.targetSpeed??0,vz:s.targetTangent??0,
+ Object.assign(b,{x:s.noOverlap?3:1.06,z:0,vx:s.targetSpeed??0,vz:s.targetTangent??0,
   facing:Math.PI,stun:0,brace:s.brace??0,balance:s.targetBalance??1});
  if(s.sameTeam)b.team=a.team;
  if(s.carry!==false&&!b.goalie)f.give(b);
@@ -68,7 +68,9 @@ test('reference contact constants and stick-release geometry match the integrate
   const browser=Function('return ('+text+')')();
   assert.deepEqual(browser,constant,name+' constants drifted');
  }
- assert.ok(html.includes('const ROLE_MASS=['+ROLE_MASS.join(',')+']'),'role masses drifted');
+ const masses=html.match(/const ROLE_MASS=\[([^\]]+)\]/)?.[1];
+ assert.ok(masses,'role masses missing');
+ assert.deepEqual(Function('return ['+masses+']')(),ROLE_MASS,'role masses drifted');
 });
 const cases=[
  {name:'glancing check retains puck',speed:4},
@@ -94,8 +96,9 @@ const cases=[
 for(const scenario of cases)test(scenario.name,()=>{
  // A no-overlap fixture needs a separate reposition before collision.
  if(scenario.noOverlap){
-  const result=scene({...scenario,energy:.1}); // gate checks no impact in reference scene
+  const result=scene(scenario);
   assert.equal(result.f.phase,'playing');
+  assert.ok(result.ca.checkWindow>0,'a check outside contact still has an armed window');
   return;
  }
  scene(scenario);
