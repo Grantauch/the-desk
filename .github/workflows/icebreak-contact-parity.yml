@@ -1,0 +1,37 @@
+name: ICEBREAK active contact physics parity
+
+on:
+  pull_request:
+    paths:
+      - 'public/hubs/icebreak.html'
+      - 'tests/icebreak/fixture.cjs'
+      - 'prototypes/icebreak-parity/**'
+      - 'prototypes/icebreak-contact-parity/**'
+      - '.github/workflows/icebreak-contact-parity.yml'
+  push:
+    branches:
+      - qa/icebreak-contact-physics-parity
+    paths:
+      - 'prototypes/icebreak-contact-parity/**'
+      - '.github/workflows/icebreak-contact-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    name: Compare browser and headless checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Check source syntax
+        run: |
+          node --check prototypes/icebreak-contact-parity/contact.mjs
+          node --check prototypes/icebreak-contact-parity/verification.test.mjs
+      - name: Verify live checking parity
+        run: node --test prototypes/icebreak-contact-parity/verification.test.mjs
