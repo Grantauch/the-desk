@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHmac } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import test from 'node:test';
 import {
   issueSyntheticLegacyPinAttestation,
@@ -155,4 +155,65 @@ test('SW-175 atomic nonce store errors fail closed without leaking credentials',
   const err = await verify(token, unavailable).then(() => 'unexpected success', (reason: Error) => reason.message);
   assert.equal(err, 'Legacy PIN handoff rejected.');
   assert.doesNotMatch(err, /001234|opaque-student|secret|token|synthetic store failure/);
+});
+
+
+test('SW-188 signed school and audience bind the nonce digest even with an identical nonce', async () => {
+  // Re-sign deliberately fictional claims sharing the same nonce to prove
+  // tenant and audience separation independently of random nonce generation.
+  const originalToken = issueSyntheticLegacyPinAttestation(base);
+  const payload = originalToken.split('.')[0]!;
+  const signedClaims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as Record<string, unknown>;
+  const remake = (change: Record<string, unknown>) => {
+    const encoded = Buffer.from(JSON.stringify({ ...signedClaims, ...change })).toString('base64url');
+    const mac = createHmac('sha256', secret)
+      .update('schoolwide-synthetic-legacy-attestation-v1\0' + encoded)
+      .digest('base64url');
+    return encoded + '.' + mac;
+  };
+  const records: SyntheticNonceConsumption[] = [];
+  const capture = async (consumption: SyntheticNonceConsumption) => {
+    records.push(consumption);
+    return true;
+  };
+  await verify(originalToken, capture);
+  await verify(remake({ schoolId: 'synthetic-school-two' }), capture,
+    { expectedSchoolId: 'synthetic-school-two' });
+  await verify(remake({ audience: 'another-synthetic-bridge' }), capture,
+    { expectedAudience: 'another-synthetic-bridge' });
+  assert.equal(records.length, 3);
+  assert.equal(new Set(records.map(record => record.nonceDigest)).size, 3);
+  for (const [i, scope] of [
+    [0, { schoolId: base.schoolId, audience: base.audience }],
+    [1, { schoolId: 'synthetic-school-two', audience: base.audience }],
+    [2, { schoolId: base.schoolId, audience: 'another-synthetic-bridge' }],
+  ] as const) {
+    const expected = createHash('sha256')
+      .update('schoolwide-one-use-nonce-v2\0'
+        + base.issuer + '\0' + scope.schoolId + '\0'
+        + scope.audience + '\0' + signedClaims.nonce)
+      .digest('hex');
+    assert.equal(records[i]?.nonceDigest, expected);
+  }
+});
+
+test('SW-188 UUID school IDs are lowercase in signed claims, lookup and nonce callbacks', async () => {
+  const uuid = '7DB9D50C-0CA9-48CC-8C4B-2FF1E31D91A4';
+  const token = issueSyntheticLegacyPinAttestation({ ...base, schoolId: uuid });
+  const payload = JSON.parse(Buffer.from(token.split('.')[0]!, 'base64url').toString('utf8')) as Record<string, unknown>;
+  assert.equal(payload.schoolId, uuid.toLowerCase());
+  const consumed: SyntheticNonceConsumption[] = [];
+  const result = await verify(token, async c => {
+    consumed.push(c);
+    return true;
+  }, { expectedSchoolId: uuid });
+  assert.equal(result.schoolId, uuid.toLowerCase());
+  assert.equal(consumed[0]?.schoolId, uuid.toLowerCase());
+  await assert.rejects(verify(token, async () => true,
+    { expectedSchoolId: '3f84693d-77a1-4513-9f9e-088b02dbeb02' }), /Legacy PIN handoff rejected/);
+
+  // Only UUID syntax is normalized. Other opaque identifiers remain strict.
+  const opaque = issueSyntheticLegacyPinAttestation({ ...base, schoolId: 'Synthetic-School' });
+  await assert.rejects(verify(opaque, async () => true,
+    { expectedSchoolId: 'synthetic-school' }), /Legacy PIN handoff rejected/);
 });

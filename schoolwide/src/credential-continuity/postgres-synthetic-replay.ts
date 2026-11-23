@@ -35,13 +35,16 @@ export function createSyntheticPostgresNonceConsumer(
   if (!GUID.test(scope.organizationId) || !GUID.test(scope.schoolId) || !ISSUER.test(scope.issuer)) {
     throw new Error('Synthetic replay scope rejected.');
   }
+  // A UUID has one canonical spelling across signed claims, callback scope,
+  // and PostgreSQL. Uppercase UUID input must not produce a separate guard.
+  const trustedSchoolId = scope.schoolId.toLowerCase();
   return async (consumption) => {
     // The signed payload's issuer/school must match this server-trusted
     // database scope. A wrong consumer cannot burn a token in another school
     // or accept the same signed nonce a second time under that other scope.
     if (!consumption || typeof consumption !== 'object') return false;
     const { nonceDigest, expiresAtEpochSeconds, schoolId, issuer } = consumption;
-    if (schoolId !== scope.schoolId || issuer !== scope.issuer
+    if (typeof schoolId !== 'string' || schoolId.toLowerCase() !== trustedSchoolId || issuer !== scope.issuer
       || typeof nonceDigest !== 'string' || !DIGEST.test(nonceDigest)
       || !Number.isSafeInteger(expiresAtEpochSeconds) || expiresAtEpochSeconds <= 0) return false;
     try {
@@ -53,7 +56,7 @@ export function createSyntheticPostgresNonceConsumer(
            AND to_timestamp($5::double precision) <= clock_timestamp() + INTERVAL '65 seconds'
          ON CONFLICT (school_id, issuer, nonce_digest) DO NOTHING
          RETURNING 1::integer AS accepted`,
-        [scope.organizationId, scope.schoolId, scope.issuer, nonceDigest, expiresAtEpochSeconds],
+        [scope.organizationId, trustedSchoolId, scope.issuer, nonceDigest, expiresAtEpochSeconds],
       );
       return rows.length === 1 && rows[0]?.accepted === 1;
     } catch {

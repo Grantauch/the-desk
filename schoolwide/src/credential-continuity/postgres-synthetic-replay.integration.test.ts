@@ -153,6 +153,41 @@ if (!databaseUrl) {
         await assert.rejects(useConsumer(consumeB), /Legacy PIN handoff rejected/);
       });
 
+      await t.test('SW-188 uppercase UUID school and organization resolve to one durable replay guard', async () => {
+        const schoolUpper = school.toUpperCase();
+        const orgUpper = org.toUpperCase();
+        const upperScopedConsumer = createSyntheticPostgresNonceConsumer(executor(poolA), {
+          organizationId: orgUpper, schoolId: schoolUpper, issuer,
+        });
+        const before = await poolB.query<{ count: string }>(
+          'SELECT count(*)::text AS count FROM legacy_pin_handoff_replays WHERE school_id=$1 AND issuer=$2',
+          [school, issuer],
+        );
+        const signed = issueSyntheticLegacyPinAttestation({
+          issuer, audience, schoolId: schoolUpper, studentAlias, pin, secret,
+          nowEpochSeconds: Math.floor(Date.now() / 1000),
+        });
+        const claims = JSON.parse(Buffer.from(signed.split('.')[0]!, 'base64url').toString('utf8')) as Record<string, unknown>;
+        assert.equal(claims.schoolId, school);
+        const attempt = (consumer: typeof consumeA) =>
+          verifySyntheticLegacyPinAttestation({
+            token: signed, secret, expectedIssuer: issuer,
+            expectedAudience: audience, expectedSchoolId: schoolUpper,
+            expectedStudentAlias: studentAlias, pin,
+            nowEpochSeconds: Math.floor(Date.now() / 1000),
+            consumeNonceDigest: consumer,
+          });
+        assert.equal((await attempt(upperScopedConsumer)).schoolId, school);
+        // Repeating the same signed token against lowercase scope must fail
+        // even though the first insert came from uppercase UUID parameters.
+        await assert.rejects(attempt(consumeB), /Legacy PIN handoff rejected/);
+        const after = await poolB.query<{ count: string }>(
+          'SELECT count(*)::text AS count FROM legacy_pin_handoff_replays WHERE school_id=$1 AND issuer=$2',
+          [school, issuer],
+        );
+        assert.equal(Number(after.rows[0]?.count), Number(before.rows[0]?.count) + 1);
+      });
+
       await t.test('invalid tenant and expired nonce are rejected without DB writes', async () => {
         const digest = createHash('sha256').update('synthetic-nonce-only').digest('hex');
         const badTenant = createSyntheticPostgresNonceConsumer(executor(poolA), {
