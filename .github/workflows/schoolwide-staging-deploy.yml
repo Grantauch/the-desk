@@ -22,7 +22,7 @@ jobs:
     environment: schoolwide-staging
     steps:
       - name: Checkout release request commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
 
@@ -76,20 +76,20 @@ jobs:
           PY
 
       - name: Checkout the already-qualified release commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.cloud.outputs.release_sha }}
           fetch-depth: 0
 
       - name: Authenticate to Google Cloud with short-lived GitHub identity
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
         with:
           project_id: ${{ steps.cloud.outputs.project_id }}
           workload_identity_provider: ${{ steps.cloud.outputs.workload_identity_provider }}
           service_account: ${{ steps.cloud.outputs.deploy_service_account }}
 
       - name: Install Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db
         with:
           project_id: ${{ steps.cloud.outputs.project_id }}
 

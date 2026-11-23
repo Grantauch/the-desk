@@ -44,7 +44,10 @@ requireText(workflow, "real_data_allowed", 'real-data release assertion');
 requireText(workflow, "DATABASE_SOCKET_PATH=/cloudsql/", 'Cloud SQL Unix socket configuration');
 requireText(workflow, "LEGACY_PRODUCTION_WRITES=forbidden", 'legacy write prohibition');
 requireText(workflow, "OPERATIONS_WORKERS_ENABLED=false", 'SW-170 worker disablement');
-requireText(workflow, "google-github-actions/auth@v3", 'short-lived Google authentication action');
+// SW-187: require the exact verified, immutable Google Actions commits.
+// A floating tag should never satisfy the staging release guard.
+requireText(workflow, "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093", 'SHA-pinned short-lived Google authentication action');
+requireText(workflow, "google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db", 'SHA-pinned Google Cloud CLI action');
 forbidText(workflow, 'credentials_json:', 'long-lived Google service-account JSON authentication');
 forbidText(workflow, 'workflow_dispatch:', 'unguarded click-to-deploy trigger');
 

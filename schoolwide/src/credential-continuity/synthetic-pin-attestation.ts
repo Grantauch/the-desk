@@ -7,6 +7,8 @@
  * Deployment/real-data use requires a separate architecture and privacy review.
  */
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import type { SyntheticNonceConsumption } from './synthetic-nonce-contract.js';
+export type { SyntheticNonceConsumption } from './synthetic-nonce-contract.js';
 
 const VERSION = 1 as const;
 const MAX_TTL_SECONDS = 60;
@@ -14,6 +16,13 @@ const MAX_CLOCK_SKEW_SECONDS = 5;
 const MAX_ENVELOPE_LENGTH = 4096;
 const OPAQUE_NAME = /^[a-zA-Z0-9][a-zA-Z0-9_.:@-]{0,191}$/;
 const BASE64URL = /^[A-Za-z0-9_-]+$/;
+const UUID_NAME = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// UUIDs are case-insensitive identifiers; opaque synthetic school names are
+// deliberately case-sensitive and must not be silently reinterpreted.
+function canonicalSchoolId(schoolId: string): string {
+  return UUID_NAME.test(schoolId) ? schoolId.toLowerCase() : schoolId;
+}
 
 type Claims = {
   version: typeof VERSION;
@@ -48,7 +57,7 @@ export type LegacyPinAttestationVerification = {
   secret: Buffer;
   nowEpochSeconds: number;
   /** Must atomically insert a nonce digest with uniqueness & expiry. Fail closed. */
-  consumeNonceDigest: (nonceDigest: string, expiresAtEpochSeconds: number) => Promise<boolean>;
+  consumeNonceDigest: (consumption: SyntheticNonceConsumption) => Promise<boolean>;
 };
 
 export type VerifiedLegacyPinAttestation = {
@@ -149,7 +158,7 @@ export function issueSyntheticLegacyPinAttestation(request: LegacyPinAttestation
     version: VERSION,
     issuer: request.issuer,
     audience: request.audience,
-    schoolId: request.schoolId,
+    schoolId: canonicalSchoolId(request.schoolId),
     studentAlias: request.studentAlias,
     nonce,
     issuedAt: request.nowEpochSeconds,
@@ -186,7 +195,7 @@ export async function verifySyntheticLegacyPinAttestation(
   if (canonical(claims) !== payloadBytes.toString('utf8')) reject();
   if (claims.issuer !== request.expectedIssuer
     || claims.audience !== request.expectedAudience
-    || claims.schoolId !== request.expectedSchoolId
+    || claims.schoolId !== canonicalSchoolId(request.expectedSchoolId)
     || claims.studentAlias !== request.expectedStudentAlias) reject();
   if (request.nowEpochSeconds < claims.issuedAt - MAX_CLOCK_SKEW_SECONDS
     || request.nowEpochSeconds >= claims.expiresAt) reject();
@@ -194,11 +203,20 @@ export async function verifySyntheticLegacyPinAttestation(
   // Signature and scope were validated first. Consume *before* checking the
   // PIN so attackers cannot repeatedly guess against the same token.
   const nonceDigest = createHash('sha256')
-    .update('schoolwide-one-use-nonce-v1\0' + claims.issuer + '\0' + claims.nonce, 'utf8')
+    // Bind one-use replay identity to the complete signed destination scope.
+    // v2 is intentionally different from the old synthetic-only v1 digest.
+    .update('schoolwide-one-use-nonce-v2\0'
+      + claims.issuer + '\0' + claims.schoolId + '\0'
+      + claims.audience + '\0' + claims.nonce, 'utf8')
     .digest('hex');
   let consumed = false;
   try {
-    consumed = await request.consumeNonceDigest(nonceDigest, claims.expiresAt);
+    consumed = await request.consumeNonceDigest({
+      nonceDigest,
+      expiresAtEpochSeconds: claims.expiresAt,
+      issuer: claims.issuer,
+      schoolId: claims.schoolId,
+    });
   } catch { reject(); }
   if (consumed !== true) reject();
 

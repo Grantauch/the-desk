@@ -1,12 +1,14 @@
 import { execFileSync } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { verifySyntheticRecoveryWorkflow } from './validate-synthetic-recovery-workflow.mjs';
 
 const allowedChangedPaths = [
   'schoolwide/',
   '.github/workflows/schoolwide-ci.yml',
   '.github/workflows/schoolwide-staging.yml',
   '.github/workflows/schoolwide-staging-deploy.yml',
+  '.github/workflows/schoolwide-cross-runner-recovery.yml',
   'tsconfig.json',
 ];
 const forbiddenSourceReferences = [
@@ -45,9 +47,23 @@ async function walk(directory) {
 }
 
 const changes = changedPaths();
-const outside = changes.filter((path) => !allowedChangedPaths.some((allowed) => path === allowed || path.startsWith(allowed)));
+// Directory exceptions end in '/'. Workflow files and root configs must match
+// exactly; a file whose name merely starts with an allowed name is NOT safe.
+const outside = changes.filter((path) => !allowedChangedPaths.some((allowed) =>
+  allowed.endsWith('/') ? path.startsWith(allowed) : path === allowed,
+));
 if (outside.length) {
   throw new Error(`Schoolwide production firewall: changes outside the isolated Schoolwide lane: ${outside.join(', ')}`);
+}
+
+// SW-187: validate the parsed YAML structure with a closed set of exact
+// triggers, permissions, job keys, step behavior and immutable action SHAs.
+// Substring denial alone misses job-level permissions, write-all and secret
+// expressions. This workflow is not allowed to deploy or touch real records.
+const crossRunnerFile = '.github/workflows/schoolwide-cross-runner-recovery.yml';
+if (changes.includes(crossRunnerFile)) {
+  const workflow = await readFile(join(process.cwd(), '..', crossRunnerFile), 'utf8');
+  verifySyntheticRecoveryWorkflow(workflow);
 }
 
 const trackedEnvironmentFile = changes.find((path) => /^schoolwide\/\.env(?:\.|$)/.test(path) && path !== 'schoolwide/.env.example');

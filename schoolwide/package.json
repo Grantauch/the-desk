@@ -4,19 +4,34 @@
   "private": true,
   "type": "module",
   "description": "Isolated GrantDesk Schoolwide service foundation.",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "node scripts/run-tests.mjs",
-    "firewall": "node scripts/verify-production-firewall.mjs",
+    "firewall": "node scripts/verify-production-firewall.mjs && node --test scripts/test-production-firewall.mjs",
+    "handoff:guard": "node scripts/verify-disabled-pin-handoff.mjs && node --test scripts/test-disabled-pin-handoff.mjs",
     "staging:guard": "node scripts/verify-staging-release.mjs",
-    "verify": "npm run firewall && npm run staging:guard && npm run check && npm test && npm run build",
+    "verify": "npm run firewall && npm run handoff:guard && npm run staging:guard && npm run check && npm test && npm run build",
     "db:migrate": "tsx src/db/migrate.ts",
     "staging:smoke": "node scripts/staging-smoke.mjs",
     "start": "node dist/server.js"
   },
-  "dependencies": { "fastify": "^5.12.3", "pg": "^8.23.0", "pg-connection-string": "^2.14.1", "zod": "^4.5.4" },
-  "devDependencies": { "@types/node": "^22.20.1", "@types/pg": "^8.23.1", "tsx": "^4.23.13", "typescript": "^7.0.2" }
+  "dependencies": {
+    "fastify": "^5.12.3",
+    "pg": "^8.23.0",
+    "pg-connection-string": "^2.14.1",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@babel/parser": "^7.28.0",
+    "@types/node": "^22.20.1",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "yaml": "2.9.1"
+  }
 }
