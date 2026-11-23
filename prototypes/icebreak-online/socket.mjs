@@ -19,8 +19,7 @@ export function attachWebSockets(server,{onConnect,onMessage,onClose,allowedOrig
  const peers=new Set();
  server.on('upgrade',(req,socket,head)=>{
   const fail=(code=403)=>{
-   socket.write('HTTP/1.1 '+code+' Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n');
-   socket.destroy();
+   socket.end('HTTP/1.1 '+code+' Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n');
   };
   const origin=req.headers.origin;
   const key=req.headers['sec-websocket-key'];
