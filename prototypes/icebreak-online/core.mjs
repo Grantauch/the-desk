@@ -161,7 +161,7 @@ export class RoomDirectory{
   if(!room||typeof token!=='string')throw Error('INVALID_RESUME');
   const member=room.seats.find(m=>m&&m.token===token);
   if(!member||member.peer||member.reservedUntil<this.now())throw Error('INVALID_RESUME');
-  member.peer=peer;member.reservedUntil=0;member.lastInput=this.now();member.input={...ZERO};member.ready=false;
+  member.peer=peer;member.reservedUntil=0;member.lastInput=this.now();member.input={...ZERO};member.seq=-1;member.ready=false;
   peer.room=room;peer.member=member;room.lastActive=this.now();
   return {type:'seated',code,seat:member.seat,role:ROLES[member.seat%4],team:Math.floor(member.seat/4),host:room.host===member.seat,token:member.token,resumed:true};
  }
