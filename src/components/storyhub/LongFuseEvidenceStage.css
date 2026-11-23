@@ -1,0 +1,79 @@
+/* The Long Fuse, Batch 2: cinematic evidence stage, accessible without scripting */
+.lf-sequence{max-width:83rem;margin:clamp(2rem,5vw,5rem) auto;isolation:isolate;background:#13272e;color:#f4eddf;border-top:5px solid #bd5740;box-shadow:0 30px 75px #06131b3a}
+.lf-sequence *{box-sizing:border-box}
+.lf-sequence-heading{padding:clamp(1.3rem,3.6vw,3.4rem) clamp(1.25rem,4vw,3.2rem) clamp(1.4rem,3vw,2.6rem);border-bottom:1px solid #566c70}
+.lf-sequence-heading-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem 1.5rem;color:#e5c297;font:750 .75rem/1.4 system-ui,sans-serif;letter-spacing:.15em}
+.lf-sequence-heading-meta>span:last-child{color:#c6d3d1}
+.lf-sequence-heading h3{font:560 clamp(2.6rem,5.8vw,5.8rem)/1.01 FuseSerif,Georgia,serif;letter-spacing:-.045em;max-width:18ch;margin:.9rem 0 1rem;text-wrap:balance}
+.lf-sequence-heading>p{font:1.1rem/1.65 system-ui,sans-serif;max-width:70ch;color:#d9e0da}
+.lf-sequence-frame{padding:clamp(.65rem,2vw,1.5rem)}
+.lf-sequence-index{display:flex;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-color:#8caba8 #1c3339;gap:.4rem;margin-bottom:.75rem;padding-bottom:.38rem}
+.lf-sequence-select{flex:1 0 10rem;min-width:0;display:flex;align-items:center;gap:.65rem;text-align:left;background:#213942;color:#efe8dc;border:1px solid #657b7f;padding:.9rem .8rem;min-height:5.4rem;border-radius:0;scroll-snap-align:start;transition:background .2s,border-color .2s}
+.lf-sequence-select:hover{background:#30515b}
+.lf-sequence-select[aria-pressed=true]{color:#182b32;background:#edc79a;border-color:#edc79a}
+.lf-sequence-select:focus-visible,.lf-source-link:focus-visible{outline:3px solid #f7ca89;outline-offset:3px}
+.lf-step-no{font:550 clamp(1.6rem,2.8vw,2.4rem)/1 FuseSerif,Georgia,serif;letter-spacing:-.06em}
+.lf-step-meta{display:grid;gap:.25rem;min-width:0;flex:1}
+.lf-step-meta strong{font:760 .83rem/1.3 system-ui,sans-serif}
+.lf-step-meta small{font:650 .72rem/1.3 system-ui,sans-serif;opacity:.92}
+.lf-step-arrow{font-size:1rem;font-weight:750;align-self:flex-start}
+.lf-sequence-stages{min-height:0}
+.lf-sequence-stage{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);background:#f5efe3;color:#15272d;min-height:32rem;border:1px solid #6f7371}
+.lf-sequence-stage+.lf-sequence-stage{margin-top:.9rem}
+.lf-sequence-stage[hidden]{display:none!important}
+.lf-evidence-plate{display:flex;flex-direction:column;position:relative;margin:0;background:#263b44;color:#efe6d4;min-width:0;min-height:28rem}
+.lf-evidence-plate>img{display:block;width:100%;height:100%;flex:1 1 auto;min-height:0;object-fit:cover;object-position:center;filter:grayscale(100%) contrast(1.08)}
+.lf-evidence-plate--typographic{background:radial-gradient(ellipse at 68% 22%,#34545c 0,#1a333b 44%,#0f222a 100%);align-items:stretch;justify-content:center}
+.lf-evidence-label{position:absolute;z-index:2;inset:0 0 auto 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:1.1rem 1.2rem;font:750 .67rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-shadow:0 2px 5px #061922a0;background:linear-gradient(180deg,#132731c7,transparent)}
+.lf-evidence-plate figcaption{display:grid;gap:.2rem;padding:.8rem 1rem 1.05rem;background:#192d34;color:#f0eadf;font-size:.79rem;line-height:1.4}
+.lf-evidence-plate figcaption small{font-size:.71rem;color:#d4dacd}
+.lf-stat-graphic{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3.2rem 1rem 2rem;min-height:24rem;gap:.5rem}
+.lf-stat-graphic>span{font:580 clamp(5.8rem,13vw,11.8rem)/.92 FuseSerif,Georgia,serif;letter-spacing:-.09em;color:#f2d1a5}
+.lf-stat-graphic>small{font:780 clamp(.85rem,1.4vw,1.15rem)/1.4 system-ui,sans-serif;letter-spacing:.16em;color:#e6e9db}
+.lf-stat-graphic>i{font:650 .7rem/1.5 system-ui,sans-serif;letter-spacing:.15em;color:#b1c5c5;max-width:18rem;margin-top:2rem}
+.lf-sequence-reading{padding:clamp(1.4rem,3.4vw,3.2rem);display:flex;flex-direction:column;min-width:0}
+.lf-reading-date{font:770 .78rem/1.4 system-ui,sans-serif;color:#963c30;letter-spacing:.15em;text-transform:uppercase}
+.lf-sequence-reading h4{font:550 clamp(2.1rem,3.5vw,3.65rem)/1.07 FuseSerif,Georgia,serif;letter-spacing:-.045em;margin:.65rem 0 1rem;text-wrap:balance}
+.lf-reading-narrative{font:1.08rem/1.6 system-ui,sans-serif;margin:0 0 1.35rem;max-width:55ch}
+.lf-proof-limit{display:grid;grid-template-columns:1fr;gap:.25rem;border-top:1px solid #bcb0a3;margin:0;padding-top:1rem}
+.lf-proof-limit dt{font:800 .73rem/1.4 system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:#7c3229;margin:.45rem 0 .15rem}
+.lf-proof-limit dd{font: .96rem/1.5 system-ui,sans-serif;margin:0 0 .55rem;color:#26363a}
+.lf-source-link{display:inline-flex;justify-content:space-between;align-items:center;gap:1rem;border-top:1px solid #bcb0a3;margin-top:auto;padding-top:1.05rem;color:#71281e!important;text-decoration:underline;font:800 .87rem/1.4 system-ui,sans-serif}
+.lf-sequence-outro{display:flex;gap:1.5rem;align-items:flex-start;justify-content:space-between;font:italic 1.2rem/1.45 FuseSerif,Georgia,serif;padding:1.25rem clamp(1.3rem,3.3vw,3rem) 1.8rem;background:#192f36}
+.lf-sequence-outro span{white-space:nowrap;font:780 .7rem/1.6 system-ui,sans-serif;letter-spacing:.16em;color:#e9c396;padding-top:.25rem}
+@media(max-width:1080px){
+ .lf-sequence-select{flex:0 0 11.9rem}
+ .lf-sequence-stage{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}
+ .lf-sequence-reading{padding:1.4rem}
+}
+@media(max-width:720px){
+ .lf-sequence{margin:2.3rem auto}
+ .lf-sequence-heading{padding:1.4rem 1rem}
+ .lf-sequence-heading h3{font-size:clamp(2.5rem,11vw,4rem)}
+ .lf-sequence-heading-meta{font-size:.64rem}
+ .lf-sequence-frame{padding:.6rem}
+ .lf-sequence-select{flex:0 0 10.3rem;min-height:4.6rem;padding:.6rem .75rem}
+ .lf-step-no{font-size:1.7rem}
+ .lf-sequence-stage{grid-template-columns:minmax(0,1fr)}
+ .lf-evidence-plate{min-height:0}
+ .lf-evidence-plate>img{height:auto;min-height:15.5rem;max-height:21.5rem;aspect-ratio:16/10;object-fit:cover}
+ .lf-sequence-reading{padding:1.35rem 1.1rem 1.6rem}
+ .lf-sequence-reading h4{font-size:clamp(2.15rem,8vw,3rem)}
+ .lf-stat-graphic{min-height:18rem;padding:2.2rem 1rem 1.5rem}
+ .lf-stat-graphic>span{font-size:clamp(5.5rem,23vw,8.3rem)}
+ .lf-sequence-outro{flex-direction:column;gap:.55rem;font-size:1.08rem;padding:1rem 1.25rem 1.5rem}
+}
+@media(prefers-reduced-motion:reduce){.lf-sequence-select{transition:none}}
+@media print{.lf-sequence{break-inside:avoid;box-shadow:none}.lf-sequence-stage{break-inside:avoid}.lf-sequence-stage[hidden]{display:grid!important}}
+
+/* Preserve the original period illustration's color; historical photography remains monochrome. */
+.lf-evidence-plate.lf-color-illustration>img{filter:contrast(1.06)}
+
+/* QA: override StoryShell's generic light button skin on inactive stage selectors. */
+.fuse.sh-shell .lf-sequence-select{background:#213942;color:#f4ecdd;border-color:#657b7f}
+.fuse.sh-shell .lf-sequence-select:hover{background:#30515b;color:#fff7e8}
+.fuse.sh-shell .lf-sequence-select[aria-pressed="true"]{color:#172a31;background:#edc79a;border-color:#edc79a}
+/* Editorial crop prevents tall historical negatives from leaving a blank reading column. */
+.lf-evidence-plate{min-height:0}
+.lf-evidence-plate>img{height:clamp(23rem,43vw,37rem);max-height:37rem;min-height:0;flex:0 0 auto;object-fit:cover}
+@media(max-width:720px){.lf-evidence-plate>img{height:auto;max-height:21.5rem;min-height:15.5rem;aspect-ratio:16/10}}

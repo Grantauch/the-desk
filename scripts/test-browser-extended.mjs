@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { preview } from 'astro';
 import AxeBuilder from '@axe-core/playwright';
 import { chromium } from 'playwright';
+import { learningCourses } from '../src/data/learningHubs.ts';
 import { storyHubs } from '../src/data/storyhubs.ts';
 
 const origin = 'http://127.0.0.1:4392';
@@ -11,6 +12,7 @@ const artifacts = new URL('../browser-results/', import.meta.url);
 const artifact = (name) => fileURLToPath(new URL(name, artifacts));
 const catalogOnly = process.env.DESK_BROWSER_STORY_LIBRARY_ONLY === '1';
 const storyRoute = '/storyhubs/';
+const courseRoutes = ['/us-history/', '/hidden-history/', '/beyond-the-scoreboard/'];
 const protectedStoryLinks = [...storyHubs.map(({ href }) => href), '/hubs/ush9-over-the-somme.html'];
 const archiveSources = '.archive-sources a';
 const storyAnchors = `a:not(${archiveSources})`;
@@ -33,6 +35,7 @@ const routes = catalogOnly ? [storyRoute] : [
   '/showcase/',
   '/simulations/',
   storyRoute,
+  ...courseRoutes,
   '/us-history/syllabus/',
   '/hidden-history/syllabus/',
   '/beyond-the-scoreboard/syllabus/',
@@ -54,6 +57,57 @@ const reflowRoutes = [
   'ush9-square-deal',
   'ush9-the-jungle',
 ];
+
+async function testUnitActions(page, route) {
+  const courseSlug = route.slice(1, -1);
+  const course = learningCourses.find(({ slug }) => slug === courseSlug);
+  const units = page.locator('.units-section .unit-row');
+  const learningLinks = units.locator('a.learning-hub-trigger');
+  const materialButtons = units.locator('button.materials-trigger');
+
+  assert.deepEqual((await hrefsOf(learningLinks)).toSorted(),
+    course.units.map(({ slug }) => `/learn/${courseSlug}/${slug}/`).toSorted(),
+    'The course still offers every canonical learning unit');
+  const drawerCount = await materialButtons.count();
+  assert.ok(drawerCount > 0, 'The course offers unit materials');
+  assert.equal(await units.locator('dialog.materials-dialog').count(), drawerCount);
+
+  let firstDrawer;
+  const dialogIds = new Set();
+  for (const unit of await units.all()) {
+    const title = await unit.locator('.unit-row__title h3').innerText();
+    if (await unit.locator('a.learning-hub-trigger').count()) {
+      const launchName = `learning hub: ${title}`;
+      const launch = unit.getByRole('link', { name: launchName, exact: true });
+      assert.equal(await launch.count(), 1, `A student can find the ${title} learning hub by name`);
+      assert.equal(await page.getByRole('link', { name: launchName, exact: true }).count(), 1);
+    }
+
+    const control = unit.locator('button.materials-trigger');
+    if (!(await control.count())) continue;
+    const visibleCount = await control.locator('.materials-trigger__count').innerText();
+    const drawerName = `unit materials ${visibleCount}: ${title}`;
+    const button = unit.getByRole('button', { name: drawerName, exact: true });
+    const dialogId = await control.getAttribute('data-materials-open');
+    assert.ok(dialogId && !dialogIds.has(dialogId), 'Every materials button opens its own dialog');
+    dialogIds.add(dialogId);
+    assert.equal(await button.count(), 1, `A student can find the ${title} materials by name`);
+    assert.equal(await page.getByRole('button', { name: drawerName, exact: true }).count(), 1);
+    assert.equal(await button.getAttribute('aria-controls'), dialogId);
+    assert.equal(await unit.locator(`dialog[id="${dialogId}"]`).count(), 1);
+    firstDrawer ??= { button, title };
+  }
+
+  const { button, title } = firstDrawer;
+  await button.press('Enter');
+  const dialog = page.getByRole('dialog', { name: title, exact: true });
+  await dialog.waitFor({ state: 'visible' });
+  assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)));
+  await page.keyboard.press('Escape');
+  await dialog.waitFor({ state: 'hidden' });
+  assert.ok(await button.evaluate((element) => document.activeElement === element),
+    'Escape returns keyboard focus to the materials button');
+}
 
 async function testLibraryArchiveCredit(library) {
   assert.deepEqual(await hrefsOf(library.locator(`[data-entry] ${archiveSources}`)), l015ArchiveLinks,
@@ -196,6 +250,7 @@ try {
         assert.deepEqual(errors, [], `${route} has no uncaught browser errors`);
         await page.screenshot({ path: artifact(`extended-${viewport.name}-${slug}.png`) });
         if (route === storyRoute) await testLibrary(page, viewport);
+        if (courseRoutes.includes(route)) await testUnitActions(page, route);
         results.push({ route, viewport: viewport.name, status: 'passed' });
         console.log(`PASS ${viewport.name}: ${route}`);
       } catch (error) {

@@ -26,6 +26,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'the-long-fuse',
+    href: '/storyhubs/the-long-fuse/',
+    title: 'The Long Fuse — A Three-Part Historical Documentary',
+    course: 'us history',
+    unit: 'world war i and its aftermath',
+    period: '1914–1933',
+    status: 'three-part cinematic documentary',
+    edition: 'story hub 2.0 · three-part series',
+    question: 'How did separate political choices turn a killing into world war—and a later democratic crisis into dictatorship?',
+    blurb: 'Explore Sarajevo, the July Crisis, industrial war, Versailles, Weimar and January 1933 through period photography, interactive geography, a dated timeline and election evidence. Three linked episodes with an archival reference companion.',
+    cover: '/storyhub/ush9/long-fuse/assets/sarajevo.webp',
+    coverAlt: 'Contemporary illustrated Italian newspaper depiction of the Sarajevo assassination, not a photograph',
+    topics: ['world war i', 'sarajevo', 'july crisis', 'versailles', 'weimar republic', 'historical contingency', 'primary sources'],
+    inside: [
+      'Part I: The Spark Was Not a Switch — Sarajevo, the ultimatum and the choices of July 1914.',
+      'Part II: The War and the Settlement — fighting, armistice and the peace conference.',
+      'Part III: The Republic and the Appointment — inflation, elections, political bargains and January 1933.',
+      'Interactive dated evidence, accessible map and cast, archival photographs with rights and source records.',
+    ],
+  },
+  {
     slug: 'pearl-harbor',
     href: '/storyhubs/pearl-harbor/',
     title: 'Pearl Harbor: The Morning That Changed the World',

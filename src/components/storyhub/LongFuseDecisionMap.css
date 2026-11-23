@@ -1,0 +1,58 @@
+/* The Long Fuse: archival decision map, not a literal troop route. */
+.lf-dmap{max-width:83rem;margin:3rem auto 4rem;background:#13252b;color:#f5ead7;border-top:5px solid #bd5740;box-shadow:0 22px 60px #111e2533;isolation:isolate}
+.lf-dmap *{box-sizing:border-box}
+.lf-dmap-heading{padding:clamp(1.35rem,3.5vw,3rem) clamp(1.2rem,4vw,3.4rem);border-bottom:1px solid #637578}
+.lf-dmap-brow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;color:#efd0a3;font:770 .74rem/1.35 system-ui,sans-serif;letter-spacing:.16em}
+.lf-dmap-brow span:last-child{color:#cbd7cf}
+.lf-dmap h3{font:550 clamp(2.9rem,6.4vw,6.6rem)/.99 FuseSerif,Georgia,serif;letter-spacing:-.055em;margin:.8rem 0 1rem;max-width:15ch;text-wrap:balance}
+.lf-dmap-heading>p{max-width:64ch;font:1.08rem/1.68 system-ui,sans-serif;color:#e3e8df}
+.lf-dmap-heading strong{color:#f2cb96}
+.lf-dmap-frame{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:stretch;gap:0;padding:clamp(.55rem,1.5vw,1.15rem)}
+.lf-dmap-visual{position:relative;min-width:0;background:#0d1d26;display:flex;flex-direction:column;border:1px solid #657377}
+.lf-dmap-visual svg{width:100%;height:auto;display:block;flex:1;max-height:40rem}
+.lf-dmap-visual .lf-dmap-motion{opacity:0;transition:opacity .3s ease}
+.lf-dmap-visual .lf-dmap-motion.is-current{opacity:1}
+.lf-dmap-path-halo{fill:none;stroke:#f2b36f;stroke-opacity:.4;stroke-width:17;stroke-linecap:round}
+.lf-dmap-path{fill:none;stroke:#fff0c8;stroke-width:6;stroke-linecap:round;stroke-dasharray:15 9}
+.lf-dmap-motion.is-current .lf-dmap-path{animation:lf-map-trace 5s linear infinite}
+.lf-dmap-arrival{fill:#b94330;stroke:#fff0c8;stroke-width:5}
+.lf-dmap-pulse{fill:#f5d4a2;fill-opacity:.24;stroke:#fff0c8;stroke-width:4}
+.lf-dmap-caption{padding:.8rem 1rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;color:#ead6ba;background:#192e35;font:780 .65rem/1.5 system-ui,sans-serif;letter-spacing:.1em}
+.lf-dmap-ledger{background:#f7f0e5;color:#172b31;padding:clamp(.85rem,2vw,1.5rem);min-width:0}
+.lf-dmap-ledger-caption{margin:0 0 .8rem;color:#8e3529;font:800 .72rem/1.5 system-ui,sans-serif;letter-spacing:.1em}
+.lf-dmap-step-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.fuse.sh-shell .lf-dmap-step{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.08rem .55rem;text-align:left;border:1px solid #afaa9f;border-radius:0;background:#fdf9ef;color:#1a3036;min-height:4.6rem;padding:.58rem .65rem}
+.fuse.sh-shell .lf-dmap-step:hover{background:#e9e0d2}
+.fuse.sh-shell .lf-dmap-step[aria-pressed="true"]{background:#183039;color:#fff0dc;border-color:#183039}
+.lf-dmap-step>span{grid-row:1/3;font:540 2rem/1.3 FuseSerif,Georgia,serif;color:#a44937}
+.fuse.sh-shell .lf-dmap-step[aria-pressed="true"]>span{color:#f6c695}
+.lf-dmap-step>b{font:780 .73rem/1.3 system-ui,sans-serif;letter-spacing:.02em;align-self:end}
+.lf-dmap-step>small{font:640 .7rem/1.3 system-ui,sans-serif;align-self:start}
+.lf-dmap-panel{margin-top:1rem;border-top:1px solid #bfb5a6;padding:.9rem .2rem}
+.lf-dmap-panel+.lf-dmap-panel{border-top:1px solid #bfb5a6}
+.lf-dmap-panel[hidden]{display:none!important}
+.lf-dmap-actor{color:#933b2f;font:800 .75rem/1.3 system-ui,sans-serif;letter-spacing:.13em}
+.lf-dmap-panel h4{font:550 clamp(2rem,3vw,3rem)/1.08 FuseSerif,Georgia,serif;letter-spacing:-.04em;margin:.2rem 0 .8rem}
+.lf-dmap-panel>p:not(.lf-dmap-actor){font: .96rem/1.6 system-ui,sans-serif}
+.lf-dmap-interpret{background:#eee2d1;border-left:4px solid #a64133;padding:.8rem 1rem;margin:1rem 0}
+.lf-dmap-interpret>b{display:block;font:800 .71rem/1.45 system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:#8b3328}
+.lf-dmap-interpret>p{font: .87rem/1.48 system-ui,sans-serif;margin:.15rem 0 .65rem}
+.lf-dmap-interpret>p:last-child{margin-bottom:0}
+.lf-dmap-panel>a{display:inline-flex;margin:.1rem 0 0;color:#742a21;text-decoration:underline;font:770 .82rem/1.5 system-ui,sans-serif}
+.lf-dmap-foot{background:#1f3740;margin:0;padding:1.1rem clamp(1rem,3vw,2rem);color:#efe5d6;font:italic 1.1rem/1.5 FuseSerif,Georgia,serif}
+.lf-dmap :is(button,a):focus-visible{outline:3px solid #d25942;outline-offset:3px}
+@keyframes lf-map-trace{to{stroke-dashoffset:-96}}
+@media(max-width:1080px){.lf-dmap-frame{grid-template-columns:1fr}.lf-dmap-visual svg{height:auto;max-height:none}.lf-dmap-ledger{padding:1.3rem}}
+@media(max-width:550px){.lf-dmap{margin:2rem auto}.lf-dmap-heading{padding:1.3rem 1.1rem}.lf-dmap h3{font-size:clamp(2.7rem,12vw,4.2rem)}.lf-dmap-brow{font-size:.66rem}.lf-dmap-caption{font-size:.58rem}.lf-dmap-frame{padding:.45rem}.lf-dmap-ledger{padding:.9rem}.fuse.sh-shell .lf-dmap-step{padding:.55rem;min-height:4.8rem}.lf-dmap-step>span{font-size:1.5rem}.lf-dmap-step>small{font-size:.67rem}.lf-dmap-panel h4{font-size:2.25rem}}
+@media(prefers-reduced-motion:reduce){.lf-dmap-visual .lf-dmap-motion{transition:none}.lf-dmap-motion.is-current .lf-dmap-path{animation:none}}
+@media print{.lf-dmap{box-shadow:none}.lf-dmap-panel[hidden]{display:block!important}.lf-dmap-step{break-inside:avoid}}
+
+.lf-dmap-swipe{display:none;color:#e7d8bd;background:#233941;font:750 .66rem/1.5 system-ui,sans-serif;letter-spacing:.03em;padding:.5rem 1rem;margin:0}
+@media(max-width:550px){.lf-dmap-visual{overflow-x:auto;max-width:100%;scrollbar-width:thin;scrollbar-color:#e4bb8b #21333c}.lf-dmap-visual svg{width:780px;min-width:780px;max-width:none;flex:0 0 auto;align-self:flex-start;height:auto}.lf-dmap-swipe{display:block;min-width:780px}.lf-dmap-caption{min-width:780px}}
+
+/* Keep the source caption outside the panning surface. */
+.lf-dmap-scroll{min-width:0;max-width:100%}
+.lf-dmap-scroll svg{width:100%;display:block;height:auto}
+@media(max-width:550px){.lf-dmap-visual{overflow-x:hidden}.lf-dmap-scroll{overflow-x:auto;max-width:100%;scrollbar-width:thin;scrollbar-color:#e4bb8b #21333c}.lf-dmap-scroll svg{width:780px;min-width:780px;max-width:none;flex:0 0 auto;height:auto}.lf-dmap-swipe,.lf-dmap-caption{min-width:0}}
+
+.lf-dmap-scroll:focus-visible{outline:3px solid #f2bb87;outline-offset:-3px}
