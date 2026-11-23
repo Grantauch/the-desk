@@ -44,7 +44,7 @@ No external network service, account, student identifier, event telemetry, added
 - One existing `tests/icebreak/physics.cjs` regression was explicitly configured with pass-follow **off** to keep its longstanding original-skater shot-charge measurement meaningful. This is a test fixture configuration, not a physics alteration.
 - **106 / 106 source tests PASS** on the Batch 11 game code, including all previous ten batches.
 - **4 / 4 dedicated Chromium browser scenarios PASS** on desktop 1440×900 and mobile 390×844 in **both WebGL and Canvas**: actual Q keyboard and touch button, pass-follow completion, settings toggle, correct immediate mobile possession label, unobstructed start button, unclipped feedback, isolated local multiplayer controls and no page JS errors.
-- A combined eight-runner Chromium browser suite (29 earlier cases + 4 new) is the full acceptance gate; complete this again after the final compact HUD change before promoting.
+- **33 / 33 full Chromium browser scenarios PASS** on the final candidate, all eight runners in sequence, process exit 0 after compact HUD and immediate-possession-label fixes. Included the 29 pre-existing acceptance scenarios and 4 Batch 11 switch/pass-follow cases; WebGL/Canvas × desktop/mobile emulation with zero recorded page JavaScript errors.
 - Screenshots inspected: `switch-canvas-2d-390.png`, `pass-follow-canvas-2d-390.png`, and desktop WebGL equivalent in local `browser-results/icebreak/`. These are QA evidence, not published player telemetry.
 
 ## Staging / deployment rules
