@@ -235,11 +235,15 @@ test("small floating silhouettes keep positive strokes through their flutter cyc
       strokes++;
     },
   } as unknown as CanvasRenderingContext2D;
-  // Multiple flutter periods include the minimum (negative) wing offset.
+  // Prove that the suite visits the exact -2 flutter that once made a 0px stroke.
+  let sawMinimumFlutter = false;
   for (let frame = 0; frame < 72; frame++) {
+    const resident = life.snapshot()[0]!;
+    if (Math.round(Math.sin((resident.age + resident.phase) * .21) * 2) === -2) sawMinimumFlutter = true;
     strokes = 0;
     life.render(context);
     assert.ok(strokes >= 3, "the floating inhabitant remains visible");
     life.step(sim);
   }
+  assert.ok(sawMinimumFlutter, "regression must exercise the zero-height flutter case");
 });
