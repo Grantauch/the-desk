@@ -1,0 +1,15 @@
+{
+  "name": "icebreak-online-room-prototype",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Isolated eight-seat authoritative ICEBREAK room and WebSocket transport proof; not production game physics",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test room.test.mjs",
+    "check": "node --check core.mjs && node --check socket.mjs && node --check server.mjs && node --check room.test.mjs"
+  }
+}
