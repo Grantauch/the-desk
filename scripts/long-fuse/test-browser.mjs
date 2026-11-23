@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import assert from 'node:assert/strict';
 import { mkdir,writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 const root=process.env.LONG_FUSE_TEST_ORIGIN||'http://127.0.0.1:4350';
@@ -27,17 +28,49 @@ for(const width of [1440,390,320]){
    }
    const verdict=page.locator('[data-fuse-verdict]');
    if(await verdict.count()){
-    await verdict.locator('textarea[name=decision]').fill('Austria-Hungary chose to issue the ultimatum on July 23.');
-    await verdict.locator('textarea[name=evidence]').fill('The primary 1914 ultimatum describes the demands in question.');
-    await verdict.locator('textarea[name=alternative]').fill('A narrower inquiry could have been accepted but the outcome remains uncertain.');
-    await verdict.locator('textarea[name=uncertainty]').fill('No document proves a peaceful resolution would have followed.');
-    await verdict.locator('button[type=submit]').click();
+    await verdict.locator('textarea[data-verdict-field=decision]').fill('Austria-Hungary chose to issue the ultimatum on July 23.');
+    await verdict.locator('textarea[data-verdict-field=evidence]').fill('The primary 1914 ultimatum describes the demands in question.');
+    await verdict.locator('textarea[data-verdict-field=alternative]').fill('A narrower inquiry could have been accepted but the outcome remains uncertain.');
+    await verdict.locator('textarea[data-verdict-field=uncertainty]').fill('No document proves a peaceful resolution would have followed.');
+    await verdict.locator('[data-verdict-check]').click();
     const state=await verdict.locator('[role=status]').innerText();
     checks.push({verdictInteraction:state});
     if(!state.includes('All four'))problems.push({verdictFailed:state});
+    await page.reload({waitUntil:'domcontentloaded'});
+    const restored=verdict.locator('textarea[data-verdict-field=decision]');
+    await verdict.locator('[data-verdict-check]:enabled').waitFor();
+    assert.match(await restored.inputValue(),/Austria-Hungary chose/);
+    await verdict.locator('[data-verdict-clear]').click();
+    assert.deepEqual(await verdict.locator('textarea').evaluateAll(fields=>fields.map(field=>field.value)),['','','','']);
+    assert.equal(await page.evaluate(()=>sessionStorage.getItem('fuse-evidence-verdict-v1')),null);
+    assert.match(await verdict.locator('[role=status]').innerText(),/Nothing was transmitted/);
    }
   }
  }
+ await page.close();
+}
+for(const mode of ['javascript-disabled','verdict-script-unavailable']){
+ const page=await browser.newPage({javaScriptEnabled:mode!=='javascript-disabled',viewport:{width:390,height:844}});
+ if(mode==='verdict-script-unavailable'){
+  await page.route('**/*',route=>route.request().resourceType()==='script'?route.abort():route.continue());
+ }
+ const requests=[];
+ page.on('request',request=>requests.push({url:request.url(),body:request.postData(),navigation:request.isNavigationRequest()}));
+ await page.goto(root+'/storyhubs/the-long-fuse/part-3/',{waitUntil:'load'});
+ const verdict=page.locator('[data-fuse-verdict]');
+ const controls=await verdict.locator('textarea,button').evaluateAll(els=>els.map(el=>[el.tagName,el.form!==null,el.getAttribute('name'),el.type,el.disabled]));
+ assert.equal(controls.length,6,mode);
+ assert.deepEqual(controls.slice(0,4),Array.from({length:4},()=>['TEXTAREA',false,null,'textarea',false]),mode);
+ assert.deepEqual(controls.slice(4),Array.from({length:2},()=>['BUTTON',false,null,'button',true]),mode);
+ const marker='fuse-local-synthetic-marker-47';
+ const initial=page.url();
+ const first=verdict.locator('textarea').first();
+ await first.fill(marker);
+ await first.press('Enter');
+ assert.equal(page.url(),initial,mode);
+ assert.equal(requests.filter(request=>request.navigation).length,1,mode);
+ assert.equal(requests.some(request=>request.url.includes(marker)||request.body?.includes(marker)),false,mode);
+ checks.push({verdictNoTransmission:mode});
  await page.close();
 }
 await browser.close();

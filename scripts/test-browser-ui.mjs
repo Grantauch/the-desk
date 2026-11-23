@@ -299,6 +299,17 @@ try {
       await page.keyboard.press('Enter');
       await page.waitForURL(`${origin}/practice/`);
       assert.ok(await page.getByRole('heading', { level: 1, name: /^practice & review/i }).isVisible());
+
+      await page.keyboard.press('Control+k');
+      const arcadeInput = page.getByRole('searchbox', { name: 'Search website pages' });
+      await arcadeInput.fill('arcade');
+      assert.equal(await matches.count(), 1, 'Arcade search finds only Games');
+      assert.equal(await matches.first().getAttribute('href'), '/games/');
+      await arcadeInput.press('ArrowDown');
+      assert.ok(await matches.first().evaluate(link => link === document.activeElement));
+      await page.keyboard.press('Enter');
+      await page.waitForURL(`${origin}/games/`);
+      assert.ok(await page.getByRole('heading', { level: 1, name: /^arcade/i }).isVisible());
     });
     await runCase('timer pause reset and fullscreen', viewport, async page => {
       await visit(page, '/tools/');

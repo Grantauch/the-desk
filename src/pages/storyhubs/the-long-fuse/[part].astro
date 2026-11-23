@@ -85,7 +85,7 @@ const prev=n>1 ? n-1 : null;
         {n===3 && ch.id==='paper-money' && <LongFuseEvidenceStage {story} kind="weimar" />}
         {ch.interaction==='votes'&&<section class="fuse-votes" data-fuse-votes><header><p class="fuse-label">Political arithmetic · Weimar Reichstag</p><h3>Largest party ≠ majority.</h3><p>Explore the Nazi vote share, then compare it with the 50% majority threshold. These are national Reichstag vote shares, not the presidential election result.</p></header><div class="fuse-vote-buttons" role="group" aria-label="Choose an election"><button type="button" data-vote="2.6" data-label="May 1928" aria-pressed="false">May 1928</button><button type="button" data-vote="37.3" data-label="July 1932" aria-pressed="true">July 1932</button><button type="button" data-vote="33.1" data-label="Nov 1932" aria-pressed="false">Nov 1932</button></div><div class="fuse-chart" role="img" aria-label="Bar graph of Nazi vote share, July 1932 37.3 percent versus the 50 percent majority threshold"><div class="fuse-chart-track"><div class="fuse-chart-bar" data-vote-bar style="width:74.6%"></div><div class="fuse-chart-majority"><span>50% majority</span></div></div><div class="fuse-chart-readout"><strong data-vote-number>37.3%</strong><span data-vote-title>July 1932</span></div></div><p role="status" aria-live="polite" class="fuse-vote-interpretation" data-vote-feedback>Largest party, but below 50%. The party could not appoint its own chancellor.</p><details class="fuse-table"><summary>Read all figures in a text table</summary><table><caption>Nazi national Reichstag vote share</caption><thead><tr><th>Election</th><th>Share</th><th>Majority?</th></tr></thead><tbody><tr><td>May 1928</td><td>2.6%</td><td>No</td></tr><tr><td>July 1932</td><td>37.3%</td><td>No</td></tr><tr><td>November 1932</td><td>33.1%</td><td>No</td></tr></tbody></table></details><p class="fuse-small"><a href="https://encyclopedia.ushmm.org/content/en/article/hitler-comes-to-power">USHMM historical explanation and elections context</a></p></section>}
         {ch.interaction==='appointment' && <LongFuseCausalLab {story} kind="appointment" />}
-        {ch.interaction==='verdict'&&<section class="fuse-verdict" aria-labelledby="verdict-title" data-fuse-verdict><p class="fuse-label">Final evidence verdict · self-guided writing</p><h3 id="verdict-title">Pressure is not destiny.</h3><p>Choose one documented moment when the next action was a choice. Use one source. Describe a plausible alternative, and state what we cannot know.</p><form class="fuse-verdict-form"><label>1. The documented decision<textarea name="decision" rows="3" required placeholder="On [date], [government/person] decided to…"></textarea></label><label>2. Source evidence<textarea name="evidence" rows="3" required placeholder="The [document or photograph] shows…"></textarea></label><label>3. A plausible alternative<textarea name="alternative" rows="3" required placeholder="A different decision might have…"></textarea></label><label>4. The uncertainty<textarea name="uncertainty" rows="3" required placeholder="The evidence cannot prove…"></textarea></label><div class="fuse-verdict-actions"><button type="submit">Check my evidence structure</button><button type="reset">Clear this response</button></div><p class="fuse-verdict-status" role="status" aria-live="polite">Your writing stays in this browser tab. It is not graded or submitted.</p></form></section>}
+        {ch.interaction==='verdict'&&<section class="fuse-verdict" aria-labelledby="verdict-title" data-fuse-verdict><p class="fuse-label">Final evidence verdict · self-guided writing</p><h3 id="verdict-title">Pressure is not destiny.</h3><p>Choose one documented moment when the next action was a choice. Use one source. Describe a plausible alternative, and state what we cannot know.</p><div class="fuse-verdict-form" role="group" aria-labelledby="verdict-title"><label>1. The documented decision<textarea data-verdict-field="decision" rows="3" required placeholder="On [date], [government/person] decided to…"></textarea></label><label>2. Source evidence<textarea data-verdict-field="evidence" rows="3" required placeholder="The [document or photograph] shows…"></textarea></label><label>3. A plausible alternative<textarea data-verdict-field="alternative" rows="3" required placeholder="A different decision might have…"></textarea></label><label>4. The uncertainty<textarea data-verdict-field="uncertainty" rows="3" required placeholder="The evidence cannot prove…"></textarea></label><div class="fuse-verdict-actions"><button type="button" data-verdict-check disabled>Check my evidence structure</button><button type="button" data-verdict-clear disabled>Clear this response</button></div><p class="fuse-verdict-status" role="status" aria-live="polite">Your writing stays in this browser tab. It is not graded or submitted.</p><noscript><p>Draft saving and checking need JavaScript. Nothing is submitted.</p></noscript></div></section>}
         {ch.interaction==='photo' && n===2 && index===3 && <PhotoComparison {story} id="war-and-peace-plates" title="Two kinds of evidence" intro="The troop photograph shows movement through Belgium. The leaders' photograph shows a later negotiation. Neither can establish the private decisions by itself." pair={['belgium','big-four']} labels={['A war enters Belgium','Leaders meet in Paris']} />}
       </StoryChapter>
       {((n===1 && index===1)||(n===2 && index===1)||(n===3 && index===2)) && <LongFuseInterlude part={n as 1|2|3} />}
@@ -113,14 +113,29 @@ const prev=n>1 ? n-1 : null;
       if(feedback)feedback.textContent=pct<5?'A marginal party in 1928; later gains were not inevitable.':pct>35?'The Nazis became the largest party, but did not win a majority.':'The share fell in November; a later appointment was still a political choice.';
     }));
   });
-  document.querySelectorAll<HTMLFormElement>('[data-fuse-verdict] form').forEach(form=>{
+  document.querySelectorAll<HTMLElement>('[data-fuse-verdict] .fuse-verdict-form').forEach(group=>{
     const key='fuse-evidence-verdict-v1';
-    const fields=[...form.querySelectorAll<HTMLTextAreaElement>('textarea')];
-    try{const saved=JSON.parse(sessionStorage.getItem(key)||'{}');for(const field of fields)field.value=saved[field.name]||'';}catch{}
-    const persist=()=>{try{sessionStorage.setItem(key,JSON.stringify(Object.fromEntries(fields.map(f=>[f.name,f.value]))));}catch{}};
+    const fields=[...group.querySelectorAll<HTMLTextAreaElement>('textarea[data-verdict-field]')];
+    const check=group.querySelector<HTMLButtonElement>('[data-verdict-check]');
+    const clear=group.querySelector<HTMLButtonElement>('[data-verdict-clear]');
+    const status=group.querySelector<HTMLElement>('[role=status]');
+    if(!fields.length||!check||!clear)return;
+    const fieldKey=(field:HTMLTextAreaElement)=>field.dataset.verdictField??'';
+    try{const saved=JSON.parse(sessionStorage.getItem(key)||'{}');for(const field of fields){const value=saved[fieldKey(field)];if(typeof value==='string')field.value=value;}}catch{}
+    const persist=()=>{try{sessionStorage.setItem(key,JSON.stringify(Object.fromEntries(fields.map(f=>[fieldKey(f),f.value]))));}catch{}};
     fields.forEach(f=>f.addEventListener('input',persist));
-    const status=form.querySelector<HTMLElement>('[role=status]');
-    form.addEventListener('submit',event=>{event.preventDefault();persist();const complete=fields.every(f=>f.value.trim().length>9);if(status)status.textContent=complete?'All four evidence parts are present. Your teacher can evaluate the historical accuracy; this page does not grade it.':'Expand each answer with a documented detail and an explanation. This page checks structure, not historical accuracy.';});
-    form.addEventListener('reset',()=>{try{sessionStorage.removeItem(key);}catch{}if(status)status.textContent='Local response cleared. Nothing was transmitted.';});
+    check.addEventListener('click',()=>{
+      if(!fields.every(field=>field.reportValidity()))return;
+      persist();
+      const complete=fields.every(f=>f.value.trim().length>9);
+      if(status)status.textContent=complete?'All four evidence parts are present. Your teacher can evaluate the historical accuracy; this page does not grade it.':'Expand each answer with a documented detail and an explanation. This page checks structure, not historical accuracy.';
+    });
+    clear.addEventListener('click',()=>{
+      for(const field of fields)field.value='';
+      try{sessionStorage.removeItem(key);}catch{}
+      if(status)status.textContent='Local response cleared. Nothing was transmitted.';
+    });
+    check.disabled=false;
+    clear.disabled=false;
   });
 </script>
