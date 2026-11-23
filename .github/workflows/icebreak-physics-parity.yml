@@ -1,0 +1,29 @@
+name: ICEBREAK headless physics parity
+
+on:
+  pull_request:
+    paths:
+      - 'prototypes/icebreak-parity/**'
+      - 'public/hubs/icebreak.html'
+      - 'tests/icebreak/fixture.cjs'
+      - '.github/workflows/icebreak-physics-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  physics-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify headless core syntax
+        run: |
+          node --check prototypes/icebreak-parity/headless.mjs
+          node --check prototypes/icebreak-parity/verification.test.mjs
+      - name: Verify 90 Hz physics against integrated ICEBREAK browser engine
+        run: node --test prototypes/icebreak-parity/verification.test.mjs
