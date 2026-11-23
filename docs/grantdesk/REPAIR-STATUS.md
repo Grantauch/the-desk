@@ -1,3 +1,7 @@
+## November 22 Manifest soundtrack integration
+
+Grant authorized live release of the supplied soundtrack and procedural audio. Copper and Talon is the recurring main theme; West of the Divide is gated exclusively to endScreen(true), after full-game completion. Copper Sky plays at camp. The master Sound switch controls music and effects, including title and ending controls; hidden tabs pause audio. Local syntax, media decoding, and audio-state regressions pass. Canonical verification, protected CI and production readback are pending; physical-device listening remains unverified.
+
 ## November 21 Story Hubs library redesign
 
 Scope: the approved field-atlas library only. The existing 77 Story Hub links remain unchanged. The new Somme listing points to its existing public map and does not change its other listings or lesson. The library adds search, course and activity filters, and responsive paging. Without JavaScript it shows all 78 original destinations. Art uses existing public assets with the Sarajevo illustration credited in the library and full provenance retained in the lessons. No lesson content, assignment systems, or globe homepage changed.
