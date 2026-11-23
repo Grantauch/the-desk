@@ -90,6 +90,39 @@
       "staticFallback": "All panels and sourced text remain in document order when JavaScript is disabled.",
       "identityFit": "Period editorial documentary source plate with minimalist date selector, paper ledger and dark film surround.",
       "status": "implemented"
+    },
+    {
+      "id": "ultimatum-dossier",
+      "chapterId": "forty-eight-hours",
+      "type": "July demands and reply dossier",
+      "teaches": "A diplomatic reply can accept some terms, qualify others, and still be rejected by the requesting government.",
+      "studentAction": "Inspect three sourced historical paraphrase folios and select a defensible answer to a specific misconception check.",
+      "feedback": "Explanatory feedback provides evidence-based corrections without storing answers.",
+      "staticFallback": "All folios and source links are visible without JavaScript; radio question remains readable.",
+      "identityFit": "Archive dossier design with large source dates, paper two-column interpretation and institutional evidence.",
+      "status": "implemented"
+    },
+    {
+      "id": "peace-dossier",
+      "chapterId": "peace-request",
+      "type": "Armistice versus peace document chronology",
+      "teaches": "The request for an armistice, an armistice taking effect, and a treaty being signed are separate moments.",
+      "studentAction": "Inspect three sourced historical paraphrase folios and select a defensible answer to a specific misconception check.",
+      "feedback": "Explanatory feedback provides evidence-based corrections without storing answers.",
+      "staticFallback": "All folios and source links are visible without JavaScript; radio question remains readable.",
+      "identityFit": "Archive dossier design with large source dates, paper two-column interpretation and institutional evidence.",
+      "status": "implemented"
+    },
+    {
+      "id": "appointment-dossier",
+      "chapterId": "appointment-not-election",
+      "type": "Election versus chancellorship appointment",
+      "teaches": "Largest-party vote share, conservative political bargaining, and presidential appointment were distinct institutional actions.",
+      "studentAction": "Inspect three sourced historical paraphrase folios and select a defensible answer to a specific misconception check.",
+      "feedback": "Explanatory feedback provides evidence-based corrections without storing answers.",
+      "staticFallback": "All folios and source links are visible without JavaScript; radio question remains readable.",
+      "identityFit": "Archive dossier design with large source dates, paper two-column interpretation and institutional evidence.",
+      "status": "implemented"
     }
   ]
 }

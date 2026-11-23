@@ -70,7 +70,8 @@
         "europe-schematic"
       ],
       "interactionIds": [
-        "crisis-evidence-stage"
+        "crisis-evidence-stage",
+        "ultimatum-dossier"
       ]
     },
     {
@@ -117,7 +118,8 @@
         "europe-schematic"
       ],
       "interactionIds": [
-        "war-chronology"
+        "war-chronology",
+        "peace-dossier"
       ]
     },
     {
@@ -192,7 +194,9 @@
       "visualAnchorIds": [
         "appointment"
       ],
-      "interactionIds": []
+      "interactionIds": [
+        "appointment-dossier"
+      ]
     },
     {
       "id": "evidence-verdict",

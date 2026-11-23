@@ -46,3 +46,16 @@ Each step includes contemporary/period evidence or an explicitly labeled typogra
 Three new period photographs reuse the already sourced Library of Congress Bain WebP derivatives from the Marne Story Hub (Aisne German trench, Sep. 14, 1914 resting French soldiers, 1914 Gare du Nord fugitives). They are not newly generated, colorized, or represented as evidence of exact personal motives. See `sources.md` and `assets.json`. Existing rights metadata: LOC lists **no known restrictions on publication**, not a legal guarantee of worldwide commercial clearance.
 
 QA scripts: `node scripts/long-fuse/test-scenes.mjs` for each part at desktop, phone and narrow-phone widths, including no-JavaScript fallback, in addition to `test-browser.mjs` and `test-accessibility.mjs`.
+
+## Causal-document laboratories (next polish pass)
+
+Three new **source-reading dossier labs** extend the evidence stages rather than adding extra slides:
+- **Part I / July demands and reply:** juxtaposes Austrian clauses 5 and 6 with Serbia's qualified replies, then the decision to declare war; original ultimatum/response links, not fabricated facsimiles
+- **Part II / three different endings:** Sep. 29, 1918 military request, Nov. 11 armistice, June 28, 1919 treaty, clearly separated in meaning
+- **Part III / votes did not make the appointment:** July/November election percentages, conservative bargaining, Hindenburg's Jan. 30, 1933 appointment, and the fact that dictatorship was consolidated afterward
+
+Each dossier uses a cinematic editorial source layout, legible full-source link, one evidence limitation per dated folio, and a three-choice historical claim check with **explanatory feedback**. There is **no account/pin use, no server save, no grade and no student submission**. The page is readable with JavaScript disabled (all three source folios remain in document order); keyboard and mobile access are checked.
+
+Validation: `node scripts/long-fuse/test-causal.mjs` tests each dossier at 1440px, 390px and 320px, correct/incorrect feedback, no overflow and the non-JS fallback. `node scripts/long-fuse/test-accessibility.mjs` separately audits all four routes on mobile and desktop. Primary sources and interpretation limits are listed in `sources.md`.
+
+The narrative explicitly avoids claiming war or dictatorship were inevitable, that Serbia simply rejected the ultimatum, that an armistice was a treaty, or that German voters directly elected Hitler chancellor.

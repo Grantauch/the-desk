@@ -22,5 +22,12 @@ Historical teaching source is the 40-slide The Long Fuse Batch24 master, compile
 - [U.S. Holocaust Memorial Museum: Hitler comes to power](https://encyclopedia.ushmm.org/content/en/article/hitler-comes-to-power) — distinction between Nazi electoral support and appointment.
 - [Bundesarchiv image source catalog](https://www.bundesarchiv.de/) — original archive institution.
 
+
+## Three original evidence dossiers (interactive source paraphrases)
+- **July clauses 5–6 and Serbia's qualified reply**: [reproduced Austro-Hungarian ultimatum](https://www.firstworldwar.com/source/austrianultimatum.htm), [Serbian reply](https://www.firstworldwar.com/source/serbianreply.htm), [CFR historical chronology](https://www.cfr.org/articles/twe-remembers-austria-hungary-issues-ultimatum-serbia). The panels paraphrase the records; no simulated original document facsimiles or invented verbatim quotations.
+- **Armistice-to-peace sequence**: [German History in Documents and Images on the October 1918 note and military armistice request](https://germanhistorydocs.org/en/wilhelmine-germany-and-the-first-world-war-1890-1918/the-first-german-note-to-president-woodrow-wilson-october-1918), [UK National Archives Cabinet minutes 11 November](https://www.nationalarchives.gov.uk/explore-the-collection/stories/cabinet-meeting-11-November-1918/), [UK National Archives Treaty of Versailles collection](https://www.nationalarchives.gov.uk/explore-the-collection/stories/the-treaty-of-versailles/).
+- **Electoral support, political bargaining, and presidential appointment**: [USHMM Hitler Comes to Power](https://encyclopedia.ushmm.org/content/en/article/hitler-comes-to-power), [USHMM Nazi Rise to Power](https://encyclopedia.ushmm.org/content/en/article/the-nazi-rise-to-power), [USHMM January 1933 event](https://encyclopedia.ushmm.org/content/en/timeline-event/holocaust/1933-1938/hitler-appointed-chancellor).
+All dossier assertions are **authored summaries, not facsimiles**. The answer check tests the historical claim, does not grade a student's work for credit or transmit/store student records.
+
 ## Exclusions
 The potentially disputed IWM-use photographs of Somme and Armistice Day, and the Topical Press/Getty 1922 portrait, are **not included** in this new public-facing Story Hub. No false documentary facsimiles, fabricated voices or invented quotes. This register is a production review, not a legal opinion.
