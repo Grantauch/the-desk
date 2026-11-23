@@ -83,6 +83,9 @@ export function PondApp() {
   const [firstMix, setFirstMix] = useState<string | null>(null);
   const [mixSearch, setMixSearch] = useState("");
   const [showAllDiscoveries, setShowAllDiscoveries] = useState(false);
+  // The mobile Field Station shows one real panel at a time; desktop keeps
+  // the complete three-column workbench. This UI-only choice is not saved.
+  const [mobilePane, setMobilePane] = useState<"materials" | "discoveries" | "world" | "atlas" | "archive">("materials");
   const [featuredId, setFeaturedId] = useState<string | null>(null);
   const [lastMix, setLastMix] = useState("Pick two discoveries. Familiar mixes make familiar things; other pairs can make new species.");
   const [scene, setScene] = useState<SceneId | "custom">("garden");
@@ -450,15 +453,26 @@ export function PondApp() {
   };
 
   // These buttons connect existing systems; they never mutate the simulation.
-  const jumpToStation = (station: "materials" | "discoveries" | "inhabitants" | "atlas" | "archive") => {
-    if (station === "atlas" && pondSize > 192) setAtlasOpen(true);
+  const jumpToStation = (station: "materials" | "discoveries" | "inhabitants" | "atlas" | "archive" | "world-controls" | "atlas-map") => {
+    const nextPane = station === "materials" ? "materials"
+      : station === "discoveries" || station === "inhabitants" ? "discoveries"
+      : station === "archive" ? "archive"
+      : station === "world-controls" ? "world"
+      : station === "atlas-map" ? "atlas"
+      : pondSize === 192 ? "world" : "atlas";
+    setMobilePane(nextPane);
+    if (nextPane === "atlas") setAtlasOpen(true);
     const targetId = station === "materials" ? "pond-field-kit"
       : station === "archive" ? "pond-field-archive"
+      : station === "world-controls" ? "pond-world-controls"
+      : station === "atlas-map" ? "pond-field-atlas"
       : station === "atlas" ? (pondSize === 192 ? "pond-world-controls" : "pond-field-atlas")
       : station === "inhabitants" && specimenId ? "pond-field-canvas"
       : station === "inhabitants" && featured ? "pond-place-action"
       : "pond-discovery-lab";
-    window.requestAnimationFrame(() => {
+    // Wait for React to reveal the selected pane before moving focus. Both
+    // frames are bounded to direct user gestures, not a polling effect.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
       const target = targetId === "pond-field-canvas"
         ? dishRef.current?.querySelector<HTMLCanvasElement>("canvas")
         : document.getElementById(targetId);
@@ -467,7 +481,7 @@ export function PondApp() {
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
       });
       target?.focus({ preventScroll: true });
-    });
+    }));
   };
   const suggestedStation = discovered.length <= STARTERS.length ? "discoveries"
     : residentCount === 0 ? "inhabitants"
@@ -479,10 +493,17 @@ export function PondApp() {
     : suggestedStation === "atlas"
     ? "Expand the world, then open the Atlas to explore."
     : "Keep exploring. Export a copy when you want to take this world with you.";
+  const paneLabel = {
+    materials: "Field kit · paint",
+    discoveries: "Discovery lab · combine",
+    world: "World controls · shape",
+    atlas: "World atlas · explore",
+    archive: "Field archive · preserve",
+  }[mobilePane];
   const selected = toolById(tool);
 
   return (
-    <main className={cn("pond-environment field-station min-h-dvh bg-bg text-fg", !richGraphics && "pond-classic")}>
+    <main className={cn("pond-environment field-station min-h-dvh bg-bg text-fg", !richGraphics && "pond-classic")} data-mobile-pane={mobilePane}>
       <div className="field-ambient-grain" aria-hidden="true" />
       {started ? (
         <header className="field-masthead">
@@ -572,19 +593,19 @@ export function PondApp() {
                 <p>Paint a habitat. Make discoveries. Bring them to life. Explore the world. Keep what you create.</p>
               </div>
               <div className="field-route-actions" role="group" aria-label="Jump to a Pond station">
-                <button type="button" onClick={() => jumpToStation("materials")} aria-label="Go to materials and painting">
+                <button type="button" data-current={mobilePane === "materials"} onClick={() => jumpToStation("materials")} aria-label="Go to materials and painting">
                   <Layers3 size={16} aria-hidden="true"/><span>Paint</span>
                 </button>
-                <button type="button" onClick={() => jumpToStation("discoveries")} aria-label="Go to discovery mixing" data-suggested={suggestedStation === "discoveries"}>
+                <button type="button" data-current={mobilePane === "discoveries"} onClick={() => jumpToStation("discoveries")} aria-label="Go to discovery mixing" data-suggested={suggestedStation === "discoveries"}>
                   <FlaskConical size={16} aria-hidden="true"/><span>Discover</span>
                 </button>
                 <button type="button" onClick={() => jumpToStation("inhabitants")} aria-label="Go to placing living discoveries" data-suggested={suggestedStation === "inhabitants"}>
                   <Leaf size={16} aria-hidden="true"/><span>Populate</span>
                 </button>
-                <button type="button" onClick={() => jumpToStation("atlas")} aria-label="Go to world expansion or Atlas" data-suggested={suggestedStation === "atlas"}>
+                <button type="button" data-current={mobilePane === "world" || mobilePane === "atlas"} onClick={() => jumpToStation("atlas")} aria-label="Go to world expansion or Atlas" data-suggested={suggestedStation === "atlas"}>
                   <Map size={16} aria-hidden="true"/><span>Explore</span>
                 </button>
-                <button type="button" onClick={() => jumpToStation("archive")} aria-label="Go to world backups and imports" data-suggested={suggestedStation === "archive"}>
+                <button type="button" data-current={mobilePane === "archive"} onClick={() => jumpToStation("archive")} aria-label="Go to world backups and imports" data-suggested={suggestedStation === "archive"}>
                   <Download size={16} aria-hidden="true"/><span>Preserve</span>
                 </button>
               </div>
@@ -598,6 +619,11 @@ export function PondApp() {
 
         {started ? (
           <>
+            <div className="field-mobile-pane-status" role="status" aria-live="polite">
+              <span className="field-eyebrow">YOUR WORKBENCH</span>
+              <strong>{paneLabel}</strong>
+              <small>Choose any station above to switch tools.</small>
+            </div>
             <aside className="field-ledger" aria-label="Discovery notebook">
               <section id="pond-discovery-lab" tabIndex={-1} aria-label="Discovery workbench" className="field-panel field-discovery-panel">
                 <div className="field-panel-header">
@@ -695,6 +721,9 @@ export function PondApp() {
                   </div>
                   <p className="field-panel-description">Chart places, inhabitants and wild habitats.</p>
                 </div>
+                <button type="button" className="field-mobile-pane-jump" onClick={() => jumpToStation("world-controls")}>
+                  <Compass size={16} aria-hidden="true"/> Shape or expand the world
+                </button>
                 <button type="button" className="field-atlas-toggle" aria-label={atlasOpen ? "Hide atlas" : "Open atlas"} aria-expanded={atlasOpen} aria-controls="pond-world-atlas"
                   onClick={() => setAtlasOpen((open) => !open)}>
                   <span>{atlasOpen ? "Fold the map" : "Unfold the map"}</span><span aria-hidden="true">{atlasOpen ? "−" : "+"}</span>
@@ -758,6 +787,9 @@ export function PondApp() {
                   <p className="field-eyebrow">05 / TERRAIN & EXPLORATION</p>
                   <div className="field-panel-heading"><h2>Shape the world</h2><Compass size={22} strokeWidth={1.5}/></div>
                 </div>
+                <button type="button" className="field-mobile-pane-jump" onClick={() => jumpToStation("atlas-map")}>
+                  <Map size={16} aria-hidden="true"/> Open the world Atlas
+                </button>
                 <div className="field-scene-presets" aria-label="World presets">
                   {SCENES.map((preset) => (
                     <button key={preset.id} type="button" onClick={() => stamp(preset.id)}
@@ -845,7 +877,7 @@ export function PondApp() {
             );
           })}
           <button type="button" className="field-mobile-dock-more" aria-label="Open full material kit"
-            onClick={() => document.getElementById("pond-field-kit")?.scrollIntoView({ block: "start", behavior: "smooth" })}>
+            onClick={() => jumpToStation("materials")}>
             <Layers3 size={20} aria-hidden="true"/><span>All tools</span>
           </button>
         </nav>

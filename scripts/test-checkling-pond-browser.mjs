@@ -322,9 +322,20 @@ try {
     await page.getByRole('dialog',{name:'Mixes'}).waitFor();
     await page.keyboard.press('Escape');
     assert.equal(await page.getByRole('dialog').count(),0);
-    const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button',{name:'Export world'}).click();
-    const download = await downloadPromise;
+    const archive = page.locator('#pond-field-archive');
+    if (width <= 800) {
+      // The mobile workbench hides the Archive until Preserve is selected.
+      assert.equal(await archive.isVisible(), false, 'Archive is not the active mobile station');
+      await page.getByRole('navigation',{name:'Pond field workflow'})
+        .getByRole('button',{name:'Go to world backups and imports',exact:true}).click();
+      await page.waitForFunction(() => document.activeElement?.id === 'pond-field-archive');
+    }
+    const exportButton = archive.getByRole('button',{name:'Export world',exact:true});
+    await exportButton.waitFor({state:'visible'});
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      exportButton.click(),
+    ]);
     const path = fileURLToPath(new URL(`pond-${width}.json`,out));
     await download.saveAs(path);
     const saved = JSON.parse(await readFile(path,'utf8'));
