@@ -39,6 +39,7 @@ const paths = [
   '/hubs/ush9-progressive-era-jeopardy-v3.html',
   '/hubs/ush9-wwi-jeopardy.html',
   '/hubs/ush9-medal-of-honor.html',
+  '/hubs/bts-michigan-athletes.html',
   '/hubs/ush9-medal-of-honor-exemplar.html',
   '/hubs/ush9-medal-of-honor-guide.html',
   '/hubs/the-league.html',

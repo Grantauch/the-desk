@@ -20,7 +20,7 @@
     "hall-pass:approval:test": "node --test scripts/test-hall-pass-approval.mjs",
     "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
     "tools:test": "node scripts/test-classroom-tools.mjs",
-    "browser:test": "node scripts/test-hall-pass-setup-browser.mjs && node scripts/test-hall-pass-kiosk-browser.mjs && node scripts/test-heel-report-browser.cjs && node scripts/test-heel-originality-browser.mjs && node scripts/test-browser-ui.mjs && node scripts/test-storyhub-archive-browser.mjs && npm run storyhub:pearl:browser && node scripts/test-browser-extended.mjs && node --experimental-strip-types scripts/test-learning-hubs-browser.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser && npm run moh:browser && npm run jeopardy:test && npm run companion:browser && node scripts/test-hidden-history-bytesize.cjs && npm run atlas:browser && node scripts/test-student-discovery-browser.mjs && node scripts/test-market-shock-browser.mjs && node scripts/test-evidence-locker-browser.mjs && node scripts/test-boss-fight-browser.mjs && node scripts/test-situation-room-browser.mjs && node scripts/test-reconstruction-browser.mjs",
+    "browser:test": "node scripts/test-hall-pass-setup-browser.mjs && node scripts/test-hall-pass-kiosk-browser.mjs && node scripts/test-heel-report-browser.cjs && node scripts/test-heel-originality-browser.mjs && node scripts/test-browser-ui.mjs && node scripts/test-storyhub-archive-browser.mjs && npm run storyhub:pearl:browser && node scripts/test-browser-extended.mjs && node --experimental-strip-types scripts/test-learning-hubs-browser.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser && npm run moh:browser && npm run mia:browser && npm run jeopardy:test && npm run companion:browser && node scripts/test-hidden-history-bytesize.cjs && npm run atlas:browser && node scripts/test-student-discovery-browser.mjs && node scripts/test-market-shock-browser.mjs && node scripts/test-evidence-locker-browser.mjs && node scripts/test-boss-fight-browser.mjs && node scripts/test-situation-room-browser.mjs && node scripts/test-reconstruction-browser.mjs",
     "jeopardy:test": "node scripts/test-progressive-jeopardy.mjs",
     "evidence-locker:browser": "node scripts/test-evidence-locker-browser.mjs",
     "league:test": "node scripts/test-the-league.mjs",
@@ -71,7 +71,8 @@
     "atlas:test": "node --test scripts/test-cinematic-atlas.mjs",
     "atlas:browser": "node scripts/test-cinematic-atlas-browser.mjs",
     "blitzkrieg:versus": "node scripts/test-blitzkrieg-versus.mjs",
-    "play:test": "npm --prefix services/play test"
+    "play:test": "npm --prefix services/play test",
+    "mia:browser": "node scripts/test-michigan-athletes-browser.mjs"
   },
   "engines": {
     "node": ">=22.12.0"

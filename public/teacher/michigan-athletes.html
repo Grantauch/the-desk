@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Michigan Athlete Report · Teacher</title>
+<link rel="stylesheet" href="/hubs/moh/moh.css">
+<link rel="stylesheet" href="/hubs/mia/mia.css">
+<style>
+body{background:var(--navy);color:var(--bone)}
+main{max-width:1240px;margin:0 auto;padding:1.6rem 1.2rem 5rem}
+h1{font:800 clamp(2rem,4vw,3rem)/1 var(--display);text-transform:uppercase;letter-spacing:.01em;margin:.3rem 0 .5rem}
+.kicker{font:700 .82rem var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--bronze2)}
+.lede{font:400 1.08rem/1.55 var(--serif);max-width:60ch;color:var(--bone);margin:0 0 1.2rem}
+.keyrow{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end;background:var(--navy2);border:1px solid var(--line);border-radius:.8rem;padding:1rem}
+.keyrow label{display:grid;gap:.3rem;font:600 .95rem var(--ui);flex:1 1 280px}
+.keyrow input,.tools select{background:var(--navy);color:var(--bone);border:1px solid var(--line);border-radius:.5rem;padding:.6rem .7rem;font:500 1rem var(--ui)}
+#msg{min-height:1.4rem;margin:.6rem 0 0;font:500 .98rem var(--ui);color:var(--bronze2)}
+#msg.good{color:var(--green)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin:1.4rem 0}
+.stat{background:var(--navy2);border:1px solid var(--line);border-radius:.7rem;padding:.8rem 1rem}
+.stat b{display:block;font:800 2rem/1 var(--display)}
+.stat span{font:600 .8rem var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.tools{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:0 0 1rem}
+.hour{margin-top:2rem}
+.hour>header{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:space-between;border-bottom:2px solid var(--bronze);padding-bottom:.5rem;margin-bottom:.9rem}
+.hour h2{font:800 1.7rem/1 var(--display);text-transform:uppercase;margin:0}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:.8rem}
+.team{background:var(--navy2);border:1px solid var(--line);border-radius:.8rem;padding:1rem;display:grid;gap:.7rem}
+.team h3{font:800 1.35rem/1.05 var(--display);text-transform:uppercase;margin:0}
+.team .sub{font:500 .9rem var(--ui);color:var(--mute)}
+.member{display:grid;gap:.3rem}
+.member .who{display:flex;justify-content:space-between;gap:.5rem;font:600 .98rem var(--ui)}
+.member .who small{font-weight:500;color:var(--mute)}
+.bars{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.bars i{height:.55rem;border-radius:2px;background:var(--navy3)}
+.bars i.part{background:var(--bronze)}
+.bars i.full{background:var(--green)}
+.flag{font:600 .88rem var(--ui);color:#ffb4a2}
+.ok{color:var(--green)}
+.actions{display:flex;flex-wrap:wrap;gap:.4rem}
+details.hist{font:500 .85rem/1.45 var(--ui);color:var(--mute)}
+details.hist pre{white-space:pre-wrap;margin:.3rem 0 0;font:inherit}
+.loose{margin-top:2rem;background:var(--navy2);border:1px dashed var(--line);border-radius:.8rem;padding:1rem}
+.loose h2{font:800 1.3rem var(--display);text-transform:uppercase;margin:0 0 .4rem}
+.legend{display:flex;flex-wrap:wrap;gap:1rem;font:500 .85rem var(--ui);color:var(--mute);margin:-.4rem 0 1rem}
+.legend i{display:inline-block;width:.9rem;height:.55rem;border-radius:2px;margin-right:.35rem;vertical-align:middle}
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(5,9,16,.9);overflow:auto;padding:1.4rem}
+.overlay .bar{position:sticky;top:0;display:flex;gap:.6rem;justify-content:flex-end;margin-bottom:1rem;z-index:2}
+.many .mohp+.mohp{break-before:page;page-break-before:always;margin-top:2rem}
+#gallery{position:fixed;inset:0;z-index:90;background:#000;display:grid;grid-template-rows:1fr auto}
+#gallery img{width:100%;height:100%;object-fit:contain;display:block}
+#gallery .cap{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.7rem 1.2rem;background:#05080e;font:600 1.1rem var(--ui)}
+#gallery .cap span{color:var(--mute);font-weight:500}
+#gallery[hidden],.overlay[hidden]{display:none}
+@media print{
+  body.previewing{background:#fff}
+  body.previewing>*:not(#preview){display:none!important}
+  body.previewing #preview{position:static;inset:auto;background:#fff;padding:0;overflow:visible}
+  body.previewing #preview .bar{display:none!important}
+}
+</style>
+<link rel="stylesheet" href="/hubs/moh/exhibit.css">
+<link rel="stylesheet" href="/hubs/moh/tools.css">
+</head>
+<body class="teacher-tool">
+<a class="skip" href="#main-content">Skip to the teacher desk</a>
+<header class="mbar"><div class="wrap">
+  <a class="brand" href="/hubs/bts-michigan-athletes.html"><span aria-hidden="true">★</span> Michigan Athlete Report</a>
+  <nav aria-label="Project"><a href="/hubs/bts-michigan-athletes.html">Athletes</a><a href="/hubs/bts-michigan-athletes-project.html">Student view</a></nav>
+</div></header>
+<main id="main-content">
+  <div class="tool-intro">
+    <p class="kicker">Teacher desk</p>
+    <h1 class="exhibit-title">Teams and reports</h1>
+    <p>See each team’s progress by hour and print the finished reports.</p>
+  </div>
+
+  <form class="keyrow" id="keyform">
+    <label for="key">Teacher key
+      <input id="key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the key from the Teacher Key tab">
+    </label>
+    <button class="btn" type="submit" data-action="load">Load teams</button>
+    <button class="btn ghost" type="button" data-action="forget">Forget key on this computer</button>
+  </form>
+  <p id="msg" role="status"></p>
+
+  <section id="board" hidden>
+    <div class="stats" id="stats"></div>
+    <div class="tools">
+      <label for="hour-filter" class="sub">Show</label>
+      <select id="hour-filter"><option value="">Every hour</option></select>
+      <button class="btn ghost small" type="button" data-action="load">Refresh</button>
+    </div>
+    <div class="legend"><span><i style="background:var(--green)"></i>Step done</span><span><i style="background:var(--bronze)"></i>Started</span><span><i style="background:var(--navy3)"></i>Not started</span><span>Four bars: facts, chapter one, chapter two, reflection</span></div>
+    <div id="hours"></div>
+    <div id="loose"></div>
+  </section>
+</main>
+
+<div class="overlay" id="preview" hidden role="dialog" aria-modal="true" aria-label="Print preview">
+  <div class="bar"><button class="btn" type="button" data-action="print">Print</button><button class="btn ghost" type="button" data-action="close">Close</button></div>
+  <div id="preview-body"></div>
+</div>
+<div id="gallery" hidden role="dialog" aria-modal="true" aria-label="Memorial screen gallery">
+  <img id="gallery-img" alt="">
+  <div class="cap"><b id="gallery-who"></b><span id="gallery-count"></span>
+    <span><button class="btn ghost small" type="button" data-action="g-prev">Back</button> <button class="btn ghost small" type="button" data-action="g-next">Next</button> <button class="btn ghost small" type="button" data-action="g-close">Close</button></span>
+  </div>
+</div>
+
+<script src="/hubs/mia/spec.js"></script>
+<script src="/hubs/mia/athletes.js"></script>
+<script src="/hubs/mia/portraits.js"></script>
+<script src="/hubs/mia/paper.js"></script>
+<script>
+(function () {
+  'use strict';
+  var M = window.MOH, VETS = window.MI_ATHLETES;
+  var ENDPOINT = (window.__deskSaveTest && typeof window.__deskSaveTest.endpoint === 'string' && window.__deskSaveTest.endpoint) ||
+    'https://script.google.com/macros/s/AKfycbzssPoF99g1UTOrsVnMHy-jQaPwII8-lyxHwjlpNK8oa89KVSq48G5MkjiwTOCrgaJP/exec';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var DATA = null, slides = [], at = 0;
+  var BAR_STEPS = ['facts', 'story1', 'story2', 'why'];
+
+  function el(tag, attrs, text) { var n = document.createElement(tag); Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); }); if (text != null) n.textContent = text; return n; }
+  function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* private window */ } }
+  function read(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function device() { var d = read('moh-teacher-device'); if (!d) { d = 'teacher-' + Math.random().toString(36).slice(2, 12); store('moh-teacher-device', d); } return d; }
+  function msg(text, good) { $('#msg').textContent = text || ''; $('#msg').className = good ? 'good' : ''; }
+  function vet(slug) { return VETS.find(function (v) { return v.slug === slug; }) || null; }
+  function when(iso) { if (!iso) return 'never'; var d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+
+  function load() {
+    var key = $('#key').value.trim() || read('moh-teacher-key');
+    msg('Loading…', true);
+    fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'teacher', key: key, hub: M.HUB, device: device() }), redirect: 'follow', credentials: 'omit' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) { msg(d.error || 'That did not work.'); if (d.code === 'bad_key') store('moh-teacher-key', null); return; }
+        store('moh-teacher-key', key); $('#key').value = '';
+        DATA = d; draw(); msg('Loaded ' + d.teams.length + (d.teams.length === 1 ? ' team' : ' teams') + ' at ' + when(d.at) + '.', true);
+      })
+      .catch(function () { msg('Turn In did not answer. Check the connection and try again.'); });
+  }
+
+  /* -------------------------------------------------------------- counts -- */
+  function values(entry) { var o = {}; (entry && entry.work && entry.work.answers || []).forEach(function (e) { o[e.k.replace(/^id:/, '')] = e.a; }); return o; }
+  function counts(role, vals) {
+    var total = 0, done = 0, per = {};
+    BAR_STEPS.forEach(function (s) {
+      var list = M.FIELDS.filter(function (f) { return f.step === s && M.owns(role, f); });
+      var d = list.filter(function (f) { return M.done(f, vals[f.id]); }).length;
+      var started = list.some(function (f) { return String(vals[f.id] || '').trim(); });
+      per[s] = { done: d, total: list.length, started: started }; total += list.length; done += d;
+    });
+    return { total: total, done: done, per: per };
+  }
+  function merged(t) { return window.MOHPaper.merge(t.mode, t.a && t.a.work && t.a.work.answers, t.b && t.b.work && t.b.work.answers); }
+
+  /* ---------------------------------------------------------------- draw -- */
+  function draw() {
+    var hours = {}, filter = $('#hour-filter').value;
+    DATA.teams.forEach(function (t) { (hours[t.classPeriod] = hours[t.classPeriod] || []).push(t); });
+    var names = Object.keys(hours).sort();
+    var sel = $('#hour-filter'), keep = sel.value; sel.innerHTML = '<option value="">Every hour</option>';
+    names.forEach(function (h) { sel.appendChild(el('option', { value: h }, h)); }); sel.value = names.indexOf(keep) >= 0 ? keep : '';
+    filter = sel.value;
+
+    var students = 0, finished = 0, waiting = 0;
+    DATA.teams.forEach(function (t) {
+      [t.a, t.b].forEach(function (m, i) { if (!m) return; students++; var c = counts(t.mode === 'solo' ? 'solo' : i ? 'B' : 'A', values(m)); if (c.done === c.total) finished++; });
+      if (t.mode === 'pair' && !t.b) waiting++;
+    });
+    var stats = $('#stats'); stats.innerHTML = '';
+    [[DATA.teams.length, 'Teams'], [students, 'Students on a team'], [finished, 'Finished every job'], [waiting, 'Waiting on a partner'], [DATA.noTeam.length, 'Saved work, no team']].forEach(function (s) {
+      var d = el('div', { class: 'stat' }); d.appendChild(el('b', {}, String(s[0]))); d.appendChild(el('span', {}, s[1])); stats.appendChild(d);
+    });
+
+    var wrap = $('#hours'); wrap.innerHTML = '';
+    names.filter(function (h) { return !filter || h === filter; }).forEach(function (h) {
+      var sec = el('section', { class: 'hour' }), head = el('header');
+      head.appendChild(el('h2', {}, h + ' · ' + hours[h].length + (hours[h].length === 1 ? ' team' : ' teams')));
+      var acts = el('div', { class: 'actions' });
+      acts.appendChild(button('Print every report', function () { printMany(hours[h]); }));
+      head.appendChild(acts); sec.appendChild(head);
+      var grid = el('div', { class: 'teams' });
+      hours[h].slice().sort(function (x, y) { return (vet(x.choice) || { name: x.choice }).name.localeCompare((vet(y.choice) || { name: y.choice }).name); }).forEach(function (t) { grid.appendChild(card(t)); });
+      sec.appendChild(grid); wrap.appendChild(sec);
+    });
+    if (!names.length) wrap.appendChild(el('p', { class: 'lede' }, 'No teams yet. Teams appear here as soon as a student picks an athlete.'));
+
+    var loose = $('#loose'); loose.innerHTML = '';
+    var list = DATA.noTeam.filter(function (s) { return !filter || s.classPeriod === filter; });
+    if (list.length) {
+      var box = el('div', { class: 'loose' }); box.appendChild(el('h2', {}, 'Saved work but not on a team'));
+      box.appendChild(el('p', { class: 'sub' }, 'These students typed in the project without finishing setup. They need to start a team, join one or choose to work alone.'));
+      var ul = el('ul'); list.forEach(function (s) { ul.appendChild(el('li', {}, s.name + ' · ' + s.classPeriod + ' · last saved ' + when(s.savedAt))); });
+      box.appendChild(ul); loose.appendChild(box);
+    }
+    $('#board').hidden = false;
+  }
+  function button(label, fn, ghost) { var b = el('button', { type: 'button', class: 'btn small' + (ghost ? ' ghost' : '') }, label); b.addEventListener('click', fn); return b; }
+  function card(t) {
+    var v = vet(t.choice), c = el('article', { class: 'team' });
+    var heading = el('div', { class: 'teacher-veteran' });
+    if (v) heading.appendChild(window.MOH_PORTRAITS.image(v.slug, 'thumb'));
+    heading.appendChild(el('h3', {}, v ? v.name : t.choice));
+    c.appendChild(heading);
+    c.appendChild(el('div', { class: 'sub' }, (t.mode === 'solo' ? 'Working alone' : 'Pair') + (t.code ? ' · waiting for a partner, code ' + t.code : '')));
+    var people = t.mode === 'solo' ? [['solo', t.a, 'Does every job']] : [['A', t.a, 'Partner A, The Early Years'], ['B', t.b, 'Partner B, The Career']];
+    var scores = [];
+    people.forEach(function (p) {
+      var m = el('div', { class: 'member' }), who = el('div', { class: 'who' });
+      if (!p[1]) { who.appendChild(el('span', {}, p[2])); who.appendChild(el('small', {}, 'not joined')); m.appendChild(who); c.appendChild(m); return; }
+      var cnt = counts(p[0], values(p[1])); scores.push(cnt.done / cnt.total);
+      who.appendChild(el('span', {}, p[1].name)); who.appendChild(el('small', {}, p[2] + ' · ' + cnt.done + ' of ' + cnt.total));
+      m.appendChild(who);
+      var bars = el('div', { class: 'bars', role: 'img', 'aria-label': p[1].name + ' finished ' + cnt.done + ' of ' + cnt.total + ' boxes' });
+      BAR_STEPS.forEach(function (s) { var x = cnt.per[s]; bars.appendChild(el('i', { class: x.total && x.done === x.total ? 'full' : x.started ? 'part' : '', title: s + ' ' + x.done + '/' + x.total })); });
+      m.appendChild(bars);
+      var w = p[1].work, line = w ? 'Last saved ' + when(w.savedAt) + (w.finishedAt ? ' · turned in ' + when(w.finishedAt) : '') : 'Has not saved anything';
+      m.appendChild(el('div', { class: 'sub' }, line));
+      c.appendChild(m);
+    });
+    if (scores.length === 2 && Math.abs(scores[0] - scores[1]) >= 0.34) c.appendChild(el('div', { class: 'flag' }, 'One partner is well behind the other. Check in with both.'));
+    var acts = el('div', { class: 'actions' });
+    acts.appendChild(button('Report', function () { printMany([t]); }));
+    c.appendChild(acts);
+    if (t.history) { var d = el('details', { class: 'hist' }); d.appendChild(el('summary', {}, 'Team history')); d.appendChild(el('pre', {}, t.history)); c.appendChild(d); }
+    return c;
+  }
+
+  /* --------------------------------------------------------------- print -- */
+  function openPreview(node) {
+    var body = $('#preview-body'); body.innerHTML = ''; body.appendChild(node);
+    $('#preview').hidden = false; document.body.classList.add('previewing'); $('[data-action="print"]').focus();
+  }
+  function closePreview() { $('#preview').hidden = true; document.body.classList.remove('previewing'); }
+  function short(m) { return m ? m.short : 'Partner B'; }
+  function printMany(list) {
+    var box = el('div', { class: 'many' });
+    list.forEach(function (t) { var v = vet(t.choice); if (v) box.appendChild(window.MOHPaper.build(v, { mode: t.mode, a: short(t.a), b: short(t.b), classPeriod: t.classPeriod }, merged(t), { showMissing: true })); });
+    openPreview(box);
+  }
+  function printBlueprints(list) {
+    var box = el('div', { class: 'many' });
+    list.forEach(function (t) { var v = vet(t.choice); if (v) box.appendChild(window.MOHPaper.blueprint(v, merged(t), short(t.a))); });
+    openPreview(box);
+  }
+
+  /* ------------------------------------------------------------- gallery -- */
+  function gallery(list) {
+    slides = list.map(function (t) {
+      var v = vet(t.choice), vals = merged(t), by = t.mode === 'solo' ? short(t.a) : short(t.b);
+      return v && String(vals['moh-b-screen-data'] || '').length >= 30 ? { src: window.MOHArt.image(vals['moh-b-screen-data'], window.MOHPaper.texts(v, vals, by)), who: v.name + ' · screen by ' + by } : null;
+    }).filter(Boolean);
+    if (!slides.length) { msg('No memorial screens have been drawn yet in this group.'); return; }
+    at = 0; show(); $('#gallery').hidden = false;
+    var g = $('#gallery'); if (g.requestFullscreen) g.requestFullscreen().catch(function () { /* fine */ });
+    $('[data-action="g-next"]').focus();
+  }
+  function show() { var s = slides[at]; $('#gallery-img').src = s.src; $('#gallery-img').alt = 'Memorial screen for ' + s.who; $('#gallery-who').textContent = s.who; $('#gallery-count').textContent = (at + 1) + ' of ' + slides.length; }
+  function closeGallery() { $('#gallery').hidden = true; if (document.fullscreenElement) document.exitFullscreen().catch(function () {}); }
+
+  /* -------------------------------------------------------------- events -- */
+  $('#keyform').addEventListener('submit', function (e) { e.preventDefault(); load(); });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-action]'); if (!a) return; var act = a.getAttribute('data-action');
+    if (act === 'load' && a.type !== 'submit') load();
+    else if (act === 'forget') { store('moh-teacher-key', null); msg('The key was removed from this computer.', true); }
+    else if (act === 'print') window.print();
+    else if (act === 'close') closePreview();
+    else if (act === 'g-next') { at = (at + 1) % slides.length; show(); }
+    else if (act === 'g-prev') { at = (at - 1 + slides.length) % slides.length; show(); }
+    else if (act === 'g-close') closeGallery();
+  });
+  $('#hour-filter').addEventListener('change', draw);
+  document.addEventListener('keydown', function (e) {
+    if (!$('#gallery').hidden) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); at = (at + 1) % slides.length; show(); }
+      else if (e.key === 'ArrowLeft') { at = (at - 1 + slides.length) % slides.length; show(); }
+      else if (e.key === 'Escape') closeGallery();
+    } else if (e.key === 'Escape' && !$('#preview').hidden) closePreview();
+  });
+  document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement && !$('#gallery').hidden) $('#gallery').hidden = true; });
+  if (read('moh-teacher-key')) load();
+})();
+</script>
+</body>
+</html>
