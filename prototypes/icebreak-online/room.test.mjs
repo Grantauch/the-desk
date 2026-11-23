@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RoomDirectory, makeGame, advance } from './core.mjs';
 import { createIcebreakServer } from './server.mjs';
+import { createConnection } from 'node:net';
+import { randomBytes } from 'node:crypto';
+import vm from 'node:vm';
 
 function fake(){return {room:null,member:null}}
 function client(url){
@@ -49,12 +52,15 @@ test('room core reserves eight unique slots and a ninth cannot steal a seat',()=
 test('disconnect clears input and honors limited reconnect token',()=>{
  let now=100;const directory=new RoomDirectory({now:()=>now,graceMs:250});
  const first=fake(),seat=directory.handle(first,{type:'create',seat:3}),code=seat.code;
+ directory.rooms.get(code).game.phase='playing';
+ directory.handle(first,{type:'input',seq:44,axes:[1,0]});
  directory.disconnect(first);
  assert.equal(directory.snapshot(directory.rooms.get(code)).players[3].connected,false);
  const wrong=fake();
  assert.throws(()=>directory.handle(wrong,{type:'resume',code,token:'wrong'}),/INVALID_RESUME/);
  const resumed=fake(),result=directory.handle(resumed,{type:'resume',code,token:seat.token});
  assert.equal(result.seat,3);
+ assert.equal(directory.handle(resumed,{type:'input',seq:1,axes:[0,0]}),null,'reconnected client restarts input sequence');
  directory.disconnect(resumed);now+=251;directory.step();
  assert.equal(directory.rooms.get(code).seats[3],null);
  assert.throws(()=>directory.handle(fake(),{type:'resume',code,token:seat.token}),/INVALID_RESUME/);
@@ -142,4 +148,39 @@ test('remote clients reconnect to their own seat but not another seat',async t=>
  const recovered=await b.wait('seated');
  assert.equal(recovered.seat,7);assert.equal(recovered.resumed,true);
  assert.equal(recovered.host,true);
+});
+function rawUpgrade(port,origin){
+ const key=randomBytes(16).toString('base64');
+ return new Promise((resolve,reject)=>{
+  const socket=createConnection(port,'127.0.0.1'),timer=setTimeout(()=>{socket.destroy();reject(Error('upgrade timeout'))},3000);
+  socket.on('connect',()=>{
+   socket.write('GET /ws HTTP/1.1\r\nHost: 127.0.0.1:'+port+'\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: '+key+'\r\nOrigin: '+origin+'\r\n\r\n');
+  });
+  socket.once('data',data=>{clearTimeout(timer);const response=data.toString('utf8');socket.destroy();resolve(response)});
+  socket.once('error',error=>{clearTimeout(timer);reject(error)});
+ });
+}
+test('cross-origin WebSocket requests are refused except explicitly trusted sites',async t=>{
+ const app=createIcebreakServer({port:0,allowedOrigins:['https://grant-desk.com','https://freegameplace.com']});
+ const address=await app.listen();t.after(()=>app.close());
+ const evil=await rawUpgrade(address.port,'https://attacker.example');
+ const desk=await rawUpgrade(address.port,'https://grant-desk.com');
+ const portal=await rawUpgrade(address.port,'https://freegameplace.com');
+ assert.match(evil,/HTTP\/1\.1 403/);
+ assert.match(desk,/HTTP\/1\.1 101/);
+ assert.match(portal,/HTTP\/1\.1 101/);
+});
+test('same-origin localhost demo serves a valid client with its own allowed WebSocket origin',async t=>{
+ const app=createIcebreakServer({port:0,serveDemo:true,allowedOrigins:[]});
+ const address=await app.listen();t.after(()=>app.close());
+ const url='http://127.0.0.1:'+address.port;
+ const response=await fetch(url+'/demo');
+ assert.equal(response.status,200);
+ const html=await response.text();
+ assert.match(html,/Online Room Lab/);
+ const code=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+ assert.ok(code);
+ assert.doesNotThrow(()=>new vm.Script(code));
+ assert.match(await rawUpgrade(address.port,url),/HTTP\/1\.1 101/);
+ assert.equal((await (await fetch(url+'/health')).json()).status,'ok');
 });
