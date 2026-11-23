@@ -418,7 +418,7 @@ export class PondEcosystem {
         const yy = y + bob;
         mark(x - s, yy - s, s * 2 + 1, s + 1, shade);
         mark(x - s + 1, yy - s + 1, s * 2 - 1, s - 1, body);
-        mark(x - s + 1, yy + 1, 1, s + flutter, light);
+        mark(x - s + 1, yy + 1, 1, Math.max(1, s + flutter), light);
         mark(x, yy, 1, s + 2, light);
         mark(x + s - 1, yy + 1, 1, s - flutter + 2, light);
       } else {
