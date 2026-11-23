@@ -89,17 +89,24 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
  .shiftbook{margin-top:10px}
  .panel>.primary{margin-top:13px}
 }
+
+/* Batch 11: position switching, no additional simulation forces. */
+.prompt{max-width:calc(100vw - 24px);white-space:normal;text-align:center;line-height:1.05}
+.actions .switch{grid-column:1/-1;width:100%;height:42px;min-height:42px;background:#174b62d9;border-color:#8de1f2c4;letter-spacing:1.1px}
+.actions .switch[hidden]{display:none!important}
+.guide .follow-option{display:flex;gap:9px;align-items:center;margin-top:9px;color:#c7ebf4;font-size:11px;font-weight:800;cursor:pointer}
+.guide .follow-option input{accent-color:#73e7fa;width:18px;height:18px;flex-shrink:0}
 </style>
 </head>
 <body>
 <canvas id="game" aria-label="Interactive 3D arcade ice hockey rink"></canvas>
 <div id="shell">
   <header class="topbar"><div class="brand"><div class="badge-mark"><svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><path d="M16 1 7 16h8l-3 13 13-18h-9l5-10Z" fill="#7ee9fc"/></svg></div><div><div class="brandname">ICE<b>BREAK</b></div><div class="eyebrow">THE FIRST SHIFT / PUBLIC BETA</div></div></div><div class="scorecard" role="status" aria-live="off"><div class="team"><div class="teamname home">GLACIERS</div><div class="score" id="homeScore">0</div></div><div class="clockzone"><div class="period" id="period">1ST PERIOD</div><div class="clock" id="clock">02:00</div></div><div class="team"><div class="teamname away">EMBERS</div><div class="score" id="awayScore">0</div></div></div><div class="rightTools"><button class="tool" id="viewBtn" type="button" aria-label="Switch to full-rink camera" aria-pressed="true" title="Camera: follow puck">◎</button><button class="tool" id="soundBtn" aria-label="Mute sound" aria-pressed="false" title="Mute sound">♪</button><button class="tool" id="pauseBtn" aria-label="Pause game" title="Pause">Ⅱ</button></div></header>
-  <div class="corner-info"><div class="hint"><span class="key">W A S D</span> Skate &nbsp; <span class="key">SHIFT</span> Burst<br/><span class="key">J</span> Pass &nbsp; <span class="key">K</span> Hold to shoot<br/><span class="key">L</span> Check on contact &nbsp; <span class="key">ESC</span> Pause</div></div>
+  <div class="corner-info"><div class="hint"><span class="key">W A S D</span> Skate &nbsp; <span class="key">SHIFT</span> Burst<br/><span class="key">J</span> Pass &nbsp; <span class="key">K</span> Hold to shoot<br/><span class="key">L</span> Check &nbsp; <span class="key">Q</span> Switch teammate<br/><span class="key">ESC</span> Pause</div></div>
   <div class="status"><div class="tlabel" id="playerName">#09 · CENTER</div><div class="indicator" id="powerStatus">REGULAR · SCHOOL</div><div class="indicator" id="statusText">READY FOR THE DROP</div><div class="meter"><div id="energy"></div></div><div class="indicator" id="meterLabel">SKATING ENERGY</div></div>
   <div id="possessionReadout" class="possession-readout" hidden></div><div id="puckGuide" class="puck-guide" aria-live="off" hidden></div><div id="dailyTicker" class="daily-ticker" aria-live="off" hidden></div>
   <div id="prompt" class="prompt" aria-live="polite"></div><div id="momentLabel" class="moment-label" aria-live="polite"></div><div id="flash" class="flash"></div>
-  <div class="mobilecontrols" aria-label="Touch game controls"><div class="dpad"><span></span><button class="ctrl" data-key="w" aria-label="Skate up">▲</button><span></span><button class="ctrl" data-key="a" aria-label="Skate left">◀</button><span></span><button class="ctrl" data-key="d" aria-label="Skate right">▶</button><span></span><button class="ctrl" data-key="s" aria-label="Skate down">▼</button><span></span></div><div class="actions"><button class="ctrl" data-key="j">PASS</button><button class="ctrl shoot" data-key="k">SHOOT</button><button class="ctrl check" data-key="l">CHECK</button><button class="ctrl" data-key="shift">BURST</button></div></div>
+  <div class="mobilecontrols" aria-label="Touch game controls"><div class="dpad"><span></span><button class="ctrl" data-key="w" aria-label="Skate up">▲</button><span></span><button class="ctrl" data-key="a" aria-label="Skate left">◀</button><span></span><button class="ctrl" data-key="d" aria-label="Skate right">▶</button><span></span><button class="ctrl" data-key="s" aria-label="Skate down">▼</button><span></span></div><div class="actions"><button class="ctrl" data-key="j">PASS</button><button class="ctrl shoot" data-key="k">SHOOT</button><button class="ctrl check" data-key="l">CHECK</button><button class="ctrl" data-key="shift">BURST</button><button class="ctrl switch" id="touchSwitch" type="button" data-key="q" aria-label="Switch to another skater, solo mode only">SWITCH SKATER</button></div></div>
   <div class="trailtag">FIRST SHIFT · ORIGINAL TEAMS · 3 RINKS · 2 MODES</div>
   <div class="overlay" id="overlay">
     <section class="panel">
@@ -120,8 +127,8 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
         <div class="ai-level"><label for="difficultySelect">02 / OPPONENT AI</label><select id="difficultySelect" aria-label="Opponent AI difficulty"><option value="rookie">ROOKIE · Learn the game</option><option value="standard" selected>STANDARD · Balanced</option><option value="veteran">VETERAN · Sharp reads</option></select><small>Same skating, contact and puck physics</small></div>
         <div class="setup-head">03 / SELECT RINK <em>IDENTICAL ICE PHYSICS</em></div>
         <div class="rinks" role="group" aria-label="Rink"><button class="rink-card selected school" data-rink="school" aria-pressed="true"><span class="rink-art"><i></i></span><strong>SCHOOL</strong><small>Friday night lights</small></button><button class="rink-card park" data-rink="park" aria-pressed="false"><span class="rink-art"><i></i></span><strong>PARK</strong><small>Open-air winter</small></button><button class="rink-card mars" data-rink="mars" aria-pressed="false"><span class="rink-art"><i></i></span><strong>MARS</strong><small>Red planet arena</small></button></div>
-        <details class="seats"><summary>04 / PLAYER SEATS <span id="seatCount">1 HUMAN · 7 AI</span></summary><p>Each team has exactly one center, one wing, one defender and one goalie. Assign a unique input to any seat; unassigned seats are AI. Up to eight local gamepads are supported. Online multiplayer is not yet available.</p><div id="seatGrid" class="seat-grid"></div><div class="controls-note"><b>Keyboard 1:</b> WASD · J pass · K shoot · L check · Shift burst<br><b>Keyboard 2:</b> arrows · N pass · M shoot · , check · Enter burst<br><b>Gamepads:</b> left stick · A pass · X shoot · B check · RT burst</div></details>
-      <details class="guide"><summary>HOW TO PLAY · SKATING, PASSING AND CHECKING</summary><p>Build speed, glide and brake into sharp turns. Pass to the highlighted open teammate. After a completed pass, watch for a gold GIVE & GO ring and return the puck to the open runner. Hold SHOOT as an incoming pass reaches your blade for a one-timer, or shoot immediately after receiving for a one-touch finish. Missed checks cost energy and balance.</p></details>
+        <details class="seats"><summary>04 / PLAYER SEATS <span id="seatCount">1 HUMAN · 7 AI</span></summary><p>Each team has exactly one center, one wing, one defender and one goalie. Assign a unique input to any seat; unassigned seats are AI. Up to eight local gamepads are supported. Online multiplayer is not yet available.</p><div id="seatGrid" class="seat-grid"></div><div class="controls-note"><b>Keyboard 1:</b> WASD · J pass · K shoot · L check · Q switch · Shift burst<br><b>Keyboard 2:</b> arrows · N pass · M shoot · , check · . switch · Enter burst<br><b>Gamepads:</b> left stick · A pass · X shoot · B check · Y switch · RT burst</div></details>
+      <details class="guide"><summary>HOW TO PLAY · SKATING, PASSING AND CHECKING</summary><p>Build speed, glide and brake into sharp turns. Pass to the highlighted open teammate. After a completed pass, watch for a gold GIVE & GO ring and return the puck to the open runner. Hold SHOOT as an incoming pass reaches your blade for a one-timer, or shoot immediately after receiving for a one-touch finish. Missed checks cost energy and balance. In solo play, switch to a nearby teammate with Q, . or gamepad Y; you can also follow a completed pass to the receiver. A player carrying the puck must pass or shoot before switching.</p><label class="follow-option"><input type="checkbox" id="autoFollowToggle" checked> Automatically control the teammate who receives your completed pass (solo only)</label></details>
         <section id="shiftBook" class="shiftbook" aria-label="Daily challenge and personal records">
           <div class="shiftbook-head">SHIFT BOOK <small>Solo vs AI · This device only</small></div>
           <strong id="dailyChallengeName">TODAY'S CHALLENGE</strong>
@@ -180,8 +187,8 @@ function aiLevelFor(p){
 const inputLabel=device=>device==='kb1'?'K1':device==='kb2'?'K2':device.startsWith('pad')?'P'+(Number(device.slice(3))+1):'AI';
 const stickPoint=p=>{const side=STICK.side+p.puckWobble;return {x:p.x+Math.cos(p.facing)*STICK.forward-Math.sin(p.facing)*side,z:p.z+Math.sin(p.facing)*STICK.forward+Math.cos(p.facing)*side}};
 const ROLES=['CENTER','WING','DEFENDER','GOALIE'];
-const config={mode:'regular',difficulty:'standard',rink:'school',seats:['kb1','ai','ai','ai','ai','ai','ai','ai']};let followCamera=true;
-const inputState=new Map(),lastInputButtons=new Map();let powerItems=[],powerSpawn=6,activeHumans=1;
+const config={mode:'regular',difficulty:'standard',autoFollow:true,rink:'school',seats:['kb1','ai','ai','ai','ai','ai','ai','ai']};let followCamera=true;
+const inputState=new Map(),lastInputButtons=new Map(),lastSwitchButtons=new Map();let powerItems=[],powerSpawn=6,activeHumans=1;
 const activeInputs=()=>new Set(config.seats.filter(v=>v!=='ai'));
 const humanFor=key=>players.find(p=>p.device===key);
 function updateSeatCount(){
@@ -191,9 +198,12 @@ function updateSeatCount(){
  hud.difficulty.disabled=localVersus;
  hud.difficulty.value=localVersus?'standard':config.difficulty;
  hud.difficulty.title=localVersus?'Local multiplayer always uses balanced Standard AI for both teams.':'Change AI decisions for the opposing team only. Skating and physics stay equal.';
+ const switchTouch=$('touchSwitch');
+ switchTouch.hidden=!(activeHumans===1&&config.seats.findIndex(v=>v!=='ai')%4!==3);
  syncViewButton();
 }
 function setupLobby(){
+ $('autoFollowToggle').addEventListener('change',e=>{config.autoFollow=!!e.target.checked});
  hud.difficulty.value=config.difficulty;hud.difficulty.addEventListener('change',()=>{if(AI_LEVELS[hud.difficulty.value])config.difficulty=hud.difficulty.value;renderShiftBook()});
  const options=[['ai','AI'],['kb1','Keyboard 1'],['kb2','Keyboard 2'],...Array.from({length:8},(_,i)=>['pad'+i,'Gamepad '+(i+1)])];
  for(let team=0;team<2;team++){
@@ -419,7 +429,7 @@ function renderFinalReport(){
 const keys=new Set(), blue=()=>players.filter(p=>p.team===0&&!p.goalie), red=()=>players.filter(p=>p.team===1&&!p.goalie), dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z), nearest=(list,t)=>list.reduce((best,p)=>!best||dist(p,t)<dist(best,t)?p:best,null);
 function makeTeams(){players=[makePlayer(0,0,-8,0),makePlayer(0,1,-13,-6),makePlayer(0,2,-19,6),makePlayer(1,0,8,0),makePlayer(1,1,13,6),makePlayer(1,2,19,-6),makePlayer(0,3,-25.4,0,true),makePlayer(1,3,25.4,0,true)];for(let p of players)p.device=config.seats[p.team*4+p.id];control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0]}
 function resetFaceoff(){for(let p of players){p.x=p.goalie?(p.team===0?-25.4:25.4):(p.team===0?-8-2*(p.id>0):8+2*(p.id>0));p.z=p.goalie?0:(p.id===1?(p.team===0?-6:6):p.id===2?(p.team===0?6:-6):0);p.vx=p.vz=p.stun=p.fallTime=p.fallSpan=p.receiveWait=p.skid=p.checkWindow=p.checkRecovery=p.brace=p.puckWobble=p.hitFlash=0;p.balance=1;p.checkConnected=false;p.has=false;p.shotCharge=p.oneTimerBuffer=p.receiveWindow=p.oneTimerFlash=p.saveFlash=0;p.saveSide=0;p.saveKind='';p.impactDir=p.fallSide=1;p.impactLevel=p.standPose=p.bracePose=0;p.carryTime=0;p.aiPlanTime=0;p.aiTarget=null;p.cutTime=p.comboCooldown=0;p.cutReceiver=null;p.facing=p.team===0?0:Math.PI}control=humanFor('kb1')||players.find(p=>p.device!=='ai')||players[0];puck={x:0,z:0,vx:0,vz:0,owner:null,lock:0,passFrom:null,passTarget:null};trail=[];replayHistory=[];replayFrames=[];replaySample=0;replayElapsed=0;hud.moment.classList.remove('show');dropDelay=1.35;prompt('FACE OFF',1.15)}
-function fullReset(){makeTeams();score=[0,0];matchStats=newMatchStats();hud.report.hidden=true;timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;accumulator=0;lastShot=null;goalMoment=null;inputState.clear();lastInputButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD();renderShiftBook()}
+function fullReset(){makeTeams();score=[0,0];matchStats=newMatchStats();hud.report.hidden=true;timeLeft=120;period=1;goalDelay=injuryTime=0;injured=null;particles=[];powerItems=[];powerSpawn=5;accumulator=0;lastShot=null;goalMoment=null;inputState.clear();lastInputButtons.clear();lastSwitchButtons.clear();phase='playing';paused=false;resetFaceoff();updateHUD();renderShiftBook()}
 function prompt(text,secs=1.2,orange=false){hud.prompt.textContent=text;hud.prompt.className='prompt show'+(orange?' orange':'');msgTimer=secs}function updatePrompt(dt){if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)hud.prompt.classList.remove('show')}}
 function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu';hud.report.hidden=phase!=='finished';hud.changeSetup.hidden=phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden');if(phase==='finished'||phase==='menu')hud.overlay.querySelector?.('.panel')?.scrollTo?.({top:0})}
 function hideOverlay(){hud.overlay.classList.add('hidden');hud.overlay.setAttribute('aria-hidden','true')}
@@ -480,7 +490,26 @@ function giveGoTarget(p,carrier,enemies){
  options.sort((a,b)=>b.score-a.score);return options[0];
 }
 function requestOneTimer(p){if(!p||p.goalie||p.has||p.stun>0||p.fallTime>0||puck.passTarget!==p||puck.passFrom?.team!==p.team||dist(p,puck)>ONE_TIMER.catchReach)return false;p.oneTimerBuffer=ONE_TIMER.buffer;if(p.device!=='ai')prompt('ONE-TIMER READY',.34);return true}
-function switchPlayer(){let choices=blue();let order=choices.filter(p=>p!==control).sort((a,b)=>dist(a,puck)-dist(b,puck));if(order.length){control=order[0];prompt('PLAYER SWITCH',.38)}}
+function switchPlayer(device,target=null,follow=false){
+ // Transfer one existing local input, never teleport a skater or the puck.
+ // Two-human matches and human-selected goalies retain fixed positions.
+ if(phase!=='playing'||paused||dropDelay>0||!matchStats?.solo||matchStats.humanDevice!==device)return false;
+ const current=humanFor(device);
+ if(!current||current.goalie||current.has)return false;
+ const choices=players.filter(p=>p.team===current.team&&!p.goalie&&p!==current&&p.device==='ai'&&p.stun<=0&&p.fallTime<=0);
+ const next=target?(choices.includes(target)?target:null):choices.sort((a,b)=>Number(b.has)-Number(a.has)||dist(a,puck)-dist(b,puck)||a.id-b.id)[0];
+ if(!next)return false;
+ current.device='ai';current.shotCharge=0;current.oneTimerBuffer=0;
+ next.device=device;next.shotCharge=0;
+ control=next;
+ // Update both the desktop role label and the mobile possession readout now.
+ possessionHUD();
+ // Preserve held movement while preventing inherited shoot/pass/check actions.
+ const input=inputFor(device);input.pass=false;input.shoot=false;input.check=false;
+ updateHUD();
+ prompt((follow?'PASS':'SWITCH')+' · #'+next.number,.66);
+ return true;
+}
 function beginCheck(p){
  if(phase!=='playing'||paused||dropDelay>0||p.goalie||p.has||p.check>0||p.stun>0)return false;
  if(p.energy<CHECK.minEnergy){if(p.device!=='ai')prompt('LOW ENERGY',.48);return false}
@@ -590,7 +619,7 @@ function recordMoment(dt){
 }
 function spray(x,z,col,n){for(let i=0;i<n;i++){let a=rnd()*6.283,sp=1+rnd()*9;particles.push({x,z,y:.2,vx:Math.cos(a)*sp,vz:Math.sin(a)*sp,vy:1+rnd()*4,life:.35+rnd()*.65,c:col,r:.035+rnd()*.07})}}
 function updateHUD(){hud.home.textContent=score[0];hud.away.textContent=score[1];let s=Math.max(0,Math.ceil(timeLeft));hud.clock.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');hud.period.textContent=(config.mode==='powerups'?'POWERUPS':'REGULAR')+' · '+config.rink.toUpperCase();hud.power.textContent=control?.powerTime>0?(control.power.toUpperCase()+' · '+control.powerTime.toFixed(0)+'S'):(activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+config.rink.toUpperCase());if(control){hud.name.textContent='#'+String(control.number).padStart(2,'0')+' · '+control.name;hud.energy.style.width=(100*control.energy).toFixed(0)+'%';let charging=control.has&&inputFor(control.device).shoot;hud.status.textContent=charging?'WINDING UP SLAPSHOT':control.oneTimerBuffer>0?'TIME YOUR SHOT · ONE-TIMER':control.receiveWindow>0&&control.has?(players.some(q=>q.cutReceiver===control&&q.cutTime>0)?'ONE-TOUCH · GIVE & GO':'ONE-TOUCH WINDOW'):control.has&&players.some(q=>q.cutReceiver===control&&q.cutTime>0)?'GIVE & GO · PASS TO RUNNER':control.has?'YOU HAVE THE PUCK':control.fallTime>0?'DOWN · GETTING UP':control.standPose>0?'BACK ON YOUR SKATES':control.hitFlash>0?'STAGGERED · REGAIN BALANCE':control.checkWindow>0?'COMMITTED TO CHECK':control.checkRecovery>0&&!control.checkConnected?'MISSED CHECK · RECOVERING':control.balance<.62?'OFF BALANCE · SET YOUR EDGES':puck.owner?.team===1?'DEFEND YOUR ZONE':'FIND OPEN ICE';hud.meterLabel.textContent=charging?'SHOT POWER':'SKATING ENERGY';if(charging)hud.energy.style.width=(100*clamp(control.shotCharge/1.5,0,1)).toFixed(0)+'%'}updateDailyTicker()}
-const keyboardMapping={w:['kb1','up'],s:['kb1','down'],a:['kb1','left'],d:['kb1','right'],shift:['kb1','burst'],j:['kb1','pass'],k:['kb1','shoot'],l:['kb1','check'],arrowup:['kb2','up'],arrowdown:['kb2','down'],arrowleft:['kb2','left'],arrowright:['kb2','right'],enter:['kb2','burst'],n:['kb2','pass'],m:['kb2','shoot'],',':['kb2','check']};
+const keyboardMapping={q:['kb1','switch'],'.':['kb2','switch'],w:['kb1','up'],s:['kb1','down'],a:['kb1','left'],d:['kb1','right'],shift:['kb1','burst'],j:['kb1','pass'],k:['kb1','shoot'],l:['kb1','check'],arrowup:['kb2','up'],arrowdown:['kb2','down'],arrowleft:['kb2','left'],arrowright:['kb2','right'],enter:['kb2','burst'],n:['kb2','pass'],m:['kb2','shoot'],',':['kb2','check']};
 function inputFor(device){if(!inputState.has(device))inputState.set(device,{up:false,down:false,left:false,right:false,burst:false,pass:false,shoot:false,check:false,axisX:0,axisY:0});return inputState.get(device)}
 // Screen-up is attack-north (+world x), screen-right is +world z.
 // Transform keyboard, touch and gamepad axes in exactly the same place so that
@@ -602,14 +631,14 @@ function action(p,key,down){if(!p)return;const input=inputFor(p.device);if(input
  if(key==='check'&&down)beginCheck(p);
  if(key==='shoot'){if(down){p.shotCharge=0;if(p.has&&p.receiveWindow>0&&!p.goalie){shot(p,ONE_TIMER.baseCharge,true);if(p.device!=='ai')prompt('ONE-TIMER!',.55)}else if(!p.has)requestOneTimer(p)}else if(p.goalie)goalieClear(p);else if(p.has)shot(p,clamp(p.shotCharge/1.5,0,1));else p.oneTimerBuffer=0}
 }
-function inputKey(key,down,repeat=false){key=key.toLowerCase();if(key==='escape'||key===' '){if(down&&!repeat)togglePause();return}const mapping=keyboardMapping[key];if(!mapping)return;const [device,act]=mapping,p=humanFor(device),input=inputFor(device);if(['pass','shoot','check'].includes(act))action(p,act,down);else input[act]=down;}
+function inputKey(key,down,repeat=false){key=key.toLowerCase();if(key==='escape'||key===' '){if(down&&!repeat)togglePause();return}const mapping=keyboardMapping[key];if(!mapping)return;const [device,act]=mapping,p=humanFor(device),input=inputFor(device);if(act==='switch'){if(down&&!repeat)switchPlayer(device);return}if(['pass','shoot','check'].includes(act))action(p,act,down);else input[act]=down;}
 window.addEventListener('keydown',e=>{
  const key=e.key.toLowerCase();
  if(phase==='injury'&&(key==='enter'||key===' ')){e.preventDefault();if(!e.repeat)endInjury();return}
  if(e.target?.closest?.('select,button,input,textarea')&&(phase==='menu'||paused||phase==='finished'))return;
  if(keyboardMapping[key]||key==='escape'||key===' '){e.preventDefault();inputKey(key,true,e.repeat)}
 });
-window.addEventListener('keyup',e=>inputKey(e.key,false));window.addEventListener('blur',()=>{inputState.clear();lastInputButtons.clear();if(phase==='playing'&&!paused)togglePause()});
+window.addEventListener('keyup',e=>inputKey(e.key,false));window.addEventListener('blur',()=>{inputState.clear();lastInputButtons.clear();lastSwitchButtons.clear();if(phase==='playing'&&!paused)togglePause()});
 for(let el of document.querySelectorAll('[data-key]')){let key=el.dataset.key,pointer=null;el.addEventListener('pointerdown',e=>{if(pointer!==null||e.button>0)return;e.preventDefault();pointer=e.pointerId;el.setPointerCapture(pointer);inputKey(key,true);el.classList.add('pressed')});for(let event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,e=>{if(e.pointerId!==pointer)return;e.preventDefault();pointer=null;if(event!=='pointerup'){const [device,act]=keyboardMapping[key];inputFor(device)[act]=false;const p=humanFor(device);if(p&&act==='shoot')p.shotCharge=0}else inputKey(key,false);el.classList.remove('pressed')})}
 function pollGamepads(){
  if(!navigator.getGamepads)return;
@@ -619,14 +648,21 @@ function pollGamepads(){
   const inp=inputFor(device);
   if(!pad){
    Object.assign(inp,{axisX:0,axisY:0,burst:false,shoot:false,pass:false,check:false});
-   p.shotCharge=0;lastInputButtons.delete(device);continue;
+   p.shotCharge=0;lastInputButtons.delete(device);lastSwitchButtons.delete(device);continue;
   }
-  const confirm=!!pad.buttons[0]?.pressed,previous=lastInputButtons.get(device);
+  const switching=!!pad.buttons[3]?.pressed,wasSwitching=lastSwitchButtons.get(device)||false;
+   lastSwitchButtons.set(device,switching);
+   const switched=switching&&!wasSwitching&&switchPlayer(device);
+   const active=switched?humanFor(device):p;
+   const confirm=!!pad.buttons[0]?.pressed,previous=lastInputButtons.get(device);
   lastInputButtons.set(device,confirm);
   if(phase==='injury'&&confirm&&previous===false)endInjury();
   const x=pad.axes[0]||0,y=pad.axes[1]||0,m=Math.hypot(x,y),strength=clamp((m-.16)/.84,0,1);
   inp.axisX=m?x/m*strength:0;inp.axisY=m?y/m*strength:0;inp.burst=!!(pad.buttons[7]?.pressed||pad.buttons[5]?.pressed);
-  for(const [name,index] of [['pass',0],['shoot',2],['check',1]])action(p,name,!!pad.buttons[index]?.pressed);
+  for(const [name,index] of [['pass',0],['shoot',2],['check',1]]){
+    if(switched){inp[name]=!!pad.buttons[index]?.pressed;continue}
+    action(active,name,!!pad.buttons[index]?.pressed);
+   }
  }
 }
 
@@ -909,6 +945,9 @@ function puckPhysics(dt){
   receiver.shootWait=.25;receiver.shotCharge=0;receiver.receiveWindow=intendedPass?ONE_TIMER.receiveWindow:0;
   receiver.cutTime=0;receiver.cutReceiver=null;
   if(passer&&!passer.goalie&&passer.comboCooldown<=0){passer.cutTime=COMBO.window;passer.cutReceiver=receiver}
+  // Follow only an actual intended reception: interceptions, saves and
+  // loose-puck grabs never trigger a control transfer.
+  if(passer&&config.autoFollow&&matchStats?.solo&&passer.device===matchStats.humanDevice&&receiver.device==='ai')switchPlayer(passer.device,receiver,true);
   sound('grab');
   if(fireOnCatch){receiver.oneTimerBuffer=0;shot(receiver,ONE_TIMER.baseCharge,true);prompt('ONE-TIMER!',.62)}
  }else{

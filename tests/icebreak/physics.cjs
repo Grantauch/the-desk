@@ -49,7 +49,8 @@ test('stick attachment is continuous on turns, release starts at blade, shooter 
  f.puck.x=p.x;f.puck.z=p.z;f.puck.vx=f.puck.vz=0;tick(.1,d=>{f.updatePlayers(d);f.puckPhysics(d)});assert.equal(f.puck.owner,null);
 });
 test('pass can be received nearby after short release lock and shots release on key up',()=>{
- const {f,api}=fixture();api.start();f.clear();const p=f.players[0],mate=f.players[1];p.x=0;p.z=0;p.stun=0;mate.x=3;mate.z=.38;mate.stun=0;p.facing=0;f.give(p);f.pass(p);
+ const {f,api}=fixture();api.start();f.clear();f.config.autoFollow=false; // Isolate shot-charge physics while the passer stays user-controlled.
+ const p=f.players[0],mate=f.players[1];p.x=0;p.z=0;p.stun=0;mate.x=3;mate.z=.38;mate.stun=0;p.facing=0;f.give(p);f.pass(p);
  tick(.1,d=>f.puckPhysics(d));assert.equal(f.puck.owner,mate);
  f.give(p);api.input('k',true);tick(.4,d=>f.updatePlayers(d));assert.ok(p.shotCharge>.3);api.input('k',false);assert.equal(f.puck.owner,null);assert.ok(speed(f.puck)>25);
 });
