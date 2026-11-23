@@ -80,6 +80,8 @@ export function createIcebreakServer(options={}){
   if(physicsTimer)clearInterval(physicsTimer);
   if(snapshotTimer)clearInterval(snapshotTimer);
   ws.closeAll();
+  // Node's http.Server.close() does not necessarily own upgraded raw sockets.
+  for(const socket of tcpSockets)socket.destroy();
   await new Promise(resolve=>server.close(resolve));
  }
  return {server,rooms,listen,close,broadcast};
