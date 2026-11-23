@@ -489,7 +489,24 @@ function giveGoTarget(p,carrier,enemies){
  options.sort((a,b)=>b.score-a.score);return options[0];
 }
 function requestOneTimer(p){if(!p||p.goalie||p.has||p.stun>0||p.fallTime>0||puck.passTarget!==p||puck.passFrom?.team!==p.team||dist(p,puck)>ONE_TIMER.catchReach)return false;p.oneTimerBuffer=ONE_TIMER.buffer;if(p.device!=='ai')prompt('ONE-TIMER READY',.34);return true}
-function switchPlayer(){let choices=blue();let order=choices.filter(p=>p!==control).sort((a,b)=>dist(a,puck)-dist(b,puck));if(order.length){control=order[0];prompt('PLAYER SWITCH',.38)}}
+function switchPlayer(device,target=null,follow=false){
+ // Transfer one existing local input, never teleport a skater or the puck.
+ // Two-human matches and human-selected goalies retain fixed positions.
+ if(phase!=='playing'||paused||dropDelay>0||!matchStats?.solo||matchStats.humanDevice!==device)return false;
+ const current=humanFor(device);
+ if(!current||current.goalie||current.has)return false;
+ const choices=players.filter(p=>p.team===current.team&&!p.goalie&&p!==current&&p.device==='ai'&&p.stun<=0&&p.fallTime<=0);
+ const next=target?(choices.includes(target)?target:null):choices.sort((a,b)=>Number(b.has)-Number(a.has)||dist(a,puck)-dist(b,puck)||a.id-b.id)[0];
+ if(!next)return false;
+ current.device='ai';current.shotCharge=0;current.oneTimerBuffer=0;
+ next.device=device;next.shotCharge=0;
+ control=next;
+ // Preserve held movement while preventing inherited shoot/pass/check actions.
+ const input=inputFor(device);input.pass=false;input.shoot=false;input.check=false;
+ updateHUD();
+ prompt((follow?'PASS COMPLETE':'SKATER SWITCH')+' · #'+next.number+' '+next.name,.66);
+ return true;
+}
 function beginCheck(p){
  if(phase!=='playing'||paused||dropDelay>0||p.goalie||p.has||p.check>0||p.stun>0)return false;
  if(p.energy<CHECK.minEnergy){if(p.device!=='ai')prompt('LOW ENERGY',.48);return false}
@@ -599,7 +616,7 @@ function recordMoment(dt){
 }
 function spray(x,z,col,n){for(let i=0;i<n;i++){let a=rnd()*6.283,sp=1+rnd()*9;particles.push({x,z,y:.2,vx:Math.cos(a)*sp,vz:Math.sin(a)*sp,vy:1+rnd()*4,life:.35+rnd()*.65,c:col,r:.035+rnd()*.07})}}
 function updateHUD(){hud.home.textContent=score[0];hud.away.textContent=score[1];let s=Math.max(0,Math.ceil(timeLeft));hud.clock.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');hud.period.textContent=(config.mode==='powerups'?'POWERUPS':'REGULAR')+' · '+config.rink.toUpperCase();hud.power.textContent=control?.powerTime>0?(control.power.toUpperCase()+' · '+control.powerTime.toFixed(0)+'S'):(activeHumans+' HUMAN'+(activeHumans!==1?'S':'')+' · '+config.rink.toUpperCase());if(control){hud.name.textContent='#'+String(control.number).padStart(2,'0')+' · '+control.name;hud.energy.style.width=(100*control.energy).toFixed(0)+'%';let charging=control.has&&inputFor(control.device).shoot;hud.status.textContent=charging?'WINDING UP SLAPSHOT':control.oneTimerBuffer>0?'TIME YOUR SHOT · ONE-TIMER':control.receiveWindow>0&&control.has?(players.some(q=>q.cutReceiver===control&&q.cutTime>0)?'ONE-TOUCH · GIVE & GO':'ONE-TOUCH WINDOW'):control.has&&players.some(q=>q.cutReceiver===control&&q.cutTime>0)?'GIVE & GO · PASS TO RUNNER':control.has?'YOU HAVE THE PUCK':control.fallTime>0?'DOWN · GETTING UP':control.standPose>0?'BACK ON YOUR SKATES':control.hitFlash>0?'STAGGERED · REGAIN BALANCE':control.checkWindow>0?'COMMITTED TO CHECK':control.checkRecovery>0&&!control.checkConnected?'MISSED CHECK · RECOVERING':control.balance<.62?'OFF BALANCE · SET YOUR EDGES':puck.owner?.team===1?'DEFEND YOUR ZONE':'FIND OPEN ICE';hud.meterLabel.textContent=charging?'SHOT POWER':'SKATING ENERGY';if(charging)hud.energy.style.width=(100*clamp(control.shotCharge/1.5,0,1)).toFixed(0)+'%'}updateDailyTicker()}
-const keyboardMapping={w:['kb1','up'],s:['kb1','down'],a:['kb1','left'],d:['kb1','right'],shift:['kb1','burst'],j:['kb1','pass'],k:['kb1','shoot'],l:['kb1','check'],arrowup:['kb2','up'],arrowdown:['kb2','down'],arrowleft:['kb2','left'],arrowright:['kb2','right'],enter:['kb2','burst'],n:['kb2','pass'],m:['kb2','shoot'],',':['kb2','check']};
+const keyboardMapping={q:['kb1','switch'],'.':['kb2','switch'],w:['kb1','up'],s:['kb1','down'],a:['kb1','left'],d:['kb1','right'],shift:['kb1','burst'],j:['kb1','pass'],k:['kb1','shoot'],l:['kb1','check'],arrowup:['kb2','up'],arrowdown:['kb2','down'],arrowleft:['kb2','left'],arrowright:['kb2','right'],enter:['kb2','burst'],n:['kb2','pass'],m:['kb2','shoot'],',':['kb2','check']};
 function inputFor(device){if(!inputState.has(device))inputState.set(device,{up:false,down:false,left:false,right:false,burst:false,pass:false,shoot:false,check:false,axisX:0,axisY:0});return inputState.get(device)}
 // Screen-up is attack-north (+world x), screen-right is +world z.
 // Transform keyboard, touch and gamepad axes in exactly the same place so that
@@ -611,14 +628,14 @@ function action(p,key,down){if(!p)return;const input=inputFor(p.device);if(input
  if(key==='check'&&down)beginCheck(p);
  if(key==='shoot'){if(down){p.shotCharge=0;if(p.has&&p.receiveWindow>0&&!p.goalie){shot(p,ONE_TIMER.baseCharge,true);if(p.device!=='ai')prompt('ONE-TIMER!',.55)}else if(!p.has)requestOneTimer(p)}else if(p.goalie)goalieClear(p);else if(p.has)shot(p,clamp(p.shotCharge/1.5,0,1));else p.oneTimerBuffer=0}
 }
-function inputKey(key,down,repeat=false){key=key.toLowerCase();if(key==='escape'||key===' '){if(down&&!repeat)togglePause();return}const mapping=keyboardMapping[key];if(!mapping)return;const [device,act]=mapping,p=humanFor(device),input=inputFor(device);if(['pass','shoot','check'].includes(act))action(p,act,down);else input[act]=down;}
+function inputKey(key,down,repeat=false){key=key.toLowerCase();if(key==='escape'||key===' '){if(down&&!repeat)togglePause();return}const mapping=keyboardMapping[key];if(!mapping)return;const [device,act]=mapping,p=humanFor(device),input=inputFor(device);if(act==='switch'){if(down&&!repeat)switchPlayer(device);return}if(['pass','shoot','check'].includes(act))action(p,act,down);else input[act]=down;}
 window.addEventListener('keydown',e=>{
  const key=e.key.toLowerCase();
  if(phase==='injury'&&(key==='enter'||key===' ')){e.preventDefault();if(!e.repeat)endInjury();return}
  if(e.target?.closest?.('select,button,input,textarea')&&(phase==='menu'||paused||phase==='finished'))return;
  if(keyboardMapping[key]||key==='escape'||key===' '){e.preventDefault();inputKey(key,true,e.repeat)}
 });
-window.addEventListener('keyup',e=>inputKey(e.key,false));window.addEventListener('blur',()=>{inputState.clear();lastInputButtons.clear();if(phase==='playing'&&!paused)togglePause()});
+window.addEventListener('keyup',e=>inputKey(e.key,false));window.addEventListener('blur',()=>{inputState.clear();lastInputButtons.clear();lastSwitchButtons.clear();if(phase==='playing'&&!paused)togglePause()});
 for(let el of document.querySelectorAll('[data-key]')){let key=el.dataset.key,pointer=null;el.addEventListener('pointerdown',e=>{if(pointer!==null||e.button>0)return;e.preventDefault();pointer=e.pointerId;el.setPointerCapture(pointer);inputKey(key,true);el.classList.add('pressed')});for(let event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,e=>{if(e.pointerId!==pointer)return;e.preventDefault();pointer=null;if(event!=='pointerup'){const [device,act]=keyboardMapping[key];inputFor(device)[act]=false;const p=humanFor(device);if(p&&act==='shoot')p.shotCharge=0}else inputKey(key,false);el.classList.remove('pressed')})}
 function pollGamepads(){
  if(!navigator.getGamepads)return;
@@ -628,14 +645,21 @@ function pollGamepads(){
   const inp=inputFor(device);
   if(!pad){
    Object.assign(inp,{axisX:0,axisY:0,burst:false,shoot:false,pass:false,check:false});
-   p.shotCharge=0;lastInputButtons.delete(device);continue;
+   p.shotCharge=0;lastInputButtons.delete(device);lastSwitchButtons.delete(device);continue;
   }
-  const confirm=!!pad.buttons[0]?.pressed,previous=lastInputButtons.get(device);
+  const switching=!!pad.buttons[3]?.pressed,wasSwitching=lastSwitchButtons.get(device)||false;
+   lastSwitchButtons.set(device,switching);
+   const switched=switching&&!wasSwitching&&switchPlayer(device);
+   const active=switched?humanFor(device):p;
+   const confirm=!!pad.buttons[0]?.pressed,previous=lastInputButtons.get(device);
   lastInputButtons.set(device,confirm);
   if(phase==='injury'&&confirm&&previous===false)endInjury();
   const x=pad.axes[0]||0,y=pad.axes[1]||0,m=Math.hypot(x,y),strength=clamp((m-.16)/.84,0,1);
   inp.axisX=m?x/m*strength:0;inp.axisY=m?y/m*strength:0;inp.burst=!!(pad.buttons[7]?.pressed||pad.buttons[5]?.pressed);
-  for(const [name,index] of [['pass',0],['shoot',2],['check',1]])action(p,name,!!pad.buttons[index]?.pressed);
+  for(const [name,index] of [['pass',0],['shoot',2],['check',1]]){
+    if(switched){inp[name]=!!pad.buttons[index]?.pressed;continue}
+    action(active,name,!!pad.buttons[index]?.pressed);
+   }
  }
 }
 
@@ -918,6 +942,9 @@ function puckPhysics(dt){
   receiver.shootWait=.25;receiver.shotCharge=0;receiver.receiveWindow=intendedPass?ONE_TIMER.receiveWindow:0;
   receiver.cutTime=0;receiver.cutReceiver=null;
   if(passer&&!passer.goalie&&passer.comboCooldown<=0){passer.cutTime=COMBO.window;passer.cutReceiver=receiver}
+  // Follow only an actual intended reception: interceptions, saves and
+  // loose-puck grabs never trigger a control transfer.
+  if(passer&&config.autoFollow&&matchStats?.solo&&passer.device===matchStats.humanDevice&&receiver.device==='ai')switchPlayer(passer.device,receiver,true);
   sound('grab');
   if(fireOnCatch){receiver.oneTimerBuffer=0;shot(receiver,ONE_TIMER.baseCharge,true);prompt('ONE-TIMER!',.62)}
  }else{
