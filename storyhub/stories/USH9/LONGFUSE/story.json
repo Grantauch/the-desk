@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-LONGFUSE",
+  "title": "The Long Fuse",
+  "centralArgument": "Sarajevo did not make world war inevitable, and the war did not make dictatorship inevitable. Government actions during 1914–1933 mattered.",
+  "audience": "High-school U.S. history, mixed reading levels",
+  "series": [
+    {
+      "part": 1,
+      "title": "The Spark Was Not a Switch",
+      "period": "June–August 1914",
+      "question": "Which choices turned a regional assassination into a European war?"
+    },
+    {
+      "part": 2,
+      "title": "The War and the Settlement",
+      "period": "1914–1919",
+      "question": "How did the war end, and who shaped the peace?"
+    },
+    {
+      "part": 3,
+      "title": "The Republic and the Appointment",
+      "period": "1919–1933",
+      "question": "Why did democratic crisis end in an appointment rather than an electoral majority?"
+    }
+  ],
+  "footnote": "Narrative built from The Long Fuse Batches 18–24; all archive rights must be reviewed before commercial publication.",
+  "course": "USH9",
+  "lessonCode": "LONGFUSE",
+  "narrativeQuestion": "Which human choices between Sarajevo in 1914 and Berlin in 1933 made other paths possible?",
+  "chapters": [
+    {
+      "id": "sarajevo",
+      "title": "The motorcade",
+      "claim": "A photograph does not explain governments decisions",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "sarajevo"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "the-map-before",
+      "title": "An empire, a border, a choice",
+      "claim": "Alliances mattered but did not force identical choices",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "blank-cheque-chapter",
+      "title": "The promise",
+      "claim": "An assurance changed the risk calculation",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": [
+        "july-ledger"
+      ]
+    },
+    {
+      "id": "forty-eight-hours",
+      "title": "Forty-eight hours",
+      "claim": "Serbia did not simply refuse every demand",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "the-gates",
+      "title": "The gates open",
+      "claim": "European war widened through distinct choices",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "belgium"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "war-spreads",
+      "title": "Across neutral ground",
+      "claim": "Invasion of Belgium widened war",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "belgium"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "industrial-war",
+      "title": "A war of exhaustion",
+      "claim": "Industrial war reached beyond the front",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "peace-request",
+      "title": "The generals ask to stop",
+      "claim": "Military requests, armistice and peace are distinct",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": [
+        "war-chronology"
+      ]
+    },
+    {
+      "id": "four-men",
+      "title": "Four leaders. Four aims.",
+      "claim": "The Big Four disagreed on fundamental issues",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "big-four"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "article-231",
+      "title": "A line of legal language",
+      "claim": "Treaty legal language is not simple guilt shorthand",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "big-four"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "victory-and-resentment",
+      "title": "A victory called mutilated",
+      "claim": "Political grievance was a nationalist framing",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "weimar-inherits",
+      "title": "A republic inherits defeat",
+      "claim": "The Weimar government inherited, not began, the war",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "paper-money",
+      "title": "When paper lost its value",
+      "claim": "Hyperinflation and later recovery must be distinguished",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "inflation"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "depression-and-vote",
+      "title": "A country fractures",
+      "claim": "Election share is not an outright majority",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "appointment"
+      ],
+      "interactionIds": [
+        "vote-office"
+      ]
+    },
+    {
+      "id": "appointment-not-election",
+      "title": "January 30 was a choice",
+      "claim": "The president appointed the chancellor",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "appointment"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "evidence-verdict",
+      "title": "The evidence verdict",
+      "claim": "A documented alternative is not a certain counterfactual",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "europe-schematic"
+      ],
+      "interactionIds": [
+        "verdict"
+      ]
+    }
+  ]
+}

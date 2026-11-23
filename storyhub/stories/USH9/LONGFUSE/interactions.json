@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-LONGFUSE",
+  "interactions": [
+    {
+      "id": "july-ledger",
+      "title": "July Crisis decision ledger",
+      "historicalIdea": "Different governments' choices interacted; there was no automatic domino sequence.",
+      "studentAction": "Open three contemporaneous decision records.",
+      "feedback": "The student sees what leaders controlled, what they feared, and what remains uncertain.",
+      "fallback": "All entries visible as accessible details without JavaScript.",
+      "chapterId": "blank-cheque-chapter",
+      "type": "July Crisis decision ledger",
+      "teaches": "Different governments' choices interacted; there was no automatic domino sequence.",
+      "staticFallback": "All entries visible as accessible details without JavaScript.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    },
+    {
+      "id": "war-chronology",
+      "title": "War-to-peace chronological scale",
+      "historicalIdea": "September 1918 military request and November armistice differ from the 1919 peace signing.",
+      "studentAction": "Select a dated event.",
+      "feedback": "Dates, evidence and relevant place update.",
+      "fallback": "Chronological event text is server-rendered.",
+      "chapterId": "peace-request",
+      "type": "War-to-peace chronological scale",
+      "teaches": "September 1918 military request and November armistice differ from the 1919 peace signing.",
+      "staticFallback": "Chronological event text is server-rendered.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    },
+    {
+      "id": "vote-office",
+      "title": "Vote share is not appointment",
+      "historicalIdea": "The NSDAP never won a majority in the 1932 Reichstag elections; Hitler was appointed by Hindenburg.",
+      "studentAction": "Compare election percentage bars then answer the appointment question.",
+      "feedback": "The decision evidence appears and distinguishes elections from presidential appointments.",
+      "fallback": "A textual table with exact numbers and context is displayed.",
+      "chapterId": "depression-and-vote",
+      "type": "Vote share is not appointment",
+      "teaches": "The NSDAP never won a majority in the 1932 Reichstag elections; Hitler was appointed by Hindenburg.",
+      "staticFallback": "A textual table with exact numbers and context is displayed.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    },
+    {
+      "id": "verdict",
+      "title": "Evidence verdict",
+      "historicalIdea": "Pressures do not prove inevitability.",
+      "studentAction": "Write a documented choice, evidence and plausible alternative.",
+      "feedback": "A checklist supports source-based self-assessment; responses stay in the browser.",
+      "fallback": "Printable response prompt with no login required.",
+      "chapterId": "evidence-verdict",
+      "type": "Evidence verdict",
+      "teaches": "Pressures do not prove inevitability.",
+      "staticFallback": "Printable response prompt with no login required.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    }
+  ]
+}

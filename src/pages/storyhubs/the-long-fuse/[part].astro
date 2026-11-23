@@ -1,0 +1,112 @@
+---
+import StoryShell from '../../../components/storyhub/StoryShell.astro';
+import StoryIntro from '../../../components/storyhub/StoryIntro.astro';
+import StoryChapter from '../../../components/storyhub/StoryChapter.astro';
+import HistoricalTimeline from '../../../components/storyhub/HistoricalTimeline.astro';
+import HistoricalMap from '../../../components/storyhub/HistoricalMap.astro';
+import EvidenceExplorer from '../../../components/storyhub/EvidenceExplorer.astro';
+import PhotoComparison from '../../../components/storyhub/PhotoComparison.astro';
+import { makeLongFusePart, parts } from '../../../../storyhub/stories/USH9/LONGFUSE/edition';
+import './long-fuse.css';
+
+export function getStaticPaths() {
+  return [1, 2, 3].map(part => ({ params:{part:'part-'+part},props:{part} }));
+}
+interface Props { part:number }
+const n=Astro.props.part;
+const story=makeLongFusePart(n);
+const info=parts[n];
+const image=story.media.find(item=>item.id===info.cover)!;
+const source=story.sources.find(item=>item.id===image.source)!;
+const features={
+  decisions:[
+   {title:'Berlin offers support',date:'5–6 July 1914',description:'German backing made Austria-Hungary more willing to risk confrontation. The assurance created political freedom of action; it did not dictate an exact ultimatum.',fields:[{label:'What can we prove?',text:'The support was promised and risks of Russian involvement were considered.'},{label:'What remains open?',text:'Whether Vienna could have taken a narrower course after the assurance.'}],refs:{events:['blank-cheque'],sources:['ultimatum-source']}},
+   {title:'Vienna delivers demands',date:'23 July 1914',description:'Austria-Hungary required suppression of anti-Habsburg activity and Austrian participation in related matters inside Serbia. Serbia had 48 hours.',fields:[{label:'What can we prove?',text:'The demands went beyond ordinary diplomatic protest.'},{label:'What remains open?',text:'Whether a different time limit or investigation procedure could have reduced escalation.'}],refs:{events:['ultimatum'],sources:['ultimatum-source']}},
+   {title:'Serbia replies',date:'25 July 1914',description:'Serbia accepted many terms while limiting or rejecting forms of foreign participation contrary to Serbian law. Vienna considered the response inadequate.',fields:[{label:'What can we prove?',text:'The reply contained substantial agreement and genuine qualifications.'},{label:'What remains open?',text:'Whether accepting conditional cooperation would have been politically possible for Vienna.'}],refs:{events:['serbian-reply'],sources:['reply-source']}}
+  ],
+  article:[
+   {title:'The actual responsibility clause',date:'Article 231, 1919',description:'The article recognized responsibility for loss and damage from German and allied aggression; it was used as a legal basis for compensation claims.',fields:[{label:'What the clause did not do',text:'It did not itself determine the final reparations amount.'}],refs:{sources:['treaty-source'],notes:['article-231-context']}},
+   {title:'The popular shorthand',description:'“Germany simply confessed to starting the entire war” is too broad as a replacement for the treaty’s legal language. Read the source and the later interpretation separately.',refs:{sources:['treaty-source']}}
+  ]
+};
+const next=n<3 ? n+1 : null;
+const prev=n>1 ? n-1 : null;
+---
+<StoryShell {story} cover={image.src} theme="fuse">
+  <div slot="head">
+    <meta property="article:section" content={'The Long Fuse · Part '+n} />
+  </div>
+  <div slot="opening">
+    <section class="fuse-hero" data-story-opening aria-labelledby="fuse-main-title">
+      <img class="fuse-hero-image" src={image.src} alt={image.alt} width={image.width} height={image.height} decoding="async" fetchpriority="high" />
+      <div class="fuse-hero-shading"></div>
+      <div class="fuse-hero-inner sh-width">
+        <p class="fuse-eyebrow">AN EVIDENCE-LED DOCUMENTARY <span>1914—1933</span></p>
+        <div class="fuse-series-index" aria-label="Three-part series">
+          {[1,2,3].map(part=><a href={'/storyhubs/the-long-fuse/part-'+part+'/'} class:list={['fuse-index-link',part===n&&'selected']} aria-current={part===n?'page':undefined}>{String(part).padStart(2,'0')} <span>{['The Crisis','The War','The Aftermath'][part-1]}</span></a>)}
+        </div>
+        <p class="fuse-kicker">{info.subtitle} / {info.period}</p>
+        <h1 id="fuse-main-title">The <em>Long Fuse</em></h1>
+        <p class="fuse-hero-part">{info.title}</p>
+        <p class="fuse-hero-question">{info.question}</p>
+        <div class="fuse-actions"><a href="#briefing" class="sh-primary">Begin the briefing <span aria-hidden="true">↓</span></a><a href={'#'+story.chapters[0].id} class="sh-secondary">Enter Part {n} <span aria-hidden="true">↘</span></a><a href={'#'+story.chapters[0].id} data-resume-story hidden>Resume this part</a></div>
+      </div>
+      <div class="fuse-hero-bottom"><span>THE LONG FUSE · THREE-PART SERIES</span><span>RESEARCH BEFORE CERTAINTY</span></div>
+    </section>
+    <aside class="fuse-photo-credit"><div class="sh-width"><span>{image.caption}</span><a href={source.url} target="_blank" rel="noopener noreferrer">{image.credit} · source</a></div></aside>
+    <section class="fuse-bridge sh-width" aria-label="Series overview">
+      <p class="fuse-label">The central argument</p>
+      <p>One assassination did not make a world war inevitable. That war did not make dictatorship inevitable. In between were decisions made by people with power.</p>
+      <a href="/storyhubs/the-long-fuse/">View all three parts <span aria-hidden="true">↗</span></a>
+    </section>
+  </div>
+  <StoryIntro {story} />
+  <div class="fuse-documentary" data-fuse-part={n}>
+    {story.chapters.map((ch,index)=>(
+      <StoryChapter {story} chapter={ch} {index} layout={ch.interaction==='verdict'?'memorial':(['split','wide','split','break','wide'] as const)[index%5]} showImage={!['map','decisions','documents','cost','timeline','votes','verdict','inflation','appointment'].includes(ch.interaction??'')}>
+        {ch.interaction==='photo'&&<aside class="fuse-source-prompt"><span class="fuse-label">Read the negative</span><p>Is this photograph or illustration? What does it prove about public representation—and what political decision would require a written source?</p></aside>}
+        {ch.interaction==='map'&&<section class="fuse-feature"><header><span class="fuse-label">A map of decision points</span><h3>The crisis was not a domino machine.</h3><p>Select cities to connect the places of diplomacy and mobilization. The base plate is a schematic, not a 1914 border map.</p></header><HistoricalMap {story} scope="decisions" regionIds={['europe']} /></section>}
+        {ch.interaction==='decisions'&&<section class="fuse-feature"><header><span class="fuse-label">Decision file 01 / diplomatic pressure</span><h3>The July ledger</h3><p>Three governments, three different decisions. Open each file and look for the option leaders still possessed.</p></header><EvidenceExplorer {story} id="july-files" title="Three moments, three decisions" prompt="Open the records. What did leaders know, what did they choose, and what did they not control?" entries={features.decisions}/></section>}
+        {ch.interaction==='documents'&&<section class="fuse-document-panel"><div><span class="fuse-label">Diplomatic record · teacher paraphrase</span><h3>Demand, response, decision</h3><p>The original diplomatic documents are available from the archive. This summary is not a scanned original or a verbatim quotation.</p></div><ol><li><strong>23 July.</strong> Vienna delivers a 48-hour ultimatum.</li><li><strong>25 July.</strong> Belgrade agrees to much, while qualifying foreign participation.</li><li><strong>28 July.</strong> Vienna declares war.</li></ol><p class="fuse-small">Source links: <a href="https://www.firstworldwar.com/source/austrianultimatum.htm">Austrian ultimatum</a> · <a href="https://www.firstworldwar.com/source/serbianreply.htm">Serbian reply</a></p></section>}
+        {ch.interaction==='timeline'&&<section class="fuse-feature"><header><span class="fuse-label">Time is evidence</span><h3>{n===1?'From crisis to continental war':'Three dates that should never be collapsed'}</h3><p>Move between events using the dated chronology. Compare the date a government acted with the date a later photograph was made.</p></header><HistoricalTimeline {story} scope="long-fuse" scales={['years','months','days']} initial={n===1?'sarajevo-event':'armistice-request'} /></section>}
+        {ch.interaction==='cost'&&<section class="fuse-cost"><p class="fuse-label">Industrial war / analytical model</p><h3>One front is not the whole war.</h3><div class="fuse-cost-grid"><div><b>Front</b><span>Shells, trenches, artillery, machine guns</span></div><div><b>Home</b><span>Labor, food, debt, mass mobilization</span></div><div><b>Empire</b><span>Colonial subjects, distant fronts, world resources</span></div></div><p>Question: Which of these pressures remains invisible in a single photograph?</p></section>}
+        {ch.interaction==='article'&&<EvidenceExplorer {story} id="treaty-read" title="The Article 231 evidence file" prompt="Compare the legal text with a common historical shorthand." entries={features.article}/>}
+        {ch.interaction==='inflation'&&<section class="fuse-inflation"><div><p class="fuse-label">A number too large to trust without context</p><strong>4.2 <span>trillion</span></strong><p>Approximately how many old paper marks exchanged for one U.S. dollar on November 20, 1923.</p></div><p>Not a 1929 photograph. Not proof that the 1924–1928 recovery never happened. <a href="https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_102-00104,_Inflation,_Tapezieren_mit_Geldscheinen.jpg">Bundesarchiv evidence</a></p></section>}
+        {ch.interaction==='votes'&&<section class="fuse-votes" data-fuse-votes><header><p class="fuse-label">Political arithmetic · Weimar Reichstag</p><h3>Largest party ≠ majority.</h3><p>Explore the Nazi vote share, then compare it with the 50% majority threshold. These are national Reichstag vote shares, not the presidential election result.</p></header><div class="fuse-vote-buttons" role="group" aria-label="Choose an election"><button type="button" data-vote="2.6" data-label="May 1928" aria-pressed="false">May 1928</button><button type="button" data-vote="37.3" data-label="July 1932" aria-pressed="true">July 1932</button><button type="button" data-vote="33.1" data-label="Nov 1932" aria-pressed="false">Nov 1932</button></div><div class="fuse-chart" role="img" aria-label="Bar graph of Nazi vote share, July 1932 37.3 percent versus the 50 percent majority threshold"><div class="fuse-chart-track"><div class="fuse-chart-bar" data-vote-bar style="width:74.6%"></div><div class="fuse-chart-majority"><span>50% majority</span></div></div><div class="fuse-chart-readout"><strong data-vote-number>37.3%</strong><span data-vote-title>July 1932</span></div></div><p role="status" aria-live="polite" class="fuse-vote-interpretation" data-vote-feedback>Largest party, but below 50%. The party could not appoint its own chancellor.</p><details class="fuse-table"><summary>Read all figures in a text table</summary><table><caption>Nazi national Reichstag vote share</caption><thead><tr><th>Election</th><th>Share</th><th>Majority?</th></tr></thead><tbody><tr><td>May 1928</td><td>2.6%</td><td>No</td></tr><tr><td>July 1932</td><td>37.3%</td><td>No</td></tr><tr><td>November 1932</td><td>33.1%</td><td>No</td></tr></tbody></table></details><p class="fuse-small"><a href="https://encyclopedia.ushmm.org/content/en/article/hitler-comes-to-power">USHMM historical explanation and elections context</a></p></section>}
+        {ch.interaction==='appointment'&&<div class="fuse-document-panel"><div><p class="fuse-label">30 January 1933</p><h3>The office was appointed, not won by a majority vote.</h3><p>Hindenburg made the presidential decision after political bargaining. What does the crowd photograph show, and what does it not establish?</p></div><ol><li>July 1932: Nazi vote share reaches 37.3%.</li><li>November 1932: Nazi vote share drops to 33.1%.</li><li>January 30, 1933: Hitler appointed chancellor.</li></ol></div>}
+        {ch.interaction==='verdict'&&<section class="fuse-verdict" aria-labelledby="verdict-title" data-fuse-verdict><p class="fuse-label">Final evidence verdict · self-guided writing</p><h3 id="verdict-title">Pressure is not destiny.</h3><p>Choose one documented moment when the next action was a choice. Use one source. Describe a plausible alternative, and state what we cannot know.</p><form class="fuse-verdict-form"><label>1. The documented decision<textarea name="decision" rows="3" required placeholder="On [date], [government/person] decided to…"></textarea></label><label>2. Source evidence<textarea name="evidence" rows="3" required placeholder="The [document or photograph] shows…"></textarea></label><label>3. A plausible alternative<textarea name="alternative" rows="3" required placeholder="A different decision might have…"></textarea></label><label>4. The uncertainty<textarea name="uncertainty" rows="3" required placeholder="The evidence cannot prove…"></textarea></label><div class="fuse-verdict-actions"><button type="submit">Check my evidence structure</button><button type="reset">Clear this response</button></div><p class="fuse-verdict-status" role="status" aria-live="polite">Your writing stays in this browser tab. It is not graded or submitted.</p></form></section>}
+        {ch.interaction==='photo' && n===2 && index===3 && <PhotoComparison {story} id="war-and-peace-plates" title="Two kinds of evidence" intro="The troop photograph shows movement through Belgium. The leaders' photograph shows a later negotiation. Neither can establish the private decisions by itself." pair={['belgium','big-four']} labels={['A war enters Belgium','Leaders meet in Paris']} />}
+      </StoryChapter>
+    ))}
+  </div>
+  <aside class="fuse-next" aria-label="The Long Fuse series navigation"><div class="sh-width"><p class="fuse-label">Three-part documentary · The Long Fuse</p><h2>{next? 'The story continues.':'The fuse ends here. The questions do not.'}</h2><div class="fuse-next-links">{prev&&<a href={'/storyhubs/the-long-fuse/part-'+prev+'/'}>← Part {prev}: {parts[prev].title}</a>}{next&&<a class="fuse-next-primary" href={'/storyhubs/the-long-fuse/part-'+next+'/'}>Part {next}: {parts[next].title} →</a>}{!next&&<a class="fuse-next-primary" href="/storyhubs/the-long-fuse/">Return to all three parts →</a>}</div></div></aside>
+</StoryShell>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-fuse-votes]').forEach(root=>{
+    const choices=root.querySelectorAll<HTMLButtonElement>('[data-vote]');
+    const bar=root.querySelector<HTMLElement>('[data-vote-bar]');
+    const num=root.querySelector<HTMLElement>('[data-vote-number]');
+    const title=root.querySelector<HTMLElement>('[data-vote-title]');
+    const feedback=root.querySelector<HTMLElement>('[data-vote-feedback]');
+    const chart=root.querySelector<HTMLElement>('.fuse-chart');
+    choices.forEach(button=>button.addEventListener('click',()=>{
+      const pct=Number(button.dataset.vote);
+      choices.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+      if(bar)bar.style.width=(pct/50*100)+'%';
+      if(num)num.textContent=pct.toFixed(1)+'%';
+      if(title)title.textContent=button.dataset.label??'Election';
+      if(chart)chart.setAttribute('aria-label',(button.dataset.label??'Election')+': Nazi share '+pct.toFixed(1)+'%, below 50% threshold.');
+      if(feedback)feedback.textContent=pct<5?'A marginal party in 1928; later gains were not inevitable.':pct>35?'The Nazis became the largest party, but did not win a majority.':'The share fell in November; a later appointment was still a political choice.';
+    }));
+  });
+  document.querySelectorAll<HTMLFormElement>('[data-fuse-verdict] form').forEach(form=>{
+    const key='fuse-evidence-verdict-v1';
+    const fields=[...form.querySelectorAll<HTMLTextAreaElement>('textarea')];
+    try{const saved=JSON.parse(sessionStorage.getItem(key)||'{}');for(const field of fields)field.value=saved[field.name]||'';}catch{}
+    const persist=()=>{try{sessionStorage.setItem(key,JSON.stringify(Object.fromEntries(fields.map(f=>[f.name,f.value]))));}catch{}};
+    fields.forEach(f=>f.addEventListener('input',persist));
+    const status=form.querySelector<HTMLElement>('[role=status]');
+    form.addEventListener('submit',event=>{event.preventDefault();persist();const complete=fields.every(f=>f.value.trim().length>9);if(status)status.textContent=complete?'All four evidence parts are present. Your teacher can evaluate the historical accuracy; this page does not grade it.':'Expand each answer with a documented detail and an explanation. This page checks structure, not historical accuracy.';});
+    form.addEventListener('reset',()=>{try{sessionStorage.removeItem(key);}catch{}if(status)status.textContent='Local response cleared. Nothing was transmitted.';});
+  });
+</script>
