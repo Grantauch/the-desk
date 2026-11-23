@@ -207,3 +207,39 @@ test("field silhouettes render all six locomotion modes without mutating residen
   assert.ok(rectangles.length > 30, "each mode should draw multiple details");
   assert.deepEqual(life.snapshot(), before, "drawing cannot advance or change ecology");
 });
+
+test("small floating silhouettes keep positive strokes through their flutter cycle", () => {
+  const sim = newPond();
+  // Find a real procedural drifting inhabitant with the smallest (2px) body.
+  const id = Array.from({ length: 120 }, (_, n) => idFromFacets({
+    form: Math.floor(n / 3), habitat: 0, force: 0, trait: n % 3,
+  })).find((candidate) => {
+    const outcome = getOutcome(candidate);
+    if (!outcome) return false;
+    const profile = residentProfile(outcome);
+    return profile.mode === "drift" && profile.size === 2;
+  });
+  assert.ok(id, "procedural discoveries include a 2px drifter");
+
+  const life = new PondEcosystem();
+  assert.ok(life.add(id, 96, 96, sim));
+  let strokes = 0;
+  const context = {
+    canvas: { width: 192, height: 192 },
+    imageSmoothingEnabled: false,
+    fillStyle: "",
+    save() {},
+    restore() {},
+    fillRect(_x: number, _y: number, width: number, height: number) {
+      assert.ok(width > 0 && height > 0, "every animated stroke has positive dimensions");
+      strokes++;
+    },
+  } as unknown as CanvasRenderingContext2D;
+  // Multiple flutter periods include the minimum (negative) wing offset.
+  for (let frame = 0; frame < 72; frame++) {
+    strokes = 0;
+    life.render(context);
+    assert.ok(strokes >= 3, "the floating inhabitant remains visible");
+    life.step(sim);
+  }
+});
