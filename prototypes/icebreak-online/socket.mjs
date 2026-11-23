@@ -49,7 +49,8 @@ export function attachWebSockets(server,{onConnect,onMessage,onClose,allowedOrig
     const info=Buffer.alloc(2);info.writeUInt16BE(code);
     try{socket.write(frame(8,info))}catch{}
     socket.end();
-   }
+   },
+   terminate(){socket.destroy()}
   };
   function cleanup(){
    if(closed)return;
@@ -94,5 +95,5 @@ export function attachWebSockets(server,{onConnect,onMessage,onClose,allowedOrig
   peers.add(peer);onConnect(peer);
   if(head?.length)socket.emit('data',head);
  });
- return {peers,closeAll(){for(const p of [...peers])p.close(1001)}};
+ return {peers,closeAll(){for(const p of [...peers])p.terminate()}};
 }
