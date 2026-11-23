@@ -1,0 +1,43 @@
+---
+import type { StoryEdition } from '../../lib/storyhub/model';
+import MeetTheCast from './MeetTheCast.astro';
+import HistoricalTimeline from './HistoricalTimeline.astro';
+import HistoricalMap from './HistoricalMap.astro';
+import CounterfactualExplorer from './CounterfactualExplorer.astro';
+interface Props { story: StoryEdition; }
+const { story } = Astro.props;
+---
+<section id="briefing" class="sh-intro sh-width" aria-labelledby="briefing-title">
+  <header class="sh-intro-heading">
+    <div>
+      <p class="sh-label">Before the story</p>
+      <h2 id="briefing-title">Historical briefing</h2>
+    </div>
+    <p>Who was there? What was at stake? Use the five references to get oriented, then continue to the story.</p>
+  </header>
+  <nav class="sh-brief-tabs" aria-label="Briefing sections">
+    <a href="#who">Who</a><a href="#what">What</a><a href="#when">When</a><a href="#where">Where</a><a href="#why">Why it matters</a>
+  </nav>
+  <section id="who" class="sh-brief-section" aria-labelledby="who-title">
+    <div class="sh-brief-title"><p class="sh-label">Who</p><h3 id="who-title">People behind the event</h3></div>
+    <MeetTheCast {story} scope="intro" anchors />
+  </section>
+  <section id="what" class="sh-brief-section sh-brief-prose" aria-labelledby="what-title">
+    <div class="sh-brief-title"><p class="sh-label">What</p><h3 id="what-title">The situation in 1941</h3></div>
+    <div>{story.briefing.what.map((paragraph) => <p>{paragraph}</p>)}</div>
+  </section>
+  <section id="when" class="sh-brief-section" aria-labelledby="when-title">
+    <div class="sh-brief-title"><p class="sh-label">When</p><h3 id="when-title">Explore the chronology</h3></div>
+    <HistoricalTimeline {story} scope="intro" anchors />
+  </section>
+  <section id="where" class="sh-brief-section" aria-labelledby="where-title">
+    <div class="sh-brief-title"><p class="sh-label">Where</p><h3 id="where-title">Cross the Pacific</h3></div>
+    <HistoricalMap {story} scope="intro" anchors />
+  </section>
+  <section id="why" class="sh-brief-section" aria-labelledby="why-title">
+    <div class="sh-brief-title"><p class="sh-label">Why it matters</p><h3 id="why-title">What if the attack never happened?</h3></div>
+    <p class="sh-intro-note">{story.briefing.significance}</p>
+    <CounterfactualExplorer {story} scope="intro" />
+  </section>
+  <a class="sh-primary" href={'#' + story.chapters[0].id}>Enter the story <span aria-hidden="true">↓</span></a>
+</section>

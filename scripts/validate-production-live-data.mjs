@@ -38,13 +38,18 @@ for (const group of headlines.groups) {
 
 const collections = ['power', 'entertainment', 'sports', 'mysteries', 'michigan'];
 const curiosity = [];
+const archiveFallbacks = [];
 for (const collection of collections) {
   const payload = await getJson(`/.netlify/functions/curiosity?collection=${encodeURIComponent(collection)}`);
   const records = Array.isArray(payload.items) ? payload.items.length : 0;
   if (records < 1) throw new Error(`Curiosity collection ${collection} returned no usable records.`);
-  curiosity.push({ collection, records });
+  if (payload.mode === 'archive') archiveFallbacks.push(collection);
+  curiosity.push({ collection, records, mode: payload.mode || 'live' });
 }
 
 console.table(newsrooms);
 console.table(curiosity);
+if (archiveFallbacks.length) {
+  throw new Error(`Curiosity remains usable with selected archive records, but live catalog health is degraded: ${archiveFallbacks.join(', ')}.`);
+}
 console.log(`Production live data health: PASS — ${origin}`);

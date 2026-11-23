@@ -1,0 +1,42 @@
+name: Pond production P01 smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/test-pond-production-browser.mjs
+      - .github/workflows/pond-production-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  production-pond:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out release tests
+        uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify actual public Pond
+        run: node scripts/test-pond-production-browser.mjs
+        env:
+          POND_PRODUCTION_URL: https://grant-desk.com/hubs/pond/
+      - name: Retain QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pond-production-p01
+          path: browser-results/pond-production/
+          retention-days: 14
+          if-no-files-found: ignore

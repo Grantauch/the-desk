@@ -1,0 +1,34 @@
+---
+import type { AudioRecord, StoryEdition } from '../../lib/storyhub/model';
+interface Props { story: StoryEdition; audio: AudioRecord; }
+const { story, audio } = Astro.props;
+const original = story.sources.find((source) => source.id === audio.source);
+const clock = (seconds: number) => Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+---
+<div class="sh-audio" data-historical-audio>
+  <audio controls preload="none" src={audio.src} aria-label={audio.title} data-audio-player>
+    Your browser can use the transcript below.
+  </audio>
+  <p class="sh-image-fallback" data-audio-fallback hidden>Audio unavailable. Read the transcript below.</p>
+  <p class="sh-rights">{audio.credit} · {audio.rights}</p>
+  <p><a href={original?.url}>Recording and rights at the archive</a></p>
+  <details class="sh-disclosure" open>
+    <summary>Transcript of the delivered address</summary>
+    <p class="sh-muted">Select a timestamp to listen from that passage. The recorded text differs slightly from the prepared pages.</p>
+    <p class="sh-audio-cue" data-audio-current hidden></p>
+    <ol class="sh-transcript">
+      {audio.cues.map(({ start, text, note }) => (
+        <li data-audio-cue={start}>
+          <div class="sh-cue-time">
+            <span data-audio-static>{clock(start)}</span>
+            <button type="button" data-audio-seek={start} aria-label={'Play from ' + clock(start)} data-enhance hidden>{clock(start)}</button>
+          </div>
+          <div>
+            <p>{text}</p>
+            {note && <p class="sh-audio-note">{note}</p>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </details>
+</div>

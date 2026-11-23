@@ -4,6 +4,8 @@
 // `details` is optional — each {heading, items} pair becomes an expandable section.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
+import { interactiveExperiences } from '../data/interactiveExperiences';
+import { storyHubs } from '../data/storyhubs';
 
 const sims = [
   {
@@ -123,11 +125,102 @@ const sims = [
     ],
   },
 ];
+
+const interactiveSimulations = interactiveExperiences.filter((experience) => experience.section === 'simulation');
+const investigations = interactiveExperiences.filter((experience) => experience.section === 'investigation');
+// These Story Hubs remain narratives at their original URLs; their substantial interactive
+// models also deserve a way in through Simulations.
+// Cross-discovery only: these remain canonical Story Hubs with unchanged routes and saving.
+// A model must give students a meaningful variable, scenario choice, or state comparison.
+const storyHubModelFocus: Record<string, string> = {
+  'hh-they-couldnt-stop': 'Test the response to a spreading outbreak.',
+  'ush9-bytesize-marne': 'Step a battle map through seven decisions.',
+  'ush9-bytesize-why-they-fought': 'Predict the alliance chain and compare national power.',
+  'bts-l03-not-in-the-room': 'See what happens when player bidding disappears.',
+  'ush9-l015-who-showed-up': 'Follow strike spread, work hours, household costs and injunctions.',
+  'ush9-l018-the-debt-didnt-move': 'Change wheat prices while farm debt stays fixed.',
+  'ush9-s01-the-margin': 'Remove dam safeguards and examine the accumulating risk.',
+  'bts-s01-the-death-harvest': 'Test 1905 football rules against the incentives they created.',
+};
+const storyHubSimulations = storyHubs
+  .filter((hub) => Object.prototype.hasOwnProperty.call(storyHubModelFocus, hub.slug))
+  .map((hub) => ({ ...hub, modelFocus: storyHubModelFocus[hub.slug] }));
 ---
 
-<Base title="simulations">
-  <PageHeader eyebrow="classroom fieldwork" title="simulations" intro="the days class gets loud on purpose." />
+<Base title="simulations" description="Historical decision experiences, system models, interactive reconstructions and evidence investigations.">
+  <PageHeader eyebrow="make the decision · test the outcome" title="simulations" intro="take control of the variables, investigate the evidence, and see what the historical constraints allow." />
 
+  <div class="mt-6 max-w-3xl border-l-4 border-accent pl-5 text-sm leading-relaxed text-ink-soft">
+    These are not quiz games. Explore a historical system, make decisions or test the record. Events that were real stay real;
+    alternate outcomes and model assumptions are identified as classroom simulations.
+    Looking for competition? <a class="font-semibold text-accent underline underline-offset-4" href="/games/">Open Games</a>.
+  </div>
+
+  <section class="mt-12" aria-labelledby="interactive-simulations-heading">
+    <div class="mb-6">
+      <h2 id="interactive-simulations-heading" class="font-display text-3xl font-bold lowercase">interactive simulations<span class="text-accent">.</span></h2>
+      <p class="mt-2 text-ink-soft">Models, historical decisions, reconstructed places, and consequences you can explore.</p>
+    </div>
+    <div class="grid gap-6 lg:grid-cols-2">
+      {interactiveSimulations.map((sim) => (
+        <article class="pop overflow-hidden rounded-md bg-white">
+          <div class="border-b-2 border-ink bg-ink px-6 py-7 text-white">
+            <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.15em] text-white/70">{sim.previewEyebrow}</p>
+            <h3 class="mt-3 font-display text-3xl font-bold lowercase">{sim.name}</h3>
+            <p class="mt-3 font-mono text-xs text-white/70">{sim.course} · {sim.kind}</p>
+          </div>
+          <div class="p-6">
+            <p class="leading-relaxed text-ink-soft">{sim.blurb}</p>
+            <a class="mt-5 inline-flex min-h-11 items-center border-2 border-ink px-4 py-2 font-mono text-xs font-bold lowercase hover:border-accent hover:bg-accent hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" href={sim.href} target="_blank" rel="noopener">
+              open simulation ↗
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="mt-16" aria-labelledby="investigation-heading">
+    <h2 id="investigation-heading" class="font-display text-3xl font-bold lowercase">evidence investigations<span class="text-accent">.</span></h2>
+    <p class="mt-2 mb-6 max-w-3xl text-ink-soft">Practice the historian's job: examine sources, distinguish claims from proof, and defend a verdict. These are investigations rather than competitive games.</p>
+    <div class="grid gap-5 md:grid-cols-2">
+      {investigations.map((hub) => (
+        <article class="pop rounded-md bg-white p-6">
+          <p class="font-mono text-xs lowercase text-accent">{hub.course} · {hub.kind}</p>
+          <h3 class="mt-2 font-display text-2xl font-bold lowercase">{hub.name}</h3>
+          <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
+          <a class="mt-4 inline-flex min-h-11 items-center font-mono text-xs font-bold text-accent underline underline-offset-4" href={hub.href} target="_blank" rel="noopener">open investigation ↗</a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="mt-16" aria-labelledby="story-simulations-heading">
+    <h2 id="story-simulations-heading" class="font-display text-3xl font-bold lowercase">simulations inside story hubs<span class="text-accent">.</span></h2>
+    <p class="mt-2 mb-6 max-w-3xl text-ink-soft">These lessons remain in Story Hubs because the narrative matters. Their interactive models are also discoverable here without duplicating the assignment or changing its saved-work link.</p>
+    <div class="grid gap-5 md:grid-cols-2">
+      {storyHubSimulations.map((hub) => (
+        <article class="pop overflow-hidden rounded-md bg-white">
+          <div class="border-b-2 border-ink bg-ink px-5 py-5 text-white">
+            <p class="font-mono text-[0.65rem] uppercase tracking-wider text-white/70">{hub.course} · model inside a Story Hub</p>
+            <h3 class="mt-2 font-display text-2xl font-bold lowercase">{hub.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-white/85">{hub.modelFocus}</p>
+          </div>
+          <div class="p-5">
+            <p class="text-sm leading-relaxed text-ink-soft">{hub.blurb}</p>
+            <a href={hub.href} class="mt-4 inline-flex min-h-11 items-center font-mono text-xs font-semibold text-accent underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">try the model inside this Story Hub ↗</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="mt-16" id="classroom-fieldwork" aria-labelledby="classroom-fieldwork-heading">
+    <details class="rounded-md border-2 border-ink bg-white p-5 sm:p-6">
+      <summary class="cursor-pointer font-display text-2xl font-bold lowercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+        <span id="classroom-fieldwork-heading">classroom fieldwork: debates, hearings & projects</span> <span class="text-accent">+</span>
+      </summary>
+      <p class="mt-4 max-w-3xl leading-relaxed text-ink-soft">These instructor-led activities are different from digital simulations. The original organizer packs, briefings, rubrics and links remain here for continuity.</p>
   <div class="mt-10 space-y-8">
     {
       sims.map((sim) => (
@@ -173,4 +266,6 @@ const sims = [
       ))
     }
   </div>
+    </details>
+  </section>
 </Base>

@@ -1,0 +1,51 @@
+---
+import type { StoryEdition } from '../../lib/storyhub/model';
+import ReferenceLinks from './ReferenceLinks.astro';
+import HistoricalMediaViewer from './HistoricalMediaViewer.astro';
+interface Props { story: StoryEdition; scope: string; anchors?: boolean; }
+const { story, scope, anchors } = Astro.props;
+---
+<div class="sh-context" data-context>
+  <nav class="sh-inline-tabs" aria-label="Context collections" data-enhance hidden>
+    <button type="button" data-context-collection="notes" aria-pressed="true">Context</button>
+    <button type="button" data-context-collection="terms" aria-pressed="false">Glossary</button>
+    <button type="button" data-context-collection="sources" aria-pressed="false">Sources</button>
+    <button type="button" data-context-collection="media" aria-pressed="false">Media</button>
+  </nav>
+  <div data-context-section="notes">
+    <label class="sh-labeled" data-enhance hidden>
+      Topic
+      <select data-context-picker data-desk-skip>
+        {story.notes.map((note) => <option value={note.id}>{note.title}</option>)}
+      </select>
+    </label>
+    {story.notes.map((note) => (
+      <article class="sh-context-card" id={anchors ? 'note-' + note.id : undefined} data-note-card={note.id}>
+        <h4 tabindex="-1" data-record-heading>{note.title}</h4>
+        {note.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+        <ReferenceLinks {story} refs={note.refs} />
+      </article>
+    ))}
+  </div>
+  <div data-context-section="terms">
+    <h4>Glossary</h4>
+    <dl class="sh-facts sh-glossary">
+      {story.glossary.map(({ term, definition }) => <><dt>{term}</dt><dd>{definition}</dd></>)}
+    </dl>
+  </div>
+  <div data-context-section="sources">
+    <h4>Sources and credits</h4>
+    {story.sources.map((source) => (
+      <details class="sh-disclosure" id={anchors ? 'source-' + source.id : undefined} data-source-card={source.id}>
+        <summary data-record-heading>{source.title}</summary>
+        <p class="sh-label">{source.kind} · {source.institution}</p>
+        <p>{source.description}</p>
+        <a href={source.url} class="sh-text-link">Open the source</a>
+      </details>
+    ))}
+  </div>
+  <div data-context-section="media">
+    <h4>Archival media</h4>
+    <HistoricalMediaViewer {story} scope={scope + '-archive'} ids={story.media.map((visual) => visual.id)} {anchors} />
+  </div>
+</div>

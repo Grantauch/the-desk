@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-ROUTETREEA",
+  "course": "BTS",
+  "lessonCode": "ROUTETREEA",
+  "title": "The Route Tree — Assignment A",
+  "audience": "students",
+  "narrativeQuestion": "How do preparation, opportunity and setbacks shape unexpected routes, and what can the evidence establish?",
+  "chapters": [
+    {
+      "id": "case-unitas",
+      "title": "Unitas",
+      "claim": "A hitch runs five yards, stops, and turns back for the ball. His hometown team stopped Unitas cold, and he turned around for one more throw.",
+      "namedPeople": [
+        {
+          "name": "Unitas",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P05"
+        }
+      ],
+      "visualAnchorIds": [
+        "P05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-papale",
+      "title": "Papale",
+      "claim": "A go route is the simplest route in football. Run straight down the field as fast as you can. Vince Papale's route looked that simple on screen in Invincible. The real one had more stops.",
+      "namedPeople": [
+        {
+          "name": "Papale",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P01"
+        }
+      ],
+      "visualAnchorIds": [
+        "P01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-lewis",
+      "title": "Lewis",
+      "claim": "The flat stays short and close to the sideline. Lewis never left home. His delivery route ran past the stadium.",
+      "namedPeople": [
+        {
+          "name": "Lewis",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P06"
+        }
+      ],
+      "visualAnchorIds": [
+        "P06"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-gates",
+      "title": "Gates",
+      "claim": "A dig cuts flat across the middle of the field. Gates crossed over from the basketball court.",
+      "namedPeople": [
+        {
+          "name": "Gates",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P08"
+        }
+      ],
+      "visualAnchorIds": [
+        "P08"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "case-mailata",
+      "title": "Mailata",
+      "claim": "The post goes deep, the longest throw on the tree. Mailata's route started about 9,900 miles away.",
+      "namedPeople": [
+        {
+          "name": "Mailata",
+          "role": "NFL case",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "P09"
+        }
+      ],
+      "visualAnchorIds": [
+        "P09"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "odds",
+      "title": "Keep the odds in view",
+      "claim": "Selected successful careers are not a representative sample.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S1"
+      ]
+    },
+    {
+      "id": "image-evidence",
+      "title": "Read the picture like a historian",
+      "claim": "A dated photograph, a documented account and an illustrated interpretation support different kinds of inference.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S2"
+      ]
+    },
+    {
+      "id": "evidence-calls",
+      "title": "Does the evidence support it?",
+      "claim": "Claims need dates, chronology and scope.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S3"
+      ]
+    },
+    {
+      "id": "other-sport",
+      "title": "One cross-sport connection",
+      "claim": "Readiness and an opportunity both matter outside football.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S4"
+      ]
+    },
+    {
+      "id": "responses",
+      "title": "Three responses, about 300 words",
+      "claim": "Use historical evidence to explain an unexpected route.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "S5"
+      ]
+    }
+  ],
+  "assignmentContract": {
+    "variant": "A",
+    "players": [
+      "unitas",
+      "papale",
+      "lewis",
+      "gates",
+      "mailata"
+    ],
+    "nflCases": 5,
+    "otherSport": "Jim Morris",
+    "writtenResponses": 3,
+    "wordsPerResponse": [
+      90,
+      110
+    ],
+    "estimatedMinutes": [
+      35,
+      45
+    ],
+    "difficulty": "guided evidence and comparison",
+    "distribution": "Alternate A and B across seats; students complete one assignment only."
+  }
+}

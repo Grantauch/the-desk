@@ -14,6 +14,8 @@ export interface StoryHub {
   blurb: string;
   cover: string;
   coverAlt: string;
+  /** Native dimensions and credit for an uncropped archival cover on the library shelf. */
+  coverArchive?: { width: number; height: number; credit: string; record: string; scan: string };
   topics: string[];
   inside: string[];
   /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
@@ -24,6 +26,46 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'pearl-harbor',
+    href: '/storyhubs/pearl-harbor/',
+    title: 'Pearl Harbor: The Morning That Changed the World',
+    course: 'us history',
+    unit: 'world war ii / the pacific',
+    period: '1931–1945',
+    status: '45–55 minute documentary',
+    question: 'How did decisions across the Pacific converge on one morning, and what did that morning change?',
+    blurb: 'Investigate the road to war, the warnings on Oʻahu and the attack through declassified reports, historic maps and an archival recording of Roosevelt’s address.',
+    cover: '/storyhub/ush9/pearl-harbor/assets/prewar.webp',
+    coverAlt: 'U.S. Navy aerial photograph of Ford Island, Pearl Harbor, on October 30, 1941',
+    topics: ['world war ii', 'pearl harbor', 'hawaiʻi', 'pacific war', 'primary sources'],
+    inside: [
+      'A historical briefing and a 12-chapter documentary.',
+      'A synchronized map, timeline, cast and archive.',
+      'The original radar plot, a Ford Island chart and eyewitness records.',
+    ],
+  },
+  {
+    slug: 'bts-who-pays-for-friday-night',
+    href: '/hubs/bts-who-pays-for-friday-night.html',
+    title: 'who pays for friday night?',
+    course: 'beyond the scoreboard',
+    unit: 'friday night lights / the money game',
+    period: '1982–1991',
+    status: 'ready to teach',
+    edition: 'special edition · friday night lights',
+    question: 'odessa was an oil town in a bust that hung its hopes on a team of 17 year olds. who paid for friday night?',
+    blurb: 'The real 1988 Permian Panthers behind Friday Night Lights. Scrub the oil bust, guess the budget, run the midnight coin flip, step through the Dallas Carter court case and sort the movie into history and Hollywood. Every chapter adds a line to the tab.',
+    cover: '/storyhub/bts/friday-night/assets/friday-lights.webp',
+    coverAlt: 'A Texas high school football field at night under stadium lights, printed in amber',
+    topics: ['friday night lights', 'permian panthers', 'odessa', 'boobie miles', 'no pass no play', 'dallas carter', 'hollywood vs history'],
+    inside: [
+      'The trailer beside the 60 Minutes return to Odessa, and a decade of oil prices to scrub through.',
+      'Guess how many English budgets one season of chartered jets cost, then see it to scale.',
+      'Run the three coin tiebreaker yourself and watch the real 1988 flip.',
+      'Step through the Carter docket, call nine movie claims, rank the tab and answer five questions to turn in.',
+    ],
+  },
+  {
     slug: 'bts-the-route-tree',
     href: '/hubs/bts-the-route-tree.html',
     title: 'the route tree',
@@ -31,18 +73,50 @@ export const storyHubs: StoryHub[] = [
     unit: 'invincible / wild routes to the nfl',
     period: '1952–2025',
     status: 'ready to teach',
-    edition: 'special edition · invincible',
-    question: 'nobody drew these routes up. how did a bartender, a truck driver, a wrestler and a software engineer end up in the nfl?',
-    blurb: 'Start with Invincible and the real Vince Papale, then run ten routes into the NFL, each in its own comic universe. Sort the movie into history and Hollywood, count the odds, read the draft board and build your own route card.',
-    cover: '/storyhub/bts/route-tree/assets/vet-aerial.webp',
-    coverAlt: 'Overhead view of Veterans Stadium in Philadelphia, recolored like a printed comic',
-    topics: ['invincible', 'vince papale', 'undrafted players', 'nfl draft', 'kurt warner', 'antonio gates', 'jordan mailata'],
+    edition: 'cinematic ink · two alternative assignments',
+    question: 'who opened the door? compare preparation, opportunity and setbacks on unexpected routes to the nfl.',
+    blurb: 'Choose the version assigned to you. A offers guided comparison; B asks for more independent argument. Each has five NFL cases, one other-sport connection, five evidence calls and three 90–110 word responses.',
+    cover: '/storyhub/bts/route-tree/assets/ci-unitas-anchor.webp',
+    coverAlt: 'Authentic 1996 portrait of NFL quarterback Johnny Unitas',
+    topics: ['invincible', 'vince papale', 'undrafted players', 'nfl draft', 'kurt warner', 'visual evidence', 'opportunity'],
     inside: [
-      'Watch the Invincible trailer beside real 1976 film of Papale and sort ten claims into history, Hollywood or remixed.',
-      'Run the route tree from Night Train Lane in 1952 to Brandon Aubrey in 2023 and light up the doors they came through.',
-      'Read the draft board, then meet a Zamboni driver and a science teacher from other sports.',
-      'Build your own route card and answer five questions to turn in.',
+      'Complete one alternative, A or B, with closely matched reading and writing loads.',
+      'Follow five documented routes through authentic player photographs and Start / Door / Result diagrams.',
+      'Evaluate original and later documentary photographs, explore the approximate odds and check five claims.',
+      'Write three responses and Turn In. Existing work remains available in the preserved full edition.',
     ],
+  },
+  {
+    slug: 'bts-route-tree-a',
+    href: '/hubs/bts-route-tree-a.html',
+    title: 'the route tree · assignment a',
+    course: 'beyond the scoreboard',
+    unit: 'invincible / wild routes to the nfl',
+    period: '1955–2025',
+    status: 'ready to teach',
+    edition: 'cinematic ink · guided comparison',
+    question: 'how did preparation and an open door change an unexpected route?',
+    blurb: 'Unitas, Papale, Lewis, Gates and Mailata, plus Jim Morris. Five evidence calls and three 90–110 word responses, with optional answer-building supports. Complete A only if assigned.',
+    cover: '/storyhub/bts/route-tree/assets/ci-unitas-sandlot-1024.webp',
+    coverAlt: 'Artistic reconstruction of young Unitas changing from work boots into football cleats',
+    topics: ['vince papale', 'johnny unitas', 'michael lewis', 'antonio gates', 'jordan mailata', 'jim morris'],
+    inside: ['Five NFL case readings and one cross-sport connection.', 'Dated photographs, a labeled reconstruction and clear evidence checks.', 'Three responses, about 300 words, with separate saving and Turn In.'],
+  },
+  {
+    slug: 'bts-route-tree-b',
+    href: '/hubs/bts-route-tree-b.html',
+    title: 'the route tree · assignment b',
+    course: 'beyond the scoreboard',
+    unit: 'invincible / wild routes to the nfl',
+    period: '1952–2025',
+    status: 'ready to teach',
+    edition: 'cinematic ink · independent argument',
+    question: 'which explanation survives the evidence: preparation, institutional opportunity or contingency?',
+    blurb: 'Lane, Bleier, Warner, Neal and Aubrey, plus Dave Ayres. The same reading and writing load as A, with harder source criticism, counterargument and reasoning about the sample. Complete B only if assigned.',
+    cover: '/storyhub/bts/route-tree/assets/ci-lane-recovery-ink-1024.webp',
+    coverAlt: 'Source-derived ink interpretation of the authentic 1953 Lane fumble-recovery photograph',
+    topics: ['night train lane', 'rocky bleier', 'kurt warner', 'stephen neal', 'brandon aubrey', 'dave ayres'],
+    inside: ['Five NFL case readings and one cross-sport connection.', 'Compare the original 1953 Lane photograph with its ink interpretation.', 'Five evidence calls and three 90–110 word arguments, with separate saving and Turn In.'],
   },
   {
     slug: 'ush9-bytesize-why-they-fought',
@@ -533,8 +607,8 @@ export const storyHubs: StoryHub[] = [
     bytesize: 'bytesize no. 8',
     question: 'why did millions fight for years over ground measured in yards?',
     blurb: 'The sequel to Thirty Seven Days. Explore a working trench system, switch between dawn, daylight and night routines, evaluate the tradeoffs of a hypothetical attack, and investigate the Somme and the first tanks.',
-    cover: '/storyhub/ush9/the-line-that-wouldnt-move/assets/cover.svg',
-    coverAlt: 'Original illustrated cover depicting two opposing Western Front trench systems, cratered open ground, and the title The Line That Would Not Move.',
+    cover: '/storyhub/ush9/the-line-that-wouldnt-move/assets/trench-rest-q4135.jpg',
+    coverAlt: 'British soldiers resting in small trench-side shelters near Contalmaison, September 1916. Photograph by John Warwick Brooke, IWM Q 4135.',
     topics: ['world war i', 'western front', 'trench warfare', 'battle of the somme', 'military technology'],
     inside: [
       'Inspect five parts of a trench network in an interactive tactical map.',
@@ -666,8 +740,8 @@ export const storyHubs: StoryHub[] = [
     bytesize: 'bytesize no. 3',
     question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
     blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
-    cover: '/storyhub/hh/nuremberg/cover.svg',
-    coverAlt: 'Original documentary illustration of the Nuremberg tribunal courtroom, not an archival photograph',
+    cover: '/storyhub/hh/nuremberg/courtroom-72-906.jpg',
+    coverAlt: 'Archival photograph of a session of the 1945–46 Nuremberg War Crimes Trials; Harry S. Truman Library, photograph 72-906 (public domain)',
     topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
     inside: [
       'Decide how leaders accused of war crimes should be tried, then discover the 1946 verdicts.',
@@ -1185,8 +1259,8 @@ export const storyHubs: StoryHub[] = [
     question: 'politicians did not fix low wages. they made exclusion federal law.',
     blurb:
       'Chinese railroad workers join the labor fight. Economic anger turns against them. Congress answers one labor demand with the Chinese Exclusion Act, and the consequences spread west.',
-    cover: '/storyhub/ush9/l016/assets/sierra.webp',
-    coverAlt: 'AI-authored reconstruction of an empty railroad cut in the Sierra Nevada',
+    cover: '/storyhub/ush9/l016/assets/act.webp',
+    coverAlt: 'First page of the Chinese Exclusion Act of May 6, 1882, held by the National Archives, Record Group 11',
     topics: ['chinese exclusion', 'nativism', 'labor', 'page act', 'rock springs'],
     inside: [
       'Stamp five labor demands and discover which one received federal power.',
@@ -1205,8 +1279,8 @@ export const storyHubs: StoryHub[] = [
     question: 'chinese americans organized, refused, sued—and changed the law.',
     blurb:
       'Exclusion reaches homes, ships, identity papers, and courtrooms. Chinese Americans answer with mass resistance and cases that strengthen equal protection and birthright citizenship.',
-    cover: '/storyhub/ush9/l016/assets/sea.webp',
-    coverAlt: 'AI-authored reconstruction of an 1880s steamship approaching the California coast',
+    cover: '/storyhub/ush9/l016/assets/wong.webp',
+    coverAlt: "Wong Kim Ark’s November 5, 1894 departure statement, including his identification photograph, from the U.S. National Archives",
     topics: ['chinese exclusion', 'civil disobedience', 'equal protection', 'wong kim ark', 'birthright citizenship'],
     inside: [
       'Move a ship carrying a valid return certificate that Congress cancels during the crossing.',
@@ -1341,6 +1415,48 @@ export const storyHubs: StoryHub[] = [
     ],
   },
   {
+    slug: 'ush9-l012-loaded-with-dynamite',
+    href: '/hubs/ush9-l012-loaded-with-dynamite.html',
+    title: 'loaded with dynamite',
+    course: 'us history 9',
+    unit: 'world war i / lesson 12',
+    period: 'January 1918 to June 1919',
+    status: 'ready to teach',
+    question: 'wilson promised a peace built on fourteen points. who did the peace leave out?',
+    blurb:
+      'Wilson promised a peace built on fourteen points. Self determination traveled farther than he meant it to. People in Korea, Vietnam, Egypt and China took it as a promise to them. The peace conference kept the points that redrew the losers\' maps and dropped most of the ones that would have bound the winners.',
+    cover: '/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919.webp',
+    coverAlt: 'The Council of Four outside a doorway in Paris, May 27, 1919',
+    topics: ['fourteen points', 'self determination', 'paris peace conference', 'treaty of versailles', 'woodrow wilson'],
+    inside: [
+      'The fourteen points as cards you can sort into rules for every country and places on the map.',
+      'The Big Four and the war dead each one carried to Paris.',
+      'A map of the new countries, and four letters from people who asked and were turned away.',
+      'A scorecard of kept, bent and dropped points, and three short responses with Turn In.',
+    ],
+  },
+  {
+    slug: 'ush9-s04-the-weavers-son',
+    href: '/hubs/ush9-s04-the-weavers-son.html',
+    title: "the weaver's son",
+    course: 'us history 9',
+    unit: 'industrialization / standalone',
+    period: 'England, 1811 to 1834',
+    status: 'ready to teach',
+    question: 'the machines came for the best paid workers in england. what happened to them, and to their children, after they lost?',
+    blurb:
+      'In 1811 skilled croppers and weavers started smashing the machines that were taking their trade. Students race a hand loom against a power loom, decode a letter signed Ned Ludd, walk the uprising on a map, watch a week of pay shrink in flour, and decide who really came out ahead. Then they hold the story up against AI.',
+    cover: '/storyhub/ush9/the-weavers-son/assets/leader-of-the-luddites-1812.webp',
+    coverAlt: 'The Leader of the Luddites, a hand colored London print from May 1812',
+    topics: ['luddites', 'industrial revolution', 'power loom', 'real wages', 'lord byron', 'technological unemployment', 'ai'],
+    inside: [
+      'A hand loom and a power loom side by side on video, and a race that shows the three and a half to one gap.',
+      'A Luddite letter from March 1812 to decode, and a map of the uprising from Arnold to the York gallows.',
+      'One weaver\'s pay in flour, 1797 against 1834, and a sort of who came out ahead.',
+      'Four AI scenarios, terms, note repair and four short responses with Turn In.',
+    ],
+  },
+  {
     slug: 'ush9-l014-unions',
     href: '/hubs/ush9-l014-unions.html',
     title: 'unions & collective bargaining',
@@ -1373,8 +1489,14 @@ export const storyHubs: StoryHub[] = [
     question: 'when workers stopped the trains, who arrived to make them move again?',
     blurb:
       'Four strikes across seventeen years reveal a system getting faster and more distant: local militia, outside troops, hired detectives, and finally a court order that could reach a national union without leaving the courtroom.',
-    cover: '/storyhub/ush9/l015/assets/a01-rail-yard.svg',
-    coverAlt: 'Authored paper-and-ink scene of an empty rail yard at first light',
+    cover: '/storyhub/ush9/l015/assets/railroad-strike-1877-archival.jpg',
+    coverAlt: 'Wood engraving of fire and smoke sweeping across Pittsburgh’s rail yards, with railcars, rooftops and crowds below, during the Great Railroad Strike of 1877',
+    coverArchive: {
+      width: 1280, height: 455,
+      credit: 'Wood engraving by M. B. Leiser · Harper’s Weekly, Aug. 11, 1877, pp. 624–625',
+      record: 'https://www.loc.gov/item/99614203/',
+      scan: 'https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_(cropped).jpg',
+    },
     topics: ['great railroad strike', 'haymarket', 'homestead', 'pullman strike', 'labor injunctions'],
     inside: [
       'A rail-network timeline that shows the 1877 strike spreading city by city and records who answered it.',
@@ -1394,8 +1516,8 @@ export const storyHubs: StoryHub[] = [
     question: 'what changes when the people doing the work are missing from the meeting?',
     blurb:
       'Baseball owners create a league, set entry rules, and close the labor market while the players who produce the game are absent from the room. Students follow exactly where control moved and who gained it.',
-    cover: '/storyhub/bts/l03/assets/cover-ledger.svg',
-    coverAlt: 'Editorial ledger cover with an intentionally empty player chair',
+    cover: '/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg',
+    coverAlt: '1876 lithograph of the Chicago White Stockings, one of the original National League clubs, with player portraits around a game scene and manager A. G. Spalding at the top. Public domain, Wikimedia Commons.',
     topics: ['national league origins', 'william hulbert', 'club ownership', 'reserve rule', 'player labor'],
     inside: [
       'A four-clause charter audit that makes students identify the problem each owner rule was designed to solve.',
@@ -1415,8 +1537,8 @@ export const storyHubs: StoryHub[] = [
     question: 'when a hundred retellings trace back to one origin, how many sources do you really have?',
     blurb:
       'The “Paul is dead” rumor and the Watergate investigation put two very different source networks side by side. Students trace origins, collapse repeated claims, and test whether each conclusion can be disproved.',
-    cover: '/storyhub/hh/l06/assets/cover-signal.svg',
-    coverAlt: 'Editorial receiver dial contrasting repeated signals with independent signals',
+    cover: '/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg',
+    coverAlt: 'Yoichi Okamoto archival photograph of the Watergate complex, photographed in May 1973; National Archives',
     topics: ['source independence', 'corroboration', 'paul is dead', 'watergate', 'falsifiability'],
     inside: [
       'A backward trace that follows many rumor outlets to the same two Michigan origins.',

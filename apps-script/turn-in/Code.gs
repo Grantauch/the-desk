@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-11-04-turn-in-v13';
+const TI_VERSION = '2026-11-20-turn-in-v17';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -47,6 +47,8 @@ const TI_SHEETS = {
   LOAD_TEST_PROGRESS: 'Load Test Progress',
   LOAD_TEST: 'Load Test',
   TIMELINE: 'Writing Timeline',
+  TEAMS: 'Project Teams',
+  TEACHER_KEY: 'Teacher Key',
 };
 
 const TI_HEADERS = {
@@ -57,6 +59,8 @@ const TI_HEADERS = {
   CLASSROOM_LINKS: ['Class / Period', 'Hub', 'Classroom Assignment URL', 'Hub Title'],
   TIMELINE: ['Turned In', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Submission ID', 'Writing Minutes',
     'Typed', 'Pasted', 'Largest Single Add', 'Times Away', 'Flags', 'Replay Data'],
+  TEAMS: ['Updated', 'Hub', 'Class / Period', 'Team ID', 'Join Code', 'Mode', 'Choice', 'Member A Name', 'Member A Email',
+    'Member B Name', 'Member B Email', 'Status', 'History'],
 };
 TI_HEADERS.LOAD_TEST = TI_HEADERS.TURN_INS;
 
@@ -80,6 +84,35 @@ function doGet() {
   });
 }
 
+/** Run in the Apps Script editor to check the actual dependencies without writing to Sheets. */
+function checkTurnInSignInHealth() {
+  let result;
+  let stage = 'roster';
+  try {
+    if (!PropertiesService.getScriptProperties().getProperty('PIN_SALT')) {
+      throw refuse_('not_ready', 'The PIN salt is missing.', 'pin_lookup', 'pin_salt_missing');
+    }
+    const roster = rosterByHash_(false);
+    if (!Object.values(roster).some((entry) => entry.emails.length === 1)) {
+      throw refuse_('not_ready', 'The roster has no usable entries.', 'roster', 'roster_no_usable_credentials');
+    }
+    stage = 'account_load';
+    if (!workbook_().getSheetByName(TI_SHEETS.DRAFTS)) {
+      throw refuse_('not_ready', 'The Drafts tab is missing.', stage, 'drafts_sheet_missing');
+    }
+    result = { ready: true, version: TI_VERSION };
+  } catch (error) {
+    result = {
+      ready: false,
+      version: TI_VERSION,
+      stage: error && error.studentMessage && error.stage || stage,
+      reason: error && error.studentMessage && error.reason || 'dependency_unreadable',
+    };
+  }
+  console.log(JSON.stringify(result));
+  return result;
+}
+
 function doPost(e) {
   let request;
   try {
@@ -90,20 +123,65 @@ function doPost(e) {
   try {
     return json_(route_(request || {}));
   } catch (error) {
-    if (error && error.studentMessage) return json_({ ok: false, code: error.code || 'refused', error: error.studentMessage });
-    console.error(error && error.stack || error);
-    return json_({ ok: false, code: 'server', error: 'Something went wrong on our end. Press the button again.' });
+    const expected = error && error.studentMessage;
+    const result = expected
+      ? { ok: false, code: error.code || 'refused', error: error.studentMessage }
+      : { ok: false, code: 'server', error: 'Something went wrong on our end. Press the button again.' };
+    if (request && request.action === 'signin') {
+      result.supportId = logSignInFailure_(request.hub, error);
+    } else if (!expected) {
+      console.error(error && error.stack || error);
+    }
+    return json_(result);
   }
 }
+
+function logSignInFailure_(hub, error) {
+  const supportId = 'TI-' + Utilities.getUuid().replace(/-/g, '').slice(-16).toUpperCase();
+  const expected = error && error.studentMessage;
+  // Only log the assignment slug and fixed diagnostic labels. Never log a
+  // request, account token, PIN, email, or a raw Google exception.
+  console.log(JSON.stringify({
+    event: 'turn_in_signin_failed',
+    supportId,
+    version: TI_VERSION,
+    hub: typeof hub === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(hub) ? hub : '',
+    stage: expected && error.stage || 'signin',
+    reason: expected && (error.reason || error.code) || 'unexpected',
+  }));
+  return supportId;
+}
+
+let TI_REQUEST = null;
 
 function route_(request) {
   Object.keys(TI_DRAFT_MEMO).forEach((key) => { delete TI_DRAFT_MEMO[key]; });
   const action = String(request.action || '');
   if (action === 'ping') return { ok: true, version: TI_VERSION };
-  if (action === 'signin') return signIn_(request);
-  if (action === 'save') return saveDraft_(request);
-  if (action === 'turnin') return turnIn_(request);
-  throw refuse_('bad_request', 'That request could not be read.');
+  if (!['signin', 'save', 'turnin', 'team', 'teacher'].includes(action)) throw refuse_('bad_request', 'That request could not be read.');
+  const started = Date.now();
+  const requestState = { rosterMs: 0, draftMs: 0, lockWaitMs: 0 };
+  TI_REQUEST = requestState;
+  try {
+    if (action === 'signin') return signIn_(request);
+    if (action === 'save') return saveDraft_(request);
+    if (action === 'team') return team_(request);
+    if (action === 'teacher') return teacher_(request);
+    return turnIn_(request);
+  } finally {
+    TI_REQUEST = null;
+    const totalMs = Date.now() - started;
+    if (totalMs >= 10000) console.log(JSON.stringify({
+      event: 'turn_in_slow_request', version: TI_VERSION, action, totalMs,
+      rosterMs: requestState.rosterMs, draftMs: requestState.draftMs, lockWaitMs: requestState.lockWaitMs,
+    }));
+  }
+}
+
+function tryStudentWriteLock_(lock, timeoutMs) {
+  const started = Date.now();
+  try { return lock.tryLock(timeoutMs); }
+  finally { if (TI_REQUEST) TI_REQUEST.lockWaitMs += Date.now() - started; }
 }
 
 /* ---------------------------------------------------------------- actions -- */
@@ -113,6 +191,17 @@ function signIn_(request) {
   const identity = identify_(request);
   const token = makeToken_(identity.email, identity.test);
   const classPeriod = pickClass_(identity.classes, request.course);
+  let classroomUrl = '', draft = null;
+  if (!identity.test) {
+    try {
+      classroomUrl = classroomLink_(hub, classPeriod);
+      draft = findDraft_(identity.email, hub);
+    } catch (error) {
+      if (error && error.studentMessage) throw error;
+      throw refuse_('server', 'Could not load your assignment account. Try again or ask your teacher.',
+        'account_load', 'assignment_workbook_unreadable');
+    }
+  }
   return {
     ok: true,
     token,
@@ -121,8 +210,8 @@ function signIn_(request) {
     firstName: firstName_(identity.name),
     classes: identity.classes,
     classPeriod,
-    classroomUrl: identity.test ? '' : classroomLink_(hub, classPeriod),
-    draft: identity.test ? null : findDraft_(identity.email, hub),
+    classroomUrl,
+    draft,
   };
 }
 
@@ -130,6 +219,7 @@ function saveDraft_(request) {
   const hub = cleanHub_(request.hub);
   const session = readToken_(request.token);
   const answers = cleanAnswers_(request.answers);
+  if (!session.test) validateMedalOwnership_(hub, session.email, request.classPeriod, request.course, answers);
   if (!session.test && !Object.values(rosterByHash_()).some((entry) => entry.emails.length === 1 && entry.emails[0] === session.email)) {
     throw refuse_('signed_out', 'Ask your teacher to check your account before saving again.');
   }
@@ -142,7 +232,7 @@ function saveDraft_(request) {
   const book = workbook_();
   if (session.test) {
     const testLock = LockService.getScriptLock();
-    if (!testLock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
+    if (!tryStudentWriteLock_(testLock, TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
     try {
       const prior = guardedDraft_(book, identity, hub, request, answers);
       if (prior) return { ok: true, savedAt: prior.savedAt, revision: prior.revision || prior.savedAt };
@@ -155,7 +245,7 @@ function saveDraft_(request) {
   // A save is acknowledged only after a durable write. Cache alone can be evicted.
   const drafts = book.getSheetByName(TI_SHEETS.DRAFTS);
   const lock = LockService.getScriptLock();
-  if (!lock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
+  if (!tryStudentWriteLock_(lock, TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
   try {
     const prior = guardedDraft_(book, identity, hub, request, answers);
     if (prior) return { ok: true, savedAt: prior.savedAt, revision: prior.revision || prior.savedAt };
@@ -183,6 +273,7 @@ function turnIn_(request) {
   const identity = turnInIdentity_(request);
   const submissionKey = `sub:${identity.email}:${hub}:${submissionId}`;
   const answers = cleanAnswers_(request.answers);
+  if (!identity.test) validateMedalOwnership_(hub, identity.email, request.classPeriod, request.course, answers);
   // Authenticate and validate the complete body even when retrying a cached ID.
   if (request.accountToken && readToken_(request.accountToken).email !== identity.email) throw refuse_('wrong_account', 'That PIN belongs to a different account. Sign out before changing students.');
   if (!answers.some((entry) => entry.a.trim())) throw refuse_('bad_request', 'Write at least one answer first.');
@@ -210,7 +301,7 @@ function turnIn_(request) {
   const book = workbook_();
   const sheet = book.getSheetByName(identity.test ? TI_SHEETS.LOAD_TEST : TI_SHEETS.TURN_INS);
   const lock = LockService.getScriptLock();
-  if (!lock.tryLock(TI_TURNIN_LOCK_MS)) {
+  if (!tryStudentWriteLock_(lock, TI_TURNIN_LOCK_MS)) {
     throw refuse_('busy', 'Lots of students are turning in right now. Press Turn In again.');
   }
   try {
@@ -529,7 +620,7 @@ function identify_(request) {
   const pin = String(request.pin || '').trim();
 
   if (testKey && request.test && String(request.test) === testKey) {
-    if (!/^9\d{5}$/.test(pin)) throw refuse_('bad_pin', 'Load test PINs start with 9.');
+    if (!/^9\d{5}$/.test(pin)) throw refuse_('bad_pin', 'Load test PINs start with 9.', 'pin_lookup', 'test_pin_format');
     const n = pin.slice(-3);
     return {
       email: `load-test-${n}@example.invalid`,
@@ -541,7 +632,7 @@ function identify_(request) {
 
   const device = String(request.device || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64) || 'unknown';
   assertAttemptsAllowed_(device);
-  if (!/^\d{5,6}$/.test(pin)) throw refuse_('bad_pin', 'Enter your five or six digit hall pass PIN.');
+  if (!/^\d{5,6}$/.test(pin)) throw refuse_('bad_pin', 'Enter your five or six digit hall pass PIN.', 'pin_lookup', 'pin_format');
 
   // Lunch numbers lose a leading zero in some school exports (020772 vs 20772).
   // Accept either spelling of the same number before calling it a wrong PIN.
@@ -550,9 +641,9 @@ function identify_(request) {
   const match = byHash[hashPin_(pin)] || (zeroTwin ? byHash[hashPin_(zeroTwin)] : null);
   if (!match) {
     recordFailedAttempt_(device);
-    throw refuse_('bad_pin', 'That PIN did not match. Try again or ask your teacher.');
+    throw refuse_('bad_pin', 'That PIN did not match. Try again or ask your teacher.', 'pin_lookup', 'pin_no_match');
   }
-  if (match.emails.length !== 1) throw refuse_('bad_pin', 'That PIN needs to be fixed. Ask your teacher.');
+  if (match.emails.length !== 1) throw refuse_('bad_pin', 'That PIN needs to be fixed. Ask your teacher.', 'pin_lookup', 'pin_ambiguous');
   return { email: match.emails[0], name: match.name, classes: match.classes, test: false };
 }
 
@@ -567,35 +658,63 @@ function turnInIdentity_(request) {
   return identity;
 }
 
-function rosterByHash_() {
+function openTurnInRoster_() {
+  const id = PropertiesService.getScriptProperties().getProperty('ROSTER_SPREADSHEET_ID');
+  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'roster', 'roster_setting_missing');
+  try {
+    return SpreadsheetApp.openById(id);
+  } catch (error) {
+    throw refuse_('not_ready', 'The class roster is unavailable. Ask your teacher before signing in.', 'roster', 'roster_unreadable');
+  }
+}
+
+function rosterByHash_(useCache = true) {
+  // Authentication, membership and receipt generation share one roster for
+  // this request. A new request still consults the configured credential source.
+  if (useCache && TI_REQUEST && TI_REQUEST.roster) return TI_REQUEST.roster;
+  const started = Date.now();
+  try {
+    const roster = readRosterByHash_(useCache);
+    if (useCache && TI_REQUEST) TI_REQUEST.roster = roster;
+    return roster;
+  } finally {
+    if (TI_REQUEST) TI_REQUEST.rosterMs += Date.now() - started;
+  }
+}
+
+function readRosterByHash_(useCache) {
   const cache = CacheService.getScriptCache();
-  const directoryPins = schoolDirectoryPinsForTurnIn_();
-  const cached = directoryPins === null ? cache.get('roster:v1') : null;
+  const book = openTurnInRoster_();
+  const directoryPins = schoolDirectoryPinsForTurnIn_(book);
+  const cacheable = useCache && directoryPins === null;
+  const cached = cacheable ? cache.get('roster:v1') : null;
   if (cached) { try { return JSON.parse(cached); } catch (error) { cache.remove('roster:v1'); } }
 
-  const props = PropertiesService.getScriptProperties();
-  const id = props.getProperty('ROSTER_SPREADSHEET_ID');
-  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
-  const sheet = SpreadsheetApp.openById(id).getSheetByName('Roster');
-  if (!sheet) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
-
-  const lastRow = sheet.getLastRow();
-  const map = {};
-  if (lastRow >= 2) {
-    sheet.getRange(2, 1, lastRow - 1, 5).getValues().forEach((row) => {
-      const email = String(row[0] || '').trim().toLowerCase();
-      const name = String(row[1] || '').trim();
-      const classPeriod = String(row[2] || '').trim();
-      const pinHash = directoryPins === null ? String(row[3] || '').trim() : directoryPins[email] ? hashPin_(directoryPins[email]) : '';
-      const active = isTruthyCell_(row[4], true);
-      if (!email || !name || !pinHash || !active) return;
-      const entry = map[pinHash] || (map[pinHash] = { name, emails: [], classes: [] });
-      if (entry.emails.indexOf(email) === -1) entry.emails.push(email);
-      if (classPeriod && entry.classes.indexOf(classPeriod) === -1) entry.classes.push(classPeriod);
-    });
-  }
+  let rows;
   try {
-    if (directoryPins === null) cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
+    const sheet = book.getSheetByName('Roster');
+    if (!sheet) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'roster', 'roster_sheet_missing');
+    const lastRow = sheet.getLastRow();
+    rows = lastRow >= 2 ? sheet.getRange(2, 1, lastRow - 1, 5).getValues() : [];
+  } catch (error) {
+    if (error && error.studentMessage) throw error;
+    throw refuse_('not_ready', 'The class roster is unavailable. Ask your teacher before signing in.', 'roster', 'roster_unreadable');
+  }
+
+  const map = {};
+  rows.forEach((row) => {
+    const email = String(row[0] || '').trim().toLowerCase();
+    const name = String(row[1] || '').trim();
+    const classPeriod = String(row[2] || '').trim();
+    const pinHash = directoryPins === null ? String(row[3] || '').trim() : directoryPins[email] ? hashPin_(directoryPins[email]) : '';
+    const active = isTruthyCell_(row[4], true);
+    if (!email || !name || !pinHash || !active) return;
+    const entry = map[pinHash] || (map[pinHash] = { name, emails: [], classes: [] });
+    if (entry.emails.indexOf(email) === -1) entry.emails.push(email);
+    if (classPeriod && entry.classes.indexOf(classPeriod) === -1) entry.classes.push(classPeriod);
+  });
+  try {
+    if (cacheable) cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
   } catch (error) {
     // A very large roster can exceed the cache value limit. Reading the sheet each time still works.
   }
@@ -603,34 +722,45 @@ function rosterByHash_() {
 }
 
 /** Directory lookups are server-only and never grant classroom membership. */
-function schoolDirectoryPinsForTurnIn_() {
-  const rosterId = PropertiesService.getScriptProperties().getProperty('ROSTER_SPREADSHEET_ID');
-  if (!rosterId) return null;
-  const book = SpreadsheetApp.openById(rosterId), settings = book.getSheetByName('Settings');
-  if (!settings || settings.getLastRow() < 2) return null;
-  const pointer = settings.getRange(2, 1, settings.getLastRow() - 1, 2).getValues().find((row) => row[0] === 'SCHOOL_DIRECTORY_SOURCE_ID');
+function schoolDirectoryPinsForTurnIn_(book) {
+  const roster = book || openTurnInRoster_();
+  let pointer;
+  try {
+    const settings = roster.getSheetByName('Settings');
+    if (!settings || settings.getLastRow() < 2) return null;
+    pointer = settings.getRange(2, 1, settings.getLastRow() - 1, 2).getValues().find((row) => row[0] === 'SCHOOL_DIRECTORY_SOURCE_ID');
+  } catch (error) {
+    throw refuse_('not_ready', 'Turn In could not read the sign-in settings. Ask your teacher.', 'roster', 'roster_settings_unreadable');
+  }
   if (!pointer || !pointer[1]) return null;
   try {
     const sheet = SpreadsheetApp.openById(String(pointer[1])).getSheetByName('School Directory');
-    if (!sheet || sheet.getLastRow() < 1 || sheet.getLastRow() > 5001) throw new Error('Invalid directory');
+    if (!sheet || sheet.getLastRow() < 1 || sheet.getLastRow() > 5001) throw directoryFailure_('directory_schema');
     const header = sheet.getRange(1, 1, 1, 4).getValues()[0];
-    if (header.join('|') !== 'School Student ID|Student Name|School Email|Status') throw new Error('Invalid headings');
+    if (header.join('|') !== 'School Student ID|Student Name|School Email|Status') throw directoryFailure_('directory_schema');
     const pins = {}, ids = new Set(), emails = new Set();
     const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues() : [];
     rows.filter((row) => row.some((cell) => cell !== '')).forEach((row) => {
       const email = String(row[2] || '').trim().toLowerCase(), status = String(row[3] || '').toUpperCase();
-      if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0]) || ids.has(row[0]) || (email && emails.has(email)) || !['AVAILABLE','DISABLED'].includes(status)) throw new Error('Invalid directory');
+      if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0]) || ids.has(row[0]) || (email && emails.has(email)) || !['AVAILABLE','DISABLED'].includes(status)) throw directoryFailure_('directory_rows');
       ids.add(row[0]); if (email) emails.add(email);
       if (email && status === 'AVAILABLE') pins[email] = row[0];
     });
     return pins;
-  } catch (error) { throw refuse_('not_ready', 'The school directory is unavailable. Ask your teacher before signing in.'); }
+  } catch (error) {
+    if (error && error.studentMessage) throw error;
+    throw directoryFailure_('directory_unreadable');
+  }
+}
+
+function directoryFailure_(reason) {
+  return refuse_('not_ready', 'The school directory is unavailable. Ask your teacher before signing in.', 'directory', reason);
 }
 
 /** Mirrors hashPin_ in the Hall Pass project. Both must share the same PIN_SALT. */
 function hashPin_(pin) {
   const salt = PropertiesService.getScriptProperties().getProperty('PIN_SALT');
-  if (!salt) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
+  if (!salt) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'pin_lookup', 'pin_salt_missing');
   const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, `${salt}:${pin}`, Utilities.Charset.UTF_8);
   return Utilities.base64EncodeWebSafe(bytes);
 }
@@ -840,10 +970,10 @@ function assertAttemptsAllowed_(device) {
   const bucket = attemptBucket_();
   const all = cache.getAll([`fail:all:${bucket}`, `fail:${device}:${bucket}`]);
   if (Number(all[`fail:${device}:${bucket}`] || 0) >= TI_FAILS_PER_DEVICE) {
-    throw refuse_('slow_down', 'Too many wrong PINs on this Chromebook. Wait a few minutes or ask your teacher.');
+    throw refuse_('slow_down', 'Too many wrong PINs on this Chromebook. Wait a few minutes or ask your teacher.', 'throttle', 'device_throttled');
   }
   if (Number(all[`fail:all:${bucket}`] || 0) >= TI_FAILS_GLOBAL) {
-    throw refuse_('slow_down', 'Turn In is paused for a few minutes. Use the copy button for now.');
+    throw refuse_('slow_down', 'Turn In is paused for a few minutes. Use the copy button for now.', 'throttle', 'service_throttled');
   }
 }
 
@@ -862,6 +992,12 @@ function draftCacheKey_(email, hub) {
 }
 
 function findDraft_(email, hub) {
+  const started = Date.now();
+  try { return readDraft_(email, hub); }
+  finally { if (TI_REQUEST) TI_REQUEST.draftMs += Date.now() - started; }
+}
+
+function readDraft_(email, hub) {
   const cached = CacheService.getScriptCache().get(draftCacheKey_(email, hub));
   if (cached) {
     try {
@@ -952,18 +1088,315 @@ function countWords_(text) {
   return words ? words.length : 0;
 }
 
+/* ------------------------------------------------------- project teams ---- */
+
+/*
+ * Project teams let two students share one project page. Each student still
+ * saves only to their own account, so the Progress view shows exactly who wrote
+ * what. A team row records the pair, the class, the join code and the choice
+ * (for the Medal of Honor project, the veteran). One team per class may hold a
+ * choice. Students can only leave a team before a partner joins. After that the
+ * teacher changes the row in the Project Teams tab.
+ */
+
+
+/* All project answer keys and their legitimate authors. Never trust a client-supplied role. */
+const TI_MOH_HUB = 'ush9-medal-of-honor-project';
+const TI_MOH_OWNERS = Object.freeze({
+  "id:moh-a-fact-born": "a",
+  "id:moh-a-fact-before": "a",
+  "id:moh-a-fact-join": "a",
+  "id:moh-b-fact-unit": "b",
+  "id:moh-b-fact-day": "b",
+  "id:moh-b-fact-end": "b",
+  "id:moh-a-word-1": "a",
+  "id:moh-a-mean-1": "a",
+  "id:moh-a-word-2": "a",
+  "id:moh-a-mean-2": "a",
+  "id:moh-a-word-3": "a",
+  "id:moh-a-mean-3": "a",
+  "id:moh-b-word-1": "b",
+  "id:moh-b-mean-1": "b",
+  "id:moh-b-word-2": "b",
+  "id:moh-b-mean-2": "b",
+  "id:moh-b-word-3": "b",
+  "id:moh-b-mean-3": "b",
+  "id:moh-a-before-1": "a",
+  "id:moh-a-before-2": "a",
+  "id:moh-a-before-3": "a",
+  "id:moh-b-day-1": "b",
+  "id:moh-b-day-2": "b",
+  "id:moh-b-day-3": "b",
+  "id:moh-a-cite-1": "a",
+  "id:moh-a-cite-2": "a",
+  "id:moh-a-cite-3": "a",
+  "id:moh-b-after-1": "b",
+  "id:moh-b-after-2": "b",
+  "id:moh-b-after-3": "b",
+  "id:moh-a-why-1": "a",
+  "id:moh-a-why-2": "a",
+  "id:moh-b-why-1": "b",
+  "id:moh-b-why-2": "b",
+  "id:moh-a-poster-head": "a",
+  "id:moh-a-poster-scene": "a",
+  "id:moh-a-poster-fact-1": "a",
+  "id:moh-a-poster-fact-2": "a",
+  "id:moh-a-poster-fact-3": "a",
+  "id:moh-a-poster-fact-4": "a",
+  "id:moh-a-poster-quote": "a",
+  "id:moh-a-poster-layout": "a",
+  "id:moh-a-poster-status": "a",
+  "id:moh-b-screen-title": "b",
+  "id:moh-b-screen-caption": "b",
+  "id:moh-b-screen-quote": "b",
+  "id:moh-b-screen-data": "b"
+});
+const TI_MOH_VETERANS = Object.freeze(["freddie-stowers","henry-johnson","william-shemin","alvin-york","nelson-holderman","frank-luke","eddie-rickenbacker","samuel-woodfill","david-barkley","harold-furlong","william-donovan","jake-allex","louis-cukela","matej-kocak","ernest-janson","weedon-osborne","edouard-izac","harold-roberts","sidney-manning","fred-stockham","george-robb"]);
+
+const TI_TEAM_CODE_CHARS = 'ACDEFGHJKMNPQRTUVWXY34679';
+const TI_TEAM_COLS = { updated: 0, hub: 1, classPeriod: 2, id: 3, code: 4, mode: 5, choice: 6, aName: 7, aEmail: 8, bName: 9, bEmail: 10, status: 11, history: 12 };
+
+function team_(request) {
+  const hub = cleanHub_(request.hub);
+  const session = readToken_(request.token);
+  if (session.test) throw refuse_('bad_request', 'Load test accounts cannot make teams.');
+  const identity = identityByEmail_(session.email);
+  if (!identity) throw refuse_('signed_out', 'Enter your PIN again.');
+  const classPeriod = chooseClass_(identity.classes, request.classPeriod, request.course);
+  const op = String(request.op || 'status');
+  if (!['status', 'create', 'join', 'choose', 'cancel'].includes(op)) throw refuse_('bad_request', 'That request could not be read.');
+  const book = workbook_();
+  if (op === 'status') {
+    const teams = readTeams_(book, hub);
+    const mine = teams.find((t) => teamHas_(t, identity.email));
+    return { ok: true, team: mine ? teamView_(mine, identity.email, true) : null, taken: takenChoices_(teams, classPeriod, mine) };
+  }
+  const lock = LockService.getScriptLock();
+  if (!tryStudentWriteLock_(lock, TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are working right now. Press the button again.');
+  try {
+    const sheet = teamsSheet_(book);
+    const teams = readTeams_(book, hub);
+    let mine = teams.find((t) => teamHas_(t, identity.email));
+    const now = new Date();
+    if (op === 'create') {
+      if (mine) return { ok: true, team: teamView_(mine, identity.email, false), taken: takenChoices_(teams, classPeriod, mine) };
+      const mode = request.mode === 'pair' ? 'pair' : request.mode === 'solo' ? 'solo' : '';
+      if (!mode) throw refuse_('bad_request', 'Choose alone or with a partner.');
+      const choice = cleanChoice_(request.choice);
+      if (hub === TI_MOH_HUB && TI_MOH_VETERANS.indexOf(choice) < 0) throw refuse_('bad_choice', 'Pick a veteran from the project gallery.');
+      assertChoiceFree_(teams, classPeriod, choice, null);
+      let code = '';
+      if (mode === 'pair') {
+        const used = new Set(teams.map((t) => t.code));
+        do { code = Array.from({ length: 4 }, () => TI_TEAM_CODE_CHARS[Math.floor(Math.random() * TI_TEAM_CODE_CHARS.length)]).join(''); } while (used.has(code));
+      }
+      const team = { updated: now, hub, classPeriod, id: 'T-' + Utilities.getUuid().slice(0, 8).toUpperCase(), code, mode, choice,
+        aName: identity.name, aEmail: identity.email, bName: '', bEmail: '', status: 'Active',
+        history: `${stamp_(now)} ${firstName_(identity.name)} started ${mode === 'pair' ? 'a team' : 'working alone'} with ${choice}` };
+      sheet.appendRow(literalCells_(teamCells_(team)));
+      team.row = sheet.getLastRow();
+      SpreadsheetApp.flush();
+      return { ok: true, team: teamView_(team, identity.email, false), taken: takenChoices_(teams.concat([team]), classPeriod, team) };
+    }
+    if (op === 'join') {
+      if (mine) throw refuse_('already', 'You are already on a team for this project.');
+      const code = String(request.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const team = teams.find((t) => t.code && t.code === code);
+      if (!team) throw refuse_('bad_code', 'That team code did not match. Check the four letters with your partner.');
+      if (team.mode !== 'pair' || team.bEmail) throw refuse_('team_full', 'That team already has two people. Ask your teacher.');
+      if (identity.classes.indexOf(team.classPeriod) === -1) throw refuse_('other_class', 'That code belongs to a team in a different class.');
+      team.bName = identity.name; team.bEmail = identity.email; team.updated = now;
+      team.history += ` | ${stamp_(now)} ${firstName_(identity.name)} joined`;
+      writeTeam_(sheet, team);
+      return { ok: true, team: teamView_(team, identity.email, false), taken: takenChoices_(teams, team.classPeriod, team) };
+    }
+    if (!mine) throw refuse_('no_team', 'Start or join a team first.');
+    if (op === 'choose') {
+      const choice = cleanChoice_(request.choice);
+      if (hub === TI_MOH_HUB && TI_MOH_VETERANS.indexOf(choice) < 0) throw refuse_('bad_choice', 'Pick a veteran from the project gallery.');
+      if (choice !== mine.choice) {
+        assertChoiceFree_(teams, mine.classPeriod, choice, mine);
+        mine.history += ` | ${stamp_(now)} ${firstName_(identity.name)} switched from ${mine.choice} to ${choice}`;
+        mine.choice = choice; mine.updated = now;
+        writeTeam_(sheet, mine);
+      }
+      return { ok: true, team: teamView_(mine, identity.email, false), taken: takenChoices_(teams, mine.classPeriod, mine) };
+    }
+    // cancel: only before a partner joins. A full team is changed by the teacher.
+    if (mine.bEmail) throw refuse_('locked', 'Your team is set. Ask your teacher if your team needs to change.');
+    mine.status = 'Closed'; mine.updated = now;
+    mine.history += ` | ${stamp_(now)} ${firstName_(identity.name)} started over`;
+    writeTeam_(sheet, mine);
+    return { ok: true, team: null, taken: takenChoices_(teams.filter((t) => t !== mine), classPeriod, null) };
+  } finally {
+    SpreadsheetApp.flush();
+    lock.releaseLock();
+  }
+}
+
+function teamsSheet_(book) {
+  return book.getSheetByName(TI_SHEETS.TEAMS) || ensureSheet_(book, TI_SHEETS.TEAMS, TI_HEADERS.TEAMS);
+}
+
+function readTeams_(book, hub) {
+  const sheet = book.getSheetByName(TI_SHEETS.TEAMS);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const width = TI_HEADERS.TEAMS.length;
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, width).getValues().map((cells, i) => {
+    const t = { row: i + 2 };
+    Object.keys(TI_TEAM_COLS).forEach((name) => { t[name] = name === 'updated' ? cells[TI_TEAM_COLS[name]] : String(cells[TI_TEAM_COLS[name]] || '').trim(); });
+    t.aEmail = t.aEmail.toLowerCase(); t.bEmail = t.bEmail.toLowerCase(); t.code = t.code.toUpperCase(); t.mode = t.mode.toLowerCase();
+    return t;
+  }).filter((t) => t.hub === hub && t.status.toLowerCase() !== 'closed' && (t.aEmail || t.bEmail));
+}
+
+function teamHas_(team, email) {
+  return team.aEmail === email || team.bEmail === email;
+}
+
+function teamCells_(t) {
+  return [t.updated, t.hub, t.classPeriod, t.id, t.code, t.mode, t.choice, t.aName, t.aEmail, t.bName, t.bEmail, t.status, t.history];
+}
+
+function writeTeam_(sheet, team) {
+  sheet.getRange(team.row, 1, 1, TI_HEADERS.TEAMS.length).setValues([literalCells_(teamCells_(team))]);
+}
+
+
+/**
+ * Server-side boundary for the shared Medal of Honor report. Client-side
+ * readOnly controls are just a convenience; these checks also reject an
+ * altered network request from a student trying to write a partner's answers.
+ * Blank fields are allowed because the shared form includes both partners'
+ * inputs and because students can begin before the other person joins.
+ */
+function validateMedalOwnership_(hub, email, requestedClass, course, answers) {
+  if (hub !== TI_MOH_HUB || !answers.some((entry) => entry.a.trim())) return;
+  const identity = identityByEmail_(email);
+  if (!identity) throw refuse_('signed_out', 'Sign in again before saving your project.');
+  const classPeriod = chooseClass_(identity.classes, requestedClass, course);
+  const mine = readTeams_(workbook_(), hub).find((team) => teamHas_(team, email));
+  if (!mine || mine.classPeriod !== classPeriod) throw refuse_('no_team', 'Open your project team first, then save your writing.');
+  const role = mine.mode === 'solo' ? 'solo' : mine.aEmail === email ? 'a' : 'b';
+  for (const entry of answers) {
+    if (!entry.a.trim()) continue;
+    const owner = TI_MOH_OWNERS[entry.k];
+    if (!owner || (role !== 'solo' && owner !== role) ||
+        (role === 'solo' && owner === 'b' && /^id:moh-b-why-/.test(entry.k))) {
+      throw refuse_('partner_field', 'This answer belongs to your partner, or is not part of your project. Use only your gold boxes and try again.');
+    }
+  }
+}
+
+function cleanChoice_(value) {
+  const choice = String(value || '').trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(choice)) throw refuse_('bad_request', 'Pick a veteran first.');
+  return choice;
+}
+
+function assertChoiceFree_(teams, classPeriod, choice, self) {
+  if (teams.some((t) => t !== self && t.classPeriod === classPeriod && t.choice === choice)) {
+    throw refuse_('taken', 'Another team in your class already picked this veteran. Pick a different one.');
+  }
+}
+
+function takenChoices_(teams, classPeriod, mine) {
+  return teams.filter((t) => t !== mine && t.classPeriod === classPeriod && t.choice).map((t) => t.choice);
+}
+
+function shortName_(name) {
+  const text = String(name || '').trim();
+  const first = firstName_(text);
+  const last = text.indexOf(',') !== -1 ? text.split(',')[0].trim() : text.split(/\s+/).slice(1).join(' ');
+  return last ? `${first} ${last.charAt(0).toUpperCase()}.` : first;
+}
+
+function stamp_(date) {
+  return Utilities.formatDate(date, 'America/Detroit', 'MMM d h:mm a');
+}
+
+function teamView_(team, email, withPartner) {
+  const role = team.mode === 'solo' ? 'solo' : team.aEmail === email ? 'A' : 'B';
+  const members = [{ role: team.mode === 'solo' ? 'solo' : 'A', name: shortName_(team.aName), me: team.aEmail === email }];
+  if (team.bEmail) members.push({ role: 'B', name: shortName_(team.bName), me: team.bEmail === email });
+  const view = { id: team.id, mode: team.mode, code: team.mode === 'pair' && !team.bEmail ? team.code : '', choice: team.choice,
+    classPeriod: team.classPeriod, role, members, partner: null };
+  const partnerEmail = role === 'A' ? team.bEmail : role === 'B' ? team.aEmail : '';
+  if (withPartner && partnerEmail) {
+    const draft = findDraft_(partnerEmail, team.hub);
+    view.partner = { name: shortName_(role === 'A' ? team.bName : team.aName), savedAt: draft && draft.savedAt || '',
+      answers: draft ? draft.answers.filter((entry) => TI_MOH_OWNERS[entry.k] === (role === 'A' ? 'b' : 'a')).map((entry) => ({ k: entry.k, a: entry.a })) : [] };
+  }
+  return view;
+}
+
+/* ------------------------------------------------------- teacher reads ---- */
+
+/*
+ * The teacher page needs every team's work at once to print papers and show
+ * the art gallery. It is protected by a long random key that only appears in
+ * the private Turn In workbook. The first request with no key on file creates
+ * one there and tells the teacher where to find it.
+ */
+function teacher_(request) {
+  const props = PropertiesService.getScriptProperties();
+  const device = String(request.device || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64) || 'unknown';
+  let key = props.getProperty('TEACHER_KEY');
+  const book = workbook_();
+  if (!key) {
+    key = Array.from({ length: 4 }, () => Utilities.getUuid().replace(/-/g, '').slice(0, 5)).join('-');
+    props.setProperty('TEACHER_KEY', key);
+    const sheet = book.getSheetByName(TI_SHEETS.TEACHER_KEY) || book.insertSheet(TI_SHEETS.TEACHER_KEY);
+    sheet.getRange(1, 1, 2, 1).setValues([['Paste this key into the teacher project page once on your own computer. Never share it with students.'], [key]]);
+    SpreadsheetApp.flush();
+    throw refuse_('key_created', 'A teacher key was just made. Open your Turn In workbook, go to the Teacher Key tab, and paste the key here.');
+  }
+  assertAttemptsAllowed_(device);
+  if (String(request.key || '').trim() !== key) {
+    recordFailedAttempt_(device);
+    throw refuse_('bad_key', 'That teacher key did not match. Copy it again from the Teacher Key tab.');
+  }
+  const hub = cleanHub_(request.hub);
+  const teams = readTeams_(book, hub);
+  const work = {};
+  const progress = book.getSheetByName(TI_SHEETS.PROGRESS);
+  if (progress && progress.getLastRow() >= 2) {
+    progress.getRange(2, 1, progress.getLastRow() - 1, 13).getValues().forEach((cells) => {
+      if (String(cells[4]) !== hub) return;
+      let data;
+      try { data = JSON.parse(cells[11]); } catch (error) { return; }
+      if (!data || !Array.isArray(data.answers)) return;
+      const email = String(cells[3]).toLowerCase();
+      if (work[email] && Date.parse(work[email].savedAt) >= Date.parse(data.savedAt)) return;
+      work[email] = { name: String(cells[2]), classPeriod: String(cells[1]), savedAt: data.savedAt, finishedAt: data.finishedAt || '', status: String(cells[12] || ''),
+        answers: data.answers.filter((entry) => /^id:moh-/.test(entry.k)).map((entry) => ({ k: entry.k, a: entry.a })) };
+    });
+  }
+  const member = (name, email) => email ? { name, short: shortName_(name), work: work[email] || null } : null;
+  const listed = new Set();
+  const out = teams.map((t) => {
+    listed.add(t.aEmail); listed.add(t.bEmail);
+    return { id: t.id, classPeriod: t.classPeriod, mode: t.mode, choice: t.choice, code: t.bEmail ? '' : t.code, history: t.history,
+      a: member(t.aName, t.aEmail), b: member(t.bName, t.bEmail) };
+  });
+  const loose = Object.keys(work).filter((email) => !listed.has(email)).map((email) => ({ name: work[email].name, classPeriod: work[email].classPeriod, savedAt: work[email].savedAt }));
+  return { ok: true, hub, teams: out, noTeam: loose, at: new Date().toISOString() };
+}
+
 /* ---------------------------------------------------------------- helpers -- */
 
 function workbook_() {
   const id = PropertiesService.getScriptProperties().getProperty('TURNIN_SPREADSHEET_ID');
-  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.');
+  if (!id) throw refuse_('not_ready', 'Turn In is not set up yet. Use the copy button for now.', 'account_load', 'assignment_workbook_setting_missing');
   return SpreadsheetApp.openById(id);
 }
 
-function refuse_(code, studentMessage) {
+function refuse_(code, studentMessage, stage, reason) {
   const error = new Error(studentMessage);
   error.code = code;
   error.studentMessage = studentMessage;
+  error.stage = stage;
+  error.reason = reason;
   return error;
 }
 

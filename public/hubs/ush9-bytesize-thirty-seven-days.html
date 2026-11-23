@@ -67,6 +67,7 @@ figcaption { font-size: 0.82rem; color: var(--muted); margin-top: 6px; }
 .stats span { font-size: 0.9rem; color: var(--muted); }
 .video { position: relative; aspect-ratio: 16 / 9; background: #000; border: 2px solid var(--ink); }
 .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video:focus-within:has(iframe) { outline: 3px solid var(--gold); outline-offset: 3px; }
 .vmeta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
 .btn { appearance: none; font: 600 0.95rem var(--font-body); color: var(--ink); background: var(--panel); border: 2px solid var(--ink); padding: 8px 14px; border-radius: 3px; cursor: pointer; min-height: 44px; }
 .btn[aria-pressed="true"], .btn.solid { background: var(--ink); color: var(--ground); }
@@ -439,7 +440,22 @@ fieldset{min-width:0;border:0;padding:0;margin:0}legend{font-weight:700;margin-b
  const tabs=all('[role="tab"]');function tab(t){tabs.forEach(b=>{const on=b===t;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;$(b.getAttribute('aria-controls')).hidden=!on;});}tabs.forEach((t,i)=>{t.onclick=()=>tab(t);t.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%tabs.length;else if(e.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;else return;e.preventDefault();tab(tabs[n]);tabs[n].focus();};});tab(tabs[0]);
  all('#causeCards input').forEach(input=>input.addEventListener('change',()=>{const card=input.closest('fieldset');card.classList.remove('right','wrong');card.querySelector('.why').hidden=true;$('causeScore').textContent='Answer changed. Check your reasoning again.';}));
  $('checkCauses').onclick=()=>{let correct=0,answered=0;all('#causeCards fieldset').forEach(card=>{const selected=card.querySelector('input:checked');const why=card.querySelector('.why');card.classList.remove('right','wrong');if(!selected){why.hidden=false;why.textContent='Choose a cause before checking this example.';return;}answered++;const ok=selected.value===card.dataset.answer;if(ok)correct++;card.classList.add(ok?'right':'wrong');why.hidden=false;why.textContent=(ok?'Correct. ':'Try again. ')+["A competition in weapons and military readiness is militarism.", "A formal commitment between states is an alliance.", "The dispute concerns overseas influence and imperial competition.", "This demand for national unity across state borders is nationalism.", "Organizing armed force is mobilization, part of the military pressure.", "The example emphasizes diplomatic backing between partners.", "Political and economic control of other territories is imperialism.", "National honor and status can make compromise look like humiliation."][all('#causeCards fieldset').indexOf(card)];});$('causeScore').textContent=`${correct} of 8 correct · ${8-answered} unanswered. Revise any answers and check again.`;};
- all('[data-yt]').forEach(el=>{const b=document.createElement('button');b.type='button';b.className='btn';b.innerHTML='<span aria-hidden="true">▶ Watch</span>';b.append(document.createTextNode(el.dataset.title));b.onclick=()=>{const f=document.createElement('iframe');f.title=el.dataset.title;f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(el.dataset.yt)+'?autoplay=1&rel=0';f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';f.allowFullscreen=true;el.replaceChildren(f);};el.append(b);});
+ all('[data-yt]').forEach(el=>{
+   const b=document.createElement('button');b.type='button';b.className='btn';
+   b.innerHTML='<span aria-hidden="true">▶ Watch</span>';
+   b.append(document.createTextNode(el.dataset.title));
+   b.onclick=()=>{
+     const hadFocus=document.activeElement===b;
+     const f=document.createElement('iframe');
+     f.title=el.dataset.title;
+     f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(el.dataset.yt)+'?autoplay=1&rel=0';
+     f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+     f.allowFullscreen=true;
+     el.replaceChildren(f);
+     if(hadFocus)f.focus({preventScroll:true});
+   };
+   el.append(b);
+ });
  $('theme').textContent=getComputedStyle(document.documentElement).colorScheme==='dark'?'Use light map':'Use dark map';
  $('theme').onclick=()=>{const dark=getComputedStyle(document.documentElement).colorScheme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('theme').setAttribute('aria-pressed',String(dark));$('theme').textContent=dark?'Use light map':'Use dark map';};
 })();

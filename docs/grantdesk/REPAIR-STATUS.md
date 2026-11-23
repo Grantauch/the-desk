@@ -1,3 +1,59 @@
+## November 21 Story Hubs library redesign
+
+Scope: the approved field-atlas library only. The existing 77 Story Hub links remain unchanged. The new Somme listing points to its existing public map and does not change its other listings or lesson. The library adds search, course and activity filters, and responsive paging. Without JavaScript it shows all 78 original destinations. Art uses existing public assets with the Sarajevo illustration credited in the library and full provenance retained in the lessons. No lesson content, assignment systems, or globe homepage changed.
+
+Production build, static link and sealed-asset checks, and focused Chromium at 320, 390 and 1440 pixels passed locally. Exact-head protected CI, production publication and classroom-device acceptance remain separate gates.
+
+## November 18 Curiosity Desk catalog outage repair
+
+Owner Codex, issue #411. The catalog function now returns one explicitly labeled selected archive record from the existing reviewed data for each collection when the Library of Congress is unavailable, empty, malformed or restricted. Live records remain preferred. Archive responses are not cached, allowing the next request to recover. The browser retains its selected artifact and source links without repeating the upstream request after an explicit server fallback. Live-data validation still reports degraded catalog health when selected records are served.
+
+Handler regressions passed for all five collections, live preference, recovery and invalid collection names. Built Chromium checks passed at 320, 390 and 1440 pixels for collection switching, loaded archive images, context reveal with the keyboard, source links, artifact cycling, reduced motion, WCAG A/AA and page fit. Live-result loading, the development-only direct catalog path and the initial no-JavaScript source link also passed. Canonical verification, protected CI, normal merge, production readback and actual school-device acceptance remain separate release evidence.
+
+November 19 release continuation: full local verification and protected site check 44321311637 passed on exact head `94610035934c669a8fce6185a25373f661f07ddb`, including the Curiosity browser suite and all required full/browser steps. Current main `839be9c` was integrated cleanly while preserving subsequent releases. Integrated full local verification passed with zero errors, 55 pages, 183 HTML files, 5908 references and 327 sealed assets; focused Chromium re-passed at 320/390/1440. Fresh integrated-head protected CI, normal merge and exact production readback remain required; no live or physical classroom acceptance is claimed by this checkpoint.
+
+November 20 release continuation: integrated current main `af6113a`, preserving all newer releases. Fresh GitHub confirms PR #412 is still open despite an earlier saved merge note. Current integrated handler and built Chromium checks passed at 320/390/1440, including live recovery, local fallback and no-JavaScript sources. Full integrated npm run verify exited 0: zero errors and warnings, 55 built pages, 190 HTML files, 6067 local references and 37 releases/360 sealed files. Independent review approved. Exact-head protected CI, normal merge and production verification remain pending.
+
+Latest main `0b01ef1` integrated cleanly. A controlled 10.2-second archive response reproduced the browser ten-second deadline abort and redundant LOC retry. The twelve-second browser deadline now allows function/network overhead beyond the nine-second upstream budget. The new regression and complete focused browser suite pass, and independent review approved the fix. Combined-source npm run verify passed with zero errors and warnings, 55 pages, 190 HTML files, 6070 references and 37 releases/360 assets. Final-head protected checks, normal merge and production acceptance remain pending.
+
+## November 19 Medal of Honor exhibit
+
+Owner Codex. Redesigned the World War I project's landing page, 21 veteran profiles, student picker and workspace, teacher desk, and report cover. Kept the original URLs, project fields, official citations and assignment service. The gallery serves two WebP sizes per veteran, with source credits on every profile. Stowers uses the U.S. Army forensic reconstruction distributed by the National Park Service. Stockham's image is the medal awarded to him. The landing photograph is from the Library of Congress. The hero displays Frank Luke Jr.’s actual Medal of Honor, photographed by Ken LaRock for the U.S. Air Force, with brief glints and a still reduced-motion treatment.
+
+The focused Chromium suite passed all six journeys, including all 21 images, citations, maps and profile links, narrow layouts and automated accessibility, synthetic solo/partner work, class-specific claims, report printing and teacher presentation. Protected checks and production deployment are tracked separately. No classroom-device acceptance has been performed.
+
+## November 19 experience catalog publication
+
+Owner Codex, PR #421 / tracker P421, first release batch for #422. The centralized inventory preserves all 37 original activity URLs while separating 17 games, five practice activities, nine simulations and six investigations. Simulations retains the five teacher-led collections and adds three links into existing Story Hubs. The current Story Hub catalog contains 77 entries, correcting the earlier count of 72. The trench cover uses the already credited John Warwick Brooke / IWM Q 4135 photograph within the same lesson.
+
+Rendered review reproduced the legacy theme CSS overriding all five subject palettes, including pale Blitzkrieg text on the cream newspaper background. Subject selectors now win over the legacy rules, including title styling; a computed-style regression failed before correction. Focused Chromium passes at 320, 390, 1366 and 1920 pixels: category membership, all 77 story cards, credited cover, fieldwork keyboard controls, page-finder navigation, assignment PIN gate, no-JavaScript routes, viewport fit and zero automated WCAG A/AA violations on all three catalog pages. Full `npm run verify` exited 0: zero diagnostic errors or warnings, 55 routes, 186 HTML files, 6,006 local references, 37 sealed releases and 360 sealed files. Exact-head protected CI, normal merge and verified Netlify production remain separate pending gates. No assignment HTML, PIN or Save/Turn In code changes. The broader scene and artwork overhaul in #422 remains open; physical classroom acceptance is separate.
+
+Protected integrated run 44629366194 passed full verification, Checkaverse, assignment saving and earlier browser journeys, then exposed an old discovery assertion expecting Constitution Day on Games. The corrected journey follows Games to Simulations, opens the investigation and verifies the same assignment URL and answer control. The complete discovery/privacy/buzzer suite passes at 320, 390 and 1440 pixels. This test-only correction still requires fresh protected checks.
+
+## November 19 Turn In timeout investigation
+
+The afternoon incident showed a burst of completed web-app executions taking tens of seconds to over four minutes. The service recovered before a live synthetic probe, and saves resumed. The execution list did not identify the operation that started the stall.
+
+Synthetic reproduction showed 350 roster workbook opens across 105 sign-in, save and submission requests. The server patch reduces those opens to 105 and adds private phase timings for slow requests. The website patch staggers autosave, preserves retry spacing through edits and uses one bounded request when sign-in times out. Production publication and classroom acceptance are tracked independently. The Apps Script rollout follows the existing production approval gate.
+
+## November 19 assignment sign-in diagnostics
+
+The shared assignment client displays an opaque support code for a server-rejected sign-in and separate codes for browser-side failures. The matching private Apps Script log records the assignment, version, stage, and failure reason without credentials or student work. The editor health function checks actual dependencies without using the roster cache or writing to Sheets. Source verification uses synthetic accounts. Protected CI, the website release, the existing Apps Script deployment, and classroom sign-in are separate checks.
+
+## November 17 Reconstruction Case File student publication
+
+Owner Codex, issue #383 / tracker R05. The additive `reconstruction-case-file-student.html` edition uses the shared PIN gate and account saving. All six sections remain mounted, preserving 23 text fields and 26 choice groups across navigation, account restore and Turn In. The unowned browser-wide legacy draft is discarded. The original source is retained; old bookmarks redirect, and Games, U.S. History Unit 1 and the sitemap expose the student edition.
+
+Synthetic Chromium passed at 320, 390 and 1440 pixels for complete cloud restore in another browser context, same-tab reload, summary/download/Turn In, keyboard controls, shared-device sign-out and a different student's blank file. WCAG A/AA and width fit passed after feedback in every section. Five public references work without JavaScript. The land question acknowledges the Southern Homestead Act while distinguishing it from a general land guarantee. Canonical verification, protected CI, normal merge and production readback remain separate release checks; physical classroom acceptance remains pending.
+
+November 18 integration preserves the newer releases on main. Independent review reproduced missing wrong-answer feedback because styles still targeted the old controls. The corrected selectors restore distinct correct and dashed incorrect feedback for markup fieldsets and table inputs. A failing browser regression now passes at every supported width; re-review found no blocking issues. Build, static validation and built Games/course navigation pass.
+
+## November 17 BS High student publication
+
+Owner Codex, tracker #360 R02. The additive `bts-bs-high-student.html` edition keeps the existing Desk Save assignment ID and replaces the browser-wide draft with Desk Save. Written responses, choice and sequence work, safeguards, allocations, and source selections reach the same account draft and Turn In. The previous browser-wide draft is cleared because the browser cannot identify its owner. The original source remains available in Git. Beyond the Scoreboard, Games, the sitemap and old bookmarks lead to the corrected edition.
+
+Focused Chromium verified keyboard input, a fresh-device restore, Turn In through the Apps Script test harness, and a second synthetic student getting a blank case after sign-out. Protected CI, production routing and physical classroom acceptance are separate checks.
+
 ## November 17 Blitzkrieg publication
 
 Codex recovered the original Blitzkrieg tower-defense game from Grant’s Grok export as an additive, standalone Games entry. This release includes the original twelve waves on one fictional road, input cleanup, a narrow-screen layout repair, sprite transparency cleanup, and historical context from the U.S. Holocaust Memorial Museum. Saves are local to the browser.
@@ -27,6 +83,8 @@ Focused Chromium passes complete keyboard journeys, corrected and deliberately i
 Owner Codex, issue #373. The additive `boss-fight-review.html` edition keeps answer explanations until Continue, consumes each transition once, and moves keyboard focus to feedback, the next question and the ending. The original underscore-named baseline is preserved in source; existing classroom URLs redirect to the corrected edition. The corrected edition adds source links, qualifies monopoly/scrip/strike claims, replaces unsupported Title IX word-count and participation claims, dates the NCAA NIL question to July 2021, distinguishes invented scores from grades, and appears in Games and the sitemap. The game stores and transmits no work.
 
 The original timeout and BODY focus defects reproduce on source byte-identical to the live baseline. Focused Chromium passes win/loss, all 12 explanations, persistent feedback, duplicate activation, focus/keyboard, WCAG A/AA, viewport fit and stateless play at 320, 390 and 1440 pixels; references remain readable with JavaScript disabled. Canonical verification, protected CI and exact production readback are separate release checks. Physical classroom acceptance remains pending.
+
+November 16 release evidence: PR #375 and the merged-main build both passed every protected check. Netlify production `6afa4e9afce86210233775dc` published merge `491e6bff9cdd1114992c2b2679c59f005a4dcd9d`; the live HTML matches SHA256 `1f3ff162adc2887a021813a26fa5aeefed8df34f417098b15208f5753ae0d2c8`. Both old URL forms redirect to the corrected file and the Games card opens it. The remote browser harness now waits for the restart document to load before reading its game scope, repairing a test timing race found during live acceptance. The published game HTML is unchanged; final live gameplay evidence is recorded in #373.
 
 ## November 13 Market Shock Arena prices and student publication
 
@@ -744,3 +802,16 @@ Initial trench browser journeys passed all seven stops, trench-part labels and s
 Owner: Codex. Production health run [42278965733](https://github.com/Grantauch/the-desk/actions/runs/42278965733) failed on the Curiosity feed. Anonymous requests reproduced HTTP 502 across all five collections. The repair gives each collection a selected archive artifact with a locally served WebP, source credit, primary-source question and original record link. The browser continues to request live records on demand and preserves an open context panel when the live response arrives. The scheduled feed check still measures the live service.
 
 Six Chromium cases at 320, 390 and 1440 pixels passed the outage and delayed-live-response journeys, including keyboard reveal and automated WCAG A/AA. Some external record pages refused requests from the audit environment. Protected review, Netlify publication and school-network acceptance are separate.
+## November 19 Route Tree alternative assignments publication
+
+Owner Codex, PR #415 / tracker P415. The Route Tree chooser leads to balanced A/B alternatives: five NFL cases, one other-sport connection, five evidence checks and three 90–110 word responses each. A supports guided comparison; B asks for independent argument, source criticism and counterargument. The complete earlier edition keeps its original account identity and answer fields.
+
+Focused Chromium passed at 320, 390 and 1440 pixels with ordinary/reduced motion, keyboard image controls, native disclosures, fit and WCAG A/AA. Synthetic accounts running the real Turn In code passed complete A/B saving, refresh, cross-device restoration, two submissions, shared-device isolation and recovery of the five original responses. No real student service was contacted.
+
+Release review reproduced 109 invisible narrative elements without JavaScript: the preserved edition had lost its original `no-js` class. Restoring the class in the HTML and authoring script fixes the failing regression; the release manifest is resealed. The browser server also uses the platform path separator for Windows/Linux parity. Full canonical `npm run verify` exited 0 on the integrated source: 55 built routes, 186 HTML files and 5,997 local references. Earlier protected checks passed the author's head; these release fixes still require fresh exact-head protected checks, normal merge and exact Netlify/live-browser proof. Physical classroom acceptance remains pending.
+
+## Pearl Harbor Story Hub 2.0
+
+Owner Codex, branch feat/pearl-harbor-storyhub. The Astro edition adds a historical briefing, twelve documentary chapters and a reusable contextual dock. The scope is open exploration. The companion, captioned media, historical data, source notes and implementation guide are part of this change.
+
+Focused built-browser checks passed for desktop and touch widths through 320 pixels, keyboard and touch controls, map and timeline synchronization, reading position, reduced motion, interrupted media and fallbacks. The current candidate goes through the protected full site gate, followed by a Netlify revision check and an independent test on grant-desk.com. Managed Chromebook and classroom acceptance remain open.
