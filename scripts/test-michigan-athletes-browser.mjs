@@ -115,7 +115,7 @@ async function waitFor(fn, timeout = 8000) {
 const words = (n, seed) => Array.from({ length: n }, (_, i) => `${seed}${i}`).join(' ');
 
 
-/* A filled in athlete, the shape the bio writer will use, to prove a written profile renders. */
+/* A known sample bio for Abbott, and Louis blanked, so both profile states are tested whatever the real data says. */
 async function withSampleBio(context) {
   const real = await readFile(join(ROOT, 'hubs/mia/athletes.js'), 'utf8');
   const sample = `;(function(){var a=window.MI_ATHLETES.find(function(x){return x.slug==='jim-abbott'});Object.assign(a,{
@@ -124,7 +124,7 @@ async function withSampleBio(context) {
     numbers:[['1993','No hitter for the Yankees'],['1988','Olympic gold medal'],['87','Big league wins']],bigMomentLabel:'September 4, 1993',
     growingUp:['Sample growing up paragraph one.','Sample growing up paragraph two.'],bigMoment:['Sample big moment paragraph.'],
     beyond:['Sample beyond paragraph.'],legacy:['Sample legacy paragraph.'],quote:{text:'Sample quote text.',who:'Jim Abbott',when:'2012'},
-    links:[['Sample source','https://example.com/source']]});})();`;
+    links:[['Sample source','https://example.com/source']]});window.MI_ATHLETES.find(function(x){return x.slug==='joe-louis'}).growingUp=[];})();`;
   await context.route(`${BASE}/hubs/mia/athletes.js`, (route) => route.fulfill({ status: 200, contentType: 'text/javascript', body: real + sample }));
 }
 
