@@ -5,34 +5,20 @@
  * server, student record, real PIN or staff authentication is involved.
  */
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { launchOfflinePreviewChrome } from './chrome-startup.mjs';
 
 const chrome = process.env.CHROME_BIN ?? (process.platform === 'win32'
   ? String.raw`C:\Program Files\Google\Chrome\Application\chrome.exe`
   : 'google-chrome');
 const html = pathToFileURL(resolve('teacher-kit/START-HERE.html')).href;
-const profile = await mkdtemp(join(tmpdir(), 'schoolwide-preview-qa-'));
-const child = spawn(chrome, [
-  '--headless=new', '--disable-gpu', '--disable-background-networking',
-  '--disable-default-apps', '--no-first-run', '--no-default-browser-check',
-  '--remote-debugging-port=0', '--remote-allow-origins=*',
-  '--user-data-dir=' + profile, 'about:blank',
-], { stdio: 'ignore' });
-
+// Only the browser *launch* can retry. Once DevTools is live, every visual,
+// keyboard, accessibility and privacy assertion below remains strict.
+const browser = await launchOfflinePreviewChrome({ chrome });
 let socket;
 try {
-  let port;
-  for (let attempt = 0; attempt < 100; attempt += 1) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    try { port = (await readFile(join(profile, 'DevToolsActivePort'), 'utf8')).split('\n')[0]; break; }
-    catch { if (child.exitCode !== null) break; }
-  }
-  assert.ok(port, 'Isolated Chrome DevTools endpoint did not start');
-  const targets = await (await fetch('http://127.0.0.1:' + port + '/json')).json();
+  const targets = await (await fetch('http://127.0.0.1:' + browser.port + '/json')).json();
   const page = targets.find(target => target.type === 'page');
   assert.ok(page?.webSocketDebuggerUrl, 'Chrome did not expose its isolated preview page');
   socket = new WebSocket(page.webSocketDebuggerUrl);
@@ -145,6 +131,5 @@ try {
   }));
 } finally {
   try { socket?.close(); } catch {}
-  child.kill();
-  await rm(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 }).catch(() => {});
+  await browser.close();
 }
