@@ -35,7 +35,7 @@ const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'te
     f.clear();
     for(const p of f.players)p.stun=0;
     const p=f.humanFor('kb1'),wing=f.players[1],defender=f.players[2];
-    p.x=-5;p.z=1;wing.x=10;wing.z=4;defender.x=2;defender.z=0;
+    p.x=-5;p.z=1;wing.x=10;wing.z=4;wing.stun=999;defender.x=2;defender.z=0;defender.stun=0;
     Object.assign(f.puck,{owner:null,x:2,z:0,vx:0,vz:0});
    });
    if(viewport.width<500){
