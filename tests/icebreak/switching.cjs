@@ -48,7 +48,7 @@ test('manual switch cannot leave a human puck carrier or a human goalie',()=>{
  const t=setup(),{f}=t,p=f.humanFor('kb1');
  f.give(p);assert.equal(f.switchPlayer('kb1'),false);assert.equal(f.puck.owner,p);
  assert.equal(p.device,'kb1');assert.equal(f.players.filter(q=>q.device==='kb1').length,1);
- const g=setup({goalie});
+ const g=setup({goalie:true});
  assert.equal(g.f.humanFor('kb1').goalie,true);
  assert.equal(g.f.switchPlayer('kb1'),false);
  assert.equal(g.f.players.filter(q=>q.device!=='ai').length,1);
@@ -98,8 +98,9 @@ test('interception never steals human controls or counts as a completed pass',()
  Object.assign(p,{x:0,z:0,vx:0,vz:0,facing:0});
  Object.assign(receiver,{x:8,z:.4,vx:0,vz:0,receiveWait:0});
  Object.assign(third,{x:-14,z:7});
- Object.assign(enemy,{x:2.8,z:.12,vx:0,vz:0,receiveWait:0});
+ Object.assign(enemy,{x:24,z:10,vx:0,vz:0,receiveWait:0});
  f.give(p);f.pass(p);assert.equal(f.puck.passTarget,receiver);
+ Object.assign(enemy,{x:2.8,z:.12});
  for(let i=0;i<50&&!f.puck.owner;i++)f.puckPhysics(DT);
  assert.equal(f.puck.owner,enemy);
  assert.equal(f.control,p);assert.equal(p.device,'kb1');
