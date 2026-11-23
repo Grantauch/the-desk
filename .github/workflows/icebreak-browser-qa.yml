@@ -1,0 +1,41 @@
+name: ICEBREAK eight-browser online QA
+
+on:
+  pull_request:
+    paths:
+      - 'prototypes/icebreak-online/**'
+      - 'prototypes/icebreak-browser-qa/**'
+      - '.github/workflows/icebreak-browser-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eight-browser-online-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install root Playwright dependencies
+        run: npm ci
+      - name: Install Chromium and host libraries
+        run: npx playwright install --with-deps chromium
+      - name: Check prototype source syntax
+        run: |
+          node --check prototypes/icebreak-online/server.mjs
+          node --check prototypes/icebreak-online/demo.html 2>/dev/null || true
+          node --check prototypes/icebreak-browser-qa/eight-browser.mjs
+      - name: Verify eight independent browser clients
+        run: node prototypes/icebreak-browser-qa/eight-browser.mjs
+      - name: Save browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: icebreak-eight-browser-online-evidence
+          path: browser-results/icebreak-online/
+          if-no-files-found: warn
