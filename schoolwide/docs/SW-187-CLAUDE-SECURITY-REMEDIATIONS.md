@@ -35,6 +35,10 @@ All external `uses:` references in the four Schoolwide workflows are now pinned 
 
 Values were checked using `git ls-remote` against each GitHub action repository's indicated tag immediately before the pin. The test scans all four Schoolwide workflow YAML files and rejects any unpinned action reference.
 
+### SW-170 staging-guard compatibility
+
+The first exact-head GitHub run confirmed the 19 parsed-firewall tests passed, but the older `verify-staging-release.mjs` still insisted on the literal floating `google-github-actions/auth@v3` tag. That correctly failed after pinning. The existing staging guard now **requires the specific verified SHA** for Google authentication **and** for the Google Cloud CLI setup, instead of accepting the old tag. Existing no-manual-dispatch, staging-only release-request, branch, keyless-workload-identity and real-data protections remain unchanged. This is a static CI guard change, **not a staging deployment**.
+
 ## Regression evidence and limitations
 
 - **19 focused local firewall checks**: current workload and Windows CRLF accepted; mutations for `write-all` root/job, job permission escalation, extra jobs, deploy environment, manual webhook, `pull_request_target`, unexpected environment, action refs/versions, shell injection, artifact retention, DB scope, YAML duplicate keys, anchors/aliases, and `toJSON ( secrets )` rejected; all external Schoolwide action references checked for full SHAs.
