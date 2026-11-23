@@ -29,6 +29,12 @@ powder, snow and other materials keep falling and flowing in real time.
   real ecology behind it. While the callback runs, `frame`, `setSpeed`,
   `pause`, `resume`, `toggle` and `restore` throw, and a direct change to the
   clock is rolled back and rejected.
+- The ecology callback must be synchronous, because a day commits when the
+  callback returns. The constructor type rejects callbacks whose return type
+  can be a promise, including async functions. At runtime, a callback that
+  returns a promise or any other thenable is handled like one that throws.
+  The clock goes back to that day's snapshot, the day is not published and it
+  stays queued. The returned thenable is never awaited or called.
 - The biology pause is separate from `PondSim.paused`, which stays the player's
   world pause. The controls never read or write it.
 - `apps/pond/src/lib/pond/evolution/e01.test.ts`, imported from
@@ -47,7 +53,12 @@ Contract tests cover a first-day failure, a second-day failure followed by a
 retry (days 1 to 6 each commit once, in order), callback reentry through every
 control, direct clock mutation from the callback, a callback that mutates the clock
 and then throws, the clock's day limit, saturation reporting, a missing
-callback, and clamped frame times.
+callback, and clamped frame times. Synchronous tests cover async and
+promise-returning callbacks being rejected by the type, as well as promises,
+plain thenables and callable thenables being refused at runtime with the day
+still queued. They also cover a thenable on day 2 after day 1 commits, a clock
+change followed by a returned thenable, a throwing `then` getter, and
+non-thenable return values that still commit.
 
 ## Not in this PR
 
