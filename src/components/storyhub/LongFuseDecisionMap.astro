@@ -1,0 +1,100 @@
+---
+import './LongFuseDecisionMap.css';
+interface Scene {
+ id:string;date:string;label:string;actor:string;action:string;why:string;cannot:string;source:string;sourceName:string;
+ routes:{from:[number,number];to:[number,number]}[];at:[number,number][];
+}
+const map="/storyhub/ush9/long-fuse/assets/decision-geography.svg";
+const scenes:Scene[]=[
+ {id:'sarajevo',date:'28 JUNE 1914',label:'A killing in Sarajevo',actor:'SARAJEVO',action:'Franz Ferdinand and Sophie were assassinated after an earlier failed bomb attack during the visit.',why:'The event created a diplomatic crisis. It did not determine how any government would respond.',cannot:'The assassination illustration is not a photograph or a record of cabinet discussions.',source:'https://commons.wikimedia.org/wiki/File:DC-1914-27-d-Sarajevo-cropped.jpg',sourceName:'Contemporary magazine illustration',routes:[],at:[[840,510]]},
+ {id:'assurance',date:'5–6 JULY',label:'Berlin reassures Vienna',actor:'BERLIN → VIENNA',action:'German officials gave Austria-Hungary assurances of support during a confrontation with Serbia.',why:'The assurance altered how Vienna calculated the risks of a Balkan conflict.',cannot:'Political support did not specify the exact demands that Austria-Hungary would later issue.',source:'https://germanhistorydocs.org/en/wilhelmine-germany-and-the-first-world-war-1890-1918/ghdi:document-800',sourceName:'July 5, 1914 Austrian ambassador’s dispatch (GHDI)',routes:[{from:[560,220],to:[735,375]}],at:[[560,220],[735,375]]},
+ {id:'ultimatum',date:'23 JULY',label:'A deadline in Belgrade',actor:'VIENNA → BELGRADE',action:'Austria-Hungary issued a detailed ultimatum and demanded a reply within 48 hours.',why:'The government chose a short deadline and conditions that touched Serbian sovereignty.',cannot:'The record does not prove that no narrower demand could have been made.',source:'https://www.firstworldwar.com/source/austrianultimatum.htm',sourceName:'Text of the 23 July ultimatum',routes:[{from:[735,375],to:[900,525]}],at:[[735,375],[900,525]]},
+ {id:'reply',date:'25 JULY',label:'Belgrade answers',actor:'BELGRADE → VIENNA',action:'Serbia substantially accepted demands but qualified or rejected foreign participation in its legal inquiry.',why:'The reply leaves a documented distinction between agreement on some terms and objection to others.',cannot:'It does not support the claim that Serbia refused to investigate or rejected every demand.',source:'https://www.firstworldwar.com/source/serbianreply.htm',sourceName:'Serbia’s reply to the ultimatum',routes:[{from:[900,525],to:[735,375]}],at:[[900,525],[735,375]]},
+ {id:'widening',date:'28–30 JULY',label:'War and mobilization',actor:'VIENNA / BELGRADE / ST PETERSBURG',action:'Austria-Hungary declared war on Serbia July 28; Russian general mobilization followed on July 30.',why:'A regional military confrontation widened as states responded to each other’s actions.',cannot:'These decisions do not demonstrate that every government had no other option.',source:'https://www.open.edu/openlearn/history-the-arts/history/world-history/the-july-crisis-chronology',sourceName:'Open University chronology of the July Crisis',routes:[{from:[735,375],to:[900,525]},{from:[995,135],to:[900,525]}],at:[[735,375],[900,525],[995,135]]},
+ {id:'belgium',date:'4 AUGUST',label:'Belgium and Britain',actor:'BERLIN → BELGIUM / LONDON',action:'German forces invaded neutral Belgium. Britain declared war on Germany the same day.',why:'The violation of Belgian neutrality was consequential for Britain’s decision to enter.',cannot:'A diagram of political relationships is not a mapped troop route or a treaty that removes political agency.',source:'https://ww1.nam.ac.uk/timeline/germany-invades-belgium/',sourceName:'National Army Museum: Germany enters Belgium, August 4',routes:[{from:[560,220],to:[385,256]},{from:[385,256],to:[190,200]}],at:[[560,220],[385,256],[190,200]]}
+];
+const id='lf-decision-map';
+---
+<section class="lf-dmap" id={id} data-lf-dmap aria-labelledby={id+'-heading'}>
+ <div class="lf-dmap-heading">
+  <div class="lf-dmap-brow"><span>1914 / DECISION GEOGRAPHY</span><span>SCHEMATIC · NO HISTORIC BORDERS</span></div>
+  <h3 id={id+'-heading'}>Watch the choices widen.</h3>
+  <p>Follow six documented turning points. The illuminated connections show <strong>political decisions and consequences</strong>, not armies’ exact marching routes or automatic treaty obligations.</p>
+ </div>
+ <div class="lf-dmap-frame">
+  <div class="lf-dmap-visual">
+   <div class="lf-dmap-scroll" role="region" tabindex="0" aria-label="Horizontally scrollable schematic decision map. Pan left or right with arrow keys.">
+   <svg viewBox="0 0 1200 650" role="img" aria-labelledby={id+'-map-title '+id+'-map-desc'} xmlns="http://www.w3.org/2000/svg">
+    <title id={id+'-map-title'}>Schematic map of key European decision centers in July and August 1914</title>
+    <desc id={id+'-map-desc'}>Approximate locations of Sarajevo, Belgrade, Vienna, Berlin, London, Paris, Belgium and St Petersburg. Illuminated connectors represent changing diplomatic relationships, not precise military routes or 1914 borders. All movements are also described in the dated text below.</desc>
+    <image href={map} x="0" y="0" width="1200" height="650" preserveAspectRatio="xMidYMid meet"/>
+    {scenes.map((scene,index)=>(
+     <g class="lf-dmap-motion" data-lf-dmap-art={index} aria-hidden="true">
+      {scene.routes.map(({from,to})=>(
+       <g>
+        <path d={'M'+from[0]+' '+from[1]+' L'+to[0]+' '+to[1]} class="lf-dmap-path-halo"/>
+        <path d={'M'+from[0]+' '+from[1]+' L'+to[0]+' '+to[1]} class="lf-dmap-path" />
+        <circle cx={to[0]} cy={to[1]} r="11" class="lf-dmap-arrival"/>
+       </g>
+      ))}
+      {scene.at.map(([x,y])=><circle cx={x} cy={y} r="23" class="lf-dmap-pulse"/>)}
+     </g>
+    ))}
+   </svg>
+   </div>
+   <p class="lf-dmap-swipe">Swipe horizontally to explore the schematic. The dated evidence is available below.</p>
+   <div class="lf-dmap-caption"><span>THE LONG FUSE · DECISIONS, NOT DESTINY</span><span>ORIGINAL INTERPRETIVE SCHEMATIC</span></div>
+  </div>
+  <div class="lf-dmap-ledger">
+   <p class="lf-dmap-ledger-caption">CHOOSE A DATE / WATCH THE CONNECTION</p>
+   <div class="lf-dmap-step-nav" role="group" aria-label="Choose a July Crisis turning point">
+    {scenes.map((scene,i)=>(
+     <button class="lf-dmap-step" type="button" data-lf-dmap-button={i} aria-pressed={i===0?'true':'false'} aria-controls={id+'-panel-'+i}>
+       <span>{String(i+1).padStart(2,'0')}</span><b>{scene.date}</b><small>{scene.label}</small>
+     </button>
+    ))}
+   </div>
+   <div class="lf-dmap-panels">
+    {scenes.map((scene,i)=>(
+     <article class="lf-dmap-panel" data-lf-dmap-panel={i} id={id+'-panel-'+i} role="region" aria-labelledby={id+'-panel-title-'+i}>
+      <p class="lf-dmap-actor">{scene.actor}</p><h4 id={id+'-panel-title-'+i}>{scene.label}</h4>
+      <p>{scene.action}</p>
+      <div class="lf-dmap-interpret"><b>Why it matters</b><p>{scene.why}</p><b>What this does not prove</b><p>{scene.cannot}</p></div>
+      <a href={scene.source} target="_blank" rel="noopener noreferrer">Inspect source: {scene.sourceName} ↗</a>
+     </article>
+    ))}
+   </div>
+  </div>
+ </div>
+ <p class="lf-dmap-foot">Historical interpretation: several governments made consequential decisions between June 28 and August 4. This diagram does not show formal alliance terms, precise borders, or troop movements.</p>
+ <p data-lf-dmap-status role="status" aria-live="polite" class="sh-sr-only"></p>
+</section>
+<script>
+ function bindLongFuseMap(root:HTMLElement){
+  if(root.dataset.lfMapReady==='true')return;
+  const buttons=[...root.querySelectorAll<HTMLButtonElement>('[data-lf-dmap-button]')];
+  const panels=[...root.querySelectorAll<HTMLElement>('[data-lf-dmap-panel]')];
+  const art=[...root.querySelectorAll<SVGGElement>('[data-lf-dmap-art]')];
+  const status=root.querySelector<HTMLElement>('[data-lf-dmap-status]');
+  if(!buttons.length||buttons.length!==panels.length||buttons.length!==art.length)return;
+  root.dataset.lfMapReady='true';
+  function select(i:number,announce:boolean){
+   buttons.forEach((button,j)=>button.setAttribute('aria-pressed',String(i===j)));
+   panels.forEach((panel,j)=>{panel.hidden=i!==j});
+   art.forEach((group,j)=>group.classList.toggle('is-current',i===j));
+   const mapScroll=root.querySelector<HTMLElement>('.lf-dmap-scroll');
+   const svg=mapScroll?.querySelector<SVGSVGElement>('svg');
+   const circles=[...art[i].querySelectorAll<SVGCircleElement>('.lf-dmap-pulse')];
+   if(mapScroll&&svg&&mapScroll.scrollWidth>mapScroll.clientWidth&&circles.length){
+    const x=circles.reduce((total,circle)=>total+Number(circle.getAttribute('cx')??0),0)/circles.length;
+    const left=x*svg.getBoundingClientRect().width/1200-mapScroll.clientWidth/2;
+    mapScroll.scrollTo({left:Math.max(0,left),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+   }
+   if(announce&&status)status.textContent=buttons[i].innerText.replace(/\s+/g,' ').trim()+' selected. Read the corresponding historical record.';
+  }
+  buttons.forEach((button,i)=>button.addEventListener('click',()=>select(i,true)));
+  select(0,false);
+ }
+ document.querySelectorAll<HTMLElement>('[data-lf-dmap]').forEach(bindLongFuseMap);
+ document.addEventListener('astro:page-load',()=>document.querySelectorAll<HTMLElement>('[data-lf-dmap]').forEach(bindLongFuseMap));
+</script>

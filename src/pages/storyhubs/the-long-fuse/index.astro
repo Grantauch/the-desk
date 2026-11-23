@@ -1,0 +1,49 @@
+---
+import { parts } from '../../../../storyhub/stories/USH9/LONGFUSE/edition';
+import './long-fuse.css';
+const episodes=[1,2,3].map(n=>({n,...parts[n],image:'/storyhub/ush9/long-fuse/assets/'+(['sarajevo','belgium','appointment'][n-1])+'.webp',chapters:parts[n].chapters.length}));
+const canonical=new URL('/storyhubs/the-long-fuse/',Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <meta name="description" content="The Long Fuse: an interactive three-part historical documentary from the Sarajevo crisis of 1914 through the Treaty of Versailles to January 30, 1933. Archival evidence, interactive chronology and consequential decisions." />
+ <link rel="canonical" href={canonical} />
+ <link rel="icon" href="/favicon.svg" />
+ <meta property="og:type" content="article" />
+ <meta property="og:title" content="The Long Fuse · A three-part historical documentary" />
+ <meta property="og:description" content="One assassination did not make world war inevitable. The war did not make dictatorship inevitable." />
+ <meta property="og:image" content={new URL(episodes[0].image,Astro.site).href} />
+ <title>The Long Fuse · Three-Part Story Hub 2.0 | the desk</title>
+</head>
+<body class="fuse-series-body">
+ <a class="fuse-series-skip" href="#parts">Skip to the three parts</a>
+ <header class="fuse-series-top"><a href="/" aria-label="The Desk home">the desk<span>.</span></a><a href="/storyhubs/">← story hubs</a><span>THE HISTORY DOCUMENTARY SERIES</span></header>
+ <main>
+  <section class="fuse-series-hero" aria-labelledby="series-heading">
+   <img src={episodes[0].image} width="1600" height="950" alt="Contemporary July 1914 illustrated newspaper reconstruction of the assassination at Sarajevo, not a photograph" fetchpriority="high" decoding="async" />
+   <div class="fuse-series-hero-shade"></div>
+   <div class="fuse-series-hero-copy">
+    <p class="fuse-label">THE LONG FUSE <span>— A THREE-PART SERIES</span></p>
+    <h1 id="series-heading">History was <em>not</em> inevitable.</h1>
+    <p>From one assassination in Sarajevo to an appointment in Berlin. Nineteen years. Three acts. A chain of human decisions that could have gone differently.</p>
+    <a href="/storyhubs/the-long-fuse/part-1/" class="fuse-launch">Enter Part I <span aria-hidden="true">↘</span></a>
+   </div>
+   <div class="fuse-series-dateline"><span>28 JUNE 1914</span><span>THE LONG FUSE</span><span>30 JANUARY 1933</span></div>
+  </section>
+  <section class="fuse-series-intro" aria-labelledby="series-method"><div><p class="fuse-label">01 / HOW THE STORY WORKS</p><h2 id="series-method">Follow the evidence.<br/>Question the easy answer.</h2></div><p>Move through period photographs, original diplomatic documents, dated decisions, interactive geography and election figures. Each part asks what people knew, what choices they made, and what the evidence cannot prove. Each archival image is credited; every interpretive reconstruction is labeled.</p></section>
+  <section id="parts" class="fuse-series-parts" aria-labelledby="parts-title"><div class="fuse-series-section-header"><p class="fuse-label">02 / THE THREE ACTS</p><h2 id="parts-title">The whole story.</h2></div>
+   {episodes.map(e=>(
+    <article class="fuse-series-card">
+      <a href={'/storyhubs/the-long-fuse/part-'+e.n+'/'} aria-label={'Begin Part '+e.n+': '+e.title} class="fuse-series-card-image"><img src={e.image} alt={['Achille Beltrame illustrated newspaper depiction of the assassination, July 1914','German troops photographed in Belgium, 1914','Berlin street crowd on the day Hitler was appointed chancellor, 1933'][e.n-1]} loading="lazy" decoding="async" width="1600" height="1100"/><span class="fuse-series-play" aria-hidden="true">↗</span></a>
+      <div class="fuse-series-card-copy"><div class="fuse-card-meta"><span>PART {String(e.n).padStart(2,'0')} / 03</span><span>{e.period}</span></div><h3><a href={'/storyhubs/the-long-fuse/part-'+e.n+'/'}>{e.title}</a></h3><p>{e.question}</p><div class="fuse-card-foot"><span>{e.chapters} documentary chapters</span><a href={'/storyhubs/the-long-fuse/part-'+e.n+'/'}>Begin episode →</a></div></div>
+    </article>
+   ))}
+  </section>
+  <section class="fuse-series-thesis"><span class="fuse-label">THE HISTORICAL QUESTION</span><blockquote>“Pressures were real. Outcomes were not guaranteed.”</blockquote><p>The series ends with an evidence verdict: one documented choice, its source, a plausible alternative, and a clear statement of uncertainty.</p><a href="/storyhubs/the-long-fuse/part-1/">Begin the investigation →</a></section>
+ </main>
+ <footer class="fuse-series-footer"><a href="/storyhubs/">All Story Hubs</a><a href="https://encyclopedia.ushmm.org/content/en/article/hitler-comes-to-power">Historical reference: USHMM</a><span>© The Desk · Educational interpretation, verified source links</span></footer>
+</body>
+</html>
