@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ICEBREAK — Online Room Lab</title>
+<style>
+:root{color-scheme:dark;--dark:#071321;--panel:#102437;--blue:#62c7ff;--red:#ffa176;--muted:#a7bacb;--line:#2d4960}
+*{box-sizing:border-box}body{background:radial-gradient(circle at 40% -10%,#184461,#06101c 70%);font:15px/1.45 system-ui,sans-serif;color:#ecf7ff;margin:0;min-height:100vh}
+main{max-width:1200px;margin:auto;padding:24px;display:grid;grid-template-columns:minmax(290px,370px) 1fr;gap:22px}
+h1{font-size:2rem;letter-spacing:-.05em;margin:0}h2{font-size:1rem;margin:0 0 12px}.muted{color:var(--muted)}.eyebrow{color:var(--blue);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.18em}
+.card{border:1px solid var(--line);background:rgba(11,29,44,.9);border-radius:16px;padding:18px;margin:0 0 16px}
+strong{font-weight:750}button,input{font:inherit}button{border:1px solid #527089;background:#193e55;color:#f1fbff;border-radius:9px;padding:10px 13px;cursor:pointer}button:hover{border-color:#a1cfea}button:disabled{opacity:.45;cursor:not-allowed}button.primary{background:linear-gradient(135deg,#176eaa,#0b5482);border-color:#5fcaef;font-weight:800}button.active{background:#317aa5;border-color:#b1e7ff}
+input{width:100%;background:#091b2b;color:white;border:1px solid #476177;border-radius:8px;padding:11px;letter-spacing:.14em;text-transform:uppercase}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.roomcode{font-size:1.6rem;letter-spacing:.16em}
+.seats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.seat{padding:12px;text-align:left;display:flex;justify-content:space-between;align-items:center;min-height:57px;white-space:normal}.seat small{display:block;color:#afcee0;font-size:11px}
+.seat.taken{opacity:.6}.seat.mine{outline:2px solid #c0f2ff;opacity:1}.seat:nth-child(n+5){border-color:#865346}
+.stage{min-width:0}.board{background:#04101c;border:1px solid #35556a;padding:15px;border-radius:17px}
+canvas{width:100%;max-height:70vh;display:block;aspect-ratio:1.45/1;border-radius:9px;background:#edf7fc}
+.scoreline{display:flex;justify-content:space-between;align-items:center;padding:5px 0 14px;gap:12px}.scoreline strong{font-size:1.5rem}.blue{color:var(--blue)}.red{color:var(--red)}
+#notice{min-height:2.6em;color:#f5d59a}.touch{display:flex;gap:9px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:14px}
+.touch button{touch-action:none;user-select:none;min-width:52px;min-height:45px}.touch .arrows{display:grid;grid-template-columns:repeat(3,48px);gap:4px}.touch .arrows button{min-width:0}
+kbd{background:#26455a;border:1px solid #52748d;border-radius:4px;padding:1px 5px}.legend{color:#aabfce;font-size:12px}
+@media(max-width:850px){main{grid-template-columns:1fr;padding:12px}.stage{order:-1}.card{padding:14px}.board{padding:10px}canvas{max-height:48vh}}
+</style>
+</head>
+<body>
+<main>
+<section>
+ <p class="eyebrow">ICEBREAK / Network Research</p>
+ <h1>Online Room Lab</h1>
+ <p class="muted">Server-authoritative eight-seat prototype. This is not the polished ICEBREAK game and is not published to either arcade.</p>
+ <div class="card">
+  <h2>Connect to a room</h2>
+  <p class="muted" id="connection" role="status">Connecting…</p>
+  <div class="controls"><button id="create" class="primary">Create room</button><button id="join">Join room</button></div>
+  <p><label for="joincode">Room code</label><input id="joincode" maxlength="6" placeholder="ABC234" autocomplete="off" spellcheck="false"></p>
+  <p>Choose a position before creating or joining. Each position belongs to one browser.</p>
+  <div class="seats" id="seats"></div>
+  <p id="notice" role="status" aria-live="polite"></p>
+  <div class="controls"><button id="ready">I'm ready</button><button id="start" class="primary">Start match</button></div>
+ </div>
+ <div class="card"><h2>Session</h2><p>Room: <strong id="roomcode" class="roomcode">—</strong> <button id="copy">Copy</button></p>
+ <p>Your position: <strong id="me">None</strong></p><p class="legend">Room codes are shareable. Reconnect tokens are kept private in this tab.</p></div>
+</section>
+<section class="stage">
+ <div class="board">
+  <div class="scoreline"><span class="blue">GLACIERS <strong id="score0">0</strong></span><span><strong id="clock">2:00</strong> <span class="muted" id="phase">Lobby</span></span><span class="red"><strong id="score1">0</strong> EMBERS</span></div>
+  <canvas id="rink" width="1000" height="680" aria-label="Top-down hockey rink. Blue team moves toward the right goal. Orange team moves toward the left goal."></canvas>
+  <div class="touch">
+   <div class="arrows"><span></span><button data-input="up" aria-label="Move up">▲</button><span></span><button data-input="left" aria-label="Move left">◀</button><button data-input="down" aria-label="Move down">▼</button><button data-input="right" aria-label="Move right">▶</button></div>
+   <div><button data-input="burst">Sprint</button><button data-input="pass">Pass</button><button data-input="shoot">Shoot</button><button data-input="check">Check</button></div>
+  </div>
+ </div>
+ <p class="legend">Keyboard: <kbd>WASD</kbd> or arrows to skate, <kbd>Space</kbd> to shoot, <kbd>E</kbd> to pass, <kbd>F</kbd> to check, <kbd>Shift</kbd> to burst. Only the server moves the puck and players.</p>
+</section>
+</main>
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+const roles=['CENTER','WING','DEFENDER','GOALIE'],names=['Glaciers','Embers'];
+const canvas=$('rink'),ctx=canvas.getContext('2d');
+let socket=null,code='',token='',seat=0,selected=0,isHost=false,seq=0,snapshot=null,connected=false,ready=false;
+const held=new Set(),wsUrl=(location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws';
+const announce=t=>{$('notice').textContent=t};
+const seatButtons=[];
+for(let i=0;i<8;i++){
+ const button=document.createElement('button');
+ button.className='seat';button.type='button';
+ button.addEventListener('click',()=>{if(code)return;selected=i;renderSeats()});
+ $('seats').append(button);seatButtons.push(button);
+}
+function renderSeats(){
+ for(let i=0;i<8;i++){
+  const p=snapshot?.players?.[i],button=seatButtons[i];
+  button.replaceChildren();
+  const span=document.createElement('span'),name=document.createElement('strong'),detail=document.createElement('small');
+  name.textContent=(i+1)+'. '+roles[i%4];detail.textContent=names[Math.floor(i/4)]+' · '+(p?.connected?'Connected':p?.claimed?'Reserved':'Open');
+  span.append(name,detail);button.append(span);
+  const marker=document.createElement('span');marker.textContent=i===seat&&code?'YOU':p?.claimed?'●':'○';button.append(marker);
+  button.className='seat'+(p?.claimed?' taken':'')+(i===seat&&code?' mine':'')+(i===selected&&!code?' active':'');
+  button.disabled=!!code||!!p?.claimed;
+ }
+ $('me').textContent=code?names[Math.floor(seat/4)]+' · '+roles[seat%4]:'Not joined';
+ $('roomcode').textContent=code||'—';
+ $('ready').disabled=!code||snapshot?.phase!=='lobby';
+ $('start').disabled=!code||!isHost||snapshot?.phase!=='lobby';
+ $('create').disabled=!!code||!connected;
+ $('join').disabled=!!code||!connected;
+}
+function send(value){if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(value))}
+function connect(){
+ socket=new WebSocket(wsUrl);
+ socket.addEventListener('open',()=>{
+  connected=true;$('connection').textContent='Connected to room server';
+  if(code&&token)send({type:'resume',code,token});
+  renderSeats();
+ });
+ socket.addEventListener('message',event=>{
+  const data=JSON.parse(event.data);
+  if(data.type==='seated'){
+   code=data.code;seat=data.seat;token=data.token;isHost=data.host;ready=isHost;seq=0;
+   sessionStorage.setItem('icebreak-room',JSON.stringify({code,token}));
+   $('joincode').value=code;announce(data.resumed?'Rejoined your assigned position.':'Joined as '+roles[seat%4]+'.');
+   renderSeats();
+  }else if(data.type==='snapshot'){
+   snapshot=data;$('score0').textContent=data.score[0];$('score1').textContent=data.score[1];
+   $('clock').textContent=Math.floor(data.timeLeft/60)+':'+String(Math.floor(data.timeLeft%60)).padStart(2,'0');
+   $('phase').textContent=data.phase;renderSeats();
+  }else if(data.type==='error'){announce('Server: '+data.code)}
+  else if(data.type==='started'){announce('Game started. Skate!')}
+  else if(data.type==='ready'){if(data.seat===seat){ready=data.ready;$('ready').textContent=ready?'Ready ✓':'I’m ready'}}
+ });
+ socket.addEventListener('close',()=>{
+  connected=false;$('connection').textContent='Disconnected — retrying';
+  renderSeats();setTimeout(connect,1800);
+ });
+ socket.addEventListener('error',()=>announce('Cannot connect to server'));
+}
+const cached=JSON.parse(sessionStorage.getItem('icebreak-room')||'null');
+if(cached&&typeof cached.code==='string'&&typeof cached.token==='string'){code=cached.code;token=cached.token}
+$('create').addEventListener('click',()=>send({type:'create',seat:selected}));
+$('join').addEventListener('click',()=>send({type:'join',code:$('joincode').value.trim().toUpperCase(),seat:selected}));
+$('ready').addEventListener('click',()=>send({type:'ready',ready:!ready}));
+$('start').addEventListener('click',()=>send({type:'start'}));
+$('copy').addEventListener('click',()=>{if(code)navigator.clipboard?.writeText(code).then(()=>announce('Room code copied'))});
+const mapping={w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right',
+ ' ':'shoot',e:'pass',f:'check',shift:'burst'};
+document.addEventListener('keydown',e=>{const k=mapping[e.key.toLowerCase()];if(k&&document.activeElement?.tagName!=='INPUT'){e.preventDefault();held.add(k)}});
+document.addEventListener('keyup',e=>{const k=mapping[e.key.toLowerCase()];if(k)held.delete(k)});
+window.addEventListener('blur',()=>held.clear());
+for(const button of document.querySelectorAll('[data-input]')){
+ const key=button.dataset.input;
+ button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);held.add(key)});
+ for(const type of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(type,()=>held.delete(key));
+}
+setInterval(()=>{
+ if(!code||snapshot?.phase!=='playing'||!connected)return;
+ const x=Number(held.has('up'))-Number(held.has('down'));
+ const z=Number(held.has('right'))-Number(held.has('left'));
+ send({type:'input',seq:++seq,axes:[x,z],burst:held.has('burst'),pass:held.has('pass'),
+  shoot:held.has('shoot'),check:held.has('check')});
+},50);
+const X=x=>canvas.width/2+x/30*(canvas.width*.43),Z=z=>canvas.height/2+z/14*(canvas.height*.39);
+function draw(){
+ const w=canvas.width,h=canvas.height;
+ ctx.fillStyle='#e8f6fb';ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='#5b8bad';ctx.lineWidth=7;ctx.strokeRect(X(-28),Z(-13),X(28)-X(-28),Z(13)-Z(-13));
+ ctx.strokeStyle='#bf4853';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(X(0),Z(-13));ctx.lineTo(X(0),Z(13));ctx.stroke();
+ ctx.strokeStyle='#77a1bf';ctx.lineWidth=3;
+ for(const x of [-20,20]){ctx.beginPath();ctx.moveTo(X(x),Z(-13));ctx.lineTo(X(x),Z(13));ctx.stroke()}
+ ctx.beginPath();ctx.arc(X(0),Z(0),48,0,Math.PI*2);ctx.stroke();
+ for(const sign of [-1,1]){
+  ctx.fillStyle=sign===-1?'#5cbcff':'#ff936e';ctx.globalAlpha=.3;
+  ctx.fillRect(X(sign*27.8)-6,Z(-2.6),12,Z(2.6)-Z(-2.6));ctx.globalAlpha=1;
+ }
+ for(const p of snapshot?.players||[]){
+  const x=X(p.x),y=Z(p.z),mine=code&&seat===p.slot;
+  ctx.fillStyle=p.team===0?'#1591d8':'#e55b3f';
+  ctx.strokeStyle=mine?'#f5c646':'#122f48';ctx.lineWidth=mine?6:3;
+  ctx.beginPath();ctx.arc(x,y,p.role==='GOALIE'?15:12,0,Math.PI*2);ctx.fill();ctx.stroke();
+  if(p.down>0){ctx.strokeStyle='#1c3248';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-10,y+10);ctx.lineTo(x+10,y-10);ctx.stroke()}
+  ctx.fillStyle='white';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.fillText(String(p.slot+1),x,y+4);
+ }
+ if(snapshot?.puck){
+  ctx.fillStyle='#141d2c';ctx.beginPath();ctx.arc(X(snapshot.puck.x),Z(snapshot.puck.z),7,0,Math.PI*2);ctx.fill();
+ }
+ requestAnimationFrame(draw);
+}
+renderSeats();connect();draw();
+})();
+</script>
+</body>
+</html>
