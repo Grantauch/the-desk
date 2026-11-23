@@ -343,9 +343,11 @@ img{-webkit-user-drag:none}
 #zoom{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);pointer-events:none}
 #zoom.on{display:flex}
 #zoom .card{--cw:min(36vh,30vw);--ch:calc(var(--cw)*1.62);transform:none!important;margin:0!important;filter:none!important;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+#audioToggle[hidden]{display:none}
 </style>
 </head>
 <body>
+<button id="audioToggle" class="btn dark" data-snd style="position:fixed;right:10px;bottom:10px;z-index:200;font-size:12px;padding:8px">Sound: On</button>
 <div id="root">
   <section id="title" class="screen vignette">
     <h1 class="gtitle">Manifest: 1848<small>INDEPENDENCE TO OREGON CITY</small></h1>
@@ -368,6 +370,8 @@ img{-webkit-user-drag:none}
 <div id="tip"></div><div id="zoom"></div>
 <script src="data.js"></script>
 <script src="story.js"></script>
-<script src="game.js"></script>
+<script src="audio-engine.js?v=1"></script>
+<script src="soundtrack.js?v=1"></script>
+<script src="game.js?v=audio1"></script>
 </body>
 </html>
