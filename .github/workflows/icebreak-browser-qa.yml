@@ -28,7 +28,6 @@ jobs:
       - name: Check prototype source syntax
         run: |
           node --check prototypes/icebreak-online/server.mjs
-          node --check prototypes/icebreak-online/demo.html 2>/dev/null || true
           node --check prototypes/icebreak-browser-qa/eight-browser.mjs
       - name: Verify eight independent browser clients
         run: node prototypes/icebreak-browser-qa/eight-browser.mjs
