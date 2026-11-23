@@ -180,6 +180,17 @@ export const interactiveExperiences: Hub[] = [
     blurb: 'A top down bootlegging game on a map traced from Mt. Morris. Run liquor, hijack rival trucks and outrun police roadblocks and federal dry agents. Hit the ramps, race the hot runs, and hunt sixteen hidden moonshine jugs with real Prohibition history inside. Fictional people and events.',
   },
   {
+    name: 'michigan athlete report',
+    section: 'investigation',
+    course: 'beyond the scoreboard',
+    kind: 'research project',
+    theme: 'press',
+    previewEyebrow: '24 athletes · made in michigan',
+    href: '/hubs/bts-michigan-athletes.html',
+    blurb:
+      'Pick one of 24 athletes with Michigan roots, read their story, then write a two day report on their early years, their biggest moment and what their career meant beyond the final score, with a partner or alone.',
+  },
+  {
     name: 'medal of honor project',
     section: 'investigation',
     course: 'u.s. history 9',

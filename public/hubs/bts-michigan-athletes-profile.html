@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Athlete Profile · Michigan Athlete Report · the desk</title>
+<meta name="description" content="An athlete profile for the Michigan Athlete Report in Beyond the Scoreboard.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-michigan-athletes-profile.html">
+<link rel="stylesheet" href="/hubs/moh/moh.css">
+<link rel="stylesheet" href="/hubs/moh/exhibit.css">
+<link rel="stylesheet" href="/hubs/mia/mia.css">
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to main content</a>
+<header class="mbar">
+  <div class="wrap">
+    <a class="brand" href="/hubs/bts-michigan-athletes.html"><span aria-hidden="true">★</span> Michigan Athlete Report</a>
+    <nav aria-label="Project">
+      <a href="/hubs/bts-michigan-athletes.html#athletes">Athletes</a>
+      <a href="/hubs/bts-michigan-athletes.html#how">How it works</a>
+      <a class="go" href="/hubs/bts-michigan-athletes-project.html">My project</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content">
+  <div id="page"></div>
+  <noscript><p class="wrap missing">Turn on JavaScript to read this athlete's profile.</p></noscript>
+</main>
+
+<footer class="mfoot"><div class="wrap"><p>Story written for this class from the sources listed on this page. Michigan map shapes from U.S. Census Bureau boundary files.</p><p class="foot-nav"><a href="/hubs/bts-michigan-athletes.html#athletes">Back to all athletes</a></p></div></footer>
+
+<script src="/hubs/mia/spec.js"></script>
+<script src="/hubs/mia/athletes.js"></script>
+<script src="/hubs/mia/portraits.js"></script>
+<script src="/hubs/mia/michigan.js"></script>
+<script>
+(function () {
+  'use strict';
+  var M = window.MOH, list = window.MI_ATHLETES || [], page = document.getElementById('page');
+  var slug = new URLSearchParams(location.search).get('a') || '';
+  var i = list.findIndex(function (a) { return a.slug === slug; });
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) { if (k === 'text') n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]); });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  var gallery = '/hubs/bts-michigan-athletes.html#athletes';
+  if (i < 0) {
+    page.appendChild(el('section', { class: 'wrap missing' }, [el('h1', { class: 'exhibit-title', text: 'Choose an athlete' }), el('p', {}, [el('a', { href: gallery, text: 'Go to the list of athletes' })])]));
+    return;
+  }
+  var a = list[i];
+  document.title = a.name + ' · Michigan Athlete Report · the desk';
+  var project = '/hubs/bts-michigan-athletes-project.html?pick=' + a.slug;
+  var written = a.growingUp && a.growingUp.length > 0;
+
+  var portrait = window.MOH_PORTRAITS.records[a.slug] || {};
+  var figure = el('figure', { class: 'profile-portrait' }, [window.MOH_PORTRAITS.image(a.slug, 'profile')]);
+  if (portrait.credit) figure.appendChild(el('figcaption', {}, [(portrait.caption ? portrait.caption + ' · ' : ''), el('a', { href: portrait.url, text: portrait.credit })]));
+  page.appendChild(el('header', { class: 'profile-hero' }, [el('div', { class: 'wrap' }, [
+    el('div', { class: 'profile-copy' }, [
+      el('a', { class: 'back', href: gallery, text: '← All athletes' }),
+      el('p', { class: 'kicker', text: a.sport + ' · ' + a.hometown }),
+      el('h1', { class: 'exhibit-title', text: a.name }),
+      a.known || a.teams ? el('p', { class: 'unit', text: [a.known, a.teams].filter(Boolean).join(' · ') }) : null,
+      a.hook ? el('p', { class: 'hook', text: a.hook }) : null,
+      el('div', { class: 'hero-actions' }, [
+        el('a', { class: 'btn', href: project, text: 'Choose this athlete' }),
+        written ? el('a', { class: 'btn ghost', href: '#story', text: 'Read the story ↓' }) : null
+      ])
+    ]),
+    figure
+  ])]));
+
+  page.appendChild(el('nav', { class: 'profile-jumps', 'aria-label': 'On this profile' }, [
+    el('div', { class: 'wrap' }, [['record', 'Athlete record'], ['story', 'The story'], ['sources', 'Sources']].map(function (item) {
+      return el('a', { href: '#' + item[0], text: item[1] });
+    }))
+  ]));
+
+  /* record */
+  var nums = el('div', { class: 'profile-numbers' });
+  (a.numbers || []).forEach(function (n) { nums.appendChild(el('div', { class: 'profile-number' }, [el('b', { text: n[0] }), el('span', { text: n[1] })])); });
+  var rows = [
+    ['Born', [M.niceDate(a.born), a.bornPlace].filter(Boolean).join(', ')],
+    ['Hometown', a.hometown + ', Michigan'], ['Michigan roots', a.michiganTie], ['Sport', a.sport], ['Known for', a.known], ['Teams', a.teams],
+    ['Biggest moment', a.bigMomentLabel], ['Died', [M.niceDate(a.died), a.diedPlace].filter(Boolean).join(', ')]
+  ].filter(function (r) { return r[1]; });
+  var dl = el('dl', { class: 'record-list' });
+  rows.forEach(function (r) { dl.append(el('dt', { text: r[0] }), el('dd', { text: r[1] })); });
+  var grid = el('div', { class: 'record-layout' }, [dl]);
+
+  var map = window.MIA_MAP, mapBox = el('figure', { class: 'mapbox' });
+  if (map) {
+    var ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    function s(tag, attrs) { var n = document.createElementNS(ns, tag); Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); }); return n; }
+    svg.setAttribute('viewBox', '0 0 ' + map.w + ' ' + map.h); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Map of Michigan with a marker at ' + a.hometown);
+    svg.appendChild(s('rect', { width: map.w, height: map.h, fill: '#14223a' }));
+    map.neighbors.forEach(function (d) { svg.appendChild(s('path', { d: d, fill: '#1b2840', stroke: '#2b3d5f', 'stroke-width': '1' })); });
+    svg.appendChild(s('path', { d: map.michigan, fill: '#24406a', stroke: '#ffd75a', 'stroke-width': '2' }));
+    var xy = map.project(a.lon, a.lat);
+    svg.appendChild(s('circle', { cx: xy[0], cy: xy[1], r: 22, fill: 'none', stroke: '#ffd75a', 'stroke-width': '4' }));
+    svg.appendChild(s('circle', { cx: xy[0], cy: xy[1], r: 9, fill: '#ffd75a', stroke: '#0d1626', 'stroke-width': '3' }));
+    var t = s('text', { x: xy[0] > map.w * 0.6 ? xy[0] - 30 : xy[0] + 30, y: xy[1] - 28, fill: '#fff7dc', 'font-size': '30', 'font-weight': '700', 'font-family': 'Barlow Condensed, Arial Narrow, sans-serif', 'text-anchor': xy[0] > map.w * 0.6 ? 'end' : 'start', 'letter-spacing': '2' });
+    t.textContent = a.hometown.toUpperCase(); svg.appendChild(t);
+    mapBox.appendChild(svg);
+  }
+  mapBox.appendChild(el('figcaption', { text: 'Hometown: ' + a.hometown + ', Michigan.' }));
+  grid.appendChild(mapBox);
+  page.appendChild(el('section', { class: 'exhibit-section light-section', id: 'record', 'aria-labelledby': 'record-title' }, [
+    el('div', { class: 'wrap' }, [el('h2', { class: 'exhibit-title', id: 'record-title', text: 'Athlete record' }), nums, grid])
+  ]));
+
+  /* story */
+  var storyWrap = el('div', { class: 'wrap' }, [el('h2', { class: 'exhibit-title', id: 'story-title', text: 'The story' })]);
+  if (!written) {
+    storyWrap.appendChild(el('div', { class: 'mia-pending' }, [
+      el('h2', { class: 'exhibit-title', text: 'This story is still being written' }),
+      el('p', { text: 'The full profile for ' + a.name + ' is on its way. You can still choose this athlete now and start once the story is posted, or look at another athlete.' })
+    ]));
+  } else {
+    var chapters = el('div', { class: 'chapters' });
+    ['before', 'day', 'cite', 'after'].forEach(function (key) {
+      var c = M.CHAPTERS[key], paras = a[c.source] || [], col = el('div');
+      if (!paras.length) return;
+      paras.forEach(function (p) { col.appendChild(el('p', { text: p })); });
+      var when = key === 'day' ? a.bigMomentLabel : key === 'before' ? a.hometown : '';
+      chapters.appendChild(el('section', { class: 'chapter' }, [el('div', {}, [el('h3', { text: c.where }), when ? el('span', { class: 'when', text: when }) : null]), col]));
+    });
+    storyWrap.appendChild(chapters);
+    if (a.quote && a.quote.text) {
+      storyWrap.appendChild(el('blockquote', { class: 'mia-quote' }, [
+        '“' + a.quote.text + '”',
+        el('footer', { text: [a.quote.who || a.name, a.quote.when].filter(Boolean).join(', ') })
+      ]));
+    }
+    storyWrap.appendChild(el('div', { class: 'reading-ask', style: 'margin-top:1.6rem' }, [
+      el('strong', { text: 'Use these clues in your report' }),
+      el('ol', {}, [
+        el('li', { text: 'Growing Up: Where in Michigan did ' + a.name + ' come from, and who helped along the way?' }),
+        el('li', { text: 'The Big Moment: What was on the line, and what did they do? Tell it in order.' }),
+        el('li', { text: 'Beyond the Scoreboard: What did they face away from the game, and what does that show about their time?' }),
+        el('li', { text: 'Legacy: Find one number, one award or one honor, and explain why it matters.' })
+      ])
+    ]));
+  }
+  page.appendChild(el('section', { class: 'exhibit-section light-section story', id: 'story', 'aria-labelledby': 'story-title' }, [storyWrap]));
+
+  /* sources and pager */
+  var ul = el('ul');
+  (a.links || []).forEach(function (l) { ul.appendChild(el('li', {}, [el('a', { href: l[1], text: l[0] })])); });
+  if (portrait.url) ul.appendChild(el('li', {}, [el('a', { href: portrait.url, text: 'Image credit and source · ' + portrait.credit })]));
+  if (!ul.childNodes.length) ul.appendChild(el('li', { text: 'Sources are listed here when the story is posted.' }));
+  var prev = list[(i - 1 + list.length) % list.length], next = list[(i + 1) % list.length];
+  page.appendChild(el('div', { class: 'exhibit-section light-section profile-end' }, [
+    el('div', { class: 'wrap' }, [
+      el('section', { class: 'links', id: 'sources' }, [el('h2', { class: 'exhibit-title', text: 'Sources' }), ul]),
+      el('div', { class: 'project-next' }, [
+        el('p', { text: 'Ready to build your report around ' + a.name + '?' }),
+        el('a', { class: 'btn', href: project, text: 'Choose this athlete' })
+      ]),
+      el('nav', { class: 'pager', 'aria-label': 'Other athletes' }, [
+        el('a', { href: '?a=' + prev.slug }, [el('span', { text: '← Previous' }), el('b', { text: prev.name })]),
+        el('a', { class: 'next', href: '?a=' + next.slug }, [el('span', { text: 'Next →' }), el('b', { text: next.name })])
+      ])
+    ])
+  ]));
+})();
+</script>
+<script src="/hubs/desk-save.js" defer></script>
+</body>
+</html>
