@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { E } from "../elements.ts";
 import { POND_SIZES, PondSim, type PondRegion } from "../sim.ts";
 import { ECO_DAY_REAL_MS, MAX_PENDING_DAYS, TIME_SPEEDS, type TimeSpeed } from "./clock.ts";
-import { EvolutionTimeControls } from "./time-controls.ts";
+import { EvolutionTimeControls, type EcologyDay } from "./time-controls.ts";
 
 /**
  * E01 gate: biology speed and Pause/Resume must never change the physical
@@ -287,4 +287,126 @@ test("E01 saturation means clipped time or a real whole-day backlog, not normal 
   const paused = new EvolutionTimeControls(() => {});
   paused.restore({ version: 1, day: 0, pendingMillis: capacity, speed: 64, paused: true });
   assert.equal(paused.frame({ step() {} }, 16).saturated, false, "a paused clock is never saturated");
+});
+
+test("E01 promise-returning ecology callbacks do not type-check", () => {
+  const sim = { step() {} };
+  // @ts-expect-error an async callback cannot be an ecology day
+  const asyncArrow = new EvolutionTimeControls(async () => {});
+  // @ts-expect-error a callback declared to return a promise cannot be an ecology day
+  const promiseReturn = new EvolutionTimeControls((day: number) => Promise.resolve(day));
+  // @ts-expect-error a callback that sometimes returns a promise cannot be an ecology day
+  const sometimesAsync = new EvolutionTimeControls((day: number) => (day > 0 ? Promise.resolve() : undefined));
+  for (const tc of [asyncArrow, promiseReturn, sometimesAsync]) {
+    tc.resume();
+    tc.setSpeed(64);
+    assert.throws(() => tc.frame(sim, 100), /must be synchronous/);
+    assert.equal(tc.snapshot().day, 0);
+  }
+  // Ordinary synchronous callbacks still type-check, declared or inline.
+  function declared(_day: number): void {}
+  const value: EcologyDay = () => {};
+  new EvolutionTimeControls(declared);
+  new EvolutionTimeControls(value);
+  new EvolutionTimeControls(day => { void day; });
+  new EvolutionTimeControls((): never => { throw new Error("always fails"); });
+  new EvolutionTimeControls((day: number) => (day > 0 ? 1 : "x"));
+});
+
+test("E01 a thenable from the ecology callback is not published and stays queued", () => {
+  let thenCalls = 0;
+  const thenable = { then() { thenCalls++; } };
+  const returns: Array<() => unknown> = [
+    () => Promise.resolve(),
+    () => thenable,
+    () => Object.assign(() => {}, { then() { thenCalls++; } }),
+  ];
+  for (const make of returns) {
+    let calls = 0;
+    // A widened EcologyDay hides the async return from the type, so the runtime must catch it.
+    const onDay = (() => { calls++; return make(); }) as EcologyDay;
+    const tc = new EvolutionTimeControls(onDay);
+    tc.resume();
+    tc.setSpeed(64);
+    let steps = 0;
+    const sim = { step() { steps++; } };
+    const before = tc.snapshot();
+    assert.throws(() => tc.frame(sim, 100), (error: unknown) => error instanceof TypeError && /must be synchronous/.test(error.message));
+    assert.equal(calls, 1, "the frame stops at the first async day");
+    assert.equal(steps, 1, "physics still stepped exactly once");
+    const after = tc.snapshot();
+    assert.equal(after.day, before.day, "the async day is not published");
+    assert.equal(after.pendingMillis, before.pendingMillis + 6400, "the async day stays queued");
+    // Every later frame refuses again; nothing is published or duplicated.
+    assert.throws(() => tc.frame(sim, 0), /must be synchronous/);
+    assert.equal(tc.snapshot().day, before.day);
+    assert.equal(calls, 2);
+    // The guard is released afterwards.
+    tc.pause();
+    tc.resume();
+  }
+  assert.equal(thenCalls, 0, "a returned thenable is never called");
+});
+
+test("E01 a second-day thenable commits day 1 once and retries day 2 without duplicates", () => {
+  const committed: number[] = [];
+  let asyncDay2 = true;
+  const onDay = ((day: number) => {
+    if (day === 2 && asyncDay2) { asyncDay2 = false; return Promise.resolve(); }
+    committed.push(day);
+  }) as EcologyDay;
+  const tc = new EvolutionTimeControls(onDay);
+  tc.resume();
+  tc.setSpeed(64);
+  assert.throws(() => tc.frame({ step() {} }, 100), /must be synchronous/);
+  assert.deepEqual(committed, [1]);
+  assert.equal(tc.snapshot().day, 1, "only the synchronous day is published");
+  assert.equal(tc.snapshot().pendingMillis, 5400, "day 2 onward stays queued");
+  const retry = tc.frame({ step() {} }, 0);
+  assert.equal(retry.days, 5);
+  assert.deepEqual(committed, [1, 2, 3, 4, 5, 6], "every day commits exactly once, in order");
+});
+
+test("E01 a callback that mutates the clock and then returns a thenable is rolled back", () => {
+  const mutations: Array<(tc: EvolutionTimeControls) => void> = [
+    tc => tc.clock.setSpeed(1),
+    tc => tc.clock.setPaused(true),
+    tc => tc.clock.advance(1000, 1),
+    tc => tc.clock.restore({ ...tc.clock.snapshot(), day: 99 }),
+  ];
+  for (const mutate of mutations) {
+    const tc: EvolutionTimeControls = new EvolutionTimeControls((() => { mutate(tc); return Promise.resolve(); }) as EcologyDay);
+    tc.resume();
+    tc.setSpeed(64);
+    const before = tc.snapshot();
+    assert.throws(() => tc.frame({ step() {} }, 100), /must be synchronous/);
+    const after = tc.snapshot();
+    assert.equal(after.day, before.day);
+    assert.equal(after.speed, 64);
+    assert.equal(after.paused, false);
+    assert.equal(after.pendingMillis, before.pendingMillis + 6400);
+  }
+});
+
+test("E01 a throwing then getter is rolled back like a callback error", () => {
+  const poisoned = { get then(): unknown { throw new Error("then getter failed"); } };
+  const tc = new EvolutionTimeControls((() => poisoned) as EcologyDay);
+  tc.resume();
+  tc.setSpeed(64);
+  const before = tc.snapshot();
+  assert.throws(() => tc.frame({ step() {} }, 100), /then getter failed/);
+  assert.equal(tc.snapshot().day, before.day);
+  assert.equal(tc.snapshot().pendingMillis, before.pendingMillis + 6400);
+});
+
+test("E01 non-thenable return values from a synchronous callback still commit", () => {
+  const values: unknown[] = [undefined, null, 0, "x", {}, { then: 1 }, () => {}];
+  for (const value of values) {
+    const tc = new EvolutionTimeControls((() => value) as EcologyDay);
+    tc.resume();
+    tc.setSpeed(64);
+    const report = tc.frame({ step() {} }, 100);
+    assert.equal(report.days, 6);
+    assert.equal(report.day, 6);
+  }
 });
