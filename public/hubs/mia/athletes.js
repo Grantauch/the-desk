@@ -1575,7 +1575,7 @@ window.MI_ATHLETES = [
   "tags": [
    "mid"
   ],
-  "hook": "A Lansing kid became the most feared villain in Detroit wrestling, and he never broke character.",
+  "hook": "A Lansing kid became the most feared villain in Detroit wrestling, and he worked hard to stay in character.",
   "numbers": [
    [
     "1926",
@@ -1603,7 +1603,7 @@ window.MI_ATHLETES = [
   ],
   "beyond": [
    "The Sheik played on American fears and stereotypes about Arabs and the Middle East. Farhat was an Arab American from Lansing playing a foreign villain.",
-   "He kept the act going in public. He never spoke on camera, refused interviews and made sure fans never saw him out of character.",
+   "His granddaughter Jen recalled that Farhat rarely spoke around fans and worked hard to keep up the act.",
    "His story shows how wrestling villains reflect what audiences fear, a theme this class studies in the heel unit."
   ],
   "legacy": [
@@ -1614,8 +1614,8 @@ window.MI_ATHLETES = [
   "quote": null,
   "links": [
    [
-    "The Sheik (wrestler), Wikipedia",
-    "https://en.wikipedia.org/wiki/The_Sheik_(wrestler)"
+    "The Sheik (Historical Society of Greater Lansing)",
+    "https://www.lansinghistory.org/originstories/thesheik"
    ]
   ],
   "photo": null
