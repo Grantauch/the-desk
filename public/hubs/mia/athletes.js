@@ -1001,7 +1001,7 @@ window.MI_ATHLETES = [
   "bigMoment": [
    "At the 1960 Olympics in Rome, Jones won the bronze medal in the 110 meter hurdles. He wanted gold and kept training for four more years.",
    "The 1964 Olympics were held in Tokyo. The final of the 110 meter hurdles was run on October 18.",
-   "Jones got out of the blocks fast and stayed ahead over all ten hurdles. He won the gold medal."
+   "Jones and U.S. teammate Blaine Lindgren were nearly even at the finish. Jones said his lean helped him win gold. His official time was 13.6 seconds."
   ],
   "beyond": [
    "Jones competed when amateur athletes could not be paid. Olympic champions often had to find regular jobs as soon as they stopped racing.",
@@ -1016,12 +1016,12 @@ window.MI_ATHLETES = [
   "quote": null,
   "links": [
    [
-    "Hayes Jones, Wikipedia",
-    "https://en.wikipedia.org/wiki/Hayes_Jones"
+    "Hayes Jones remembers the 1964 Olympic final (Eastern Michigan University)",
+    "https://emueagles.com/news/2014/10/16/MTRACK_1016141314"
    ],
    [
-    "Athletics at the 1964 Summer Olympics, Men's 110 metres hurdles, Wikipedia",
-    "https://en.wikipedia.org/wiki/Athletics_at_the_1964_Summer_Olympics_–_Men's_110_metres_hurdles"
+    "1964 Olympic final results (World Athletics)",
+    "https://media.aws.iaaf.org/competitioninfo/1f118421-8c5e-4971-a143-799f0c75fabf.pdf#page=113"
    ]
   ],
   "photo": null
