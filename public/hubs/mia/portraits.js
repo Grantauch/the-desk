@@ -25,6 +25,12 @@
       'https://www.nationaalarchief.nl/onderzoeken/fotocollectie/ac623d06-d0b4-102d-bcf8-003048976d84',
       'CC0 1.0', 'https://creativecommons.org/publicdomain/zero/1.0/'
     ],
+    'willie-horton': [
+      'Former Detroit Tigers player Willie Horton in a Tigers uniform in 2010.',
+      'John Rice · Cropped and resized',
+      'https://www.flickr.com/photos/jkrice/4430291729/',
+      'CC BY 2.0', 'https://creativecommons.org/licenses/by/2.0/'
+    ],
     'thomas-hearns': [
       'Tommy Hearns in Detroit around December 1981.',
       'Carptrash · Cropped',
