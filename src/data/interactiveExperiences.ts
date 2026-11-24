@@ -27,6 +27,16 @@ export const interactiveExperiences: Hub[] = [
     blurb: 'Lead a wagon company from Independence to Oregon City in 1848. Your deck is your wagon: play cards to push past rivers, storms and mountain passes, recruit a crew, and reach Independence Rock by the Fourth of July. Runs save on this device and nothing is sent anywhere.',
   },
   {
+    name: 'Manifest Expanse: 1848',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'expanded tactical trail deck-builder',
+    theme: 'lab',
+    previewEyebrow: 'expanded edition · separate saves',
+    href: '/hubs/manifest-expanse-1848/',
+    blurb: 'Compare this expanded 1848 Oregon Trail deck-builder with the original Manifest: 1848. Tactical rivers, weather, wildlife, a two-route finale, Daily Dispatch, and an Expedition Journal. Expanse progress stays separate from the original on this browser.',
+  },
+  {
     name: 'icebreak',
     section: 'game',
     course: 'just for fun',
