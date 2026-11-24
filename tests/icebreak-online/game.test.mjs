@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createMatch} from '../../packages/icebreak-core/match.mjs';
+import {createMatch,STEP} from '../../packages/icebreak-core/match.mjs';
+import {newMatch,advanceMatchFrame,beginGoal,beginInjury} from '../../packages/icebreak-core/lifecycle.mjs';
 import {Rooms} from '../../apps/icebreak-server/rooms.mjs';
 
 function run(seed){ // Deterministic fixture, with all eight vacancies using the real AI.
@@ -47,3 +48,55 @@ test('room expiry releases connected peers; short reconnect reservation blocks a
  assert.equal(host.message.type,'expired');
  assert.equal(rooms.handle(host,{type:'create',seat:0}).type,'seated');
 });
+
+test('last live tick cannot run a second play at 0:00; horn emitted once',()=>{
+ const players=Array.from({length:8},(_,i)=>({id:i%4,team:i>>2,goalie:i%4===3}));
+ const state=newMatch(players),events=[];
+ let worldTicks=0;
+ for(let i=0;i<11000;i++)advanceMatchFrame(state,STEP,{
+  worldStep:()=>worldTicks++,event:(type)=>events.push(type)
+ });
+ assert.equal(state.timeLeft,0);assert.equal(state.phase,'finished');
+ assert.equal(worldTicks,10800);assert.deepEqual(events,['final']);
+});
+
+test('goal on last tick records once and holds score/clock until one final, never a new faceoff',()=>{
+ const state=endScenario(),events=[];
+ let worldTicks=0;
+ const tick=()=>advanceMatchFrame(state,STEP,{
+  worldStep:()=>{worldTicks++;beginGoal(state,1)},event:(type)=>events.push(type)
+ });
+ tick();
+ assert.deepEqual(state.score,[0,1]);assert.equal(state.phase,'goal');assert.equal(state.goalDelay,3.25);assert.equal(state.timeLeft,0);
+ let elapsed=0;
+ while(state.phase==='goal'&&elapsed<300){tick();elapsed++;assert.equal(state.timeLeft,0)}
+ assert.equal(elapsed,293);assert.equal(worldTicks,1);assert.equal(state.phase,'finished');
+ tick();
+ assert.deepEqual(events,['final']);assert.deepEqual(state.score,[0,1]);
+});
+
+test('injury skip is a real faceoff only with playing time left, else one final',()=>{
+ for(const atHorn of [false,true]){
+  const state=endScenario(),events=[],record=(type)=>events.push(type);
+  if(!atHorn)state.timeLeft=5;
+  advanceMatchFrame(state,STEP,{worldStep:()=>beginInjury(state,state.players[3]),event:record});
+  assert.equal(state.phase,'injury');assert.equal(state.injuryTime,5);
+  const remaining=state.timeLeft;
+  advanceMatchFrame(state,STEP,{skipRequested:true,event:record});
+  assert.equal(state.timeLeft,remaining);
+  if(atHorn){
+   assert.equal(state.phase,'finished');
+   advanceMatchFrame(state,STEP,{skipRequested:true,event:record});
+   assert.deepEqual(events,['injury','final']);
+  }else{
+   assert.equal(state.phase,'playing');assert.equal(state.dropDelay,1.35);
+   assert.deepEqual(events,['injury','faceoff']);
+  }
+ }
+});
+
+function endScenario(){
+ const state=newMatch(Array.from({length:8},(_,i)=>({id:i%4,team:i>>2,goalie:i%4===3})));
+ state.dropDelay=0;state.timeLeft=STEP;
+ return state;
+}

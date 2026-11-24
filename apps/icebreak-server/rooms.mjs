@@ -53,7 +53,9 @@ export class Rooms {
   const now=this.now();
   if(typeof token!=='string'||!TOKEN.test(token))failure('INVALID_RESUME');
   const s=room?.seats.find(entry=>entry?.token===token);
-  if(!s||s.peer||s.reservedUntil<=now)failure('INVALID_RESUME');
+  if(!s)failure('INVALID_RESUME');
+  if(s.peer)failure('SEAT_STILL_CONNECTED');
+  if(s.reservedUntil<=now)failure('INVALID_RESUME');
   s.peer=peer;s.reservedUntil=0;s.sequence=-1;s.epoch++;s.level=NEUTRAL;s.edges=[];s.lastInput=-Infinity;
   peer.room=room;peer.seat=s;room.lastActive=now;
   return this.#seated(room,s,true);

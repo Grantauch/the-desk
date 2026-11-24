@@ -115,10 +115,26 @@ export function advanceLifecycle(state,dt,worldStep=null){
  }
  if(state.phase!=='playing')return state.phase;
  if(state.dropDelay>0){state.dropDelay-=dt;return 'drop'};
- state.timeLeft=Math.max(0,state.timeLeft-dt);
+ // At exactly 10,800 active 90 Hz ticks the floating-point residue must
+ // not buy an extra play at 0:00. Keep this much smaller than one tick.
+ state.timeLeft=state.timeLeft-dt>1e-8?state.timeLeft-dt:0;
  if(state.lastShot)state.lastShot.age+=dt;
  if(worldStep)worldStep(state,dt);
  if(state.phase!=='playing')return state.phase;
  if(state.timeLeft<=0){finishMatch(state);return 'finished'}
  return 'playing';
+}
+
+
+// One frame transition for the normal clock, replay, and explicit injury skip.
+// Delivery is keyed to the resulting authoritative phase, never the request.
+export function advanceMatchFrame(state,dt,{skipRequested=false,worldStep,event}={}){
+ const before=state.phase;
+ const transition=skipRequested&&skipInjury(state)
+  ? (state.phase==='finished'?'finished':'faceoff')
+  : advanceLifecycle(state,dt,worldStep);
+ if(before!==state.phase&&state.phase==='finished')event?.('final',null);
+ else if(before!==state.phase&&state.phase==='injury')event?.('injury',state.injured);
+ else if(transition==='faceoff')event?.('faceoff',null);
+ return transition;
 }

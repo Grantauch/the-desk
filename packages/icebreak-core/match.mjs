@@ -3,7 +3,7 @@
 // from #557, active contact #559, and lifecycle #570. No DOM, audio or I/O.
 import {CHECK, GOALX, GOALZ, limitPlayer, skate, steer, segmentCircleTime, goalCrossing} from './skating.mjs';
 import {STICK, armCheck, advanceCheck, resolveContact} from './contact.mjs';
-import {newMatch, beginGoal, advanceLifecycle, skipInjury} from './lifecycle.mjs';
+import {newMatch, beginGoal, advanceMatchFrame} from './lifecycle.mjs';
 export const STEP = 1 / 90;
 export const MODES = Object.freeze(['regular','powerups']);
 export const RINKS = Object.freeze(['school','park','mars']);
@@ -313,16 +313,15 @@ function updatePowerups(dt){if(config.mode!=='powerups')return;powerSpawn-=dt;if
     i[key]=latest[key];
    }
   }
-  const before=state.phase;
-  if(requestSkip&&skipInjury(state)){event('faceoff',null);return}
-  advanceLifecycle(state,STEP,()=>{
-   updatePlayers(STEP);
-   if(state.phase!=='playing')return;
-   puckPhysics(STEP);
-   if(state.phase==='playing')updatePowerups(STEP);
+  advanceMatchFrame(state,STEP,{
+   skipRequested:requestSkip,event:(type,detail)=>event(type,type==='injury'?atSlot(detail):detail),
+   worldStep:()=>{
+    updatePlayers(STEP);
+    if(state.phase!=='playing')return;
+    puckPhysics(STEP);
+    if(state.phase==='playing')updatePowerups(STEP);
+   }
   });
-  if(before!==state.phase && state.phase==='injury')event('injury',atSlot(state.injured));
-  if(before!==state.phase && state.phase==='finished')event('final',null);
  }
  function snapshot() {
   const {puck}=state;

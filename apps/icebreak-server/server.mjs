@@ -8,20 +8,33 @@ import {ROLES,STEP} from '../../packages/icebreak-core/match.mjs';
 const ORIGINS=['https://grant-desk.com','https://www.grant-desk.com','https://freegameplace.com','https://www.freegameplace.com'];
 const IMMEDIATE=new Set(['create','join','resume','ready','settings','start']);
 const MAX_BUFFER=256*1024;
+const SNAPSHOT_HIGH_WATER=64*1024;
+// Use control frames rather than player input: a stationary mobile user is still live.
+const PING_INTERVAL_MS=2000;
+const PEER_TIMEOUT_MS=8000;
+const FATAL_FLUSH_MS=1000;
 
 export function createIcebreakServer({port=0,path='/icebreak',origins=ORIGINS,maxConnections=256,
- maxRooms=32,heartbeatMs=20000,rooms=new Rooms({maxRooms}),logger=console}={}) {
+ maxRooms=32,heartbeatMs=PING_INTERVAL_MS,peerTimeoutMs=PEER_TIMEOUT_MS,
+ rooms=new Rooms({maxRooms}),logger=console,onFatal=()=>{}}={}) {
+ if(!Number.isFinite(heartbeatMs)||heartbeatMs<=0||!Number.isFinite(peerTimeoutMs)||peerTimeoutMs<heartbeatMs*2)
+  throw Error('Peer timeout must allow at least two heartbeat intervals');
  if(!Number.isInteger(port)||port<0||port>65535)throw Error('Invalid port');
  if(typeof path!=='string'||!/^\/(?:[A-Za-z0-9_-]+\/?)+$/.test(path))throw Error('Invalid upgrade path');
  if(!Array.isArray(origins)||!origins.length||origins.some(v=>typeof v!=='string'||v!==new URL(v).origin
    ||!['https:','http:'].includes(new URL(v).protocol)))throw Error('Invalid origin allowlist');
  const allowed=new Set(origins);
- let closing=false,physicsTimer,snapshotTimer,heartbeatTimer,health=true;
+ let closing=false,closePromise,physicsTimer,snapshotTimer,heartbeatTimer,health=true;
+ let nextPing=0;
+ const connections=new Set();
  const peers=new Map();
  const server=createServer((req,res)=>{
   const isHealth=req.method==='GET'&&req.url==='/health';
   res.writeHead(isHealth?(health&&!closing?200:503):404,{'content-type':'application/json','cache-control':'no-store'});
   res.end(JSON.stringify(isHealth?{status:health&&!closing?'ok':'unavailable',service:'icebreak',version:VERSION}:{status:'not-found'}));
+ });
+ server.on('connection',socket=>{
+  connections.add(socket);socket.once('close',()=>connections.delete(socket));
  });
  const ws=new WebSocketServer({noServer:true,maxPayload:2048,perMessageDeflate:false});
  const refuse=(socket,status)=>socket.end(`HTTP/1.1 ${status}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`);
@@ -33,24 +46,29 @@ export function createIcebreakServer({port=0,path='/icebreak',origins=ORIGINS,ma
  });
  function broadcast(room){
   const raw=JSON.stringify(rooms.snapshot(room));
-  for(const seat of room.seats)if(seat?.peer)seat.peer.sendRaw(raw);
+  for(const seat of room.seats)if(seat?.peer)seat.peer.sendRaw(raw,true);
  }
  ws.on('connection',socket=>{
-  const peer={room:null,seat:null,alive:true,quota:80,lastQuota:performance.now(),
-   sendRaw(raw){
+  const connectedAt=performance.now();
+  const peer={room:null,seat:null,lastPong:connectedAt,quota:80,lastQuota:connectedAt,
+   sendRaw(raw,snapshot=false){
     if(socket.readyState!==WebSocket.OPEN)return;
     if(socket.bufferedAmount>MAX_BUFFER){socket.terminate();return}
+    // Snapshots are complete state. Do not queue many obsolete copies behind a
+    // slow link; the latest snapshot and bounded event list will catch it up.
+    if(snapshot&&socket.bufferedAmount>SNAPSHOT_HIGH_WATER)return;
     socket.send(raw,err=>{if(err)socket.terminate()});
    },
    send(message){this.sendRaw(JSON.stringify(message))}
   };
   peers.set(socket,peer);
   socket.on('error',()=>socket.terminate());
-  socket.on('pong',()=>{peer.alive=true});
+  socket.on('pong',()=>{peer.lastPong=performance.now()});
   socket.on('close',()=>{
    const room=peer.room;
-   rooms.disconnect(peer);peers.delete(socket);
-   if(room&&!closing)broadcast(room);
+   peers.delete(socket);
+   try{rooms.disconnect(peer);if(room&&!closing&&health)broadcast(room)}
+   catch(error){fail(error)}
   });
   socket.on('message',(raw,binary)=>{
    if(closing||!health)return;
@@ -77,12 +95,13 @@ export function createIcebreakServer({port=0,path='/icebreak',origins=ORIGINS,ma
   health=false;
   logger.error('ICEBREAK server unhealthy:',error?.stack||error);
   for(const socket of peers.keys())socket.close(1011,'Match unavailable');
+  onFatal(error);
  }
  async function listen(){
   if(server.listening||closing)throw Error('Already started or closed');
   await new Promise((resolve,reject)=>{
    server.once('error',reject);
-   server.listen(port,'127.0.0.1',()=>{server.off('error',reject);resolve()});
+   server.listen(port,'127.0.0.1',()=>{server.off('error',reject);server.on('error',fail);resolve()});
   });
   let last=performance.now(),elapsed=0;
   physicsTimer=setInterval(()=>{
@@ -96,31 +115,52 @@ export function createIcebreakServer({port=0,path='/icebreak',origins=ORIGINS,ma
   snapshotTimer=setInterval(()=>{
    if(health)try{for(const room of rooms)broadcast(room)}catch(error){fail(error)}
   },50);
+  nextPing=performance.now()+heartbeatMs;
   heartbeatTimer=setInterval(()=>{
-   for(const [socket,peer] of peers){
-    if(!peer.alive){socket.terminate();continue}
-    peer.alive=false;
-    if(socket.readyState===WebSocket.OPEN)socket.ping();
-   }
-  },heartbeatMs);
+   if(!health||closing)return;
+   const now=performance.now(),ping=now>=nextPing;
+   // Stay on the original cadence; sweep/timer jitter should not accumulate.
+   if(ping)nextPing=now+heartbeatMs-(now-nextPing)%heartbeatMs;
+   try {
+    for(const [socket,peer] of peers){
+     if(now-peer.lastPong>=peerTimeoutMs){socket.terminate();continue}
+     if(ping&&socket.readyState===WebSocket.OPEN)socket.ping(undefined,undefined,err=>{
+      if(err)socket.terminate();
+     });
+    }
+   }catch(error){fail(error)}
+  },Math.min(500,heartbeatMs));
   return server.address();
  }
- async function close(){
-  if(closing)return;
+ function close(){
+  if(closePromise)return closePromise;
   closing=true;
   clearInterval(physicsTimer);clearInterval(snapshotTimer);clearInterval(heartbeatTimer);
   for(const socket of peers.keys())socket.terminate();
-  await Promise.all([new Promise(resolve=>ws.close(resolve)),new Promise(resolve=>server.close(resolve))]);
+  closePromise=Promise.all([new Promise(resolve=>ws.close(resolve)),new Promise(resolve=>server.close(resolve))]);
+  for(const socket of connections)socket.destroy();
+  return closePromise;
  }
  return {listen,close};
+}
+
+// Production CLI failure must reach the supervisor; merely serving 503 leaves
+// a broken process resident under Restart=on-failure. The short drain first
+// lets health checks see 503 and attempts a close frame for reachable clients.
+export async function startIcebreakProcess(options={}) {
+ const app=createIcebreakServer({...options,onFatal:()=>{
+  process.exitCode=1;
+  setTimeout(()=>app.close(),FATAL_FLUSH_MS);
+ }});
+ const address=await app.listen();
+ for(const sig of ['SIGTERM','SIGINT'])process.once(sig,()=>app.close());
+ return address;
 }
 
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const port=Number(process.env.ICEBREAK_PORT??4300);
  const path=process.env.ICEBREAK_WS_PATH??'/icebreak';
  const origins=process.env.ICEBREAK_ALLOWED_ORIGINS?.split(',').map(v=>v.trim())??ORIGINS;
- const app=createIcebreakServer({port,path,origins});
- await app.listen();
- console.log(`ICEBREAK v${VERSION} listening on loopback port ${port}`);
- for(const sig of ['SIGTERM','SIGINT'])process.once(sig,()=>app.close());
+ const address=await startIcebreakProcess({port,path,origins});
+ console.log(`ICEBREAK v${VERSION} listening on loopback port ${address.port}`);
 }
