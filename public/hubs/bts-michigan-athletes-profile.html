@@ -58,8 +58,17 @@
   var written = a.growingUp && a.growingUp.length > 0;
 
   var portrait = window.MOH_PORTRAITS.records[a.slug] || {};
-  var figure = el('figure', { class: 'profile-portrait' }, [window.MOH_PORTRAITS.image(a.slug, 'profile')]);
-  if (portrait.credit) figure.appendChild(el('figcaption', {}, [(portrait.caption ? portrait.caption + ' · ' : ''), el('a', { href: portrait.url, text: portrait.credit })]));
+  var portraitImage = window.MOH_PORTRAITS.image(a.slug, 'profile');
+  var figure = el('figure', { class: 'profile-portrait' }, [portraitImage]);
+  if (portrait.credit) {
+    var attribution = document.createTextNode(portrait.caption + ' · ');
+    var credit = [attribution, el('a', { href: portrait.url, text: portrait.credit })];
+    if (portrait.licenseUrl) credit.push(' · ', el('a', { href: portrait.licenseUrl, text: portrait.license }));
+    figure.appendChild(el('figcaption', {}, credit));
+    portraitImage.addEventListener('error', function () {
+      attribution.textContent = 'Photo unavailable. ' + portrait.caption + ' · ';
+    }, { once: true });
+  }
   page.appendChild(el('header', { class: 'profile-hero' }, [el('div', { class: 'wrap' }, [
     el('div', { class: 'profile-copy' }, [
       el('a', { class: 'back', href: gallery, text: '← All athletes' }),
