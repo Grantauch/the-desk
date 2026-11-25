@@ -27,6 +27,16 @@ export const interactiveExperiences: Hub[] = [
     blurb: 'Lead a wagon company from Independence to Oregon City in 1848. Your deck is your wagon: play cards to push past rivers, storms and mountain passes, recruit a crew, and reach Independence Rock by the Fourth of July. Runs save on this device and nothing is sent anywhere.',
   },
   {
+    name: 'Manifest Expanse: 1848',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'expanded tactical trail deck-builder',
+    theme: 'lab',
+    previewEyebrow: 'expanded edition · separate saves',
+    href: '/hubs/manifest-expanse-1848/',
+    blurb: 'Compare this expanded 1848 Oregon Trail deck-builder with the original Manifest: 1848. Tactical rivers, weather, wildlife, a two-route finale, Daily Dispatch, and an Expedition Journal. Expanse progress stays separate from the original on this browser.',
+  },
+  {
     name: 'icebreak',
     section: 'game',
     course: 'just for fun',
@@ -45,6 +55,16 @@ export const interactiveExperiences: Hub[] = [
     previewEyebrow: 'ten levels · real physics',
     href: '/hubs/bridge-lab/',
     blurb: 'Build a bridge across the gorge, then send the traffic over and watch which pieces hold and which ones snap. Ten levels run from a first timber truss to a heavy hauler towing a loaded trailer. Progress saves on this device and nothing is sent anywhere.',
+  },
+  {
+    name: 'breakaway',
+    section: 'game',
+    course: 'just for fun',
+    kind: 'arcade football game',
+    theme: 'scoreboard',
+    previewEyebrow: '60 seconds · dodge the pursuit',
+    href: '/hubs/breakaway/',
+    blurb: 'Beat pursuing defenders and sprint for touchdowns in a 60 second arcade football challenge. Use keyboard, touch, or a controller. Fallen defenders stay down, and slow runs draw fresh end zone pursuit. No account or downloads needed.',
   },
   {
     name: 'gridiron blitz',
@@ -168,6 +188,17 @@ export const interactiveExperiences: Hub[] = [
     featured: true,
     href: '/hubs/dry-county/',
     blurb: 'A top down bootlegging game on a map traced from Mt. Morris. Run liquor, hijack rival trucks and outrun police roadblocks and federal dry agents. Hit the ramps, race the hot runs, and hunt sixteen hidden moonshine jugs with real Prohibition history inside. Fictional people and events.',
+  },
+  {
+    name: 'michigan athlete report',
+    section: 'investigation',
+    course: 'beyond the scoreboard',
+    kind: 'research project',
+    theme: 'press',
+    previewEyebrow: '24 athletes · made in michigan',
+    href: '/hubs/bts-michigan-athletes.html',
+    blurb:
+      'Pick one of 24 athletes with Michigan roots, read their story, then write a two day report on their early years, their biggest moment and what their career meant beyond the final score, with a partner or alone.',
   },
   {
     name: 'medal of honor project',

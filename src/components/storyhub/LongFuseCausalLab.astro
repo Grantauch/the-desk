@@ -1,0 +1,154 @@
+---
+import type { StoryEdition } from '../../lib/storyhub/model';
+import './LongFuseCausalLab.css';
+interface FileRecord {
+  id:string; date:string; folio:string; title:string; actor:string; act:string; response:string; limit:string;
+  sourceName:string;sourceUrl:string; visual?:string; score?:string;scoreLabel?:string;
+}
+interface Collection {
+  serial:string; period:string; title:string; premise:string; question:string;
+  files:FileRecord[]; misconception:string; corrections:string[];
+}
+interface Props {story:StoryEdition; kind:'ultimatum'|'peace'|'appointment'}
+const {story,kind}=Astro.props;
+const collections:Record<Props['kind'],Collection>={
+ ultimatum:{
+  serial:'DOSSIER 01',period:'23–28 JULY 1914',title:'The answer was not simply “no.”',
+  premise:'Read Austria-Hungary’s demands alongside Serbia’s reply. Each card paraphrases a historical document: it is not an original manuscript or a quotation.',
+  question:'Which is the best conclusion from the diplomatic record?',
+  misconception:'Serbia refused every demand, so there was nothing to negotiate.',
+  corrections:[
+   'Supported: Serbia accepted many demands, but qualified or objected to foreign participation. Austria-Hungary judged the response insufficient.',
+   'Unsupported: This collapses the actual clauses and disregards Serbia’s qualified agreements.',
+   'Unsupported: A qualified reply was not the same as Austria-Hungary accepting the response.'
+  ],
+  files:[
+   {id:'demand-five',date:'23 JULY',folio:'CLAUSE 05',title:'Cooperation inside Serbia',actor:'AUSTRIA-HUNGARY REQUESTED',act:'Cooperation by Austro-Hungarian officials in suppressing organizations and activity hostile to the monarchy on Serbian territory.',response:'Serbia agreed to cooperation compatible with international law, criminal procedure, and neighborly relations.',limit:'This was not an unrestricted agreement to Austrian officials exercising authority inside Serbia.',sourceName:'Austro-Hungarian ultimatum and Serbian reply (23–25 July 1914)',sourceUrl:'https://www.firstworldwar.com/source/austrianultimatum.htm',score:'05',scoreLabel:'CLAUSE UNDER REVIEW'},
+   {id:'demand-six',date:'25 JULY',folio:'CLAUSE 06',title:'Participation in a judicial inquiry',actor:'AUSTRIA-HUNGARY REQUESTED',act:'A judicial inquiry into those implicated in the assassination, with Austro-Hungarian agents taking part in proceedings in Serbia.',response:'Serbia offered an inquiry and communication of results, but rejected foreign participation it considered contrary to its constitution and criminal procedure.',limit:'This disagreement cannot be reduced to “Serbia refused to investigate the killing.”',sourceName:'Serbia’s reply (25 July 1914)',sourceUrl:'https://www.firstworldwar.com/source/serbianreply.htm',score:'06',scoreLabel:'CLAUSE UNDER REVIEW'},
+   {id:'verdict-1914',date:'28 JULY',folio:'DECISION 03',title:'Vienna rejects the reply',actor:'GOVERNMENT DECISION',act:'Austria-Hungary considered the reply inadequate and declared war on Serbia.',response:'Diplomatic exchange and international proposals did not halt the decision to go to war.',limit:'No surviving document proves precisely what a different decision would have produced.',sourceName:'Austria-Hungary’s July Crisis (CFR historical overview)',sourceUrl:'https://www.cfr.org/articles/twe-remembers-austria-hungary-issues-ultimatum-serbia',score:'28',scoreLabel:'JULY / WAR DECLARED'}
+  ]
+ },
+ peace:{
+  serial:'DOSSIER 02',period:'SEPT 1918–JUNE 1919',title:'Three documents. Three different endings.',
+  premise:'Follow the difference between seeking a ceasefire, stopping the fighting, and negotiating a peace. The same word—“end”—conceals distinct events.',
+  question:'When did the final German peace settlement get signed?',
+  misconception:'World War I formally ended with the Treaty of Versailles on November 11, 1918.',
+  corrections:[
+   'Unsupported: September 1918 records a military push for an immediate armistice, not the peace treaty.',
+   'Unsupported: The 11 November armistice stopped fighting on the Western Front, but the final treaty was still months away.',
+   'Supported: The Treaty of Versailles was signed on June 28, 1919, after the armistice.'
+  ],
+  files:[
+   {id:'request',date:'29 SEPT 1918',folio:'RECORD 01',title:'The request to stop fighting',actor:'GERMAN MILITARY LEADERSHIP',act:'Senior German commanders pressed for an immediate armistice as the military position worsened.',response:'The German government pursued negotiations as military and political conditions deteriorated.',limit:'A military request did not itself cease fighting or settle postwar territorial terms.',sourceName:'German History in Documents and Images: first note to Wilson',sourceUrl:'https://germanhistorydocs.org/en/wilhelmine-germany-and-the-first-world-war-1890-1918/the-first-german-note-to-president-woodrow-wilson-october-1918',score:'29',scoreLabel:'SEPTEMBER / REQUEST'},
+   {id:'armistice',date:'11 NOV 1918',folio:'RECORD 02',title:'The armistice',actor:'GERMANY AND THE ALLIES',act:'The armistice was signed early in the morning. Western Front fighting ceased at 11 a.m. local time.',response:'Armies stopped fighting under specified terms, while peace negotiations still lay ahead.',limit:'An armistice was not the same thing as a permanent peace treaty, nor did it mean violence ceased instantly everywhere.',sourceName:'National Archives UK: Cabinet meeting 11 November 1918',sourceUrl:'https://www.nationalarchives.gov.uk/explore-the-collection/stories/cabinet-meeting-11-November-1918/',score:'11',scoreLabel:'NOVEMBER / ARMISTICE'},
+   {id:'treaty',date:'28 JUNE 1919',folio:'RECORD 03',title:'The peace settlement',actor:'ALLIED AND GERMAN REPRESENTATIVES',act:'The Treaty of Versailles was signed after months of international negotiation in Paris.',response:'New terms on territory, security, military forces, and compensation took legal form in the peace treaty.',limit:'The treaty did not settle every grievance or guarantee political stability.',sourceName:'The National Archives UK: Treaty of Versailles',sourceUrl:'https://www.nationalarchives.gov.uk/explore-the-collection/stories/the-treaty-of-versailles/',visual:'big-four',score:'28',scoreLabel:'JUNE / TREATY'}
+  ]
+ },
+ appointment:{
+  serial:'DOSSIER 03',period:'JULY 1932–JANUARY 1933',title:'Votes did not make the appointment.',
+  premise:'Trace the institutional steps. The electorate influenced parliamentary strength. Conservative political negotiations and the president’s constitutional power then determined who became chancellor.',
+  question:'Who directly appointed Hitler chancellor on January 30, 1933?',
+  misconception:'A majority of German voters directly elected Hitler chancellor in January 1933.',
+  corrections:[
+   'Unsupported: A Nazi vote share below 50 percent never made Hitler directly elected chancellor.',
+   'Supported: President Paul von Hindenburg made the appointment after negotiations among political elites.',
+   'Unsupported: The party’s largest-share status was not itself a direct appointment by the Reichstag.'
+  ],
+  files:[
+   {id:'electorate',date:'31 JUL & 6 NOV 1932',folio:'THE ELECTORATE',title:'Votes without a majority',actor:'REICHSTAG ELECTIONS',act:'The Nazi Party received 37.3% in July 1932, then 33.1% in November, when its support declined.',response:'The party remained the largest in the Reichstag but lacked an outright majority.',limit:'These were parliamentary elections, not a direct vote for the chancellorship.',sourceName:'USHMM: Hitler Comes to Power',sourceUrl:'https://encyclopedia.ushmm.org/content/en/article/hitler-comes-to-power',score:'33.1%',scoreLabel:'NOVEMBER / NO MAJORITY'},
+   {id:'negotiators',date:'LATE 1932–JAN 1933',folio:'THE NEGOTIATORS',title:'Conservative political bargaining',actor:'PAPEN AND OTHER ELITES',act:'After repeated failures to form lasting governments, former chancellor Franz von Papen and conservative allies worked for a Hitler-led coalition.',response:'They persuaded Hindenburg that Hitler could lead a cabinet whose non-Nazi members would restrain him. The calculation was disastrous.',limit:'Their expectation of control was not proof that they could or did control Hitler.',sourceName:'USHMM: The Nazi Rise to Power',sourceUrl:'https://encyclopedia.ushmm.org/content/en/article/the-nazi-rise-to-power',score:'1933',scoreLabel:'JANUARY / NEGOTIATIONS'},
+   {id:'hindenburg',date:'30 JAN 1933',folio:'THE PRESIDENCY',title:'The appointment',actor:'PRESIDENT PAUL VON HINDENBURG',act:'Hindenburg appointed Adolf Hitler chancellor of Germany at the head of a coalition government.',response:'Hitler entered office through a constitutional appointment, then used political power and repression to destroy the democratic order.',limit:'The appointment was not proof that a majority elected Hitler; it also did not mean he was already dictator with unlimited power on January 30.',sourceName:'USHMM: January 30, 1933 appointment',sourceUrl:'https://encyclopedia.ushmm.org/content/en/timeline-event/holocaust/1933-1938/hitler-appointed-chancellor',visual:'appointment',score:'30',scoreLabel:'JANUARY / APPOINTMENT'}
+  ]
+ }
+};
+const entry=collections[kind];
+const first=entry.files[0];
+const finalAnswers:Record<Props['kind'],string[]>={ultimatum:['Serbia accepted much while disputing foreign participation.','Serbia refused every demand.','Vienna accepted Serbia’s conditions.'],peace:['September 29, 1918','November 11, 1918','June 28, 1919'],appointment:['German voters, by majority election','President Paul von Hindenburg','The Reichstag, in a direct parliamentary appointment']};
+const correct:Record<Props['kind'],number>={ultimatum:0,peace:2,appointment:1};
+const id='lf-causal-'+kind;
+const media=entry.files.map(file=>file.visual ? story.media.find(record=>record.id===file.visual) : undefined);
+---
+<section class:list={['lf-causal-lab','lf-causal-lab--'+kind]} id={id} aria-labelledby={id+'-heading'} data-lf-causal>
+ <div class="lf-causal-intro">
+  <div class="lf-causal-serial"><span>{entry.serial}</span><span>{entry.period}</span></div>
+  <h3 id={id+'-heading'}>{entry.title}</h3>
+  <p>{entry.premise}</p>
+ </div>
+ <div class="lf-causal-file-browser">
+   <nav class="lf-causal-tabs" aria-label={'Dossier sections for '+entry.title}>
+     {entry.files.map((file,index)=>(
+       <button type="button" data-lf-causal-choice={index} aria-pressed={index===0?'true':'false'} aria-controls={id+'-panel-'+index}>
+        <span class="lf-causal-tab-num">{String(index+1).padStart(2,'0')}</span><span class="lf-causal-tab-text"><b>{file.folio}</b><small>{file.date}</small></span><span aria-hidden="true">↘</span>
+       </button>
+     ))}
+   </nav>
+   <div class="lf-causal-files">
+    {entry.files.map((file,index)=>(
+     <article id={id+'-panel-'+index} class="lf-causal-page" role="region" aria-labelledby={id+'-file-heading-'+index} data-lf-causal-panel={index}>
+       <div class="lf-causal-paper">
+         <div class="lf-causal-paper-meta"><span>HISTORICAL RECORD / PARAPHRASE</span><span>FOLIO {String(index+1).padStart(2,'0')} / {String(entry.files.length).padStart(2,'0')}</span></div>
+         <div class="lf-causal-paper-top">
+           <span class="lf-causal-paper-date">{file.date}</span><h4 id={id+'-file-heading-'+index}>{file.title}</h4>
+         </div>
+         <div class="lf-causal-paper-body">
+           <div><h5>{file.actor}</h5><p>{file.act}</p></div>
+           <div><h5>{kind==='ultimatum'?'SERBIA’S REPLY / OUTCOME':kind==='peace'?'WHAT FOLLOWED':'WHAT FOLLOWED'}</h5><p>{file.response}</p></div>
+         </div>
+         <aside class="lf-causal-limit"><span>WHAT THIS RECORD DOES NOT ESTABLISH</span><p>{file.limit}</p></aside>
+         <a href={file.sourceUrl} target="_blank" rel="noopener noreferrer" class="lf-causal-source">Historical source: {file.sourceName} <span aria-hidden="true">↗</span></a>
+       </div>
+       <div class="lf-causal-visual">
+         {media[index] ? <figure><img src={media[index]!.src} alt={media[index]!.alt} loading="lazy" decoding="async" width={media[index]!.width} height={media[index]!.height}/><figcaption>{media[index]!.caption}</figcaption></figure> :
+         <div class="lf-causal-number" aria-label={file.score+' '+file.scoreLabel}><span>{file.score}</span><small>{file.scoreLabel}</small><i aria-hidden="true">EVIDENCE, NOT INEVITABILITY</i></div>}
+       </div>
+     </article>
+    ))}
+   </div>
+ </div>
+ <div class="lf-causal-check" data-lf-causal-check>
+   <span class="lf-causal-check-label">CHECK THE HISTORICAL CLAIM</span>
+   <h4>{entry.question}</h4>
+   <fieldset>
+     <legend>Select one evidence-based interpretation.</legend>
+     {finalAnswers[kind].map((answer,index)=>(
+       <label><input type="radio" name={id+'-answer'} value={index} /><span>{answer}</span></label>
+     ))}
+   </fieldset>
+   <button type="button" data-lf-causal-submit>Check the claim</button>
+   <p class="lf-causal-feedback" role="status" aria-live="polite" data-lf-causal-feedback>Use the historical records above before choosing. This answer check does not submit or save student work.</p>
+   <details class="lf-causal-original"><summary>Why this misconception matters</summary><p>{entry.misconception}</p></details>
+ </div>
+</section>
+<script>
+function bindCausalLab(root:HTMLElement){
+ if(root.dataset.lfCausalReady==='true')return;
+ const buttons=[...root.querySelectorAll<HTMLButtonElement>('[data-lf-causal-choice]')];
+ const panels=[...root.querySelectorAll<HTMLElement>('[data-lf-causal-panel]')];
+ if(buttons.length!==panels.length||!buttons.length)return;
+ root.dataset.lfCausalReady='true';
+ function activate(index:number){
+  buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
+  panels.forEach((p,i)=>{p.hidden=i!==index});
+ }
+ buttons.forEach((button,index)=>button.addEventListener('click',()=>activate(index)));
+ activate(0);
+ const kind=root.classList.contains('lf-causal-lab--ultimatum')?'ultimatum':root.classList.contains('lf-causal-lab--peace')?'peace':'appointment';
+ const correct={ultimatum:0,peace:2,appointment:1}[kind];
+ const explanations={
+  ultimatum:['Supported: Serbia accepted many demands while qualifying foreign involvement. Vienna judged its reply inadequate.','Unsupported: There were many concessions and some qualified agreements.','Unsupported: Vienna rejected the response and declared war.'],
+  peace:['Unsupported: Commanders urged a request in September; fighting continued.','Unsupported: The November armistice stopped fighting but did not sign the final peace.','Supported: June 28, 1919 is the date of the Versailles treaty signing.'],
+  appointment:['Unsupported: The Nazis never won a majority in a free Reichstag election.','Supported: Hindenburg appointed Hitler after negotiations among conservative political elites.','Unsupported: The Reichstag election influenced party strength, not a direct chancellor selection.']
+ }[kind];
+ const submit=root.querySelector<HTMLButtonElement>('[data-lf-causal-submit]');
+ const feedback=root.querySelector<HTMLElement>('[data-lf-causal-feedback]');
+ submit?.addEventListener('click',()=>{
+  const checked=root.querySelector<HTMLInputElement>('input[type=radio]:checked');
+  if(!feedback)return;
+  if(!checked){feedback.textContent='Select one answer first. No response has been recorded.';return;}
+  const choice=Number(checked.value);
+  feedback.textContent=(choice===correct?'Evidence check passed. ':'Reconsider the evidence. ')+explanations[choice];
+ });
+}
+document.querySelectorAll<HTMLElement>('[data-lf-causal]').forEach(bindCausalLab);
+document.addEventListener('astro:page-load',()=>document.querySelectorAll<HTMLElement>('[data-lf-causal]').forEach(bindCausalLab));
+</script>

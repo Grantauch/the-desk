@@ -303,7 +303,11 @@ const groupMaterials = (materials: Material[]) =>
               {(unit.learningHub || unit.materials.length > 0) && (
                 <div class="unit-actions">
                   {unit.learningHub && (
-                    <a class="learning-hub-trigger" href={`/learn/${learningCourse!.slug}/${unit.learningHub.slug}/`}>
+                    <a
+                      class="learning-hub-trigger"
+                      href={`/learn/${learningCourse!.slug}/${unit.learningHub.slug}/`}
+                      aria-label={`learning hub: ${unit.name}`}
+                    >
                       <span>learning hub</span>
                       <span aria-hidden="true">→</span>
                     </a>
@@ -315,6 +319,8 @@ const groupMaterials = (materials: Material[]) =>
                     class="materials-trigger"
                     data-materials-open={unit.materialDialogId}
                     aria-haspopup="dialog"
+                    aria-controls={unit.materialDialogId}
+                    aria-label={`unit materials ${unit.materials.length}: ${unit.name}`}
                   >
                     <span>unit materials</span>
                     <span class="materials-trigger__count">{unit.materials.length}</span>

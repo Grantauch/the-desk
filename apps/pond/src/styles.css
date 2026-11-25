@@ -1156,3 +1156,537 @@
 @media (prefers-reduced-motion: reduce) {
   .field-route-actions button { transition: none; }
 }
+
+/* MOBILE PANE DECK
+   Keep the living simulation and five-station route in view above one focused
+   workbench panel. The original panels stay mounted and keep their own state.
+   Desktop / tablet above 800px retains the original three-column Field Station. */
+.field-mobile-pane-status,
+.field-mobile-pane-jump { display: none; }
+@media (max-width: 800px) {
+  .field-workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .field-observation { width: 100%; }
+  .field-ledger, .field-materials {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+  }
+  .field-mobile-pane-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 5px 10px;
+    padding: 11px 14px;
+    margin-top: -2px;
+    border: 1px solid rgb(222 203 149 / 46%);
+    border-bottom: 0;
+    background: #20382e;
+    color: #f5e9c8;
+  }
+  .field-mobile-pane-status .field-eyebrow {
+    width: 100%;
+    margin: 0;
+    color: #d1bd85;
+    font-size: .59rem;
+  }
+  .field-mobile-pane-status strong {
+    font: 600 1.02rem "Fraunces", Georgia, serif;
+  }
+  .field-mobile-pane-status small {
+    color: #bdcebf;
+    font-size: .7rem;
+    line-height: 1.4;
+  }
+  .field-mobile-pane-jump {
+    display: inline-flex;
+    width: 100%;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 0 13px;
+    padding: 9px 11px;
+    border: 1px solid #baa87884;
+    border-radius: 5px;
+    background: #28443a;
+    color: #efdfb7;
+    font: 700 .76rem "Outfit", sans-serif;
+  }
+  .field-mobile-pane-jump:hover { background: #385849; }
+  .field-route-actions button[data-current="true"] {
+    border-color: #d9c38f;
+    background: rgb(224 205 143 / 23%);
+    box-shadow: inset 0 -2px #d9c38f;
+  }
+  .field-station[data-mobile-pane="materials"] .field-ledger,
+  .field-station[data-mobile-pane="world"] .field-ledger,
+  .field-station[data-mobile-pane="archive"] .field-ledger,
+  .field-station[data-mobile-pane="discoveries"] .field-materials,
+  .field-station[data-mobile-pane="atlas"] .field-materials {
+    display: none;
+  }
+  .field-station[data-mobile-pane="discoveries"] .field-atlas-panel,
+  .field-station[data-mobile-pane="atlas"] .field-discovery-panel,
+  .field-station[data-mobile-pane="materials"] .field-world-panel,
+  .field-station[data-mobile-pane="materials"] .field-storage-panel,
+  .field-station[data-mobile-pane="world"] .field-tool-panel,
+  .field-station[data-mobile-pane="world"] .field-storage-panel,
+  .field-station[data-mobile-pane="archive"] .field-tool-panel,
+  .field-station[data-mobile-pane="archive"] .field-world-panel {
+    display: none;
+  }
+  .field-station #pond-discovery-lab,
+  .field-station #pond-field-kit,
+  .field-station #pond-world-controls,
+  .field-station #pond-field-atlas,
+  .field-station #pond-field-archive {
+    scroll-margin-block: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field-mobile-pane-jump { transition: none; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   POND / INK & WATER
+   A hand-set naturalist's worktable, rather than a generic dashboard.
+   Quiet rag paper around a living ink-dark terrarium; cut specimen labels;
+   real measurements instead of invented instrumentation. No image assets.
+   --------------------------------------------------------------------------- */
+.field-station {
+  --field-paper: #ede5d0;
+  --field-paper-warm: #e2d5ba;
+  --field-ink: #213e34;
+  --field-faded: #596959;
+  --field-brass: #d1b37a;
+  --field-brass-light: #f0dca9;
+  color: #eae4d5;
+  background:
+    linear-gradient(90deg, #0a1715 0%, #162823 18%, #182b25 51%, #0b1a17 100%);
+}
+.field-ambient-grain {
+  opacity: .13;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 90px, #e0d0ae08 91px),
+    repeating-linear-gradient(0deg, transparent 0 90px, #e0d0ae07 91px);
+  background-size: auto;
+}
+.field-masthead {
+  background: #0e2622;
+  border-bottom: 3px solid #98805d;
+  box-shadow: 0 5px 0 #08161280;
+  padding-block: 12px;
+}
+.field-brand-emblem {
+  width: 46px;
+  height: 46px;
+  border: 1px solid #cab88d;
+  border-radius: 3px;
+  color: #24463d;
+  background: #e9e2cc;
+  box-shadow: 3px 3px 0 #927a56, inset 0 0 0 3px #e9e2cc;
+}
+.field-monogram {
+  display: block;
+  padding-right: 3px;
+  font: italic 700 2.35rem/.95 "Fraunces", Georgia, serif;
+  letter-spacing: -.14em;
+}
+.field-brand-title { font-size: clamp(2rem, 2.7vw, 2.9rem); letter-spacing: -.085em; }
+.field-brand .field-eyebrow {
+  font-size: .58rem;
+  color: #cbb68b;
+  letter-spacing: .13em;
+}
+.field-masthead-meta { color: #e9e0c9; }
+.field-masthead-meta > span:first-child { color: #d2dccd; letter-spacing: .09em; }
+.field-masthead-meta small { color: #a8bcaa; }
+.field-workspace { gap: clamp(15px, 1.8vw, 27px); }
+.field-observation-heading { align-items: start; padding-bottom: 16px; }
+.field-observation-heading h2 {
+  font-weight: 600;
+  font-size: clamp(2rem, 2.65vw, 3.05rem);
+  letter-spacing: -.065em;
+}
+.field-observation-sub {
+  font-style: normal;
+  color: #bccabb;
+  font: 450 .87rem/1.5 "Outfit", sans-serif;
+  letter-spacing: .005em;
+}
+.field-chamber-stamp {
+  transform: none;
+  width: 72px;
+  height: 70px;
+  gap: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid #c2aa785f;
+  border-radius: 3px;
+  background: #142d26;
+  color: #e8d9b2;
+}
+.field-chamber-stamp strong {
+  display: block;
+  font: 650 1.75rem/1 "Fraunces", Georgia, serif;
+  font-variant-numeric: tabular-nums;
+}
+.field-chamber-stamp small {
+  display: block;
+  margin-top: 4px;
+  font: 650 .57rem/1 "Outfit", sans-serif;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.field-stage-plinth {
+  border: 1px solid #8d9c8161;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 25px, #a6b8990b 26px),
+    linear-gradient(180deg, #254237, #122b27 55%, #0c1c1b);
+  box-shadow: inset 0 0 0 6px #11251f, 0 5px 0 #081713;
+}
+.field-stage-plinth::before {
+  inset: 13px;
+  width: auto;
+  aspect-ratio: auto;
+  border-radius: 2px;
+  border: 1px solid #b1c39a24;
+  box-shadow: none;
+}
+.field-stage-plinth::after { display: none; }
+.field-plinth-tick { color: #c2d0b9b8; letter-spacing: .14em; }
+.field-plinth-tick--bottom { color: #e1d1acb3; }
+.field-dish {
+  box-shadow:
+    inset 0 2px 2px #f5f7ea42,
+    0 0 0 2px #c7b28b91,
+    0 0 0 8px #142d28,
+    0 0 0 9px #b4a07b45,
+    0 16px 38px #07110fbb !important;
+}
+.field-status-sill {
+  border: 1px solid #bba77d66;
+  border-radius: 3px;
+  background: #20372e;
+  color: #d3dfd0;
+  box-shadow: 0 2px 0 #071411;
+}
+.field-world-size { color: #dcc69c; letter-spacing: .04em; }
+.field-route {
+  border: 1px solid #b4a07c;
+  border-left: 5px solid #a58051;
+  border-radius: 2px;
+  background: #e9e0cb;
+  color: #243f32;
+  box-shadow: 4px 4px 0 #07151280;
+}
+.field-route-heading .field-eyebrow { color: #765036; }
+.field-route-heading p:last-child { color: #415a4b; }
+.field-route-actions button {
+  border: 1px solid #b8a88c;
+  border-bottom: 3px solid #9c8c73;
+  border-radius: 2px;
+  background: #f7f0de;
+  color: #294a3d;
+  font: 750 .69rem/1.1 "Outfit", sans-serif;
+  box-shadow: none;
+}
+.field-route-actions button:hover {
+  border-color: #6a7764;
+  background: #fff8e6;
+}
+.field-route-actions button[data-current="true"],
+.field-route-actions button[data-suggested="true"] {
+  border-color: #9a744c;
+  border-bottom-color: #725037;
+  background: #ddcbaa;
+  color: #203e33;
+}
+.field-route-suggestion,
+.field-route-suggestion span { color: #516353; }
+.field-route-suggestion strong { color: #805638; }
+.field-ecosystem-ticker {
+  border-left-color: #d3ad7e;
+  background: #233a33;
+}
+/* The workbench is printed on uncoated paper, not a stack of identical dark
+   gradient cards. Each real interactive subtool keeps its own contrast. */
+.field-panel {
+  color: #263f33;
+  border: 1px solid #b9a98b;
+  border-top: 4px solid #937451;
+  border-radius: 3px 3px 6px 6px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 31px, #b3a48713 32px),
+    #ede5d0;
+  box-shadow: 4px 5px 0 #06161299, 0 13px 25px #0616124a;
+}
+.field-panel::before {
+  inset: 7px;
+  border: 1px solid #8f886b29;
+  border-radius: 1px;
+}
+.field-panel-header {
+  border-bottom: 1px solid #a9987557;
+  padding-bottom: 13px;
+}
+.field-panel .field-eyebrow,
+.field-panel .field-subhead,
+.field-panel .field-slot-number { color: #855c3c; }
+.field-atlas-heading .field-eyebrow { color: #765036; }
+.field-expand-readout > div > .field-subhead { color: #cbb292; }
+.field-panel-heading h2 { color: #203e32; font-weight: 620; }
+.field-panel-heading > svg { color: #806b4a; }
+.field-panel-description { color: #526554; font-size: .8rem; }
+.field-kit-number { color: #4c6152; border-color: #998a6c77; }
+.field-ledger-number { border-bottom-color: #9b88636c; }
+.field-count { color: #315345; }
+.field-count-note { color: #5a6b5d; }
+.field-mix-slot {
+  border: 1px solid #617c69;
+  background: #203c34;
+  color: #f2e9d3;
+  border-radius: 2px;
+}
+.field-mix-slot--active { border-color: #ae754f; background: #345146; }
+.field-mix-slot .field-slot-number { color: #e2c99c; }
+.field-mix-plus { color: #7d6442; }
+.field-mix-result {
+  border: 1px solid #b7a783;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, #a89a7a25 24px),
+    #dfd0ae;
+  box-shadow: inset 0 0 0 3px #e9dec3;
+}
+.field-mix-message { color: #2c4438; }
+.field-feature-glyph { filter: none; border-radius: 4px; }
+.field-feature-placeholder {
+  border-radius: 4px;
+  background: #efe8d5;
+  color: #55705a;
+}
+.field-specimen-profile { color: #526b59; text-align: left; }
+.field-specimen-grid { scrollbar-color: #8b927e #eee5ce; }
+.field-specimen-card {
+  border: 1px solid #b3a489;
+  border-bottom: 2px solid #92866f;
+  border-radius: 2px;
+  background: #f6efdc;
+  box-shadow: 1px 1px 0 #917d5c5e;
+  font-size: .75rem;
+}
+.field-specimen-card:hover {
+  background: #fff7e8;
+  border-color: #7f936c;
+  transform: translateY(-1px);
+}
+.field-specimen-card--selected,
+.field-specimen-card[aria-pressed="true"] {
+  border-color: #876949;
+  background: #e2d0a9;
+  box-shadow: inset 0 0 0 2px #97775054;
+}
+.field-specimen-icon {
+  flex-shrink: 0;
+  border: 1px solid #a6987b;
+  border-radius: 3px;
+  background: #efe9d7;
+}
+.field-ledger-footnote { color: #536454; font-size: .69rem; }
+.field-discovery-more {
+  color: #eee6d1;
+  background: #2b4a3b;
+  border-color: #294a3d;
+}
+.field-discovery-more:hover { color: #1b362b; background: #dfcba6; }
+.field-atlas-panel { background: #e6decc; }
+.field-atlas-toggle { border-radius: 2px; }
+.field-atlas-content > section { background: #122522; }
+.field-material-tile {
+  background: #1e3830;
+  border: 1px solid #536758;
+  border-bottom-width: 2px;
+  border-radius: 2px;
+  color: #ede9d6;
+  min-height: 72px;
+}
+.field-material-tile:hover { background: #315442; }
+.field-material-tile--active,
+.field-material-tile[aria-pressed="true"] {
+  border: 1px solid #92764e;
+  border-bottom: 3px solid #7a5c3c;
+  background: #e0cfaa;
+  color: #244235;
+}
+.pond-material-swatch,
+.field-mobile-dock-color {
+  background-image: none !important;
+  border: 1px solid #10241e4a;
+  box-shadow: inset 0 1px 0 #ffffff39, 0 1px 0 #071b193b;
+}
+.field-material-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 46% 55% 44% 57%;
+}
+.field-brush-kit { border-top-color: #9d8a6a65; }
+.field-brush-kit .field-subhead { color: #526653; }
+.field-utility-actions button { border-radius: 2px; }
+.field-world-hint { color: #536954; }
+.field-world-footer { border-top-color: #9c8c6d5c; }
+.field-save-status { color: #476454; }
+.field-hint { color: #4a5f52; border-top-color: #9c8c6d6b; }
+.field-hint strong { color: #203d33; }
+.field-mobile-pane-jump { border-radius: 2px; }
+.field-start-overlay {
+  background: rgb(5 18 17 / 91%);
+  backdrop-filter: blur(3px);
+}
+.field-start-card {
+  position: relative;
+  width: min(100%, 640px);
+  align-items: flex-start;
+  text-align: left;
+  gap: 19px;
+  padding: clamp(28px, 5vw, 64px);
+  border: 1px solid #c4b38c;
+  border-left: 9px solid #947453;
+  outline: none;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 31px, #98856618 32px),
+    #eee5d0;
+  color: #213f34;
+  box-shadow: 14px 15px 0 #061513, 0 24px 65px #020c0b91;
+}
+.field-start-card::before {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border: 1px solid #877c6545;
+  pointer-events: none;
+}
+.field-start-card .field-eyebrow { color: #8b5d3c; }
+.field-start-card h1 {
+  max-width: 560px;
+  color: #223e33;
+  font-size: clamp(2.65rem, 5.6vw, 5.15rem);
+  line-height: 1.04;
+  font-weight: 630;
+}
+.field-start-card h1 em {
+  display: block;
+  color: #8b6044;
+  font-style: italic;
+}
+.field-start-card > p:not(.field-eyebrow) {
+  max-width: 440px;
+  color: #405b4b;
+  font: 450 1rem/1.65 "Outfit", sans-serif;
+}
+.field-start-card small { color: #677665; letter-spacing: .1em; }
+.field-start-emblem {
+  width: 58px;
+  height: 58px;
+  margin: 0;
+  border-radius: 2px;
+  border: 1px solid #9a8360;
+  background: #21453a;
+  color: #ece0bb;
+  box-shadow: 3px 3px 0 #b49b76;
+}
+.field-start-button {
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #214334;
+  border-bottom: 4px solid #0e2d23;
+  border-radius: 2px;
+  background: #29513e;
+  color: #f4ecd9;
+  box-shadow: none;
+}
+.field-start-button:hover { background: #36644e; }
+.field-start-button:focus-visible { outline-color: #855835; }
+
+/* A selected station reads like an index tab, not a highlighted dashboard card. */
+@media (max-width: 800px) {
+  .field-mobile-pane-status {
+    margin-top: -1px;
+    border: 1px solid #a6906d;
+    border-left: 5px solid #987650;
+    border-bottom: 0;
+    background: #e6dac0;
+    color: #244436;
+  }
+  .field-mobile-pane-status .field-eyebrow { color: #6a5037; }
+  .field-mobile-pane-status small { color: #435744; }
+  .field-route-actions button[data-current="true"] {
+    border-color: #936e45;
+    border-bottom-color: #6d5137;
+    background: #d5bd91;
+    color: #233e32;
+    box-shadow: inset 0 -2px #90744b;
+  }
+  .field-mobile-dock {
+    border: 1px solid #ab936b;
+    border-top: 3px solid #8e7351;
+    border-radius: 4px;
+    background: #ece1c8;
+    box-shadow: 0 6px 0 #06171180, 0 17px 40px #03100eb0;
+  }
+  .field-mobile-dock-tool--active,
+  .field-mobile-dock-tool[aria-pressed="true"] {
+    border-color: #8c744e;
+    background: #d3bd91;
+  }
+}
+@media (max-width: 490px) {
+  .field-masthead { padding: 10px 11px; }
+  .field-brand-emblem { width: 36px; height: 36px; }
+  .field-monogram { font-size: 1.8rem; }
+  .field-brand-title { font-size: 1.85rem; }
+  .field-chamber-stamp { width: 54px; height: 56px; }
+  .field-chamber-stamp strong { font-size: 1.45rem; }
+  .field-observation-heading h2 { font-size: clamp(1.8rem, 6.5vw, 2.4rem); }
+  .field-route { padding-inline: 9px; }
+  .field-route-actions { gap: 4px; }
+  .field-route-actions button { font-size: .61rem; }
+  .field-start-card { padding: 29px 23px; }
+  .field-start-card h1 { font-size: clamp(2.45rem, 11vw, 3.8rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field-specimen-card { transition: none; transform: none !important; }
+}
+
+/* The unopened field note is a typeset question, not a glowing AI spark. */
+.field-unmixed-mark {
+  color: #607b64;
+  font: italic 650 2.7rem/.9 "Fraunces", Georgia, serif;
+  transform: rotate(-7deg);
+}
+/* Very short phones: keep the paint strip touchable but reduce the amount of
+   world glass it can obscure before the player scrolls. */
+@media (max-width: 420px) and (max-height: 660px) {
+  .field-mobile-dock {
+    min-height: 51px;
+    padding: 3px;
+    gap: 2px;
+    bottom: max(4px, env(safe-area-inset-bottom));
+    width: min(calc(100% - 10px), 410px);
+  }
+  .field-mobile-dock-tool,
+  .field-mobile-dock-more {
+    gap: 2px;
+    padding: 3px 0;
+    font-size: .54rem;
+  }
+  .field-mobile-dock-color { width: 19px; height: 19px; }
+}

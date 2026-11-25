@@ -111,6 +111,11 @@
   status = 302
 
 [[redirects]]
+  from = "/athletes"
+  to = "/hubs/bts-michigan-athletes.html"
+  status = 302
+
+[[redirects]]
   from = "/buzz"
   to = "/hubs/jeopardy-buzz.html"
   status = 301
