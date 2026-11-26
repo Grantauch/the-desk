@@ -1,6 +1,7 @@
 # Breakaway development instructions for AI agents
 
 Read `LATEST.md` before editing: it identifies the canonical newest dated build.
+Read `ROADMAP_TO_V5_0_0.md` before beginning the next version: respect staged priorities, minimum test evidence, and the separate production release gate.
 
 **Editing scope:** `development/breakaway/`. Public release files such as `public/hubs/breakaway/`, Gridiron Blitz, student login, and classroom data are outside scope unless Grant explicitly requests a separate production release.
 
