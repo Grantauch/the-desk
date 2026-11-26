@@ -1,15 +1,14 @@
 # LATEST DEVELOPMENT BUILD — 2026-11-26
 
-**Breakaway V4.8.6 — Weighted Footfalls** is the current **latest development build** for all AI collaborators.
+**Breakaway V4.8.7 — Motion Blends** is the **latest tested development build** available for AI collaborators.
 
-- **Canonical playable source:** [releases/2026-11-26-v4.8.6/index.html](releases/2026-11-26-v4.8.6/index.html)
-- **Change:** Slower, distance-anchored athlete footfalls (no flickering feet).
-- **Build date:** 2026-11-26
-- **SHA-256 (exact playable HTML):** `1487389dfbfbf13141541b032be7d8c0742de7ab58c76e12d0605afdca15fab1`
-- **Git blob SHA (exact playable HTML):** `6431a818be52258e8b2ba5e4e1853bd11ebd4a70`
-- **QA:** [release QA](releases/2026-11-26-v4.8.6/QA_REPORT.md)
-- **AI handoff:** [AI_HANDOFF.md](AI_HANDOFF.md)
+- **Canonical playable HTML:** [releases/2026-11-26-v4.8.7/index.html](releases/2026-11-26-v4.8.7/index.html)
+- **Dated:** 2026-11-26
+- **SHA-256:** `81ed2080bbe91473c8c003f4a178fa4297e8bd057fd8459a7905739cfd4571ce`
+- **Git blob SHA:** `a995aba13678743801786e3023443ceb2d564045`
+- **QA report:** [V4.8.7 test results](releases/2026-11-26-v4.8.7/QA_REPORT.md)
+- **Previous frozen version:** [V4.8.6 (2026-11-26)](releases/2026-11-26-v4.8.6/)
 
-**Status:** source available in GitHub for collaborative development. **Not a production website deployment.** Do not confuse this directory with `public/hubs/breakaway/`, the live game route. Never silently replace the public version.
+**Development source only:** this folder is outside `public/` and does **not** deploy either production website. Do not modify `public/hubs/breakaway/` without a separate approved release.
 
-When a newer build is created, make a new dated release folder and update this file and its checksum. Do not relabel an older file as latest.
+When a later version passes testing, create another dated release folder and update this single pointer. Preserve older releases for rollback.

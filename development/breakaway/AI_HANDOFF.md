@@ -1,28 +1,24 @@
-# Breakaway — AI Collaboration Handoff
+# Breakaway — AI editing handoff
 
-**Current development version:** V4.8.6 (2026-11-26), [canonical pointer](LATEST.md). This directory is intentionally outside `public/` so updates do not silently change the running public game.
+**Current latest:** [V4.8.7 (2026-11-26)](LATEST.md).
 
-## Recent progress
-- V4.1: turf and depth; V4.2: readable defensive intent; V4.3: running/input; V4.4: tackle counters.
-- V4.5: defensive and blocker intelligence; V4.6: score ledger/possession flow; V4.7: five-to-one adaptive blockers and grounded defenders.
-- V4.8: clock-frozen instant replay plus near-miss button mash.
-- V4.8.1: replaced disorienting modal mash with in-field flashing E/A/TAP prompt above contact.
-- V4.8.2: bounded impact shake, dust/particles, Reduced Effects.
-- V4.8.3: 2.5D shadows and lighting.
-- V4.8.4–V4.8.5: articulated running, action and contact poses.
-- **V4.8.6:** fixed feet flickering using distance-integrated gait and brief grounded stance.
+V4.8.7 continues the previous improvements: 5→1 progressive blockers, permanent defender knockdowns, end-zone pursuit on stalling, defensive blocking intelligence, 2.5D art, action-specific animation, frozen-clock recorded-state replay, a tiny E/A/TAP prompt above near-miss tackles, optional reduced effects and bounded impact shake.
 
-## Latest technical change
-Previously, gait phase depended on `elapsedTime × currentSpeed` and jumped abruptly as speed changed. The renderer now maintains independent per-athlete gait tracks based on actual distance traveled. This is render-only; engine between `const CONFIG=Object.freeze(` and `class FieldRenderer{` is byte-identical to V4.8.5.
+## Specific latest change
 
-## Next best work
-1. Visual review of footfall cadence at normal game speed. Inspect real phones and real controllers, especially 120 Hz devices.
-2. Optimize athlete animation/shadow rendering for mid-range mobile devices without breaking the planted-foot feel.
-3. Smooth action-state transitions (run→cut→spin/stiff→contact→fall) with short pose blends; keep collision mechanics unchanged unless explicitly authorized.
-4. Add more expressive, grounded body language—not flickering tiny feet, jerky limb rotation or excessive screen shake.
+V4.8.6 fixed rapid flickering feet by integrating footfall phase from actual travel. **Do not revert to elapsed-time × speed gait.**
 
-## Required verification
-Use `node tests/verify-build.cjs` for immutable-source checks. Open `index.html` in a real browser. QA snapshots previously passed four Chromium viewports (1440×900, 390×844, 320×568, 844×390); real devices and Safari/Firefox are not yet certified. Historical results are in the dated [QA report](releases/2026-11-26-v4.8.6/QA_REPORT.md).
+V4.8.7 keeps that gait untouched and eases upper-body lean, sway, crouch and torso twist plus arm/elbow/hand positions between run, juke, spin, stiff-arm, block, grapple and recovery poses. Visual transition state is renderer-owned and reset per possession. It never affects collision hitboxes, scoring, player velocity, physics or the football clock. A tackle struggle snaps into its brace pose immediately because the live clock is frozen.
 
-## Publishing
-Changes to this GitHub development folder are not the production game. Only publish to either website after a separate reviewed release and live verification. Keep prior version intact for immediate rollback.
+## Work next
+
+- Human game-speed visual acceptance (especially iPhone/Android 120Hz).
+- Low-end mobile renderer profiling and performance optimization.
+- Refine blocker/fall animations without flickering feet or distracting camera jumps.
+- Future changes should be incremental, separately reviewed and reproducible.
+
+## Tests and releases
+
+[Latest QA report](releases/2026-11-26-v4.8.7/QA_REPORT.md) records 500/500 full simulated games, 113,284 state assertions, 12 poses, four viewports, 120Hz gait and transition checks, input/replay and 2,000 render draws. Real device and Firefox/Safari testing remains outstanding.
+
+Never silently edit or deploy `public/hubs/breakaway/`. This source folder is solely for AI collaboration; public deployment is a distinct task.
