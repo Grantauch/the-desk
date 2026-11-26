@@ -340,6 +340,11 @@ export class PondEcosystem {
   }
 
   /** Canvas layer uses native low-resolution pixels, not expensive DOM sprites. */
+  /**
+   * C04: Field-drawn residents. These silhouettes describe locomotion rather
+   * than pretending every procedural discovery depicts a literal animal.
+   * Rendering reads existing state only: no simulation or save changes.
+   */
   render(ctx: CanvasRenderingContext2D, originX = 0, originY = 0): void {
     if (!this.creatures.length) return;
     ctx.save();
@@ -348,56 +353,88 @@ export class PondEcosystem {
       const outcome = getOutcome(creature.id);
       if (!outcome) continue;
       const profile = residentProfile(outcome);
-      const x = Math.round(creature.x - originX), y = Math.round(creature.y - originY);
-      if (x < -8 || y < -8 || x > ctx.canvas.width + 8 || y > ctx.canvas.height + 8) continue;
+      const x = Math.round(creature.x - originX);
+      const y = Math.round(creature.y - originY);
+      if (x < -12 || y < -12 || x > ctx.canvas.width + 12 || y > ctx.canvas.height + 12) continue;
+
       const s = profile.size;
-      const bob = Math.round(Math.sin((creature.age + creature.phase) * 0.09));
-      const wing = Math.round(Math.sin((creature.age + creature.phase) * 0.24) * 2);
-      const body = "hsl(" + profile.hue + " 76% 68%)";
-      const detail = "hsl(" + profile.accent + " 83% 85%)";
-      const dark = "hsl(" + profile.hue + " 40% 22%)";
-      // Each specimen has a dark outline, an individualized color and a
-      // recognizable silhouette, so it remains legible against bright sand.
-      ctx.fillStyle = dark;
-      ctx.fillRect(x - s - 1, y - s - 1 + bob, s * 2 + 3, s * 2 + 3);
-      ctx.fillStyle = body;
+      const phase = creature.age + creature.phase;
+      const bob = Math.round(Math.sin(phase * .075) * (profile.mode === "fly" || profile.mode === "drift" ? 2 : 1));
+      const flutter = Math.round(Math.sin(phase * .21) * 2);
+      const direction = creature.vx < -.04 ? -1 : 1;
+      const { form, habitat, force, trait } = outcome.facets;
+      // Pigment family is stable per discovery, with restrained naturalist inks.
+      const inks = ["#8bb0a1", "#c0a478", "#a3b8c6", "#b3ad85", "#caa58e", "#9fa5c4"] as const;
+      const body = inks[(form + force) % inks.length]!;
+      const light = inks[(habitat + trait + 2) % inks.length]!;
+      const shade = "#263831";
+      const mark = (px: number, py: number, w: number, h: number, ink: string) => {
+        ctx.fillStyle = ink;
+        ctx.fillRect(px, py, w, h);
+      };
+
+      // Avoid a square backing behind every resident: each mode has a
+      // purpose-drawn contour, with just enough dark contrast for sand/water.
       if (profile.mode === "swim") {
-        ctx.fillRect(x - s, y - 1 + bob, s * 2 + 1, s);
-        ctx.fillRect(x - s - 3, y - 2 + bob, 3, 2);
-        ctx.fillStyle = detail;
-        ctx.fillRect(x + s - 1, y + bob, 1, 1);
-      } else if (profile.mode === "fly" || profile.mode === "drift") {
-        ctx.fillRect(x - s + 1, y - s + bob, s * 2 - 1, s * 2 + 1);
-        ctx.fillStyle = detail;
-        ctx.fillRect(x - s - 3, y - 1 - wing + bob, 4, 2);
-        ctx.fillRect(x + s, y - 1 + wing + bob, 4, 2);
+        const yy = y + bob;
+        const tailX = x - direction * (s + 2);
+        mark(x - s, yy - 2, s * 2 + 1, 5, shade);
+        mark(x - s + 1, yy - 1, s * 2 - 1, 3, body);
+        mark(tailX - 1, yy - 3, 3, 2, shade);
+        mark(tailX - 1, yy + 2, 3, 2, shade);
+        mark(tailX, yy - 2, 2, 4, body);
+        mark(x - direction, yy - 3, 2, 1, light);
+        mark(x + direction * (s - 1), yy - 1, 1, 1, shade);
+      } else if (profile.mode === "fly") {
+        const yy = y + bob;
+        // A winged mark: split wings and a narrow body, never a glowing orb.
+        mark(x - 1, yy - s, 3, s * 2 + 1, shade);
+        mark(x, yy - s + 1, 1, s * 2 - 1, body);
+        mark(x - s - 3, yy - 2 - flutter, s + 2, 2, shade);
+        mark(x + 2, yy - 2 + flutter, s + 2, 2, shade);
+        mark(x - s - 2, yy - 1 - flutter, s + 1, 2, light);
+        mark(x + 2, yy - 1 + flutter, s + 1, 2, light);
+        mark(x, yy - s - 1, 1, 1, light);
       } else if (profile.mode === "root") {
-        ctx.fillRect(x - 1, y - 1, 3, s * 2 + 2);
-        ctx.fillStyle = detail;
-        ctx.fillRect(x - s, y - s + bob, s * 2 + 1, s + 2);
-        ctx.fillRect(x - s - 1, y - 1 + bob, 2, 2);
-        ctx.fillRect(x + s - 1, y - 1 + bob, 2, 2);
+        // Stem, differentiated foliage canopy, and visible anchoring roots.
+        mark(x - 1, y - s, 3, s * 2 + 2, shade);
+        mark(x, y - s, 1, s * 2, body);
+        mark(x - s - 1, y - s - 2 + bob, s * 2 + 3, s + 2, shade);
+        mark(x - s, y - s - 1 + bob, s * 2 + 1, s, body);
+        mark(x - s + 1, y - s + bob, s - 1, 1, light);
+        mark(x - s, y + s, s, 2, shade);
+        mark(x + 1, y + s, s, 2, shade);
       } else if (profile.mode === "mechanical") {
-        ctx.fillRect(x - s, y - s, s * 2 + 1, s * 2 + 1);
-        ctx.fillStyle = detail;
-        ctx.fillRect(x - s + 1, y - s + 1, 2, 2);
-        ctx.fillRect(x + s - 2, y - s + 1, 2, 2);
-        ctx.fillRect(x - s, y + s, 2, 2);
-        ctx.fillRect(x + s - 1, y + s, 2, 2);
+        // A riveted body with asymmetric feet and an antenna.
+        mark(x - s, y - s, s * 2 + 1, s * 2 + 1, shade);
+        mark(x - s + 1, y - s + 1, s * 2 - 1, s * 2 - 1, body);
+        mark(x, y - s - 3, 1, 3, shade);
+        mark(x - s + 1, y - s + 2, 2, 2, light);
+        mark(x + s - 2, y - s + 2, 2, 2, light);
+        mark(x - s, y + s, 2, 2, shade);
+        mark(x + s - 1, y + s, 2, 2, shade);
+      } else if (profile.mode === "drift") {
+        // Floating bell with irregular trailing threads.
+        const yy = y + bob;
+        mark(x - s, yy - s, s * 2 + 1, s + 1, shade);
+        mark(x - s + 1, yy - s + 1, s * 2 - 1, s - 1, body);
+        mark(x - s + 1, yy + 1, 1, Math.max(1, s + flutter), light);
+        mark(x, yy, 1, s + 2, light);
+        mark(x + s - 1, yy + 1, 1, s - flutter + 2, light);
       } else {
-        ctx.fillRect(x - s, y - s + bob, s * 2 + 1, s * 2);
-        ctx.fillRect(x - s + 1, y + s - 1 + bob, 2, 3);
-        ctx.fillRect(x + s - 2, y + s - 1 + bob, 2, 3);
-        ctx.fillStyle = detail;
-        ctx.fillRect(x + (creature.vx >= 0 ? 1 : -1), y - 1 + bob, 1, 1);
+        // Ground-moving oval body, two legs, and a directional face.
+        const yy = y + bob;
+        mark(x - s, yy - s + 1, s * 2 + 1, s * 2 - 1, shade);
+        mark(x - s + 1, yy - s + 2, s * 2 - 1, s * 2 - 3, body);
+        mark(x - s + 1, yy + s, 2, 2, shade);
+        mark(x + s - 2, yy + s, 2, 2, shade);
+        mark(x + direction * (s - 1), yy - 1, 1, 1, shade);
+        mark(x - direction * s, yy - s, 2, 2, light);
       }
-      // A unique four-dot identity motif depends on the original facets.
-      const f = outcome.facets;
-      ctx.fillStyle = detail;
-      if (f.form % 2) ctx.fillRect(x - 2, y - 2 + bob, 1, 1);
-      if (f.force % 2) ctx.fillRect(x + 2, y - 2 + bob, 1, 1);
-      if (f.habitat % 2) ctx.fillRect(x - 2, y + 1 + bob, 1, 1);
-      if (f.trait % 2) ctx.fillRect(x + 2, y + 1 + bob, 1, 1);
+      // Existing facets supply a tiny, stable mark rather than arbitrary
+      // extra anatomy. Marks can be compared with the specimen's field index.
+      if (trait % 3 === 0) mark(x, y - s + bob, 1, 1, light);
+      if (force % 5 === 0) mark(x - 1, y + bob, 1, 1, light);
     }
     ctx.restore();
   }
