@@ -1165,8 +1165,13 @@ function credentialVersionForEmail_(emailValue) {
     Object.entries(byEmail).forEach(([studentEmail, hashes]) => {
       if (hashes.size !== 1) return;
       const [pinHash] = [...hashes];
+      const entry = directoryEntryForEmail_(studentEmail);
+      const generation = entry && entry.generation ? entry.generation : '';
+      // The per-room salt stays in this HMAC. Credential Generation is shared
+      // material, not a second secret, so a bump invalidates every connected room.
+      const material = generation ? `credential:${pinHash}:gen:${generation}` : `credential:${pinHash}`;
       const bytes = Utilities.computeHmacSha256Signature(
-        `credential:${pinHash}`,
+        material,
         ensureSalt_(),
         Utilities.Charset.UTF_8
       );
@@ -5830,8 +5835,17 @@ function teacherResetStudentPin(studentEmail,reason,clientContract){
 /* --------------------------------------- shared school identity directory ---- */
 
 const GD_HALL_PASS_VERSION = '1.0.0-rc.1';
+const GD_HALL_PASS_PACKAGE_VERSION = '1.0.0-rc.2';
 const GD_DIRECTORY_SHEET = 'School Directory';
-const GD_DIRECTORY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status'];
+const GD_DIRECTORY_REVIEW_SHEET = 'Directory Review';
+// Until the district supplies a different authoritative id, the exact digit
+// string in School Student ID is both the directory lookup id and the only
+// student PIN. No second secret is stored. Five-digit values are not padded.
+// Leading zeros stay because the cell is text. Credential Generation is a
+// shared counter, not a secret. Classroom membership is the Roster, never Status.
+const GD_DIRECTORY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status', 'Credential Generation'];
+const GD_DIRECTORY_LEGACY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status'];
+const GD_DIRECTORY_REVIEW_HEADERS = ['Reason', 'School Student ID', 'Student Name', 'Review State'];
 const GD_DIRECTORY_SOURCE = 'SCHOOL_DIRECTORY_SOURCE_ID';
 const GD_DIRECTORY_OWNED = 'SCHOOL_DIRECTORY_OWNED_ID';
 
@@ -5864,32 +5878,51 @@ function readSchoolDirectory_(id) {
     try { sheet = SpreadsheetApp.openById(id).getSheetByName(GD_DIRECTORY_SHEET); }
     catch (error) { throw new Error('The school directory is unavailable. Ask the directory owner to check this teacher’s access.'); }
     if (!sheet || sheet.getLastRow() < 1) throw new Error('That spreadsheet does not contain a school directory.');
-    const header = sheet.getRange(1, 1, 1, 4).getValues()[0];
-    if (header.some((value, index) => value !== GD_DIRECTORY_HEADERS[index])) throw new Error('The school directory headings have changed. Ask its owner to repair them.');
+    const header = sheet.getRange(1, 1, 1, GD_DIRECTORY_HEADERS.length).getValues()[0];
+    const width = directoryHeaderWidth_(header);
     if (sheet.getLastRow() > 5001) throw new Error('The school directory exceeds 5,000 students.');
-    const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues() : [];
+    const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, width).getValues() : [];
     const ids = new Set(), emails = new Set();
     return rows.filter((row) => row.some((cell) => cell !== '')).map((row, index) => {
       // Numeric cells may already have lost zeros. Require the original text.
       if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0])) throw new Error(`School directory row ${index + 2}: student number must be five or six digits stored as text.`);
       const id = row[0], name = String(row[1] || '').trim(), email = normalizeEmail_(row[2]);
       const status = String(row[3] || '').trim().toUpperCase();
+      const generation = width === GD_DIRECTORY_HEADERS.length ? row[4] : '1';
       if (!name || name.length > 120 || !['AVAILABLE', 'DISABLED'].includes(status)) throw new Error(`School directory row ${index + 2}: check the name and status.`);
+      if (typeof generation !== 'string' || !/^[1-9]\d{0,8}$/.test(generation)) throw new Error(`School directory row ${index + 2}: credential generation must be a whole number stored as text.`);
       assertPlainSheetText_(name, 'Student name');
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(`School directory row ${index + 2}: invalid school email.`);
       if (ids.has(id) || (email && emails.has(email))) throw new Error(`School directory row ${index + 2}: duplicate student number or email.`);
       ids.add(id); if (email) emails.add(email);
-      return { id, name, email, status };
+      return { id, name, email, status, generation };
     });
   });
+}
+
+function directoryHeaderWidth_(header) {
+  if (GD_DIRECTORY_HEADERS.every((value, index) => header[index] === value)) return GD_DIRECTORY_HEADERS.length;
+  // A directory created before Credential Generation still reads. Nothing here
+  // rewrites that workbook; the next owner import stores the new column.
+  const legacy = GD_DIRECTORY_LEGACY_HEADERS.every((value, index) => header[index] === value) && !String(header[4] || '').trim();
+  if (legacy) return GD_DIRECTORY_LEGACY_HEADERS.length;
+  throw new Error('The school directory headings have changed. Ask its owner to repair them.');
+}
+
+function directoryEntryForEmail_(email) {
+  const source = schoolDirectorySourceId_();
+  if (!source) return null;
+  const entries = gdMemo_('directory-by-email', () => new Map(readSchoolDirectory_(source).filter((row) => row.email).map((row) => [row.email, row])));
+  return entries.get(email) || null;
 }
 
 function schoolDirectoryPin_(email, fallback) {
   const source = schoolDirectorySourceId_();
   if (!source) return fallback;
-  const entries = gdMemo_('directory-by-email', () => new Map(readSchoolDirectory_(source).filter((row) => row.email).map((row) => [row.email, row])));
-  const entry = entries.get(email);
-  return entry && entry.status === 'AVAILABLE' ? entry.id : '';
+  const entry = directoryEntryForEmail_(email);
+  if (!entry || entry.status !== 'AVAILABLE') return '';
+  if (openDirectoryReviewIds_(source).has(entry.id)) return '';
+  return entry.id;
 }
 
 function schoolDirectoryRecoveryPin_(email, fallback) {
@@ -5978,9 +6011,11 @@ function teacherGetSchoolDirectoryState(clientContract) {
   const ownedId = properties.getProperty(GD_DIRECTORY_OWNED) || '';
   const sourceId = schoolDirectorySourceId_();
   const rows = ownedId ? readSchoolDirectory_(ownedId) : [];
-  return { ok: true, version: GD_HALL_PASS_VERSION, ownedId, sourceId,
+  const reviewOpen = ownedId ? openDirectoryReviewIds_(ownedId).size : 0;
+  return { ok: true, version: GD_HALL_PASS_VERSION, applicationVersion: GD_HALL_PASS_VERSION,
+    packageVersion: GD_HALL_PASS_PACKAGE_VERSION, automaticSoftwareUpdates: false, ownedId, sourceId,
     directoryUrl: ownedId ? `https://docs.google.com/spreadsheets/d/${ownedId}/edit` : '',
-    students: rows.length, withoutEmail: rows.filter((row) => !row.email).length };
+    students: rows.length, withoutEmail: rows.filter((row) => !row.email).length, reviewOpen };
 }
 
 /** Import is additive. It creates no class memberships and activates no credentials. */
@@ -5997,32 +6032,175 @@ function teacherImportSchoolDirectory(text, mapping, confirmation, revision, cli
     const byId = new Map(existing.map((row) => [row.id, row]));
     incoming.forEach((row) => {
       const prior = byId.get(row.id);
-      byId.set(row.id, { ...row, status: prior && prior.status === 'DISABLED' ? 'DISABLED' : row.status, email: row.email || (prior && prior.email) || '' });
+      byId.set(row.id, {
+        ...row,
+        status: prior && prior.status === 'DISABLED' ? 'DISABLED' : row.status,
+        email: row.email || (prior && prior.email) || '',
+        generation: prior && prior.generation ? String(prior.generation) : '1',
+      });
     });
     const merged = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
     const seen = new Set();
     merged.forEach((row) => { if (row.email && seen.has(row.email)) throw new Error('The merged directory would assign one email to two numbers. Correct the source first.'); if (row.email) seen.add(row.email); });
     if (merged.length > 5000) throw new Error('The merged directory exceeds 5,000 students.');
-    const currentRevision = schoolDirectoryRevision_([existing, merged]);
+    const reviewPlan = planDirectoryReviews_(ownedId ? SpreadsheetApp.openById(ownedId) : null, merged);
+    const currentRevision = schoolDirectoryRevision_([existing, merged, reviewPlan]);
+    const reviewOpen = reviewPlan.filter((row) => row.state === 'OPEN').length;
     const preview = { total: merged.length, added: merged.length - existing.length,
-      withoutEmail: merged.filter((row) => !row.email).length, membershipsCreated: 0, revision: currentRevision };
+      withoutEmail: merged.filter((row) => !row.email).length, reviewOpen, membershipsCreated: 0, revision: currentRevision };
     if (confirmation !== 'IMPORT SCHOOL DIRECTORY') return { ok: true, applied: false, preview };
     if (revision !== currentRevision) throw new Error('The directory changed. Preview the import again before applying.');
     let book = ownedId ? SpreadsheetApp.openById(ownedId) : SpreadsheetApp.create('Hall Pass — Private School Directory');
-    let sheet = book.getSheetByName(GD_DIRECTORY_SHEET);
-    if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_SHEET);
-    if (sheet.getMaxRows() < merged.length + 1) sheet.insertRowsAfter(sheet.getMaxRows(), merged.length + 1 - sheet.getMaxRows());
-    // Text formatting precedes the write. Neither IDs nor names are evaluated as formulas.
-    sheet.getRange(1, 1, merged.length + 1, 4).setNumberFormat('@').setValues([
-      GD_DIRECTORY_HEADERS, ...merged.map((row) => [row.id, row.name, row.email, row.status]),
-    ]);
-    sheet.setFrozenRows(1);
+    writeSchoolDirectory_(book, merged);
+    const review = applyDirectoryReviews_(book, merged);
     properties.setProperty(GD_DIRECTORY_OWNED, book.getId());
     gdClearMemo_();
     auditTeacherAction_(teacher, { email: '', name: 'School directory', classPeriod: 'Unassigned' },
-      'SCHOOL_DIRECTORY_IMPORTED', [], `${merged.length} directory entries; no memberships created`, '');
+      'SCHOOL_DIRECTORY_IMPORTED', [], `${merged.length} directory entries; ${review.filter((row) => row.state === 'OPEN').length} review rows; no memberships created`, '');
     return { ok: true, applied: true, preview, directoryUrl: `https://docs.google.com/spreadsheets/d/${book.getId()}/edit` };
   }, 30000, 'school directory import');
+}
+
+function directoryDisplayKey_(name) {
+  return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function proposedDirectoryReviews_(rows) {
+  const counts = new Map();
+  rows.forEach((row) => {
+    const key = directoryDisplayKey_(row.name);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  return rows.filter((row) => counts.get(directoryDisplayKey_(row.name)) > 1).map((row) => ({
+    reason: 'DUPLICATE_DISPLAY_NAME', id: row.id, name: row.name,
+  }));
+}
+
+function readDirectoryReviewRows_(book) {
+  if (!book) return [];
+  const sheet = book.getSheetByName(GD_DIRECTORY_REVIEW_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const header = sheet.getRange(1, 1, 1, GD_DIRECTORY_REVIEW_HEADERS.length).getValues()[0];
+  if (header.some((value, index) => value !== GD_DIRECTORY_REVIEW_HEADERS[index])) {
+    throw new Error('The directory review headings have changed. Ask its owner to repair them.');
+  }
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_DIRECTORY_REVIEW_HEADERS.length).getValues();
+  return rows.filter((row) => String(row[1] || '')).map((row) => ({
+    reason: String(row[0] || ''), id: String(row[1]), name: String(row[2] || ''), state: String(row[3] || '').trim().toUpperCase(),
+  }));
+}
+
+function planDirectoryReviews_(book, rows) {
+  const prior = readDirectoryReviewRows_(book);
+  const resolved = new Set(prior.filter((row) => row.state === 'RESOLVED').map((row) => `${row.reason}\t${row.id}`));
+  return proposedDirectoryReviews_(rows).map((row) => ({
+    ...row, state: resolved.has(`${row.reason}\t${row.id}`) ? 'RESOLVED' : 'OPEN',
+  }));
+}
+
+function writeSchoolDirectory_(book, rows) {
+  let sheet = book.getSheetByName(GD_DIRECTORY_SHEET);
+  if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_SHEET);
+  if (sheet.getMaxRows() < rows.length + 1) sheet.insertRowsAfter(sheet.getMaxRows(), rows.length + 1 - sheet.getMaxRows());
+  sheet.getRange(1, 1, rows.length + 1, GD_DIRECTORY_HEADERS.length).setNumberFormat('@').setValues([
+    GD_DIRECTORY_HEADERS, ...rows.map((row) => [row.id, row.name, row.email, row.status, row.generation || '1']),
+  ]);
+  sheet.setFrozenRows(1);
+}
+
+function writeDirectoryReview_(book, review) {
+  let sheet = book.getSheetByName(GD_DIRECTORY_REVIEW_SHEET);
+  if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_REVIEW_SHEET);
+  const height = Math.max(review.length + 1, 2);
+  if (sheet.getMaxRows() < height) sheet.insertRowsAfter(sheet.getMaxRows(), height - sheet.getMaxRows());
+  const values = [GD_DIRECTORY_REVIEW_HEADERS, ...review.map((row) => [row.reason, row.id, row.name, row.state])];
+  while (values.length < height) values.push(['', '', '', '']);
+  sheet.getRange(1, 1, height, GD_DIRECTORY_REVIEW_HEADERS.length).setNumberFormat('@').setValues(values);
+  sheet.setFrozenRows(1);
+}
+
+function applyDirectoryReviews_(book, rows) {
+  const review = planDirectoryReviews_(book, rows);
+  writeDirectoryReview_(book, review);
+  return review;
+}
+
+function openDirectoryReviewIds_(directoryId) {
+  if (!directoryId) return new Set();
+  return gdMemo_('directory-review-open:' + directoryId, () => {
+    let book;
+    try { book = SpreadsheetApp.openById(directoryId); }
+    catch (error) { throw new Error('The school directory is unavailable. Ask the directory owner to check this teacher’s access.'); }
+    const open = new Set();
+    readDirectoryReviewRows_(book).forEach((row) => { if (row.state === 'OPEN') open.add(row.id); });
+    return open;
+  });
+}
+
+function ownedDirectoryBook_() {
+  const ownedId = PropertiesService.getScriptProperties().getProperty(GD_DIRECTORY_OWNED) || '';
+  if (!ownedId) throw new Error('Only the directory owner can change a shared credential.');
+  return SpreadsheetApp.openById(ownedId);
+}
+
+/** A display name never selects or changes a PIN. */
+function teacherCorrectDirectoryPinByName(name, replacement, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  throw new Error('A name-only correction cannot change a PIN. Use the exact student number.');
+}
+
+function teacherBumpDirectoryCredentialGeneration(studentId, confirmation, revision, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const book = ownedDirectoryBook_();
+    const rows = readSchoolDirectory_(book.getId());
+    const id = String(studentId || '').trim();
+    if (!/^\d{5,6}$/.test(id)) throw new Error('Use the exact student number. A name cannot select a PIN.');
+    const index = rows.findIndex((row) => row.id === id);
+    if (index < 0) throw new Error('That exact student number is not in the directory.');
+    const next = rows.map((row) => ({ ...row }));
+    const current = String(next[index].generation || '1');
+    if (!/^[1-9]\d{0,8}$/.test(current)) throw new Error('The credential generation is not a whole number.');
+    next[index] = { ...next[index], generation: String(Number(current) + 1) };
+    const currentRevision = schoolDirectoryRevision_([rows, next]);
+    const preview = { generation: next[index].generation, pinChanged: false, membershipsCreated: 0, revision: currentRevision };
+    if (confirmation !== 'BUMP CREDENTIAL GENERATION') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory changed. Preview the generation bump again.');
+    writeSchoolDirectory_(book, next);
+    gdClearMemo_();
+    auditTeacherAction_(getActiveEmail_(), { email: '', name: 'School directory', classPeriod: 'Unassigned' },
+      'CREDENTIAL_GENERATION_BUMPED', [], '1 credential generation bumped; the lunch number was not changed', '');
+    return { ok: true, applied: true, preview };
+  }, 30000, 'credential generation');
+}
+
+function teacherResolveDirectoryReview(studentId, confirmation, revision, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const book = ownedDirectoryBook_();
+    const id = String(studentId || '').trim();
+    if (!/^\d{5,6}$/.test(id)) throw new Error('Use the exact student number. A name cannot resolve a review.');
+    const rows = readDirectoryReviewRows_(book);
+    if (!rows.some((row) => row.id === id && row.state === 'OPEN')) throw new Error('That exact student number has no open directory review.');
+    const next = rows.map((row) => row.id === id && row.state === 'OPEN' ? { ...row, state: 'RESOLVED' } : row);
+    const currentRevision = schoolDirectoryRevision_([rows, next]);
+    const preview = { resolved: true, enrolled: false, pinChanged: false, revision: currentRevision };
+    if (confirmation !== 'RESOLVE DIRECTORY REVIEW') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory review changed. Preview it again.');
+    const before = readSchoolDirectory_(book.getId()).find((row) => row.id === id);
+    writeDirectoryReview_(book, next);
+    const after = readSchoolDirectory_(book.getId()).find((row) => row.id === id);
+    if (!before || !after || before.id !== after.id || before.generation !== after.generation) {
+      throw new Error('A directory review cannot change a PIN.');
+    }
+    gdClearMemo_();
+    auditTeacherAction_(getActiveEmail_(), { email: '', name: 'School directory', classPeriod: 'Unassigned' },
+      'DIRECTORY_REVIEW_RESOLVED', [], '1 directory review resolved; no enrollment and no PIN change', '');
+    return { ok: true, applied: true, preview };
+  }, 30000, 'directory review');
 }
 
 /** Connection is explicit, previewed, and refused if it would strand any active student. */
@@ -6054,8 +6232,10 @@ function teacherEnrollSchoolStudent(studentId, classPeriod, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
   const source = schoolDirectorySourceId_();
   if (!source) throw new Error('Connect this classroom to the school directory first.');
-  const row = readSchoolDirectory_(source).find((entry) => entry.id === String(studentId || '').trim());
+  const id = String(studentId || '').trim();
+  const row = readSchoolDirectory_(source).find((entry) => entry.id === id);
   if (!row || !row.email || row.status !== 'AVAILABLE') throw new Error('That school number needs an available, verified school email before enrollment.');
+  if (openDirectoryReviewIds_(source).has(row.id)) throw new Error('That school number is waiting for directory review. Resolve it before enrollment.');
   return teacherAddStudentClass(row.name, row.email, classPeriod, clientContract);
 }
 
