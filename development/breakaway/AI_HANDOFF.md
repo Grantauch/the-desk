@@ -2,6 +2,8 @@
 
 **Current latest:** [V4.8.7 (2026-11-26)](LATEST.md).
 
+**Next-phase authority:** [V4.8.8 through V5.0.0 roadmap](ROADMAP_TO_V5_0_0.md). Read it before selecting a new task or assigning scope. It defines per-version ship gates and what not to change.
+
 V4.8.7 continues the previous improvements: 5→1 progressive blockers, permanent defender knockdowns, end-zone pursuit on stalling, defensive blocking intelligence, 2.5D art, action-specific animation, frozen-clock recorded-state replay, a tiny E/A/TAP prompt above near-miss tackles, optional reduced effects and bounded impact shake.
 
 ## Specific latest change
