@@ -2,6 +2,9 @@
 
 > **LATEST: [V4.8.7 — November 26, 2026](LATEST.md)**
 
+**[Complete development and release roadmap: V4.8.8 → V5.0.0](ROADMAP_TO_V5_0_0.md)** — version-by-version scope, QA gates, owner handoffs, release candidates and production rollout.
+
+
 The canonical standalone, playable game is [releases/2026-11-26-v4.8.7/index.html](releases/2026-11-26-v4.8.7/index.html). Download it and open locally. There are no required accounts, external scripts, or online services.
 
 ## Directory organization
@@ -11,6 +14,7 @@ development/breakaway/
   LATEST.md                     # one authoritative pointer
   AGENTS.md                     # rules for collaborators
   AI_HANDOFF.md                 # history and protected gameplay
+  ROADMAP_TO_V5_0_0.md          # complete version-by-version release plan
   releases/
     2026-11-26-v4.8.6/          # frozen rollback, weighted footfalls
     2026-11-26-v4.8.7/          # LATEST: smooth limb/action transitions
