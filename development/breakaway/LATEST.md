@@ -1,14 +1,14 @@
-# LATEST DEVELOPMENT BUILD — 2026-11-26
+# LATEST DEVELOPMENT BUILD — November 26, 2026
 
-**Breakaway V4.8.7 — Motion Blends** is the **latest tested development build** available for AI collaborators.
+**V4.8.8 — Grounded Athlete Motion** is the newest tested **development candidate** for AI collaborators.
 
-- **Canonical playable HTML:** [releases/2026-11-26-v4.8.7/index.html](releases/2026-11-26-v4.8.7/index.html)
-- **Dated:** 2026-11-26
-- **SHA-256:** `81ed2080bbe91473c8c003f4a178fa4297e8bd057fd8459a7905739cfd4571ce`
-- **Git blob SHA:** `a995aba13678743801786e3023443ceb2d564045`
-- **QA report:** [V4.8.7 test results](releases/2026-11-26-v4.8.7/QA_REPORT.md)
-- **Previous frozen version:** [V4.8.6 (2026-11-26)](releases/2026-11-26-v4.8.6/)
+- [Play / edit the standalone HTML](releases/2026-11-26-v4.8.8/index.html)
+- [Dated build, QA and source patch](releases/2026-11-26-v4.8.8/)
+- Previous unchanged version: [V4.8.7](releases/2026-11-26-v4.8.7/)
+- SHA-256: `1f9bcc89d94f96b1265ff0678272c9c33e354564f09c20e29b96bdf6cea2a9a9`
+- Git blob: `fb4fc36cecef127c096d331f0bf3b11d7c8b4db3`
+- [Roadmap to V5.0.0](ROADMAP_TO_V5_0_0.md)
 
-**Development source only:** this folder is outside `public/` and does **not** deploy either production website. Do not modify `public/hubs/breakaway/` without a separate approved release.
+**NOT a public website deployment.** Automated testing has passed, but human/real-device performance acceptance remains outstanding. No files under `public/` change with this source-only release.
 
-When a later version passes testing, create another dated release folder and update this single pointer. Preserve older releases for rollback.
+Create a new dated folder and move this single latest pointer after the next tested build, preserving prior rollback files.
