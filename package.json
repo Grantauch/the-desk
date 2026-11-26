@@ -31,7 +31,7 @@
     "storyhub:browser:test": "node scripts/test-storyhub-release-browser.mjs",
     "storyhub:pearl:browser": "node scripts/test-pearl-harbor-browser.mjs",
     "handoff:validate": "node scripts/validate-grantdesk-handoff.mjs",
-    "hall-pass:verify": "npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime && node scripts/test-hall-pass-school-directory.cjs && node scripts/test-hall-pass-setup.cjs && node scripts/test-hall-pass-teacher-kit.cjs",
+    "hall-pass:verify": "npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime && node scripts/test-hall-pass-school-directory.cjs && node scripts/test-hall-pass-two-room-dry-run.cjs && node scripts/rehearse-hall-pass-software-update.cjs && node scripts/test-hall-pass-setup.cjs && node scripts/test-hall-pass-teacher-kit.cjs",
     "preview": "astro preview",
     "cold-openers:sync": "node scripts/build-cold-opener-catalog.mjs",
     "detour:validate": "node scripts/validate-detour-shelf.mjs",
