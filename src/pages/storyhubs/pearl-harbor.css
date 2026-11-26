@@ -1,0 +1,174 @@
+@font-face {
+  font-family: Pearl Anton;
+  src: url('/storyhub/ush9/pearl-harbor/assets/anton.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pearl Serif;
+  src: url('/storyhub/ush9/pearl-harbor/assets/source-serif-4.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pearl Serif;
+  src: url('/storyhub/ush9/pearl-harbor/assets/source-serif-4-italic.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+.pearl.sh-shell {
+  --sh-paper: #f2ebdb;
+  --sh-panel: #fffaf0;
+  --sh-ink: #17282f;
+  --sh-night: #101e25;
+  --sh-light: #fcf4e2;
+  --sh-line: #c8bfae;
+  --sh-reading: 'Pearl Serif', Georgia, serif;
+  --sh-display: 'Pearl Serif', Georgia, serif;
+}
+.pearl-opening {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  align-items: end;
+  isolation: isolate;
+  min-height: min(48rem, calc(92svh - 4rem));
+  color: #fff9ec;
+  background: #14232a;
+  --sh-focus: #fadba4;
+}
+.pearl-opening-art, .pearl-opening-art > img, .pearl-opening::after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.pearl-opening-art { z-index: -2; }
+.pearl-opening-art > img { object-fit: cover; object-position: 53% 53%; }
+.pearl-opening::after {
+  z-index: -1;
+  content: '';
+  background:
+    linear-gradient(90deg, #0d1921f4 0%, #102029d1 21%, #10202972 51%, #101c2722 95%),
+    linear-gradient(0deg, #0c1921 0%, #0d19207d 30%, transparent 72%);
+}
+.pearl-opening-art .sh-image-fallback { position: absolute; bottom: .5rem; right: .7rem; max-width: 19rem; }
+.pearl-opening-inner {
+  padding-block: clamp(3.75rem, 10vh, 8.4rem) clamp(3rem, 8.5vh, 7.5rem);
+}
+.pearl-date { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .8rem; color: #f2d5a8; letter-spacing: .18em; }
+.pearl-date span { border-left: 1px solid #d6ad72; padding-left: .8rem; }
+.pearl-opening h1 {
+  font: 400 clamp(4rem, 10vw, 10.25rem)/.99 'Pearl Anton', Impact, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .012em;
+  margin: .85rem 0 .65rem;
+  text-wrap: balance;
+}
+.pearl-subtitle {
+  font: italic clamp(1.4rem, 3.3vw, 3.2rem)/1.12 var(--sh-reading);
+  letter-spacing: -.025em;
+  margin: 0 !important;
+}
+.pearl-lede { font: clamp(1.01rem, 1.6vw, 1.24rem)/1.48 var(--sh-body); max-width: 40ch; }
+.pearl-opening-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem .75rem; margin-top: 1.4rem; }
+.pearl-opening-actions .sh-primary { background: #f0d7a9; color: #15262c !important; }
+.pearl-opening-actions .sh-secondary { border-color: #f4e3ca; }
+.pearl-photo-strip { background: #1b2d36; color: #f7efdf; border-top: 1px solid #677a7e; }
+.pearl-photo-strip .sh-width { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .24rem 1rem; padding-block: .65rem; font-size: .8rem; }
+.pearl-photo-strip a { font-size: .76rem; }
+
+.pearl .sh-chapter:nth-child(3), .pearl .sh-chapter:nth-child(7) { background: #e7e6d9; }
+.pearl .sh-chapter--break, .pearl .sh-chapter--memorial {
+  background: #14242b;
+  color: #f7efdf;
+  --sh-line: #56676d;
+  --sh-focus: #efce97;
+  --sh-accent: #f4c88e;
+  --sh-muted: #c8d6d8;
+}
+.pearl .sh-chapter--break { border-top: .35rem solid #a4382c; }
+.pearl .sh-chapter--break h2 { font: 400 clamp(5rem, 13vw, 11.5rem)/.98 'Pearl Anton', Impact, sans-serif; }
+.pearl .sh-chapter--break .sh-chapter-art img { width: 100%; max-height: 46rem; object-fit: cover; object-position: center 48%; }
+.pearl .sh-chapter--memorial .sh-chapter-art img { max-height: 35rem; object-fit: cover; }
+.pearl .sh-chapter--break .sh-timeline,
+.pearl .sh-chapter--memorial .sh-scenarios,
+.pearl .sh-chapter--memorial .sh-comparison .sh-inline-tabs {
+  --sh-ink: #17282f;
+  --sh-accent: #285564;
+  --sh-muted: #52636a;
+  --sh-line: #c8bfae;
+  --sh-focus: #006681;
+  color: var(--sh-ink);
+}
+.pearl .sh-chapter--break .sh-time-zone { color: #c8d6d8; }
+.pearl .sh-chapter--break .sh-inline-tabs .sh-label { color: var(--sh-accent); }
+.pearl .sh-chapter--break .sh-secondary { margin-top: .8rem; }
+.pearl .sh-time-card .sh-label, .pearl .sh-place-card .sh-label { color: var(--sh-accent); }
+
+.pearl h3:not(.sh-brief-title h3) { font: 610 clamp(1.55rem, 3vw, 2.65rem)/1.13 var(--sh-reading); letter-spacing: -.025em; text-wrap: balance; }
+.pearl-feature-title { display: grid; grid-template-columns: minmax(0,1fr) minmax(0, .8fr); gap: .65rem 1.8rem; align-items: end; margin-bottom: .8rem; }
+.pearl-feature-title h3 { margin-top: .24rem; }
+.pearl-strategy, .pearl-warning, .pearl-address {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr);
+  align-items: start;
+  gap: 1.35rem clamp(1.35rem, 4vw, 3.4rem);
+}
+.pearl-warning > .sh-media-viewer { background: #e4dcc9; border: 1px solid #bab09c; padding: .9rem; }
+.pearl-chart-tool [data-map-window] { height: clamp(15rem, 55vw, 39rem); background: #d9d3c7; }
+.pearl-chart-tool [data-map-surface] { max-width: calc(60rem * var(--sh-zoom, 1)); margin-inline: auto; }
+.pearl-address .sh-media-window { max-height: 24rem; }
+.pearl-speech-panel { border-top: 2px solid #223d45; padding-top: 1rem; }
+.pearl-speech-panel h3 { margin: .4rem 0 .65rem; }
+.pearl-special-links { display: flex; flex-wrap: wrap; gap: .55rem .8rem; margin-top: 1rem; }
+.pearl-special-links a { padding: .55rem .7rem; min-height: 2.75rem; display: inline-flex; align-items: center; border: 1px solid var(--sh-line); font-weight: 680; }
+.sh-evidence > header, .sh-comparison > p { margin-bottom: .9rem; }
+.sh-evidence > header p, .sh-comparison > p, .pearl-final > p { margin-top: .45rem; max-width: var(--sh-measure); }
+.sh-evidence-file { border-top: 1px solid var(--sh-line); }
+.sh-evidence-file:last-of-type { border-bottom: 1px solid var(--sh-line); }
+.sh-evidence-file summary { padding: .78rem 0; font: 650 1.12rem/1.42 var(--sh-body); }
+.sh-evidence-file summary .sh-label { margin-inline: .4rem .75rem; color: var(--sh-accent); }
+.sh-evidence-body { padding: 0 0 1rem 1rem; max-width: 78ch; }
+.sh-evidence-body blockquote { margin: .85rem 0; padding: .5rem .8rem; border-left: 2px solid var(--sh-accent); font: 1.1rem/1.55 var(--sh-reading); }
+.sh-evidence-body cite { display: block; margin-top: .3rem; font: .82rem/1.4 var(--sh-body); color: var(--sh-muted); }
+.sh-comparison .sh-inline-tabs { margin-bottom: 1rem; }
+.sh-comparison-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 1rem 1.35rem; }
+.sh-comparison-grid:not([data-view="both"]) { grid-template-columns: minmax(0,1fr); max-width: 58rem; }
+.sh-comparison-grid .sh-label { margin-bottom: .35rem; }
+.sh-comparison-grid[data-view="both"] img { aspect-ratio: 16/10; width: 100%; object-fit: contain; background: #12242c; }
+.pearl-loss {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 1rem;
+  border-block: 1px solid var(--sh-line);
+  padding: 1.35rem 0;
+  text-align: center;
+}
+.pearl-loss strong { font: 500 clamp(2rem, 6vw, 5.2rem)/1 var(--sh-reading); display: block; }
+.pearl-loss span { display: block; margin-top: .24rem; }
+.pearl-loss p { grid-column: 1/-1; font-size: .84rem; color: var(--sh-muted); }
+.pearl-final { margin-top: clamp(2.25rem, 6vw, 5rem); padding-top: 1.2rem; border-top: 1px solid var(--sh-line); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .pearl-opening-inner { animation: pearl-opening .56s ease-out both; }
+  @keyframes pearl-opening {
+    from { opacity: .55; transform: translateY(.6rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+@media (max-width: 850px) {
+  .pearl-strategy, .pearl-warning, .pearl-address, .pearl-feature-title { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 630px) {
+  .pearl-opening { min-height: min(41rem, calc(93svh - 2.7rem)); }
+  .pearl-opening-art > img { object-position: 55% 42%; }
+  .pearl-opening::after { background: linear-gradient(0deg,#0d1b22 4%,#12232bcc 56%,#17293142 100%); }
+  .pearl-opening h1 { text-wrap: wrap; font-size: clamp(3.9rem, 13vw, 6rem); }
+  .pearl-opening-inner { padding-bottom: 3.5rem; }
+  .pearl-loss { gap: .45rem; font-size: .84rem; }
+  .sh-comparison-grid { grid-template-columns: minmax(0,1fr); }
+}

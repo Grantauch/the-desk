@@ -1,0 +1,82 @@
+import {chromium} from 'playwright';
+import AxeBuilder from '@axe-core/playwright';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+const base=(process.env.LONG_FUSE_TEST_ORIGIN||'http://127.0.0.1:4350')+'/storyhubs/the-long-fuse/';
+const dir=resolve('scripts/long-fuse/qa-classroom');
+await mkdir(dir,{recursive:true});
+const browser=await chromium.launch({headless:true});
+const evidence=[],failures=[];
+for(const width of [1920,1440,1280,390,320]){
+ const context=await browser.newContext({viewport:{width,height:width===1920?1080:width===1440?900:width===1280?720:800},reducedMotion:'reduce',deviceScaleFactor:1});
+ const page=await context.newPage();
+ for(const [part,scenes] of [[1,5],[2,5],[3,6]]){
+  const response=await page.goto(base+'part-'+part+'/',{waitUntil:'networkidle'});
+  const dialog=page.locator('[data-lf-classroom]');
+  const trigger=page.locator('[data-lf-theater-launch]');
+  const interlude=page.locator('[data-lf-interlude]');
+  if(await trigger.isHidden()||await dialog.isVisible())failures.push({kind:'initial-state',width,part});
+  await trigger.click();
+  const open=await dialog.evaluate(e=>e.open);
+  const role=await dialog.getAttribute('aria-label');
+  const slideElements=dialog.locator('[data-lf-classroom-scene]');
+  const chapterCount=await slideElements.count();
+  const visibleAtStart=await slideElements.evaluateAll(nodes=>nodes.filter(n=>!n.hidden).length);
+  const count=await dialog.locator('[data-lf-classroom-count]').innerText();
+  await dialog.locator('[data-lf-classroom-next]').click();
+  const secondIndex=await dialog.locator('[data-lf-classroom-select][aria-pressed=true]').getAttribute('data-lf-classroom-select');
+  await dialog.press('End');
+  const finalIndex=await dialog.locator('[data-lf-classroom-select][aria-pressed=true]').getAttribute('data-lf-classroom-select');
+  await dialog.press('Home');
+  const firstAgain=await dialog.locator('[data-lf-classroom-select][aria-pressed=true]').getAttribute('data-lf-classroom-select');
+  const horizontal=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2||document.querySelector('[data-lf-classroom]')?.scrollWidth>innerWidth+2);
+  const screenshotName='theater-'+part+'-'+width+'.png';
+  if(width!==320)await dialog.screenshot({path:resolve(dir,screenshotName),animations:'disabled'});
+  const prompts=await dialog.locator('.lf-classroom-discuss p').allTextContents();
+  const realQuestions=prompts.length===scenes&&prompts.every(text=>text.includes('?'));
+  const result={width,part,status:response?.status(),open,role,chapterCount,visibleAtStart,count,secondIndex,finalIndex,firstAgain,horizontal,realQuestions,interludes:await interlude.count()};
+  evidence.push(result);
+  if(result.status!==200||!open||chapterCount!==scenes||visibleAtStart!==1||secondIndex!=='1'||finalIndex!==String(scenes-1)||firstAgain!=='0'||horizontal||!realQuestions||result.interludes!==1)failures.push(result);
+  // Axe check on each modal only at phone and desktop; disabled preexisting content is inert.
+  if(width===1440||width===390){
+   const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+   const violations=axe.violations.map(v=>({id:v.id,impact:v.impact,targets:v.nodes.slice(0,5).map(n=>n.target)}));
+   evidence.push({width,part,theaterAccessibilityViolations:violations});
+   if(violations.length)failures.push({width,part,violations});
+  }
+  await dialog.press('Escape');
+  const closed=!(await dialog.evaluate(e=>e.open));
+  const restored=await trigger.evaluate(e=>document.activeElement===e);
+  if(!closed||!restored)failures.push({width,part,closed,restored});
+ }
+ await context.close();
+}
+const c=await browser.newContext({viewport:{width:390,height:800}});
+const page=await c.newPage();
+await page.goto(base+'part-1/',{waitUntil:'networkidle'});
+const map=page.locator('[data-lf-dmap]');
+const buttons=map.locator('[data-lf-dmap-button]');
+const panels=map.locator('[data-lf-dmap-panel]');
+await buttons.last().click();
+const active=await buttons.filter({has:page.locator('[aria-pressed=true]')}).count().catch(()=>0);
+const visible=await panels.evaluateAll(nodes=>nodes.filter(n=>!n.hidden).length);
+const lights=await map.locator('.lf-dmap-motion.is-current').count();
+const last=await panels.last().isVisible();
+const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2);
+const visual=await map.locator('svg').count();
+const pan=await map.locator('.lf-dmap-scroll').evaluate(el=>({left:el.scrollLeft,available:el.scrollWidth-el.clientWidth}));
+evidence.push({map:true,buttons:await buttons.count(),visible,lights,last,overflow,visual,pan});
+if(await buttons.count()!==6||visible!==1||lights!==1||!last||overflow||visual!==1||pan.available<=0||pan.left<=0)failures.push({map:true,visible,lights,last,overflow});
+await map.screenshot({path:resolve(dir,'map-390.png'),animations:'disabled'});
+await c.close();
+const nojs=await browser.newContext({viewport:{width:390,height:800},javaScriptEnabled:false});
+const p=await nojs.newPage();
+await p.goto(base+'part-1/',{waitUntil:'domcontentloaded'});
+const visibleFallback=await p.locator('[data-lf-dmap-panel]').evaluateAll(nodes=>nodes.filter(n=>!n.hidden).length);
+const triggerDisabled=await p.locator('[data-lf-theater-launch]').isHidden();
+evidence.push({noJS:true,mapVisible:visibleFallback,theaterTriggerHidden:triggerDisabled});
+if(visibleFallback!==6||!triggerDisabled)failures.push({noJS:true,visibleFallback,triggerDisabled});
+await nojs.close();await browser.close();
+await writeFile('scripts/long-fuse/cinematic-classroom-evidence.json',JSON.stringify({evidence,failures},null,2));
+console.log(JSON.stringify({checks:evidence.length,failures,summary:evidence.filter(x=>x.part===1||x.map||x.noJS).slice(0,8)},null,2));
+if(failures.length)process.exitCode=1;

@@ -117,6 +117,46 @@
     return !!(lay && lay.river && lay.river.near(x, y) < lay.river.width / 2 + 10);
   };
 
+  // Physical surface cues baked into the static battlefield texture once.
+  // These are field-specific crop rows and crushed edges, not a new sprite or
+  // another procedural layer in the 60fps render loop. They never affect paths.
+  T.paintFieldRelief = function (c, f, seed) {
+    if (!f.poly || f.poly.length < 3) return;
+    const rng = BK.makeRng((seed * 151 + f.poly.length * 19 + Math.round(f.poly[0][0] * 11 + f.poly[0][1])) | 0);
+    const xs = f.poly.map(p => p[0]), ys = f.poly.map(p => p[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    const centerX = (minX + maxX) / 2, centerY = (minY + maxY) / 2;
+    const radius = Math.hypot(maxX - minX, maxY - minY) * .75 + 15;
+    c.save();
+    c.beginPath(); c.moveTo(f.poly[0][0], f.poly[0][1]);
+    for (const p of f.poly.slice(1)) c.lineTo(p[0], p[1]);
+    c.closePath(); c.clip();
+    c.translate(centerX, centerY); c.rotate(f.ang || 0);
+    const density = f.kind === 'plowed' ? 8 : f.kind === 'wheat' ? 17 : 26;
+    // Narrow irregular rows with dark and bright sides, varying by crop type.
+    for (let y = -radius; y <= radius; y += density) {
+      const sway = rng.range(-3, 3);
+      c.strokeStyle = f.kind === 'plowed' ? 'rgba(24,17,12,.19)' : f.kind === 'wheat' ? 'rgba(78,57,23,.12)' : 'rgba(42,47,23,.10)';
+      c.lineWidth = f.kind === 'plowed' ? 3.2 : 1.5;
+      c.beginPath(); c.moveTo(-radius, y + sway); c.lineTo(radius, y + sway + rng.range(-2, 2)); c.stroke();
+      c.strokeStyle = f.kind === 'plowed' ? 'rgba(210,182,131,.21)' : 'rgba(241,221,155,.17)';
+      c.lineWidth = 1;
+      c.beginPath(); c.moveTo(-radius, y + sway + 3); c.lineTo(radius, y + sway + 3); c.stroke();
+    }
+    // Crushed stalks, damp patches, exposed earth; deterministic per field.
+    const n = Math.min(210, Math.max(24, Math.round(((maxX - minX) * (maxY - minY)) / 3000)));
+    for (let i = 0; i < n; i++) {
+      const x = rng.range(-radius, radius), y = rng.range(-radius, radius);
+      c.strokeStyle = rng() < .55 ? 'rgba(245,224,177,.23)' : 'rgba(50,43,25,.19)';
+      c.lineWidth = rng.range(.7, 1.5);
+      c.beginPath(); c.moveTo(x, y); c.lineTo(x + rng.range(2, 9), y + rng.range(-3, 3)); c.stroke();
+      if (f.kind === 'wheat' && rng() < .3) {
+        c.fillStyle = 'rgba(237,215,151,.31)'; c.fillRect(x + 3, y - 1, 2, 2);
+      }
+    }
+    c.restore();
+  };
+
   T.paint = function (c, map, lay, paths) {
     const W = map.ww, H = map.wh;
     const tl = tiles();
@@ -131,6 +171,7 @@
       c.closePath();
       c.fillStyle = pat;
       c.fill();
+      T.paintFieldRelief(c, f, map.seed);
     }
     // Grass verges between fields, with scattered bushes along them.
     const rng = BK.makeRng(map.seed * 17);

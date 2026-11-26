@@ -48,3 +48,5 @@ GitHub keeps the required protected-branch check named `build`; the lane changes
 Research → narrative architecture → Story DNA → named-person/source audit → asset plan → batch asset generation → asset review → targeted regeneration → asset-to-interface translation → interaction/motion plan → responsive build → historical QA → visual QA → performance/accessibility QA → publish → archive learnings.
 
 See [GOLD_STANDARD.md](GOLD_STANDARD.md) for the experience standard.
+
+For new Astro editions, see the [Story Hub 2.0 implementation guide](STORY_HUB_2.md) and its Pearl Harbor reference edition.

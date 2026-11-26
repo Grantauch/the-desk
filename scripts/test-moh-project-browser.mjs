@@ -116,6 +116,201 @@ const words = (n, seed) => Array.from({ length: n }, (_, i) => `${seed}${i}`).jo
 
 /* ------------------------------------------------------------- reading -- */
 
+await test('guided assignment walkthrough is readable without a PIN and teaches all seven steps', async () => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 850 } });
+  const page = await context.newPage();
+  const errors = [], external = [];
+  page.on('pageerror', error => errors.push(String(error)));
+  await context.route('**/*', route => {
+    if (new URL(route.request().url()).origin === BASE) return route.continue();
+    external.push(route.request().url());
+    return route.abort();
+  });
+  await page.goto(BASE + '/hubs/ush9-medal-of-honor.html');
+  const disclosure = page.locator('#how details.walkthrough-discovery');
+  assert.equal(await disclosure.count(), 1, 'How It Works offers a native expandable guide');
+  await disclosure.locator('summary').click();
+  assert.equal(await disclosure.getAttribute('open'), '', 'the explanatory card expands');
+  assert.match(await disclosure.innerText(), /seven-step workspace/i);
+  assert.equal(await disclosure.locator('a[href$="ush9-medal-of-honor-guide.html"]').count(), 1);
+
+  await page.goto(BASE + '/hubs/ush9-medal-of-honor-guide.html');
+  assert.equal(await page.locator('input,textarea,canvas,#desk-save-gate,script[src*="desk-save"]').count(), 0, 'the walkthrough cannot capture student answers');
+  assert.equal(await page.locator('[data-tour-link]').count(), 7, 'all seven assignment steps are navigable');
+  assert.equal(await page.locator('[data-tour-panel]').count(), 7, 'all seven stages have a modeled preview');
+  assert.equal(await page.locator('.tour-example').count(), 7, 'every stage links to a matching exemplar section');
+  assert.equal(await page.locator('.mock-window').count(), 7, 'every stage shows a simulated workspace');
+  assert.equal(await page.locator('.idea-box').count(), 7, 'every stage provides thought starters');
+  assert.match(await page.locator('.guide-safety').textContent(), /No lunch PIN needed/i);
+  assert.equal(await page.locator('[data-tour-panel]:visible').count(), 1);
+  const keys = ['facts', 'words', 'story1', 'story2', 'why', 'art', 'finish'];
+  for (let i = 0; i < keys.length; i++) {
+    await page.locator('[data-tour-link="' + keys[i] + '"]').click();
+    assert.equal(await page.locator('[data-tour-panel]:visible').count(), 1);
+    assert.equal(await page.locator('[data-tour-panel="' + keys[i] + '"]:visible').count(), 1);
+    assert.equal(await page.locator('[data-tour-link][aria-current="step"]').count(), 1, 'step locator is selected');
+    assert.equal(await page.locator('#tour-position').textContent(), (i + 1) + ' / 7');
+    const original = await page.locator('.tour-panel:visible .idea-live').textContent();
+    await page.locator('.tour-panel:visible .idea-next').click();
+    assert.notEqual(await page.locator('.tour-panel:visible .idea-live').textContent(), original, 'thought starter changes');
+    assert.match(page.url(), new RegExp('#tour-' + keys[i] + '$'));
+  }
+  await page.locator('#tour-prev').click();
+  assert.equal(await page.locator('[data-tour-panel="art"]:visible').count(), 1, 'previous goes to art');
+  await page.locator('#tour-next').click();
+  assert.equal(await page.locator('[data-tour-panel="finish"]:visible').count(), 1, 'next returns to finish');
+  await page.locator('[data-tour-link="facts"]').focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('[data-tour-panel="facts"]:visible').count(), 1, 'keyboard opens a step');
+  await page.locator('#tour-next').focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('[data-tour-panel="words"]:visible').count(), 1, 'keyboard activates next');
+
+  const assertFocusedHeadingInView = async (key) => {
+    const heading = page.locator('#tour-' + key + '-heading');
+    const view = await heading.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const header = document.querySelector('.mbar').getBoundingClientRect();
+      return {
+        focused: document.activeElement === element,
+        top: rect.top,
+        bottom: rect.bottom,
+        headerBottom: Math.max(0, header.bottom),
+        viewportHeight: window.innerHeight,
+      };
+    });
+    assert.equal(view.focused, true, 'active step heading receives focus: ' + key);
+    assert.ok(view.top >= view.headerBottom && view.bottom <= view.viewportHeight,
+      'focused step heading stays visible below the mobile header: ' + key + ' ' + JSON.stringify(view));
+  };
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const height of [568, 480]) {
+    await page.setViewportSize({ width: 320, height });
+    await page.locator('[data-tour-link="words"]').click();
+    await assertFocusedHeadingInView('words');
+    await page.locator('#tour-next').focus();
+    await page.keyboard.press('Enter');
+    await assertFocusedHeadingInView('story1');
+    await page.locator('#tour-prev').click();
+    await assertFocusedHeadingInView('words');
+    await page.locator('[data-tour-link="finish"]').click();
+    await assertFocusedHeadingInView('finish');
+  }
+
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator('[data-tour-link="art"]').click();
+    await page.locator('.memorial-example img').evaluate(async image => { image.loading = 'eager'; await image.decode(); });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'guide fits at ' + width);
+    const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    assert.deepEqual(axe.violations.map(v => v.id + ': ' + v.nodes.map(n => n.target).join(' ')), [], 'guide accessibility at ' + width);
+    await page.screenshot({ path: OUT + '/guide-' + width + '.png', fullPage: true });
+  }
+  assert.deepEqual(external, [], 'walkthrough uses only local assets');
+  assert.deepEqual(errors, [], 'walkthrough runs without script errors');
+  await context.close();
+
+  const noJS = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
+  const staticPage = await noJS.newPage();
+  await staticPage.goto(BASE + '/hubs/ush9-medal-of-honor-guide.html');
+  assert.equal(await staticPage.locator('[data-tour-panel]:visible').count(), 7, 'without JavaScript, every step is readable');
+  assert.equal(await staticPage.locator('.idea-bank:visible').count(), 7, 'without JavaScript, every set of prompts is readable');
+  assert.equal(await staticPage.locator('[data-tour-pager]:visible').count(), 0);
+  await noJS.close();
+});
+
+await test('annotated exemplar is complete, accessible, printable and never becomes student work', async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const errors = [], external = [];
+  page.on('pageerror', error => errors.push(String(error)));
+  await context.route('**/*', route => {
+    if (new URL(route.request().url()).origin === BASE) return route.continue();
+    external.push(route.request().url());
+    return route.abort();
+  });
+  await page.goto(`${BASE}/hubs/ush9-medal-of-honor-exemplar.html`);
+  await page.addScriptTag({ url: `${BASE}/hubs/moh/spec.js` });
+  await page.addScriptTag({ url: `${BASE}/hubs/moh/veterans.js` });
+  const contentCheck = await page.evaluate(() => {
+    const fields = window.MOH.FIELDS.filter(f => f.kind !== 'gen');
+    return fields.flatMap(field => {
+      const element = document.querySelector(`[data-model-field="${field.id}"]`);
+      if (!element) return [`Missing ${field.id}`];
+      if (element.textContent.trim().length < field.min) return [`Too short: ${field.id}`];
+      if (field.kind === 'word' && !window.MOH_VETERANS[0].citation.toLowerCase().includes(element.textContent.trim().toLowerCase())) return [`Word absent from citation: ${field.id}`];
+      if (/poster-head|screen-title/.test(field.id) && element.textContent.trim().split(/\s+/).length > 5) return [`Long title: ${field.id}`];
+      if (/poster-quote|screen-quote/.test(field.id)) {
+        const text = element.textContent.trim();
+        if (text.split(/\s+/).length > 12 || !window.MOH_VETERANS[0].citation.includes(text)) return [`Invalid quote: ${field.id}`];
+      }
+      return [];
+    });
+  });
+  assert.deepEqual(contentCheck, [], 'all student-authored fields meet the current assignment requirements');
+  assert.equal(await page.locator('input,textarea,canvas,script[src*="desk-save"]').count(), 0, 'reading page has no account or answer controls');
+  assert.match(await page.locator('.model-label').first().textContent(), /Teacher-created model/);
+  const notes = await page.locator('.explanation').count();
+  assert.equal(notes, 11);
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(() => Promise.all([...document.images].map(img => { img.loading = 'eager'; return img.decode(); })));
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `viewport fit at ${width}`);
+    const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    assert.deepEqual(axe.violations.map(v => `${v.id}: ${v.nodes.map(n => n.target).join(' ')}`), [], `exemplar accessibility at ${width}`);
+    await page.screenshot({ path: `${OUT}/exemplar-${width}.png`, fullPage: true });
+    const toggle = page.locator('#toggle-notes');
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.locator('.explanation:visible').count(), 0);
+    assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
+    assert.equal(await page.locator('[data-model-field]').count(), 44, 'reading view retains every answer');
+    await page.emulateMedia({ media: 'print' });
+    assert.equal(await page.locator('.explanation:visible').count(), 0, 'clean print hides explanations');
+    if (width === 1440) await page.pdf({ path: `${OUT}/exemplar-clean.pdf`, format: 'Letter' });
+    await page.emulateMedia({ media: 'screen' });
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.locator('.explanation:visible').count(), notes);
+  }
+  await page.emulateMedia({ media: 'print' });
+  assert.equal(await page.locator('.explanation:visible').count(), notes, 'annotated print retains notes');
+  await page.pdf({ path: `${OUT}/exemplar-annotated.pdf`, format: 'Letter' });
+  await page.emulateMedia({ media: 'screen' });
+  assert.deepEqual(external, [], 'exemplar needs no remote services');
+  assert.deepEqual(errors, []);
+  const noJS = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
+  const staticPage = await noJS.newPage();
+  await staticPage.goto(`${BASE}/hubs/ush9-medal-of-honor-exemplar.html`);
+  assert.equal(await staticPage.locator('.explanation:visible').count(), notes);
+  assert.equal(await staticPage.locator('[data-example-controls]:visible').count(), 0);
+  assert.ok(await staticPage.locator('#screen img').evaluate(async img => { img.loading = 'eager'; await img.decode(); return img.naturalWidth === 1600; }));
+  await noJS.close();
+  await context.close();
+  const synthetic = world();
+  const cb = await chromebook(synthetic);
+  const work = await open(cb, '/hubs/ush9-medal-of-honor-project.html');
+  await passGate(work, synthetic.pin(PEOPLE.katherine));
+  assert.equal(await work.locator('.ws-step a[href*="exemplar.html"]').count(), 7, 'each project step links to its matching model section');
+  assert.equal(await work.locator('.ws-step a[href*="exemplar.html"][target="_blank"][rel="noopener"]').count(), 7, 'model opens alongside the assignment');
+  await work.locator('[data-mode="solo"]').click();
+  await work.locator('#pick-grid .vcard[data-slug="freddie-stowers"]').click();
+  await work.locator('[data-action="confirm-pick"]').click();
+  await work.locator('#moh-work').waitFor({ state: 'visible' });
+  await work.locator('#moh-a-fact-born').fill('My own draft about Stowers stays in my project.');
+  const [model] = await Promise.all([
+    cb.context.waitForEvent('page'),
+    work.locator('#step-facts a[href*="exemplar.html"]').click(),
+  ]);
+  await model.waitForLoadState();
+  assert.match(model.url(), /exemplar\.html#fact-file$/);
+  assert.equal(await work.locator('#moh-a-fact-born').inputValue(), 'My own draft about Stowers stays in my project.');
+  assert.equal(await model.locator('input,textarea,#desk-save-gate').count(), 0);
+  await cb.context.close();
+});
+
 await test('home and veteran pages read cleanly at phone and desktop widths', async () => {
   const s = world();
   const cb = await chromebook(s, { gate: false });

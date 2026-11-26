@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta name="theme-color" content="#14130f">
 <title>Blitzkrieg: Hold the Road</title>
-<meta name="description" content="Hold the road in September 1939. A tower defense game on seven battlefields of the invasion of Poland, with guns that grow, crews that earn rank, and ground that breaks.">
+<meta name="description" content="A tower defense game with 10 playable maps: scenarios inspired by the September 1939 invasion of Poland and two fictional bonus challenges, Signal Junction and Canal Loop.">
 <meta property="og:title" content="Blitzkrieg: Hold the Road">
 <meta property="og:image" content="https://grant-desk.com/hubs/blitzkrieg/og.jpg">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="versus.css?v=1">
 </head>
 <body>
 <div id="stage">
@@ -75,8 +76,9 @@
   <div id="grain"></div>
   <div id="reels"></div>
 
-  <!-- title -->
+  <!-- title: operational briefing is semantic HTML so it stays sharp without synthetic artwork -->
   <div id="title" class="screen">
+    <div class="title-layout">
     <div class="title-wrap">
       <div class="kicker">1 September 1939</div>
       <h1>BLITZKRIEG</h1>
@@ -91,6 +93,27 @@
         <button class="ib" id="b-music" title="Music"><i data-ic="music"></i></button>
         <button class="ib wide" id="b-gore" title="Blood and bodies"><i data-ic="drop"></i><span>Blood on</span></button>
       </div>
+    </div>
+    <aside class="field-report" aria-labelledby="field-report-title">
+      <div class="field-report__header">
+        <span>POLISH DEFENSE / 1939</span>
+        <span>FIELD ORDER 01</span>
+      </div>
+      <div class="field-report__intro">
+        <p class="field-report__eyebrow">MISSION BRIEFING</p>
+        <h2 id="field-report-title">HOLD THE ROAD.</h2>
+        <p>Every position matters. Build a defense that can survive the next wave, then adapt as the battlefield changes.</p>
+      </div>
+      <ol class="field-report__steps">
+        <li><span class="field-report__number">01</span><div><strong>PLACE YOUR GUNS</strong><p>Cover the roads from defensible ground and watch for multiple approaches.</p></div></li>
+        <li><span class="field-report__number">02</span><div><strong>MANAGE THE LINE</strong><p>Upgrade range, firepower, and support without exhausting your złoty.</p></div></li>
+        <li><span class="field-report__number">03</span><div><strong>WITHSTAND THE WAVES</strong><p>Protect the garrison, earn command medals, and unlock new fields.</p></div></li>
+      </ol>
+      <div class="field-report__footer">
+        <span>TACTICAL TOWER DEFENSE</span>
+        <span>HISTORICAL SETTING · GAME SCENARIOS</span>
+      </div>
+    </aside>
     </div>
   </div>
 
@@ -238,5 +261,6 @@
 <script src="js/ui4.js?v=1"></script>
 <script src="js/ui5.js?v=1"></script>
 <script src="js/fieldwork.js?v=1"></script>
+<script src="js/versus.js?v=1"></script>
 </body>
 </html>

@@ -1,0 +1,24 @@
+const vm=require('node:vm'), fs=require('node:fs'), assert=require('node:assert/strict');
+const listeners={},calls=[],audio=[];
+class Media {constructor(){this.paused=true;this.src='';audio.push(this);}play(){this.paused=false;calls.push(this.src);return Promise.resolve();}pause(){this.paused=true;}load(){}removeAttribute(){this.src='';}}
+const engine={setMuted(){},setVolume(){},suspend(){},stopAllLoops(){},startLoop(){},play(){}};
+const context={window:{ManifestAudio:engine,addEventListener(){}},document:{hidden:false,getElementById(){return {setAttribute(){}}},addEventListener(n,cb){listeners[n]=cb;}},Audio:Media,setTimeout:cb=>cb()};
+vm.runInNewContext(fs.readFileSync('public/hubs/manifest-1848/soundtrack.js','utf8'),context);
+const sound=context.window.TrailSound;
+sound.scene('title');assert.equal(calls.length,0);listeners.pointerdown();assert.match(calls.at(-1),/copper-and-talon/);
+for(const scene of ['select','map','combat','fort','camp','event'])sound.scene(scene);
+sound.encounter(['river']);sound.effect('milestoneFanfare');sound.scene('end');sound.finish(false);
+assert.ok(!calls.some(s=>s.includes('west-of-the-divide')));
+sound.finish(true);assert.match(calls.at(-1),/west-of-the-divide/);assert.equal(audio[0].loop,false);
+sound.setEnabled(false);assert.equal(audio[0].paused,true);sound.setEnabled(true);assert.equal(audio[0].paused,false);
+context.document.hidden=true;listeners.visibilitychange();assert.equal(audio[0].paused,true);
+context.document.hidden=false;listeners.visibilitychange();assert.equal(audio[0].paused,false);
+sound.scene('title');assert.match(calls.at(-1),/copper-and-talon/);
+context.window.ManifestAudio=undefined;sound.effect('buttonPress');sound.scene('camp');
+console.log('PASS: interaction unlock, main theme, scene changes, defeat exclusion, full victory, mute, background pause/resume, title return, missing Web Audio fallback');
+const game=fs.readFileSync('public/hubs/manifest-1848/game.js','utf8');
+assert.equal((game.match(/TrailSound\.finish\(/g)||[]).length,1);
+assert.match(game,/function endScreen\(won\)[\s\S]*?TrailSound\.finish\(won\)/);
+assert.match(game,/if\(G\.act===3\) return endScreen\(true\)/);
+for(const file of ['copper-and-talon','west-of-the-divide','copper-sky'])assert.ok(fs.statSync('public/hubs/manifest-1848/audio/'+file+'.m4a').size>1000000);
+console.log('PASS: sole full-game completion hook and all three local music files');

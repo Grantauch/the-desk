@@ -64,6 +64,7 @@ export function PondApp() {
   const lastAtlasRefresh = useRef(0);
   const [panMode, setPanMode] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
+  const dishRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
   const [saveMessage, setSaveMessage] = useState("Saves in this browser. Export to keep a copy.");
@@ -81,6 +82,10 @@ export function PondApp() {
   const [discoveryLoaded, setDiscoveryLoaded] = useState(false);
   const [firstMix, setFirstMix] = useState<string | null>(null);
   const [mixSearch, setMixSearch] = useState("");
+  const [showAllDiscoveries, setShowAllDiscoveries] = useState(false);
+  // The mobile Field Station shows one real panel at a time; desktop keeps
+  // the complete three-column workbench. This UI-only choice is not saved.
+  const [mobilePane, setMobilePane] = useState<"materials" | "discoveries" | "world" | "atlas" | "archive">("materials");
   const [featuredId, setFeaturedId] = useState<string | null>(null);
   const [lastMix, setLastMix] = useState("Pick two discoveries. Familiar mixes make familiar things; other pairs can make new species.");
   const [scene, setScene] = useState<SceneId | "custom">("garden");
@@ -434,8 +439,8 @@ export function PondApp() {
       .map((id) => getOutcome(id))
       .filter((outcome): outcome is NonNullable<ReturnType<typeof getOutcome>> => outcome !== null)
       .filter((outcome) => !needle || outcome.name.toLowerCase().includes(needle))
-      .slice(0, 72);
-  }, [discovered, mixSearch]);
+      .slice(0, mixSearch.trim() || showAllDiscoveries ? 72 : 12);
+  }, [discovered, mixSearch, showAllDiscoveries]);
   const featured = featuredId ? getOutcome(featuredId) : null;
   const featuredProfile = featured ? residentProfile(featured) : null;
 
@@ -447,24 +452,72 @@ export function PondApp() {
     });
   };
 
+  // These buttons connect existing systems; they never mutate the simulation.
+  const jumpToStation = (station: "materials" | "discoveries" | "inhabitants" | "atlas" | "archive" | "world-controls" | "atlas-map") => {
+    const nextPane = station === "materials" ? "materials"
+      : station === "discoveries" || station === "inhabitants" ? "discoveries"
+      : station === "archive" ? "archive"
+      : station === "world-controls" ? "world"
+      : station === "atlas-map" ? "atlas"
+      : pondSize === 192 ? "world" : "atlas";
+    setMobilePane(nextPane);
+    if (nextPane === "atlas") setAtlasOpen(true);
+    const targetId = station === "materials" ? "pond-field-kit"
+      : station === "archive" ? "pond-field-archive"
+      : station === "world-controls" ? "pond-world-controls"
+      : station === "atlas-map" ? "pond-field-atlas"
+      : station === "atlas" ? (pondSize === 192 ? "pond-world-controls" : "pond-field-atlas")
+      : station === "inhabitants" && specimenId ? "pond-field-canvas"
+      : station === "inhabitants" && featured ? "pond-place-action"
+      : "pond-discovery-lab";
+    // Wait for React to reveal the selected pane before moving focus. Both
+    // frames are bounded to direct user gestures, not a polling effect.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      const target = targetId === "pond-field-canvas"
+        ? dishRef.current?.querySelector<HTMLCanvasElement>("canvas")
+        : document.getElementById(targetId);
+      target?.scrollIntoView({
+        block: "center",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
+      target?.focus({ preventScroll: true });
+    }));
+  };
+  const suggestedStation = discovered.length <= STARTERS.length ? "discoveries"
+    : residentCount === 0 ? "inhabitants"
+    : pondSize === 192 ? "atlas" : "archive";
+  const suggestedText = suggestedStation === "discoveries"
+    ? "Combine two discoveries to see what emerges."
+    : suggestedStation === "inhabitants"
+    ? "Choose a discovery and place it in the living pond."
+    : suggestedStation === "atlas"
+    ? "Expand the world, then open the Atlas to explore."
+    : "Keep exploring. Export a copy when you want to take this world with you.";
+  const paneLabel = {
+    materials: "Field kit · paint",
+    discoveries: "Discovery lab · combine",
+    world: "World controls · shape",
+    atlas: "World atlas · explore",
+    archive: "Field archive · preserve",
+  }[mobilePane];
   const selected = toolById(tool);
 
   return (
-    <main className={cn("pond-environment field-station min-h-dvh bg-bg text-fg", !richGraphics && "pond-classic")}>
+    <main className={cn("pond-environment field-station min-h-dvh bg-bg text-fg", !richGraphics && "pond-classic")} data-mobile-pane={mobilePane}>
       <div className="field-ambient-grain" aria-hidden="true" />
       {started ? (
         <header className="field-masthead">
           <div className="field-brand">
-            <span className="field-brand-emblem" aria-hidden="true"><Leaf size={23} strokeWidth={1.4} /></span>
+            <span className="field-brand-emblem" aria-hidden="true"><span className="field-monogram">P</span></span>
             <div>
-              <p className="field-eyebrow">THE LIVING COLLECTION · VOL. 01</p>
+              <p className="field-eyebrow">A SMALL PLACE FOR BIG EXPERIMENTS</p>
               <h1 className="field-brand-title">Pond<span className="field-brand-period">.</span></h1>
             </div>
           </div>
           <div className="field-masthead-meta" aria-label="World statistics">
-            <span><span className="field-led-light" /> LIVE FIELD STUDY</span>
-            <span>{grains.toLocaleString()} <small>grains</small></span>
-            <span>{residentCount} <small>inhabitants</small></span>
+            <span><span className="field-led-light" /> {paused ? "WORLD PAUSED" : "WORLD IN MOTION"}</span>
+            <span>{discovered.length.toLocaleString()} <small>discoveries</small></span>
+            <span>{residentCount} <small>living residents</small></span>
           </div>
           <div className="field-header-actions">
             <a href="/games/" className="field-return-link">← The Desk</a>
@@ -485,16 +538,16 @@ export function PondApp() {
         <section className="field-observation" aria-label="Living pond simulation">
           <div className="field-observation-heading">
             <div>
-              <p className="field-eyebrow">01 / OBSERVATION CHAMBER</p>
-              <h2>Make a living world<span className="field-heading-dot">.</span></h2>
-              <p className="field-observation-sub">An endless experiment in little things.</p>
+              <p className="field-eyebrow">THE POND · YOUR LITTLE WORLD</p>
+              <h2>Begin with a drop<span className="field-heading-dot">.</span></h2>
+              <p className="field-observation-sub">Pour water, scatter sand, and see what takes root.</p>
             </div>
-            <span className="field-chamber-stamp" aria-hidden="true">EST. ∞</span>
+            <span className="field-chamber-stamp" aria-label={`${residentCount} living residents`}><strong>{residentCount}</strong><small>living</small></span>
           </div>
-          <div className="field-stage-plinth">
-            <span className="field-plinth-tick field-plinth-tick--top" aria-hidden="true">N · 00</span>
-            <span className="field-plinth-tick field-plinth-tick--left" aria-hidden="true">FIELD / A</span>
-            <span className="field-plinth-tick field-plinth-tick--right" aria-hidden="true">SPECIMEN / 01</span>
+          <div className="field-stage-plinth" ref={dishRef}>
+            <span className="field-plinth-tick field-plinth-tick--top" aria-hidden="true">WORLD {pondSize} × {pondSize}</span>
+            <span className="field-plinth-tick field-plinth-tick--left" aria-hidden="true">WATER · EARTH · LIFE</span>
+            <span className="field-plinth-tick field-plinth-tick--right" aria-hidden="true">VIEW {camera.size} × {camera.size}</span>
             <div className={cn(
               "pond-glass-shell field-dish relative w-full aspect-square bg-dish p-2 transition-[border-radius] duration-300",
               camera.size === pondSize ? "rounded-full" : "rounded-[1.5rem]",
@@ -521,7 +574,7 @@ export function PondApp() {
               <div aria-hidden="true" className="pond-glass-sheen pointer-events-none absolute inset-2" />
               {toast ? <div role="status" className="field-stage-toast pointer-events-none absolute left-1/2 top-8 z-10 -translate-x-1/2 pond-enter">{toast}</div> : null}
             </div>
-            <span className="field-plinth-tick field-plinth-tick--bottom" aria-hidden="true">ECOSYSTEM IN PROGRESS</span>
+            <span className="field-plinth-tick field-plinth-tick--bottom" aria-hidden="true">{discovered.length} DISCOVERIES · {residentCount} INHABITANTS</span>
           </div>
           {started ? (
             <div className="field-status-sill">
@@ -530,8 +583,34 @@ export function PondApp() {
                 <span>{paused ? "Simulation paused" : "World in motion"}</span>
               </div>
               <p><strong>{specimenId ? (getOutcome(specimenId)?.name ?? "Discovery") : panMode ? "Explore mode" : selected.name}</strong> <span className="field-status-separator">/</span> {specimenId ? "Tap to place a specimen" : panMode ? "Drag to navigate" : "Paint inside the glass"}</p>
-              <span className="field-world-size">{pondSize} × {pondSize} · {residentCount} living creations</span>
+              <span className="field-world-size">{pondSize} × {pondSize} · {grains.toLocaleString()} grains · {residentCount} living creations</span>
             </div>
+          ) : null}
+          {started ? (
+            <nav className="field-route" aria-label="Pond field workflow">
+              <div className="field-route-heading">
+                <p className="field-eyebrow">FIVE WAYS TO TEND YOUR WORLD</p>
+                <p>Your field notes are always nearby. Pick up wherever curiosity takes you.</p>
+              </div>
+              <div className="field-route-actions" role="group" aria-label="Jump to a Pond station">
+                <button type="button" data-current={mobilePane === "materials"} onClick={() => jumpToStation("materials")} aria-label="Go to materials and painting">
+                  <Layers3 size={16} aria-hidden="true"/><span>Paint</span>
+                </button>
+                <button type="button" data-current={mobilePane === "discoveries"} onClick={() => jumpToStation("discoveries")} aria-label="Go to discovery mixing" data-suggested={suggestedStation === "discoveries"}>
+                  <FlaskConical size={16} aria-hidden="true"/><span>Discover</span>
+                </button>
+                <button type="button" onClick={() => jumpToStation("inhabitants")} aria-label="Go to placing living discoveries" data-suggested={suggestedStation === "inhabitants"}>
+                  <Leaf size={16} aria-hidden="true"/><span>Populate</span>
+                </button>
+                <button type="button" data-current={mobilePane === "world" || mobilePane === "atlas"} onClick={() => jumpToStation("atlas")} aria-label="Go to world expansion or Atlas" data-suggested={suggestedStation === "atlas"}>
+                  <Map size={16} aria-hidden="true"/><span>Explore</span>
+                </button>
+                <button type="button" data-current={mobilePane === "archive"} onClick={() => jumpToStation("archive")} aria-label="Go to world backups and imports" data-suggested={suggestedStation === "archive"}>
+                  <Download size={16} aria-hidden="true"/><span>Preserve</span>
+                </button>
+              </div>
+              <p className="field-route-suggestion"><strong>A place to start:</strong> {suggestedText} <span>Everything is optional.</span></p>
+            </nav>
           ) : null}
           {started && ecosystemNews ? (
             <p className="field-ecosystem-ticker" aria-live="off"><Leaf size={14}/> <span>From the field:</span> {ecosystemNews}</p>
@@ -540,19 +619,24 @@ export function PondApp() {
 
         {started ? (
           <>
+            <div className="field-mobile-pane-status" role="status" aria-live="polite">
+              <span className="field-eyebrow">YOUR WORKBENCH</span>
+              <strong>{paneLabel}</strong>
+              <small>Choose any station above to switch tools.</small>
+            </div>
             <aside className="field-ledger" aria-label="Discovery notebook">
-              <section aria-label="Discovery workbench" className="field-panel field-discovery-panel">
+              <section id="pond-discovery-lab" tabIndex={-1} aria-label="Discovery workbench" className="field-panel field-discovery-panel">
                 <div className="field-panel-header">
-                  <p className="field-eyebrow">02 / THE SPECIMEN LEDGER</p>
+                  <p className="field-eyebrow">COLLECTED DISCOVERIES</p>
                   <div className="field-panel-heading">
                     <h2>Discovery lab</h2>
                     <FlaskConical size={23} strokeWidth={1.4} aria-hidden="true"/>
                   </div>
-                  <p className="field-panel-description">Everything begins with a curious combination.</p>
+                  <p className="field-panel-description">Two discoveries make a third. Every combination leaves a trace.</p>
                 </div>
                 <div className="field-ledger-number">
                   <span className="field-count">{discovered.length.toLocaleString()} <small>found</small></span>
-                  <span className="field-count-note">of {OUTCOME_SPACE.toLocaleString()} possibilities</span>
+                  <span className="field-count-note">{OUTCOME_SPACE.toLocaleString()} possible identities</span>
                 </div>
                 <div className="field-mixing-tray" role="group" aria-label="Crafting slots">
                   <div className={cn("field-mix-slot", firstMix && "field-mix-slot--active")}>
@@ -567,9 +651,9 @@ export function PondApp() {
                 </div>
                 <div className="field-mix-result">
                   {featured ? <DiscoveryGlyph outcome={featured} size={72} className="field-feature-glyph shrink-0" /> :
-                    <span className="field-feature-placeholder" aria-hidden="true"><Sparkles size={27}/></span>}
+                    <span className="field-feature-placeholder" aria-hidden="true"><span className="field-unmixed-mark">?</span></span>}
                   <div className="min-w-0">
-                    <p className="field-eyebrow">LATEST FIELD NOTE</p>
+                    <p className="field-eyebrow">LATEST FIND</p>
                     <p role="status" aria-live="polite" className="field-mix-message">{lastMix}</p>
                   </div>
                 </div>
@@ -588,7 +672,14 @@ export function PondApp() {
                       setSpecimenId(featured.id);
                       setPanMode(false);
                       setLastMix("Place " + featured.name + ": tap or press Enter on the pond to add a living specimen. Each creation moves and affects its surroundings.");
-                    }} className="field-secondary-action">
+                      if (window.matchMedia("(max-width: 800px)").matches) {
+                        window.requestAnimationFrame(() => {
+                          const canvas = dishRef.current?.querySelector("canvas");
+                          canvas?.scrollIntoView({ block: "center", behavior: "instant" });
+                          canvas?.focus({ preventScroll: true });
+                        });
+                      }
+                    }} id="pond-place-action" className="field-secondary-action">
                       <Leaf size={15} aria-hidden="true"/> Place in pond
                     </button>
                     {featuredProfile ? <p className="field-specimen-profile">{featuredProfile.mode} · {featuredProfile.influence} · Size {featuredProfile.size}</p> : null}
@@ -610,18 +701,29 @@ export function PondApp() {
                     </button>
                   ))}
                 </div>
-                <p className="field-ledger-footnote">{visibleDiscoveries.length} specimens shown · Try combining a discovery with itself.</p>
+                <div className="field-discovery-footer">
+                  <p className="field-ledger-footnote">{visibleDiscoveries.length} indexed · Search your discoveries or try mixing a find with itself. The marks are catalog symbols, not pictures of the species.</p>
+                  {!mixSearch.trim() && discovered.length > 12 ? (
+                    <button type="button" className="field-discovery-more"
+                      aria-expanded={showAllDiscoveries} onClick={() => setShowAllDiscoveries(value => !value)}>
+                      {showAllDiscoveries ? "Show fewer" : "Show up to 72 recent discoveries"}
+                    </button>
+                  ) : null}
+                </div>
               </section>
 
-              <section className="field-panel field-atlas-panel">
+              <section id="pond-field-atlas" tabIndex={-1} className="field-panel field-atlas-panel">
                 <div className="field-panel-header field-atlas-heading">
-                  <p className="field-eyebrow">03 / THE EXPLORER'S MAP</p>
+                  <p className="field-eyebrow">THE EXPLORER'S MAP</p>
                   <div className="field-panel-heading">
                     <h2>World atlas</h2>
                     <Map size={23} strokeWidth={1.5} aria-hidden="true"/>
                   </div>
                   <p className="field-panel-description">Chart places, inhabitants and wild habitats.</p>
                 </div>
+                <button type="button" className="field-mobile-pane-jump" onClick={() => jumpToStation("world-controls")}>
+                  <Compass size={16} aria-hidden="true"/> Shape or expand the world
+                </button>
                 <button type="button" className="field-atlas-toggle" aria-label={atlasOpen ? "Hide atlas" : "Open atlas"} aria-expanded={atlasOpen} aria-controls="pond-world-atlas"
                   onClick={() => setAtlasOpen((open) => !open)}>
                   <span>{atlasOpen ? "Fold the map" : "Unfold the map"}</span><span aria-hidden="true">{atlasOpen ? "−" : "+"}</span>
@@ -634,12 +736,12 @@ export function PondApp() {
             </aside>
 
             <aside className="field-materials" aria-label="Materials and world controls">
-              <section id="pond-field-kit" className="field-panel field-tool-panel">
+              <section id="pond-field-kit" tabIndex={-1} className="field-panel field-tool-panel">
                 <div className="field-panel-header">
-                  <p className="field-eyebrow">04 / THE MATERIAL LIBRARY</p>
+                  <p className="field-eyebrow">MATERIALS · YOUR PALETTE</p>
                   <div className="field-panel-heading">
                     <h2>Field kit</h2>
-                    <span className="field-kit-number">18 MATERIALS</span>
+                    <span className="field-kit-number">18 MATERIALS · 2 TOOLS</span>
                   </div>
                   <p className="field-panel-description">Choose a substance, then paint the world.</p>
                 </div>
@@ -680,11 +782,14 @@ export function PondApp() {
                 </div>
               </section>
 
-              <section className="field-panel field-world-panel">
+              <section id="pond-world-controls" tabIndex={-1} className="field-panel field-world-panel">
                 <div className="field-panel-header">
-                  <p className="field-eyebrow">05 / TERRAIN & EXPLORATION</p>
+                  <p className="field-eyebrow">TERRAIN & EXPLORATION</p>
                   <div className="field-panel-heading"><h2>Shape the world</h2><Compass size={22} strokeWidth={1.5}/></div>
                 </div>
+                <button type="button" className="field-mobile-pane-jump" onClick={() => jumpToStation("atlas-map")}>
+                  <Map size={16} aria-hidden="true"/> Open the world Atlas
+                </button>
                 <div className="field-scene-presets" aria-label="World presets">
                   {SCENES.map((preset) => (
                     <button key={preset.id} type="button" onClick={() => stamp(preset.id)}
@@ -736,9 +841,9 @@ export function PondApp() {
                   </button>
                 </div>
               </section>
-              <section className="field-panel field-storage-panel">
+              <section id="pond-field-archive" tabIndex={-1} className="field-panel field-storage-panel">
                 <div className="field-panel-header">
-                  <p className="field-eyebrow">06 / FIELD ARCHIVE</p>
+                  <p className="field-eyebrow">THE FIELD ARCHIVE</p>
                   <div className="field-panel-heading"><h2>Preserve your pond</h2><BookOpen size={19} strokeWidth={1.5}/></div>
                 </div>
                 <div className="field-archive-actions">
@@ -772,7 +877,7 @@ export function PondApp() {
             );
           })}
           <button type="button" className="field-mobile-dock-more" aria-label="Open full material kit"
-            onClick={() => document.getElementById("pond-field-kit")?.scrollIntoView({ block: "start", behavior: "smooth" })}>
+            onClick={() => jumpToStation("materials")}>
             <Layers3 size={20} aria-hidden="true"/><span>All tools</span>
           </button>
         </nav>
@@ -788,7 +893,7 @@ export function PondApp() {
             className="field-recipe-dialog pond-enter max-h-[85dvh] w-full max-w-lg overflow-y-auto p-6"
             onClick={(event) => event.stopPropagation()}>
             <div className="field-panel-heading mb-3">
-              <div><p className="field-eyebrow">THE NATURALIST'S RECIPE NOTES</p><h2 className="text-2xl font-display">Things to try</h2></div>
+              <div><p className="field-eyebrow">THE POND RECIPE BOOK</p><h2 className="text-2xl font-display">Things to try</h2></div>
               <Button variant="ghost" size="sm" onClick={() => setGuide(false)}>Close</Button>
             </div>
             <p className="field-panel-description mb-4">These are only the beginning. There are no required recipes.</p>
@@ -805,11 +910,11 @@ export function PondApp() {
         <div className="field-start-overlay">
           <div className="field-start-card pond-enter">
             <span className="field-start-emblem" aria-hidden="true"><Leaf size={30} strokeWidth={1.3}/></span>
-            <p className="field-eyebrow">AN EXPERIMENT IN POSSIBILITY · NO. 001</p>
-            <h1>Welcome to <em>Pond.</em></h1>
-            <p>Water becomes a world. A grain becomes a landscape. Every discovery begins with a little curiosity.</p>
+            <p className="field-eyebrow">POUR · PLANT · COMBINE · WANDER</p>
+            <h1>A little water. <em>A whole world.</em></h1>
+            <p>Start with a handful of sand and a drop of water. Then follow whatever grows. There is no score to chase and no wrong way to play.</p>
             <button type="button" onClick={begin} className="field-start-button">Make a mess <span aria-hidden="true">↗</span></button>
-            <small>Paint · Discover · Evolve · Explore</small>
+            <small>AN OPEN-ENDED WORLD YOU CAN SAVE AND RETURN TO</small>
           </div>
         </div>
       ) : null}

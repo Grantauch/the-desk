@@ -76,11 +76,61 @@ try {
         'Source investigations are separate from Games');
       assert.equal(await page.getByRole('link', { name: /jeopardy live · student buzzer/ }).getAttribute('href'), '/hubs/jeopardy-buzz.html');
       assert.equal(await page.locator('a[href*="lessonhub-lab"]').count(), 0);
+      assert.equal(await page.locator('a[href="/hubs/ush9-muckrakers-review.html"]').count(), 0,
+        'Practice drills are not mixed into the Games cabinet');
+      await page.getByRole('link', { name: /Practice & review/i }).first().click();
+      await page.waitForURL(origin + '/practice/');
+      assert.ok(await page.getByRole('heading', { name: /practice & review/i }).count());
+      assert.ok(await page.locator('a[href="/hubs/ush9-muckrakers-review.html"]').count(),
+        'The practice activity retains its original student URL');
+      await page.goto(origin + '/games/');
       await page.getByRole('link', { name: 'Explore simulations and investigations' }).click();
       await page.waitForURL(origin + '/simulations/');
+      const namedActivityLinks = new Set();
+      for (const [headingId, action] of [
+        ['interactive-simulations-heading', 'open simulation'],
+        ['investigation-heading', 'open investigation'],
+        ['story-simulations-heading', 'try the model inside this Story Hub'],
+      ]) {
+        const cards = page.locator(`section[aria-labelledby="${headingId}"] article`);
+        assert.ok((await cards.count()) > 0, `The ${headingId} section still has activities`);
+        for (const card of await cards.all()) {
+          const heading = card.getByRole('heading', { level: 3 });
+          assert.equal(await heading.count(), 1);
+          const title = (await heading.textContent()).trim().replace(/\s+/g, ' ');
+          assert.ok(title, 'Each activity has a visible title');
+          assert.equal(await card.getByRole('heading', { level: 3, name: title, exact: true }).isVisible(), true);
+          const name = `${action}: ${title}`;
+          assert.equal(await card.getByRole('link').count(), 1);
+          assert.equal(await card.getByRole('link', { name, exact: true }).isVisible(), true,
+            `The link names this activity without announcing its decorative arrow: ${name}`);
+          assert.ok(!namedActivityLinks.has(name), `Activity link name is unique: ${name}`);
+          namedActivityLinks.add(name);
+        }
+      }
+      const modelSection = page.locator('section[aria-labelledby="story-simulations-heading"]');
+      assert.equal(await modelSection.locator('article').count(), 8,
+        'All eight substantive Story Hub models must be discoverable in Simulations');
+      assert.equal(await modelSection.locator('img, svg').count(), 0,
+        'Cross-discovery must not reuse synthetic narrative covers as simulation previews');
+      for (const href of [
+        '/hubs/hh-they-couldnt-stop.html',
+        '/hubs/ush9-bytesize-marne.html',
+        '/hubs/ush9-bytesize-why-they-fought.html',
+        '/hubs/bts-l03-not-in-the-room.html',
+        '/hubs/ush9-l015-who-showed-up.html',
+        '/hubs/ush9-l018-the-debt-didnt-move.html',
+        '/hubs/ush9-s01-the-margin.html',
+        '/hubs/bts-s01-the-death-harvest.html',
+      ]) {
+        assert.equal(await modelSection.locator(`a[href="${href}"]`).count(), 1,
+          `One canonical student link must remain for ${href}`);
+      }
+      assert.equal(await modelSection.getByText('Change wheat prices while farm debt stays fixed.').count(), 1,
+        'Students can see what variable they will actually test');
       const investigation = page.locator('section[aria-labelledby="investigation-heading"] article')
         .filter({ has: page.getByRole('heading', { name: /constitution day · case files/ }) });
-      const investigationLink = investigation.getByRole('link', { name: 'open investigation' });
+      const investigationLink = investigation.getByRole('link', { name: 'open investigation: constitution day · case files', exact: true });
       assert.equal(await investigationLink.getAttribute('href'), route, 'The assignment keeps its original URL');
       const assignmentOpened = page.waitForEvent('popup');
       await investigationLink.click();

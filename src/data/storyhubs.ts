@@ -14,6 +14,8 @@ export interface StoryHub {
   blurb: string;
   cover: string;
   coverAlt: string;
+  /** Native dimensions and credit for an uncropped archival cover on the library shelf. */
+  coverArchive?: { width: number; height: number; credit: string; record: string; scan: string };
   topics: string[];
   inside: string[];
   /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
@@ -23,6 +25,46 @@ export interface StoryHub {
 }
 
 export const storyHubs: StoryHub[] = [
+  {
+    slug: 'the-long-fuse',
+    href: '/storyhubs/the-long-fuse/',
+    title: 'The Long Fuse — A Three-Part Historical Documentary',
+    course: 'us history',
+    unit: 'world war i and its aftermath',
+    period: '1914–1933',
+    status: 'three-part cinematic documentary',
+    edition: 'story hub 2.0 · three-part series',
+    question: 'How did separate political choices turn a killing into world war—and a later democratic crisis into dictatorship?',
+    blurb: 'Explore Sarajevo, the July Crisis, industrial war, Versailles, Weimar and January 1933 through period photography, interactive geography, a dated timeline and election evidence. Three linked episodes with an archival reference companion.',
+    cover: '/storyhub/ush9/long-fuse/assets/sarajevo.webp',
+    coverAlt: 'Contemporary illustrated Italian newspaper depiction of the Sarajevo assassination, not a photograph',
+    topics: ['world war i', 'sarajevo', 'july crisis', 'versailles', 'weimar republic', 'historical contingency', 'primary sources'],
+    inside: [
+      'Part I: The Spark Was Not a Switch — Sarajevo, the ultimatum and the choices of July 1914.',
+      'Part II: The War and the Settlement — fighting, armistice and the peace conference.',
+      'Part III: The Republic and the Appointment — inflation, elections, political bargains and January 1933.',
+      'Interactive dated evidence, accessible map and cast, archival photographs with rights and source records.',
+    ],
+  },
+  {
+    slug: 'pearl-harbor',
+    href: '/storyhubs/pearl-harbor/',
+    title: 'Pearl Harbor: The Morning That Changed the World',
+    course: 'us history',
+    unit: 'world war ii / the pacific',
+    period: '1931–1945',
+    status: '45–55 minute documentary',
+    question: 'How did decisions across the Pacific converge on one morning, and what did that morning change?',
+    blurb: 'Investigate the road to war, the warnings on Oʻahu and the attack through declassified reports, historic maps and an archival recording of Roosevelt’s address.',
+    cover: '/storyhub/ush9/pearl-harbor/assets/prewar.webp',
+    coverAlt: 'U.S. Navy aerial photograph of Ford Island, Pearl Harbor, on October 30, 1941',
+    topics: ['world war ii', 'pearl harbor', 'hawaiʻi', 'pacific war', 'primary sources'],
+    inside: [
+      'A historical briefing and a 12-chapter documentary.',
+      'A synchronized map, timeline, cast and archive.',
+      'The original radar plot, a Ford Island chart and eyewitness records.',
+    ],
+  },
   {
     slug: 'bts-who-pays-for-friday-night',
     href: '/hubs/bts-who-pays-for-friday-night.html',
@@ -719,8 +761,8 @@ export const storyHubs: StoryHub[] = [
     bytesize: 'bytesize no. 3',
     question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
     blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
-    cover: '/storyhub/hh/nuremberg/cover.svg',
-    coverAlt: 'Original documentary illustration of the Nuremberg tribunal courtroom, not an archival photograph',
+    cover: '/storyhub/hh/nuremberg/courtroom-72-906.jpg',
+    coverAlt: 'Archival photograph of a session of the 1945–46 Nuremberg War Crimes Trials; Harry S. Truman Library, photograph 72-906 (public domain)',
     topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
     inside: [
       'Decide how leaders accused of war crimes should be tried, then discover the 1946 verdicts.',
@@ -1238,8 +1280,8 @@ export const storyHubs: StoryHub[] = [
     question: 'politicians did not fix low wages. they made exclusion federal law.',
     blurb:
       'Chinese railroad workers join the labor fight. Economic anger turns against them. Congress answers one labor demand with the Chinese Exclusion Act, and the consequences spread west.',
-    cover: '/storyhub/ush9/l016/assets/sierra.webp',
-    coverAlt: 'AI-authored reconstruction of an empty railroad cut in the Sierra Nevada',
+    cover: '/storyhub/ush9/l016/assets/act.webp',
+    coverAlt: 'First page of the Chinese Exclusion Act of May 6, 1882, held by the National Archives, Record Group 11',
     topics: ['chinese exclusion', 'nativism', 'labor', 'page act', 'rock springs'],
     inside: [
       'Stamp five labor demands and discover which one received federal power.',
@@ -1258,8 +1300,8 @@ export const storyHubs: StoryHub[] = [
     question: 'chinese americans organized, refused, sued—and changed the law.',
     blurb:
       'Exclusion reaches homes, ships, identity papers, and courtrooms. Chinese Americans answer with mass resistance and cases that strengthen equal protection and birthright citizenship.',
-    cover: '/storyhub/ush9/l016/assets/sea.webp',
-    coverAlt: 'AI-authored reconstruction of an 1880s steamship approaching the California coast',
+    cover: '/storyhub/ush9/l016/assets/wong.webp',
+    coverAlt: "Wong Kim Ark’s November 5, 1894 departure statement, including his identification photograph, from the U.S. National Archives",
     topics: ['chinese exclusion', 'civil disobedience', 'equal protection', 'wong kim ark', 'birthright citizenship'],
     inside: [
       'Move a ship carrying a valid return certificate that Congress cancels during the crossing.',
@@ -1394,6 +1436,27 @@ export const storyHubs: StoryHub[] = [
     ],
   },
   {
+    slug: 'ush9-l012-loaded-with-dynamite',
+    href: '/hubs/ush9-l012-loaded-with-dynamite.html',
+    title: 'loaded with dynamite',
+    course: 'us history 9',
+    unit: 'world war i / lesson 12',
+    period: 'January 1918 to June 1919',
+    status: 'ready to teach',
+    question: 'wilson promised a peace built on fourteen points. who did the peace leave out?',
+    blurb:
+      'Wilson promised a peace built on fourteen points. Self determination traveled farther than he meant it to. People in Korea, Vietnam, Egypt and China took it as a promise to them. The peace conference kept the points that redrew the losers\' maps and dropped most of the ones that would have bound the winners.',
+    cover: '/storyhub/ush9/loaded-with-dynamite/assets/council-of-four-1919.webp',
+    coverAlt: 'The Council of Four outside a doorway in Paris, May 27, 1919',
+    topics: ['fourteen points', 'self determination', 'paris peace conference', 'treaty of versailles', 'woodrow wilson'],
+    inside: [
+      'The fourteen points as cards you can sort into rules for every country and places on the map.',
+      'The Big Four and the war dead each one carried to Paris.',
+      'A map of the new countries, and four letters from people who asked and were turned away.',
+      'A scorecard of kept, bent and dropped points, and three short responses with Turn In.',
+    ],
+  },
+  {
     slug: 'ush9-s04-the-weavers-son',
     href: '/hubs/ush9-s04-the-weavers-son.html',
     title: "the weaver's son",
@@ -1447,8 +1510,14 @@ export const storyHubs: StoryHub[] = [
     question: 'when workers stopped the trains, who arrived to make them move again?',
     blurb:
       'Four strikes across seventeen years reveal a system getting faster and more distant: local militia, outside troops, hired detectives, and finally a court order that could reach a national union without leaving the courtroom.',
-    cover: '/storyhub/ush9/l015/assets/a01-rail-yard.svg',
-    coverAlt: 'Authored paper-and-ink scene of an empty rail yard at first light',
+    cover: '/storyhub/ush9/l015/assets/railroad-strike-1877-archival.jpg',
+    coverAlt: 'Wood engraving of fire and smoke sweeping across Pittsburgh’s rail yards, with railcars, rooftops and crowds below, during the Great Railroad Strike of 1877',
+    coverArchive: {
+      width: 1280, height: 455,
+      credit: 'Wood engraving by M. B. Leiser · Harper’s Weekly, Aug. 11, 1877, pp. 624–625',
+      record: 'https://www.loc.gov/item/99614203/',
+      scan: 'https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Steeple_View_of_Pittsburgh_Conflagaration_(cropped).jpg',
+    },
     topics: ['great railroad strike', 'haymarket', 'homestead', 'pullman strike', 'labor injunctions'],
     inside: [
       'A rail-network timeline that shows the 1877 strike spreading city by city and records who answered it.',
@@ -1468,8 +1537,8 @@ export const storyHubs: StoryHub[] = [
     question: 'what changes when the people doing the work are missing from the meeting?',
     blurb:
       'Baseball owners create a league, set entry rules, and close the labor market while the players who produce the game are absent from the room. Students follow exactly where control moved and who gained it.',
-    cover: '/storyhub/bts/l03/assets/cover-ledger.svg',
-    coverAlt: 'Editorial ledger cover with an intentionally empty player chair',
+    cover: '/storyhub/bts/l03/assets/chicago-white-stockings-1876-archival.jpg',
+    coverAlt: '1876 lithograph of the Chicago White Stockings, one of the original National League clubs, with player portraits around a game scene and manager A. G. Spalding at the top. Public domain, Wikimedia Commons.',
     topics: ['national league origins', 'william hulbert', 'club ownership', 'reserve rule', 'player labor'],
     inside: [
       'A four-clause charter audit that makes students identify the problem each owner rule was designed to solve.',
