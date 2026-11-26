@@ -499,5 +499,31 @@
         "bytes": 41898
       }
     ]
+  },
+  {
+    "game": "manifest-1848",
+    "route": "/hubs/manifest-1848/",
+    "source": "https://grant-desk.com/hubs/manifest-1848/",
+    "credit": "Manifest: 1848, GrantDesk game capture",
+    "depicted": "Outfit Your Wagon in a new local journey, cropped x=288, y=11, width=704, height=396 from a 1280 × 720 Chromium capture to focus on the Conestoga and Prairie Schooner. The HTML, scripts and visibly loaded game art matched the exact public GrantDesk source blobs. No player name, student information or external imagery was added.",
+    "rights": "In-site screenshot of the GrantDesk-published build and the art already bundled with it. No new external image, hotlink or separate license claim.",
+    "sourceImageSha256": "9d6cf04d815d4d22da4714a6e11e4fd3c0c9b6010114abd686f880ad861dc305",
+    "covers": [
+      {
+        "file": "manifest-1848-384.webp",
+        "sha256": "226f8d480293165794861017f11bb2ae7ff204b59ce00b3216f14727d29a0faa",
+        "width": 384,
+        "height": 216,
+        "bytes": 17086
+      },
+      {
+        "file": "manifest-1848-768.webp",
+        "sha256": "556162178e22035989365d9d7f21aba9dc5a3287b6bbf1a7d6323586e89ab869",
+        "width": 768,
+        "height": 432,
+        "bytes": 44628
+      }
+    ],
+    "sourceBuildSha256": "b7a6870aa8c4d43c061c731e7e977aa991ba10897ca59e2f5b32aa467526a30a"
   }
 ]
