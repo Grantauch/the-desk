@@ -197,6 +197,54 @@ test('the editor health check reads actual dependencies even with a warm roster 
   assert.equal(diagnosis.reason, 'roster_sheet_missing');
 });
 
+test('a corrected PIN works immediately with a warm roster cache and the previous PIN stops working', () => {
+  const w = world();
+  const previous = w.pin(PEOPLE.ada);
+  assert.equal(w.post({ action: 'signin', pin: previous, hub: 'x', device: 'before-repair' }).ok, true);
+  const current = previous === '583261' ? '683261' : '583261';
+  const roster = w.school.harness.sheet('Roster');
+  const repairedHash = w.school.harness.call('hashPin_', current);
+  roster.getRange(2, 4).setValue(repairedHash);
+  const signedIn = w.post({ action: 'signin', pin: current, hub: 'x', device: 'after-repair' });
+  assert.equal(signedIn.ok, true, 'no ten-minute cache expiry wait after a PIN repair');
+  assert.equal(signedIn.firstName, 'Ada');
+  const saved = w.post({ action: 'save', token: signedIn.token, hub: 'x', answers: ONE,
+    classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '' });
+  assert.equal(saved.ok, true, 'the corrected credential session must save on its next request');
+  const finished = w.post({ action: 'turnin', accountToken: signedIn.token, hub: 'x', answers: ONE,
+    classPeriod: 'Period 1', submissionId: 'after-pin-repair', writeProtocol: 1, baseRevision: saved.revision });
+  assert.equal(finished.ok, true, 'the corrected credential session must also turn in');
+  assert.equal(w.rows('Turn Ins').length, 1);
+  assert.equal(w.post({ action: 'signin', pin: previous, hub: 'x', device: 'outdated-email' }).code, 'bad_pin');
+  assert.equal(w.post({ action: 'signin', pin: w.pin(PEOPLE.grace), hub: 'x', device: 'unaffected-student' }).ok, true);
+});
+
+test('a failed cache refresh cannot strand a newly corrected PIN session', () => {
+  const w = world();
+  assert.equal(w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'x' }).ok, true);
+  const current = w.pin(PEOPLE.ada) === '583261' ? '683261' : '583261';
+  w.school.harness.sheet('Roster').getRange(2, 4).setValue(w.school.harness.call('hashPin_', current));
+  const cache = w.sandbox.CacheService.getScriptCache();
+  const put = cache.put.bind(cache);
+  cache.put = (key, value, seconds) => {
+    if (key === 'roster:v1') throw new Error('Synthetic roster cache write failure');
+    return put(key, value, seconds);
+  };
+  const signedIn = w.post({ action: 'signin', pin: current, hub: 'x' });
+  assert.equal(signedIn.ok, true);
+  const saved = w.post({ action: 'save', token: signedIn.token, hub: 'x', answers: ONE,
+    classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '' });
+  assert.equal(saved.ok, true, 'cache failure falls back to the current sheet instead of old credentials');
+});
+
+test('an inactive membership cannot sign in through a warm roster cache', () => {
+  const w = world();
+  const pin = w.pin(PEOPLE.ada);
+  assert.equal(w.post({ action: 'signin', pin, hub: 'x', device: 'before-disable' }).ok, true);
+  w.school.harness.sheet('Roster').getRange(2, 5).setValue(false);
+  assert.equal(w.post({ action: 'signin', pin, hub: 'x', device: 'after-disable' }).code, 'bad_pin');
+});
+
 test('a wrong PIN is refused, and repeated misses slow that Chromebook only', () => {
   const w = world();
   const real = w.pin(PEOPLE.ada);
