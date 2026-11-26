@@ -66,7 +66,8 @@ class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs): return None
 
 def verify(path,approval):
-    base=authorize(approval); expected=payload(path)
+    from site_policy import authorize_dedicated
+    base=authorize_dedicated(approval); expected=payload(path)
     def one(item):
         name,content=item; url=urljoin(base,name)
         req=Request(url,headers={'Cache-Control':'no-cache','User-Agent':'ManifestPhase22StagingGate/1'})
