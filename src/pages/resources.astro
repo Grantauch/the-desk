@@ -240,6 +240,7 @@ const displayCourse = (course: string) => course === 'Rabbit Holes' ? 'The Detou
                         href={resource.href}
                         target="_blank"
                         rel="noopener"
+                        aria-label={`open in drive: ${resource.name} (${displayCourse(group.course)})`}
                         class="font-mono text-xs font-semibold lowercase text-accent hover:text-accent-dark"
                       >
                         open in drive ↗

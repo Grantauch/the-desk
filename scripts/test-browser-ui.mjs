@@ -274,6 +274,91 @@ try {
       assert.equal(await page.locator('.desk-search-results a:visible').count(), 1);
       await page.keyboard.press('Enter');
       await page.waitForURL(`${origin}/tools/`);
+
+      await visit(page, '/');
+      await page.keyboard.press('Control+k');
+      const input = page.getByRole('searchbox', { name: 'Search website pages' });
+      const matches = page.locator('.desk-search-results a:visible');
+      assert.ok(await input.evaluate(element => element === document.activeElement));
+      const expectations = [
+        ['practice', ['/practice/', '/learning-hubs/']],
+        ['review', ['/practice/', '/learning-hubs/', '/games/']],
+        ['study', ['/practice/']],
+        ['flashcards', ['/practice/']],
+        ['quiz', ['/practice/']],
+      ];
+      for (const [query, hrefs] of expectations) {
+        await input.fill(query);
+        assert.deepEqual(await matches.evaluateAll(links => links.map(link => link.getAttribute('href'))), hrefs,
+          `Practice & Review leads results for "${query}"`);
+      }
+      await input.fill('practice review');
+      await input.press('ArrowDown');
+      assert.ok(await matches.first().evaluate(link => link === document.activeElement), 'ArrowDown focuses Practice & Review');
+      assert.equal(await matches.first().getAttribute('href'), '/practice/');
+      await page.keyboard.press('Enter');
+      await page.waitForURL(`${origin}/practice/`);
+      assert.ok(await page.getByRole('heading', { level: 1, name: /^practice & review/i }).isVisible());
+
+      await page.keyboard.press('Control+k');
+      const arcadeInput = page.getByRole('searchbox', { name: 'Search website pages' });
+      await arcadeInput.fill('arcade');
+      assert.equal(await matches.count(), 1, 'Arcade search finds only Games');
+      assert.equal(await matches.first().getAttribute('href'), '/games/');
+      await arcadeInput.press('ArrowDown');
+      assert.ok(await matches.first().evaluate(link => link === document.activeElement));
+      await page.keyboard.press('Enter');
+      await page.waitForURL(`${origin}/games/`);
+      assert.ok(await page.getByRole('heading', { level: 1, name: /^arcade/i }).isVisible());
+    });
+    await runCase('resources open in Drive links name each title and course', viewport, async page => {
+      await visit(page, '/resources/');
+      const allScope = page.locator('[data-scope="all"]');
+      await allScope.press('Enter');
+      assert.equal(await allScope.getAttribute('aria-pressed'), 'true');
+      const groups = page.locator('#resource-groups [data-resource-group]');
+      assert.ok(await groups.count(), 'The public Resources library has course groups');
+
+      const names = new Set();
+      let searchable;
+      for (const group of await groups.all()) {
+        const course = (await group.getByRole('heading', { level: 2 }).textContent()).trim().replace(/\s+/g, ' ');
+        const disclosure = group.locator('details');
+        const summary = disclosure.locator('summary');
+        assert.equal(await disclosure.evaluate(detail => detail.open), false, 'The course starts closed');
+        await summary.press('Enter');
+        assert.equal(await summary.evaluate(element => element === document.activeElement), true, 'The course summary retains keyboard focus');
+        assert.equal(await disclosure.evaluate(detail => detail.open), true, 'Enter opens the native course group');
+
+        for (const card of await group.locator('[data-resource-card]').all()) {
+          const title = (await card.getByRole('heading', { level: 3 }).textContent()).trim().replace(/\s+/g, ' ');
+          const anchor = card.locator('a');
+          if (!(await anchor.count())) {
+            assert.ok(await card.getByText('teacher preparing · link coming soon', { exact: true }).isVisible());
+            continue;
+          }
+          assert.equal(await anchor.count(), 1);
+          const name = `open in drive: ${title} (${course})`;
+          const link = card.getByRole('link', { name, exact: true });
+          assert.ok(await link.isVisible(), `Accessible resource link is named ${name}`);
+          assert.ok(!names.has(name), `Resource link name is unique: ${name}`);
+          names.add(name);
+          assert.match(await link.innerText(), /open in drive ↗/);
+          assert.equal(await link.getAttribute('target'), '_blank');
+          assert.equal(await link.getAttribute('rel'), 'noopener');
+          assert.ok(await link.getAttribute('href')); // Inspect only; never open Drive.
+          searchable ??= { title, link };
+        }
+      }
+      assert.ok(names.size > 0, 'The public library contains named resource links');
+
+      const cards = page.locator('#resource-groups [data-resource-card]');
+      const before = await cards.count();
+      await page.locator('#resource-search').fill(searchable.title);
+      assert.ok(await searchable.link.isVisible(), 'Search retains the matching title and its accessible link');
+      assert.ok(await cards.locator('visible=true').count() < before, 'Search still filters the public cards');
+      await page.locator('#clear-filters').press('Enter');
+      assert.equal(await page.locator('#resource-search').inputValue(), '');
     });
     await runCase('timer pause reset and fullscreen', viewport, async page => {
       await visit(page, '/tools/');

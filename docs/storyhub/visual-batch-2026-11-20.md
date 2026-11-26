@@ -1,0 +1,39 @@
+# Story Hub visual cleanup — archival cover batch (20 November 2026)
+
+Related: issue #422, initial taxonomy release PR #421. This is a **source-code change in a follow-up branch**, not evidence of a live release.
+
+## Concrete changes in this batch
+
+- **The Hangman of Nuremberg**: replace the generic vector courtroom hero and Story Hub catalog thumbnail with a documented photograph of the 1945–46 trial. The image is from the Harry S. Truman Presidential Library and Museum, photo **72-906**, and its record identifies public-domain rights. Use a restrained grayscale treatment and label the photograph near the hero and in the source register.
+- In the same lesson, replace the fake vector John C. Woods personnel portrait with an **actual 1946 photograph of Woods**. The surviving Wikimedia Commons reproduction is only 123 × 175 pixels: display at native size with a visible source credit, **not** upscaled as a cinematic portrait. The Commons file page marks it public domain.
+- **Two Sources**: point the standalone hub's Open Graph image at the same locally hosted and already credited 1973 Watergate photograph used by its Story Hub catalog, rather than the residual signal SVG.
+- No student answer fields, PIN, Turn In, direct assignment route, or shared runtime were changed.
+
+## Source and rights references
+
+1. Nuremberg defendants and counsel: [Harry S. Truman Library, photo 72-906](https://www.trumanlibrary.gov/photograph-records/72-906). The official source record identifies this public-domain photograph. The locally hosted derivative is `/storyhub/hh/nuremberg/courtroom-72-906.jpg` (SHA-256 `e4e0d5ee44da675f3d8293b40d469da4bedbbdfc3147614e5ee10f37d23e849f`).
+2. Woods period portrait: [Wikimedia Commons, John C. Woods.jpg](https://commons.wikimedia.org/wiki/File:John_C._Woods.jpg), 1946, 123 × 175 pixels. Wikimedia Commons identifies the work as public domain in the United States. The canonical Commons address is `https://upload.wikimedia.org/wikipedia/commons/1/15/John_C._Woods.jpg`. The locally hosted derivative is `/storyhub/hh/nuremberg/woods-1946.jpg` (SHA-256 `068c13f7735f16530a89aaf9f2a87e7b8c5c1e64f5e69d00dd002165b891a310`).
+3. Two Sources: `/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg`; the existing catalog identifies a Yoichi Okamoto / National Archives photograph of the Watergate complex (May 1973). No new binary was introduced.
+
+## Local image delivery and provenance
+
+Both authentic 1946 image files have been added under `public/storyhub/hh/nuremberg/`; the standalone page and catalog now reference local URLs. Public-domain rights were checked against the Truman Library and Wikimedia Commons records. The source origins initially responded with HTTP 403/429 to automated retrieval, so byte-preserving originals could not be fetched directly; local JPEG derivatives were obtained through an image-delivery proxy, then visually inspected against the authoritative photographs. They are marked as derivatives, not certified byte-for-byte archival masters. SHA-256 hashes are recorded above. **No third-party image requests are needed by the published lesson.** Responsive browser QA, CI, and final production verification still need to pass before merging.
+
+## Remaining catalog SVG covers
+
+After these branch changes, exactly two Story Hub entries in `src/data/storyhubs.ts` still point directly to SVG cover scenes:
+
+- `ush9-l015-who-showed-up` — `/storyhub/ush9/l015/assets/a01-rail-yard.svg`
+- `bts-l03-not-in-the-room` — `/storyhub/bts/l03/assets/cover-ledger.svg`
+
+The SVG signal illustration for `hh-l06-two-sources` remains inside the standalone lesson; its catalog cover and social card use a period photograph. The 14 small SVG narrative scenes inside `ush9-l015-who-showed-up.html` remain and need a **whole-lesson** visual redesign from specific documented 1877–1894 strike material. Functional data diagrams and interactive maps should not be removed merely for being SVG.
+
+Six synthetic-reconstruction descriptors still occur in the Story Hub catalog: `ush9-l016-the-one-that-passed`, `ush9-l016b-they-said-no`, `ush9-s01-the-margin`, `hh-s01-the-desk-it-stopped-at`, `bts-s01-the-death-harvest` and `ush9-l018-the-debt-didnt-move`. Audit each against documentary references; do not replace one generic AI rendering with another.
+
+## Required acceptance before calling this done
+
+- Replace remotely referenced photographs with locally hosted, credited, appropriately sized derivatives.
+- Inspect the actual Nuremberg cover, Woods image and Two Sources sharing card on phone, Chromebook and projector widths, including their alt text and source links.
+- Run `npm run verify`, focused Story Hub browser checks, keyboard/reduced-motion/contrast checks and CI.
+- Confirm final merged commit is included in Netlify production; check live URLs and no student PIN / Save / Turn In regression.
+- Continue issue #422 batches for rail strike, baseball and game interior artwork, rather than accepting only catalog cards.

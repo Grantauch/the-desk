@@ -1,4 +1,121 @@
 {
+  "story-hub-library-2026-11-21": {
+    "status": "IMPLEMENTED_LOCAL_REVIEW",
+    "owner": "ChatGPT",
+    "scope": "Apply the approved Story Hubs catalog UI, retaining all 77 original URLs and adding a direct cross-list to the existing Somme map. Preserve the globe homepage and all assignment systems.",
+    "verification_status": "BUILD_STATIC_LINK_ASSET_AND_FOCUSED_CHROMIUM_PASS",
+    "deployment_status": "EXACT_HEAD_PROTECTED_CI_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING"
+  },
+  "pearl-harbor-storyhub-2": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Add the Pearl Harbor documentary and a reusable Astro Story Hub introduction and contextual companion.",
+    "branch": "feat/pearl-harbor-storyhub",
+    "verification_status": "FOCUSED_BUILD_AND_BROWSER_PASS_PROTECTED_HEAD_PENDING",
+    "deployment_status": "PROTECTED_MERGE_AND_NETLIFY_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "The edition is read-only exploration. It uses locally hosted archival media and existing catalog discovery. The story includes five briefing sections, twelve chapters and shared typed relationships.",
+      "Built Chromium exercises keyboard and touch, reference synchronization, focus and reading position, zoom, audio and transcript seeking, fallback when imagery and audio fail, WCAG 2.2 A/AA, reduced motion, and 320, 390 and 1440 pixel layouts.",
+      "Netlify serves grant-desk.com from the protected GitHub main branch. A review build and public-domain readback are distinct release checkpoints."
+    ]
+  },
+  "curiosity-catalog-outage-2026-11-18": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Issue #411: selected archive availability during live catalog failures, truthful status and recovery.",
+    "verification_status": "LATEST_MAIN_CANONICAL_FULL_AND_FOCUSED_PASS_PROTECTED_HEAD_PENDING",
+    "deployment_status": "MERGE_AND_EXACT_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "The production mysteries endpoint returned 502 before the repair. Empty, restricted, malformed, failed and offline catalog responses now use the existing reviewed record for each collection with explicit archive labeling and no-store.",
+      "Handler regressions cover all five collections and fresh live recovery. Built Chromium covers keyboard context reveal, collection/source controls, loaded archive images, cycling, WCAG, page fit, live preference and local development fallback. The health checker continues to report degraded live catalog health.",
+      "Full local verification and protected site run 44321311637 passed on 94610035934c669a8fce6185a25373f661f07ddb. November 19 resumption integrated current main 839be9c cleanly. Integrated full local verification passed with zero errors, 55 pages, 183 HTML files, 5908 references and 327 sealed assets; focused Chromium re-passed at 320/390/1440. Fresh integrated-head protected CI, normal merge and production acceptance remain required.",
+      "November 20: reconciled current main af6113a without changing other release records. Live GitHub shows #412 still open; earlier narrative merge notes are not current evidence. Handler and built Chromium checks passed at 320/390/1440, including live recovery, local fallback and no-JavaScript sources. Full integrated npm run verify exited 0: zero errors and warnings, 55 built pages, 190 HTML files, 6067 local references and 37 releases/360 sealed files. Independent review approved. Exact-head protected CI, normal merge and production verification remain pending.",
+      "Latest main 0b01ef1 integrated cleanly. A 10.2-second server archive response reproduced the browser ten-second deadline abort and one redundant LOC retry. Extended the browser deadline to twelve seconds beyond the function nine-second upstream limit. The failing regression now passes with zero retries and zero function aborts; complete focused Chromium at 320/390/1440 and independent review pass. Combined-source npm run verify passed with zero errors and warnings, 55 pages, 190 HTML files, 6070 references and 37 releases/360 assets. Final-head protected checks, normal merge and production acceptance remain pending."
+    ]
+  },
+  "medal-of-honor-exhibit-2026-11-19": {
+    "status": "LOCAL_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Restyle the Medal of Honor exhibit, all 21 profiles, student and teacher tools, and report cover. Add locally served archival images with credits.",
+    "verification_status": "FOCUSED_CHROMIUM_6_OF_6",
+    "deployment_status": "PROTECTED_CI_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All 21 images, official citations, maps, and profile links render. Tested the landing and profile at 320, 390, and 1440 pixels with automated WCAG A/AA checks.",
+      "Synthetic browser journeys passed for solo and paired work, same-class claim locking, the full report and teacher gallery.",
+      "The hero features a credited U.S. Air Force photograph of Frank Luke Jr.’s Medal of Honor with brief glints and a still reduced-motion treatment.",
+      "Stowers is a labeled U.S. Army forensic reconstruction. Stockham is represented by the medal awarded to him. Profile captions credit each visual source."
+    ]
+  },
+  "experience-catalog-publication-2026-11-19": {
+    "status": "LOCAL_FULL_AND_RENDERED_VERIFIED",
+    "owner": "Codex",
+    "scope": "PR #421, first publication batch for #422: classify all 37 existing activity entries, preserve their routes and fieldwork links, and use the existing credited trench photograph.",
+    "verification_status": "CANONICAL_FULL_AND_CHROMIUM_320_390_1366_1920_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "EXACT_HEAD_PROTECTED_CI_MERGE_AND_PRODUCTION_ACCEPTANCE_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All 37 original activity hrefs match the centralized inventory: 17 games, 5 practice activities, 9 simulations and 6 investigations. The source and live Story Hub catalog contain 77 entries at this checkpoint.",
+      "Rendered review reproduced old theme rules overriding all five new subject palettes. Increased subject selector specificity, including the title styles, so Blitzkrieg no longer displays pale text on newspaper cream. The computed-style acceptance assertion failed before the fix.",
+      "Focused Chromium passes at 320, 390, 1366 and 1920 pixels: category membership, all 77 story cards, credited cover, fieldwork keyboard controls, page-finder navigation, assignment PIN gate, no-JavaScript routes, viewport fit and zero automated WCAG A/AA violations on all three catalog pages. Full npm run verify exited 0: zero diagnostic errors or warnings, 55 routes, 186 HTML files, 6006 local references, 37 sealed releases and 360 sealed files.",
+      "Integrated protected run 44629366194 passed full verification, Checkaverse, assignment saving and earlier browser journeys, then exposed the old discovery assertion expecting Constitution Day on Games. Updated that journey to follow Games to Simulations, open the investigation and verify the same assignment URL and answer control. The complete discovery/privacy/buzzer suite passes at 320, 390 and 1440 pixels. Fresh protected checks are required for this test correction.",
+      "No underlying hub HTML, PIN verification, assignment saving, Turn In, roster or private endpoint is changed. The wider scene and artwork overhaul in #422 remains open."
+    ]
+  },
+  "turn-in-classroom-timeouts-2026-11-19": {
+    "scope": "Reduce repeated roster reads, pace automatic retries during slowdowns, and record private request timings.",
+    "verification_status": "SYNTHETIC_CLASS_AND_TIMEOUT_REGRESSIONS",
+    "deployment_status": "PENDING_WEBSITE_AND_GUARDED_TURN_IN_V15"
+  },
+  "turn-in-signin-diagnostics-2026-11-19": {
+    "scope": "Reportable assignment sign-in support codes, private redacted failure logs, and an editor-only dependency check.",
+    "verification_status": "FOCUSED_SYNTHETIC_RUNTIME_CHECKS_PASSED_PROTECTED_CI_PENDING",
+    "deployment_status": "PENDING_WEBSITE_AND_TURN_IN_V14"
+  },
+  "route-tree-alternative-assignment-publication-2026-11-19": {
+    "status": "LOCAL_FULL_AND_FOCUSED_VERIFIED",
+    "owner": "Codex",
+    "scope": "PR #415 / tracker P415: publish balanced Route Tree A/B alternatives while preserving the full assignment and existing saved work.",
+    "verification_status": "CANONICAL_FULL_GATE_AND_FOCUSED_CHROMIUM_PASS_EXACT_HEAD_PROTECTED_CI_PENDING",
+    "deployment_status": "NORMAL_PROTECTED_MERGE_AND_EXACT_PRODUCTION_VERIFICATION_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "A and B each contain five NFL cases, one other-sport connection, five evidence checks and three 90-110 word responses. A scaffolds comparison; B increases independent reasoning.",
+      "Chromium at 320, 390 and 1440 pixels verifies ordinary/reduced motion, keyboard image comparisons, disclosures, WCAG A/AA, viewport fit and separate tab drafts.",
+      "Synthetic accounts using the real Turn In code verify all six A/B responses, refresh, cross-device account restoration, two complete submissions and next-student isolation at every width. The preserved edition recovers all five original responses under bts-the-route-tree.",
+      "A failing no-JavaScript regression reproduced 109 hidden narrative elements in the preserved edition. Restoring its original no-js class in the page and authoring tool makes every narrative element visible. The release manifest was resealed.",
+      "Full canonical npm run verify exited 0 on the integrated source: 55 built routes, 186 HTML files and 5,997 local references. The focused browser server uses the native path separator for Windows/Linux parity. Earlier protected workflows 44339915158 and 44339915241 passed head 500c757; these release fixes require fresh exact-head checks."
+    ]
+  },
+  "reconstruction-student-publication-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Issue #383 / tracker R05: additive Reconstruction Case File with private shared saving, complete answer recovery and submission, historical sources, mobile and keyboard access, and discovery.",
+    "verification_status": "FOCUSED_CHROMIUM_320_390_1440_PASS_CANONICAL_AND_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_EXACT_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All six sections remain mounted for 23 text fields and 26 native radio groups; synthetic account restore, same-tab refresh, complete report/download/Turn In and shared-device sign-out passed at 320, 390 and 1440 pixels.",
+      "Legacy unowned browser-wide work is discarded. The original baseline stays intact; old bookmarks redirect and Games, U.S. History and the sitemap expose the student edition.",
+      "WCAG A/AA, keyboard navigation and page fit passed after answer feedback. Five public historical references remain readable without JavaScript; land wording acknowledges the Southern Homestead Act without claiming a universal land guarantee.",
+      "November 18 review reproduced missing wrong-answer feedback after native control conversion. Updated fieldset/input selectors and dashed error outlines; the failing browser regression then passed at 320, 390 and 1440 pixels and independent re-review found no blocking issues."
+    ]
+  },
+  "bs-high-student-publication-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Tracker #360 R02. Publish the Bishop Sycamore investigation with shared-device privacy, complete account saving, keyboard access, and course and Games discovery.",
+    "verification_status": "FOCUSED_SYNTHETIC_ACCOUNT_AND_TURN_IN_PASS_PROTECTED_CI_PENDING",
+    "deployment_status": "MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
+    "evidence": [
+      "All written prompts remain available to Desk Save across screens. A generated record carries interaction choices, allocations, checks, source selections and progress. Its starting-text snapshot has zero typing/paste counts and creates no false writing flag in the existing Turn In service.",
+      "The corrected edition retains the previous account assignment ID. The original curriculum source is preserved and the former public URLs redirect to the corrected edition."
+    ]
+  },
   "blitzkrieg-publication-2026-11-17": {
     "status": "IMPLEMENTED",
     "owner": "Codex",
@@ -52,10 +169,10 @@
     "status": "IMPLEMENTED",
     "owner": "Codex",
     "scope": "Issue #373: additive student edition with learner-paced feedback, keyboard focus, sourced historical review and Games discovery; original preserved.",
-    "verification_status": "FOCUSED_CHROMIUM_320_390_1440_PASS_CANONICAL_PENDING",
-    "deployment_status": "PROTECTED_CI_MERGE_AND_PRODUCTION_READBACK_PENDING",
+    "verification_status": "PROTECTED_PR_AND_MAIN_CI_PASS_LIVE_HOSTING_HASH_PASS",
+    "deployment_status": "LIVE_NETLIFY_6afa4e9afce86210233775dc",
     "field_status": "PHYSICAL_CLASSROOM_ACCEPTANCE_PENDING",
-    "evidence": ["Feedback has no automatic progression timer. Continue is consumed once and keyboard focus follows each transition.", "Historical examples link to FTC, NPS, Library of Congress, NCAA, USHMM and Department of Education references. The game has no identity, storage or classroom API."]
+    "evidence": ["Feedback has no automatic progression timer. Continue is consumed once and keyboard focus follows each transition.", "Historical examples link to FTC, NPS, Library of Congress, NCAA, USHMM and Department of Education references. The game has no identity, storage or classroom API.", "PR #375 and merged-main CI passed. Netlify published 491e6bf; the live HTML SHA256 is 1f3ff162adc2887a021813a26fa5aeefed8df34f417098b15208f5753ae0d2c8. Both legacy routes and Games navigation passed.", "The remote browser harness waits for DOMContentLoaded after either restart activation before evaluating game state. Published game HTML is unchanged; final live gameplay evidence is in #373."]
   },
   "market-shock-prices-2026-11-13": {
     "status": "IMPLEMENTED",
@@ -1383,7 +1500,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
@@ -1883,5 +2000,124 @@
       "Each collection has a selected archive artifact with a local optimized image, distinct source and status labels, an evidence prompt, and a link to the holding institution. Live records still load on demand.",
       "Six Chromium cases at 320, 390 and 1440 pixels cover an outage, keyboard reveal, responsive layout, automated WCAG A/AA, and a delayed response that preserves open context. The production feed health check still reports upstream failures."
     ]
+  },
+  "checklings-batch-01-2026-10-23": {
+    "status": "FOUNDATION_TESTED_PROTECTED_REVIEW_PENDING",
+    "owner": "Codex",
+    "scope": "Production reconciliation, offline import rehearsal, authority boundaries, versioned data contracts and first-12 design/implementation plan",
+    "deployment_status": "NO_NEW_GAME_DEPLOYMENT_OR_MIGRATION",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "Observed Netlify production 6adb6ab62f3d769755b5d68e ready on 82deafce4e1e6fedcd4adab49ae2527774920aea. Independently read active Apps Script Version 42 in Manage deployments; stable existing URL, DOMAIN access and deploying-owner execution retained.",
+      "Version 42 release artifact from run 39888673590 matches all five local normalized source hashes at dec34de; current main has identical Apps Script source. Current full editor export was not independently repeated.",
+      "Deployed synthetic smoke passed: PIN_VERIFIED_NO_ATTENDANCE, STARTED, RETURNED_COUNTABLE, evidenceUsed=1, test pass voided, test membership deactivated and productionFactsUnchanged=true. No real student PIN used.",
+      "16 new offline foundation tests pass, including all four founders/five homes, exact legacy names, tenant and membership separation, source conflicts, rerun preservation of deceased individuals and absence-safe death admission. Original 20 companion cases remain green; canonical npm run verify passed all 18 stages, 440 classroom behaviors, zero Astro errors/warnings, 53 built routes and 136 HTML/4618 local references.",
+      "PR 223 exact head f5ce7bb passes its 29 synthetic engine tests; dead-seat raid stall separately reproduced. No prototype code merged or production integration implied. docs/checklings/BATCH-01.md records findings and remaining pilot gates.",
+      "Focused offline browser suite could not start locally: no Chromium executable, and official Playwright browser download returned an invalid archive. No browser regression pass claimed; protected CI and Chromebook field use remain pending.",
+      "Subsequent protected workflow 39977450198 passed on 6258c9e, including the full release, site browser and Dry County browser gates. PR 226 remains unmerged; no new production claim."
+    ],
+    "verification_status": "PROTECTED_CI_PASSED"
+  },
+  "checklings-batch-02-persistence-2026-10-23": {
+    "status": "PROTECTED_SITE_AND_NATIVE_POSTGRES_CI_PASSED",
+    "owner": "Codex",
+    "scope": "SQL persistence, atomic import/rename commands, immutable receipts/events, staged native transaction tests; weight and scar additions scheduled later",
+    "deployment_status": "NOT_DEPLOYED_NO_STUDENT_DATA_MIGRATION",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "18 embedded PostgreSQL tests passed (17 shared scenarios plus the outer persistence/restore test). Combined original companion/foundation/storage suite passed 54/54. Embedded transactions are serialized and are not independent-client concurrency evidence.",
+      "The SQL schema constrains ownership, source provenance, lifecycle and revision consistency. Commands recheck active membership/class/auth epoch, serialize by owner, preserve imports and atomically commit state, append-only event and response receipt.",
+      "Added an isolated PostgreSQL 18 workflow and explicit synthetic-only native runner using 35 physical connections. Native CI, hosted provisioning, authentication bridge and managed restore remain separate gates.",
+      "Grant deferred feeding/body condition, exercise, long-term complications and localized scars until care/combat prerequisites exist. Requirements and acceptance gates are recorded in docs/checklings/BODY-CONDITION-AND-SCARS.md. No weight/scar runtime fields or simulation were added.",
+      "Canonical npm run verify passed all 18 stages, 440 classroom behaviors, zero Astro errors/warnings, 53 routes, 136 HTML files and 4618 local references. A subsequent SQL import-key guard passed the final focused 54-case suite; the entire gate was not repeated after that follow-up. Protected CI will run final source. No production release is modified or newly claimed.",
+      "Native PostgreSQL 18 workflow 39981989607 passed on source 99c3d6fa05016a1aa217454832bb52721ae87265: 18/18 embedded and 18/18 native tests; 35 distinct physical connections; duplicate requests and competing revisions converge safely. General protected site CI for Batch 02 remains separate. Parent Batch 01 protected run 39977450198 passed every release/browser gate.",
+      "Subsequent reconciliation verified final PR 227 head 0b98f49f5850c07f597bedfadf05f31196563aea: storage integration 39982438432 and protected site check 39982438462 both completed successfully. Unmerged and undeployed; supersedes the earlier pending-CI note."
+    ],
+    "verification_status": "PROTECTED_CI_PASSED"
+  },
+  "checklings-batch-03-auth-2026-10-23": {
+    "status": "PROTECTED_SITE_AND_NATIVE_POSTGRES_CI_PASSED",
+    "owner": "Codex",
+    "scope": "Private launch/assertion broker, durable browser-bound code exchange, expiring/revocable game sessions and additive migration 002; school/HTTP integration remains separate",
+    "verification_status": "PROTECTED_CI_PASSED",
+    "deployment_status": "NOT_DEPLOYED_NO_STUDENT_LOGIN_OR_MIGRATION",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "72/72 focused tests passed: 20 original companion, 16 foundation, 35 embedded storage/auth and one schema-1 upgrade rehearsal. Embedded transactions are serialized. Native runner includes the same shared scenarios with 35 physical PostgreSQL connections; this branch has not yet run native CI.",
+      "Signed fixed-issuer/audience/tenant assertions reject forged, replayed, expired and extra claims. Codes require the originating browser proof/state, are hashed and consumed once. Sessions are stored only as hashes, expire after two idle/fifteen absolute minutes, and recheck database membership/class/auth epoch.",
+      "Game store passes its transaction client to session authorization. Membership-first lock ordering serializes logout and commands, including receipt replay. Schema 001 remains unchanged; upgrade 002 preserves existing pet, membership, event and receipt rows and readiness verifies all migration checksums.",
+      "Canonical npm run verify passed all 18 stages: 72 Checklings tests, all 440 classroom behaviors, Astro 0 errors/0 warnings (155 hints), 53 routes, 136 HTML files, 4618 references and 13 releases/117 sealed files. Subsequent CI results are tracked in the pull request. No real school issuer, HTTP/cookie/CSRF adapter, roster propagation, teacher auth, student data, public route, hosting/database provisioning or production release is included. Weight/body condition, exercise, long-term complications and scars remain deferred. See docs/checklings/BATCH-03-AUTH.md.",
+      "Reconciled exact PR 228 head 60d2624c6ae16d837fdb90661440a861bd05e823: protected site/browser run 39999302788 and PostgreSQL run 39999302907 both passed. Native job logs independently read: 35/35 native and 36/36 embedded/upgrade tests. Unmerged/undeployed; supersedes the earlier pending-CI source note."
+    ]
+  },
+  "checklings-batch-04-browser-auth-2026-10-23": {
+    "status": "PROTECTED_SITE_NATIVE_POSTGRES_AND_SYNTHETIC_CHROMIUM_PASSED",
+    "owner": "Codex",
+    "scope": "Unmounted HTTP/cookie/CSRF and callback adapter, browser privacy/expiry client, durable pending-flow cancellation, shared SQL request limits and synthetic Chromium acceptance",
+    "verification_status": "FULL_LOCAL_NATIVE_AND_SYNTHETIC_BROWSER_PASSED",
+    "deployment_status": "NOT_MOUNTED_NOT_DEPLOYED_NO_STUDENT_LOGIN_OR_IMPORT",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "103/103 focused tests passed: 20 original companion, 16 foundation, 41 embedded storage/auth/rate tests, two schema upgrades, 16 HTTP boundary tests and eight browser-client privacy tests. Embedded transactions are serialized.",
+      "Server cookie proof/state/code binding, exact Origin plus custom-header checks, JSON/body deadlines, duplicate-cookie refusal, no-store/CSP/referrer protections and generic error responses are implemented. Raw PIN/client identities/private legacy exports have no browser route. Runtime is unmounted from the classroom site.",
+      "Done immediately clears rendering, cancels pending private requests, broadcasts to other tabs and durably cancels pending or committed exchanges. Server remaining-time headers clear idle/absolute-expired UI without polling; inspection does not refresh idle time. Unconfirmed database sign-out returns 503 and clears browser cookies. Missing cross-tab support fails closed.",
+      "Migration 003 preserves existing founder/history/receipt data and issued session hashes. Shared keyed SQL counters admit exactly five of 35 concurrent test requests; native runner proves 35 physical clients. A separate Chromium CI job uses synthetic HTTPS, an intercepted school page and a test issuer; no real school or Chromebook verification is implied. Local Chromium is unavailable; new native/browser CI is pending.",
+      "Canonical npm run verify passed all 18 stages with the final 103 Checklings tests, all 440 classroom behaviors, Astro 0 errors/0 warnings, 53 routes, 136 HTML files, 4618 references and 13 releases/117 sealed assets. Subsequent CI results are tracked in the pull request. No school bridge, roster propagation, teacher roles, hosting/provisioning, production release or student migration is included. Weight/body condition, exercise, chronic complications and scars stay in their later care/combat phases. See docs/checklings/BATCH-04-BROWSER-AUTH.md.",
+      "Independent CI run 40008927061 passed on runtime source 0a1cc4714bb0f245e17081811c43e6457565f0d0 in draft PR 229: PostgreSQL job 120603932280 passed 67/67 embedded and 41/41 native tests; Chromium job 120603931992 passed six synthetic HTTPS journeys plus outer test (7/7). Both logs read independently. General site run 40008927145 remains separate/in progress. Follow-up modifies evidence documentation only; no new runtime or tests, merge or deployment.",
+      "Batch 05 reconciliation: final documentation head 89f4502966ec1bca9bd6ce093c8f90b8d2f906a2 has passing storage/browser run 40009461914 and protected site/browser run 40009462098; build job 120606366534 steps read independently. This supersedes the pending-site note. No merge/deployment."
+    ]
+  },
+  "checklings-batch-05-school-bridge-2026-10-23": {
+    "status": "LOCAL_FULL_PASSED_REVIEW_PUBLICATION_APPROVAL_BLOCKED",
+    "owner": "Codex",
+    "scope": "School-only PIN/class launch issuer, private opaque roster/credential snapshots, bounded class access leases, teacher open/pause/refresh controls, immutable access audit and additive SQL migration 004",
+    "verification_status": "LOCAL_FULL_136_PASSED",
+    "deployment_status": "DISABLED_UNCONFIGURED_UNMOUNTED_NOT_DEPLOYED_NO_STUDENT_IMPORT",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "Owner branch checklings/batch-05-school-bridge is stacked on PR 229. The optional Apps Script route requires explicit private configuration and each class defaults paused. No classroom action proof, PIN/session, name/email, workbook identifier or attendance fact is sent to the game.",
+      "Signed complete class snapshots provision opaque memberships; PIN change, omission/deactivation and pause/reopen increment epochs and revoke sessions. School authorization is required on every private operation and expires within 120 seconds. No automatic school hook/poll/trigger: an unpushed change is bounded by existing lease expiry, not instantaneous propagation.",
+      "Five-file Apps Script contract and normal Index/manifest/release files remain unchanged. All game network requests follow lock release and are isolated from attendance/pass/roster write paths. Migration 004 adds class leases, credential versions and immutable access events, preserving prior SQL migrations and creature schema v2.",
+      "Actual school issuer code runs in a synthetic workbook worker with its UrlFetch connected to real HTTP/SQL handlers; this is not actual Google/Workspace or student login evidence. A new Chromium suite uses intercepted Google navigation/RPC and actual generated school page source. No local Chromium execution, real managed database provisioning or Chromebook test is claimed.",
+      "Handoff and private key/lease limits: docs/checklings/BATCH-05-SCHOOL-BRIDGE.md. Initial complete snapshots allow up to 35 active students per class; the sustained-play renewal strategy remains a staging gate. Weight/exercise/chronic complications and scars stay deferred.",
+      "Final focused Checklings suite passed 136/136: 20 original companion, 16 foundation, 60 embedded storage/auth/school, three schema upgrades, 16 HTTP, eight browser-client and 13 school bridge checks. Targeted independent-review rerun passed 73/73. Pause works without a valid/bounded roster; lease checks repeat after membership and flow/session lock waits.",
+      "Canonical npm run verify passed all 18 stages on final runtime/tests: 136/136 Checklings checks, all 440 classroom behaviors, Astro 0 errors/0 warnings (156 hints across 224 files), 53 built routes, 136 HTML files, 4618 references and 13 releases/117 sealed files. No local Chromium/native PostgreSQL server is available; new native/browser/protected CI remains pending on the review branch. No deployment, real school account, student import or Chromebook use is claimed.",
+      "Automatic approval review rejected publishing Batch05 source to Grantauch/the-desk because authorization for that exact external publication had not been established. No Batch05 remote branch or pull request was created, and no indirect publication was attempted. The destination was independently confirmed as Grantauch's public repository with authenticated push/admin permission. Source remains committed locally; native/browser/protected CI cannot start until review publication is authorized."
+    ]
+  },
+  "checklings-transport-privacy-2026-10-24": {
+    "status": "LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "CK-INT-PRIVACY-001: clear prerelease private browser views after network, body or JSON failure",
+    "evidence": [
+      "Published Batch04 baseline 89f4502966ec1bca9bd6ce093c8f90b8d2f906a2 passes 103/103 focused tests on native Node v24.15.0.",
+      "Before repair the original eight client cases pass and all five new failure/cancellation regressions fail. After repair the combined client suite passes 13/13, with no failures or skips.",
+      "Local synthetic HTTPS Chromium suite passes ten journeys plus its outer test (11/11), including visible-pet clearing for network abort, malformed success JSON and unreadable 401. A real committed rename survives a dropped acknowledgement, idempotent retry and new login at revision one.",
+      "One runtime guard reuses existing local/cross-tab clearing and late-response cancellation. No server revocation, command rollback or migration is implied. Canonical verification passes all 18 stages with 108 Checklings cases, 440 classroom behaviors, Astro zero errors/warnings, 53 routes, 136 HTML files and 4,618 references. Evidence-only follow-up edits preserve the executed source/test blobs; exact-head GitHub CI remains separate."
+    ],
+    "handoff": "docs/checklings/INTEGRATION-REVIEW-2026-10-24.md",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
+  "checklings-batch05-recovery-and-privacy-integration-2026-10-24": {
+    "status": "LOCAL_FULL_PASSED_BATCH05_CI_PASSED_COMBINED_CI_PENDING",
+    "owner": "Codex",
+    "branch": "checklings/integration/foundation-review-20261024",
+    "verification_status": "LOCAL_FULL_141_FOCUSED_16_BROWSER_PASSED",
+    "evidence": [
+      "Grant explicitly authorized public Batch05 publication. Cloud workspace maintenance removed the unpublished checkout; recovered all24 files from recorded edits, verified complete tree8e20ee6134a9943b2d9d6bc07868f823d67fd940 identical to original a16e7ef, and preserved it as c4807fc0a2ad41e7cc731757baba8412d018591b plus a local Git bundle. Fresh recovered baseline136/136 focused and12/12 synthetic HTTPS Chromium passed. Combined Batch05 and PR239 histories in merge8a14038b7202fecbabb6f6cc4b44fc339de62751, preserving both repair ledger sections;141/141 focused and16/16 synthetic HTTPS Chromium passed. Canonical verification and fresh independent CI remain pending at this checkpoint. No school deployment, hosted database, real account or classroom evidence.",
+      "Independent operations technical review: docs/checklings/OPERATIONS-REVIEW-2026-10-24.md. Suitable technical basis; full hosting gate still requires owner provider/region/privacy/spending/retention/operators/escrow decisions and actual restore measurement.",
+      "October24 publication update: Grant explicitly authorized public source publication. Batch05 PR240 is published at c4807fc0a2ad41e7cc731757baba8412d018591b, complete recovered tree8e20ee6134a9943b2d9d6bc07868f823d67fd940 identical to original a16e7ef. Fresh local136 focused/12 synthetic browser/all18 canonical stages PASS. Independent GitHub run40143837616 PASS:100 embedded-service,60 native PostgreSQL and12 synthetic Chromium tests, zero failures/skips; both job logs read. Full protected site run40143837630 is separate and still running at this checkpoint. Combined bridge/privacy source7c2429ed5f6498a874957e91f0407ac0c57ee777 passed141 focused,16 synthetic browser and all18 canonical stages, including440 school workflow checks, Astro0 errors/0 warnings,53 routes,136 HTML,4618 references and13 releases/117 sealed assets. This update changes evidence documents only; runtime/test blobs remain identical to that complete local run. Fresh CI for the combined head remains required before integration."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "next_action": "Publish/retarget PR239 above PR240; inspect new native/browser/protected CI and independent source review. Then staging package and concrete resource decisions."
+  },
+  "manifest-audio-2026-11-22": {
+    "status": "IMPLEMENTED_LOCAL_REVIEW",
+    "owner": "Codex",
+    "scope": "Approved main theme Copper and Talon; West of the Divide gated to full-game victory; procedural effects and ambience.",
+    "verification_status": "SYNTAX_AND_AUDIO_STATE_REGRESSIONS_PASS_CANONICAL_VERIFICATION_RUNNING",
+    "deployment_status": "PROTECTED_PR_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_DEVICE_LISTENING_PENDING"
   }
 }

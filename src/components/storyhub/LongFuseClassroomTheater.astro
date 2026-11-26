@@ -1,0 +1,122 @@
+---
+import type {StoryEdition} from '../../lib/storyhub/model';
+import './LongFuseClassroomTheater.css';
+interface Props {story:StoryEdition;part:1|2|3}
+const {story,part}=Astro.props;
+const teacherQuestions:Record<string,string>={'sarajevo': 'What does this illustrated magazine cover tell us about the public story, and what cannot it prove?', 'the-map-before': 'Which governments could still make different decisions despite alliance pressures?', 'blank-cheque-chapter': 'How could German support influence Vienna without legally compelling any particular ultimatum?', 'forty-eight-hours': 'Which terms did Serbia accept, and where did it object to foreign legal involvement?', 'the-gates': 'Which specific government decision widened the July crisis beyond Austria-Hungary and Serbia?', 'war-spreads': 'Why did the invasion of neutral Belgium matter to Britain’s decision to enter the war?', 'industrial-war': 'Whose experiences of industrial warfare remain invisible in a Western Front trench photograph?', 'peace-request': 'How is the September armistice request different from the November ceasefire and June treaty?', 'four-men': 'What does the photograph prove about the Big Four, and what would require another source?', 'article-231': 'What legal purpose did Article 231 serve, and what payment amount did it not specify?', 'victory-and-resentment': 'How did nationalists use the phrase “mutilated victory” to build political resentment?', 'weimar-inherits': 'What crises did the Weimar Republic inherit rather than cause?', 'paper-money': 'Why is a photograph from hyperinflation in 1923 poor evidence about all of 1928?', 'depression-and-vote': 'Why does receiving 37.3 percent of a parliamentary vote not equal winning a majority?', 'appointment-not-election': 'Who appointed Hitler in January 1933, and how did elite negotiations make it possible?', 'evidence-verdict': 'Which documented choice, source, plausible alternative, and uncertainty can you defend?'};
+const slides=story.chapters.map((chapter,index)=>{
+ const visual=story.media.find(item=>item.id===chapter.visual)??story.media.find(item=>item.id==='decision-map');
+ const firstParagraph=chapter.paragraphs[0]?.filter(chunk=>typeof chunk==='string').join(' ')??chapter.lead;
+ const secondParagraph=chapter.paragraphs[1]?.filter(chunk=>typeof chunk==='string').join(' ')??'';
+ const sourceId=chapter.refs?.sources?.[0];
+ const source=sourceId?story.sources.find(record=>record.id===sourceId):undefined;
+ return {chapter,index,visual,firstParagraph,secondParagraph,source,teacherQuestion:teacherQuestions[chapter.id]??'What evidence best supports this historical explanation?'};
+});
+---
+<dialog class="lf-classroom" aria-label={'Classroom presentation: The Long Fuse Part '+part} data-lf-classroom>
+ <div class="lf-classroom-frame">
+  <header class="lf-classroom-toolbar">
+   <div class="lf-classroom-brand"><span>THE LONG FUSE</span><span>PART {String(part).padStart(2,'0')} · THEATER MODE</span></div>
+   <div class="lf-classroom-tools">
+    <span class="lf-classroom-count" data-lf-classroom-count>CHAPTER 1 / {slides.length}</span>
+    <button type="button" data-lf-classroom-close aria-label="Close classroom presentation">Exit <span aria-hidden="true">×</span></button>
+   </div>
+  </header>
+  <div class="lf-classroom-progress" aria-hidden="true"><div data-lf-classroom-progress style={'width:'+(100/slides.length)+'%'}></div></div>
+  <div class="lf-classroom-scenes">
+   {slides.map(({chapter,index,visual,firstParagraph,secondParagraph,source,teacherQuestion})=>(
+    <article class="lf-classroom-scene" data-lf-classroom-scene={index} aria-labelledby={'lf-classroom-heading-'+part+'-'+index} role="region">
+     <div class:list={["lf-classroom-media",visual?.id==="sarajevo"&&"lf-classroom-color-illustration"]}>
+      {visual&&<img src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} loading="lazy" decoding="async"/>}
+      <div class="lf-classroom-media-label">{visual?.id==='sarajevo'?'PERIOD ILLUSTRATION':visual?.id==='decision-map'?'INTERPRETIVE SCHEMATIC':'HISTORICAL IMAGE'}<span>{visual?.credit??'Grant Desk original illustration'}</span></div>
+     </div>
+     <div class="lf-classroom-story">
+      <p class="lf-classroom-dateline">CHAPTER {String(index+1).padStart(2,'0')} / {String(slides.length).padStart(2,'0')} <span>{chapter.period}</span></p>
+      <h2 id={'lf-classroom-heading-'+part+'-'+index} tabindex="-1">{chapter.title}</h2>
+      <p class="lf-classroom-lead">{chapter.lead}</p>
+      <p class="lf-classroom-evidence">{firstParagraph}</p>
+      <div class="lf-classroom-discuss"><span>ASK THE CLASS</span><p>{teacherQuestion}</p></div>
+      <div class="lf-classroom-sources">{source&&<a href={source.url} rel="noopener noreferrer" target="_blank">Historical source: {source.title} ↗</a>}<a href={'#'+chapter.id} data-lf-classroom-open>Open this chapter in full ↗</a></div>
+     </div>
+    </article>
+   ))}
+  </div>
+  <footer class="lf-classroom-bottom">
+   <div class="lf-classroom-controls">
+    <button type="button" data-lf-classroom-previous aria-label="Previous chapter">← <span>Previous</span></button>
+    <div class="lf-classroom-chapters" role="group" aria-label="Jump to chapter">
+     {slides.map(({chapter,index})=><button type="button" aria-label={'Go to chapter '+(index+1)+': '+chapter.title} aria-pressed={index===0?'true':'false'} data-lf-classroom-select={index}>{String(index+1).padStart(2,'0')}</button>)}
+    </div>
+    <button type="button" data-lf-classroom-next aria-label="Next chapter"><span>Next</span> →</button>
+   </div>
+   <p class="lf-classroom-help">Touch the controls or use ← / →. Press Escape to exit. Nothing is recorded or submitted.</p>
+  </footer>
+  <p data-lf-classroom-status role="status" aria-live="polite" class="lf-classroom-status"></p>
+ </div>
+</dialog>
+<script>
+ function initializeLongFuseTheater(dialog:HTMLDialogElement){
+  if(dialog.dataset.lfClassroomReady==='true')return;
+  dialog.dataset.lfClassroomReady='true';
+  const launchers=[...document.querySelectorAll<HTMLButtonElement>('[data-lf-theater-launch]')];
+  const slides=[...dialog.querySelectorAll<HTMLElement>('[data-lf-classroom-scene]')];
+  const selectors=[...dialog.querySelectorAll<HTMLButtonElement>('[data-lf-classroom-select]')];
+  const previous=dialog.querySelector<HTMLButtonElement>('[data-lf-classroom-previous]');
+  const next=dialog.querySelector<HTMLButtonElement>('[data-lf-classroom-next]');
+  const counter=dialog.querySelector<HTMLElement>('[data-lf-classroom-count]');
+  const progress=dialog.querySelector<HTMLElement>('[data-lf-classroom-progress]');
+  const close=dialog.querySelector<HTMLButtonElement>('[data-lf-classroom-close]');
+  const status=dialog.querySelector<HTMLElement>('[data-lf-classroom-status]');
+  let index=0;
+  let focusReturn:HTMLElement|null=null;
+  function render(nextIndex:number,announce:boolean){
+   if(!slides.length)return;
+   index=Math.max(0,Math.min(slides.length-1,nextIndex));
+   slides.forEach((slide,j)=>{slide.hidden=j!==index});
+   selectors.forEach((button,j)=>button.setAttribute('aria-pressed',String(j===index)));
+   if(previous)previous.disabled=index===0;
+   if(next)next.disabled=index===slides.length-1;
+   if(counter)counter.textContent='CHAPTER '+(index+1)+' / '+slides.length;
+   if(progress)progress.style.width=((index+1)/slides.length*100)+'%';
+   if(announce){
+    const heading=slides[index]?.querySelector<HTMLElement>('h2');
+    if(status)status.textContent='Now presenting chapter '+(index+1)+': '+(heading?.textContent??'');
+    heading?.focus({preventScroll:true});
+   }
+  }
+  const launch=(trigger?:HTMLElement)=>{
+   if(dialog.open)return;
+   focusReturn=trigger??document.activeElement as HTMLElement;
+   render(0,false);
+   try{dialog.showModal()}catch{return}
+   document.body.classList.add('lf-classroom-open');
+   close?.focus({preventScroll:true});
+  };
+  const dismiss=()=>{if(dialog.open)dialog.close()};
+  for(const trigger of launchers){trigger.hidden=false;trigger.addEventListener('click',()=>launch(trigger));}
+  previous?.addEventListener('click',()=>render(index-1,true));
+  next?.addEventListener('click',()=>render(index+1,true));
+  close?.addEventListener('click',dismiss);
+  selectors.forEach((button,j)=>button.addEventListener('click',()=>render(j,true)));
+  dialog.querySelectorAll<HTMLAnchorElement>('[data-lf-classroom-open]').forEach(link=>link.addEventListener('click',dismiss));
+  dialog.addEventListener('close',()=>{
+   document.body.classList.remove('lf-classroom-open');
+   focusReturn?.focus({preventScroll:true});
+  });
+  dialog.addEventListener('keydown',event=>{
+   if(event.altKey||event.ctrlKey||event.metaKey||event.target instanceof HTMLInputElement||event.target instanceof HTMLTextAreaElement)return;
+   if(event.key==='ArrowRight'||event.key==='PageDown'){event.preventDefault();render(index+1,true)}
+   if(event.key==='ArrowLeft'||event.key==='PageUp'){event.preventDefault();render(index-1,true)}
+   if(event.key==='Home'){event.preventDefault();render(0,true)}
+   if(event.key==='End'){event.preventDefault();render(slides.length-1,true)}
+  });
+  document.addEventListener('keydown',event=>{
+   if(event.altKey&&event.key.toLowerCase()==='p'&&!event.ctrlKey&&!event.metaKey){
+    event.preventDefault();if(dialog.open)dismiss();else launch();
+   }
+  });
+  render(0,false);
+ }
+ document.querySelectorAll<HTMLDialogElement>('[data-lf-classroom]').forEach(initializeLongFuseTheater);
+ document.addEventListener('astro:page-load',()=>document.querySelectorAll<HTMLDialogElement>('[data-lf-classroom]').forEach(initializeLongFuseTheater));
+</script>

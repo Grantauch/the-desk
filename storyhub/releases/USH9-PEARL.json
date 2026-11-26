@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-PEARL",
+  "title": "Pearl Harbor: The Morning That Changed the World",
+  "astroRoute": "/storyhubs/pearl-harbor/",
+  "routeVerification": "The Astro route is produced during the build. The focused browser test verifies its canonical URL, content and local media. This manifest seals the static assets.",
+  "files": [
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/pennsylvania.webp",
+      "assetId": "pennsylvania",
+      "bytes": 116990,
+      "sha256": "bdac3137a7d3f88195f68ab019c9c75fe5995afc1b16135e6a9234dea24375c8",
+      "width": 1120,
+      "height": 872
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/prewar.webp",
+      "assetId": "prewar",
+      "bytes": 259212,
+      "sha256": "63958905b7c6e628a86e875f09dab8405ca9ec49d7010db6f3a47be6a6606a6d",
+      "width": 1280,
+      "height": 1012
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/ford-island.webp",
+      "assetId": "ford-island",
+      "bytes": 128582,
+      "sha256": "474e1a6d64bbc966936eb8ab0e6aceea3286a6a7d23e62b74482fa3e57f6aec4",
+      "width": 1280,
+      "height": 996
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/yamamoto.webp",
+      "assetId": "yamamoto",
+      "bytes": 17924,
+      "sha256": "a52cb2464c4f9d7ab6e191036d984cf0f9c0f144d6febfb92e2e899f011ac82f",
+      "width": 500,
+      "height": 620
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/nagumo.webp",
+      "assetId": "nagumo",
+      "bytes": 26202,
+      "sha256": "ce00f535ae97a0778b5ef7181ef7e7ac1c5185b47184be7357084ebfadf6a0bb",
+      "width": 531,
+      "height": 660
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/kimmel.webp",
+      "assetId": "kimmel",
+      "bytes": 18604,
+      "sha256": "042223c12f7dd3c5899ee4efb41920569b622a637947b0e31ef287a0a3631781",
+      "width": 460,
+      "height": 660
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/roosevelt.webp",
+      "assetId": "roosevelt",
+      "bytes": 17576,
+      "sha256": "5eed72bb63f1e38aba3577faa2ff093abf0f85c1c499471308e7509bcb39bb7d",
+      "width": 486,
+      "height": 700
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/ward.webp",
+      "assetId": "ward",
+      "bytes": 54572,
+      "sha256": "4f55ea3f3b93f66ad54c0289f00b1cb2af287f46f7d842b860059ff8a5fcbfac",
+      "width": 900,
+      "height": 726
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/opana.webp",
+      "assetId": "opana",
+      "bytes": 34764,
+      "sha256": "1c74c066b45e6b036b7933d555d30d6da35159870f2a6ab3d5d99aaec1ef1483",
+      "width": 744,
+      "height": 486
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/radar-plot.webp",
+      "assetId": "radar-plot",
+      "bytes": 78380,
+      "sha256": "074c5f521aea876a8adb6476ed6e296bbaba6665e540b8dee2b26f9f17531668",
+      "width": 911,
+      "height": 1296
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/first-wave.webp",
+      "assetId": "first-wave",
+      "bytes": 101192,
+      "sha256": "703468040362ad462d8304cd6bdf121af0d8b12ec931b87448e284b3f14d9a7f",
+      "width": 1280,
+      "height": 910
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/battleship-row.webp",
+      "assetId": "battleship-row",
+      "bytes": 106872,
+      "sha256": "4642ccdb1c90e3c20f19a322f0d3ab085974416c59fc1b9b185994223f8e6ae3",
+      "width": 1280,
+      "height": 1020
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/moorings.webp",
+      "assetId": "moorings",
+      "bytes": 390384,
+      "sha256": "6bceda2a733e671e9ba92f1f617f98becfc8676711a8da8d05cef65c1e3a772e",
+      "width": 1246,
+      "height": 1280
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/harbor-chart.webp",
+      "assetId": "harbor-chart",
+      "bytes": 53494,
+      "sha256": "657e713e2db4600ace2b7dfbe4ab3e00cb0ca1173c4016259f925642a2688fb0",
+      "width": 1400,
+      "height": 1150
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/attack-aftermath.webp",
+      "assetId": "attack-aftermath",
+      "bytes": 84090,
+      "sha256": "fec3ef4b31aee02f275697d49a4c9b09cdab76e9a09c96438ed59ae9cca8a058",
+      "width": 1280,
+      "height": 967
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/oklahoma-rescue.webp",
+      "assetId": "oklahoma-rescue",
+      "bytes": 54088,
+      "sha256": "b4436add02c41d7e22372a114aabac0fce3f3096b6112d8cffd348d2be6799af",
+      "width": 650,
+      "height": 515
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/nevada-grounded.webp",
+      "assetId": "nevada-grounded",
+      "bytes": 33588,
+      "sha256": "c5861c9e5d6b249a62af20fc5b26780f0566bd8bf05680b547c6fc6b588cbbfd",
+      "width": 500,
+      "height": 399
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/hickam.webp",
+      "assetId": "hickam",
+      "bytes": 122242,
+      "sha256": "6eb8882c0d99af8871c227688194b8321be3a1325f481053fe31849749328a64",
+      "width": 1280,
+      "height": 1007
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/doris-miller.webp",
+      "assetId": "doris-miller",
+      "bytes": 19338,
+      "sha256": "51db40b9db68ddd01c3753fb3f6dffa4dc0299289a4c09f554e95c049dbfdd89",
+      "width": 521,
+      "height": 650
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/nurses.webp",
+      "assetId": "nurses",
+      "bytes": 96352,
+      "sha256": "0b71ef95eae001586baf42c34cc5ba305be1f0bebf24168f20f2e362101250a3",
+      "width": 960,
+      "height": 782
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/address.webp",
+      "assetId": "address",
+      "bytes": 38556,
+      "sha256": "07b48ab6cb9c9b1947e7afe7c17d0bec1b1e00a0b46eb6c54adbca3ad8387869",
+      "width": 615,
+      "height": 973
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/address-2.webp",
+      "assetId": "address-2",
+      "bytes": 35188,
+      "sha256": "ecb85b6ab7ae2e596d2e173f031dcc7fec034f1a8c22e0139323ad861c0436d2",
+      "width": 615,
+      "height": 973
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/address-3.webp",
+      "assetId": "address-3",
+      "bytes": 15972,
+      "sha256": "36dbc9b68b485b5532abd6b2081ea48127c9d282ce51f06938252a4d7563759f",
+      "width": 615,
+      "height": 973
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/memorial.webp",
+      "assetId": "memorial",
+      "bytes": 51770,
+      "sha256": "fc67d9c7f26e410b76b09f7d6befed4c49c82cf6985f0c58b73385dd22e8ee46",
+      "width": 1500,
+      "height": 562
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/pacific-map.webp",
+      "assetId": "pacific-map",
+      "bytes": 50822,
+      "sha256": "9920ccfee3cc499498d8cafbb7603142a10670c35ba9cd2d850401c53c19ca05",
+      "width": 1380,
+      "height": 770
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/oahu-map.webp",
+      "assetId": "oahu-map",
+      "bytes": 15802,
+      "sha256": "6dc9d812e05b474a73e7d109333840b6f4e177f9985f9088178e275d97df4891",
+      "width": 1380,
+      "height": 770
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/roosevelt-address.mp3",
+      "assetId": "roosevelt-address",
+      "bytes": 2496399,
+      "sha256": "2c809d426ebee823bf63daa8371a5050dca1cabe93def10fe7706ab1a8bbf909"
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/prewar-small.webp",
+      "bytes": 72188,
+      "sha256": "c1100d897952d6c4d113087255b38642d8823c70a4968201e43a63f594d91162",
+      "width": 650,
+      "height": 514
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/first-wave-small.webp",
+      "bytes": 26480,
+      "sha256": "4df163873f5f9099d4aad5062d418e5b1b4caa483cea57cab6578b22c321f291",
+      "width": 650,
+      "height": 462
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/memorial-small.webp",
+      "bytes": 7550,
+      "sha256": "2ec3c4c27a842aba8e2a507ef201e5dfa2014fa570262d8c00ef8cbcbb5ce490",
+      "width": 650,
+      "height": 244
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/anton.woff2",
+      "bytes": 18612,
+      "sha256": "d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b"
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/anton-ofl.txt",
+      "bytes": 4390,
+      "sha256": "9267baca92b7a7ce9db6dd9e6cc32c9fe3ddf1ac96e421d5f87c5746b9089d6a"
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/source-serif-4.woff2",
+      "bytes": 122360,
+      "sha256": "f2ea9c12d2fe9bd3a9589b02ad2c0909da88f30938c91adc838c4f4098f9f9e0"
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/source-serif-4-italic.woff2",
+      "bytes": 50544,
+      "sha256": "e940d556347366d68322f128c89b05a1840da4622c9872b5c2352e3a3410fe25"
+    },
+    {
+      "path": "/storyhub/ush9/pearl-harbor/assets/source-serif-4-ofl.txt",
+      "bytes": 4399,
+      "sha256": "0fd8b796c1c6220a559a5682cfd00d1c8488b428369f7cb70deb671888cef85f"
+    }
+  ],
+  "totalBytes": 4825478,
+  "sealedAt": "2026-11-21"
+}

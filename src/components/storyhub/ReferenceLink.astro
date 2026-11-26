@@ -1,0 +1,13 @@
+---
+import { referenceAnchor, titleOf, type ReferenceKind, type StoryEdition } from '../../lib/storyhub/model';
+interface Props { story: StoryEdition; kind: ReferenceKind; id: string; label?: string; inline?: boolean; }
+const { story, kind, id, label, inline } = Astro.props;
+const title = titleOf(story, kind, id);
+if (!title) throw new Error('Unknown Story Hub reference ' + kind + '/' + id);
+---
+<a
+  href={referenceAnchor(kind, id)}
+  data-reference-kind={kind}
+  data-reference-id={id}
+  class:list={['sh-reference', { 'sh-reference--inline': inline }]}
+>{label ?? title}</a>

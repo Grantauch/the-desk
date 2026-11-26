@@ -1,0 +1,26 @@
+---
+import './LongFuseInterlude.css';
+interface Props {part:1|2|3}
+const {part}=Astro.props;
+const transitions={
+ 1:{label:'THE JULY CRISIS / A TURNING POINT',date:'28 JUNE → 5 JULY 1914',title:'A killing did not write an ultimatum.',argument:'The days between Sarajevo and Berlin’s assurance were filled with human calculations—not an automatic alliance mechanism.',question:'What did leaders choose to do with the crisis?',image:'/storyhub/ush9/long-fuse/assets/sarajevo.webp',alt:'Period illustrated newspaper depiction of the assassination in Sarajevo, not eyewitness photography.',credit:'Achille Beltrame · La Domenica del Corriere · contemporary illustration',source:'https://commons.wikimedia.org/wiki/File:DC-1914-27-d-Sarajevo-cropped.jpg',type:'PERIOD ILLUSTRATION'},
+ 2:{label:'THE WAR / A TURNING POINT',date:'1914 → 1918',title:'The front consumed more than armies.',argument:'Years of mass mobilization, blockade, displacement, and industrial warfare altered what military leaders could still promise.',question:'When does an army ask for peace—and who has to sign it?',image:'/storyhub/ush9/long-fuse/assets/trench-aisne.webp',alt:'Bain News Service archival photograph of defensive German trenches on the Aisne, approximately 1914–1915.',credit:'Bain News Service · Library of Congress · trench photograph',source:'https://www.loc.gov/pictures/item/2014699692/',type:'ARCHIVAL PHOTOGRAPH'},
+ 3:{label:'WEIMAR / A TURNING POINT',date:'1923 → 1929',title:'The republic recovered. Then came a new shock.',argument:'Hyperinflation in 1923 was followed by years of stabilization. The Great Depression began a different crisis—not the same continuing event.',question:'Which new choices did the second crisis create?',image:'/storyhub/ush9/long-fuse/assets/inflation.webp',alt:'German historical photograph of paper money used as wallpaper during the 1923 hyperinflation.',credit:'Bundesarchiv / Georg Pahl · 1923, not a Depression-era image',source:'https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_102-00104,_Inflation,_Tapezieren_mit_Geldscheinen.jpg',type:'ARCHIVAL PHOTOGRAPH'}
+} as const;
+const item=transitions[part];
+const key='lf-interlude-'+part;
+---
+<aside class:list={["lf-interlude","lf-interlude--"+part]} data-lf-interlude aria-labelledby={key+'-heading'}>
+ <div class="lf-interlude-art">
+  <img src={item.image} alt={item.alt} loading="lazy" decoding="async"/>
+  <div class="lf-interlude-grain" aria-hidden="true"></div>
+ </div>
+ <div class="lf-interlude-content">
+  <div class="lf-interlude-top"><span>{item.label}</span><span>THE LONG FUSE / {String(part).padStart(2,'0')}</span></div>
+  <p class="lf-interlude-date">{item.date}</p>
+  <h2 id={key+'-heading'}>{item.title}</h2>
+  <p class="lf-interlude-argument">{item.argument}</p>
+  <p class="lf-interlude-question"><span>THE NEXT QUESTION</span>{item.question}</p>
+  <div class="lf-interlude-credit"><span>{item.type}: {item.credit}</span><a href={item.source} target="_blank" rel="noopener noreferrer">Inspect the source ↗</a></div>
+ </div>
+</aside>

@@ -1,0 +1,60 @@
+/* The Long Fuse / classroom theater — large-screen, touch-first, source-aware. */
+body.lf-classroom-open{overflow:hidden}
+.lf-classroom{position:fixed;inset:0;margin:0;padding:0;width:100vw;max-width:none;height:100dvh;max-height:none;border:0;background:#0d1d25;color:#fff2de;overflow:hidden;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.lf-classroom:not([open]){display:none}
+.lf-classroom::backdrop{background:#0b151b}
+.lf-classroom *{box-sizing:border-box}
+.lf-classroom-frame{display:grid;grid-template-rows:auto 4px minmax(0,1fr) auto;min-height:100%;height:100%;overflow:hidden}
+.lf-classroom-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem clamp(1rem,2.7vw,2.5rem);background:#152b34;border-bottom:1px solid #6d8082}
+.lf-classroom-brand{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;font:800 .79rem/1.4 system-ui,sans-serif;letter-spacing:.15em}
+.lf-classroom-brand span:first-child{color:#f7d0a0}
+.lf-classroom-brand span:last-child{color:#e6e8e3;font-size:.7rem}
+.lf-classroom-tools{display:flex;align-items:center;gap:1rem}
+.lf-classroom-count{white-space:nowrap;font:770 .78rem/1.3 system-ui,sans-serif;letter-spacing:.11em}
+.fuse.sh-shell .lf-classroom button{border-radius:0;cursor:pointer}
+.fuse.sh-shell .lf-classroom-toolbar button{font:800 .87rem/1 system-ui,sans-serif;color:#172a31;background:#f0ca9b;border:1px solid #f0ca9b;min-height:3rem;min-width:5rem;padding:.7rem 1rem}
+.fuse.sh-shell .lf-classroom-toolbar button span{font-size:1.35rem;vertical-align:middle}
+.lf-classroom-progress{background:#43545a}
+.lf-classroom-progress>div{height:100%;background:#d29b74;transition:width .2s}
+.lf-classroom-scenes{min-width:0;min-height:0;overflow:hidden}
+.lf-classroom-scene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);height:100%;min-height:0}
+.lf-classroom-scene[hidden]{display:none!important}
+.lf-classroom-media{min-width:0;min-height:0;display:flex;flex-direction:column;position:relative;background:#162b33}
+.lf-classroom-media>img{display:block;width:100%;height:100%;min-height:0;flex:1 1 auto;object-fit:cover;filter:grayscale(100%) contrast(1.08)}
+.lf-classroom-media-label{padding:.7rem 1rem;background:#18313a;color:#f2e8d5;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.4rem 1.2rem;font:780 .73rem/1.4 system-ui,sans-serif;letter-spacing:.06em}
+.lf-classroom-media-label span{font-weight:500;letter-spacing:0}
+.lf-classroom-story{padding:clamp(1rem,3.2vw,3.6rem);overflow-y:auto;min-height:0;display:flex;flex-direction:column;background:#f4e9d8;color:#162c33}
+.lf-classroom-dateline{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.7rem;color:#86372b;font:800 .84rem/1.3 system-ui,sans-serif;letter-spacing:.13em;text-transform:uppercase;margin:0 0 .85rem}
+.lf-classroom-story h2{font:550 clamp(2.7rem,4.6vw,5.6rem)/.98 FuseSerif,Georgia,serif;letter-spacing:-.055em;max-width:15ch;text-wrap:balance;margin:.25rem 0 clamp(1rem,2vw,2.4rem)}
+.lf-classroom-lead{font:italic clamp(1.18rem,2vw,2.05rem)/1.38 FuseSerif,Georgia,serif;color:#7a352a;margin:0 0 1.05rem}
+.lf-classroom-evidence{font:clamp(1.05rem,1.5vw,1.52rem)/1.55 system-ui,sans-serif;max-width:60ch;margin:.2rem 0 1.15rem}
+.lf-classroom-discuss{border-left:5px solid #ae4c38;padding:.75rem 1.2rem;background:#e7d9c5;max-width:60rem}
+.lf-classroom-discuss>span{display:block;color:#7b3326;font:800 .74rem/1.5 system-ui,sans-serif;letter-spacing:.13em}
+.lf-classroom-discuss>p{font:clamp(1rem,1.45vw,1.38rem)/1.48 system-ui,sans-serif;margin:.3rem 0}
+.lf-classroom-sources{margin-top:auto;padding-top:1rem;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;font:750 .86rem/1.5 system-ui,sans-serif}
+.lf-classroom-sources a{color:#782d22;text-underline-offset:.25em}
+.lf-classroom-bottom{padding:.55rem clamp(.8rem,2.6vw,2.5rem) .6rem;background:#132a33;border-top:1px solid #5c7779}
+.lf-classroom-controls{display:flex;align-items:center;gap:.8rem;justify-content:space-between}
+.fuse.sh-shell .lf-classroom-controls>button{min-height:3.35rem;min-width:8rem;padding:.7rem 1rem;background:#f1c899;border:1px solid #f1c899;color:#192d33;font:850 1rem/1.2 system-ui,sans-serif;white-space:nowrap}
+.fuse.sh-shell .lf-classroom-controls>button:disabled{background:#43555a;border-color:#66797b;color:#eee8db;opacity:.55;cursor:default}
+.lf-classroom-chapters{display:flex;gap:.4rem;align-items:center;justify-content:center;flex-wrap:wrap;min-width:0}
+.fuse.sh-shell .lf-classroom-chapters button{min-width:3.05rem;min-height:3.05rem;border:1px solid #809193;background:#203e46;color:#fff1dc;font:760 1rem/1 system-ui,sans-serif}
+.fuse.sh-shell .lf-classroom-chapters button[aria-pressed="true"]{background:#f1c899;color:#142a32;border-color:#f1c899}
+.lf-classroom-help{font:.7rem/1.4 system-ui,sans-serif;color:#cbd9d6;text-align:center;margin:.45rem 0 0}
+.lf-classroom-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.lf-classroom :is(button,a):focus-visible{outline:3px solid #ba513b;outline-offset:3px}
+.fuse.sh-shell button.lf-classroom-launch{display:inline-flex;align-items:center;justify-content:space-between;gap:.75rem;min-height:3rem;padding:.7rem 1.1rem;border:2px solid #f0d6b1;background:#f0d6b1;color:#162931;border-radius:0;font:800 .86rem/1.4 system-ui,sans-serif}
+.fuse.sh-shell button.lf-classroom-launch[hidden]{display:none!important}
+@media(max-width:850px){.lf-classroom-scene{grid-template-columns:minmax(0,1fr)}.lf-classroom-media{max-height:30%;min-height:0}.lf-classroom-media img{max-height:100%;min-height:0}.lf-classroom-story{padding:1.1rem}.lf-classroom-story h2{font-size:clamp(2.4rem,7vw,4rem)}.lf-classroom-evidence{font-size:1.07rem}.lf-classroom-discuss>p{font-size:1rem}.lf-classroom-tools{gap:.4rem}}
+@media(max-width:560px){.lf-classroom-toolbar{padding:.5rem .7rem}.lf-classroom-brand{font-size:.66rem;gap:.3rem}.lf-classroom-brand span:last-child{font-size:.58rem}.lf-classroom-tools{gap:.35rem}.lf-classroom-count{font-size:.65rem}.fuse.sh-shell .lf-classroom-toolbar button{min-width:3.4rem;min-height:2.8rem;padding:.5rem}.lf-classroom-media{max-height:23%}.lf-classroom-media-label{font-size:.57rem}.lf-classroom-story h2{font-size:clamp(2.1rem,9vw,3.2rem)}.lf-classroom-story{padding:.95rem}.lf-classroom-dateline{font-size:.69rem}.lf-classroom-lead{font-size:1.16rem}.lf-classroom-bottom{padding:.4rem .5rem}.lf-classroom-controls{gap:.3rem}.fuse.sh-shell .lf-classroom-controls>button{min-width:3.5rem;min-height:3.1rem;padding:.5rem;font-size:.9rem}.lf-classroom-controls>button span{display:none}.lf-classroom-chapters{gap:.25rem;flex-wrap:nowrap}.fuse.sh-shell .lf-classroom-chapters button{min-width:2.15rem;min-height:2.85rem;padding:.3rem;font-size:.78rem}.lf-classroom-help{font-size:.57rem}}
+@media(prefers-reduced-motion:reduce){.lf-classroom-progress>div{transition:none}}
+@media print{.lf-classroom{display:none!important}}
+
+/* Explicit scene rows keep touch controls visible at compact viewport heights. */
+@media(max-width:850px){.lf-classroom-scene{grid-template-rows:minmax(0,28%) minmax(0,72%)}.lf-classroom-media{max-height:none}}
+@media(max-width:560px){.lf-classroom-scene{grid-template-rows:minmax(0,23%) minmax(0,77%)}.lf-classroom-media{max-height:none}}
+
+@media(max-width:560px){.lf-classroom-chapters{overflow-x:auto;scrollbar-width:thin;justify-content:flex-start;flex:1;flex-wrap:nowrap}.fuse.sh-shell .lf-classroom-chapters button{flex:0 0 2.15rem}.fuse.sh-shell .lf-classroom-controls>button{min-width:3.2rem}}
+
+/* The contemporaneous Sarajevo illustration is color artwork, not grayscale photography. */
+.lf-classroom-color-illustration>img{filter:contrast(1.06)}

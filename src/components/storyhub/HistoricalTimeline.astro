@@ -1,0 +1,70 @@
+---
+import { visualOf, wallMinute, type ChronologyScale, type StoryEdition } from '../../lib/storyhub/model';
+import ArchivalFigure from './ArchivalFigure.astro';
+import ReferenceLinks from './ReferenceLinks.astro';
+interface Props { story: StoryEdition; scope: string; anchors?: boolean; scales?: ChronologyScale[]; initial?: string; }
+const { story, scope, anchors = false, scales = story.chronology.scales, initial } = Astro.props;
+const events = story.events
+  .filter((entry) => entry.scales.some((scale) => scales.includes(scale)))
+  .sort((a, b) => wallMinute(a.date) - wallMinute(b.date));
+const titles: Record<ChronologyScale, string> = { years: 'Years', months: 'Months', days: 'Days', hours: 'Hours' };
+const detail = story.chronology.detailRange;
+const range = detail ? [wallMinute(detail.start), wallMinute(detail.end)] : [];
+---
+<div class="sh-timeline" data-timeline data-initial={initial} data-range={range.join(',')}>
+  <p class="sh-time-zone">{story.chronology.timeZone}</p>
+  <div class="sh-chronometer" data-enhance hidden>
+    <div class="sh-time-top">
+      <div class="sh-inline-tabs" aria-label="Timeline scale" role="group">
+        {scales.map((scale) => (
+          <button type="button" data-scale={scale} aria-pressed={scale === scales[0] ? 'true' : 'false'}>{titles[scale]}</button>
+        ))}
+      </div>
+      <button type="button" data-time-play hidden>Play sequence</button>
+    </div>
+    <div class="sh-time-input-row">
+      <button type="button" data-time-step="-1" aria-label="Previous event">←</button>
+      <div class="sh-time-scrub">
+        <label class="sh-sr-only" for={scope + '-scrub'}>Scrub historical time</label>
+        <output data-time-output for={scope + '-scrub'}></output>
+        <div class="sh-range">
+          <div class="sh-ticks" data-time-ticks aria-hidden="true"></div>
+          <input id={scope + '-scrub'} type="range" data-time-scrub data-desk-skip />
+        </div>
+        <div class="sh-time-extents" aria-hidden="true"><span data-time-min></span><span data-time-max></span></div>
+      </div>
+      <button type="button" data-time-step="1" aria-label="Next event">→</button>
+    </div>
+    <label class="sh-labeled" for={scope + '-event'}>
+      Jump to an event
+      <select id={scope + '-event'} data-time-picker data-desk-skip>
+        {events.map((entry) => <option value={entry.id}>{entry.label} · {entry.title}</option>)}
+      </select>
+    </label>
+    <p class="sh-sr-only" role="status" data-time-status></p>
+  </div>
+  <div class="sh-time-records">
+    {events.map((entry) => (
+      <article
+        class="sh-time-card"
+        id={anchors ? 'event-' + entry.id : undefined}
+        data-event-card={entry.id}
+        data-minute={wallMinute(entry.date)}
+        data-scales={entry.scales.join(' ')}
+      >
+        <div>
+          <p class="sh-label">{entry.label}</p>
+          <h4 tabindex="-1" data-record-heading>{entry.title}</h4>
+          <p>{entry.description}</p>
+          <details class="sh-disclosure">
+            <summary>Read the evidence</summary>
+            <p>{entry.evidence}</p>
+            <ReferenceLinks {story} refs={entry.refs} limit={3} />
+          </details>
+          {anchors && <a class="sh-text-link" href={'#event-' + entry.id}>Link to this moment</a>}
+        </div>
+        {entry.visual && <ArchivalFigure {story} visual={visualOf(story, entry.visual)} sizes="(max-width: 650px) 90vw, 360px" />}
+      </article>
+    ))}
+  </div>
+</div>

@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-LONGFUSE",
+  "interactions": [
+    {
+      "id": "july-ledger",
+      "title": "July Crisis decision ledger",
+      "historicalIdea": "Different governments' choices interacted; there was no automatic domino sequence.",
+      "studentAction": "Open three contemporaneous decision records.",
+      "feedback": "The student sees what leaders controlled, what they feared, and what remains uncertain.",
+      "fallback": "All entries visible as accessible details without JavaScript.",
+      "chapterId": "blank-cheque-chapter",
+      "type": "July Crisis decision ledger",
+      "teaches": "Different governments' choices interacted; there was no automatic domino sequence.",
+      "staticFallback": "All entries visible as accessible details without JavaScript.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    },
+    {
+      "id": "war-chronology",
+      "title": "War-to-peace chronological scale",
+      "historicalIdea": "September 1918 military request and November armistice differ from the 1919 peace signing.",
+      "studentAction": "Select a dated event.",
+      "feedback": "Dates, evidence and relevant place update.",
+      "fallback": "Chronological event text is server-rendered.",
+      "chapterId": "peace-request",
+      "type": "War-to-peace chronological scale",
+      "teaches": "September 1918 military request and November armistice differ from the 1919 peace signing.",
+      "staticFallback": "Chronological event text is server-rendered.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    },
+    {
+      "id": "vote-office",
+      "title": "Vote share is not appointment",
+      "historicalIdea": "The NSDAP never won a majority in the 1932 Reichstag elections; Hitler was appointed by Hindenburg.",
+      "studentAction": "Compare election percentage bars then answer the appointment question.",
+      "feedback": "The decision evidence appears and distinguishes elections from presidential appointments.",
+      "fallback": "A textual table with exact numbers and context is displayed.",
+      "chapterId": "depression-and-vote",
+      "type": "Vote share is not appointment",
+      "teaches": "The NSDAP never won a majority in the 1932 Reichstag elections; Hitler was appointed by Hindenburg.",
+      "staticFallback": "A textual table with exact numbers and context is displayed.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    },
+    {
+      "id": "verdict",
+      "title": "Evidence verdict",
+      "historicalIdea": "Pressures do not prove inevitability.",
+      "studentAction": "Write a documented choice, evidence and plausible alternative.",
+      "feedback": "A checklist supports source-based self-assessment; responses stay in the browser.",
+      "fallback": "Printable response prompt with no login required.",
+      "chapterId": "evidence-verdict",
+      "type": "Evidence verdict",
+      "teaches": "Pressures do not prove inevitability.",
+      "staticFallback": "Printable response prompt with no login required.",
+      "identityFit": "Original archival-newsroom controls consistent with the Long Fuse Story DNA",
+      "status": "implemented"
+    },
+    {
+      "id": "crisis-evidence-stage",
+      "chapterId": "forty-eight-hours",
+      "type": "Crisis decisions in four source plates",
+      "teaches": "Distinguish illustrated representations, schematics, primary documents and photographs during 1914 escalation.",
+      "studentAction": "Select dated source plates, read the larger image/statistic, compare established facts with interpretive limitations.",
+      "feedback": "Each panel presents documented chronology, limits and linked archive records.",
+      "staticFallback": "All panels and sourced text remain in document order when JavaScript is disabled.",
+      "identityFit": "Period editorial documentary source plate with minimalist date selector, paper ledger and dark film surround.",
+      "status": "implemented"
+    },
+    {
+      "id": "front-evidence-stage",
+      "chapterId": "industrial-war",
+      "type": "The war seen from four places",
+      "teaches": "Compare what military, soldier-rest, civilian, and conference photographs establish and cannot establish.",
+      "studentAction": "Select dated source plates, read the larger image/statistic, compare established facts with interpretive limitations.",
+      "feedback": "Each panel presents documented chronology, limits and linked archive records.",
+      "staticFallback": "All panels and sourced text remain in document order when JavaScript is disabled.",
+      "identityFit": "Period editorial documentary source plate with minimalist date selector, paper ledger and dark film surround.",
+      "status": "implemented"
+    },
+    {
+      "id": "weimar-evidence-stage",
+      "chapterId": "paper-money",
+      "type": "Weimar recovery and interruption",
+      "teaches": "Demonstrate that 1923 hyperinflation was followed by partial stabilization, then new 1929 and 1932 pressures; the 1933 appointment was a political decision.",
+      "studentAction": "Select dated source plates, read the larger image/statistic, compare established facts with interpretive limitations.",
+      "feedback": "Each panel presents documented chronology, limits and linked archive records.",
+      "staticFallback": "All panels and sourced text remain in document order when JavaScript is disabled.",
+      "identityFit": "Period editorial documentary source plate with minimalist date selector, paper ledger and dark film surround.",
+      "status": "implemented"
+    },
+    {
+      "id": "ultimatum-dossier",
+      "chapterId": "forty-eight-hours",
+      "type": "July demands and reply dossier",
+      "teaches": "A diplomatic reply can accept some terms, qualify others, and still be rejected by the requesting government.",
+      "studentAction": "Inspect three sourced historical paraphrase folios and select a defensible answer to a specific misconception check.",
+      "feedback": "Explanatory feedback provides evidence-based corrections without storing answers.",
+      "staticFallback": "All folios and source links are visible without JavaScript; radio question remains readable.",
+      "identityFit": "Archive dossier design with large source dates, paper two-column interpretation and institutional evidence.",
+      "status": "implemented"
+    },
+    {
+      "id": "peace-dossier",
+      "chapterId": "peace-request",
+      "type": "Armistice versus peace document chronology",
+      "teaches": "The request for an armistice, an armistice taking effect, and a treaty being signed are separate moments.",
+      "studentAction": "Inspect three sourced historical paraphrase folios and select a defensible answer to a specific misconception check.",
+      "feedback": "Explanatory feedback provides evidence-based corrections without storing answers.",
+      "staticFallback": "All folios and source links are visible without JavaScript; radio question remains readable.",
+      "identityFit": "Archive dossier design with large source dates, paper two-column interpretation and institutional evidence.",
+      "status": "implemented"
+    },
+    {
+      "id": "appointment-dossier",
+      "chapterId": "appointment-not-election",
+      "type": "Election versus chancellorship appointment",
+      "teaches": "Largest-party vote share, conservative political bargaining, and presidential appointment were distinct institutional actions.",
+      "studentAction": "Inspect three sourced historical paraphrase folios and select a defensible answer to a specific misconception check.",
+      "feedback": "Explanatory feedback provides evidence-based corrections without storing answers.",
+      "staticFallback": "All folios and source links are visible without JavaScript; radio question remains readable.",
+      "identityFit": "Archive dossier design with large source dates, paper two-column interpretation and institutional evidence.",
+      "status": "implemented"
+    },
+    {
+      "id": "july-animated-decision-map",
+      "chapterId": "the-map-before",
+      "type": "Dated July 1914 political-decision map",
+      "teaches": "The escalation from Sarajevo to an expanded European war involved separate government decisions, not literal automatic treaty obligations.",
+      "studentAction": "Select six dated turning points and watch a political-relationship schematic highlight relevant capitals and connections.",
+      "feedback": "Source-linked narrative identifies the action, its significance and what is not established.",
+      "staticFallback": "A full static decision map and six dated text records remain available with JavaScript disabled.",
+      "identityFit": "Original archival map schematic, constrained motion and two-column editorial ledger; reduced-motion support.",
+      "status": "implemented"
+    }
+  ]
+}

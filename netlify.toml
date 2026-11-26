@@ -11,6 +11,33 @@
   # The database rules in docs/robber-barons-online/ protect the data, not this key.
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
 
+# Preserve the Reconstruction source baseline while old bookmarks use the
+# student edition with private saving and complete answer recovery.
+[[redirects]]
+  from = "/hubs/reconstruction-case-file.html"
+  to = "/hubs/reconstruction-case-file-student.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/reconstruction-case-file"
+  to = "/hubs/reconstruction-case-file-student.html"
+  status = 302
+  force = true
+
+# Retain old Bishop Sycamore bookmarks and their assignment identity.
+[[redirects]]
+  from = "/hubs/bs-high-system-behind-the-score.html"
+  to = "/hubs/bts-bs-high-student.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/hubs/bs-high-system-behind-the-score"
+  to = "/hubs/bts-bs-high-student.html"
+  status = 302
+  force = true
+
 # Keep classroom bookmarks on the student-safe Roswell edition.
 [[redirects]]
   from = "/hubs/roswell-signal.html"
@@ -79,6 +106,16 @@
   status = 301
 
 [[redirects]]
+  from = "/medal"
+  to = "/hubs/ush9-medal-of-honor.html"
+  status = 302
+
+[[redirects]]
+  from = "/athletes"
+  to = "/hubs/bts-michigan-athletes.html"
+  status = 302
+
+[[redirects]]
   from = "/buzz"
   to = "/hubs/jeopardy-buzz.html"
   status = 301
@@ -106,7 +143,9 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
+    # Only the site itself and Margin (the classroom stage) may show these pages
+    # inside a frame. Everyone else is refused, as DENY did before.
+    Content-Security-Policy = "frame-ancestors 'self' https://margin.grant-desk.com"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"

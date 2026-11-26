@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-PEARL",
+  "title": "Pearl Harbor: The Morning That Changed the World",
+  "referenceImplementation": true,
+  "identity": {
+    "tone": [
+      "Attention",
+      "Uncertainty",
+      "Remembrance"
+    ],
+    "paletteIntent": "Naval midnight #111e25, archive paper #f3eddf, steel #64767e, ocean #305563, signal red #a93427.",
+    "typographyIntent": "A broad headline, a high-contrast serif documentary voice, and legible sans serif controls.",
+    "textureLanguage": [
+      "Naval photo grain",
+      "Official paper records",
+      "Chart rules"
+    ],
+    "shapeLanguage": "Broad photographic fields and straight chart edges. A slim index rail for reference tools.",
+    "motionGrammar": [
+      "Changes in time, scale and place",
+      "Brief archival reveal",
+      "Student-paced movement"
+    ],
+    "interactionSignature": [
+      "Open Yamamoto from a sentence",
+      "Follow people, time and place",
+      "Return to the same line"
+    ],
+    "densityRhythm": "Quiet harbor opening, paper briefing, a photographic break at 7:55, then documentary evidence and open memorial space.",
+    "archivalBehavior": "Attribution sits alongside authentic images, official documents and marked reconstructions. Text carries essential evidence.",
+    "endingLanguage": "Return from the memorial to an evidence-based question about contingency."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Blue-black water and silver highlights in Navy photographs, with warm FDR document paper.",
+    "edgeTreatment": "Preserve image tonality. Use a gradient only for text legibility on the opening and attack image.",
+    "controlLanguage": "Chart scale and evidence collections. Signal red identifies the attack threshold.",
+    "spacingLanguage": "Long margins around testimony and narrow reading columns amid large images.",
+    "transitionLanguage": "Scale out from the Pacific to the island and moorings before cutting to Washington."
+  }
+}

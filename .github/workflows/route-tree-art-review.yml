@@ -1,0 +1,34 @@
+name: Route Tree art review
+on:
+  pull_request:
+    paths:
+      - 'public/hubs/bts-the-route-tree.html'
+      - 'public/hubs/bts-route-tree-*.html'
+      - 'public/storyhub/bts/route-tree/**'
+      - 'scripts/test-route-tree-cinematic.mjs'
+      - '.github/workflows/route-tree-art-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  artwork-and-accessibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npx playwright install --with-deps chromium
+      - run: npm run storyhub:validate
+      - run: node scripts/test-route-tree-cinematic.mjs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: route-tree-art-review
+          path: browser-results/route-tree/
+          retention-days: 14

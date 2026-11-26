@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FNL",
+  "title": "Who Pays for Friday Night?",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "Friday night under sodium lights",
+      "a reporter's notebook kept in the bleachers",
+      "warm on the surface, honest about the bill"
+    ],
+    "paletteIntent": "Stadium night black with sodium amber light, chalk white for yard lines and type, ledger paper with red ink for the running tab. Anything from the 2004 movie switches to a cool projector teal so students can always tell reel from real at a glance.",
+    "typographyIntent": "Graduate, a varsity block letter, for headings and yard numbers. Libre Franklin for reading. Courier Prime for the tab, the court docket and Bissinger's notebook lines.",
+    "textureLanguage": [
+      "film grain and lamp glow on every photo",
+      "chalk yard lines and hash marks",
+      "receipt paper with perforated edges"
+    ],
+    "shapeLanguage": "The page walks the field. Each chapter starts at a yard line with its number painted in varsity letters, hash marks run down the margin, and the nav is a strip of field from goal line to goal line.",
+    "motionGrammar": [
+      "accumulation: the tab prints a new line at the end of each chapter",
+      "collapse: the oil price line falls through the floor in 1986",
+      "chance: three coins spin and land",
+      "docket: the trophy moves as each court date is stepped through"
+    ],
+    "interactionSignature": [
+      "scrub the boom and bust from 1980 to 1990",
+      "guess how many English budgets one season of jets would cost",
+      "run the three coin tiebreaker yourself",
+      "step through the Carter court docket",
+      "call each movie claim History, Hollywood or Remixed",
+      "rank who paid the most on the final tab"
+    ],
+    "densityRhythm": "A quiet cover, a short setup with the trailer, a data chapter on oil, a fast stadium chapter, a heavy budget chapter, a personal chapter on one knee, a game of chance, a dense legal chapter, a sorting chapter on the film, a short chapter on the town's anger, and a final receipt to sign.",
+    "archivalBehavior": "Openly licensed photos of the real places, Ratliff Stadium, Odessa, Midland, Lubbock and Austin, all printed in sodium amber and credited. Real people appear through embedded video and teacher supplied photo slots, never downloaded likenesses.",
+    "endingLanguage": "The tab is totaled. Students rank who paid the most for Permian's 1988 season and defend the ranking in writing before turning in."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Amber, black and cream are sampled from the sodium gradient map printed on every photo. Teal comes from the projector map used on the Astrodome.",
+    "edgeTreatment": "Photos fade into black at the edges like a lit field fading into night. Paper elements get torn perforated edges.",
+    "controlLanguage": "Buttons look like scoreboard keys: square, amber on black, numbers in varsity letters. Verdict buttons look like penalty flags and stamps.",
+    "spacingLanguage": "Wide night margins around each chapter, tight stacked type inside receipts and dockets.",
+    "transitionLanguage": "Lines fade up like lights warming. The coins spin and the tab prints. All motion drops away under reduced motion and every result stays as text."
+  }
+}

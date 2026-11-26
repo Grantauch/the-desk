@@ -1,0 +1,16 @@
+{
+  "name": "grantdesk-play",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Room server for two player games on grant-desk.com",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node test.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "ws": "8.18.3"
+  }
+}

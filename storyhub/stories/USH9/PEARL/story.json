@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-PEARL",
+  "course": "USH9",
+  "lessonCode": "PEARL",
+  "title": "Pearl Harbor: The Morning That Changed the World",
+  "audience": "U.S. History, principally grade 9",
+  "narrativeQuestion": "How did decisions across the Pacific converge on one morning, and what did that morning change?",
+  "chapters": [
+    {
+      "id": "pacific-on-edge",
+      "title": "A Pacific on the Edge",
+      "claim": "Start in China. The road to Pearl Harbor ran through a war already four years old.",
+      "namedPeople": [
+        {
+          "name": "Isoroku Yamamoto",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "yamamoto"
+        }
+      ],
+      "visualAnchorIds": [
+        "pacific-map"
+      ],
+      "interactionIds": [
+        "strategy"
+      ]
+    },
+    {
+      "id": "admirals-gamble",
+      "title": "The Admiral’s Gamble",
+      "claim": "Japan’s naval leaders wanted enough time to take territory in the south. They were betting that damaging a fleet could change what a nation chose to do.",
+      "namedPeople": [
+        {
+          "name": "Isoroku Yamamoto",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "yamamoto"
+        },
+        {
+          "name": "Chūichi Nagumo",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "nagumo"
+        },
+        {
+          "name": "Mitsuo Fuchida",
+          "anchorStatus": "not-available",
+          "visualAnchorNote": "Uses a clearly described period setting image."
+        }
+      ],
+      "visualAnchorIds": [
+        "yamamoto"
+      ],
+      "interactionIds": [
+        "planning"
+      ]
+    },
+    {
+      "id": "sunday-morning",
+      "title": "Sunday Morning",
+      "claim": "The fleet is in port. Alongside it, Oʻahu is waking up.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "ford-island"
+      ],
+      "interactionIds": [
+        "voices"
+      ]
+    },
+    {
+      "id": "warnings",
+      "title": "The Warnings",
+      "claim": "A periscope near the harbor. A mass of marks on a radar screen. Two chains of information.",
+      "namedPeople": [
+        {
+          "name": "Husband E. Kimmel",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "kimmel"
+        },
+        {
+          "name": "Walter C. Short",
+          "anchorStatus": "not-available",
+          "visualAnchorNote": "Uses a clearly described period setting image."
+        },
+        {
+          "name": "George Elliott and Joseph Lockard",
+          "anchorStatus": "not-available",
+          "visualAnchorNote": "Uses a clearly described period setting image."
+        }
+      ],
+      "visualAnchorIds": [
+        "opana"
+      ],
+      "interactionIds": [
+        "warnings"
+      ]
+    },
+    {
+      "id": "first-wave",
+      "title": "7:55 AM",
+      "claim": "By the time the first blows reached Pearl Harbor, aircraft were already attacking elsewhere on Oʻahu.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "first-wave"
+      ],
+      "interactionIds": [
+        "attack"
+      ]
+    },
+    {
+      "id": "battleship-row",
+      "title": "Battleship Row",
+      "claim": "Read the moorings like a diagram. The distance from one hull to the next changed what everyone on board experienced.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "battleship-row"
+      ],
+      "interactionIds": [
+        "ships"
+      ]
+    },
+    {
+      "id": "across-the-island",
+      "title": "Across the Island",
+      "claim": "The name ‘Pearl Harbor’ can make the attack sound as if it happened at a single site.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "hickam"
+      ],
+      "interactionIds": [
+        "airfields"
+      ]
+    },
+    {
+      "id": "second-wave",
+      "title": "The Second Wave",
+      "claim": "A short lull gave way to more aircraft. People on the ground had already been making decisions for nearly an hour.",
+      "namedPeople": [
+        {
+          "name": "Doris Miller",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "doris-miller"
+        },
+        {
+          "name": "Nurses aboard Solace",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "nurses"
+        }
+      ],
+      "visualAnchorIds": [
+        "doris-miller"
+      ],
+      "interactionIds": [
+        "response"
+      ]
+    },
+    {
+      "id": "what-survived",
+      "title": "What Wasn’t Destroyed",
+      "claim": "A devastated harbor could still support a fleet. That distinction shaped what happened next.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "moorings"
+      ],
+      "interactionIds": [
+        "infrastructure"
+      ]
+    },
+    {
+      "id": "december-eight",
+      "title": "December 8",
+      "claim": "The day after the attack, the president asked Congress for a declaration of war.",
+      "namedPeople": [
+        {
+          "name": "Franklin D. Roosevelt",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "roosevelt"
+        }
+      ],
+      "visualAnchorIds": [
+        "address"
+      ],
+      "interactionIds": [
+        "speech"
+      ]
+    },
+    {
+      "id": "human-cost",
+      "title": "The Human Cost",
+      "claim": "A total can describe the scale of the attack. Names and records tell us whose lives changed.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "memorial"
+      ],
+      "interactionIds": [
+        "remembrance"
+      ]
+    },
+    {
+      "id": "world-after",
+      "title": "The World After Pearl Harbor",
+      "claim": "What did one morning decide, and what remained open?",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "memorial"
+      ],
+      "interactionIds": [
+        "after"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Approximate moments, historical reconstruction, testimony and alternative scenarios are explicitly identified.",
+    "Use the typed edition records as narrative and relation sources. Retain stable IDs across additive updates."
+  ]
+}

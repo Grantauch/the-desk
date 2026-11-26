@@ -1,10 +1,15 @@
 {
-  "checkedAt": "2026-10-29",
-  "catalogueCount": 73,
+  "checkedAt": "2026-11-21",
+  "catalogueCount": 78,
   "hubs": [
     {
-      "hub": "bts-the-route-tree.html",
+      "hub": "bts-who-pays-for-friday-night.html",
       "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-the-route-tree.html",
+      "mode": "reading",
       "legacyStorageMovedToTab": false
     },
     {
@@ -364,6 +369,26 @@
     },
     {
       "hub": "ush9-s03-the-last-morning.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-s04-the-weavers-son.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-route-tree-a.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-route-tree-b.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-l012-loaded-with-dynamite.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }
