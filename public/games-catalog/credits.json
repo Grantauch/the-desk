@@ -525,5 +525,31 @@
       }
     ],
     "sourceBuildSha256": "b7a6870aa8c4d43c061c731e7e977aa991ba10897ca59e2f5b32aa467526a30a"
+  },
+  {
+    "game": "manifest-expanse-1848",
+    "route": "/hubs/manifest-expanse-1848/",
+    "source": "https://grant-desk.com/hubs/manifest-expanse-1848/",
+    "credit": "Manifest Expanse: 1848, GrantDesk game capture",
+    "depicted": "Act 1: The Great Plains. Fresh local New Journey, Prairie Schooner, seed ARCADE1848, Blacksmith companion, guide dismissed. Uncropped 1280 × 720 Chromium capture. The game HTML and loaded art were verified against Git blobs. No student information or external imagery was added.",
+    "rights": "In-site screenshot of the GrantDesk-published build and art it already uses. No new external image, hotlink, or separate license claim.",
+    "sourceImageSha256": "4058bd9f64e05c95f5b28ea069dbe174411e14dee9d7cf4295896ba9502baad3",
+    "covers": [
+      {
+        "file": "manifest-expanse-1848-384.webp",
+        "sha256": "c77f7805e7619bf68ec05242aed2f4ac35f2ab3b36230ed5a8a2705226c7ddf4",
+        "width": 384,
+        "height": 216,
+        "bytes": 29178
+      },
+      {
+        "file": "manifest-expanse-1848-768.webp",
+        "sha256": "77ecd1ad9d67c2a212a8c27767598a8ac49b8a6130f327aa684ff0d144eba01a",
+        "width": 768,
+        "height": 432,
+        "bytes": 101362
+      }
+    ],
+    "sourceBuildSha256": "a815f63d7791ef80cf019e79eb5421b33ae5f5b7b44d198b00032668feb29fc3"
   }
 ]
