@@ -20,7 +20,7 @@ jobs:
     # Keep all gates, including 600 balance games and the five-real-minute town
     # observation. The full suite exceeded 30 minutes in run 39816669934.
     # Run 43068266893 reached 45 minutes in the final browser suite.
-    timeout-minutes: 55
+    timeout-minutes: 65
     steps:
       - name: Check out the site
         uses: actions/checkout@v7
