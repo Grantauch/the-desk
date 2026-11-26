@@ -963,11 +963,16 @@ await test('the gate covers an answer page until a PIN is entered, confirms the 
   assert.equal(await page.evaluate(() => Boolean(document.querySelector('#q1').closest('[inert]'))), true, 'answer boxes cannot be reached behind the gate');
   assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), 'hidden');
   assert.deepEqual(cb.net.calls, [], 'nothing is sent before a PIN');
+  const pinHelp = await gate(page).locator('#ds-gate-help').textContent();
+  assert.match(pinHelp, /PIN that works for Daily Check-In or Hall Pass now/);
+  assert.match(pinHelp, /Older PIN emails may be out of date/);
+  assert.equal(await gate(page).locator('input[type="password"]').getAttribute('aria-describedby'), 'ds-gate-help');
 
   const wrong = s.pin(PEOPLE.ada) === '123456' ? '654321' : '123456';
   await passGate(page, wrong);
   const rejected = await gate(page).locator('.status').textContent();
   assert.match(rejected, /did not match/);
+  assert.match(rejected, /Older PIN emails may be out of date/);
   const supportId = rejected.match(/Support code: (TI-[A-F0-9]{16})/)?.[1];
   assert.ok(supportId, 'the student can report the support ID shown on the gate');
   assert.ok(s.logs.some((entry) => entry.includes(supportId) && entry.includes('pin_no_match')),

@@ -1,5 +1,29 @@
 # Update the existing Turn In service
 
+## v18 current PIN sign-in
+
+Every PIN sign-in reads the current credential roster instead of accepting a
+ten-minute cached copy. A corrected PIN works on the next sign-in, and an old
+PIN or inactive membership is refused immediately. Membership and token checks
+reuse that fresh read within the same request and refresh the cache used by
+later saves, so the corrected credential's new session can save immediately.
+Autosave continues using the roster cache and the existing write locks.
+Account-session credential checks and expiry rules stay in place.
+
+The shared website prompt tells students to use the PIN that currently works
+for Daily Check-In or Hall Pass, and warns that an older PIN email can be out of
+date. This prompt is compatible with the existing deployed service.
+
+Deploy v18 through the existing production release workflow after its current
+approval and draft-preservation checks pass. Verify the stable `/exec` reports
+`2026-11-20-turn-in-v18`. No setup, workbook migration, PIN reset, or directory
+switch is required. A website release does not deploy this server change.
+
+For a directory connection, use the Hall Pass teacher preview, which refuses a
+connection with unmatched active memberships. Do not insert a directory setting
+directly to work around a student's rejection; that bypasses the coverage check
+and can remove other students' current sign-in credentials.
+
 ## v15 classroom traffic recovery
 
 Sign-in, save and Turn In reuse the roster within a single request. The existing roster cache, PIN rules and write lock stay in place across requests. Slow requests (10 seconds or longer) write a `turn_in_slow_request` event in private execution logs with the action, total time, roster time, draft lookup time and lock wait. The event contains no student data. Use it to distinguish roster reads and write-lock contention from delay elsewhere in a request.

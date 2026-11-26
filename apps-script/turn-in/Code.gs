@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-11-20-turn-in-v17';
+const TI_VERSION = '2026-11-20-turn-in-v18';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -636,7 +636,9 @@ function identify_(request) {
 
   // Lunch numbers lose a leading zero in some school exports (020772 vs 20772).
   // Accept either spelling of the same number before calling it a wrong PIN.
-  const byHash = rosterByHash_();
+  // A PIN correction or deactivation must apply on the next sign-in, even
+  // while another request has warmed the ten-minute roster cache.
+  const byHash = rosterByHash_(false);
   const zeroTwin = /^0\d{5}$/.test(pin) ? pin.slice(1) : /^\d{5}$/.test(pin) ? `0${pin}` : '';
   const match = byHash[hashPin_(pin)] || (zeroTwin ? byHash[hashPin_(zeroTwin)] : null);
   if (!match) {
@@ -675,7 +677,8 @@ function rosterByHash_(useCache = true) {
   const started = Date.now();
   try {
     const roster = readRosterByHash_(useCache);
-    if (useCache && TI_REQUEST) TI_REQUEST.roster = roster;
+    // Reuse this fresh read for this request's membership and token checks.
+    if (TI_REQUEST) TI_REQUEST.roster = roster;
     return roster;
   } finally {
     if (TI_REQUEST) TI_REQUEST.rosterMs += Date.now() - started;
@@ -686,8 +689,8 @@ function readRosterByHash_(useCache) {
   const cache = CacheService.getScriptCache();
   const book = openTurnInRoster_();
   const directoryPins = schoolDirectoryPinsForTurnIn_(book);
-  const cacheable = useCache && directoryPins === null;
-  const cached = cacheable ? cache.get('roster:v1') : null;
+  const cacheable = directoryPins === null;
+  const cached = useCache && cacheable ? cache.get('roster:v1') : null;
   if (cached) { try { return JSON.parse(cached); } catch (error) { cache.remove('roster:v1'); } }
 
   let rows;
@@ -714,7 +717,12 @@ function readRosterByHash_(useCache) {
     if (classPeriod && entry.classes.indexOf(classPeriod) === -1) entry.classes.push(classPeriod);
   });
   try {
-    if (cacheable) cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
+    // A fresh PIN check must also replace the cache used by the next save,
+    // or that new session would be compared with the previous credential.
+    if (cacheable) {
+      if (!useCache) cache.remove('roster:v1');
+      cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
+    }
   } catch (error) {
     // A very large roster can exceed the cache value limit. Reading the sheet each time still works.
   }
