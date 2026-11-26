@@ -60,23 +60,39 @@ so a site build can pass while the flag stays false.
 - Existing online downloads are not revoked by this source change. No production
   system, private workbook, real student data, PIN, token or credential was read.
 - The source-review commit uses `[skip ci]` to avoid starting the deployment
-  workflow's PR self-test. No workflow is dispatched, rerun or approved. Protected
-  CI and any future activation remain separate; do not merge this review as a
-  workaround for the closed gate.
+workflow's PR self-test. No workflow is dispatched, rerun or approved. Protected
+CI and any future activation remain separate; do not merge this review as a
+workaround for the closed gate.
 
-Next action: owner/reviewer reviews the guard source. Keep publication and cutover
-closed. This fixture pass is engineering evidence only.
+## Owner rollout — November 26
+
+The owner instructed a full RC2 rollout on November 25, 2026, after being told
+district approval was still outstanding, and accepted that risk. `VERSION.json`
+now has `distributionApproved: true` and `productionCutoverAuthorized: true`.
+`automaticSoftwareUpdates` stays false. The publication guard allows
+`public/downloads/HallPass-Teacher-Installer-v1.0.0-rc.2.zip` only because that
+boolean is true. The builder still refuses to write into `public/`.
+
+These booleans do not run the Apps Script deploy. The deploy entrypoint still
+requires repository `Grantauch/the-desk`, ref `refs/heads/main`, actor and
+triggering actor `Grantauch`, and exact `DEPLOY HALL PASS` on a workflow
+dispatch or the exact `/deploy-hall-pass` comment by the owner on issue #28.
+A local operator record still cannot set the flags. The #319 comment that names
+the freeze SHA is the owner's to post; this repository change does not post it
+and does not fetch it.
+
+The November 13 note below is the history of moving the rc.1 ZIP out of `public/`.
+The November 26 section above is the current policy.
 
 ## Integration — November 13, Option A
 
-`distributionApproved` and `productionCutoverAuthorized` stay false. The inherited
-rc.1 ZIP moved from `public/downloads/` to
+At the time, `distributionApproved` and `productionCutoverAuthorized` were false.
+The inherited rc.1 ZIP moved from `public/downloads/` to
 `distribution/archive/HallPass-Teacher-Installer-v1.0.0-rc.1.zip`. It is not inside
 `distribution/hall-pass-teacher-kit/`, because that folder's direct children are an
 exact packaging whitelist and an extra `archive/` directory would make the candidate
-builder refuse the kit. The setup page keeps the optional-download `<details>` and
-replaces the file link with: "The test download is paused while the revised installer
-is reviewed." The live rc.1 URL disappears on the next site deploy.
+builder refuse the kit. The November 26 rollout replaces the paused setup-page note
+with the rc.2 download. The archived rc.1 ZIP stays out of `public/`.
 
 GitHub Actions `ubuntu-latest` and Netlify's Ubuntu build image both include Python 3
 (`python3`; Netlify documents Python 3.x on the current image). The Node wrapper
