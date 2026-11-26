@@ -859,17 +859,9 @@ function wildPick(b, side = 1) {
   if (f.stamina < 4 && moves.includes('recover')) return 'recover';
   return moves.includes('guard') ? 'guard' : moves[0];
 }
-// Tests pin the species pick with CHECKAVERSE_SPECIES_SEED. Students keep Math.random.
-function speciesRoll() {
-  const seed = process.env.CHECKAVERSE_SPECIES_SEED;
-  if (!seed) return Math.random();
-  if (!speciesRoll.state) speciesRoll.state = Number(seed) >>> 0 || 1;
-  speciesRoll.state = Math.imul(speciesRoll.state ^ (speciesRoll.state >>> 15), speciesRoll.state | 1) + 0x6D2B79F5 >>> 0;
-  return speciesRoll.state / 4294967296;
-}
 function rollSpecies(table) {
   const total = Object.values(table).reduce((a, b) => a + b, 0);
-  let r = speciesRoll() * total;
+  let r = Math.random() * total;
   for (const [sp, w] of Object.entries(table)) { r -= w; if (r < 0) return sp; }
   return Object.keys(table)[0];
 }

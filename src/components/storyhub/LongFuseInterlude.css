@@ -1,0 +1,37 @@
+/* Cinematic documentary chapter transitions, always readable without JS. */
+.lf-interlude{max-width:none;min-height:clamp(31rem,70svh,54rem);position:relative;isolation:isolate;display:flex;align-items:center;overflow:hidden;background:#14232b;color:#f7ebd6;border-block:1px solid #a64b38;margin:0}
+.lf-interlude *{box-sizing:border-box}
+.lf-interlude-art,.lf-interlude-art img,.lf-interlude-grain{position:absolute;inset:0;width:100%;height:100%;z-index:-2}
+.lf-interlude-art img{object-fit:cover;object-position:center 50%;filter:grayscale(100%) contrast(1.15) brightness(.62)}
+.lf-interlude-grain{z-index:1;background:linear-gradient(90deg,#0c1d25f9 0%,#0c1d25e7 32%,#0c1d25ac 56%,#0c1d2580 100%),linear-gradient(0deg,#081a25c4,transparent 48%);pointer-events:none}
+.lf-interlude-content{width:min(100%,90rem);margin:0 auto;padding:clamp(3.5rem,8vw,8rem) clamp(1.25rem,5vw,6rem);position:relative;z-index:1}
+.lf-interlude-top{display:flex;justify-content:space-between;align-items:start;gap:.7rem 2rem;flex-wrap:wrap;color:#e6bf94;border-bottom:1px solid #f3dfbd80;padding-bottom:1.25rem;font:770 .72rem/1.45 system-ui,sans-serif;letter-spacing:.15em}
+.lf-interlude-date{font:780 .78rem/1.5 system-ui,sans-serif;letter-spacing:.14em;margin:clamp(2rem,6vw,5rem) 0 .8rem;color:#e5cb9e}
+.lf-interlude h2{font:560 clamp(3.1rem,8.8vw,9.2rem)/.96 FuseSerif,Georgia,serif;letter-spacing:-.07em;margin:0;max-width:11ch;text-wrap:balance;color:#fff0d9}
+.lf-interlude-argument{font:italic clamp(1.25rem,2.5vw,2.1rem)/1.42 FuseSerif,Georgia,serif;max-width:41rem;margin:1.5rem 0 2.2rem;color:#efe5d8}
+.lf-interlude-question{display:flex;flex-direction:column;gap:.4rem;padding-left:1.1rem;border-left:4px solid #e6b685;font:740 1.1rem/1.5 system-ui,sans-serif;max-width:43rem}
+.lf-interlude-question span{color:#f6c996;font:770 .71rem/1.4 system-ui,sans-serif;letter-spacing:.15em}
+.lf-interlude-credit{margin-top:clamp(3rem,6vw,6rem);display:flex;justify-content:space-between;gap:.9rem 2rem;flex-wrap:wrap;font: .75rem/1.4 system-ui,sans-serif;color:#ede9e0}
+.lf-interlude-credit a{color:#fff0cf;text-underline-offset:.3em}
+.lf-interlude a:focus-visible{outline:3px solid #ffdc9b;outline-offset:4px}
+@supports (animation-timeline:view()){.lf-interlude-art img{animation:lf-film-drift linear both;animation-timeline:view();animation-range:entry 0% exit 100%}}
+@keyframes lf-film-drift{from{transform:scale(1.02) translateY(-1.5%)}to{transform:scale(1.10) translateY(1.5%)}}
+@media(max-width:700px){.lf-interlude{min-height:36rem}.lf-interlude-content{padding:3rem 1.35rem}.lf-interlude h2{font-size:clamp(3.1rem,11vw,5rem)}.lf-interlude-grain{background:linear-gradient(90deg,#0c1d25ec,#0c1d25b5),linear-gradient(0deg,#081a25c0,transparent 60%)}.lf-interlude-credit{margin-top:3rem}}
+@media(prefers-reduced-motion:reduce){.lf-interlude-art img{animation:none!important;transform:none!important}}
+@media print{.lf-interlude{min-height:29rem;break-inside:avoid}.lf-interlude-art img{animation:none!important}}
+
+/* Chapter-only reading mode intentionally hides between-chapter film transitions. */
+.fuse.sh-shell:has([data-setting="chapter"][aria-pressed="true"]) .lf-interlude{display:none}
+
+/* Visual QA: retain actual visible archival evidence rather than burying it under a solid overlay. */
+.lf-interlude-art{z-index:-1}
+.lf-interlude-art img{z-index:0;filter:grayscale(100%) contrast(1.08) brightness(1.03)}
+.lf-interlude-grain{z-index:1;background:linear-gradient(90deg,#0a1a22f6 0%,#0a1a22d7 36%,#0a1a2280 61%,#0a1a2230 100%),linear-gradient(0deg,#0718228a,transparent 60%)}
+.lf-interlude--1 .lf-interlude-art img{filter:contrast(1.07) brightness(.88)}
+@media(max-width:700px){
+ .lf-interlude{display:block;min-height:0;background:#11242d}
+ .lf-interlude-art{position:relative;height:16rem;inset:auto;width:100%;z-index:0;overflow:hidden}
+ .lf-interlude-art img{position:absolute;inset:0;height:100%;width:100%;object-fit:cover;object-position:center 40%}
+ .lf-interlude-grain{background:linear-gradient(0deg,#11242d 0%,#11242d14 68%);z-index:1}
+ .lf-interlude-content{position:relative;z-index:1;padding:1.7rem 1.35rem 2.5rem;margin-top:-1.25rem}
+}

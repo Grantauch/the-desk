@@ -9,6 +9,7 @@ const games = interactiveExperiences.filter((experience) => experience.section =
 // stays in every cabinet, including when an approved file fails to load.
 const covers: Record<string, string> = {
   "/hubs/icebreak.html": "icebreak",
+  "/hubs/breakaway/": "breakaway",
   "/hubs/bridge-lab/": "bridge-lab",
   "/hubs/gridiron-blitz/": "gridiron-blitz",
   "/hubs/blitzkrieg/": "blitzkrieg",
@@ -65,7 +66,13 @@ const covers: Record<string, string> = {
             <a class:list={['cabinet', { 'cabinet--lead': index === 0 }]} href={game.href} target="_blank" rel="noopener" aria-label={`Play ${game.name} (opens in a new tab)`} aria-describedby={blurbId}>
               <div class="cabinet-cover">
                 <GamePreview theme={game.theme} label={game.name} eyebrow={game.previewEyebrow} featured={game.featured} />
-                {src && (
+                {cover === 'breakaway' ? (
+                  <img
+                    src="/games-catalog/breakaway.svg"
+                    width="800" height="500" alt=""
+                    loading="lazy" decoding="async" data-arcade-cover
+                  />
+                ) : src && (
                   <picture>
                     <img
                       src={src + '-768.webp'}

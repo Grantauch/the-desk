@@ -18,19 +18,12 @@ const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){ret
 const PREFS = Object.assign({narr:true,sound:true},store.get(PREF_KEY)||{});
 
 /* ====================== SOUND ====================== */
-const SFX = (()=>{
-  let ctx=null;
-  const ac=()=>{ if(!ctx){ try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return ctx; };
-  function tone(f,d,type='sine',v=.15,slide=0,delay=0){const c=ac(); if(!c||!PREFS.sound) return; const t=c.currentTime+delay; const o=c.createOscillator(),g=c.createGain(); o.type=type;o.frequency.setValueAtTime(f,t); if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+d); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g).connect(c.destination); o.start(t); o.stop(t+d);}
-  function noise(d,v=.2,hp=800,delay=0){const c=ac(); if(!c||!PREFS.sound) return; const t=c.currentTime+delay; const b=c.createBuffer(1,c.sampleRate*d,c.sampleRate),a=b.getChannelData(0); for(let i=0;i<a.length;i++) a[i]=(Math.random()*2-1)*(1-i/a.length); const s=c.createBufferSource(); s.buffer=b; const f=c.createBiquadFilter(); f.type='highpass'; f.frequency.value=hp; const g=c.createGain(); g.gain.value=v; s.connect(f).connect(g).connect(c.destination); s.start(t);}
-  return {
-    card(){noise(.12,.18,2500);}, hit(){tone(110,.25,'square',.18,-60);noise(.2,.25,200);},
-    block(){tone(520,.08,'triangle',.12);tone(780,.1,'triangle',.08,0,.05);}, prog(){tone(330,.09,'triangle',.1,120);},
-    gold(){tone(1320,.08,'sine',.1);tone(1760,.12,'sine',.08,0,.06);}, heal(){tone(523,.15,'sine',.1);tone(659,.2,'sine',.08,0,.1);},
-    win(){[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.12,0,i*.12));}, lose(){[392,330,262,196].forEach((f,i)=>tone(f,.45,'sawtooth',.06,0,i*.22));},
-    curse(){tone(200,.4,'sawtooth',.07,-90);}, click(){tone(660,.05,'square',.05);}, turn(){tone(196,.15,'triangle',.1);tone(294,.2,'triangle',.08,0,.08);},
-  };
-})();
+const SFX = Object.fromEntries(Object.entries({
+  card:'cardSlamPlay', hit:'negative', block:'tableKnock', prog:'cardPickUp',
+  gold:'anteChipClink', heal:'positive', win:'milestoneFanfare', lose:'negative',
+  curse:'negative', click:'buttonPress', turn:'tableKnock',
+}).map(([name,cue])=>[name,()=>TrailSound.effect(cue)]));
+TrailSound.setEnabled(PREFS.sound);
 
 /* ====================== NARRATOR ====================== */
 const Narr = (()=>{
@@ -89,7 +82,7 @@ document.addEventListener('click',e=>{ if(swallow){ swallow=false; e.stopPropaga
 document.addEventListener('contextmenu',e=>{ if(e.target.closest('.card')) e.preventDefault(); });
 
 /* ====================== SCREENS ====================== */
-function show(id){ $$('.screen').forEach(s=>s.classList.toggle('on',s.id===id)); tip.style.display='none'; }
+function show(id){ $$('.screen').forEach(s=>s.classList.toggle('on',s.id===id)); tip.style.display='none'; TrailSound.scene(id); document.getElementById('audioToggle').hidden=!['title','select','end'].includes(id); }
 function overlay(html,parent){ const o=document.createElement('div'); o.className='overlay'; o.innerHTML=html; (parent||$('#root')).appendChild(o); return o; }
 function banner(text,sub,parent){ const b=document.createElement('div'); b.className='banner2'; b.innerHTML=text+(sub?`<small>${sub}</small>`:''); (parent||$('.screen.on')||$('#root')).appendChild(b); setTimeout(()=>b.remove(),1600); }
 
@@ -208,7 +201,7 @@ function moodFlash(n){
 document.addEventListener('click',e=>{
   if(e.target.closest('[data-deck]')){ SFX.click(); deckView(); }
   if(e.target.closest('[data-narr]')){ PREFS.narr=!PREFS.narr; store.set(PREF_KEY,PREFS); if(!PREFS.narr) Narr.clear(); hud(); }
-  if(e.target.closest('[data-snd]')){ PREFS.sound=!PREFS.sound; store.set(PREF_KEY,PREFS); hud(); }
+  if(e.target.closest('[data-snd]')){ PREFS.sound=!PREFS.sound; store.set(PREF_KEY,PREFS); TrailSound.setEnabled(PREFS.sound); hud(); }
   const cp=e.target.closest('.crewp'); if(cp&&cp.dataset.crew==='gambler'&&C&&C.phase==='player'&&!C.gamblerUsed) C.gamblerRedraw();
 });
 
@@ -446,7 +439,7 @@ class Combat{
   async draw(n){
     const got=[];
     for(let i=0;i<n;i++){
-      if(!this.draw_.length){ if(!this.disc.length) break; this.draw_=shuffle(this.disc); this.disc=[]; }
+      if(!this.draw_.length){ if(!this.disc.length) break; this.draw_=shuffle(this.disc); this.disc=[]; TrailSound.effect('dealerShuffle'); }
       const c=this.draw_.pop();
       if(this.hand.length>=10){ this.disc.push(c); continue; }
       this.hand.push(c); got.push(c);
@@ -455,7 +448,7 @@ class Combat{
         if(G.wagon==='apothecary'&&!this.tolerated){ this.tolerated=true; n++; }
       }
     }
-    this.render(); return got;
+    got.forEach((_,i)=>TrailSound.deal(i)); this.render(); return got;
   }
   chooseFromHand(prompt,filter,fn){
     const opts=this.hand.filter(filter); if(!opts.length) return Promise.resolve(null);
@@ -595,6 +588,7 @@ class Combat{
     return A(this.e.raft?'schooner_raft':'schooner_rear'); }
   impact(){ if(!this.hz) return; const s=$('#combat'); s.classList.remove('impact'); void s.offsetWidth; s.classList.add('impact'); clearTimeout(this.impT); this.impT=setTimeout(()=>s.classList.remove('impact'),520); }
   build(){
+    TrailSound.encounter(this.e.tags || []);
     const s=$('#combat'); const bg=this.e.bg||ACTS[G.act].bg;
     this.hz=HAZ_READY.has(this.hazKey)?this.hazKey:null;
     s.classList.toggle('hzmode',!!this.hz); s.classList.remove('won','impact');
@@ -793,7 +787,7 @@ function eventScreen(evId){
 /* ====================== END ====================== */
 function endScreen(won){
   Narr.clear(); store.del(SAVE_KEY);
-  const s=$('#end'); show('end'); s.style.backgroundImage=`url(${A(won?'bg_oregon_city':'bg_gameover')})`;
+  const s=$('#end'); show('end'); TrailSound.finish(won); s.style.backgroundImage=`url(${A(won?'bg_oregon_city':'bg_gameover')})`;
   const days=Math.round((G.day-START_DAY)/864e5);
   const act=ACTS[G.act];
   const meds=[

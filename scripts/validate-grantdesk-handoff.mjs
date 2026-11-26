@@ -130,7 +130,7 @@ if (packageJson) {
   );
   ok(
     packageJson.scripts?.['hall-pass:verify']
-      === 'npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime && node scripts/test-hall-pass-school-directory.cjs && node scripts/test-hall-pass-setup.cjs && node scripts/test-hall-pass-teacher-kit.cjs',
+      === 'npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime && node scripts/test-hall-pass-school-directory.cjs && node scripts/test-hall-pass-two-room-dry-run.cjs && node scripts/rehearse-hall-pass-software-update.cjs && node scripts/test-hall-pass-setup.cjs && node scripts/test-hall-pass-teacher-kit.cjs',
     'hall-pass:verify runs handoff validation, structural, behavioral, directory, setup recovery and packaged-release checks'
   );
 }
