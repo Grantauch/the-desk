@@ -112,7 +112,7 @@ try {
   assert.ok(after.checklings.some((c) => c.pid === 'LeaveTrainerB000000002'), 'the second ticket in the same tab saves its own Checkling');
   console.log('  ok a second ticket in the same tab rides as that trainer');
 
-  async function idlePage(pid, nick) {
+  async function idlePage(pid, nick, manualClock = false) {
     const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     await context.addInitScript((tips) => {
       window.__checkaverseIdleTest = { idleMs: 800 };
@@ -120,6 +120,10 @@ try {
     }, TIPS);
     const idle = await context.newPage();
     idle.on('pageerror', (e) => errors.push(e.message));
+    if (manualClock) {
+      const boot = Date.now();
+      await idle.clock.setFixedTime(boot);
+    }
     await idle.goto(`${origin}/#t=${encodeURIComponent(ticket(key, pid, nick))}`);
     return idle;
   }
@@ -140,12 +144,20 @@ try {
   assert.equal(await quiet.evaluate(() => sessionStorage.getItem('checkaverse-ticket')), null);
   console.log('  ok 20 quiet minutes, on the test clock, leaves the Chromebook');
 
-  const menuPage = await idlePage('LeaveIdleMenu000000001', 'Moss');
-  await isSaved(menuPage);
-  await menuPage.click('#menuBtn');
-  await delay(1200);
+  const menuPage = await idlePage('LeaveIdleMenu000000001', 'Moss', true);
+  await menuPage.locator('#careBtn:not([hidden])').waitFor();
+  // The server sends the daily paper on its own 2.5-second clock. Clear it before testing the menu.
+  await menuPage.locator('#paperPop:not([hidden])').waitFor();
+  await menuPage.locator('#paperClose').press('Enter');
+  await menuPage.locator('#paperPop').waitFor({ state: 'hidden' });
+  await menuPage.locator('#menuBtn').click();
+  await menuPage.locator('#menu:not([hidden])').waitFor();
+  await menuPage.clock.setFixedTime((await menuPage.evaluate(() => Date.now())) + 1200);
+  await delay(200); // Allow multiple native 50 ms idle checks, with the test date more than 800 ms ahead.
+  assert.equal(await menuPage.locator('#menu').isHidden(), false);
   assert.equal(await menuPage.locator('#careBtn').isHidden(), false, 'an open menu keeps the ride');
-  await menuPage.click('#town');
+  await menuPage.locator('#town').click();
+  await menuPage.clock.setFixedTime((await menuPage.evaluate(() => Date.now())) + 1200);
   await isVisiting(menuPage);
   console.log('  ok closing the menu lets the quiet time run out');
 
@@ -161,11 +173,12 @@ try {
   async function battlePage(pid, nick) {
     const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     await context.addInitScript((tips) => {
-      window.__checkaverseIdleTest = { idleMs: 8000 };
+      window.__checkaverseIdleTest = { idleMs: 800 };
       sessionStorage.setItem('checkaverse-tips', JSON.stringify(tips));
     }, TIPS);
     const p = await context.newPage();
     p.on('pageerror', (e) => errors.push(e.message));
+    await p.clock.setFixedTime(Date.now());
     await p.goto(`${originB}/?debug#t=${encodeURIComponent(ticket(keyB, pid, nick))}`);
     return p;
   }
@@ -173,6 +186,11 @@ try {
   const foe = await battlePage('LeaveIdleBattleB00001', 'Moss');
   await isSaved(fighter);
   await isSaved(foe);
+  await Promise.all([fighter, foe].map(async (p) => {
+    await p.locator('#paperPop:not([hidden])').waitFor();
+    await p.locator('#paperClose').click();
+    await p.locator('#paperPop').waitFor({ state: 'hidden' });
+  }));
   await fighter.waitForFunction(() => {
     const api = window.__checkaverse;
     const me = api && api.players.get(api.me());
@@ -181,11 +199,13 @@ try {
   });
   await fighter.keyboard.press('c');
   await foe.waitForSelector('#ask:not([hidden])');
-  await delay(500);
+  await delay(500); // Honor the UI's 400 ms confirmation guard.
   await foe.click('#askYes');
   await fighter.waitForSelector('#battle:not([hidden])');
   await fighter.waitForSelector('#bMoves button');
-  await delay(9000);
+  // Cross the shortened idle threshold during the real server turn, not before it.
+  await fighter.clock.setFixedTime((await fighter.evaluate(() => Date.now())) + 1200);
+  await delay(200); // Allow multiple native 50 ms idle checks.
   assert.equal(await fighter.locator('#careBtn').isHidden(), false, 'a battle still being picked does not sign out');
   assert.equal(await fighter.locator('#battle').isHidden(), false);
   assert.ok(await fighter.evaluate(() => sessionStorage.getItem('checkaverse-ticket')));
