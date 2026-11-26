@@ -15,8 +15,9 @@ All items begin pending. Keep reviewer identities, authorizations and private ev
 - [ ] Server throttling survives cache/nonce changes; corrections/revocations invalidate old sessions/proofs. Directory outage fails closed. Exercise lockout only in synthetic staging.
 - [ ] Both rooms pass synthetic request/return, role isolation, network reconciliation and history checks on the exact version. Inspect uncertain actions before retrying.
 - [ ] Private workbook, directory, configuration/source backups and compatible-version rollback are rehearsed without deleting history or reviving revoked credentials.
-- [ ] Central software update/rollback meets the no-manual-patch requirement. **Currently blocked: independent Apps Script copies need per-copy deployments.**
-- [ ] Authorized review accepts clean-environment evidence before distribution. Template publication and production cutover have separate authorization.
+- [ ] Extract this exact ZIP on a normal computer, open Start Here.html, then Preflight. If the computer blocks `file://`, check it there. Do not weaken browser policy to imitate that check. Node checks the handlers only.
+- [ ] Software update rehearsal: the owner-mediated copy of the seven approved source files upgrades a synthetic copy and rolls it back without deleting history. It refuses a production script id and a production spreadsheet id. `automaticSoftwareUpdates` stays false.
+- [ ] The owner authorized distribution of this RC2 download. Production Apps Script cutover is still the owner-only deploy on `main` after the #319 freeze comment.
 
 Real cutover also needs verified mappings, private backups, an agreed window, both-room smoke tests and explicit owner authorization. Keep current production and student PINs unchanged until then.
 
