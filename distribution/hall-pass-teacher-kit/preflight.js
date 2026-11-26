@@ -50,7 +50,7 @@
     if (hashes.size !== payload.length) fail();
     for (const name of payload) if (await digest(await map.get(name).arrayBuffer()) !== hashes.get(name)) fail();
     const version = JSON.parse(await map.get('VERSION.json').text());
-    if (version.version !== VERSION || version.applicationVersion !== '1.0.0-rc.1' || version.status !== 'RELEASE_CANDIDATE' || version.distributionApproved !== false || version.productionCutoverAuthorized !== false || version.studentDataIncluded !== false) fail();
+    if (version.version !== VERSION || version.applicationVersion !== '1.0.0-rc.1' || version.status !== 'RELEASE_CANDIDATE' || version.distributionApproved !== true || version.productionCutoverAuthorized !== true || version.studentDataIncluded !== false || version.automaticSoftwareUpdates !== false) fail();
     const source = JSON.parse(await map.get('SOURCE-MANIFEST.json').text());
     const sourceNames = payload.filter(name => name.startsWith('source/'));
     if (source.packageVersion !== VERSION || source.applicationVersion !== version.applicationVersion || Object.keys(source.files).length !== sourceNames.length || sourceNames.some(name => source.files[name] !== hashes.get(name))) fail();

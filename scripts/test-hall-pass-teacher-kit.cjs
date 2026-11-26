@@ -18,8 +18,8 @@ const version = JSON.parse(fs.readFileSync(path.join(kit,'VERSION.json'),'utf8')
 assert.equal(version.selfInstalling,false);
 assert.equal(version.schoolwideDirectorySync,true);
 assert.equal(version.studentDataIncluded,false);
-assert.equal(version.distributionApproved,false);
-assert.equal(version.productionCutoverAuthorized,false);
+assert.equal(version.distributionApproved,true);
+assert.equal(version.productionCutoverAuthorized,true);
 assert.equal(version.automaticSoftwareUpdates,false,'Unmet update requirement is explicit');
 const html = fs.readFileSync(path.join(kit,'Start Here.html'),'utf8');
 const handlers = {}, elements = {};
