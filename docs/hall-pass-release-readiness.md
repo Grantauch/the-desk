@@ -29,7 +29,17 @@ Owner: Codex. Review branch: `work/hall-pass-release-gate`. Inspected main: `e30
 
 Archive: `HallPass-Teacher-Installer-v1.0.0-rc.2.zip`.
 
-The November 4 hashes `da342495e6906d90d39bb4002830b7fc81c0fc05f23bc847f3332eea60ba6855` and `c00e4f869652fa1bee17a533194da0e027457abc79d099a086d83af8b7f26dd7` do not describe the current source. The publication commit records the freeze ZIP and payload-manifest SHA-256 for the tree it actually builds.
+November 4 hashes `da342495e6906d90d39bb4002830b7fc81c0fc05f23bc847f3332eea60ba6855` and `c00e4f869652fa1bee17a533194da0e027457abc79d099a086d83af8b7f26dd7` are void.
+
+November 26 freeze, package `1.0.0-rc.2`, application `1.0.0-rc.1`:
+
+Archive: `public/downloads/HallPass-Teacher-Installer-v1.0.0-rc.2.zip` (190167 bytes).
+
+ZIP SHA-256: `525ca31479793c4a95d3fb67b233ef5bc57c9e0f73c4ff56b9bb65d757a40a44`.
+
+Payload manifest SHA-256: `4d78b3f75a641bc3c7862aeb1c275737d9aab1d6dfd5a8d9b6b8a739ce17a9c9`.
+
+`distributionApproved` and `productionCutoverAuthorized` are true because the owner instructed the rollout on November 25, 2026. `automaticSoftwareUpdates` stays false. The builder still refuses to write this ZIP under `public/`; the file above is a copy of the private build. Operator evidence still cannot flip either flag. The freeze commit is the commit that adds this ZIP and these hashes. Apps Script production deploy is not part of that commit.
 
 Rebuild privately with `python scripts/build-hall-pass-teacher-kit.py`; verify with the included `verify.py`. The candidate is not placed in `public/` or a release attachment.
 

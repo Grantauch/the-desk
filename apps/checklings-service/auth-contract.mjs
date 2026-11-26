@@ -204,7 +204,9 @@ export async function authContract(t,database) {
   });
   await t.test('shared SQL rate budget admits exactly five of 35 concurrent requests',async()=>{
     const key=randomBytes(32),limits={launch:5,exchange:5,logout:5,bridge:5,command:5};
-    const a=createRateLimiter({database,key,limits}),b=createRateLimiter({database,key,limits});
+    // One frozen server minute. A burst that straddles a real minute would open a second window.
+    const clock=async()=>1_700_000_060_000;
+    const a=createRateLimiter({database,key,limits,clock}),b=createRateLimiter({database,key,limits,clock});
     const results=await Promise.all(Array.from({length:35},(_,i)=>(i%2?a:b).take('launch','192.0.2.1')));
     assert.equal(results.filter(Boolean).length,5);
     assert.equal(await a.take('exchange','192.0.2.1'),true);

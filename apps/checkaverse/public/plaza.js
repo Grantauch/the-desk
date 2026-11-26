@@ -183,6 +183,8 @@
         if (!saved) { const pick = savedPartner(); if (pick && pick !== partner && team.some((x) => x.v === pick && !x.caught)) send({ t: 'partner', v: pick }); }
         buildPartners();
         if (!saved) tipSoon('visitor', 2500); else tipSoon('care', 9000);
+        leaveLine();
+        leavingRide = false;
         room = m.room || 'town'; roomKind = m.kind || 'town'; roomOwner = null;
         world?.reset(roomKind);world?.sync(m.life,true);world?.syncStories(m.stories);
         busLine();
@@ -259,11 +261,13 @@
       case 'battling': { const p = players.get(m.id); if (p) p.inb = m.v; break; }
       case 'record': recordLine(m.record); break;
       case 'partner': partner = m.v; buildPartners(); break;
-      case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner ?? partner; egg = m.egg || null; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
+      case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner ?? partner; egg = m.egg || null; charms = m.charms ?? charms; buildPartners(); charmLine(); leaveLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
       case 'elsewhere': elsewhere = true; break;
       case 'ranks': showRanks(m); break;
       case 'body': showBody(m); break;
       case 'cared': $('careMsg').textContent = m.msg; if (m.body && careView) { careView.body = m.body; renderCare(); } break;
+      case 'shop': showStore(m); break;
+      case 'forage': toast(m.msg); break;
       case 'report': showReport(m); break;
       case 'death': showDeath(m); break;
       case 'cemetery': showCemetery(m); break;
@@ -356,6 +360,70 @@
   }
   // One request at a time, so a double click cannot spend two names. The server's answer turns it back on.
   renameBtn.addEventListener('click', () => { if (rerolls && !paused) { renameBtn.disabled = true; send({ t: 'reroll' }); setTimeout(renameLine, 3000); } });
+  // A shared Chromebook keeps the bus ticket in this tab. Leave drops it, closes this ride, and comes back as a visitor.
+  // A reload before Leave still has the ticket, so a refresh in class does not kick anyone out.
+  const leaveBtn = $('leaveBtn');
+  function leaveLine() { leaveBtn.hidden = !saved; }
+  leaveBtn.addEventListener('click', () => {
+    if (!saved) return;
+    if (!confirm('Leave this Chromebook? The next person on this screen will not be you. Your Checklings stay saved under your trainer name.')) return;
+    leaveRide('You left this Chromebook. This screen is a visitor until someone rides the bus from Check-In.');
+  });
+  // 20 quiet minutes, the same as the lesson hubs. Walking, tapping, and battle input reset it.
+  // An open menu or a battle turn that is still on the clock counts as activity, so a pick in progress is not cut off.
+  const IDLE_MS = (() => {
+    const hook = window.__checkaverseIdleTest;
+    const n = hook && Number(hook.idleMs);
+    return n > 0 ? n : 20 * 60 * 1000;
+  })();
+  let lastActivity = Date.now();
+  let leavingRide = false;
+  function noteActivity() { lastActivity = Date.now(); }
+  function turnClockRunning() { return Boolean(bt && !bt.done); }
+  function idleCheck() {
+    if (!saved || leavingRide) return;
+    const menuOpen = $('menu') && !$('menu').hidden;
+    if (menuOpen || turnClockRunning()) { noteActivity(); return; }
+    if (Date.now() - lastActivity < IDLE_MS) return;
+    leaveRide('You were signed out after 20 quiet minutes. Your Checklings are saved. Ride the bus from Check-In to come back.');
+  }
+  function leaveRide(message) {
+    if (leavingRide || !saved) return;
+    leavingRide = true;
+    ticket = null;
+    try { sessionStorage.removeItem('checkaverse-ticket'); } catch { /* storage can be off on school machines */ }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch { /* fine */ }
+    toast(message);
+    reconnectFresh();
+  }
+  window.addEventListener('pointerdown', noteActivity);
+  window.addEventListener('keydown', noteActivity);
+  // Check-In opens this same tab with a new #t= when the next student rides the bus. A hash change does not
+  // reload the page, so the new ticket has to be picked up here or that student would stay a visitor.
+  function ticketInHash() {
+    const m = /[#&]t=([A-Za-z0-9_.-]{20,2000})/.exec(location.hash);
+    return m ? m[1] : '';
+  }
+  function reconnectFresh() {
+    clearTimeout(reconnectTimer);
+    const old = ws;
+    ws = null;
+    if (old) {
+      old.onclose = null;
+      old.onmessage = null;
+      old.onerror = null;
+      try { old.close(1000); } catch { /* already gone */ }
+    }
+    connect();
+  }
+  window.addEventListener('hashchange', () => {
+    const next = ticketInHash();
+    if (!next || next === ticket) return;
+    ticket = next;
+    try { sessionStorage.setItem('checkaverse-ticket', ticket); } catch { /* storage can be off on school machines */ }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch { /* fine */ }
+    reconnectFresh();
+  });
   // Four trainer outfits from the Sprite Book. The button steps through them.
   document.getElementById('outfit').addEventListener('click', () => {
     const p = players.get(me);
@@ -572,6 +640,8 @@
     if (key.startsWith('resident:')) return talkTo(key.slice(9));
     if (key === 'notice-board') return askRanks();
     if (key === 'arena') { if (saved) return send({ t: 'gym' }); }
+    if (key === 'market-stall') return send({ t: 'shop' });
+    if (key.startsWith('forage-')) return send({ t: 'forage', id: key.slice('forage-'.length) });
     if (key.startsWith('place:')) return openPlace(key.slice(6));
     if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) lookStone(st); return; }
     if (key === 'bus-stop-kc' && saved) return askBus('town');
@@ -683,8 +753,31 @@
       return;
     }
     if (place === 'apothecary' && saved) return send({ t: 'apothecary' });
+    if (place === 'store') return send({ t: 'shop' });
     if (line) toast(line);
   }
+  function showStore(m) {
+    closePops();
+    $('storeLine').textContent = m.msg || m.line || '';
+    $('storeCoins').textContent = m.visit ? `Visiting purse: ${m.coins} coins. Nothing you buy is kept after you leave.` : `${m.coins} coins.`;
+    const box = $('storeGoods');
+    box.textContent = '';
+    for (const g of m.goods || []) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'ghost';
+      b.disabled = g.have >= g.carry || m.coins < g.price;
+      b.append(`${g.name} · ${g.price} coins`);
+      const small = document.createElement('small');
+      small.textContent = `${g.blurb} You have ${g.have}${g.keeps ? ', and it stays in your bag.' : '.'}`;
+      b.appendChild(small);
+      b.addEventListener('click', () => send({ t: 'buy', id: g.id }));
+      box.appendChild(b);
+    }
+    $('storePop').hidden = false;
+  }
+  $('storeClose').addEventListener('click', () => { $('storePop').hidden = true; });
+  $('storePop').addEventListener('pointerdown', (e) => e.stopPropagation());
+  $('storePop').addEventListener('keydown', (e) => e.stopPropagation());
   // A headstone: the town answers with its epitaph, a clue when a ghost is hiding nearby, and any grave moss.
   function lookStone(st) {
     if (!saved) return toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`);
@@ -1972,6 +2065,7 @@
   // ---------- floating buttons and their pop-ups ----------
   const pops = { partnerBtn: 'partnerPop', careBtn: 'carePop', sayBtn: 'phrases', menuBtn: 'menu' };
   function closePops(except) {
+    $('storePop').hidden = true;
     for (const [btn, pop] of Object.entries(pops)) {
       if (btn === except) continue;
       $(pop).hidden = true; $(btn).setAttribute('aria-expanded', 'false');
@@ -2212,13 +2306,22 @@
     const nap = document.createElement('div'); nap.className = 'care-tag';
     nap.textContent = b.sinceNap === 0 ? 'Napped today.' : b.sinceNap === 1 ? 'Last nap: 1 school day ago.' : `Last nap: ${b.sinceNap} school days ago.${b.sinceNap >= 3 ? ' A nap soon keeps it from getting exhausted.' : ''}`;
     if (b.sinceNap >= 3) tags.appendChild(nap);
+    const found = Object.entries(b.foraged || {});
+    if (found.length) {
+      const bag = document.createElement('div'); bag.className = 'care-tag';
+      bag.textContent = `Foraged: ${found.map(([name, n]) => `${n} ${name.toLowerCase()}`).join(', ')}.`;
+      tags.appendChild(bag);
+    }
     const acts = $('careActions');
     acts.textContent = '';
     for (const a of b.actions) {
       const btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'ghost'; btn.disabled = a.left <= 0 || m.den;
       btn.append(a.label);
-      const small = document.createElement('small'); small.textContent = a.left > 0 ? `${a.left} left today` : 'done for today';
+      const bag = b.bag || {};
+      const fromBag = a.id === 'feed' ? bag.meal : a.id === 'treat' ? bag.treat : a.id === 'groom' ? bag.brush : 0;
+      const bagBit = a.id === 'groom' && fromBag ? ' · brush in your bag' : fromBag ? ` · ${fromBag} in your bag` : '';
+      const small = document.createElement('small'); small.textContent = (a.left > 0 ? `${a.left} left today` : 'done for today') + bagBit;
       btn.appendChild(small);
       btn.addEventListener('click', () => send({ t: 'care', id: m.id, a: a.id }));
       acts.appendChild(btn);
@@ -2687,6 +2790,8 @@
     bGiveUp.dataset.sure = '1'; bGiveUp.textContent = 'Press again to give up';
     setTimeout(() => { if (bt && !bt.done) { bGiveUp.dataset.sure = ''; bGiveUp.textContent = 'Give up'; } }, 3000);
   });
+
+  setInterval(idleCheck, IDLE_MS < 5000 ? 50 : 15000);
 
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
   if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), fen: () => ({ map: fen, ms: fenMs, want: fenWant, chunks: chunks.size, built: chunkBuilds }), talk: talkTo,visit:visitResident,navigating:()=>residentNav };

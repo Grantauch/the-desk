@@ -1,0 +1,23 @@
+{
+  "note": "What the four Kettle Creek forage spots can turn up, and the potion ingredients they belong to. One find per spot per school day, the same find for every trainer that day. Grave moss is on this list because Spirit Sight is brewed from it, but it only grows on headstones. Those rules stay in ghosts.json (one a stone a day, three a day, carry six, two to brew). The server refuses to start if this carry number and ghosts.json disagree. Carry limits for the other ingredients are chosen to match that pocket of six. Which spot can yield which ingredient is also chosen: the bible names the ingredients and the four spots, not the pairing.",
+  "perSpot": 1,
+  "already": "You already gathered here today. Everyone found the same thing, and tomorrow it will be something else.",
+  "full": "Your pockets are full of {name}. Use some before you gather more.",
+  "ingredients": {
+    "emberRoot": { "name": "Ember root", "carry": 6, "found": "An ember root, still warm. You tuck it in your bag. You have {count}." },
+    "riverStone": { "name": "River stone", "carry": 6, "found": "A smooth river stone. You tuck it in your bag. You have {count}." },
+    "reedFiber": { "name": "Reed fiber", "carry": 6, "found": "A twist of reed fiber. You tuck it in your bag. You have {count}." },
+    "honey": { "name": "Honey", "carry": 6, "found": "A thumb of honey. You tuck it in your bag. You have {count}." },
+    "mint": { "name": "Mint", "carry": 6, "found": "A sprig of mint. You tuck it in your bag. You have {count}." },
+    "springWater": { "name": "Spring water", "carry": 6, "found": "A sip of spring water. You tuck it in your bag. You have {count}." },
+    "kelp": { "name": "Kelp", "carry": 6, "found": "A ribbon of kelp. You tuck it in your bag. You have {count}." },
+    "bitterLeaf": { "name": "Bitter leaf", "carry": 6, "found": "A bitter leaf. You tuck it in your bag. You have {count}." },
+    "graveMoss": { "name": "Grave moss", "carry": 6, "source": "headstone", "found": "You scrape a little grave moss off the stone." }
+  },
+  "spots": {
+    "berry-patch": { "name": "Berry patch", "finds": ["honey", "bitterLeaf"] },
+    "creek-bank": { "name": "Creek bank", "finds": ["riverStone", "reedFiber", "springWater", "kelp"] },
+    "herb-garden": { "name": "Herb garden", "finds": ["mint", "emberRoot", "bitterLeaf"] },
+    "old-stump": { "name": "Old stump", "finds": ["emberRoot", "reedFiber", "honey"] }
+  }
+}
