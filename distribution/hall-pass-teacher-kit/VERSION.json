@@ -9,8 +9,8 @@
   "studentDataIncluded": false,
   "schoolwideDirectorySync": true,
   "automaticSoftwareUpdates": false,
-  "distributionApproved": false,
-  "productionCutoverAuthorized": false,
+  "distributionApproved": true,
+  "productionCutoverAuthorized": true,
   "fieldAcceptance": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
   "description": "Guided teacher-owned Hall Pass setup with a shared private school directory"
 }

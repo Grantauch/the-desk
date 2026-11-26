@@ -1,6 +1,6 @@
 # Hall Pass — teacher kiosk candidate
 
-**1.0.0-rc.2 · Review only.** Classroom application 1.0.0-rc.1 with corrected setup recovery. This kit does not authorize changes to production or real student PINs.
+**1.0.0-rc.2 · Owner-authorized download.** Classroom application 1.0.0-rc.1. The owner authorized this rollout on November 25, 2026. The ZIP contains no student roster. Installing it does not by itself change the production workbook or the live Apps Script deployment. That deploy stays a separate owner step.
 
 1. Extract the whole ZIP into a clean folder. Open Start Here.html in Chrome.
 2. Open package and staging checks; select that folder to verify files locally. Select the original ZIP to fingerprint the test record. Nothing is uploaded. Save evidence outside the kit folder.
@@ -21,8 +21,8 @@ Browser setup, offline file checks and operator test record, all seven program f
 
 Checksums detect mismatch, not authorship: compare the ZIP hash with a separately trusted handoff. Operator observations do not authorize release. Google policy, template source and real Chromebook checks require IT or the actual environment.
 
-## Still blocked
+## Still a person, not this ZIP
 
-A source-matched blank template for this candidate; second-teacher/managed-Chromebook field acceptance; district authorization for payment-related credential reuse; and centrally managed software updates. Directory corrections synchronize, but independent applications still need per-copy software deployment updates. That final requirement is unmet.
+Extract this ZIP on a normal computer and open Start Here from the folder. A browser that blocks `file://` is not a failed package; do not weaken browser policy to imitate that check. The number-to-email mapping and the production workbook stay with the owner, outside git. `automaticSoftwareUpdates` stays false. An owner can rehearse copying the seven source files into a synthetic copy; that rehearsal refuses a production script id and a production spreadsheet id. The live Apps Script deploy is still the owner-only `DEPLOY HALL PASS` step on `main`.
 
 See School-IT-Checklist.md, Smoke-Test.md and Recovery.md. A candidate is not a production release.
