@@ -131,7 +131,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
         </section>
       </div>
       <button class="primary" id="playBtn">DROP THE PUCK →</button>
-      <small id="overlayFooter">GAMEPAD SUPPORTED · LOCAL PLAY · NETWORK PLAY IN A LATER BATCH</small>
+      <button id="online-open" type="button" hidden>Play online beta</button><small id="overlayFooter">GAMEPAD SUPPORTED · LOCAL PLAY · NETWORK PLAY IN A LATER BATCH</small>
     </section>
   </div>
 </div>
@@ -1187,6 +1187,329 @@ let lastHUD=0;function frame(ms){const t=ms/1000,dt=lastTime>=0?(ms-lastTime)/10
 makeTeams();resetFaceoff();phase='menu';renderShiftBook();updateDailyTicker();requestAnimationFrame(frame);
 window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,config:structuredClone(config),powerItems:powerItems.map(p=>p.id),puck:{x:puck.x,z:puck.z,vx:puck.vx,vz:puck.vz,owner:puck.owner?.team??null},players:players.map(p=>({team:p.team,role:p.name,device:p.device,x:p.x,z:p.z,has:p.has,goalie:p.goalie,power:p.power})),gl:!fallback2d,renderer:fallback2d?'canvas-2d':'webgl',view:'north-south',cameraFocus:camFocus,cameraFocusZ:camFocusZ,followCamera:followActive()}),start:()=>start(),step:dt=>{for(let i=0;i<Math.ceil(dt*90);i++)step(dt/Math.ceil(dt*90))},input:inputKey,goal,reset:fullReset,shoot:()=>shot(control,1),setMode:m=>{if(['regular','powerups'].includes(m))config.mode=m},setRink:r=>{if(['school','park','mars'].includes(r))config.rink=r},setSeat:(team,role,device)=>{const index=team*4+role;if(index<0||index>7)return false;if(device!=='ai')for(let i=0;i<8;i++)if(i!==index&&config.seats[i]===device)config.seats[i]='ai';config.seats[index]=device;updateSeatCount();return true},setPuck:(x,z,vx=0,vz=0)=>{puck.owner=null;players.forEach(p=>p.has=false);puck.x=x;puck.z=z;puck.vx=vx;puck.vz=vz;puck.passFrom=null;puck.passTarget=null;puck.lock=1},replay:()=>({frames:replayFrames.length,history:replayHistory.length,elapsed:replayElapsed,moment:goalMoment?{...goalMoment}:null}),touch:()=>({passTarget:puck.passTarget?.number??null,passFrom:puck.passFrom?.number??null,buffer:control.oneTimerBuffer,receiveWindow:control.receiveWindow,oneTimerFlash:control.oneTimerFlash,lastShot:lastShot?{...lastShot}:null}),physics:{fixedStep:1/90,friction:1.12,boardRestitution:.8}};
 })();
+</script>
+<style>
+#online-open{margin:7px auto;min-height:44px;color:#c2f3ff;border:1px solid #5cbad2;background:#102b41;border-radius:9px;padding:8px 18px}
+#online-room{width:min(94vw,640px);max-width:680px;max-height:94dvh;overflow:auto;margin:auto;border:1px solid #4b92ab;border-radius:16px;padding:clamp(12px,3vw,28px);color:#eefbff;background:linear-gradient(155deg,#112c44,#061524 75%);box-shadow:0 24px 70px #000a}
+#online-room::backdrop{background:#000a}
+#online-room h2{font-size:clamp(22px,5vw,33px);margin:4px 0;text-transform:uppercase;font-style:italic;letter-spacing:.04em}
+#online-room .ob-row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+#online-room p{line-height:1.3;margin:8px 0;color:#b9d5e2}
+#online-room label{display:grid;gap:5px;font-size:.9rem}
+#online-room button,#online-room input,#online-room select{min-height:44px;padding:7px 11px;border:1px solid #56798d;border-radius:7px;background:#0a1e30;color:#f4fcff}
+#online-room button:not(:disabled){cursor:pointer}
+#online-room button:disabled{opacity:.56}
+#online-room button[data-online-emphasis]{background:#80e5fc;color:#072230;border-color:#abedff;font-weight:850}
+#online-room :focus-visible,#online-open:focus-visible{outline:3px solid #ffd58f;outline-offset:2px}
+#online-room [hidden],#online-open[hidden]{display:none!important}
+#online-room .ob-fields{display:grid;grid-template-columns:1fr 1.2fr;gap:10px;margin:14px 0}
+#online-room .ob-fields input,#online-room .ob-fields select{width:100%}
+#ob-status,#ob-roster{margin:10px 0}
+#ob-roster{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;list-style:none;padding:0;font-size:.82rem}
+#ob-roster li{padding:5px 6px;border-left:2px solid #6bd5ff;background:#0c2335;overflow-wrap:anywhere}
+#ob-roster li:nth-child(n+5){border-color:#ff977a}
+#ob-room-code{letter-spacing:.14em;color:#80e5fc}
+#ob-rink{display:block;width:min(100%,320px);height:auto;max-height:56dvh;margin:8px auto;border-radius:12px;background:#e6f8ff}
+#ob-score{font-size:clamp(.78rem,3vw,1rem);font-weight:900;font-variant-numeric:tabular-nums}
+#ob-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;touch-action:none}
+#ob-controls button{touch-action:none;user-select:none;min-height:40px;padding:2px 6px}
+#ob-controls .ob-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+#ob-controls .ob-actions{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+#ob-controls .held{background:#92eeff;color:#04252e}
+</style>
+<dialog id="online-room" aria-labelledby="ob-title">
+  <header class="ob-row"><div><small>ICEBREAK / INTERNET PLAY</small><h2 id="ob-title">Online beta</h2></div><button id="ob-close" type="button">Back to local</button></header>
+  <p id="ob-status" role="status" aria-live="polite">Create a room or enter a friend's room code.</p>
+  <section id="ob-setup">
+    <p>Up to eight devices in one room. Share only the six-character room code. Empty seats use AI.</p>
+    <div class="ob-fields">
+      <label>Room code<input id="ob-code" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+      <label>Position<select id="ob-seat"></select></label>
+    </div>
+    <div class="ob-row"><button id="ob-create" data-online-emphasis type="button">Create room</button><button id="ob-join" type="button">Join room</button></div>
+  </section>
+  <section id="ob-lobby" hidden aria-label="Room seats">
+    <p>Share code: <strong id="ob-room-code"></strong></p>
+    <ol id="ob-roster" aria-label="Team readiness"></ol>
+    <div class="ob-row"><button id="ob-ready" type="button" aria-pressed="false">Ready</button><button id="ob-start" data-online-emphasis type="button" disabled>Start match</button></div>
+  </section>
+  <section id="ob-match" hidden aria-label="Online rink">
+    <div id="ob-score"></div>
+    <canvas id="ob-rink" width="400" height="596" role="img" aria-label="Online hockey rink; teams have four skaters each"></canvas>
+    <div id="ob-controls" aria-label="Online game controls">
+      <div class="ob-pad"><span></span><button type="button" data-ob-key="w" aria-label="Skate up">↑</button><span></span><button type="button" data-ob-key="a" aria-label="Skate left">←</button><button type="button" data-ob-key="s" aria-label="Skate down">↓</button><button type="button" data-ob-key="d" aria-label="Skate right">→</button></div>
+      <div class="ob-actions"><button type="button" data-ob-key="j" aria-label="Pass puck">Pass</button><button type="button" data-ob-key="k" aria-label="Shoot puck">Shoot</button><button type="button" data-ob-key="l" aria-label="Check skater">Check</button><button type="button" data-ob-key="shift" aria-label="Burst skate">Burst</button></div>
+    </div>
+    <p>Keyboard: WASD or arrows to skate; J pass, K shoot, L check, Shift burst.</p>
+  </section>
+</dialog>
+
+<script type="module">
+// Isolated client session; no URL, storage, or browser event handlers at import time.
+function createSession({openSocket, onEvent, setTimer=setTimeout, clearTimer=clearTimeout}) {
+  let socket, timer, deadline, confirmed=false, generation=0, intent, seat, hello=false, stopped=true, seq=0, retries=0;
+  let lastTick=-1, lastEvent=-1;
+  function detach() {
+    ++generation;
+    if (timer !== undefined) clearTimer(timer);
+    timer=undefined;
+    if (deadline !== undefined) clearTimer(deadline);
+    deadline=undefined;confirmed=false;
+    const old=socket; socket=undefined; hello=false;
+    if (old) old.close();
+  }
+  const emit=(type,value)=>onEvent({type,value});
+  function send(frame) {
+    if (!hello || socket?.readyState!==1 || socket.bufferedAmount>16384) return false;
+    socket.send(JSON.stringify(frame));
+    return true;
+  }
+  function retry(replace) {
+    confirmed=false;
+    if (timer!==undefined || stopped) return;
+    if (!seat || retries===10) { stop(); emit('unavailable'); return; }
+    const backoff=Math.min(4000, 350 * 2 ** retries++);
+    emit('reconnecting', {attempt:retries});
+    timer=setTimer(()=>{
+      timer=undefined;
+      if (replace || socket?.readyState!==1) connect();
+      else if (!send({type:'resume',code:seat.code,token:seat.token})) retry(true);
+    },backoff);
+  }
+  function connect() {
+    detach();
+    const id=generation;
+    try { socket=openSocket(); } catch { retry(true); return; }
+    deadline=setTimer(()=>{if (id!==generation || confirmed) return;deadline=undefined;detach();retry(true);},10000);
+    socket.addEventListener('close',()=>{if (id===generation) {hello=false; retry(true);}});
+    socket.addEventListener('message',event=>{
+      if (id!==generation || stopped || typeof event.data!=='string' || event.data.length>262144) return;
+      let msg;
+      try {msg=JSON.parse(event.data);} catch {return;}
+      if (!msg || typeof msg!=='object') return;
+      if (msg.type==='hello' && !hello) {
+        if (msg.version!==1 || msg.maximumPlayers!==8) {stop();emit('incompatible');return;}
+        hello=true;
+        if (!send(seat ? {type:'resume',code:seat.code,token:seat.token} : intent)) retry(true);
+        return;
+      }
+      if (!hello) return;
+      if (msg.type==='error') {
+        if (msg.code==='SEAT_STILL_CONNECTED' && seat) retry(false);
+        else if (msg.code==='INVALID_RESUME') {stop();emit('expired');}
+        else emit('server-error',msg.code);
+        return;
+      }
+      if (msg.type==='seated' && msg.version===1 && /^[A-HJ-NP-Z2-9]{6}$/.test(msg.code) &&
+          Number.isInteger(msg.seat) && msg.seat>=0 && msg.seat<8 && /^[A-Za-z0-9_-]{32}$/.test(msg.token)) {
+        if (msg.seat!==intent.seat || (intent.type==='join' && msg.code!==intent.code) ||
+            (seat && (msg.code!==seat.code || msg.seat!==seat.seat))) return;
+        seat={code:msg.code,seat:msg.seat,token:msg.token};
+        if (timer!==undefined) clearTimer(timer); timer=undefined;
+        if (deadline!==undefined) clearTimer(deadline); deadline=undefined;
+        seq=0; retries=0; confirmed=true;
+        emit('seated',{code:msg.code,seat:msg.seat,resumed:msg.resumed===true});
+        return;
+      }
+      if (!seat || msg.code!==seat.code) return;
+      if (msg.type==='expired') {stop();emit('expired');return;}
+      if (msg.type!=='snapshot' || msg.version!==1 || !Number.isSafeInteger(msg.tick) ||
+          msg.tick<0 || msg.tick<lastTick || !Array.isArray(msg.players) || msg.players.length!==8) return;
+      const events=Array.isArray(msg.events)?msg.events.filter(e=>Number.isSafeInteger(e?.id)&&e.id>lastEvent):[];
+      if(events.length) lastEvent=events.reduce((a,e)=>Math.max(a,e.id),lastEvent);
+      const advancesWorld=msg.tick>lastTick;
+      lastTick=msg.tick;
+      emit('snapshot',{frame:{...msg,events},advancesWorld});
+    });
+  }
+  function stop(){stopped=true; detach(); intent=seat=undefined; lastTick=lastEvent=-1;seq=retries=0;}
+  return {
+    begin(request) {
+      if (!request || !['create','join'].includes(request.type) ||
+          !Number.isInteger(request.seat) || request.seat<0 || request.seat>7 ||
+          (request.type==='join' && !/^[A-HJ-NP-Z2-9]{6}$/.test(request.code))) return false;
+      if(request.type==='create' && ((request.mode!==undefined && !['regular','powerups'].includes(request.mode)) ||
+          (request.rink!==undefined && !['school','park','mars'].includes(request.rink)))) return false;
+      stop(); intent=request.type==='join'?{type:'join',code:request.code,seat:request.seat}:
+        {type:'create',seat:request.seat,mode:request.mode,rink:request.rink};
+      stopped=false; connect();return true;
+    },
+    stop,
+    ready(ready){return confirmed && send({type:'ready',ready:ready===true});},
+    start(){return confirmed && send({type:'start'});},
+    input(axes,buttons={}) {
+      if (!confirmed || !Array.isArray(axes) || axes.length!==2 || !axes.every(Number.isFinite)) return false;
+      return send({type:'input',seq:seq++,axes:axes.map(n=>Math.min(1,Math.max(-1,n))),
+        shoot:buttons.shoot===true,pass:buttons.pass===true,check:buttons.check===true,burst:buttons.burst===true});
+    }
+  };
+}
+
+/** One stream per socket; the caller must discard handlers from replaced sockets and reset on joining a new room. */
+function applySnapshot(current, frame, roomCode, localSeat) {
+  if (frame?.type !== 'snapshot' || frame.version !== 1 || frame.code !== roomCode ||
+      !Number.isSafeInteger(frame.tick) || frame.tick < 0 ||
+      !Array.isArray(frame.players) || frame.players.length !== 8 ||
+      (current && (current.code !== roomCode || frame.tick < current.tick))) return current;
+  const roster = Array.from({length:8}, (_, slot) => {
+    const p = frame.players.find(row => row?.slot === slot);
+    if (!p) return null;
+    const state = !p.claimed ? 'ai' : !p.connected ? 'reconnecting' : p.ready ? 'ready' : 'waiting';
+    return {slot, role:p.role, team:p.team, state};
+  });
+  if (roster.includes(null)) return current;
+  const isLobby = frame.phase === 'lobby';
+  const canStart = isLobby && frame.host === localSeat &&
+    roster[localSeat]?.state === 'ready' && roster.every(p => p.state === 'ai' || p.state === 'ready');
+  const reconnecting = roster.some(p => p.state === 'reconnecting');
+  const newWorld = !isLobby && (!current || current.phase === 'lobby' || frame.tick > current.tick);
+  return {code:roomCode,tick:frame.tick,host:frame.host,phase:frame.phase,mode:frame.mode,rink:frame.rink,roster,canStart,reconnecting,
+    status: isLobby && reconnecting ? 'A player lost their connection. Their seat is held briefly so they can rejoin.' :
+      isLobby && !canStart && localSeat === frame.host ? 'Waiting for players to mark Ready.' : '',
+    world:newWorld?frame:current?.world??null};
+}
+
+const endpoint=/*@@ICEBREAK_ENDPOINT@@*/ null;
+const by=id=>document.getElementById(id);
+const dialog=by('online-room');
+const trigger=by('online-open');
+if(endpoint) {
+ const u=new URL(endpoint);
+ const localFixture=(location.hostname==='127.0.0.1' || location.hostname==='localhost') &&
+  (u.hostname==='127.0.0.1' || u.hostname==='localhost') && u.protocol==='ws:';
+ if (u.protocol==='wss:' || localFixture) initialize(u.href);
+}
+function initialize(url){
+ const roles=['Center','Wing','Defender','Goalie'],teams=['Glaciers','Embers'];
+ const choose=by('ob-seat'),status=by('ob-status'),roster=by('ob-roster'),lobby=by('ob-lobby'),match=by('ob-match');
+ const controls=by('ob-controls'),entry=by('ob-setup'),canvas=by('ob-rink'),ctx=canvas.getContext('2d'),score=by('ob-score');
+ const keys=new Set(),pointers=new Map(),allowed=new Set(['w','a','s','d','j','k','l','shift']);
+ const arrow={arrowup:'w',arrowdown:'s',arrowleft:'a',arrowright:'d'};
+ let room,seat=-1,frame,prior,arrival=0,connected=false,ready=false,lastPhase='',stopAt=0,playFrame=0,sendTimer;
+ for(let i=0;i<8;i++)choose.add(new Option(teams[i>>2]+' · '+roles[i%4],String(i)));
+
+ function show(note){if(status.textContent!==note)status.textContent=note;}
+ function transmit(){
+  if(!connected||frame?.phase!=='playing')return;
+  const active=k=>keys.has(k)||[...pointers.values()].includes(k);
+  const x=Number(active('w'))-Number(active('s')),z=Number(active('d'))-Number(active('a')),n=Math.max(1,Math.hypot(x,z));
+  session.input([x/n,z/n],{pass:active('j'),shoot:active('k'),check:active('l'),burst:active('shift')});
+ }
+ function clearInput(){keys.clear();pointers.clear();for(const b of controls.querySelectorAll('.held'))b.classList.remove('held');transmit();}
+ function renderRoom(){
+  const s=applySnapshot(undefined,frame,room,seat);
+  if(!s)return;
+  const row=s.roster.map(({slot,state})=>{
+   const a=document.createElement('li');const name=teams[slot>>2]+' '+roles[slot%4];
+   const label={ai:'AI',reconnecting:'reconnecting',ready:'ready',waiting:'not ready'}[state];
+   a.textContent=name+' · '+label+(slot===seat?' (you)':'');return a;
+  });
+  const hash=row.map(el=>el.textContent).join('|');if(roster.dataset.roster!==hash){roster.replaceChildren(...row);roster.dataset.roster=hash;}
+  ready=s.roster[seat]?.state==='ready';by('ob-ready').textContent=ready?'Not ready':'Ready';
+  by('ob-ready').setAttribute('aria-pressed',String(ready));by('ob-ready').disabled=!connected;
+  by('ob-start').hidden=s.host!==seat;by('ob-start').disabled=!s.canStart||!connected;
+  if(connected)show(s.status||'Room open. Choose Ready when you are set.');
+ }
+ function roundCircle(x,y,r,fill,stroke,line=2){
+  ctx.beginPath();ctx.arc(x,y,r,0,2*Math.PI);
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.stroke();}
+ }
+ const paintPoint=(x,z)=>[200+z*14,298-x*9.6];
+ function draw(t){
+  playFrame=0;
+  if(!dialog.open||match.hidden||!frame?.puck||!ctx)return;
+  const q=(x)=>Number.isFinite(x)?x:0,alpha=Math.min(1,Math.max(0,(t-arrival)/50));
+  const sample=(a,b)=>a&&b?[q(a.x)+(q(b.x)-q(a.x))*alpha,q(a.z)+(q(b.z)-q(a.z))*alpha]:[q(b.x),q(b.z)];
+  ctx.clearRect(0,0,400,596);const ice=ctx.createLinearGradient(0,0,400,596);ice.addColorStop(0,'#e9fbff');ice.addColorStop(1,'#bde0ef');
+  ctx.fillStyle=ice;ctx.lineWidth=8;ctx.strokeStyle='#194a67';ctx.beginPath();ctx.roundRect(20,18,360,560,48);ctx.fill();ctx.stroke();
+  for(const [y,color] of [[198,'#3591c2'],[298,'#d35b63'],[398,'#3591c2']]){
+   ctx.strokeStyle=color;ctx.lineWidth=y===298?4:3;ctx.beginPath();ctx.moveTo(25,y);ctx.lineTo(375,y);ctx.stroke();
+  }
+  roundCircle(200,298,45,null,'#3b8cbc');roundCircle(200,298,5,'#bd5360');
+  for(const y of [148,448])for(const x of [115,285]){roundCircle(x,y,25,null,'#bc6570');roundCircle(x,y,3,'#bc6570');}
+  ctx.strokeStyle='#bb4d55';ctx.lineWidth=4;ctx.strokeRect(164,33,72,24);ctx.strokeRect(164,539,72,24);
+  for(const item of frame.powerItems??[]){const [x,y]=paintPoint(q(item.x),q(item.z));roundCircle(x,y,7,'#ffbf24','#725311',2);}
+  for(const p of frame.players){
+   const [x,y]=paintPoint(...sample(prior?.players.find(a=>a.slot===p.slot),p));
+   ctx.strokeStyle=p.team?'#861e27':'#0c436b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.lineTo(x+Math.sin(q(p.facing))*19,y-Math.cos(q(p.facing))*19);ctx.stroke();
+   roundCircle(x,y,p.down>0?8:12,p.team?'#ba343c':'#146aa4',p.slot===seat?'#fdbf23':'#f2feff',p.slot===seat?4:2);
+   ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 11px system-ui';ctx.fillText(roles[p.slot%4][0],x,y+4);
+  }
+  const [px,py]=paintPoint(...sample(prior?.puck,frame.puck)); roundCircle(px,py,5,'#071c27','#fff',1);
+  if(frame.dropTime>0){
+   ctx.fillStyle='#07354eec';ctx.fillRect(117,274,166,49);ctx.fillStyle='#fff';ctx.textAlign='center';
+   ctx.font='bold 19px system-ui';ctx.fillText('Puck drops in '+Math.ceil(frame.dropTime),200,305);
+  }
+  if(t-arrival<100)playFrame=requestAnimationFrame(draw);
+ }
+ function refresh(snapshot,advances){
+  if(snapshot.phase==='lobby'){
+   frame=snapshot;match.hidden=true;lobby.hidden=false;renderRoom();return;
+  }
+  lobby.hidden=true;match.hidden=false;
+  if(advances||frame?.phase!==snapshot.phase){prior=frame?.phase==='playing'&&snapshot.phase==='playing'?frame:null;arrival=performance.now();}
+  frame=snapshot;
+  const seconds=Math.max(0,Math.ceil(Number(snapshot.timeLeft)||0));
+  score.textContent='Glaciers '+snapshot.score[0]+' : '+snapshot.score[1]+' Embers · '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+  if(connected&&(lastPhase!==snapshot.phase||stopAt!==Math.sign(snapshot.dropTime))){
+   lastPhase=snapshot.phase;stopAt=Math.sign(snapshot.dropTime);
+   const label={playing:stopAt?'Get ready for the puck drop.':'Match in progress.',goal:(teams[snapshot.goalTeam]||'')+' score!',injury:'Play stopped for an injury.',finished:'Final horn. Leave this room to start another.'};
+   show(label[lastPhase]||'Match in progress.');
+  }
+  controls.hidden=snapshot.phase==='finished';if(!playFrame)playFrame=requestAnimationFrame(draw);
+ }
+ const session=createSession({openSocket:()=>new WebSocket(url),onEvent:({type,value})=>{
+  if(type==='seated'){
+   connected=true;room=value.code;seat=value.seat;entry.hidden=true;
+   by('ob-room-code').textContent=room;
+   if(!value.resumed)lobby.hidden=false;
+   show(value.resumed?'Seat restored.':'Room open. Choose Ready when you are set.');
+  }else if(type==='snapshot')refresh(value.frame,value.advancesWorld);
+  else if(type==='reconnecting'){connected=false;keys.clear();pointers.clear();by('ob-start').disabled=true;by('ob-ready').disabled=true;show('Connection lost. Rejoining your seat…');}
+  else if(type==='server-error'){
+   const notes={SEAT_TAKEN:'That position is taken. Pick another and try again.',ROOM_NOT_FOUND:'Room not found. Check the code.',ROOM_FULL:'The room already has eight players.',PLAYERS_NOT_READY:'A player is not ready yet.'};
+   show(notes[value]||'That room request could not be completed.');if(seat<0)setJoinButtons(false);
+  }else if(['unavailable','expired','incompatible'].includes(type)){
+   const messages={unavailable:'The online server did not answer. Local play is still available.',expired:'Your seat expired. Create or join a room again.',incompatible:'Online play needs an updated game server. Local play is still available.'};
+   reset(messages[type]);
+  }
+ }});
+ function setJoinButtons(working){for(const id of ['ob-create','ob-join','ob-code','ob-seat'])by(id).disabled=working;}
+ function reset(message){
+  session.stop();connected=false;room=frame=prior=undefined;seat=-1;ready=false;lastPhase='';stopAt=0;
+  clearInput();if(playFrame)cancelAnimationFrame(playFrame);playFrame=0;
+  match.hidden=lobby.hidden=true;entry.hidden=false;setJoinButtons(false);show(message);
+ }
+ function enter(type){
+  const code=by('ob-code').value.trim().toUpperCase();
+  if(type==='join'&&!/^[A-HJ-NP-Z2-9]{6}$/.test(code)){show('Enter the six characters from your friend’s room.');by('ob-code').focus();return;}
+  setJoinButtons(true);show('Connecting to the online server…');
+  if(!session.begin({type,code,seat:Number(choose.value)}))reset('Choose a room and position to continue.');
+ }
+ trigger.hidden=false;trigger.addEventListener('click',()=>{if(dialog.open)return;reset('Create a room or enter a friend’s room code.');dialog.showModal();sendTimer=setInterval(transmit,40);});
+ by('ob-close').addEventListener('click',()=>dialog.close());
+ dialog.addEventListener('close',()=>{clearInterval(sendTimer);reset('Online room closed.');trigger.focus();});
+ by('ob-create').addEventListener('click',()=>enter('create'));by('ob-join').addEventListener('click',()=>enter('join'));
+ by('ob-ready').addEventListener('click',()=>session.ready(!ready));
+ by('ob-start').addEventListener('click',()=>session.start());
+ for(const type of ['keydown','keyup'])window.addEventListener(type,e=>{
+  if(!dialog.open)return;
+  const k=e.key.toLowerCase(), key=arrow[k]||k;
+  e.stopImmediatePropagation();
+  if(!allowed.has(key)||e.target.closest?.('input,select')||e.ctrlKey||e.metaKey||e.altKey||match.hidden)return;
+  e.preventDefault();
+  if(type==='keydown'){if(keys.has(key))return;keys.add(key);}else keys.delete(key);
+  transmit();
+ },true);
+ window.addEventListener('blur',clearInput);
+ for(const el of controls.querySelectorAll('[data-ob-key]')){
+  el.addEventListener('pointerdown',e=>{if(e.button!==0)return;el.setPointerCapture(e.pointerId);e.preventDefault();pointers.set(e.pointerId,el.dataset.obKey);el.classList.add('held');transmit();});
+  for(const end of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(end,e=>{pointers.delete(e.pointerId);el.classList.remove('held');transmit();});
+ }
+}
+
 </script>
 </body>
 </html>
