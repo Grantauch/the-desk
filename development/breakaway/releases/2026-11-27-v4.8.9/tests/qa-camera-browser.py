@@ -22,7 +22,7 @@ def start_replay(page):
         t.captureReplay(1/28);
       }
       const count=t.replay.history.length;
-      const sample=t.replay.history[0].player.x;
+      const expected=t.replay.history.slice(-59).map(f=>f.player.x);
       g.driveState='TACKLED';
       const frozen=JSON.stringify({
         clock:g.clock,score:g.score,x:g.player.x,y:g.player.y,
@@ -34,8 +34,12 @@ def start_replay(page):
         clock:g.clock,score:g.score,x:g.player.x,y:g.player.y,
         defenders:g.defenders.map(d=>[d.id,d.x,d.y,d.outForDrive])
       })===frozen;
-      const bufferValid=count<=92&&t.replay.frames.length<=60;
-      const isolated=t.replay.frames[0].player.x===sample;
+      const bufferValid=count<=92&&t.replay.frames.length===expected.length+1;
+      const i=expected.length-1, x=t.replay.frames[i].player.x;
+      const tailMatches=expected.every((value,j)=>t.replay.frames[j].player.x===value);
+      const liveX=g.player.x; g.player.x=liveX+1000;
+      const isolated=tailMatches&&t.replay.frames[i].player.x===x&&t.replay.frames[i].player!==g.player;
+      g.player.x=liveX;
       return {shown,same,bufferValid,isolated,count,playing:t.replay.active};
     }""")
 
@@ -44,21 +48,40 @@ with sync_playwright() as p:
         headless=True,executable_path=shutil.which('chromium') or None,
         args=['--no-sandbox','--disable-gpu'])
     for width,height in layouts:
-        page=browser.new_page(viewport={'width':width,'height':height})
+        touch=width < 500 or height < 500
+        page=browser.new_page(viewport={'width':width,'height':height},has_touch=touch)
         errors=[]
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.set_content(html,wait_until='load')
         result=start_replay(page)
         assert all(result[k] for k in ('shown','same','bufferValid','isolated','playing')),result
-        # Keyboard skip at mid-replay. Memory and focus return are explicit.
+        # Keyboard skip at mid-replay and assert the active frame buffer is released.
+        page.evaluate("""() => {
+          const t=window.__BREAKAWAY_TEST__;
+          t.replay.time=t.replay.duration*.45;
+          t.renderReplay(0);
+        }""")
         page.keyboard.press('Space')
         assert page.evaluate("() => !window.__BREAKAWAY_TEST__.replay.active"),'keyboard skip'
         assert page.evaluate("() => window.__BREAKAWAY_TEST__.replay.frames.length===0"),'clear frames'
-        # Touch/click skip at replay start.
+        # Test the actual touch event path in emulated mobile layouts.
         result=start_replay(page)
         assert result['shown'],result
-        page.locator('#replaySkipBtn').click()
-        assert page.evaluate("() => !window.__BREAKAWAY_TEST__.replay.active"),'touch skip'
+        skip=page.locator('#replaySkipBtn')
+        if touch:
+            skip.tap()
+        else:
+            skip.click()
+        assert page.evaluate("() => !window.__BREAKAWAY_TEST__.replay.active"),'button skip'
+        # The late replay path should finish cleanly as well.
+        assert start_replay(page)['shown']
+        page.evaluate("""() => {
+          const t=window.__BREAKAWAY_TEST__;
+          t.replay.time=t.replay.duration*.89;
+          t.renderReplay(0);
+        }""")
+        page.keyboard.press('Space')
+        assert page.evaluate("() => !window.__BREAKAWAY_TEST__.replay.active"),'late replay skip'
         # Still frame when Reduced Effects is enabled, no read of live state.
         page.evaluate("""() => {
           const t=window.__BREAKAWAY_TEST__;
