@@ -1,0 +1,106 @@
+---
+import { visualOf, type StoryEdition } from '../../lib/storyhub/model';
+import './LongFuseEvidenceStage.css';
+interface Step {
+ date: string; short: string; title: string; summary: string; proved: string; limit: string;
+ source: string; visual?: string; graphic?: string; graphicSubtitle?: string;
+}
+interface Props { story: StoryEdition; kind:'crisis'|'front'|'weimar'; }
+const {story,kind}=Astro.props;
+const sequences:Record<Props['kind'],{eyebrow:string;title:string;intro:string;ending:string;steps:Step[]}>={
+ crisis:{
+  eyebrow:'DECISIONS / 1914',title:'Six weeks. No automatic switch.',
+  intro:'Select an entry in the crisis record. A public scene, an assurance, an ultimatum, and a border crossing each tell a different kind of story.',
+  ending:'The sequence is documented. The idea that every following decision was unavoidable is not.',
+  steps:[
+   {date:'28 June 1914',short:'The assassination',title:'An illustrated shock',summary:'The assassination of the Austro-Hungarian heir and Sophie created a crisis. An Italian magazine later pictured the scene for readers.',proved:'A period magazine represented the killing this way after the event.',limit:'The illustration is not eyewitness photography and cannot reveal cabinet deliberations.',source:'sarajevo-source',visual:'sarajevo'},
+   {date:'5–6 July 1914',short:'The assurance',title:'Berlin backs Vienna',summary:'German leaders assured Austria-Hungary of support even if action against Serbia risked a wider confrontation.',proved:'A government assurance changed the diplomatic risk for Vienna.',limit:'That support did not prescribe every term of Austria-Hungary’s subsequent ultimatum.',source:'ultimatum-source',visual:'decision-map'},
+   {date:'23–25 July 1914',short:'Forty-eight hours',title:'A demand, then a qualified reply',summary:'Vienna gave Serbia 48 hours. Belgrade accepted many demands, while contesting participation by foreign officials in its judicial affairs.',proved:'The demands and response can be read as diplomatic documents.',limit:'The documents do not prove every possible compromise was exhausted.',source:'reply-source',graphic:'48',graphicSubtitle:'HOURS TO RESPOND'},
+   {date:'4 August 1914',short:'Across Belgium',title:'Decisions cross a border',summary:'German troops invaded neutral Belgium. Britain declared war on Germany the same day.',proved:'German armed forces operated in Belgium during the 1914 campaign.',limit:'This photograph does not establish the exact instant the frontier was crossed.',source:'belgium-source',visual:'belgium'}
+  ]
+ },
+ front:{
+  eyebrow:'THE WAR / ARCHIVAL VIEWS',title:'Four views. One enormous war.',
+  intro:'Photographs make experience visible, but each has a limited field of view. Compare the military line, soldiers outside the line, civilian displacement, and the conference table.',
+  ending:'A trench photograph can show a defensive position. It cannot by itself explain the war’s entire geography, cost, or the governments’ decisions.',
+  steps:[
+   {date:'c. 1914–1915',short:'The fortified line',title:'The ground becomes a system',summary:'German trench positions along the Aisne illustrate how ground, labor, and defensive works shaped the fighting.',proved:'Photographic evidence of trenches on the Aisne.',limit:'The picture does not show every frontline or independently quantify casualties.',source:'trench-source',visual:'trench-aisne'},
+   {date:'14 September 1914',short:'The exhausted men',title:'The hours between orders',summary:'French soldiers rested after a march in September 1914. Industrial war depended on movement, food, shelter, and bodies.',proved:'A period view of soldiers resting after marching.',limit:'Their individual thoughts, fatigue levels, and eventual fate are not recorded by the image.',source:'rest-source',visual:'soldiers-rest'},
+   {date:'1914',short:'The civilian city',title:'War reaches the station',summary:'People photographed at Paris’s Gare du Nord during 1914 show that the war also affected civilian movement and safety.',proved:'A period scene identified as fugitives at the Paris station.',limit:'This one image cannot establish each person’s origins or the entire refugee crisis.',source:'refugees-source',visual:'refugees-paris'},
+   {date:'27 May 1919',short:'The bargaining table',title:'The war ends. Negotiation begins.',summary:'The fighting had stopped in November 1918. The peace conference continued in 1919, with major Allied leaders holding different priorities.',proved:'The Big Four appeared together at the peace conference.',limit:'A posed portrait does not demonstrate that all leaders agreed.',source:'big-four-source',visual:'big-four'}
+  ]
+ },
+ weimar:{
+  eyebrow:'WEIMAR / RECOVERY & RUPTURE',title:'History was not one uninterrupted collapse.',
+  intro:'Move through crisis, recovery, economic shock, elections, and the appointment. The sequence matters: avoid using a 1923 photo as if it shows conditions throughout the entire decade.',
+  ending:'Economic shocks and electoral gains mattered. Neither forced a presidential appointment. The final decision still had identifiable makers.',
+  steps:[
+   {date:'1923',short:'Currency crisis',title:'A mark becomes almost worthless',summary:'Hyperinflation devastated purchasing power. A contemporary photograph depicts wallpaper made from devalued banknotes.',proved:'The period experienced dramatic monetary breakdown.',limit:'One photograph cannot show that Germany experienced the same economy in 1928.',source:'inflation-source',visual:'inflation'},
+   {date:'1924–1928',short:'A real recovery',title:'The republic did not simply collapse',summary:'Currency stabilization and years of recovery followed the 1923 crisis, though prosperity was uneven and political tensions remained.',proved:'The Nazi Party received only 2.6% in the May 1928 Reichstag election.',limit:'This election result does not mean every German was prosperous or politically content.',source:'ushmm-source',graphic:'2.6%',graphicSubtitle:'NAZI VOTE / MAY 1928'},
+   {date:'1929',short:'Global shock',title:'The Depression changes the choices',summary:'Worldwide financial contraction, credit losses, and unemployment destabilized Germany’s economy and governing coalitions.',proved:'The downturn preceded and helped fuel radical political gains.',limit:'The Depression did not automatically transfer the chancellorship to any one party.',source:'ushmm-source',graphic:'1929',graphicSubtitle:'A NEW ECONOMIC CRISIS'},
+   {date:'July–Nov 1932',short:'Two elections',title:'The largest party was still below half',summary:'The Nazis received 37.3% in July, then 33.1% in November 1932. They were the largest party but lacked a national majority.',proved:'The electoral record shows both the high point and the subsequent decline.',limit:'Vote share alone does not describe the negotiation that put Hitler in office.',source:'ushmm-source',graphic:'37.3',graphicSubtitle:'JULY 1932  →  33.1% NOVEMBER'},
+   {date:'30 January 1933',short:'An appointment',title:'A president names the chancellor',summary:'President Paul von Hindenburg appointed Adolf Hitler after bargaining among conservative political elites.',proved:'The date and the appointment are documented. The crowd scene belongs to that moment.',limit:'A photograph of onlookers cannot prove a nationwide majority or what was said behind closed doors.',source:'appointment-source',visual:'appointment'}
+  ]
+ }
+};
+const seq=sequences[kind];
+const id='fuse-sequence-'+kind;
+---
+<section class="lf-sequence" id={id} aria-labelledby={id+'-title'} data-lf-sequence>
+ <div class="lf-sequence-heading">
+   <div class="lf-sequence-heading-meta"><span>{seq.eyebrow}</span><span>VISUAL EVIDENCE / SELECT EACH STAGE</span></div>
+   <h3 id={id+'-title'}>{seq.title}</h3>
+   <p>{seq.intro}</p>
+ </div>
+ <div class="lf-sequence-frame">
+  <div class="lf-sequence-index" role="group" aria-label={'Choose a moment in '+seq.title}>
+   {seq.steps.map((item,index)=>(
+    <button type="button" class="lf-sequence-select" data-lf-select={index} aria-controls={id+'-panel-'+index} aria-pressed={index===0?'true':'false'}>
+      <span class="lf-step-no">{String(index+1).padStart(2,'0')}</span><span class="lf-step-meta"><strong>{item.short}</strong><small>{item.date}</small></span><span class="lf-step-arrow" aria-hidden="true">↗</span>
+    </button>
+   ))}
+  </div>
+  <div class="lf-sequence-stages">
+   {seq.steps.map((item,index)=>{
+    const visual=item.visual?visualOf(story,item.visual):null;
+    const evidence=story.sources.find(record=>record.id===item.source);
+    return (
+     <article class="lf-sequence-stage" data-lf-panel={index} id={id+'-panel-'+index} role="region" aria-labelledby={id+'-step-title-'+index}>
+       <figure class:list={['lf-evidence-plate',!visual&&'lf-evidence-plate--typographic',visual?.id==='sarajevo'&&'lf-color-illustration']}>
+        {visual?<img src={visual.src} alt={visual.alt} width={visual.width} height={visual.height} loading="lazy" decoding="async" />:
+         <div class="lf-stat-graphic" aria-label={item.graphic+' — '+item.graphicSubtitle}><span aria-hidden="true">{item.graphic}</span><small>{item.graphicSubtitle}</small><i aria-hidden="true">THE RECORD / NOT AN INEVITABLE OUTCOME</i></div>}
+        <div class="lf-evidence-label"><span>{visual?.id==='sarajevo'?'PERIOD ILLUSTRATION':visual?.id==='decision-map'?'INTERPRETIVE SCHEMATIC':visual?'ARCHIVAL PHOTOGRAPH':'TYPOGRAPHIC EVIDENCE PANEL'}</span><span>{String(index+1).padStart(2,'0')} / {String(seq.steps.length).padStart(2,'0')}</span></div>
+        {visual&&<figcaption><span>{visual.caption}</span><small>{visual.credit}</small></figcaption>}
+       </figure>
+       <div class="lf-sequence-reading">
+         <p class="lf-reading-date">{item.date}</p><h4 id={id+'-step-title-'+index}>{item.title}</h4><p class="lf-reading-narrative">{item.summary}</p>
+         <dl class="lf-proof-limit"><dt>What the record establishes</dt><dd>{item.proved}</dd><dt>What it cannot establish</dt><dd>{item.limit}</dd></dl>
+         {evidence&&<a class="lf-source-link" href={evidence.url} target="_blank" rel="noopener noreferrer">Inspect the historical source <span aria-hidden="true">↗</span></a>}
+       </div>
+     </article>
+    );
+   })}
+  </div>
+ </div>
+ <p class="lf-sequence-outro"><span>THE HISTORIAN’S RULE</span>{seq.ending}</p>
+ <p class="lf-stage-status sh-sr-only" data-lf-status role="status" aria-live="polite"></p>
+</section>
+<script>
+ function initFuseSequence(root:HTMLElement){
+  if(root.dataset.lfReady==='true')return;
+  const selectors=[...root.querySelectorAll<HTMLButtonElement>('[data-lf-select]')];
+  const panels=[...root.querySelectorAll<HTMLElement>('[data-lf-panel]')];
+  const status=root.querySelector<HTMLElement>('[data-lf-status]');
+  if(!selectors.length||selectors.length!==panels.length)return;
+  const select=(active:number,announce:boolean)=>{
+   selectors.forEach((button,index)=>button.setAttribute('aria-pressed',String(index===active)));
+   panels.forEach((panel,index)=>{panel.hidden=index!==active;});
+   if(status&&announce)status.textContent='Now viewing '+selectors[active].innerText.replace(/\s+/g,' ').trim();
+  };
+  root.dataset.lfReady='true';
+  selectors.forEach((button,index)=>button.addEventListener('click',()=>select(index,true)));
+  select(0,false);
+ }
+ document.querySelectorAll<HTMLElement>('[data-lf-sequence]').forEach(initFuseSequence);
+ document.addEventListener('astro:page-load',()=>document.querySelectorAll<HTMLElement>('[data-lf-sequence]').forEach(initFuseSequence));
+</script>

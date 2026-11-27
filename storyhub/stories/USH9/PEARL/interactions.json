@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-PEARL",
+  "interactions": [
+    {
+      "id": "strategy",
+      "chapterId": "pacific-on-edge",
+      "type": "Pacific strategy explorer",
+      "teaches": "Trace how the war in China, oil restrictions and location shaped decisions.",
+      "studentAction": "Select places and compare the three strategy records.",
+      "feedback": "The map shows related places and the record explains the pressure in its historical setting.",
+      "staticFallback": "Read the geography captions and strategy evidence files.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "planning",
+      "chapterId": "admirals-gamble",
+      "type": "Planning record",
+      "teaches": "Distinguish immediate military effects from longer-term political objectives.",
+      "studentAction": "Open one planning question and follow the archival links.",
+      "feedback": "Each question names evidence that can test its claims.",
+      "staticFallback": "Native evidence disclosures and sources work with JavaScript disabled.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "voices",
+      "chapterId": "sunday-morning",
+      "type": "Voices of December 7",
+      "teaches": "Compare firsthand evidence recorded at different times and from different positions.",
+      "studentAction": "Open an action report, broadcast description or later recollection.",
+      "feedback": "Each account identifies what the witness could observe and when the record was created.",
+      "staticFallback": "Quotes and readable summaries are available in the evidence files.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "warnings",
+      "chapterId": "warnings",
+      "type": "Warning chain and radar plot",
+      "teaches": "Trace three channels of observation, reporting and interpretation.",
+      "studentAction": "Compare the records and magnify the original radar plot.",
+      "feedback": "A record shows its audience, interpretation and evidence still missing.",
+      "staticFallback": "Original captions, written summaries and public source links remain.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "attack",
+      "chapterId": "first-wave",
+      "type": "Attack chronology",
+      "teaches": "Distinguish reported and approximate times across locations.",
+      "studentAction": "Scrub the range, select a moment or play and pause the recorded sequence.",
+      "feedback": "The timeline changes source and the map highlights the related historical layer.",
+      "staticFallback": "Read chronological cards and select links. Playback is optional.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "ships",
+      "chapterId": "battleship-row",
+      "type": "Battleship Row explorer",
+      "teaches": "Read the space between ships and distinguish damage from eventual fate.",
+      "studentAction": "Select a ship or historical location from the chart or location list.",
+      "feedback": "The harbor view identifies the berth and shows a full record and evidence.",
+      "staticFallback": "Every ship has a text entry and a source linked below the chart.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "airfields",
+      "chapterId": "across-the-island",
+      "type": "Across Oʻahu photo comparison",
+      "teaches": "Link two places visible from different viewpoints at different times.",
+      "studentAction": "Show one photograph or compare both.",
+      "feedback": "The staggered views connect Hickam Field and the harbor.",
+      "staticFallback": "Both captioned images and descriptions are visible by default.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "response",
+      "chapterId": "second-wave",
+      "type": "Second-wave evidence",
+      "teaches": "Connect a harbor event with the experience of a specific person or team.",
+      "studentAction": "Open a point in time, a profile or an archival photo.",
+      "feedback": "The companion opens the related record and preserves the reading position.",
+      "staticFallback": "Links target records in the briefing or archive.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "infrastructure",
+      "chapterId": "what-survived",
+      "type": "Carrier and infrastructure analysis",
+      "teaches": "Separate immediate damage from the fleet’s ability to return to operations.",
+      "studentAction": "Compare damage, ship location, infrastructure and withdrawal evidence.",
+      "feedback": "Each record adds an aftermath comparison or limit to the claim.",
+      "staticFallback": "All records open as native disclosures.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "speech",
+      "chapterId": "december-eight",
+      "type": "Roosevelt address and document viewer",
+      "teaches": "Compare prepared and delivered wording and the legal decision that followed.",
+      "studentAction": "Magnify pages, listen or seek with the transcript.",
+      "feedback": "The matching transcript passage and historical notes remain accessible.",
+      "staticFallback": "Read the treaty and document context, transcript and linked primary records.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "remembrance",
+      "chapterId": "human-cost",
+      "type": "Memorial figures and civilian effects",
+      "teaches": "Connect casualty totals to documented experiences and subsequent policies.",
+      "studentAction": "Open the casualty evidence and trace later policy records.",
+      "feedback": "Source detail adds what the statistics cover and whose experiences differ.",
+      "staticFallback": "Counts, historical context and source links remain visible.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    },
+    {
+      "id": "after",
+      "chapterId": "world-after",
+      "type": "Then and now and counterfactuals",
+      "teaches": "Use photographs and records to discuss remembrance and alternative outcomes.",
+      "studentAction": "Toggle photo views and open a scenario beside the documented history.",
+      "feedback": "Sources, assumptions and uncertainties appear for each alternative.",
+      "staticFallback": "Each source and alternative is readable with native disclosures.",
+      "identityFit": "Investigation uses the story’s archival captions and manuscript typography.",
+      "status": "implemented"
+    }
+  ]
+}

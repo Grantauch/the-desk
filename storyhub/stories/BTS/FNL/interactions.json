@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FNL",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "01-reporter",
+      "type": "video-facades",
+      "teaches": "See the film's version and the real people side by side before reading on.",
+      "studentAction": "Tap a frame to load the trailer or the 60 Minutes segment.",
+      "feedback": "The frame becomes a YouTube player in place.",
+      "staticFallback": "Each video has an Open on YouTube link and the chapter text stands alone.",
+      "identityFit": "Reel frame in teal, real frame in amber.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "02-boom",
+      "type": "year-scrubber",
+      "teaches": "The stadium was built near the top of the oil boom and the season was played near the bottom.",
+      "studentAction": "Drag a slider from 1980 to 1990.",
+      "feedback": "The year's oil price lights up on the chart and a line says what happened in Odessa that year.",
+      "staticFallback": "Every year is listed as text in the chart's data table.",
+      "identityFit": "Amber price line on a black field with yard line gridlines.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "04-budget",
+      "type": "predict-then-reveal",
+      "teaches": "The size of football spending compared to a classroom budget.",
+      "studentAction": "Guess how many English budgets one season of chartered jets would cost, then reveal.",
+      "feedback": "Stacked blocks at true scale, each one an English budget, with the real answer of about 14 and how close the guess was.",
+      "staticFallback": "The four dollar figures are printed beside the blocks before and after the reveal.",
+      "identityFit": "Ledger paper blocks in red ink.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "06-coin",
+      "type": "chance-simulator",
+      "teaches": "A season decided by chance, and why each team had the same odds.",
+      "studentAction": "Flip three coins, or run 300 tiebreakers at once.",
+      "feedback": "Coins land, the odd coin is knocked out, matching coins force a reflip, and a tally shows each team out about one time in three.",
+      "staticFallback": "The rule and the real result are written out in full.",
+      "identityFit": "Silver coins on a dark Midland night band.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "07-docket",
+      "type": "docket-stepper",
+      "teaches": "How a court fight over one grade decided who held a state title.",
+      "studentAction": "Step forward and back through nine dated docket entries.",
+      "feedback": "Each step shows the ruling and moves the trophy marker between Carter and nobody.",
+      "staticFallback": "All nine entries are a readable ordered list.",
+      "identityFit": "Courier docket sheet with a trophy marker.",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "08-reel",
+      "type": "hollywood-or-history",
+      "teaches": "How a true story film changes events, and the difference between invented and moved details.",
+      "studentAction": "Call nine claims History, Hollywood or Remixed.",
+      "feedback": "A stamp, the real record and a running count of what the film changed.",
+      "staticFallback": "Every verdict is plain text after a button press.",
+      "identityFit": "Teal reel cards with amber stamps.",
+      "status": "implemented"
+    },
+    {
+      "id": "I07",
+      "chapterId": "10-tab",
+      "type": "rank-the-tab",
+      "teaches": "Weigh who paid the most for the season.",
+      "studentAction": "Move six line items up or down the receipt.",
+      "feedback": "The receipt reorders and the top line is carried into the final question.",
+      "staticFallback": "The list is readable and works with buttons only, no dragging.",
+      "identityFit": "Perforated receipt in Courier with red ink totals.",
+      "status": "implemented"
+    },
+    {
+      "id": "I08",
+      "chapterId": "10-tab",
+      "type": "written-response",
+      "teaches": "Argue with evidence from the chapters.",
+      "studentAction": "Write five answers.",
+      "feedback": "Shared save and Turn In.",
+      "staticFallback": "Plain textareas.",
+      "identityFit": "Ledger cards with varsity question numbers.",
+      "status": "implemented"
+    },
+    {
+      "id": "I09",
+      "chapterId": "06-coin",
+      "type": "archival-video",
+      "teaches": "Watch the real 1988 coin flip that the film recreates.",
+      "studentAction": "Tap the frame to play the footage.",
+      "feedback": "The facade becomes a YouTube player.",
+      "staticFallback": "Open on YouTube link and full text account.",
+      "identityFit": "Amber archive frame.",
+      "status": "implemented"
+    },
+    {
+      "id": "I10",
+      "chapterId": "07-docket",
+      "type": "archival-video",
+      "teaches": "See the real Permian and Carter teams play the 1988 semifinal and hear Carter's side of the story.",
+      "studentAction": "Tap a frame to play the game footage or the What Carter Lost trailer.",
+      "feedback": "The facade becomes a YouTube player.",
+      "staticFallback": "Open on YouTube links and full text account.",
+      "identityFit": "Amber archive frames.",
+      "status": "implemented"
+    }
+  ]
+}

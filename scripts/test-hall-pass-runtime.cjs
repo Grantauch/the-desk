@@ -3841,4 +3841,46 @@ test('the setup window saves reduced days too', () => {
 });
 
 require('./lib/hall-pass-session-tests.cjs')(test, section);
+
+section('School directory credential generation');
+
+test('the exact digit string is the only PIN and generation invalidates one student', () => {
+  const { createHarness } = require('./lib/gas-harness.cjs');
+  const books = new Map();
+  const owner = createHarness({ spreadsheetId: 'synthetic-runtime-directory', activeEmail: 'directory@mtmorrisschools.org', now: new Date('2026-09-10T11:50:00Z'), workbooks: books });
+  books.set(owner.spreadsheet.getId(), owner.spreadsheet);
+  owner.call('ensureWorkbookReady_');
+  const list = '12007\nNorth, Avery\n014286\nOkonkwo, Blake';
+  const mapping = '12007,avery.north@students.mtmorrisschools.org\n014286,blake.okonkwo@students.mtmorrisschools.org';
+  const preview = owner.call('teacherImportSchoolDirectory', list, mapping, '', '', TEACHER_CONTRACT);
+  owner.call('teacherImportSchoolDirectory', list, mapping, 'IMPORT SCHOOL DIRECTORY', preview.preview.revision, TEACHER_CONTRACT);
+  const owned = owner.call('teacherGetSchoolDirectoryState', TEACHER_CONTRACT);
+  const sheet = books.get(owned.ownedId).getSheetByName('School Directory');
+  assert.equal(sheet.getRange(2, 1).getValue(), '014286');
+  assert.equal(typeof sheet.getRange(2, 1).getValue(), 'string');
+  assert.equal(sheet.getRange(3, 1).getValue(), '12007');
+  assert.equal(sheet.getRange(2, 5).getValue(), '1');
+  assert.equal(owner.sheet('Roster').getLastRow(), 1);
+  const roomA = createHarness({ spreadsheetId: 'synthetic-runtime-room', activeEmail: 'teacher.runtime@mtmorrisschools.org', now: new Date('2026-09-10T11:50:00Z'), workbooks: books });
+  books.set(roomA.spreadsheet.getId(), roomA.spreadsheet);
+  roomA.call('ensureWorkbookReady_');
+  roomA.properties.setProperty('PIN_SALT', 'synthetic-runtime-salt');
+  for (const email of ['avery.north@students.mtmorrisschools.org', 'blake.okonkwo@students.mtmorrisschools.org']) {
+    roomA.sheet('Roster').appendRow([email, 'Synthetic Student', 'Period 1', '', true, false, '']);
+  }
+  roomA.newRequest();
+  const connect = roomA.call('teacherConnectSchoolDirectory', owned.ownedId, '', '', TEACHER_CONTRACT);
+  roomA.call('teacherConnectSchoolDirectory', owned.ownedId, 'USE SCHOOL DIRECTORY', connect.preview.revision, TEACHER_CONTRACT);
+  roomA.signOut(); roomA.newRequest();
+  const avery = roomA.call('identifyWithPin', '12007', 'runtime-avery');
+  const blake = roomA.call('identifyWithPin', '014286', 'runtime-blake');
+  assert.equal(roomA.call('identifyWithPin', '14286', 'runtime-blake-twin').student.key, blake.student.key);
+  const bump = owner.call('teacherBumpDirectoryCredentialGeneration', '12007', '', '', TEACHER_CONTRACT);
+  owner.call('teacherBumpDirectoryCredentialGeneration', '12007', 'BUMP CREDENTIAL GENERATION', bump.preview.revision, TEACHER_CONTRACT);
+  assert.equal(sheet.getRange(3, 1).getValue(), '12007');
+  roomA.newRequest();
+  assert.throws(() => roomA.call('readPinSession_', avery.pinToken), /changed|again|expired/i);
+  assert.equal(roomA.call('readPinSession_', blake.pinToken).email, 'blake.okonkwo@students.mtmorrisschools.org');
+});
+
 report();

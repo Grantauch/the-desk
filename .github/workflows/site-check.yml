@@ -20,7 +20,7 @@ jobs:
     # Keep all gates, including 600 balance games and the five-real-minute town
     # observation. The full suite exceeded 30 minutes in run 39816669934.
     # Run 43068266893 reached 45 minutes in the final browser suite.
-    timeout-minutes: 55
+    timeout-minutes: 65
     steps:
       - name: Check out the site
         uses: actions/checkout@v7
@@ -147,6 +147,10 @@ jobs:
       - name: Check key site pages in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: npm run browser:test
+
+      - name: Check Curiosity catalog outage and recovery in a real browser
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: npm run curiosity:browser
 
       - name: Check WWI trench models and independent fallbacks
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'

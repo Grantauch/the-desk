@@ -261,7 +261,7 @@ for (const p of kprops) {
 }
 
 
- // Forage is only map data at this stage; actual item claims require server-side authority.
+ // Forage spot positions. What each spot yields is content/forage.json, and the server grants the find.
 const forage = [];
 for (const [id, art, x, y] of [
   ['berry-patch', 'prop-bush', 4, 7],

@@ -1,0 +1,35 @@
+---
+import { visualOf, type StoryEdition } from '../../lib/storyhub/model';
+import ArchivalFigure from './ArchivalFigure.astro';
+import ReferenceLinks from './ReferenceLinks.astro';
+interface Props { story: StoryEdition; scope: string; anchors?: boolean; }
+const { story, scope, anchors = false } = Astro.props;
+---
+<div class="sh-cast" data-cast>
+  <div class="sh-cast-index" data-enhance hidden>
+    <label for={scope + '-cast'}>Choose a person or group</label>
+    <select id={scope + '-cast'} data-cast-picker data-desk-skip>
+      {story.people.map((record) => <option value={record.id}>{record.name}</option>)}
+    </select>
+  </div>
+  {story.people.map((person) => (
+    <article class="sh-cast-card" id={anchors ? 'person-' + person.id : undefined} data-person-card={person.id}>
+      <ArchivalFigure {story} visual={visualOf(story, person.visual)} sizes="(max-width: 650px) 100vw, 320px" />
+      <div class="sh-cast-info">
+        <p class="sh-label">{person.role}{person.life && ' · ' + person.life}</p>
+        <h4 tabindex="-1" data-record-heading>{person.name}</h4>
+        <p class="sh-cast-summary">{person.overview}</p>
+        <dl class="sh-facts">
+          <dt>What they knew</dt><dd>{person.knew}</dd>
+          <dt>Decisions and actions</dt><dd>{person.decision}</dd>
+        </dl>
+        <details class="sh-disclosure">
+          <summary>More about {person.name}</summary>
+          {person.biography.map((paragraph) => <p>{paragraph}</p>)}
+        </details>
+        <ReferenceLinks {story} refs={person.refs} kinds={['people', 'events', 'places']} limit={2} label="People, time and place" />
+        <ReferenceLinks {story} refs={person.refs} kinds={['sources', 'media', 'notes']} limit={3} label="Evidence and context" />
+      </div>
+    </article>
+  ))}
+</div>

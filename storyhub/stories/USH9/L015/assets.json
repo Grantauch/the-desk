@@ -19,7 +19,7 @@
     },
     {
       "id": "A02",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Martinsburg local-militia problem",
       "sourceMode": "interpretive-reconstruction",
@@ -27,10 +27,12 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. Interpretive reconstruction; not a likeness of specific participants.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. Interpretive reconstruction; not a likeness of specific participants. No longer displayed in the current student-facing scene.",
       "htmlSafeZone": "Right half deep shadow for date stamp and body lines.",
       "responsiveCrop": "Keep locomotive stopped and figures close together rather than confrontational; protect right-side shadow.",
-      "deployPath": "/storyhub/ush9/l015/assets/a02-martinsburg.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a02-martinsburg.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original illustration remains sealed at its historical URL, but the current lesson uses a locally hosted period-source image instead."
     },
     {
       "id": "A03",
@@ -49,7 +51,7 @@
     },
     {
       "id": "A04",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Pittsburgh aftermath ledger substrate",
       "sourceMode": "interpretive-reconstruction",
@@ -57,10 +59,12 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The damage scene is interpretive rather than archival.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The damage scene is interpretive rather than archival. No longer displayed in the current student-facing scene.",
       "htmlSafeZone": "Left third flat smoke haze for the ledger panels.",
       "responsiveCrop": "Preserve overturned locomotive and large scale of damage while keeping left third quiet.",
-      "deployPath": "/storyhub/ush9/l015/assets/a04-pittsburgh-aftermath.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a04-pittsburgh-aftermath.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original illustration remains sealed at its historical URL, but the current lesson uses a locally hosted period-source image instead."
     },
     {
       "id": "A05",
@@ -69,7 +73,9 @@
       "role": "post-1877 armory method",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Nineteenth-century urban National Guard armory facade built as a fortification",
-      "namedPeople": ["Rutherford B. Hayes"],
+      "namedPeople": [
+        "Rutherford B. Hayes"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub. The facade communicates documented armory fortification logic without claiming to depict a specific surviving building.",
@@ -94,7 +100,7 @@
     },
     {
       "id": "A07",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Haymarket before-or-after absence",
       "sourceMode": "interpretive-reconstruction",
@@ -102,10 +108,12 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It is explicitly not a depiction of the bombing.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It is explicitly not a depiction of the bombing. Superseded by local historical image a07-haymarket-1886.jpg.",
       "htmlSafeZone": "Upper-right wet dark sky for timestamp; lower foreground stones for body lines.",
       "responsiveCrop": "Preserve empty wagon and wet square while maintaining the two quiet type zones.",
-      "deployPath": "/storyhub/ush9/l015/assets/a07-haymarket-square.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a07-haymarket-square.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original SVG retained at its old public URL; active lesson uses documented period media instead."
     },
     {
       "id": "A08",
@@ -114,7 +122,16 @@
       "role": "Haymarket legal-record table substrate",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Courtroom evidence table viewed directly overhead with period papers and an evidence box",
-      "namedPeople": ["August Spies", "Samuel Fielden", "Albert Parsons", "Adolph Fischer", "George Engel", "Louis Lingg", "Michael Schwab", "Oscar Neebe"],
+      "namedPeople": [
+        "August Spies",
+        "Samuel Fielden",
+        "Albert Parsons",
+        "Adolph Fischer",
+        "George Engel",
+        "Louis Lingg",
+        "Michael Schwab",
+        "Oscar Neebe"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub. No defendant likenesses or readable fake documents are fabricated.",
@@ -129,7 +146,10 @@
       "role": "execution and pardon date sequence",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Empty nineteenth-century jail corridor with barred windows casting hard parallel light",
-      "namedPeople": ["John Peter Altgeld", "August Spies"],
+      "namedPeople": [
+        "John Peter Altgeld",
+        "August Spies"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub. Environmental reconstruction, not represented as the Cook County jail itself.",
@@ -144,7 +164,10 @@
       "role": "Fort Frick chain-of-custody substrate",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Tall fortified wooden fence running along a riverbank at dusk with barbed wire, rifle ports, and mill silhouette",
-      "namedPeople": ["Andrew Carnegie", "Henry Clay Frick"],
+      "namedPeople": [
+        "Andrew Carnegie",
+        "Henry Clay Frick"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
       "provenance": "Original paper-and-ink SVG authored for this StoryHub from the documented Fort Frick dimensions and defensive features; not archival evidence.",
@@ -154,7 +177,7 @@
     },
     {
       "id": "A11",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Homestead river landing chronology",
       "sourceMode": "interpretive-reconstruction",
@@ -162,55 +185,141 @@
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It shows the approach atmosphere, not the fighting itself.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. It shows the approach atmosphere, not the fighting itself. Superseded by local historical image a11-homestead-barges-1892.jpg.",
       "htmlSafeZone": "Mist band across middle for body lines; sky at top for date.",
       "responsiveCrop": "Keep barge at middle distance and shoreline watchfulness; protect mist band.",
-      "deployPath": "/storyhub/ush9/l015/assets/a11-monongahela.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a11-monongahela.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original SVG retained at its old public URL; active lesson uses documented period media instead."
     },
     {
       "id": "A12",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
       "role": "Pullman company-town ledger substrate",
       "sourceMode": "interpretive-reconstruction",
       "subject": "Straight-on row of Pullman-style company brick houses in flat afternoon light, empty and meticulously ordered",
-      "namedPeople": ["George Pullman"],
+      "namedPeople": [
+        "George Pullman"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The repeating houses carry company-town structure without presenting a false archival photograph.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. The repeating houses carry company-town structure without presenting a false archival photograph. Superseded by local historical image a12-pullman-houses-1890s.jpg.",
       "htmlSafeZone": "Lower-third pavement for ledger; flat sky above rooflines for heading.",
       "responsiveCrop": "Preserve repetitive brick-house order and both type zones.",
-      "deployPath": "/storyhub/ush9/l015/assets/a12-pullman-houses.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a12-pullman-houses.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "Original SVG retained at its old public URL; active lesson uses documented period media instead."
     },
     {
       "id": "A13",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
-      "role": "injunction document machine substrate",
-      "sourceMode": "interpretive-reconstruction",
+      "role": "Retired ornamental injunction-paper scene, replaced by source-grounded native HTML quantitative docket",
+      "sourceMode": "retained-legacy-editorial-svg",
       "subject": "Single federal court paper on a desk at a low raking angle with seal and fountain pen",
-      "namedPeople": ["Eugene V. Debs", "Grover Cleveland", "Richard Olney", "Peter S. Grosscup", "William A. Woods"],
+      "namedPeople": [
+        "Eugene V. Debs",
+        "Grover Cleveland",
+        "Richard Olney",
+        "Peter S. Grosscup",
+        "William A. Woods"
+      ],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink SVG authored for this StoryHub. All readable court language remains native HTML rather than fabricated inside the image.",
+      "provenance": "Original paper-and-ink SVG authored for this StoryHub. All readable court language remains native HTML rather than fabricated inside the image. The student-facing L015 page now uses semantic HTML comparison visuals in place of this SVG. Original asset retained under its published URL for compatibility.",
       "htmlSafeZone": "Near-white paper surface across upper two thirds for stepped sequence.",
       "responsiveCrop": "Keep seal, pen, and large quiet paper field; do not fabricate readable court text in the image.",
-      "deployPath": "/storyhub/ush9/l015/assets/a13-injunction-paper.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a13-injunction-paper.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "No longer linked from current lesson; remains in sealed release to preserve prior public asset URLs."
     },
     {
       "id": "A14",
-      "status": "built-review-needed",
+      "status": "superseded-retained-for-legacy-links",
       "type": "scene",
-      "role": "seventeen-year comparison ladder substrate",
-      "sourceMode": "editorial-reconstruction",
+      "role": "Retired ornamental staircase metaphor, replaced by native HTML four-case response comparison",
+      "sourceMode": "retained-legacy-editorial-svg",
       "subject": "Four flights of an iron stairwell photographed straight upward from the bottom, identical landings receding into light",
       "namedPeople": [],
       "sourceUrl": null,
       "rightsStatus": "authored-public-use-review",
-      "provenance": "Original paper-and-ink editorial SVG authored for this StoryHub as a structural metaphor for the four-case ladder, not literal historical evidence.",
+      "provenance": "Original paper-and-ink editorial SVG authored for this StoryHub as a structural metaphor for the four-case ladder, not literal historical evidence. The student-facing L015 page now uses semantic HTML comparison visuals in place of this SVG. Original asset retained under its published URL for compatibility.",
       "htmlSafeZone": "Bright opening at top for header; stair treads remain legible enough to carry the fixed comparison rungs.",
       "responsiveCrop": "Protect all four landings and upward geometry; preserve top opening.",
-      "deployPath": "/storyhub/ush9/l015/assets/a14-ladder.svg"
+      "deployPath": "/storyhub/ush9/l015/assets/a14-ladder.svg",
+      "deploymentStatus": "legacy-asset-preserved",
+      "deploymentNote": "No longer linked from current lesson; remains in sealed release to preserve prior public asset URLs."
+    },
+    {
+      "id": "A15",
+      "type": "wood-engraving",
+      "role": "Source-grounded Martinsburg blockade scene, replacing ornamental A02 SVG",
+      "sourceMode": "archival-wood-engraving",
+      "subject": "1877 Harper’s Weekly wood engraving of Martinsburg blockade, based on photograph by D. Bendann",
+      "sourceUrl": "https://www.loc.gov/item/00649601/",
+      "rightsStatus": "public-domain-1877-print",
+      "provenance": "Original 1877 Harper’s Weekly engraving, after D. Bendann photograph. Image retrieved from Lapham’s Quarterly historical reproduction and optimized into locally hosted JPEG derivative. Clearly identified as engraving, not original photograph.",
+      "htmlSafeZone": "Dark type overlay on right, image has documentary composition with crowd and locomotives.",
+      "responsiveCrop": "Keep locomotive and blockade legible; source title and credit remain native HTML.",
+      "status": "shipped",
+      "deployPath": "/storyhub/ush9/l015/assets/a02-martinsburg-1877.jpg"
+    },
+    {
+      "id": "A16",
+      "type": "wood-engraving",
+      "role": "Source-grounded Pittsburgh Union Depot fire scene, replacing ornamental A04 SVG",
+      "sourceMode": "archival-wood-engraving",
+      "subject": "1877 Harper’s Weekly wood engraving of Pittsburgh’s Union Depot and hotel burning, drawn by Fred. B. Schell",
+      "sourceUrl": "https://archive.org/details/sim_harpers-weekly_harpers-weekly_1877-08-11_21_1076/page/n4/mode/1up",
+      "rightsStatus": "public-domain-1877-United-States-publication",
+      "provenance": "The Great Strike—Destruction of the Union Depot and Hotel at Pittsburgh, Harper’s Weekly, vol. XXI, no. 1076, August 11, 1877, printed p. 621. Printed caption credits Fred. B. Schell as draughtsman. The locally optimized image uses a visually matched scan of the original print (https://commons.wikimedia.org/wiki/File:Harpers_8_11_1877_Destruction_of_the_Union_Depot.jpg); the original issue establishes the correct page and imprint. The engraving depicts the fire, not an aftermath photograph.",
+      "htmlSafeZone": "Native HTML text over a light left-side gradient.",
+      "responsiveCrop": "Preserve the burning depot and visible crowd; do not imply that this is a photograph.",
+      "status": "shipped",
+      "deployPath": "/storyhub/ush9/l015/assets/a04-pittsburgh-1877.jpg"
+    },
+    {
+      "id": "A17",
+      "status": "shipped",
+      "type": "wood-engraving",
+      "role": "Restores a07-haymarket-square.svg with period source art",
+      "sourceMode": "contemporary-wood-engraving",
+      "subject": "Harper’s Weekly May 15 1886 Haymarket wood engraving by Thure de Thulstrup",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:HaymarketRiot-Harpers.jpg",
+      "rightsStatus": "Public domain: published in the United States in 1886",
+      "provenance": "Contemporary 1886 newspaper engraving by Thure de Thulstrup via Wikimedia Commons public-domain file. Its staged depiction combines moments inaccurately; classroom caption explicitly identifies it as an illustration, not an eyewitness photograph. Local JPEG optimized from the public-domain engraving.",
+      "htmlSafeZone": "Readable HTML text over responsive CSS gradient",
+      "responsiveCrop": "Historic scene and native HTML source credit remain usable at mobile and desktop widths",
+      "deployPath": "/storyhub/ush9/l015/assets/a07-haymarket-1886.jpg"
+    },
+    {
+      "id": "A18",
+      "status": "shipped",
+      "type": "wood-engraving",
+      "role": "Restores a11-monongahela.svg with period source art",
+      "sourceMode": "contemporary-wood-engraving",
+      "subject": "Homestead burning barges by Charles Mente after photograph by Dabbs in Harper’s Weekly July 16 1892",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Homestead_Strike_-_Barges_on_fire.jpg",
+      "rightsStatus": "Public domain: published in the United States in 1892",
+      "provenance": "Contemporary wood engraving by Charles Mente from a photograph by Dabbs, Harper’s Weekly, July 16 1892; Library of Congress digital ID cph.3b03431, via Wikimedia Commons public-domain copy. Image shows burning barges after the fighting, not the predawn arrival. Local optimized JPEG.",
+      "htmlSafeZone": "Readable HTML text over responsive CSS gradient",
+      "responsiveCrop": "Historic scene and native HTML source credit remain usable at mobile and desktop widths",
+      "deployPath": "/storyhub/ush9/l015/assets/a11-homestead-barges-1892.jpg"
+    },
+    {
+      "id": "A19",
+      "status": "shipped",
+      "type": "archival-photo",
+      "role": "Restores a12-pullman-houses.svg with period source art",
+      "sourceMode": "archival-photograph",
+      "subject": "Pullman workers’ houses, 1890–1901, original Detroit Publishing Company glass negative LC-DIG-det-4a08075",
+      "sourceUrl": "https://www.loc.gov/item/2016801929/",
+      "rightsStatus": "Library of Congress: no known restrictions on publication",
+      "provenance": "Period photograph, Detroit Publishing Company 1890–1901, Library of Congress item 2016801929 and digital ID det.4a08075. Local JPEG from original LOC CDN. Source date is a range; the photo is not represented as necessarily taken during the exact 1894 strike.",
+      "htmlSafeZone": "Readable HTML text over responsive CSS gradient",
+      "responsiveCrop": "Historic scene and native HTML source credit remain usable at mobile and desktop widths",
+      "deployPath": "/storyhub/ush9/l015/assets/a12-pullman-houses-1890s.jpg"
     }
   ]
 }

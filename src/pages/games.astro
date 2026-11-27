@@ -1,412 +1,200 @@
 ---
-// games.astro — lessonhubs and review games, served as standalone pages from /hubs/.
-// To add one: drop the HTML file in public/hubs/ and add an entry to `hubs` below.
-// Each hub opens in a new tab — they're full-screen apps with their own look.
 import Base from '../layouts/Base.astro';
 import GamePreview from '../components/GamePreview.astro';
-import PageHeader from '../components/PageHeader.astro';
+import { interactiveExperiences } from '../data/interactiveExperiences';
 
-interface Hub {
-  name: string;
-  course: string;
-  kind: string;
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street' | 'press' | 'cartoon';
-  previewEyebrow: string;
-  href: string;
-  blurb: string;
-  featured?: boolean;
-  archived?: boolean;
-}
+const games = interactiveExperiences.filter((experience) => experience.section === 'game');
 
-const hubs: Hub[] = [
-  {
-    name: 'blitzkrieg',
-    course: 'u.s. history 9',
-    kind: 'tower-defense game',
-    theme: 'press',
-    previewEyebrow: 'september 1939 · invasion of poland',
-    href: '/hubs/blitzkrieg/',
-    blurb: 'Hold a fictional Polish road through twelve waves. Place and upgrade defenses, or take direct control. The briefing and debrief connect the scenario to the September Campaign.',
-  },
-  {
-    name: 'the roswell signal',
-    course: 'hidden history',
-    kind: 'guided investigation',
-    theme: 'casefile',
-    previewEyebrow: 'july 1947 · weigh the evidence',
-    href: '/hubs/hh-roswell-signal.html',
-    blurb: 'Follow the first reports, compare newspaper and government records, and write a field report that explains what the evidence supports. Sign in with your school PIN to save your writing.',
-  },
-  {
-    name: 'situation room',
-    course: 'u.s. history 9',
-    kind: 'historical decisions',
-    theme: 'press',
-    previewEyebrow: 'october 1962 · the cuban missile crisis',
-    href: '/hubs/situation-room.html',
-    blurb: 'Advise President Kennedy at six moments in the Cuban Missile Crisis. Weigh each choice, compare it with the historical record and use the source documents in your debrief.',
-  },
-  {
-    name: 'evidence locker',
-    course: 'all classes',
-    kind: 'source detective',
-    theme: 'casefile',
-    previewEyebrow: 'eight cards · follow the sources',
-    href: '/hubs/evidence-locker.html',
-    blurb: 'Sort historical summaries and invented examples, open the source trail and decide what each card can establish. Keyboard controls, revisable filing and an explained report give you time to inspect the evidence.',
-  },
-  {
-    name: 'boss fight review',
-    course: 'all classes',
-    kind: 'review game',
-    theme: 'ring',
-    previewEyebrow: 'economics · evidence · sports',
-    href: '/hubs/boss-fight-review.html',
-    blurb: 'Challenge three fictional concept bosses. Read each explanation at your own pace, check the sources, and retry with a review report. Game scores stay in this tab and are not grades.',
-  },
-  {
-    name: 'market shock arena',
-    course: 'all classes',
-    kind: 'economics simulation',
-    theme: 'finance',
-    previewEyebrow: 'eight rounds · one food truck',
-    href: '/hubs/market_shock_arena.html',
-    blurb: 'Read the market news, price your meals and prep your stock. Compare costs, competition and changing demand across eight rounds, with an explained classroom model and time to study every result.',
-  },
-  {
-    name: 'checklings · pixel camp',
-    course: 'just for fun',
-    kind: 'your school companion',
-    theme: 'lab',
-    previewEyebrow: 'your PIN · your friend · your camp',
-    featured: true,
-    href: '/checklings/',
-    blurb: 'Bring your original Checkling to camp. Care, discoveries, practice and a field journal, saved privately with your school PIN and class. Your official school streak and earned homes come with you.',
-  },
-  {
-    name: 'pond',
-    course: 'just for fun',
-    kind: 'falling-sand sandbox',
-    theme: 'lab',
-    previewEyebrow: 'sand · water · fire · life',
-    href: '/hubs/pond/',
-    blurb: 'Paint a tiny world, grow a garden, freeze a lake, or see what happens when lava meets water. Twenty materials and tools, starter scenes, undo, and worlds you can save. No score. Make a mess.',
-  },
-  {
-    name: 'dry county',
-    course: 'just for fun',
-    kind: 'prohibition crime prototype',
-    theme: 'street',
-    previewEyebrow: 'mt. morris · build 0.3',
-    featured: true,
-    href: '/hubs/dry-county/',
-    blurb: 'A top down bootlegging game on a map traced from Mt. Morris. Run liquor, hijack rival trucks and outrun police roadblocks and federal dry agents. Hit the ramps, race the hot runs, and hunt sixteen hidden moonshine jugs with real Prohibition history inside. Fictional people and events.',
-  },
-  {
-    name: 'over there',
-    course: 'u.s. history 9',
-    kind: 'map hub',
-    theme: 'press',
-    previewEyebrow: '1914 to 1920 · the great war',
-    featured: true,
-    href: '/hubs/ush9-over-there.html',
-    blurb:
-      'Follow World War I across a 3D globe from Sarajevo to Versailles. Watch the alliances pull Europe into war, decode the Zimmermann Telegram, move the Western Front, explore a trench, guess the sentences in the Espionage Act case files, and decide whether the Senate should have signed the treaty.',
-  },
-  {
-    name: 'over the somme',
-    course: 'u.s. history 9',
-    kind: '3d flyover',
-    theme: 'press',
-    previewEyebrow: '7:28 a.m. · 1 july 1916',
-    featured: true,
-    href: '/hubs/ush9-over-the-somme.html',
-    blurb:
-      'Watch zero hour on 1 July 1916 from Cecil Lewis\'s seat above La Boisselle as the Lochnagar mine goes up and the first waves walk into no man\'s land. Then take the controls of his Morane Parasol, fly the field from Albert to Thiepval ridge and log all twenty sites in your field notebook.',
-  },
-  {
-    name: 'the arsenal',
-    course: 'u.s. history 9',
-    kind: '3d weapons gallery',
-    theme: 'press',
-    previewEyebrow: 'ten weapons · 1914 to 1918',
-    href: '/hubs/ush9-the-arsenal.html',
-    blurb:
-      'Walk a 3D museum hall of the weapons that froze the Western Front, from the machine gun to the U-boat. Fire a Vickers for one minute, sort 100 wounded soldiers, watch 49 tanks try to reach the start line, and answer a curator\'s question at every exhibit.',
-  },
-  {
-    name: 'the line',
-    course: 'u.s. history 9',
-    kind: 'map hub',
-    theme: 'press',
-    previewEyebrow: 'the western front · 1914 to 1918',
-    href: '/hubs/ush9-the-line.html',
-    blurb:
-      'Scroll a war room map as the Western Front forms, freezes and finally breaks. Walk the first morning of the Somme minute by minute, drag four years of front lines, and work out what each mile cost.',
-  },
-  {
-    name: 'over the top',
-    course: 'u.s. history 9',
-    kind: '3d trench walk',
-    theme: 'press',
-    previewEyebrow: 'the american fight · 1918',
-    href: '/hubs/ush9-over-the-top.html',
-    blurb:
-      'Walk a front line trench through seven American stories, from the Harlem Hellfighters to the Lost Battalion and Sergeant York. Look through a periscope at no man\'s land, then climb the ladder to 11 a.m. on November 11, 1918.',
-  },
-  {
-    name: 'a splendid little war?',
-    course: 'u.s. history 9',
-    kind: 'map hub',
-    theme: 'press',
-    previewEyebrow: '1898 · spin the globe',
-    featured: true,
-    href: '/hubs/ush9-splendid-little-war.html',
-    blurb:
-      'Follow the Spanish-American War across a 3D globe from Havana to Manila. Build a yellow journalism front page, investigate the Maine explosion, sit in McKinley\'s chair, ride with the Rough Riders, flip one Senate vote, and decide who the war was splendid for.',
-  },
-  {
-    name: 'stop the presses',
-    course: 'u.s. history 9',
-    kind: 'live class game',
-    theme: 'press',
-    previewEyebrow: 'progressive era · everyone plays',
-    featured: true,
-    href: '/hubs/ush9-stop-the-presses.html',
-    blurb:
-      'Every student runs a newspaper in the Progressive Era. The story hits the big screen, editors file from their Chromebooks, and every paper bets on how big to print it. Reforms pass when the room knows them. Solo mode and the Morgue are there for test prep.',
-  },
-  {
-    name: 'the square deal',
-    course: 'u.s. history 9',
-    kind: 'card duel',
-    theme: 'cartoon',
-    previewEyebrow: '1900 to 1918 · reformers vs. the machine',
-    featured: true,
-    href: '/hubs/ush9-square-deal.html',
-    blurb:
-      'A card game of exposés, laws, bosses and court cases. Build outrage, pass laws the Machine cannot undo, or play the bosses and keep the reformers quiet. Against the computer or head to head on one Chromebook. Every card is real history.',
-  },
-  {
-    name: 'progressive era jeopardy',
-    course: 'u.s. history 9',
-    kind: 'classroom review',
-    theme: 'jeopardy',
-    previewEyebrow: 'v3 · buzzers · phone remote',
-    featured: true,
-    href: '/hubs/ush9-progressive-era-jeopardy-v3.html',
-    blurb:
-      'Muckrakers, workers, civil rights, suffrage and presidents. Teams buzz in from Chromebooks at grant-desk.com/buzz, lock Pick a Number guesses and write Final Jeopardy answers, while your phone runs the board with the answer key. Works offline on one screen too, and every clue is editable.',
-  },
-  {
-    name: 'world war i jeopardy',
-    course: 'u.s. history 9',
-    kind: 'classroom review',
-    theme: 'jeopardy',
-    previewEyebrow: 'v3 · buzzers · two boards',
-    href: '/hubs/ush9-wwi-jeopardy.html',
-    blurb:
-      'Sarajevo, the trenches, the weapons, America goes to war, the home front, 1918 and the peace. Pick the full unit board or Part One, which stops before 1918. Same buzzers, phone remote and Pick a Number as the Progressive Era board.',
-  },
-  {
-    name: 'jeopardy live · student buzzer',
-    course: 'all classes',
-    kind: 'join a teacher-hosted game',
-    theme: 'jeopardy',
-    previewEyebrow: 'four-letter room code · first name',
-    href: '/hubs/jeopardy-buzz.html',
-    blurb: 'Join the room shown on your teacher’s projector, choose your team, and buzz from your Chromebook or phone. A live teacher-hosted game is required.',
-  },
-  {
-    name: 'constitution day · case files',
-    course: 'all classes',
-    kind: 'source investigation',
-    theme: 'casefile',
-    previewEyebrow: 'three course paths · constitutional evidence',
-    href: '/hubs/constitution-day-2026-09-18.html',
-    blurb: 'Choose U.S. History, Hidden History, or Beyond the Scoreboard. Read constitutional evidence, test claims about power and rules, and write a case file with shared work controls and a downloadable copy.',
-  },
-  {
-    name: 'blacktop kings',
-    course: 'just for fun',
-    kind: 'streetball game',
-    theme: 'street',
-    previewEyebrow: '3 on 3 · build your baller',
-    featured: true,
-    href: '/hubs/blacktop-kings.html',
-    blurb:
-      'Build a baller, break ankles, throw it off the glass, and shatter the backboard with a Crown dunk. Run the circuit from the corner lot to Crown Court, recruit the legends you beat, then bring your crew to a friend for head-to-head play.',
-  },
-  {
-    name: 'tale of the tape',
-    course: 'beyond the scoreboard',
-    kind: 'boxing life game',
-    theme: 'ring',
-    previewEyebrow: '1934–1966 · no two careers alike',
-    featured: true,
-    href: '/hubs/tale-of-the-tape.html',
-    blurb:
-      'Live a whole boxing life from the Depression to the TV era. Box every fight yourself, Punch-Out style, survive real history from Pearl Harbor to the mob hearings, and collect discoveries no classmate has found yet.',
-  },
-  {
-    name: 'the league',
-    course: 'beyond the scoreboard',
-    kind: 'sports ownership game',
-    theme: 'scoreboard',
-    previewEyebrow: 'eight eras · one sports empire',
-    featured: true,
-    href: '/hubs/the-league.html',
-    blurb:
-      'Outbid rival owners, build your franchise, and chase a championship. Play against five computer teams or put 2–6 classroom teams in charge on one shared screen. The game handles the money.',
-  },
-  {
-    name: 'classroom jeopardy',
-    course: 'all classes',
-    kind: 'review game',
-    theme: 'jeopardy',
-    previewEyebrow: 'editable board · any class',
-    featured: true,
-    href: '/hubs/classroom-jeopardy.html',
-    blurb:
-      'The full board — categories, daily doubles, final jeopardy, team scores. Runs on the projector; the class supplies the arguing.',
-  },
-  {
-    name: 'the muckrakers review',
-    course: 'u.s. history 9',
-    kind: 'quiz review',
-    theme: 'lab',
-    previewEyebrow: 'riis · tarbell · sinclair',
-    href: '/hubs/ush9-muckrakers-review.html',
-    blurb:
-      'Study guide, flash cards, a timeline builder, who did it matching and a practice quiz for Friday. Riis and the flash, Tarbell and the paper trail, Sinclair and the stomach.',
-  },
-  {
-    name: 'mkultra review',
-    course: 'hidden history',
-    kind: 'quiz review',
-    theme: 'casefile',
-    previewEyebrow: '1953 to 2026 · what the record proves',
-    href: '/hubs/hh-mkultra-review.html',
-    blurb:
-      'Everything on Friday\u2019s quiz in five ways to practice: the funding line, Frank Olson and room 1018A, the burned files, and the difference between six proven and six total.',
-  },
-  {
-    name: 'jackie robinson review',
-    course: 'beyond the scoreboard',
-    kind: 'quiz review',
-    theme: 'scoreboard',
-    previewEyebrow: 'before brooklyn · the bargain · the cost',
-    href: '/hubs/bts-robinson-review.html',
-    blurb:
-      'Flash cards, a timeline builder, who did it matching and a practice quiz covering Camp Hood, the Rickey bargain, 1947, and what integration cost the Negro Leagues.',
-  },
-  {
-    name: 'empire exchange',
-    course: 'u.s. history 9',
-    kind: 'market simulation',
-    theme: 'finance',
-    previewEyebrow: 'gilded age · classroom market',
-    href: '/hubs/empire-exchange.html',
-    blurb:
-      'Build an industrial empire, negotiate deals, integrate your companies, and chase either the biggest fortune or a monopoly.',
-  },
-  {
-    name: 'robber barons',
-    course: 'u.s. history 9',
-    kind: 'board game',
-    theme: 'finance',
-    previewEyebrow: 'gilded age · join with a code',
-    href: '/hubs/robber-barons.html',
-    blurb:
-      'Two to eight players, on one shared Chromebook or each on their own with a join code, play as Vanderbilt, Rockefeller, Carnegie, Morgan, Gould, Stanford, Hetty Green and Frick. Buy the railroads, then survive the Panic of 1893 when every rent gets cut in half.',
-  },
-  {
-    name: 'jeopardy: hidden history unit 1',
-    course: 'hidden history',
-    kind: 'preloaded board',
-    theme: 'jeopardy',
-    previewEyebrow: 'hidden history · ready to play',
-    href: '/hubs/jeopardy-hidden-history-unit1.html',
-    blurb:
-      'The Official Story vs. The Rumor, ready to play: Roswell, the four verdicts, the glossary, and a final question about balloons.',
-  },
-  {
-    name: 'jeopardy: scoreboard unit 1',
-    course: 'beyond the scoreboard',
-    kind: 'preloaded board',
-    theme: 'jeopardy',
-    previewEyebrow: 'scoreboard · ready to play',
-    href: '/hubs/jeopardy-scoreboard-unit1.html',
-    blurb:
-      'Inventing American Sport, ready to play: the first games, the color line, the four threads, and a Michigan category for the home crowd.',
-  },
-  {
-    name: 'case file: roswell',
-    course: 'hidden history',
-    kind: 'lessonhub · unit 1',
-    theme: 'casefile',
-    previewEyebrow: 'evidence lab · unit 1',
-    href: '/hubs/hidden-history-unit1.html',
-    blurb:
-      'The unit 1 hub: launch the slides, open the glossary, run the verdict machine, and take the clearance exam.',
-  },
-  {
-    name: 'opening whistle',
-    course: 'beyond the scoreboard',
-    kind: 'lessonhub · unit 1',
-    theme: 'scoreboard',
-    previewEyebrow: 'sports history · unit 1',
-    href: '/hubs/scoreboard-unit1.html',
-    blurb:
-      'The unit 1 hub: the four threads drill, a build-the-timeline game, and an eight-question box score. The tally is watching.',
-  },
-  {
-    name: 'paycheck & taxes',
-    course: 'personal finance',
-    kind: 'lessonhub',
-    theme: 'finance',
-    previewEyebrow: 'archive favorite · personal finance',
-    archived: true,
-    href: '/hubs/paycheck-taxes.html',
-    blurb:
-      'Gross vs. net, withholdings, W-4s, and where your money actually goes. Study modes include flashcards, matching, and a quiz.',
-  },
-];
+// Only include covers with a recorded source. The existing illustrated panel
+// stays in every cabinet, including when an approved file fails to load.
+const covers: Record<string, string> = {
+  "/hubs/manifest-1848/": "manifest-1848",
+  "/hubs/manifest-expanse-1848/": "manifest-expanse-1848",
+  "/hubs/icebreak.html": "icebreak",
+  "/hubs/breakaway/": "breakaway",
+  "/hubs/bridge-lab/": "bridge-lab",
+  "/hubs/gridiron-blitz/": "gridiron-blitz",
+  "/hubs/blitzkrieg/": "blitzkrieg",
+  "/hubs/boss-fight-review.html": "boss-fight-review",
+  "/checklings/": "checklings",
+  "/hubs/pond/": "pond",
+  "/hubs/dry-county/": "dry-county",
+  "/hubs/ush9-stop-the-presses.html": "ush9-stop-the-presses",
+  "/hubs/ush9-square-deal.html": "ush9-square-deal",
+  "/hubs/ush9-progressive-era-jeopardy-v3.html": "ush9-progressive-era-jeopardy-v3",
+  "/hubs/ush9-wwi-jeopardy.html": "ush9-wwi-jeopardy",
+  "/hubs/jeopardy-buzz.html": "jeopardy-buzz",
+  "/hubs/blacktop-kings.html": "blacktop-kings",
+  "/hubs/tale-of-the-tape.html": "tale-of-the-tape",
+  "/hubs/the-league.html": "the-league",
+  "/hubs/classroom-jeopardy.html": "classroom-jeopardy",
+  "/hubs/robber-barons.html": "robber-barons",
+  "/hubs/jeopardy-hidden-history-unit1.html": "jeopardy-hidden-history-unit1",
+  "/hubs/jeopardy-scoreboard-unit1.html": "jeopardy-scoreboard-unit1"
+};
 ---
 
-<Base title="games">
-  <PageHeader eyebrow="the play cabinet" title="games" intro="lessonhubs, jeopardy boards, and review games. open one and play." />
+<Base title="games" wide>
+  <div class="arcade">
+    <header class="arcade-banner">
+      <div class="arcade-intro">
+        <p class="arcade-eyebrow"><span aria-hidden="true"></span> The Desk · Play Cabinet</p>
+        <h1>Arcade<span>.</span></h1>
+        <p>Build a bridge. Run the field. Start a classroom rivalry.</p>
+      </div>
+      <div class="arcade-counter" aria-hidden="true"><b>{games.length}</b><span>Games<br/>on the shelf</span></div>
+    </header>
+    <nav class="arcade-nav" aria-label="Choose an experience">
+      <a href="/games/" aria-current="page">Games</a>
+      <a href="/simulations/">Explore simulations and investigations</a>
+      <a href="/practice/">Practice &amp; review</a>
+      <a href="/storyhubs/">Story Hubs</a>
+    </nav>
 
-  <div class="mt-10 grid gap-6 sm:grid-cols-2">
-    {
-      hubs.map((hub) => (
-        <a
-          href={hub.href}
-          target="_blank"
-          rel="noopener"
-          class:list={['group pop block overflow-hidden rounded-md bg-white', hub.featured && 'sm:col-span-2']}
-        >
-          <GamePreview theme={hub.theme} label={hub.name} eyebrow={hub.previewEyebrow} featured={hub.featured} />
-          <div class="p-5 sm:p-6">
-            <div class="flex flex-wrap items-center gap-2 font-mono text-[0.68rem] lowercase">
-              <span class="font-semibold text-accent">{hub.course}</span>
-              <span class="text-ink-soft">· {hub.kind}</span>
-              {hub.archived && <span class="rounded-full bg-accent-soft px-2 py-0.5 text-accent-dark">archive</span>}
-            </div>
-            <h2 class="mt-2 font-display text-2xl font-bold lowercase transition-colors group-hover:text-accent">
-              {hub.name}<span class="text-accent">.</span>
-            </h2>
-            <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
-            <span class="mt-4 inline-block font-mono text-xs font-semibold lowercase text-accent transition-transform group-hover:translate-x-1.5">
-              open and play ↗
-            </span>
-          </div>
-        </a>
-      ))
-    }
+    <section class="cabinet-shelf" aria-labelledby="play">
+      <div class="shelf-title">
+        <div>
+          <p class="arcade-eyebrow">Select a cabinet</p>
+          <h2 id="play">Play the games</h2>
+        </div>
+        <p>Games open in a new tab.</p>
+      </div>
+      <div class="cabinet-grid">
+        {games.map((game, index) => {
+          const cover = covers[game.href];
+          const src = cover ? '/games-catalog/' + cover : '';
+          const blurbId = 'cabinet-description-' + (index + 1);
+          return (
+            <a class:list={['cabinet', { 'cabinet--lead': index === 0 }]} href={game.href} target="_blank" rel="noopener" aria-label={`Play ${game.name} (opens in a new tab)`} aria-describedby={blurbId}>
+              <div class="cabinet-cover">
+                <GamePreview theme={game.theme} label={game.name} eyebrow={game.previewEyebrow} featured={game.featured} />
+                {cover === 'breakaway' ? (
+                  <img
+                    src="/games-catalog/breakaway.svg"
+                    width="800" height="500" alt=""
+                    loading="lazy" decoding="async" data-arcade-cover
+                  />
+                ) : src && (
+                  <picture>
+                    <img
+                      src={src + '-768.webp'}
+                      srcset={src + '-384.webp 384w, ' + src + '-768.webp 768w'}
+                      sizes={index === 0 ? '(max-width: 39rem) calc(100vw - 4.1rem), (max-width: 56rem) calc(50vw - 3rem), (max-width: 72rem) calc(66vw - 5.2rem), 680px' : '(max-width: 39rem) calc(100vw - 4.1rem), (max-width: 56rem) calc(50vw - 3rem), 360px'}
+                      width="768" height="432" alt=""
+                      loading={index === 0 ? 'eager' : 'lazy'} decoding="async" data-arcade-cover
+                    />
+                  </picture>
+                )}
+                <span class="cabinet-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              </div>
+              <div class="cabinet-body">
+                <div class="cabinet-heading">
+                  <h3>{game.name}</h3>
+                  <span class="cabinet-play">Play <span aria-hidden="true">↗</span></span>
+                </div>
+                <p class="cabinet-meta">{game.course} <span aria-hidden="true">·</span> {game.kind}{game.archived && <span class="cabinet-archive">Archive</span>}</p>
+                <p class="cabinet-description" id={blurbId}>{game.blurb}</p>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
   </div>
-
-  <p class="mt-10 text-sm font-mono lowercase text-ink-soft">
-    more are coming. jeopardy is not going anywhere.
-  </p>
 </Base>
+
+<script>
+  // Keep this local to the page and don't hide the fallback while images load.
+  document.querySelectorAll<HTMLImageElement>('img[data-arcade-cover]').forEach((image) => {
+    const hideMissing = () => { image.hidden = true; };
+    image.addEventListener('error', hideMissing, { once: true });
+    if (image.complete && image.naturalWidth === 0) hideMissing();
+  });
+</script>
+
+<style>
+  .arcade {
+    --night:#0d131d; --cabinet:#151f30; --panel:#1b293d; --edge:#354861;
+    --lit:#f1f7ff; --dim:#becde0; --ion:#91f9d9; --ion-ink:#0b2924;
+    color:var(--lit); background:var(--night); border:1px solid #29374b; border-radius:1rem;
+    overflow:clip; box-shadow:0 18px 54px #13223e29;
+  }
+  .arcade-banner {
+    display:flex; justify-content:space-between; align-items:flex-end; gap:1.25rem;
+    padding:clamp(1.35rem, 4.5vw, 3.65rem);
+    background:
+      radial-gradient(ellipse at 85% 0%, #24555a 0%, transparent 52%),
+      repeating-linear-gradient(135deg,#fff0 0 19px,#b4d3ff0c 20px 21px),
+      linear-gradient(118deg,#202c51 0%,#192843 74%,#163542 100%);
+    border-bottom:1px solid var(--edge);
+  }
+  .arcade-eyebrow,.cabinet-meta,.cabinet-number,.arcade-counter span {
+    font-family:var(--font-mono, monospace); font-weight:700; font-size:.72rem;
+    letter-spacing:.09em; text-transform:uppercase;
+  }
+  .arcade-eyebrow { color:var(--ion); margin:0; }
+  .arcade-eyebrow span { display:inline-block; inline-size:.5rem; block-size:.5rem; border-radius:50%; background:var(--ion); margin-inline-end:.45rem; }
+  .arcade h1,.arcade h2,.arcade h3 { font-family:var(--font-display, system-ui); color:var(--lit); font-weight:800; }
+  .arcade h1 { font-size:clamp(3rem, 8vw, 6.4rem); line-height:.98; margin:.42rem 0 .7rem; letter-spacing:-.07em; }
+  .arcade h1 span { color:var(--ion); }
+  .arcade-intro > p:last-child { color:var(--dim); font-size:clamp(.98rem, 2vw, 1.16rem); margin:0; }
+  .arcade-counter { flex:none; display:flex; gap:.65rem; align-items:center; padding:.58rem .72rem; color:var(--dim); background:#0914239c; border:1px solid #6682a0; border-radius:.62rem; }
+  .arcade-counter b { font:750 1.95rem/1 system-ui; color:var(--ion); }
+  .arcade-counter span { font-size:.57rem; line-height:1.25; }
+  .arcade-nav { display:flex; flex-wrap:wrap; gap:.28rem .42rem; padding:.6rem clamp(.8rem, 3vw, 2.4rem); background:#101827; border-bottom:1px solid #29374b; }
+  .arcade-nav a { display:inline-flex; align-items:center; min-height:2.75rem; padding:.42rem .78rem; color:var(--dim); border-radius:.42rem; font-size:.83rem; font-weight:650; text-decoration:none; }
+  .arcade-nav a:hover,.arcade-nav a[aria-current="page"] { color:var(--lit); background:#293955; }
+  .arcade-nav a[aria-current="page"] { color:var(--ion); }
+
+  .cabinet-shelf { padding:clamp(.8rem, 3vw, 2.4rem); }
+  .shelf-title { display:flex; justify-content:space-between; align-items:flex-end; gap:.8rem; margin-bottom:1rem; }
+  .shelf-title h2 { font-size:clamp(1.35rem, 3vw, 2.05rem); margin:.13rem 0 0; line-height:1.14; letter-spacing:-.034em; }
+  .shelf-title > p { color:var(--dim); font-size:.79rem; margin:0; text-align:right; }
+  .cabinet-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; }
+  .cabinet {
+    display:flex; flex-direction:column; min-inline-size:0; outline:0 solid transparent;
+    color:var(--lit); background:var(--cabinet); border:1px solid var(--edge); border-radius:.7rem;
+    overflow:hidden; text-decoration:none;
+    transition:border-color 150ms ease, background-color 150ms ease;
+  }
+  .cabinet--lead { grid-column:span 2; }
+  .cabinet:hover { color:var(--lit); border-color:var(--ion); background:var(--panel); }
+  .cabinet:focus-visible,.arcade-nav a:focus-visible { outline:3px solid var(--ion); outline-offset:2px; }
+  .cabinet-cover { position:relative; isolate:isolate; display:grid; aspect-ratio:16/9; overflow:hidden; background:#22334b; border-bottom:1px solid var(--edge); }
+  .cabinet--lead .cabinet-cover { aspect-ratio:auto; height:clamp(9rem,15vw,12.2rem); }
+  .cabinet-cover picture,.cabinet-cover img { position:absolute; inset:0; width:100%; height:100%; }
+  .cabinet-cover picture { z-index:1; }
+  .cabinet-cover img { display:block; object-fit:cover; object-position:50% 50%; }
+  .cabinet-cover img[hidden] { display:none; }
+  .cabinet-cover :global(.game-preview) { position:absolute; z-index:0; inset:0; height:100%; min-height:0; align-content:start; padding:.85rem; overflow:hidden; }
+  .cabinet-cover :global(.preview-heading strong) { font-size:clamp(1.22rem, 3vw, 2.25rem); line-height:1.02; }
+  .cabinet-cover :global(.preview-heading span) { font-size:.64rem; }
+  .cabinet-number {
+    position:absolute; z-index:2; right:.5rem; top:.5rem; min-width:2rem; padding:.25rem .35rem;
+    text-align:center; color:var(--lit); background:#101927e8; border:1px solid #75869b; border-radius:.28rem;
+  }
+  .cabinet-body { display:flex; flex:1; flex-direction:column; align-items:flex-start; gap:.45rem; padding:clamp(.85rem,2vw,1.22rem); }
+  .cabinet-heading { display:flex; justify-content:space-between; align-items:center; gap:.5rem; width:100%; }
+  .cabinet-meta { color:var(--dim); line-height:1.5; margin:0; font-size:.64rem; overflow-wrap:anywhere; }
+  .cabinet-meta span[aria-hidden] { margin-inline:.23rem; color:var(--ion); }
+  .cabinet-archive { display:inline-block; margin-inline-start:.3rem; padding-inline:.32rem; border:1px solid var(--edge); border-radius:.2rem; }
+  .cabinet h3 { font-size:clamp(1.24rem, 2.1vw, 1.7rem); line-height:1.1; margin:0; text-transform:capitalize; overflow-wrap:anywhere; letter-spacing:-.02em; }
+  .cabinet-description { color:var(--dim); font-size:.88rem; line-height:1.5; margin:0; }
+  .cabinet-play { display:inline-flex; justify-content:center; align-items:center; gap:.55rem; min-height:2.75rem; flex:none; padding:.48rem .7rem; border-radius:.34rem; color:var(--ion-ink); background:var(--ion); font-size:.87rem; font-weight:800; }
+  .cabinet:hover .cabinet-play { background:#c7ffed; }
+  @media (max-width:56rem) {
+    .cabinet-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .cabinet--lead { grid-column:auto; }
+    .cabinet--lead .cabinet-cover { aspect-ratio:16/9; height:auto; }
+  }
+  @media (max-width:39rem) {
+    .arcade-banner { align-items:flex-start; flex-direction:column; gap:.7rem; padding:1.05rem 1.18rem; }
+    .arcade-counter { padding:.38rem .55rem; }
+    .arcade-counter b { font-size:1.35rem; }
+    .arcade-nav { display:grid; grid-template-columns:1fr 1fr; }
+    .arcade-nav a { padding:.32rem .45rem; line-height:1.25; }
+    .cabinet-grid { grid-template-columns:1fr; gap:.8rem; }
+    .cabinet-cover :global(.preview-heading strong) { font-size:clamp(1.42rem, 7vw, 2.05rem); }
+  }
+  @media (prefers-reduced-motion:reduce) { .cabinet { transition:none; } }
+</style>

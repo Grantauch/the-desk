@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-LONGFUSE",
+  "title": "The Long Fuse: 1914–1933",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "Foreboding",
+      "Investigative",
+      "Historically contingent"
+    ],
+    "paletteIntent": "Carbon ink #10171b, archive ivory #eee7d9, steel slate #647c86, signal vermilion #c44837, muted oxidized gold #bda377",
+    "typographyIntent": "Grand editorial serif titles, humanist sans body, monospaced dispatch labels.",
+    "textureLanguage": [
+      "Real black-and-white negatives",
+      "Paper grain",
+      "Period photographic edge",
+      "Red pencil marks"
+    ],
+    "shapeLanguage": "Full-bleed archival rectangles, editorial newspaper rules, large negative space and timeline rails.",
+    "motionGrammar": [
+      "Slow time-progression",
+      "Causal lines",
+      "Evidence crossfade",
+      "Layered historical comparison"
+    ],
+    "interactionSignature": [
+      "July decision ledger",
+      "Armistice-to-treaty timeline",
+      "Vote-versus-appointment correction",
+      "Evidence verdict"
+    ],
+    "densityRhythm": "Immersive quiet prologue, brisk dispatches, deep reading pause, visual time map, end-of-part evidence question.",
+    "archivalBehavior": "Actual archival photos credited beside each figure; historical paraphrases explicitly marked; interpretive map plate visibly labeled schematic.",
+    "endingLanguage": "A causal judgment with a documented choice, not an inevitable verdict."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Silver-grey historical photographs and brown document paper; accent color used only for choices and turning points.",
+    "edgeTreatment": "Faint dark paper rules, no faux image ageing or generated 'historical' photographs.",
+    "controlLanguage": "Original 1914-style index tabs with contemporary accessibility.",
+    "spacingLanguage": "Cinematic widescreen photographs alternated with dense evidence stations.",
+    "transitionLanguage": "Explained chronology; reduced-motion remains fully legible."
+  }
+}

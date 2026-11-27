@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-S04",
+  "course": "USH9",
+  "lessonCode": "S04",
+  "title": "the weaver's son",
+  "audience": "students",
+  "narrativeQuestion": "The machines came for the best paid workers in England. What happened to them, and to their children, after they lost?",
+  "chapters": [
+    {
+      "id": "s1",
+      "title": "The best paid workers in town",
+      "claim": "Croppers and handloom weavers were skilled and well paid around 1806.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s2",
+      "title": "Then the machines arrived",
+      "claim": "Power looms and shearing frames let untrained workers do skilled work, and the price of hand weaving collapsed.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I01",
+        "I02"
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "A warning signed Ned Ludd",
+      "claim": "Luddite letters named targets, warned first and hid behind a made up name.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "Hammers in the night",
+      "claim": "Luddites smashed about 1,000 frames and chose their targets.",
+      "namedPeople": [
+        {
+          "name": "Ned Ludd",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A04"
+        },
+        {
+          "name": "Enoch Taylor",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [
+        "A04"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s5",
+      "title": "Machine breaking becomes a hanging crime",
+      "claim": "Parliament answered with the death penalty and 12,000 soldiers.",
+      "namedPeople": [
+        {
+          "name": "Lord Byron",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A05"
+        }
+      ],
+      "visualAnchorIds": [
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s6",
+      "title": "Twenty two months",
+      "claim": "The uprising spread across the north and ended at the gallows in Lancaster and York.",
+      "namedPeople": [
+        {
+          "name": "William Cartwright",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "William Horsfall",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "George Mellor",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Abraham Charlson",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "s7",
+      "title": "What a week's pay could buy",
+      "claim": "One weaver's real wages fell by more than two thirds from 1797 to 1834.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "s8",
+      "title": "The weaver's son",
+      "claim": "Weavers had nowhere to go, raised their children to a dying trade, and the croppers were replaced by children.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A06",
+        "A07"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s9",
+      "title": "So who came out ahead?",
+      "claim": "Owners and buyers gained while workers waited a generation, and Ricardo admitted machines could hurt workers.",
+      "namedPeople": [
+        {
+          "name": "David Ricardo",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A08"
+        }
+      ],
+      "visualAnchorIds": [
+        "A08"
+      ],
+      "interactionIds": [
+        "I06"
+      ]
+    },
+    {
+      "id": "s10",
+      "title": "Now it's your trade",
+      "claim": "Workers who understand the work well enough to direct the machine come out ahead.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I07"
+      ]
+    },
+    {
+      "id": "repair",
+      "title": "Fix the notes",
+      "claim": "Four common beliefs about the Luddites are wrong.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I08"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "The boy who wove three and a half pieces is presented as a claim that spread through the weaving districts.",
+    "Wage figures from the 1830s come from testimony to Parliament and vary by town and cloth.",
+    "Abraham Charlson is listed as 16 in contemporary records, and his family claimed he was younger.",
+    "The MIT study is described as small and not yet peer reviewed when released."
+  ]
+}
