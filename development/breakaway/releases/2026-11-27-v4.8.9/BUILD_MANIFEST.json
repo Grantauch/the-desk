@@ -1,0 +1,24 @@
+{
+  "game": "BREAKAWAY",
+  "version": "4.8.9",
+  "date": "2026-11-27",
+  "title": "Camera & Replay Director",
+  "status": "development candidate — QA incomplete, not promoted, not deployed",
+  "html": "index.html",
+  "sha256": "4ec136ffd0493c2efbfc0a28043b3e6fa1aa1876c5147369ddf425c888afa9df",
+  "git_blob_sha": "38e008d12617fe971b7578db93a20423dcb181e3",
+  "base_version": "4.8.8",
+  "base_sha256": "1f9bcc89d94f96b1265ff0678272c9c33e354564f09c20e29b96bdf6cea2a9a9",
+  "change_class": "renderer and replay UI only",
+  "engine_identical_to_base": true,
+  "QA": {
+    "engine_simulation": "25/25 local games, 96839 frames, 3849 assertions against byte-identical source core",
+    "required_500_games": "pending (500 game attempt timed out)",
+    "browser_4_viewports": "pending",
+    "renderer_2000_draws": "pending",
+    "physical_phones": "pending",
+    "controller_physical": "pending",
+    "Safari_Firefox": "pending"
+  },
+  "public_deployed": false
+}
