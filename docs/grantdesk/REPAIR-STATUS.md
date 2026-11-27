@@ -1,3 +1,7 @@
+## November 27 Hall Pass teacher-audit retry
+
+A teacher retry after a pass, check-in, late review, or absence row has already committed now repairs the missing audit row and finishes queue cleanup instead of writing a second attendance row. A teacher check-in does not take credit for an arrival the student already recorded. The local Hall Pass runtime passed 453 checks. This is source only: it does not deploy Apps Script or change the RC2 installer, VERSION.json flags, or the Apps Script deploy workflow.
+
 ## November 22 Manifest soundtrack integration
 
 Grant authorized live release of the supplied soundtrack and procedural audio. Copper and Talon is the recurring main theme; West of the Divide is gated exclusively to endScreen(true), after full-game completion. Copper Sky plays at camp. The master Sound switch controls music and effects, including title and ending controls; hidden tabs pause audio. Local syntax, media decoding, and audio-state regressions pass. Canonical verification, protected CI and production readback are pending; physical-device listening remains unverified.

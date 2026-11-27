@@ -1,4 +1,16 @@
 {
+  "hall-pass-teacher-audit-retry-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Teacher retries repair a missing audit row and resume queue settlement after the attendance or pass row has already committed.",
+    "verification_status": "LOCAL_RUNTIME_453_CHECKS_PASS_APPS_SCRIPT_NOT_DEPLOYED",
+    "deployment_status": "SOURCE_ONLY_APPS_SCRIPT_DEPLOY_NOT_AUTHORIZED",
+    "field_status": "NOT_DEPLOYED",
+    "evidence": [
+      "Synthetic runtime fixtures cover late-review replay, student-originated check-in, pass start and return, and absence mark and clear.",
+      "Replayed onto current main after the RC2 freeze. This does not deploy Apps Script or change the RC2 installer, VERSION.json flags, or the deploy workflow."
+    ]
+  },
   "story-hub-library-2026-11-21": {
     "status": "IMPLEMENTED_LOCAL_REVIEW",
     "owner": "ChatGPT",
