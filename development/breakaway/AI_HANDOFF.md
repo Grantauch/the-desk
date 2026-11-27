@@ -1,0 +1,30 @@
+# Breakaway — AI editing handoff
+
+**Current latest:** [V4.8.8 (2026-11-26)](LATEST.md).
+
+**Next-phase authority:** [V4.8.8 through V5.0.0 roadmap](ROADMAP_TO_V5_0_0.md). Read it before selecting a new task or assigning scope. It defines per-version ship gates and what not to change.
+
+V4.8.7 continues the previous improvements: 5→1 progressive blockers, permanent defender knockdowns, end-zone pursuit on stalling, defensive blocking intelligence, 2.5D art, action-specific animation, frozen-clock recorded-state replay, a tiny E/A/TAP prompt above near-miss tackles, optional reduced effects and bounded impact shake.
+
+## Specific latest change
+
+V4.8.6 fixed rapid flickering feet by integrating footfall phase from actual travel. **Do not revert to elapsed-time × speed gait.**
+
+V4.8.7 keeps that gait untouched and eases upper-body lean, sway, crouch and torso twist plus arm/elbow/hand positions between run, juke, spin, stiff-arm, block, grapple and recovery poses. Visual transition state is renderer-owned and reset per possession. It never affects collision hitboxes, scoring, player velocity, physics or the football clock. A tackle struggle snaps into its brace pose immediately because the live clock is frozen.
+
+## V4.8.8 changes and outstanding acceptance
+
+V4.8.8 freezes distance-based footstep phase while hurdling, keeps stride continuous on landing, adds weighted planted shoe appearance, and caches uniforms/helmet lighting. Engine is byte-identical to V4.8.7. Automated 500/500 games, 113,284 assertions, 12 action poses, four browser viewports, 2,000 render draws pass. Gradient allocations reduce from 29–55 per frame to 7. Wall-time comparisons are mixed, and **real-device FPS/human game-speed reviews are still required**. V4.8.7 remains frozen for rollback.
+
+## Work next
+
+- Human game-speed visual acceptance (especially iPhone/Android 120Hz).
+- Low-end mobile renderer profiling and performance optimization.
+- Refine blocker/fall animations without flickering feet or distracting camera jumps.
+- Future changes should be incremental, separately reviewed and reproducible.
+
+## Tests and releases
+
+[Latest QA report](releases/2026-11-26-v4.8.8/QA_REPORT.md) records 500/500 full simulated games, 113,284 state assertions, 12 poses, four viewports, 120Hz gait and transition checks, input/replay and 2,000 render draws. Real device and Firefox/Safari testing remains outstanding.
+
+Never silently edit or deploy `public/hubs/breakaway/`. This source folder is solely for AI collaboration; public deployment is a distinct task.

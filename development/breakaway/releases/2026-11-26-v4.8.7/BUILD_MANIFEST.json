@@ -1,0 +1,21 @@
+{
+  "project": "breakaway",
+  "version": "4.8.7",
+  "build_date": "2026-11-26",
+  "name": "Motion Blends",
+  "status": "github-development-source-only",
+  "latest": true,
+  "entry": "index.html",
+  "html_sha256": "81ed2080bbe91473c8c003f4a178fa4297e8bd057fd8459a7905739cfd4571ce",
+  "git_blob_sha": "a995aba13678743801786e3023443ceb2d564045",
+  "baseline": "source/baseline-v4.8.6.html",
+  "baseline_git_blob_sha": "6431a818be52258e8b2ba5e4e1853bd11ebd4a70",
+  "gameplay_engine_identical": true,
+  "qa": {
+    "games": 500,
+    "state_assertions": 113284,
+    "render_draws": 2000,
+    "viewports": 4
+  },
+  "production_release": false
+}
