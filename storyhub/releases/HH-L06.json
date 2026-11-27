@@ -11,16 +11,22 @@
   "files": [
     {
       "path": "/hubs/hh-l06-two-sources.html",
-      "bytes": 39948,
-      "sha256": "7a915c2e9dc6e1a4c94aee13b341eb63c1475f50d3a7651b3950924bbbac05d6"
+      "bytes": 39964,
+      "sha256": "cf6f9f648c14711e7522e1887d4821237d592406a2c59e9b243883ca45310505"
     },
     {
       "assetId": "A00",
       "path": "/storyhub/hh/l06/assets/cover-signal.svg",
       "bytes": 1383,
       "sha256": "97c652fea8ef3ee7e1e198f934b5579ea06cbd5c256a0ba7e8c17d36aaacde26"
+    },
+    {
+      "assetId": "A04",
+      "path": "/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg",
+      "bytes": 85655,
+      "sha256": "b2f39af2bdbe3dc280ce6a87f9be3b39d8eafc013d22c3a5f29a4c0db27af7f0"
     }
   ],
-  "totalBytes": 41331,
-  "sealedAt": "2026-10-26"
+  "totalBytes": 127002,
+  "sealedAt": "2026-11-20"
 }

@@ -1,0 +1,33 @@
+name: Inventory published visual assets
+
+on:
+  push:
+    branches:
+      - audit/catalog-media-inventory-20261120
+    paths:
+      - scripts/audit-published-visual-assets.mjs
+      - .github/workflows/audit-published-visual-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Inventory all published artwork references
+        run: node scripts/audit-published-visual-assets.mjs
+      - name: Save inspectable inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-media-inventory
+          path: browser-results/catalog-media/
+          retention-days: 14
+          if-no-files-found: ignore

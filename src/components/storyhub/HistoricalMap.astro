@@ -1,0 +1,89 @@
+---
+import { visualOf, type StoryEdition } from '../../lib/storyhub/model';
+import ArchivalFigure from './ArchivalFigure.astro';
+import ReferenceLinks from './ReferenceLinks.astro';
+interface Props { story: StoryEdition; scope: string; anchors?: boolean; regionIds?: string[]; initial?: string; }
+const { story, scope, anchors = false, regionIds, initial = story.map.initial } = Astro.props;
+const regions = story.map.regions.filter((region) => !regionIds || regionIds.includes(region.id));
+const places = story.places.filter((place) => regions.some((region) => region.id === place.region));
+const markerNumber = (id: string, region: string) => places.filter((place) => place.region === region).findIndex((place) => place.id === id) + 1;
+---
+<div class="sh-map" data-map data-initial={initial}>
+  <div class="sh-map-controls" data-enhance hidden>
+    {regions.length > 1 && (
+      <div class="sh-inline-tabs" role="group" aria-label="Map scale">
+        {regions.map((region) => <button type="button" data-map-region={region.id} aria-pressed={region.id === initial ? 'true' : 'false'}>{region.title}</button>)}
+      </div>
+    )}
+    <div class="sh-map-tools">
+      <label for={scope + '-layer'}>
+        Historical layer
+        <select id={scope + '-layer'} data-map-layer data-desk-skip>
+          <option value="">All recorded places</option>
+          {story.map.layers.map((layer) => <option value={layer.id} data-description={layer.description}>{layer.title}</option>)}
+        </select>
+      </label>
+      <div class="sh-mini-controls" role="group" aria-label="Map zoom">
+        <button type="button" data-map-zoom="-1" aria-label="Zoom map out">−</button>
+        <button type="button" data-map-zoom="0">Fit</button>
+        <button type="button" data-map-zoom="1" aria-label="Zoom map in">+</button>
+      </div>
+    </div>
+    <p class="sh-muted" data-map-layer-caption hidden></p>
+  </div>
+  {regions.map((region) => {
+    const visual = visualOf(story, region.visual);
+    const points = places.filter((place) => place.region === region.id);
+    return (
+      <figure class="sh-map-sheet" data-map-sheet={region.id}>
+        <div class="sh-map-viewport" data-map-window role="region" aria-label={region.title + ' map. Use zoom controls or the location list.'}>
+          <div class="sh-map-surface" data-map-surface style={'--map-ratio:' + visual.width + '/' + visual.height}>
+            <img src={visual.src} width={visual.width} height={visual.height} alt={visual.alt} loading="lazy" decoding="async" data-archival-image />
+            {region.movements?.length && (
+              <svg class="sh-map-movements" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                {region.movements.map((movement) => <polyline points={movement.points.map(({ x, y }) => x + ',' + y).join(' ')} vector-effect="non-scaling-stroke" />)}
+              </svg>
+            )}
+            <p class="sh-image-fallback" hidden data-image-fallback>Map image unavailable. Select a location to read its historical record.</p>
+            {region.labels?.map((label) => <span class="sh-map-label" aria-hidden="true" style={'--x:' + label.x + '%;--y:' + label.y + '%'}>{label.name}</span>)}
+            {points.map((place) => (
+              <a
+                class:list={['sh-map-pin', { 'sh-map-pin--off': place.type === 'Off-map reference' }]}
+                href={'#' + (anchors ? 'place-' : scope + '-place-') + place.id}
+                data-map-pin={place.id} data-layers={place.layers?.join(' ') ?? ''} aria-label={place.title}
+                style={'--x:' + place.x + '%;--y:' + place.y + '%'}
+              ><span aria-hidden="true">{markerNumber(place.id, region.id)}</span></a>
+            ))}
+          </div>
+        </div>
+        <figcaption>
+          <strong>{region.title}</strong> · {region.description}
+          <a href={story.sources.find((source) => source.id === visual.source)?.url}>{visual.credit}</a>
+          {region.movements?.map((movement) => <a href={story.sources.find((source) => source.id === movement.source)?.url}>Dashed line · {movement.label}</a>)}
+        </figcaption>
+      </figure>
+    );
+  })}
+  <label class="sh-labeled sh-map-picker" for={scope + '-place'} data-enhance hidden>
+    Map legend and locations
+    <select id={scope + '-place'} data-place-picker data-desk-skip>
+      {places.map((place) => <option value={place.id} data-region={place.region}>{markerNumber(place.id, place.region)} · {place.title}</option>)}
+    </select>
+  </label>
+  <p class="sh-sr-only" role="status" data-map-status></p>
+  {places.map((place) => (
+    <article
+      class="sh-place-card"
+      id={(anchors ? 'place-' : scope + '-place-') + place.id}
+      data-place-card={place.id} data-region={place.region} data-layers={place.layers?.join(' ') ?? ''}
+    >
+      <div>
+        <p class="sh-label">{place.type}</p>
+        <h4 tabindex="-1" data-record-heading>{place.title}</h4>
+        <p>{place.description}</p>
+        <ReferenceLinks {story} refs={place.refs} limit={2} />
+      </div>
+      {place.visual && <ArchivalFigure {story} visual={visualOf(story, place.visual)} sizes="(max-width: 650px) 90vw, 350px" />}
+    </article>
+  ))}
+</div>

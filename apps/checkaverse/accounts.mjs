@@ -27,6 +27,59 @@ export function loadGrowth(file) {
   return g;
 }
 
+// The general store. Amounts live in content/shop.json. Care actions the goods point at must exist.
+export function loadShop(file, care) {
+  const s = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const bad = (msg) => { throw new Error(`shop.json: ${msg}`); };
+  for (const k of ['dayCoins', 'visitPurse', 'freeCharmsPerDay', 'visitCharms']) {
+    if (!(Number.isInteger(s[k]) && s[k] >= 0 && s[k] <= 500)) bad(`${k} must be a whole number from 0 to 500`);
+  }
+  if (s.dayCoins < 1) bad('dayCoins must be at least 1');
+  if (typeof s.freeCare !== 'boolean') bad('freeCare must be true or false');
+  if (!s.carry || typeof s.carry !== 'object') bad('carry is missing');
+  if (!Array.isArray(s.goods) || !s.goods.length) bad('goods is empty');
+  const ids = new Set();
+  for (const good of s.goods) {
+    if (!/^[a-z]{2,16}$/.test(good.id || '')) bad(`bad id ${good.id}`);
+    if (ids.has(good.id)) bad(`duplicate ${good.id}`);
+    ids.add(good.id);
+    if (!(Number.isInteger(good.price) && good.price >= 1 && good.price <= s.dayCoins)) bad(`${good.id} price must be a whole number from 1 to dayCoins, so one check-in can buy it`);
+    if (!(Number.isInteger(s.carry[good.id]) && s.carry[good.id] >= 1 && s.carry[good.id] <= 30)) bad(`${good.id} carry limit`);
+    if (typeof good.name !== 'string' || !good.name.trim()) bad(`${good.id} needs a name`);
+    if (good.uses === 'catch') continue;
+    if (!care.actions[good.uses]) bad(`${good.id} uses unknown care action ${good.uses}`);
+  }
+  return s;
+}
+
+// Forage spots and potion ingredients. Grave moss is listed here and still gathered from headstones.
+export function loadForage(file) {
+  const f = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const bad = (msg) => { throw new Error(`forage.json: ${msg}`); };
+  if (f.perSpot !== 1) bad('perSpot must be 1');
+  if (typeof f.already !== 'string' || !f.already) bad('already is missing');
+  if (typeof f.full !== 'string' || !f.full.includes('{name}')) bad('full must name the ingredient');
+  if (!f.ingredients || !f.spots) bad('ingredients and spots are required');
+  for (const [id, ing] of Object.entries(f.ingredients)) {
+    if (!/^[a-zA-Z]{2,20}$/.test(id)) bad(`bad id ${id}`);
+    if (typeof ing.name !== 'string' || !ing.name) bad(`${id} needs a name`);
+    if (!(Number.isInteger(ing.carry) && ing.carry >= 1 && ing.carry <= 30)) bad(`${id} carry`);
+    if (typeof ing.found !== 'string' || !ing.found) bad(`${id} found line`);
+  }
+  const spotIds = ['berry-patch', 'creek-bank', 'herb-garden', 'old-stump'];
+  if (Object.keys(f.spots).length !== spotIds.length || spotIds.some((id) => !f.spots[id])) bad('the four Kettle Creek spots must be berry-patch, creek-bank, herb-garden, and old-stump');
+  for (const [id, spot] of Object.entries(f.spots)) {
+    if (!Array.isArray(spot.finds) || spot.finds.length < 1) bad(`${id} needs finds`);
+    for (const find of spot.finds) {
+      const ing = f.ingredients[find];
+      if (!ing) bad(`${id} lists unknown ingredient ${find}`);
+      if (ing.source === 'headstone') bad(`${find} only grows on headstones`);
+    }
+  }
+  if (f.ingredients.graveMoss?.source !== 'headstone') bad('graveMoss must be a headstone ingredient');
+  return f;
+}
+
 // XP needed to stand at a level. Level 1 is free.
 export function xpFor(g, level) {
   let xp = 0, lv = 1;
@@ -450,6 +503,14 @@ export function openStore(db, g, care, clock = {}) {
           const moves = offerMoves(t.pid, partner.id, before, after);
           credit = { days: gained, xp: gained * g.dayXp, id: partner.id, species: partner.species, nick: partner.nick, before, after, evolved, ...moves };
         }
+        if (gained && clock.shop) {
+          const items = itemsOf(fresh(t.pid));
+          const coins = gained * clock.shop.dayCoins;
+          items.coins = (items.coins || 0) + coins;
+          saveItems(t.pid, items);
+          if (credit) credit.coins = coins;
+          else credit = { days: gained, xp: 0, coins };
+        }
         if (t.days !== tr.attendance) q.attendance.run(t.days, t.pid);
         return { created, credit, trainer: fresh(t.pid), reports: body.reports, deaths: body.deaths, faded: body.faded };
       });
@@ -483,6 +544,13 @@ export function openStore(db, g, care, clock = {}) {
       const v = Care.view(care, body(row), todayKey());
       const items = itemsOf(q.trainer.get(pid));
       v.rare = Object.entries(care.rare).filter(([k]) => items[k] > 0).map(([k, x]) => ({ id: k, label: x.label, count: items[k] }));
+      v.coins = items.coins || 0;
+      v.bag = Object.fromEntries((clock.shop?.goods || []).map((g) => [g.id, items[g.id] || 0]));
+      v.foraged = {};
+      for (const [id, ing] of Object.entries(clock.forage?.ingredients || {})) {
+        if (ing.source === 'headstone' || !(items[id] > 0)) continue;
+        v.foraged[ing.name] = items[id];
+      }
       return v;
     },
     mods(pid, id) {
@@ -505,8 +573,13 @@ export function openStore(db, g, care, clock = {}) {
           items[action] -= 1;
           q.items.run(JSON.stringify(items), pid);
         }
+        const stock = clock.shop?.goods?.find((g) => g.uses === action);
+        const have = stock ? (items[stock.id] || 0) : 0;
+        if (stock && !have && clock.shop.freeCare === false) return { ok: false, msg: `Buy a ${stock.name.toLowerCase()} at the general store first.` };
+        if (stock && have > 0 && !stock.keeps) { items[stock.id] = have - 1; saveItems(pid, items); }
         const done = Object.values(b.today.day === day ? b.today.n : {}).reduce((x, y) => x + y, 0);
         const r = Care.act(care, b, action, day, seeded(pid, id, 'care', day, action, done), name);
+        if (!r.ok && stock && have > 0 && !stock.keeps) { items[stock.id] = have; saveItems(pid, items); }
         saveBody(id, b);
         if (b.dead) r.death = kill(pid, row, b.dead, day);
         return r;
@@ -689,11 +762,56 @@ export function openStore(db, g, care, clock = {}) {
       return { ok: true };
     },
 
-    charmsLeft: (pid) => Math.max(0, g.charmsPerDay - fresh(pid).day_charms),
+    charmsLeft(pid) {
+      const bought = itemsOf(fresh(pid)).charm || 0;
+      const free = Math.max(0, (clock.shop?.freeCharmsPerDay ?? g.charmsPerDay) - fresh(pid).day_charms);
+      return free + bought;
+    },
     useCharm(pid) {
-      if (g.charmsPerDay - fresh(pid).day_charms <= 0) return false;
+      const items = itemsOf(fresh(pid));
+      if ((items.charm || 0) > 0) { items.charm -= 1; saveItems(pid, items); return true; }
+      const free = clock.shop?.freeCharmsPerDay ?? g.charmsPerDay;
+      if (free - fresh(pid).day_charms <= 0) return false;
       q.charm.run(pid);
       return true;
+    },
+    coins: (pid) => itemsOf(fresh(pid)).coins || 0,
+    bag: (pid) => itemsOf(fresh(pid)),
+    // Buy one thing from the general store. The price and the carry limit come from shop.json.
+    // One find per forage spot per school day. The pick is seeded by the day and the spot, so every trainer gets the same ingredient.
+    gather(pid, spotId, forage) {
+      const spot = forage?.spots?.[spotId];
+      if (!spot) return { ok: false, msg: 'Nothing to gather here.' };
+      return tx(() => {
+        const items = itemsOf(fresh(pid));
+        const day = todayKey();
+        if (items.forageDay !== day) { items.forageDay = day; items.forageSpots = []; }
+        if ((items.forageSpots || []).includes(spotId)) return { ok: false, already: true, msg: forage.already };
+        const pick = spot.finds[Math.floor(seeded(day, spotId)() * spot.finds.length)];
+        const ing = forage.ingredients[pick];
+        const have = items[pick] || 0;
+        if (have >= ing.carry) return { ok: false, msg: forage.full.replaceAll('{name}', ing.name) };
+        items.forageSpots = [...(items.forageSpots || []), spotId];
+        items[pick] = have + 1;
+        saveItems(pid, items);
+        return { ok: true, id: pick, name: ing.name, count: items[pick], msg: ing.found.replaceAll('{count}', String(items[pick])).replaceAll('{name}', ing.name) };
+      });
+    },
+    buy(pid, id) {
+      const shop = clock.shop;
+      const good = shop?.goods?.find((g) => g.id === id);
+      if (!good) return { ok: false, msg: 'The store does not carry that.' };
+      return tx(() => {
+        const items = itemsOf(fresh(pid));
+        const have = items[good.id] || 0;
+        const coins = items.coins || 0;
+        if (have >= shop.carry[good.id]) return { ok: false, msg: `You cannot carry another ${good.name.toLowerCase()}.`, coins, have };
+        if (coins < good.price) return { ok: false, msg: `A ${good.name.toLowerCase()} costs ${good.price} coins, and you have ${coins}.`, coins, have };
+        items.coins = coins - good.price;
+        items[good.id] = have + 1;
+        saveItems(pid, items);
+        return { ok: true, msg: `Bought a ${good.name.toLowerCase()}.`, coins: items.coins, have: items[good.id] };
+      });
     },
     renamesLeft: (pid) => Math.max(0, g.renamesPerDay - fresh(pid).day_renames),
     rename(pid, name) {

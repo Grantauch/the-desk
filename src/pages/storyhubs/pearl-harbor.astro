@@ -1,0 +1,139 @@
+---
+import StoryShell from '../../components/storyhub/StoryShell.astro';
+import StoryIntro from '../../components/storyhub/StoryIntro.astro';
+import StoryChapter from '../../components/storyhub/StoryChapter.astro';
+import ArchivalFigure from '../../components/storyhub/ArchivalFigure.astro';
+import EvidenceExplorer from '../../components/storyhub/EvidenceExplorer.astro';
+import HistoricalMap from '../../components/storyhub/HistoricalMap.astro';
+import HistoricalTimeline from '../../components/storyhub/HistoricalTimeline.astro';
+import HistoricalMediaViewer from '../../components/storyhub/HistoricalMediaViewer.astro';
+import HistoricalAudio from '../../components/storyhub/HistoricalAudio.astro';
+import PhotoComparison from '../../components/storyhub/PhotoComparison.astro';
+import ReferenceLink from '../../components/storyhub/ReferenceLink.astro';
+import CounterfactualExplorer from '../../components/storyhub/CounterfactualExplorer.astro';
+import { visualOf } from '../../lib/storyhub/model';
+import { pearlHarbor as story } from '../../../storyhub/stories/USH9/PEARL/edition';
+import { infrastructure, planning, strategy, voices, warnings } from '../../../storyhub/stories/USH9/PEARL/investigations';
+import { speechAudio } from '../../../storyhub/stories/USH9/PEARL/speech';
+import './pearl-harbor.css';
+
+const cover = visualOf(story, 'prewar');
+const coverSource = story.sources.find((source) => source.id === cover.source)!;
+const layouts = ['wide', 'split', 'wide', 'split', 'break', 'wide', 'split', 'split', 'split', 'split', 'memorial', 'memorial'] as const;
+---
+<StoryShell {story} cover={cover.src} theme="pearl">
+  <div slot="opening">
+    <section class="pearl-opening" aria-labelledby="pearl-title" data-story-opening>
+      <ArchivalFigure {story} visual={cover} hero caption={false} class="pearl-opening-art sh-ambient" sizes="100vw" />
+      <div class="sh-width pearl-opening-inner">
+        <p class="sh-label pearl-date"><time datetime="1941-12-07">December 7, 1941</time><span>Oʻahu, Hawaiʻi</span></p>
+        <h1 id="pearl-title">Pearl Harbor</h1>
+        <p class="pearl-subtitle">The Morning That Changed the World</p>
+        <p class="pearl-lede">On a Sunday morning in Hawaiʻi, an attack brought the United States to the brink of war. Follow the decisions, the warnings and the people who lived through it.</p>
+        <div class="pearl-opening-actions">
+          <a href="#briefing" class="sh-primary">Begin the briefing <span aria-hidden="true">↓</span></a>
+          <a href="#pacific-on-edge" class="sh-secondary">Enter the story <span aria-hidden="true">↘</span></a>
+          <a href="#pacific-on-edge" data-resume-story hidden>Resume the story</a>
+        </div>
+      </div>
+    </section>
+    <aside class="pearl-photo-strip">
+      <div class="sh-width">
+        <span>Ford Island and Pearl Harbor, October 30, 1941</span>
+        <a href={coverSource.url}>{cover.credit}</a>
+      </div>
+    </aside>
+  </div>
+
+  <StoryIntro {story} />
+
+  <div class="pearl-documentary">
+    {story.chapters.map((chapter, index) => (
+      <StoryChapter {story} {chapter} {index} layout={layouts[index]} showImage={!['strategy', 'speech', 'after'].includes(chapter.interaction ?? '')}>
+        {chapter.interaction === 'strategy' && (
+          <div class="pearl-strategy">
+            <HistoricalMap {story} scope="strategy" regionIds={['pacific']} />
+            <EvidenceExplorer {story} id="pacific-strategy" title="Pacific strategy explorer" prompt="Trace a pressure from Asia across the Pacific. Choose a place to see what was at stake there." entries={strategy} />
+          </div>
+        )}
+        {chapter.interaction === 'planning' && (
+          <EvidenceExplorer {story} id="operations" title="The planning record" prompt="Compare the immediate goals with the decisions Japan hoped the United States would make afterward." entries={planning} />
+        )}
+        {chapter.interaction === 'voices' && (
+          <EvidenceExplorer {story} id="voices" title="Voices of December 7" prompt="Read four perspectives. Pay attention to where each person was and when their account was recorded." entries={voices} />
+        )}
+        {chapter.interaction === 'warnings' && (
+          <div class="pearl-warning">
+            <EvidenceExplorer {story} id="warning-chain" title="The warning chain" prompt="Follow each report from observation to interpretation. Who could act on it, and what could they see?" entries={warnings} />
+            <HistoricalMediaViewer {story} ids={['radar-plot']} scope="warning-document" label="Original radar plot" />
+          </div>
+        )}
+        {chapter.interaction === 'attack' && (
+          <section class="pearl-attack-tool" aria-labelledby="attack-tool-title">
+            <div class="pearl-feature-title">
+              <div><p class="sh-label">December 7 · Oʻahu</p><h3 id="attack-tool-title">The morning, minute by minute</h3></div>
+              <p>Scrub the clock or choose a report. Open the map to follow the places connected to the event you select.</p>
+            </div>
+            <HistoricalTimeline {story} scope="attack" scales={['hours']} initial="attack-start" />
+            <a href="#where" class="sh-secondary" data-open-tool="map">Open the synchronized map</a>
+          </section>
+        )}
+        {chapter.interaction === 'ships' && (
+          <section class="pearl-chart-tool" aria-labelledby="chart-title">
+            <div class="pearl-feature-title">
+              <div><p class="sh-label">Navy station chart · December 1941</p><h3 id="chart-title">Explore the moorings</h3></div>
+              <p>Compare Oklahoma with Maryland, then West Virginia with Tennessee. Look for the ship farther from shore in each pair.</p>
+            </div>
+            <HistoricalMap {story} scope="moorings" regionIds={['harbor']} initial="harbor" />
+          </section>
+        )}
+        {chapter.interaction === 'airfields' && (
+          <PhotoComparison {story} id="across-comparison" title="Hickam before and during the raid" intro="The 1941 aerial locates Hickam beyond Ford Island. The photograph taken at ground level looks back toward smoke from the harbor. Together they connect two sites at different moments." pair={['prewar', 'hickam']} labels={['October 30, 1941', 'December 7, 1941']} />
+        )}
+        {chapter.interaction === 'response' && (
+          <div class="pearl-special-links">
+            <ReferenceLink {story} kind="events" id="second-wave" label="Open the second-wave timeline" />
+            <ReferenceLink {story} kind="people" id="nurses" label="Meet the nurses and medical crews" />
+            <ReferenceLink {story} kind="media" id="nevada-grounded" label="Inspect Nevada after it ran aground" />
+          </div>
+        )}
+        {chapter.interaction === 'infrastructure' && (
+          <EvidenceExplorer {story} id="survival" title="Damage and recovery" prompt="Switch between a damaged ship, an absent carrier and a working base. What does each record say about the Pacific Fleet’s ability to keep fighting?" entries={infrastructure} />
+        )}
+        {chapter.interaction === 'speech' && (
+          <div class="pearl-address">
+            <HistoricalMediaViewer {story} ids={['address', 'address-2', 'address-3']} scope="speech-documents" label="Prepared address to Congress" />
+            <section class="pearl-speech-panel" aria-labelledby="speech-recording-title">
+              <p class="sh-label">December 8, 1941 · Washington, D.C.</p>
+              <h3 id="speech-recording-title">“A date which will live in infamy”</h3>
+              <p>Listen for how Roosevelt links the attack to actions elsewhere in the Pacific, then turns to his request to Congress.</p>
+              <HistoricalAudio {story} audio={speechAudio} />
+              <div class="pearl-special-links">
+                <a href="https://www.archives.gov/milestone-documents/joint-address-to-congress-declaration-of-war-against-japan#transcript">Read the full prepared address</a>
+                <ReferenceLink {story} kind="notes" id="speech-context" label="Why the address mattered" />
+              </div>
+            </section>
+          </div>
+        )}
+        {chapter.interaction === 'remembrance' && (
+          <div class="pearl-loss">
+            <div><strong>2,403</strong><span>Americans killed</span></div>
+            <div><strong>68</strong><span>Civilians among the dead</span></div>
+            <div><strong>1,178</strong><span>Wounded</span></div>
+            <p><ReferenceLink {story} kind="sources" id="remembrance" label="Pearl Harbor National Memorial casualty figures" /></p>
+          </div>
+        )}
+        {chapter.interaction === 'after' && (
+          <>
+            <PhotoComparison {story} id="then-now" title="Pearl Harbor then and now" intro="Two different aerial viewpoints. The October 1941 image looks across Ford Island and the naval base. The later image looks straight down at the memorial and the wreck it spans." pair={['prewar', 'memorial']} labels={['Harbor in 1941', 'The memorial']} />
+            <section class="pearl-final" aria-labelledby="final-question">
+              <h3 id="final-question">What if Japan had not attacked Pearl Harbor?</h3>
+              <p>Compare the documented sequence with one alternative. Identify one outcome the evidence supports and one it leaves open.</p>
+              <CounterfactualExplorer {story} scope="ending" />
+            </section>
+          </>
+        )}
+      </StoryChapter>
+    ))}
+  </div>
+</StoryShell>

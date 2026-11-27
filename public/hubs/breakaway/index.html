@@ -1,0 +1,778 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#08182b"><meta name="description" content="Breakaway: offline arcade football with full movement, defensive pursuit and responsive controls."><title>BREAKAWAY — Play</title><style>:root{font-family:system-ui,Arial,sans-serif;color:#f0f6f7;background:#081928;--gold:#f4b84e;--cream:#e9eff3;--navy:#071a32;--sky:#a9c8e5;--panel:#0d2949;--line:#6d8da9}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}button{font:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible{outline:3px solid #fff9bd;outline-offset:3px}.hidden{display:none!important}main{width:100%;height:100%;height:100dvh;position:relative;overflow:hidden;background:#081928;isolation:isolate}#field{position:absolute;inset:0;width:100%;height:100%;display:block}#vignette{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#071624dd 0%,transparent 18%,transparent 62%,#07162466 100%)}.hud{position:absolute;z-index:3;top:0;left:0;right:0;min-height:76px;display:flex;align-items:stretch;justify-content:center;gap:0;background:linear-gradient(120deg,#071a30f9,#102d4eec);border-bottom:3px solid var(--gold);box-shadow:0 8px 35px #0006}.hud-brand{display:flex;align-items:center;gap:10px;padding:10px clamp(14px,2.2vw,30px);min-width:240px;border-right:1px solid #56779a;font-style:italic}.hud-brand b{display:block;font:900 19px/1.2 Impact,'Arial Narrow',sans-serif;letter-spacing:.08em}.hud-brand small{display:block;margin-top:4px;font:800 9px Arial,sans-serif;color:#9fb5ce;letter-spacing:.13em}.hud-icon{width:45px;height:45px;display:grid;place-items:center;background:var(--gold);color:#07192f;transform:skew(-8deg);font:900 27px Impact,sans-serif;box-shadow:3px 3px #021121}.hud-icon span{position:absolute;right:2px;bottom:2px;font-size:10px}.hud-stat{padding:10px clamp(10px,2.1vw,30px);min-width:130px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-right:1px solid #56779a}.hud-stat span{font:900 9px/1.4 Arial,sans-serif;letter-spacing:.15em;color:#c5d7ec}.hud-stat strong{font:900 31px/1 Impact,'Arial Narrow',sans-serif;letter-spacing:.05em;color:#fff}.hud-stat:nth-child(2) strong{color:var(--gold)}.hud .pause{align-self:center;min-height:48px;min-width:96px;background:#18395c;border:1px solid #a3bad3;color:#f9f6eb;font:900 14px Impact,sans-serif;padding:11px 13px;margin:8px 12px}.pause:hover,.pause:focus-visible{background:var(--gold);color:#061527}.info-bar{position:absolute;top:90px;left:50%;transform:translateX(-50%);width:min(780px,calc(100% - 28px));z-index:3;display:flex;align-items:center;gap:9px;padding:8px 14px;border:1px solid #89a5bd77;background:#06192ad9;box-shadow:0 5px 24px #0005;min-height:43px}.info-pill{display:flex;align-items:center;gap:8px;white-space:nowrap;font:900 11px Impact,sans-serif;color:#f4d28c;letter-spacing:.09em}.dot{background:var(--gold);width:7px;height:7px;border-radius:50%;box-shadow:0 0 0 3px #ecb45538}.coach{font:600 11px/1.2 Arial,sans-serif;color:#d9e8f2;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.yd-pill{color:#b9ccdd;display:flex;gap:9px;align-items:center;font:900 9px Arial,sans-serif;white-space:nowrap}.yd-pill b{font-size:11px;color:#fff}.stamina{position:absolute;left:16px;bottom:18px;z-index:3;padding:10px 13px;width:177px;border:1px solid #7796b4;background:#071b32de}.stamina>span{display:block;font:900 10px Arial,sans-serif;letter-spacing:.14em;margin-bottom:7px}.energy-track{height:9px;background:#172c41;border:1px solid #60819d}.energy-track i{display:block;width:100%;height:100%;background:linear-gradient(90deg,#e2a34b,#ffe5a1);transition:width .12s linear}.message{position:absolute;left:50%;top:160px;z-index:3;transform:translateX(-50%);padding:10px 18px;max-width:80%;color:#ffda92;background:#071628d8;border-left:4px solid var(--gold);font:900 clamp(13px,1.8vw,21px)/1.15 Impact,Arial,sans-serif;letter-spacing:.09em;text-align:center;opacity:0;transition:opacity .15s;pointer-events:none}.message.visible{opacity:1}.touch{position:absolute;bottom:20px;right:16px;left:16px;z-index:3;display:flex;align-items:end;justify-content:space-between;pointer-events:none}.move-group,.abilities{display:flex;gap:9px;align-items:end;pointer-events:auto}.joystick{display:none}.sprint{padding:10px 12px;min-height:56px;background:#183451cc;border:1px solid #85a0b8;color:#f2da9a;font:900 13px Impact,sans-serif}.sprint.pressed{background:var(--gold);color:#09203a}.abilities{margin-left:auto}.ability{height:73px;width:101px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;text-align:left;padding:8px 12px;border:2px solid #7197ba;background:linear-gradient(148deg,#224a73ed,#0b2546ef);color:white;box-shadow:inset 0 2px #8dacbf66,inset 0 -5px #061527;transition:filter .1s}.ability.gold{border-color:#ffe19e;background:linear-gradient(145deg,#bf832a,#734921)}.ability:active{transform:translateY(2px);filter:brightness(1.3)}.ability:disabled{opacity:.45}.ability-key{font:900 9px Arial,sans-serif;letter-spacing:.07em;color:#f4ca79}.ability strong{font:900 17px Impact,Arial Narrow,sans-serif;letter-spacing:.07em}.ability small{font:800 9px Arial,sans-serif;color:#b9d0e3;letter-spacing:.1em}.bottom-note{position:absolute;left:50%;bottom:1px;transform:translateX(-50%);z-index:2;white-space:nowrap;color:#b5cadbbb;font:800 9px Arial,sans-serif;letter-spacing:.09em}.menu,.modal-back{position:absolute;inset:0;z-index:8;background:linear-gradient(125deg,#07192cf8,#0c2748f3 59%,#163e5df6);overflow:auto}.stadium-grain{position:absolute;inset:0;opacity:.4;pointer-events:none;background:repeating-linear-gradient(165deg,transparent 0 45px,#bad5eb12 45px 47px),radial-gradient(ellipse at 85% 0,#5883a149,transparent 55%)}.menu:after{content:'';position:absolute;top:15%;right:-3%;width:37%;height:75%;border-left:4px solid #ffffff0d;transform:skew(-25deg);pointer-events:none}.menu-banner{position:relative;z-index:1;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:15px clamp(20px,5vw,74px);border-bottom:2px solid #517396;background:#06152bc2;font:900 10px/1.2 Arial,sans-serif;letter-spacing:.15em;color:#cbd9ea}.menu-ver{color:#e8bd6d}.menu-content{position:relative;z-index:1;width:min(1280px,100%);margin:auto;padding:clamp(25px,4vw,52px) clamp(20px,4.5vw,70px) clamp(30px,5vw,70px)}.menu-head p{font:900 12px Arial,sans-serif;letter-spacing:.2em;color:#e5ce9c;margin:0 0 8px}.redline{display:block;height:5px;width:60px;background:var(--gold);margin:0 0 16px;box-shadow:26px 0 #d7e5eb55}.menu-head h1{font:italic 900 clamp(68px,10vw,150px)/.83 Impact,'Arial Narrow',sans-serif;letter-spacing:-.005em;margin:0;color:#f2f5fb;text-shadow:5px 6px #031024}.menu-head h1 span{color:var(--gold)}.tagline{margin-top:19px;font:900 clamp(11px,1.5vw,17px) Impact,sans-serif;color:#e4eff8;letter-spacing:.11em}.menu-bottom{display:grid;grid-template-columns:minmax(0,.91fr) minmax(0,1.09fr);gap:clamp(16px,3vw,32px);margin-top:clamp(28px,5vh,55px)}.featured{border-top:5px solid #f5bd5d;background:linear-gradient(145deg,#1e446a,#0b294c);padding:clamp(20px,3vw,34px);box-shadow:8px 8px #020b1ea1;border-left:1px solid #638ab4;border-right:1px solid #638ab4;border-bottom:1px solid #638ab4}.feature-tag,.tile-num{font:900 11px Arial,sans-serif;letter-spacing:.15em;color:#f6ce83}.feature-number{font:italic 900 88px/.9 Impact,sans-serif;color:#e9f4fb;margin-top:22px;letter-spacing:.015em}.feature-number span{font-size:29px;color:var(--gold);margin-left:10px}.featured h2{font:900 38px/1 Impact,sans-serif;letter-spacing:.05em;margin:8px 0}.featured p{font-size:14px;max-width:470px;line-height:1.5;color:#d1deed}.feature-rule{height:1px;background:#6f92b4;margin:23px 0 16px}.feature-spec{display:flex;flex-wrap:wrap;gap:14px;font:800 10px Arial,sans-serif;letter-spacing:.1em;color:#bfcfdf}.feature-spec span:before{content:'▸';color:var(--gold);margin-right:6px}.menu-tiles{display:flex;flex-direction:column;gap:12px}.tile{width:100%;min-height:109px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:18px 23px;border:2px solid #789bc0;box-shadow:inset 0 2px #d6e6eb3d,inset 0 -6px #06172f,5px 6px #010c1f;background:linear-gradient(135deg,#285783,#0d2b4e);color:#fff;text-align:left;transition:background .1s}.tile-primary{background:linear-gradient(125deg,#f8d28c,#e4a648 75%,#af701f);border-color:#fff1c8;color:#0b2341;box-shadow:inset 0 2px #fff7de,inset 0 -6px #a96f24,5px 6px #010c1f}.tile-primary .tile-num{color:#6b481e}.tile-label{width:100%;display:flex;justify-content:space-between;font:italic 900 clamp(24px,3vw,36px)/1 Impact,sans-serif;letter-spacing:.03em}.tile-label span{font-size:34px}.tile small{font:800 10px Arial,sans-serif;letter-spacing:.13em;opacity:.83}.tile:hover,.tile:focus-visible{filter:brightness(1.16);transform:translate(-2px,-2px)}.tile-note{padding:19px 22px;background:#071a32c4;border:1px solid #50749a}.tile-note strong{font:900 16px Impact,sans-serif;color:#f5c979;letter-spacing:.1em}.tile-note p{color:#dce7ed;font-size:12px;line-height:1.5;margin:9px 0}.status-tag{display:inline-block;background:#2e6154;padding:7px 9px;font:900 9px Arial,sans-serif;letter-spacing:.1em;color:#d9fff4}.modal-back{display:flex;align-items:center;justify-content:center;padding:20px;background:#03111edb;backdrop-filter:blur(9px)}.modal{max-width:840px;width:100%;max-height:min(96vh,950px);overflow:auto;background:linear-gradient(130deg,#173c63,#06182e);border:2px solid #7898bd;border-top:6px solid var(--gold);box-shadow:12px 16px 0 #0009;padding:clamp(20px,3vw,36px)}.modal.compact{max-width:500px}.modal-top{font:900 11px Arial,sans-serif;letter-spacing:.17em;color:#f5c875;display:flex;justify-content:space-between;align-items:center}.modal-top button{color:#fff;font-size:22px;background:#1d4369;border:1px solid #7699bd;min-width:44px;min-height:44px}.modal h2{font:italic 900 clamp(40px,6vw,72px)/.95 Impact,sans-serif;margin:20px 0 10px}.modal>p{font-size:14px;line-height:1.5;color:#cfdeec}.help-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.help-grid>div{background:#0c2545;border:1px solid #6385a8;padding:15px}.help-grid b{display:block;font:900 19px Impact,sans-serif;color:#f4cc82}.help-grid span{display:block;font:900 9px Arial,sans-serif;letter-spacing:.13em;margin-top:6px}.help-grid p{font-size:12px;line-height:1.4;color:#c6d8e4}.help-foot,.result-small{font-size:11px!important;color:#abbfd1!important}.dialog-go,.dialog-alt{display:block;width:100%;min-height:56px;padding:14px 18px;text-align:left;margin-top:14px;border:2px solid #fbe4b3;background:linear-gradient(110deg,#f6d189,#df9e3f);color:#081c35;font:900 21px Impact,sans-serif;letter-spacing:.07em}.dialog-alt{background:#143456;color:#e7eff8;border-color:#6689ac;font-size:16px;min-height:49px}.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:22px 0}.result-grid>div{background:#102b4b;border:1px solid #7899bb;padding:16px}.result-grid small{display:block;font:900 9px Arial,sans-serif;letter-spacing:.14em;color:#b4c8db}.result-grid strong{display:block;font:900 34px Impact,sans-serif;color:#f4c67e;margin-top:7px}
+@media(max-width:900px){.hud-brand{min-width:0}.hud-stat{min-width:98px}.hud-stat strong{font-size:26px}.menu-bottom{margin-top:24px}.menu-head h1{font-size:clamp(65px,11vw,105px)}}
+@media(max-width:650px){.hud{min-height:58px}.hud-brand{padding:7px 9px;gap:5px}.hud-icon{display:none}.hud-brand b{font-size:12px}.hud-brand small{font-size:7px}.hud-stat{padding:7px 8px;min-width:0;flex:1}.hud-stat span{font-size:7px}.hud-stat strong{font-size:21px}.hud .pause{min-height:44px;min-width:45px;padding:7px;margin:6px}.pause span{display:none}.small-stat{display:none}.info-bar{top:64px;min-height:35px;padding:5px 9px;gap:8px}.info-pill{font-size:9px}.coach{font-size:9px}.yd-pill span{display:none}.yd-pill b{font-size:9px}.message{top:112px;font-size:14px}.stamina{left:9px;bottom:146px;padding:7px 9px;width:129px}.stamina>span{font-size:8px}.touch{bottom:13px;left:9px;right:9px;gap:8px}.joystick{display:grid;position:relative;place-items:center;width:111px;height:111px;border:2px solid #d1e1e8b0;border-radius:100%;background:#071a2ca6;touch-action:none;user-select:none}.joystick:before,.joystick:after{content:'';position:absolute;inset:8px;border:1px solid #829cb76c;border-radius:50%}.joystick #stick{position:absolute;z-index:1;width:52px;height:52px;border-radius:100%;display:grid;place-items:center;background:linear-gradient(145deg,#e1c080,#b47f31);border:2px solid #fff0bc;box-shadow:0 2px 6px #000a;touch-action:none}.joystick #stick span{font:900 9px Impact,sans-serif;color:#0c223a;letter-spacing:.1em}.joy-arrows{font-size:52px;color:#c8d6dd6e}.sprint{height:53px;min-height:53px;padding:6px 9px;font-size:10px}.sprint span{display:block}.move-group{gap:5px}.abilities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ability{width:clamp(71px,20vw,102px);height:54px;padding:6px 8px;gap:2px}.ability strong{font-size:12px}.ability-key,.ability small{font-size:8px}.bottom-note{display:none}.menu-banner{padding:10px 14px;font-size:8px}.menu-ver{display:none}.menu-content{padding:24px 14px 28px}.menu-head p{font-size:9px}.menu-head h1{font-size:clamp(53px,14vw,91px)}.tagline{margin-top:12px;font-size:11px;letter-spacing:.07em}.menu-bottom{grid-template-columns:1fr;gap:12px;margin-top:21px}.featured{padding:16px 18px}.feature-number{font-size:54px;margin-top:9px}.feature-number span{font-size:21px}.featured h2{font-size:27px;margin:6px 0}.featured p{font-size:12px;margin:9px 0}.feature-rule{margin:10px 0}.feature-spec{gap:8px;font-size:8px}.tile{min-height:77px;padding:12px 15px;gap:5px}.tile-label{font-size:23px}.tile-label span{font-size:22px}.tile-note{padding:12px 15px}.tile-note p{font-size:11px}.help-grid{grid-template-columns:1fr 1fr}.modal h2{font-size:43px}.help-grid>div{padding:10px}}
+@media(max-width:370px){.hud-brand b{font-size:10px}.hud-stat strong{font-size:19px}.info-bar{width:calc(100% - 10px)}.info-pill{font-size:8px}.coach{display:none}.yd-pill{margin-left:auto}.joystick{width:94px;height:94px}.joystick #stick{height:48px;width:48px}.sprint{height:48px;min-height:48px}.ability{width:69px;height:50px}.stamina{bottom:133px}.menu-head h1{font-size:50px}.tagline{font-size:10px}.featured{padding:12px}.featured p{margin:5px 0}.feature-spec{display:none}.tile-note{display:none}}
+@media(min-width:651px) and (max-height:500px){.menu-content{padding-top:11px}.menu-head h1{font-size:58px}.menu-head p{font-size:9px}.tagline{margin-top:5px}.menu-bottom{margin-top:13px;gap:14px}.featured{padding:12px}.feature-number{font-size:46px;margin-top:4px}.featured h2{font-size:22px}.featured p{font-size:11px;margin:5px 0}.feature-rule,.feature-spec{display:none}.tile{min-height:61px;padding:8px 13px}.tile-label{font-size:18px}.tile-note{display:none}.hud{min-height:53px}.hud-stat strong{font-size:20px}.hud-stat{padding:5px 8px}.hud-brand{padding:5px 12px}.info-bar{top:58px}.touch{bottom:9px}.ability{height:54px;width:80px;padding:5px 8px}.ability strong{font-size:12px}.stamina{bottom:9px}.bottom-note{display:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* V1: action-outcome result and readable cut cues. */
+@media(min-width:651px){.result-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* V4 polish: spacing, clarity, safe areas and interaction precision.
+   Deliberately no new game modes, controls, or scoring systems. */
+.stamina{bottom:116px;max-width:calc(100% - 32px)}
+.ability:disabled{opacity:.73;filter:saturate(.70)}
+.ability:focus-visible,.tile:focus-visible,.dialog-go:focus-visible,.dialog-alt:focus-visible{outline:3px solid #fff8c5;outline-offset:3px}
+.modal:focus-within{outline:none}
+@media(max-width:650px){.stamina{bottom:146px;max-width:calc(100% - 18px)}.ability:disabled{opacity:.75}.hud-stat span{font-size:8px}.hud-brand small{font-size:8px}}
+@media(max-width:370px){.stamina{bottom:135px}}
+@media(min-width:651px) and (max-height:500px){.stamina{top:106px;bottom:auto;left:16px;max-width:152px;padding:8px 10px}.stamina>span{font-size:9px}.stamina .energy-track{height:7px}}
+@media(max-width:650px) and (max-height:520px){.stamina{top:102px;bottom:auto}}
+
+/* Small-screen status messages should not mask defenders three lines deep. */
+@media(max-width:650px){.message{top:108px;max-width:calc(100% - 22px);width:max-content;padding:7px 10px;font-size:11px;line-height:1.23;letter-spacing:.028em}}
+
+/* V3.6 controller-focused menus (retained in V3.7) share the keyboard-visible focus treatment. */
+button:focus{scroll-margin:10px}
+@media (prefers-reduced-motion: reduce){button{scroll-behavior:auto}}
+
+/* V3.8 readability pass. Presentation only: none of these rules change controls or physics. */
+.info-bar{transition:border-color .15s,background .15s,box-shadow .15s}
+.info-bar.threat{border-color:#ffad78;background:#301b22ed;box-shadow:0 5px 23px #0007,inset 4px 0 #ff9672}
+.info-bar.threat .dot{background:#ff9978;box-shadow:0 0 0 3px #ffac7a33}
+.info-bar.threat .info-pill{color:#ffe8c5}
+.info-bar.threat .coach{color:#ffefcf;font-weight:800}
+.info-bar.drive-done{border-color:#f0c473;background:#302a1fea}
+.drive-callout{position:absolute;z-index:4;left:50%;top:31%;transform:translate(-50%,-50%);min-width:190px;max-width:calc(100% - 28px);text-align:center;padding:13px 23px 12px;background:#08192beb;border:2px solid #f5d08a;border-top-width:5px;box-shadow:0 9px 0 #030b1499,0 20px 34px #0007;pointer-events:none}
+.drive-callout strong{display:block;color:#ffe6a1;font:italic 900 clamp(24px,4vw,47px)/1 Impact,Arial,sans-serif;letter-spacing:.035em}
+.drive-callout span{display:block;color:#f4e9d5;margin-top:6px;font:800 10px/1.25 Arial,sans-serif;letter-spacing:.12em}
+.drive-callout.tackled{border-color:#f18b75}.drive-callout.tackled strong{color:#ffb29d}
+@media(max-width:650px){
+ .stamina{top:107px;bottom:auto;left:9px;width:130px;padding:6px 9px;background:#091f35e8}
+ .stamina>span{font-size:8px;letter-spacing:.09em;margin-bottom:5px}
+ .stamina .energy-track{height:8px}
+ .message{top:146px}
+ .drive-callout{top:29%;padding:10px 15px;min-width:168px}
+ .drive-callout strong{font-size:27px}
+ .drive-callout span{font-size:9px}
+ .info-bar.threat .coach{white-space:normal;line-height:1.1;font-size:10px}
+}
+@media(max-width:370px){
+ .info-bar.threat .info-pill,.info-bar.threat .yd-pill{display:none}
+ .info-bar.threat .coach{display:block;flex:1;white-space:normal;font-size:11px;letter-spacing:.015em;text-align:center}
+ .stamina{top:102px;bottom:auto;width:115px}
+ .message{top:140px}
+ .touch{gap:4px}.abilities{gap:4px}.ability{width:68px}
+}
+@media(min-width:651px) and (max-height:500px){
+ .info-bar.threat{top:58px}.stamina{top:106px;bottom:auto}
+ .drive-callout{top:32%;padding:9px 18px;min-width:190px}
+ .drive-callout strong{font-size:26px}.drive-callout span{font-size:9px}
+ .ability{height:49px}.touch{bottom:6px}
+}
+@media(max-width:650px) and (max-height:520px){.stamina{top:103px;bottom:auto}}
+.sound-switch{margin-bottom:12px;min-height:44px;letter-spacing:.035em}.sound-switch[aria-pressed="false"]{color:#bcd4e5}#pauseReason{max-width:48ch;margin-inline:auto;min-height:2.5em}.pressure-rule{margin:12px 0;padding:11px 13px;border-left:3px solid #f4b84e;background:#091c35d9;color:#e6eff8;font:600 12px/1.5 system-ui,sans-serif}.pressure-rule strong{color:#f9d08c}
+/* RC1 accessibility options: presentation only, never consulted by the game simulation. */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;clip-path:inset(50%)!important}
+.preference-switch{min-height:48px;letter-spacing:.025em;margin-top:9px}.help-access-title{margin:14px 0 3px!important;color:#ffdfa2!important;font:900 12px Arial,sans-serif!important;letter-spacing:.08em}
+.high-visibility .info-bar{background:#04101ef5;border:2px solid #ffe5a1;box-shadow:0 0 0 2px #0009,0 7px 22px #000b}
+.high-visibility .info-bar.threat{background:#3e151bf7;border-color:#ffba8b;box-shadow:0 0 0 2px #fff5,0 7px 24px #000d}
+.high-visibility .coach{color:#fff7de;font-size:13px;font-weight:900}
+.high-visibility .info-pill{color:#fff6d1;font-size:12px}
+.high-visibility .stamina{border:2px solid #ffe5a1;background:#021629f2}
+.high-visibility .message{border:2px solid #ffe5a1;border-left-width:5px;color:#fff7ce;background:#001020f5}
+.high-visibility .drive-callout{border-width:3px;border-top-width:6px;background:#000f1bfa}
+.high-visibility .ability{border-color:#e5f2ff;background:#112f4feF}
+.high-visibility .ability.gold{border-color:#ffe3a1;background:#744713f5}
+.high-visibility .ability:disabled{opacity:.9}
+.high-visibility .ability small{color:#f9f2dc}
+.high-visibility .energy-track{border:1px solid #e9f6ff}
+.reduced-effects *, .reduced-effects *:before, .reduced-effects *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(max-width:650px){.high-visibility .coach{font-size:11px}.high-visibility .info-pill{font-size:10px}.high-visibility .info-bar{gap:7px}}
+@media(max-width:370px){.high-visibility .info-bar:not(.threat) .coach{display:none}.high-visibility .info-bar.threat .coach{display:block;font-size:11px}}
+@media(max-width:650px) and (max-height:560px){.modal{max-height:calc(100dvh - 20px)}.modal-back{padding:10px}}
+
+/* RC2 viewport-fit coverage: protect controls against OS cutouts and gesture bars. */
+@supports (padding: env(safe-area-inset-bottom)) {
+ .touch{bottom:max(12px,env(safe-area-inset-bottom));left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right))}
+ .menu-banner{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+ @media(max-width:650px){
+  .hud{padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+  .info-bar{top:calc(64px + env(safe-area-inset-top))}
+  .stamina{top:calc(107px + env(safe-area-inset-top))}
+  .message{top:calc(146px + env(safe-area-inset-top))}
+ }
+ @media(max-width:370px){.stamina{top:calc(102px + env(safe-area-inset-top))}.message{top:calc(140px + env(safe-area-inset-top))}}
+ @media(min-width:651px) and (max-height:500px){.info-bar.threat{top:calc(58px + env(safe-area-inset-top))}.stamina{top:calc(106px + env(safe-area-inset-top))}}
+}
+
+/* RC4: simplify purely decorative eyebrow copy while keeping controls readable. */
+.menu{background:linear-gradient(125deg,#07192c,#0c2748 59%,#163e5d)}
+.menu-content{padding-top:clamp(28px,5vw,58px)}
+.menu-bottom{margin-top:clamp(22px,4vh,42px)}
+.feature-number{margin-top:0}
+.featured h2{margin-top:12px}
+.tile{min-height:90px;gap:0}
+.tile-note{padding:18px 22px}
+.tile-note p{margin:0}
+.modal-top.help-close{justify-content:flex-end}
+.modal-top.help-close+h2{margin-top:8px}
+.modal.compact>h2{margin-top:0}
+@media(max-width:650px){
+ .menu-content{padding-top:clamp(22px,4vh,38px)}
+ .menu-head h1{font-size:clamp(40px,13.1vw,64px)}
+ .menu-bottom{margin-top:20px}
+ .tile{min-height:70px}
+ .featured h2{margin-top:8px}
+}
+@media(min-width:651px) and (max-height:500px){
+ .menu-content{padding-top:10px}
+ .menu-bottom{margin-top:12px}
+ .tile{min-height:60px}
+}
+
+/* RC5 cinematic menu: live simulation footage, dimensional panels, broadcast-quality hierarchy. */
+:root{--gold:#eeb64c;--cream:#f7f8fa;--navy:#081727;--panel:#12273b;--line:#6a889e;font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif}
+main{background:#051421}
+#vignette{background:linear-gradient(180deg,#061421bc 0%,transparent 14%,transparent 68%,#061421a8 100%)}
+.menu{overflow:hidden;background:#061423;isolation:isolate;display:flex;align-items:stretch}
+.menu:after{display:none}
+#attractField{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.97;filter:contrast(1.14) saturate(1.1);transform:scale(1.08);pointer-events:none}
+.menu-grade{position:absolute;inset:0;background:linear-gradient(90deg,#03111ffb 0%,#06192ff3 22%,#07182be6 42%,#06192a8e 64%,#08172673 100%),linear-gradient(0deg,#03111ff2 0%,transparent 30%,#07162970 80%,#071629bc 100%);pointer-events:none}
+.menu-grit{position:absolute;inset:0;opacity:.37;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,#ffffff0a 3px 4px),linear-gradient(120deg,transparent 45%,#e8f8ff0c 49%,transparent 54%);mix-blend-mode:screen}
+.stadium-light{position:absolute;pointer-events:none;width:44%;height:110%;top:-44%;filter:blur(22px);opacity:.38;transform:rotate(-22deg);background:linear-gradient(90deg,transparent,#acd4db4d 49%,transparent);z-index:0}
+.light-left{right:-6%;animation:lightSweep 18s ease-in-out infinite alternate}
+.light-right{right:21%;opacity:.16;transform:rotate(17deg);animation:lightSweep 26s ease-in-out infinite alternate-reverse}
+@keyframes lightSweep{0%{translate:-6% 0;opacity:.13}100%{translate:9% 0;opacity:.42}}
+.menu-content{z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;width:min(100%,1440px);min-height:100%;margin:0 auto;padding:clamp(28px,4.2vw,74px) clamp(24px,6.6vw,104px);pointer-events:none}
+.menu-content>*{pointer-events:auto}
+.brand-sigil{width:66px;height:66px;position:relative;display:grid;place-items:center;border:1px solid #ecbd68a6;border-radius:17px;background:linear-gradient(148deg,#efc776,#aa6a19);color:#071c2d;box-shadow:0 13px 0 -8px #493313,0 18px 24px #0008,inset 0 1px 2px #ffefd9;transform:skew(-8deg);margin-bottom:clamp(22px,4vh,42px)}
+.brand-sigil:after{content:'';position:absolute;inset:5px;border:1px solid #071e3044;border-radius:12px}
+.sigil-b{font:italic 900 49px/.9 Impact,'Arial Black',sans-serif;text-shadow:1px 1px 0 #fff2b355}
+.brand-sigil svg{position:absolute;width:31px;height:31px;right:-17px;bottom:-15px;color:#f4c86d;background:#06192c;border:2px solid #a77a34;border-radius:8px;padding:4px;box-shadow:0 7px 12px #000a}
+.menu-head h1{display:flex;flex-direction:column;align-items:flex-start;gap:0;font:italic 900 clamp(76px,10vw,160px)/.77 Impact,'Arial Narrow','Arial Black',sans-serif;letter-spacing:-.025em;color:#f7f8fd;text-shadow:0 6px 0 #020914,0 17px 22px #000b;margin:0;transform:skew(-5deg);filter:drop-shadow(0 3px 1px #071421)}
+.menu-head h1 .logo-one{display:block;color:#fff;letter-spacing:-.013em}
+.menu-head h1 .logo-two{display:block;color:var(--gold);padding:4px 6px 12px 0;background:linear-gradient(155deg,#fff0bb 5%,#facd77 34%,#ebac46 65%,#a87530 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 9px 0 #04111e)}
+.menu-head h1 .logo-dot{color:#f8faff;-webkit-text-fill-color:#f8faff;filter:drop-shadow(0 4px 0 #04101c)}
+.hero-subtitle{font:600 clamp(15px,1.6vw,22px)/1.35 ui-sans-serif,system-ui,sans-serif!important;letter-spacing:-.015em!important;text-transform:none;color:#e1eaf2!important;margin:clamp(15px,2.6vh,26px) 0 0!important;text-shadow:0 3px 14px #000e}
+.menu-bottom{display:flex;flex-direction:column;align-items:stretch;gap:16px;margin-top:clamp(26px,4.7vh,49px);width:min(650px,100%);perspective:1200px}
+.featured{position:relative;display:flex;align-items:center;gap:21px;min-height:105px;background:linear-gradient(125deg,#152f48e8,#112237cf);border:1px solid #94adb65c;border-top:1px solid #d6e7d35c;border-radius:18px;padding:19px 24px;box-shadow:0 21px 46px #0007,inset 0 1px #ffffff25;transform:rotateY(-4deg) rotateX(1deg)}
+.featured:before,.modal:before{content:'';position:absolute;inset:1px 1px auto;height:27px;border-radius:17px 17px 0 0;background:linear-gradient(180deg,#ffffff17,transparent);pointer-events:none}
+.feature-number{flex:none;margin:0!important;display:flex;flex-direction:column;justify-content:center;color:#fff;font:italic 900 clamp(46px,5vw,67px)/.85 Impact,'Arial Black',sans-serif;text-shadow:0 4px #0005;letter-spacing:-.02em;min-width:80px}
+.feature-number span{font:900 10px/1.3 ui-sans-serif,system-ui,sans-serif;color:#f0bd65;margin:8px 0 0;letter-spacing:.13em}
+.featured-copy{border-left:1px solid #d8e5f23a;padding-left:22px;min-width:0}
+.featured h2{margin:0 0 6px!important;font:900 clamp(18px,2vw,23px)/1.1 ui-sans-serif,system-ui,sans-serif;letter-spacing:-.02em;text-transform:none;color:#f6f8fa}
+.featured p{margin:0!important;font:500 clamp(11px,1.1vw,13px)/1.48 ui-sans-serif,system-ui,sans-serif;color:#bed0db;max-width:300px}
+.feature-decoration{margin-left:auto;font-size:34px;color:#e3b2579f;align-self:flex-start}
+.menu-tiles{display:flex;flex-direction:row;gap:12px;align-items:stretch}
+.menu-tiles .tile{width:auto;min-height:68px;flex:1;display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:10px;border:1px solid #c9dbdd67;border-radius:14px;background:linear-gradient(135deg,#213d56e9,#152b3fe8);box-shadow:0 17px 28px #0008,inset 0 1px #ffffff26;color:#f7f7fa;padding:15px 19px;transform:translateZ(0);transition:background .2s,transform .2s,box-shadow .2s,filter .2s}
+.menu-tiles .tile-primary{flex:1.15;border-color:#ffe0a0;background:linear-gradient(132deg,#ffe6a7,#eab257 58%,#cf8e38);color:#091929;box-shadow:0 20px 35px #0009,inset 0 2px #fff8cf7a,0 2px 0 #806029}
+.menu-tiles .tile:hover,.menu-tiles .tile:focus-visible{transform:translateY(-4px);filter:brightness(1.12);box-shadow:0 24px 34px #000b,inset 0 1px #ffffff7b}
+.menu-tiles .tile:active{transform:translateY(1px)}
+.tile .tile-label{font:850 clamp(12px,1.2vw,15px)/1.15 ui-sans-serif,system-ui,Arial,sans-serif;letter-spacing:.025em;font-style:normal}
+.tile-arrow{width:34px;height:34px;flex:none;display:grid;place-items:center;border:1px solid currentColor;border-radius:50%;font:900 24px/1 Arial,sans-serif;opacity:.76;transform:rotate(0)}
+.menu-tiles .tile-primary .tile-arrow{background:#071b2730}
+/* Dimensional broadcast HUD without changing interaction footprint. */
+.hud{background:linear-gradient(110deg,#071928f8,#142e44f1);border-bottom:1px solid #e3b65f;box-shadow:0 10px 30px #0007;backdrop-filter:blur(10px)}
+.hud-icon{border-radius:11px;transform:skew(-6deg);background:linear-gradient(125deg,#ffe6ac,#d69c40);box-shadow:0 6px 12px #0005}
+.hud-brand{border-color:#89a6b138}.hud-stat{border-color:#8ca7be42}
+.hud-stat strong{font-family:Impact,'Arial Narrow',sans-serif}
+.hud .pause{border-radius:10px;border-color:#9bb9c275;background:#ffffff16;box-shadow:inset 0 1px #ffffff24}
+.info-bar,.stamina{border-radius:11px;border-color:#afd1c55b;background:#061e30de;box-shadow:0 9px 22px #0008,inset 0 1px #ffffff27;backdrop-filter:blur(8px)}
+.ability{border-radius:10px;border-width:1px;border-color:#9eafc191;box-shadow:0 7px 16px #0007,inset 0 1px #ffffff55;background:linear-gradient(145deg,#264c6bea,#0b2339ed)}
+.ability.gold{background:linear-gradient(145deg,#ffe2a1,#9f6925);border-color:#f9db9f;color:#0b1e2c}
+.ability.gold .ability-key,.ability.gold small{color:#152c3f}
+.sprint{border-radius:10px;box-shadow:0 7px 16px #0007}
+.modal-back{background:#03111bd5;backdrop-filter:blur(15px) saturate(.8);padding:clamp(12px,3vw,30px)}
+.modal{position:relative;border:1px solid #a2b9c070;border-top:2px solid #efc170;border-radius:23px;background:linear-gradient(142deg,#213b50f5,#0d2236f9 69%,#0a1727f8);box-shadow:0 35px 95px #000c,0 8px 30px #0008,inset 0 1px #ffffff24;padding:clamp(20px,3vw,39px)}
+.modal.compact{max-width:500px}
+.modal h2{font-style:italic;font-family:Impact,'Arial Black',sans-serif;letter-spacing:.015em;color:#fff;text-shadow:0 5px #0006}
+.dialog-go,.dialog-alt,.sound-switch,.preference-switch{border-radius:11px;box-shadow:0 5px 14px #0005,inset 0 1px #ffffff2b}
+.dialog-go{background:linear-gradient(135deg,#ffe5aa,#e8a949);color:#0c1c2a;border:1px solid #fff0c7}
+.dialog-alt{background:linear-gradient(145deg,#1e3a51,#102739);border:1px solid #92a9bc88;color:#f1f7f9}
+.result-grid>div{border-radius:11px;background:#091e31dd;border-color:#ffffff30}
+/* Respect small screens and tight landscape phones. */
+@media(max-width:750px){
+ .menu-grade{background:linear-gradient(90deg,#03131cf4 0%,#041723e2 46%,#081927a1 100%),linear-gradient(0deg,#03111cf0,transparent 60%,#061421cc)}
+ .menu-content{padding:22px clamp(19px,5.5vw,38px);min-height:100%;justify-content:center}
+ .brand-sigil{width:52px;height:52px;border-radius:13px;margin-bottom:24px}.sigil-b{font-size:38px}.brand-sigil svg{width:25px;height:25px;right:-10px;bottom:-10px}
+ .menu-head h1{font-size:clamp(60px,15vw,113px);line-height:.81}.hero-subtitle{font-size:clamp(13px,3.4vw,17px)!important;margin-top:15px!important}
+ .menu-bottom{margin-top:clamp(18px,4vh,32px);gap:13px;width:min(520px,100%)}
+ .featured{transform:none;min-height:91px;padding:14px 17px;border-radius:15px;gap:14px}
+ .feature-number{font-size:51px;min-width:59px}.feature-number span{font-size:9px}.featured-copy{padding-left:14px}.featured h2{font-size:18px!important}.featured p{font-size:11px;line-height:1.4}.feature-decoration{display:none}
+ .menu-tiles{flex-direction:column;gap:10px}.menu-tiles .tile{min-height:59px;padding:10px 15px;border-radius:12px}.tile .tile-label{font-size:14px}.tile-arrow{width:31px;height:31px;font-size:21px}
+}
+@media(max-width:370px){.menu-head h1{font-size:clamp(54px,15.1vw,62px)}.menu-content{padding-inline:17px}.brand-sigil{margin-bottom:20px}.featured{min-height:83px}.feature-number{font-size:44px}.featured p{font-size:10px}.menu-bottom{margin-top:18px}.menu-tiles .tile{min-height:54px}.tile .tile-label{font-size:12px}}
+@media(min-width:651px) and (max-height:520px){
+ .menu-content{padding:12px clamp(23px,5vw,57px);justify-content:center}
+ .brand-sigil{display:none}.menu-head h1{font-size:clamp(61px,8.5vw,96px);line-height:.72}.hero-subtitle{font-size:13px!important;margin-top:10px!important}
+ .menu-bottom{margin-top:15px;gap:9px;width:min(620px,70%)}.featured{min-height:62px;padding:7px 15px;gap:16px}.feature-number{font-size:39px}.feature-number span{font-size:8px;margin-top:3px}.featured h2{font-size:17px!important;margin-bottom:3px!important}.featured p{font-size:10px}.menu-tiles{flex-direction:row}.menu-tiles .tile{min-height:48px;padding:8px 12px}.tile .tile-label{font-size:11px}.tile-arrow{width:25px;height:25px;font-size:16px}
+}
+@media(max-height:610px) and (max-width:650px){.brand-sigil{display:none}.menu-head h1{font-size:clamp(50px,14vw,76px)}.menu-content{padding-block:12px}.menu-bottom{margin-top:10px;gap:8px}.featured{padding:9px 13px;min-height:68px}.feature-number{font-size:38px}.featured p{font-size:9px}.menu-tiles .tile{min-height:48px}.hero-subtitle{margin-top:9px!important}}
+@media(prefers-reduced-motion:reduce){.stadium-light{animation:none!important}}
+.reduced-effects .stadium-light{animation:none!important}
+
+</style></head>
+<body><main id="game" aria-label="Breakaway Football"><canvas id="field" tabindex="-1" role="img" aria-describedby="canvasInstructions" aria-label="Football field with moving players and defenders"></canvas><div id="vignette" aria-hidden="true"></div>
+<div class="hud" id="hud"><div class="hud-brand"><span class="hud-icon">B<span>★</span></span><span><b>BREAKAWAY</b></span></div><div class="hud-stat"><span>GAME CLOCK</span><strong id="time">1:00</strong></div><div class="hud-stat"><span>SCORE</span><strong id="score">0000</strong></div><div class="hud-stat small-stat"><span>TOUCHDOWNS</span><strong id="td">00</strong></div><button class="pause" id="pauseBtn" aria-label="Pause game" type="button">Ⅱ<span> PAUSE</span></button></div>
+<div class="info-bar" id="infoBar"><div class="info-pill"><span class="dot"></span><span id="playCall">DOUBLE EDGE</span></div><span id="coachText" class="coach">Split the contain defenders.</span><div class="yd-pill"><span>FIELD</span><b id="yards">16 / 100 YDS</b></div></div>
+<div class="stamina" id="stamina"><span>BURST ENERGY</span><div class="energy-track" role="progressbar" aria-label="Burst energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i id="energyFill"></i></div></div><div class="message" id="message" aria-hidden="true"></div><div id="liveState" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><p id="canvasInstructions" class="sr-only">Use W A S D or the arrow keys to move, Shift to sprint, J for juke, K for spin, L for stiff arm, and Space to hurdle. P or Escape pauses. The moving football field is visual; this release candidate does not provide full nonvisual gameplay.</p><div class="drive-callout hidden" id="driveCallout" aria-hidden="true"><strong id="driveTitle"></strong><span id="driveSub"></span></div>
+<div class="touch" id="touch"><div class="move-group"><div id="joystick" class="joystick" aria-label="Virtual movement joystick" role="img" aria-describedby="canvasInstructions"><div id="stick"><span>MOVE</span></div><div class="joy-arrows" aria-hidden="true">✣</div></div><button class="sprint" id="sprintBtn" type="button">▲ <span>SPRINT</span></button></div><div class="abilities"><button class="ability gold" id="juke" type="button"><span class="ability-key">J</span><strong>JUKE</strong><small id="jukeCd">READY</small></button><button class="ability blue" id="spin" type="button"><span class="ability-key">K</span><strong>SPIN</strong><small id="spinCd">READY</small></button><button class="ability blue" id="stiff" type="button"><span class="ability-key">L</span><strong>STIFF ARM</strong><small id="stiffCd">READY</small></button><button class="ability blue" id="hurdle" type="button"><span class="ability-key">SPACE</span><strong>HURDLE</strong><small id="hurdleCd">READY</small></button></div></div>
+<div class="menu" id="menu">
+ <canvas id="attractField" aria-hidden="true"></canvas>
+ <div class="menu-grade" aria-hidden="true"></div>
+ <div class="stadium-light light-left" aria-hidden="true"></div><div class="stadium-light light-right" aria-hidden="true"></div>
+ <div class="menu-grit" aria-hidden="true"></div>
+ <div class="menu-content">
+  <div class="brand-sigil" aria-hidden="true"><span class="sigil-b">B</span><svg viewBox="0 0 64 64" fill="none"><path d="M8 34 25 8h17l14 26-14 22H25L8 34Z" stroke="currentColor" stroke-width="3"/><path d="m25 34 14-12m-12 20 12-12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+  <div class="menu-head"><h1><span class="logo-one">BREAK</span><span class="logo-two">AWAY<span class="logo-dot">.</span></span></h1><p class="hero-subtitle">60 seconds. Beat the defense.</p></div>
+  <div class="menu-bottom">
+   <div class="featured"><span class="feature-number">60<span>SEC</span></span><div class="featured-copy"><h2>The Drive</h2><p>Find daylight. Make defenders miss. Reach the end zone.</p></div><span class="feature-decoration" aria-hidden="true">↗</span></div>
+   <div class="menu-tiles">
+    <button type="button" id="playBtn" class="tile tile-primary"><span class="tile-label">PLAY BREAKAWAY</span><span class="tile-arrow" aria-hidden="true">↗</span></button>
+    <button type="button" id="howBtn" class="tile tile-secondary"><span class="tile-label">HOW TO PLAY</span><span class="tile-arrow" aria-hidden="true">↗</span></button>
+   </div>
+  </div>
+ </div>
+</div>
+<div class="modal-back hidden" id="help" role="dialog" aria-modal="true" aria-labelledby="helpHeading"><div class="modal"><div class="modal-top help-close"><button id="closeHelp" type="button" aria-label="Close instructions">✕</button></div><h2 id="helpHeading">PLAY LIKE A RUNNING BACK.</h2><p>Use space, timing, and changing direction to make a defender miss. Any defender knocked down by a move, block or missed dive stays down until the next possession. Move forward: if you stall for three seconds, three reserve defenders charge from behind the far end zone.</p><div class="help-grid"><div><b>MOVE</b><span>W A S D / ARROW KEYS</span><p>Travel anywhere on the field. Your runner accelerates, brakes, and carries momentum.</p></div><div><b>SPRINT</b><span>HOLD SHIFT</span><p>Accelerate into open grass. Sprint burns energy. Release to recover.</p></div><div><b>JUKE</b><span>J</span><p>A fast lateral cut. Choose a direction before pressing for the best evade.</p></div><div><b>SPIN</b><span>K</span><p>Escape a close defender from any direction, but takes longer to recover.</p></div><div><b>STIFF ARM</b><span>L</span><p>Beat an upright defender in front of you when they're within reach.</p></div><div><b>HURDLE</b><span>SPACE</span><p>Clear a defender who is already diving at your feet. Timing matters.</p></div></div><p class="help-foot">ON TOUCH: drag the left stick and hold Sprint. Tap the four move buttons on the right. Gamepad: left stick or D-pad to move; A juke, B spin, X stiff, Y hurdle, RT sprint, Start pause. In menus use D-pad and A to select, B to go back. Press M to toggle sound, or use the Sound Effects button when paused. A disconnected controller pauses the drive safely. Press P or Escape to pause on keyboard. The pause menu offers High Visibility and Reduced Effects settings. Dynamic visual action is not fully playable by screen reader.</p><p class="help-access-title">DISPLAY & ACCESSIBILITY</p><button class="dialog-alt preference-switch" id="helpVisibilityBtn" type="button" aria-pressed="false">HIGH VISIBILITY: OFF</button><button class="dialog-alt preference-switch" id="helpMotionBtn" type="button" aria-pressed="false">REDUCED EFFECTS: OFF</button><button class="dialog-go" type="button" id="helpPlay">LET'S PLAY <span>↗</span></button></div></div>
+<div class="modal-back hidden" id="paused" role="dialog" aria-modal="true" aria-labelledby="pauseHeading"><div class="modal compact"><h2 id="pauseHeading">PAUSED.</h2><p id="pauseReason" role="status" aria-live="polite">Take a second. The defense can wait.</p><button class="dialog-go" type="button" id="resumeBtn">RESUME DRIVE ↗</button><button class="dialog-alt sound-switch" type="button" id="soundBtn" aria-pressed="true">SOUND EFFECTS: ON</button><button class="dialog-alt preference-switch" type="button" id="visibilityBtn" aria-pressed="false">HIGH VISIBILITY: OFF</button><button class="dialog-alt preference-switch" type="button" id="motionBtn" aria-pressed="false">REDUCED EFFECTS: OFF</button><button class="dialog-alt" type="button" id="restartBtn">RESTART CHALLENGE</button></div></div>
+<div class="modal-back hidden" id="result" role="dialog" aria-modal="true" aria-labelledby="resultHeading"><div class="modal compact result-modal"><h2 id="resultHeading">GAME OVER.</h2><p>How far did you get with a real defender in your way?</p><div class="result-grid"><div><small>SCORE</small><strong id="finalScore">0000</strong></div><div><small>TOUCHDOWNS</small><strong id="finalTd">00</strong></div><div><small>TACKLES BROKEN</small><strong id="finalBreaks">00</strong></div><div><small>BEAT THE DIVE</small><strong id="finalCuts">00</strong></div><div><small>BEST SCORE</small><strong id="best">0000</strong></div></div><button class="dialog-go" id="againBtn" type="button">RUN IT BACK ↗</button><button class="dialog-alt" id="menuBtn" type="button">MAIN MENU</button></div></div>
+</main><script>// BREAKAWAY FIELD TEST — isolated arcade football simulation, no DOM or storage.
+// World coordinates are true yards. X is field width, Y points to the far end zone.
+const CONFIG=Object.freeze({width:52,goal:100,runStart:16,clock:60,step:1/60,playerRadius:0.87,defenderRadius:0.89});
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+class Random{constructor(seed=1){this.seed=(seed>>>0)||1} next(){let x=this.seed;x^=x<<13;x^=x>>>17;x^=x<<5;this.seed=x>>>0;return this.seed/4294967296} between(a,b){return a+(b-a)*this.next()} index(n){return Math.floor(this.next()*n)}}
+const vlen=(x,y)=>Math.hypot(x,y);const approach=(value,target,delta)=>value<target?Math.min(target,value+delta):Math.max(target,value-delta);
+const formations=[
+ {label:'DOUBLE EDGE',cue:'Split the contain defenders.',roles:['containL','containR','safety'],spots:[[-13,17],[13,17],[0,31]]},
+ {label:'MIDDLE PRESS',cue:'Stretch the middle. Cut outside.',roles:['pressure','pressure','safety'],spots:[[-5,18],[5,20],[-16,31]]},
+ {label:'WIDE PURSUIT',cue:'Draw a defender, then cut back.',roles:['containL','containR','safety'],spots:[[-17,19],[16,20],[2,30]]},
+ {label:'ANGLE BLITZ',cue:'Watch the charging safety.',roles:['pressure','safety','pressure'],spots:[[-11,19],[1,24],[15,17]]},
+];
+// Small local defensive coordinator: readable role assignments and short memory.
+// No ML dependency, no network service and no frame-by-frame omniscience.
+const intelligence={
+ readRole(d,p,range){
+  const role=d.role||'pressure';
+  // Reads are fixed for several tenths of a second, not updated every frame.
+  const lead=range>9?.30:.15;
+  let x=p.x+p.vx*lead,y=p.y+p.vy*lead;
+  if(range>6.5){
+   if(role==='containL')x-=1.1;
+   if(role==='containR')x+=1.1;
+   if(role==='safety'){x+=p.vx*.10;y+=2.5;}
+  }
+  return{x:clamp(x,-24,24),y:clamp(y,0,106)};
+ },
+ recognize(counts){
+  const total=counts.reduce((a,b)=>a+b,0);if(total<9)return'mixed';
+  const biggest=Math.max(...counts),idx=counts.indexOf(biggest);
+  return biggest/total>=.63?['left','middle','right'][idx]:'mixed';
+ },
+ // Defenders only shade a previously observed tendency; coverage stays beatable.
+ shade(focus){return focus==='left'?-2:focus==='right'?2:0},
+ assignment(b,defenders,p){
+  // Blockers cover an imminent threat; they never know future defender inputs.
+  const candidates=defenders.filter(d=>!d.outForDrive&&(d.appearance??1)>=1&&d.down<=0&&d.stun<=0&&d.y>=p.y-2&&d.y<=p.y+13&&Math.abs(d.x-b.x)<13);
+  candidates.sort((a,c)=>{
+   const risk=d=>Math.hypot(d.x-p.x,(d.y-p.y)*.8);
+   const score=d=>risk(d)*.8+Math.hypot(d.x-b.x,d.y-b.y)*.35;
+   return score(a)-score(c);
+  });
+  return candidates[0]||null;
+ }
+};
+class FootballGame {
+ constructor(seed=0xBEEFC0DE){this.rng=new Random(seed);this.fxRng=new Random((seed^0xA53C9E67)>>>0);this.seed=seed>>>0;this.best=0;this.events=[];this.phase='title';this.reset()}
+ reset(){this.phase='title';this.clock=CONFIG.clock;this.score=0;this.tds=0;this.tackles=0;this.broken=0;this.cleanCuts=0;this.totalYards=0;this.possession=0;this.maxYard=16;this.player={x:0,y:CONFIG.runStart,vx:0,vy:0,stamina:1,move:'',moveT:0,air:0,spin:0,juke:0,stiff:0,plant:0,cut:0,cutDir:0,cool:{juke:0,spin:0,stiff:0,hurdle:0},lastX:1};this.defenders=[];this.blockers=[];this.particles=[];this.driveState='';this.driveTimer=0;this.formation=formations[0];this.spawnAt=0;this.waves=[];this.waveCursor=0;this.events=[];this.eventSerial=0;this.sidelineWarned=false;this.abilityLocked=0;this.counterGrace=0;this.tackleVisualT=0;this.tackleVisualSide=1;this.brain={recent:[],focus:'mixed',laneCounts:[0,0,0],samples:0,timer:0,reads:0};this.blockerCalls=0;this.slowRunTimer=0;this.pursuitReleased=false;this.pursuitWarning=false;this.reserveCount=0}
+ start(){this.reset();this.phase='playing';this.setupDrive();this.emit('KICKOFF','Find daylight. Beat the pursuit.');return this}
+ emit(type,message,extra={}){this.events.push({type,message,seq:++this.eventSerial,...extra});if(this.events.length>30)this.events.shift()}
+ // All defenders for this possession take their places before the ball moves.
+ // The old 20-yard runtime spawner placed a full team directly inside the camera.
+ setupDrive(){
+  const p=this.player;p.x=0;p.y=CONFIG.runStart;p.vx=0;p.vy=0;this.sidelineWarned=false;p.stamina=Math.min(1,p.stamina+.32);p.move='';p.moveT=0;p.air=p.spin=p.juke=p.stiff=p.plant=p.cut=p.cutDir=0;this.tackleVisualT=0;this.tackleVisualSide=1;this.counterGrace=0;for(const k in p.cool)p.cool[k]=0;
+  this.possession++;this.maxYard=p.y;this.defenders=[];this.waves=[];this.waveCursor=0;this.slowRunTimer=0;this.pursuitReleased=false;this.pursuitWarning=false;this.reserveCount=0;
+  this.brain.laneCounts=[0,0,0];this.brain.samples=0;this.brain.timer=0;
+  this.blockers=[{x:-5,y:p.y+5,vx:0,vy:0,home:-5,stun:0,blocking:0,assignment:'',decision:0,role:'seal'},{x:6,y:p.y+4,vx:0,vy:0,home:6,stun:0,blocking:0,assignment:'',decision:0,role:'lead'}];
+  // Four downfield defensive lines, no mid-run actor creation or invisible teleport.
+  for(let yard=CONFIG.runStart;yard<CONFIG.goal-12;yard+=20){
+   const wave=this.spawnFormation(yard,{prepared:true});if(wave.ids.length)this.waves.push(wave);
+  }
+  // Three reinforcements wait BEHIND the far end line (y=110).
+  // They are not manufactured next to the runner: release simply unfreezes
+  // their original field positions after sustained low forward movement.
+  for(const [index,x] of [-12,0,12].entries()){
+   this.defenders.push({id:`reserve:${this.possession}:${index}`,reserve:true,x,y:112+index*1.2,
+    vx:0,vy:0,speed:17.5+index*.6,react:.22,charge:0,windup:0,stun:0,down:0,
+    readTimer:0,targetX:0,targetY:0,kind:'safety',role:'safety',style:index===1?'wrap':'angle',
+    facing:0,committed:false,ready:false,readiness:0,appearance:.35,activateAt:Infinity});
+  }
+  this.reserveCount=3;
+  this.spawnAt=Infinity;this.driveState='';this.driveTimer=0;
+  if(this.waves.length){this.formation=this.waves[0].formation;this.announceWave(this.waves[0])}
+  this.emit('DRIVE',`Possession ${this.possession}.`);
+ }
+ announceWave(wave){this.emit('READ',wave.formation.label+' — '+wave.formation.cue+(this.brain.focus!=='mixed'?' (DEFENSE SHADING '+this.brain.focus.toUpperCase()+')':''))}
+ // Retain this method for explicit training/test setups; the normal game only
+ // invokes it when preparing an entire possession, not during live running.
+ spawnFormation(yard=this.player.y,{prepared=false}={}){
+  const f=formations[this.rng.index(formations.length)];if(!prepared)this.formation=f;
+  const p=this.player,ids=[];
+  const shift=clamp(this.rng.between(-3.5,3.5)+intelligence.shade(this.brain.focus),-5.5,5.5);
+  const ready=!prepared||yard<=CONFIG.runStart;
+  for(const [i,[x,yd]] of f.spots.entries()){
+   const y=yard+yd;if(y>102)continue;
+   const id=`${this.possession}:${this.rng.seed}`;
+   const d={id,x:clamp(x+shift,-22,22),y,vx:0,vy:0,speed:this.rng.between(7.9,9.55),react:this.rng.between(.22,.66),charge:0,windup:0,stun:0,down:0,readTimer:0,targetX:0,targetY:0,kind:this.rng.next()<.37?'safety':'linebacker',role:f.roles[i],style:f.roles[i]==='safety'?'angle':this.rng.next()<.3?'wrap':'dive',facing:0,committed:false,ready,readiness:ready?1:0,appearance:ready?1:.16,activateAt:prepared?yard-6:-Infinity};
+   this.defenders.push(d);ids.push(id);
+  }
+  // Manual formations keep V2's emergency edge-contain behavior. In normal
+  // play, preset contain roles defend the edges before the runner reaches them.
+  if(!prepared&&Math.abs(p.x)>14&&yard<80){
+   const side=Math.sign(p.x),id=`edge:${this.possession}:${this.rng.seed}`;
+   this.defenders.push({id,x:side*22.1,y:yard+17,vx:0,vy:0,speed:9.3,react:.16,charge:0,windup:0,stun:0,down:0,readTimer:0,targetX:p.x,targetY:p.y,kind:'contain',role:side<0?'containL':'containR',style:'dive',facing:0,committed:false,ready:true,readiness:1,appearance:1,activateAt:-Infinity});ids.push(id);
+  }
+  // Corners are already in position at both sidelines. Unlike V2 they are
+  // never injected mid-sprint when the player gets wide; they react to a run.
+  if(prepared){for(const side of [-1,1]){
+   const y=yard+17+(side>0?2.7:0);if(y>102)continue;
+   const id=`corner:${this.possession}:${this.rng.seed}:${side}:${yard}`;
+   this.defenders.push({id,x:side*22.0,y,vx:0,vy:0,speed:9.3,react:.16,charge:0,windup:0,stun:0,down:0,readTimer:0,targetX:0,targetY:0,kind:'contain',role:side<0?'containL':'containR',style:'dive',facing:0,committed:false,ready:false,readiness:0,appearance:.16,activateAt:yard-12,watchEdge:side,watchY:yard});ids.push(id);
+  }}
+  const wave={formation:f,yard,ids};
+  if(!prepared){this.spawnAt=yard+20;this.announceWave(wave)}
+  return wave;
+ }
+ trigger(action){if(this.phase!=='playing'||this.driveState||!['juke','spin','stiff','hurdle'].includes(action))return false;const p=this.player;if(p.cool[action]>0||p.stamina<({juke:.13,spin:.2,stiff:.12,hurdle:.13}[action]))return false;p.stamina-=({juke:.13,spin:.2,stiff:.12,hurdle:.13}[action]);p.cool[action]=({juke:1.35,spin:3,stiff:2.2,hurdle:2.6}[action]);p.move=action;p.moveT=({juke:.39,spin:.62,stiff:.42,hurdle:.56}[action]);if(action==='juke'){p.juke=.32;let sign=Math.sign(this.lastInputX||0);if(!sign){let nearest=this.defenders.filter(d=>!d.outForDrive&&!d.down&&!d.stun).sort((a,b)=>dist(a,p)-dist(b,p))[0];sign=nearest?p.x<nearest.x?-1:1:p.lastX||1}p.vx=sign*19;p.vy=Math.max(p.vy,4.6);p.lastX=sign;this.burst(p.x,p.y,'#ffe2a6',13)}if(action==='spin'){p.spin=.51;this.burst(p.x,p.y,'#bde7f8',10)}if(action==='stiff'){p.stiff=.37}if(action==='hurdle'){p.air=.53;this.burst(p.x,p.y,'#d3e0ef',8)}this.emit('MOVE',action.toUpperCase());return true}
+ burst(x,y,color,count=8){for(let i=0;i<count;i++)this.particles.push({x,y,vx:this.fxRng.between(-7,7),vy:this.fxRng.between(-5,5),t:this.fxRng.between(.25,.65),max:.65,color})}
+ // Every physical knockdown is permanent for THIS possession: moves,
+ // blocked defenders, and unsuccessful dives. No resurrection timer or teleport.
+ plantDefender(d){
+  if(d.outForDrive)return false;
+  d.outForDrive=true;d.fallT=.42;d.fallSide=Math.sign(d.x-this.player.x)||Math.sign(d.vx)||1;
+  d.stun=0;d.down=0;d.charge=0;d.windup=0;d.committed=false;
+  d.vx=0;d.vy=0;return true;
+ }
+ stunDefender(d,type){
+  if(d.outForDrive||d.ready===false||(d.appearance??1)<1||d.stun>0||d.down>0||this.driveState)return false;
+  this.plantDefender(d);this.counterGrace=.16;this.broken++;this.score+=75;
+  this.burst(d.x,d.y,'#ffd06e',17);this.emit('BREAK',type+'! DEFENDER DOWN! +75');return true;
+ }
+ awardCut(d){if(d.cutCredited||!d.committed||this.driveState)return false;d.cutCredited=true;const p=this.player;const lateral=Math.abs(p.x-(d.commitPlayerX??p.x)),separation=dist(d,p);if(lateral<1.35||separation<=1.95||separation>=8.0)return false;this.cleanCuts++;this.score+=35;this.emit('CUT','BEAT THE DIVE! +35');this.burst(p.x,p.y,'#bceee6',7);return true}
+ stopDrive(kind){if(this.driveState)return;
+ // Learn only after a possession, with a tiny rolling sample window.
+ const observed=intelligence.recognize(this.brain.laneCounts);
+ if(this.brain.samples>=9){this.brain.recent.push(observed);this.brain.recent=this.brain.recent.slice(-4);
+  const votes=['left','middle','right'].map(lane=>this.brain.recent.filter(x=>x===lane).length);
+  const high=Math.max(...votes),idx=votes.indexOf(high);
+  this.brain.focus=this.brain.recent.length>=2&&high>=2?['left','middle','right'][idx]:'mixed';}
+ this.driveState=kind;this.driveTimer=1.26;const p=this.player;this.totalYards+=Math.max(0,Math.floor(this.maxYard-CONFIG.runStart));if(kind==='TOUCHDOWN'){this.tds++;this.score+=600;this.clock=Math.min(60,this.clock+2);this.emit('TOUCHDOWN','TOUCHDOWN! +600, +2 SEC');this.burst(p.x,p.y,'#ffe29a',35)}else{this.tackles++;this.tackleVisualT=.58;this.tackleVisualSide=Math.sign(p.vx||this.lastInputX||1);this.emit('TACKLED','TACKLED — FIND A NEW ANGLE');this.burst(p.x,p.y,'#ff936d',18)}}
+ step(dt,input={x:0,y:0,sprint:false}){if(this.phase!=='playing')return;dt=Math.min(dt,.08);this.clock=Math.max(0,this.clock-dt);if(this.clock<=0){this.clock=0;this.phase='over';this.emit('FINAL','FINAL WHISTLE');return}const p=this.player;
+ for(const k in p.cool)p.cool[k]=Math.max(0,p.cool[k]-dt);p.air=Math.max(0,p.air-dt);p.spin=Math.max(0,p.spin-dt);p.juke=Math.max(0,p.juke-dt);p.stiff=Math.max(0,p.stiff-dt);p.moveT=Math.max(0,p.moveT-dt);p.plant=Math.max(0,p.plant-dt);p.cut=Math.max(0,p.cut-dt);this.tackleVisualT=Math.max(0,(this.tackleVisualT||0)-dt);this.counterGrace=Math.max(0,this.counterGrace-dt);if(p.moveT===0)p.move='';
+ if(this.driveState){this.driveTimer-=dt;this.moveParticles(dt);if(this.driveTimer<=0){this.setupDrive()}return}
+ let x=clamp(Number(input.x)||0,-1,1),y=clamp(Number(input.y)||0,-1,1);this.brain.timer+=dt;if(this.brain.timer>=.28){this.brain.timer=0;if(Math.hypot(p.vx,p.vy)>2){const index=p.x<-5?0:p.x>5?2:1;this.brain.laneCounts[index]++;this.brain.samples++;}}const mag=vlen(x,y);if(mag>1){x/=mag;y/=mag}if(Math.abs(x)>.2){p.lastX=Math.sign(x)}this.lastInputX=x;
+ if(Math.abs(x)>.68&&Math.abs(p.vx)>4.2&&Math.sign(x)!==Math.sign(p.vx)&&p.plant<=0){p.plant=.18;p.cut=.31;p.cutDir=Math.sign(x);this.burst(p.x,p.y,'#bceee6',4)}
+ const sprint=!!input.sprint&&p.stamina>.055&&mag>.2;const speed=(sprint?15:11.7)*(p.spin>0?.70:1)*(p.air>0?.77:1);const ax=x*speed,ay=y*speed;const accel=p.juke>0?66:46;const decel=31;
+ p.vx=approach(p.vx,ax,(Math.abs(x)>.02?accel:decel)*dt);p.vy=approach(p.vy,ay,(Math.abs(y)>.02?accel:decel)*dt);if(sprint){p.stamina=Math.max(0,p.stamina-dt*.28)}else p.stamina=Math.min(1,p.stamina+dt*.17);
+ p.x+=p.vx*dt;p.y+=p.vy*dt;
+ if(p.x<-24.1){p.x=-24.1;p.vx=Math.max(0,p.vx);if(!this.sidelineWarned){this.emit('SIDELINE','Stay in bounds.');this.sidelineWarned=true}}if(p.x>24.1){p.x=24.1;p.vx=Math.min(0,p.vx);if(!this.sidelineWarned){this.emit('SIDELINE','Stay in bounds.');this.sidelineWarned=true}}if(Math.abs(p.x)<23.7)this.sidelineWarned=false;p.y=Math.max(0,p.y);if(p.y<=0)p.vy=Math.max(p.vy,0);
+ if(p.y>this.maxYard){const last=Math.floor(this.maxYard);this.maxYard=p.y;const next=Math.floor(this.maxYard);if(next>last){const gained=next-last;this.score+=gained*3;}}
+ if(p.y>=CONFIG.goal){p.y=CONFIG.goal;this.stopDrive('TOUCHDOWN');return}
+ // A short cut, juke, or brief hesitation is fine. Persistent forward pace
+ // below 4.2 yards/sec builds pressure; moving forward clears it quickly.
+ if(!this.pursuitReleased){
+  this.slowRunTimer=p.vy<4.2?this.slowRunTimer+dt:Math.max(0,this.slowRunTimer-dt*1.6);
+  if(this.slowRunTimer>=1.7&&!this.pursuitWarning){this.pursuitWarning=true;this.emit('HURRY','KEEP MOVING — DEFENDERS READY BEHIND THE END ZONE');}
+  if(this.slowRunTimer>=3.0){this.releaseEndZonePursuit();}
+ }
+ // Update only which prepared formation the HUD is reading; no new actors.
+ while(this.waveCursor+1<this.waves.length&&p.y>=this.waves[this.waveCursor+1].yard){
+  this.waveCursor++;this.formation=this.waves[this.waveCursor].formation;this.announceWave(this.waves[this.waveCursor]);
+ }
+ this.updateBlockers(dt);this.updateDefense(dt);this.moveParticles(dt);
+ }
+ releaseEndZonePursuit(){
+  if(this.pursuitReleased)return false;
+  this.pursuitReleased=true;
+  for(const d of this.defenders.filter(d=>d.reserve&&!d.outForDrive)){
+   d.ready=true;d.readiness=1;d.appearance=1;d.activateAt=-Infinity;d.react=.22;
+  }
+  this.emit('PURSUIT','END ZONE PURSUIT RELEASED — RUN!');return true;
+ }
+ updateBlockers(dt){for(const b of this.blockers){b.blocking=Math.max(0,b.blocking-dt);b.contactT=Math.max(0,(b.contactT||0)-dt);const p=this.player;
+ b.decision=(b.decision||0)-dt;
+ if(b.decision<=0){const target=intelligence.assignment(b,this.defenders,p);b.assignment=target?.id||'';b.decision=.42;this.blockerCalls++;}
+ const mark=this.defenders.find(d=>!d.outForDrive&&d.id===b.assignment&&(d.appearance??1)>=1&&d.stun<=0&&d.down<=0&&d.y>=p.y-2);
+ const tx=mark?clamp(mark.x+Math.sign(p.x-mark.x)*1.1,-22,22):clamp(p.x+b.home,-21,21);
+ const ty=mark?clamp(mark.y-1.15,p.y+1.0,p.y+8):p.y+4.5;
+ const dx=tx-b.x,dy=ty-b.y;b.vx=approach(b.vx,clamp(dx*3,-12,12),38*dt);b.vy=approach(b.vy,clamp(dy*3,-12,12),38*dt);b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.blocking>0)continue;let target=this.defenders.filter(d=>!d.outForDrive&&(d.appearance??1)>=1&&d.down<=0&&d.stun<=0&&dist(d,b)<2.15).sort((a,c)=>dist(a,b)-dist(c,b))[0];if(target){b.blocking=3.3;b.contactT=.34;target.blockHitT=.42;this.plantDefender(target);this.burst(target.x,target.y,'#bfe2f3',8);this.emit('BLOCK','BLOCKER MAKES CONTACT')}}}
+ updateDefense(dt){const p=this.player;for(const d of this.defenders){
+ // Visual-only recoil timer; contact and AI never consult this value.
+ d.blockHitT=Math.max(0,(d.blockHitT||0)-dt);
+ // A beaten defender stays where they fell until the entire possession ends.
+ // Updating this before readiness/tackle logic prevents accidental reactivation.
+ if(d.outForDrive){d.fallT=Math.max(0,(d.fallT??0)-dt);d.vx=0;d.vy=0;continue;}
+ // Reserve defenders are visible waiting behind the far end zone, but are
+ // non-collidable and motionless until the specific slowdown trigger fires.
+ if(d.reserve&&!this.pursuitReleased)continue;
+ // Already-placed downfield defenders are visible as small, transparent silhouettes.
+ // Reveal progress begins before the existing activation yard and advances in fixed game time.
+ // Corners stay ghosted until their original sideline/yard trigger becomes eligible.
+ if(d.ready===false){
+  const lead=18,near=clamp((p.y-((d.activateAt??0)-lead))/lead,0,1);
+  const eased=near*near*(3-2*near);
+  const goal=Math.min(d.watchEdge?.78:.98,.16+eased*.84);
+  d.appearance=Math.min(goal,Math.max(d.appearance??.16,.16)+dt*1.9);
+  if(p.y<(d.activateAt??0))continue;
+  if(d.watchEdge&&p.y<(d.watchY+11)&&p.x*d.watchEdge<13)continue;
+  d.ready=true;d.readiness=0;
+ }
+ // A defender is never able to pursue or make contact while smaller than play size.
+ // The reveal finishes at most a few tenths of a second after the original trigger.
+ d.appearance=Math.min(1,(d.appearance??1)+dt*1.9);
+ d.readiness=Math.min(1,(d.readiness??1)+dt*2.2);
+ if(d.appearance<1)continue;
+ d.react-=dt;d.stun=Math.max(0,d.stun-dt);d.down=Math.max(0,d.down-dt);const range=dist(d,p);d.readTimer=Math.max(0,(d.readTimer||0)-dt);if(d.stun>0||d.down>0){d.vx=approach(d.vx,0,18*dt);d.vy=approach(d.vy,0,18*dt);d.x+=d.vx*dt;d.y+=d.vy*dt;continue}if(d.react>0)continue;
+ if(d.charge>0){d.charge-=dt;d.x+=d.vx*dt;d.y+=d.vy*dt;if(d.charge<=0){this.resolveContact(d);if(!this.driveState&&!d.outForDrive)this.awardCut(d);this.plantDefender(d);}else this.resolveContact(d);continue}
+ if(d.windup>0){d.windup=Math.max(0,d.windup-dt);d.vx=approach(d.vx,0,60*dt);d.vy=approach(d.vy,0,60*dt);if(d.windup<=0){const qx=d.targetX-d.x,qy=d.targetY-d.y,ql=vlen(qx,qy)||1;const lunge=d.style==='wrap'?12.2:d.style==='angle'?15.3:16.5;d.vx=qx/ql*lunge;d.vy=qy/ql*lunge;d.charge=d.style==='wrap'?.30:.38;d.windup=0}this.resolveContact(d);continue}
+ if(d.readTimer<=0){const look=intelligence.readRole(d,p,range);d.targetX=look.x;d.targetY=look.y;d.readTimer=range<12?.65:.32;this.brain.reads++}
+ const tx=d.targetX,ty=d.targetY;const dx=tx-d.x,dy=ty-d.y,l=vlen(dx,dy)||1;
+ const targetSpeed=d.speed*(range>20?1.06:1)*(.35+.65*(d.readiness??1));const vx=dx/l*targetSpeed,vy=dy/l*targetSpeed;d.vx=approach(d.vx,vx,32*dt);d.vy=approach(d.vy,vy,32*dt);d.x+=d.vx*dt;d.y+=d.vy*dt;d.facing=Math.atan2(d.vx,-d.vy);
+ if(range<4.3){d.targetX=clamp(p.x+p.vx*.17,-24,24);d.targetY=p.y+p.vy*.17;d.windup=d.style==='wrap'?.32:.23;d.committed=true;d.commitPlayerX=p.x;d.commitPlayerY=p.y;this.emit('DIVE',d.style==='wrap'?'WRAP TACKLE — SPIN OR CUT':d.style==='angle'?'ANGLE TACKLE — CHANGE COURSE':'TACKLE LOADING — CUT NOW');}
+ this.resolveContact(d);
+ }
+ // Do not delete pre-positioned players simply because they are above the
+ // current viewport. A camera change must never make them materialize again.
+ // Preserve the original off-camera active-defender retirement, but never
+ // remove beaten athletes. They stay down for the full possession even if the
+ // runner advances 30 yards and reverses. Renderer culls off-screen sprites.
+ this.defenders=this.defenders.filter(d=>d.outForDrive||d.y>=p.y-28);
+ }
+ resolveContact(d){if(this.driveState||d.outForDrive||d.ready===false||(d.appearance??1)<1||d.down>0||d.stun>0)return;const p=this.player;const range=dist(d,p);if(range>1.65)return;
+ if(p.spin>0&&range<1.65){this.stunDefender(d,'SPIN MOVE');p.spin=0;return}
+ if(p.juke>0&&range<1.55){this.stunDefender(d,'JUKE');p.juke=0;return}
+ if(p.stiff>0&&range<1.7&&d.y>=p.y+.10){this.stunDefender(d,'STIFF ARM');p.stiff=0;return}
+ if(p.air>.08&&d.charge>0&&range<1.62){this.stunDefender(d,'HURDLE');p.air=0;return}
+ // Close proximity alone is not a tackle. The defender must finish a visible
+ // windup and begin the already-existing lunge (including at point-blank range).
+ // Without this gate a defender simply walking into the runner could tackle
+ // on the same frame as the first contact cue, making counterplay unreadable.
+ // The earned counter grace from V3.4 remains unchanged.
+ if(range<.98&&d.charge>0&&!(d.windup>0)&&this.counterGrace<=0){this.stopDrive('TACKLED')}
+ }
+ moveParticles(dt){for(const q of this.particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.t-=dt;q.vx*=.98;q.vy*=.98}this.particles=this.particles.filter(q=>q.t>0).slice(-110)}
+ status(){return{defensiveRead:this.brain.focus,phase:this.phase,clock:this.clock,score:this.score,tds:this.tds,tackles:this.tackles,broken:this.broken,cuts:this.cleanCuts,yd:this.player.y,stamina:this.player.stamina,formation:this.formation.label,driveState:this.driveState,driveTimer:this.driveTimer,pursuitReleased:this.pursuitReleased,pursuitWarning:this.pursuitWarning,slowRunTimer:this.slowRunTimer,downDefenders:this.defenders.filter(d=>d.outForDrive).length}}
+}
+
+// Canvas field view, independent of physics and DOM controls. True 2D world projection.
+class FieldRenderer{
+ constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.w=1000;this.h=700;this.dpr=1;this.camX=0;this.camY=16;this.shake=0;this.frame=0;this.motionClock=0;this.lastPossession=-1;this.reducedMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;this.resize()}
+ resize(){const r=this.canvas.getBoundingClientRect();this.w=Math.max(200,r.width||1000);this.h=Math.max(240,r.height||700);this.dpr=Math.min(1.7,window.devicePixelRatio||1);const pw=Math.round(this.w*this.dpr),ph=Math.round(this.h*this.dpr);if(this.canvas.width!==pw)this.canvas.width=pw;if(this.canvas.height!==ph)this.canvas.height=ph;this.scale=this.w<550?Math.max(9,Math.min(11,this.w/39)):Math.min(20,Math.max(12,this.w/58));this.sy=this.scale*.81}
+ project(x,y){return {x:this.w*.5+(x-this.camX)*this.scale,y:this.h*.61-(y-this.camY)*this.sy}}
+ rectWorld(x0,y0,x1,y1,fill){const a=this.project(x0,y0),b=this.project(x1,y1);this.ctx.fillStyle=fill;this.ctx.fillRect(a.x,b.y,b.x-a.x,a.y-b.y)}
+ draw(game,dt=1/60){this.frame++;if(game.phase==='playing')this.motionClock+=Math.max(0,Math.min(dt,.08));const {ctx:c,w,h}=this;const p=game.player;if(this.lastPossession!==game.possession){this.lastPossession=game.possession;this.camX=clamp(p.x*.67,-8,8);this.camY=p.y+5;}this.camX+=(clamp(p.x*.67,-8,8)-this.camX)*(1-Math.exp(-Math.max(0,dt)*3.5));this.camY+=(p.y+5-this.camY)*(1-Math.exp(-Math.max(0,dt)*5));
+ c.setTransform(this.dpr,0,0,this.dpr,0,0);c.clearRect(0,0,w,h);
+ const bg=c.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#071525');bg.addColorStop(.47,'#10233b');bg.addColorStop(1,'#07111c');c.fillStyle=bg;c.fillRect(0,0,w,h);
+ const outerL=this.project(-28,0).x,outerR=this.project(28,0).x;
+ // Static stadium apron and seating boards beyond the sidelines.
+ c.fillStyle='#15273a';c.fillRect(0,0,Math.max(0,outerL),h);c.fillRect(outerR,0,Math.max(0,w-outerR),h);
+ for(let j=0;j<h+24;j+=18){c.fillStyle=j%36===0?'#203c52':'#12273c';c.fillRect(0,j,Math.max(0,outerL-5),8);c.fillRect(outerR+5,j,Math.max(0,w-outerR-5),8);if(outerL>15){c.fillStyle=j%54===0?'#edbd6b':'#a7bdc6';for(let x=7;x<outerL-5;x+=22)c.fillRect(x+(j%2)*3,j+2,4,3)}if(w-outerR>15){c.fillStyle=j%54===0?'#edbd6b':'#a7bdc6';for(let x=outerR+14;x<w;x+=22)c.fillRect(x+(j%2)*3,j+2,4,3)}}
+ this.rectWorld(-28,-16,28,115,'#202b37');this.rectWorld(-26,-14,26,114,'#0a442e');
+ // True 100-yard turf; stationary in yard coordinates, camera follows the carrier.
+ this.rectWorld(-25.25,0,25.25,100,'#17683e');
+ for(let y=0;y<100;y+=5){this.rectWorld(-25.25,y,25.25,Math.min(100,y+5),((y/5)%2)===0?'#1b7146':'#1c7c4b')}
+ // Yard lines and hash marks.
+ for(let y=0;y<=100;y+=5){const a=this.project(-25.25,y),b=this.project(25.25,y);if(a.y<-80||a.y>h+80)continue;c.lineWidth=y%10===0?2:1;c.strokeStyle=y%10===0?'#d9e5d6c9':'#bde0c087';c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();if(y>0&&y<100){for(const hx of [-12,-10.8,10.8,12]){const q=this.project(hx,y);c.fillStyle='#e0e8c9c7';c.fillRect(q.x-1,q.y-3,2,6)}}if(y%10===0&&y>0&&y<100){c.save();c.fillStyle='#e9ecdbcc';c.font=`900 ${Math.max(15,this.scale*1.3)}px Impact,Arial Narrow,sans-serif`;c.textAlign='center';for(const x of (this.w<550?[-15.5,15.5]:[-19,19])){const q=this.project(x,y-2);c.fillText(String(y>50?100-y:y),q.x,q.y)}c.restore()}}
+ // Sidelines and goal lines.
+ c.lineWidth=4;c.strokeStyle='#f1f4d8';for(const x of [-25.25,25.25]){const a=this.project(x,-8),b=this.project(x,108);c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke()}
+ this.rectWorld(-25.25,-10,25.25,0,'#142c4d');this.rectWorld(-25.25,100,25.25,110,'#192f54');for(const y of [-5,105]){const q=this.project(0,y);c.save();c.translate(q.x,q.y);c.font=`900 ${Math.max(28,this.scale*2.55)}px Impact,Arial Narrow,sans-serif`;c.fillStyle='#f9bf64';c.textAlign='center';c.globalAlpha=this.w<550?.18:.65;c.fillText('BREAKAWAY',0,0);c.restore()}
+ // Midfield shield, painted beneath all players.
+ const m=this.project(0,50);if(m.y>-90&&m.y<h+90){c.strokeStyle='#d1e1d855';c.lineWidth=4;c.beginPath();c.ellipse(m.x,m.y,3.1*this.scale,2.5*this.sy,0,0,Math.PI*2);c.stroke();c.fillStyle='#d6eadc55';c.textAlign='center';c.font=`900 ${this.scale*1.1}px Impact,sans-serif`;c.fillText('B',m.x,m.y+this.scale*.3)}
+ // Short, local contact marks tie the animation to the actual contact location.
+ // No randomized screen shake or camera movement: the running camera stays comfortable.
+ // These decals are driven by visual-only timers; they cannot change gameplay.
+ const contactMark=(actor,color,timer,duration,radius)=>{
+  if(!(timer>0))return;
+  const q=this.project(actor.x,actor.y),u=clamp(1-timer/duration,0,1);
+  if(q.x < -55||q.x>w+55||q.y < -55||q.y>h+55)return;
+  c.save();c.globalAlpha=(1-u)*.44;c.lineWidth=Math.max(1.6,this.scale*.15);
+  c.strokeStyle=color;c.beginPath();
+  const r=this.scale*(radius+(this.reducedMotion?0:u*.68));
+  c.ellipse(q.x,q.y+6,r,r*.53,0,0,Math.PI*2);c.stroke();
+  if(!this.reducedMotion){c.globalAlpha=(1-u)*.18;c.fillStyle=color;
+   c.beginPath();c.ellipse(q.x,q.y+6,r*.58,r*.29,0,0,Math.PI*2);c.fill();
+   if(radius>=1.2){c.globalAlpha=(1-u)*.54;c.lineWidth=Math.max(1.5,this.scale*.12);
+    for(let n=0;n<6;n++){const a=n*Math.PI/3,fx=Math.cos(a),fy=Math.sin(a)*.60;
+     c.beginPath();c.moveTo(q.x+fx*r*1.04,q.y+6+fy*r*1.04);
+     c.lineTo(q.x+fx*r*1.29,q.y+6+fy*r*1.29);c.stroke();}}
+  }
+  c.restore();
+ };
+ if(game.tackleVisualT>0)contactMark(p,'#ffd8a1',game.tackleVisualT,.58,1.3);
+ for(const b of game.blockers)contactMark(b,'#a8e7f2',b.contactT||0,.34,1.4);
+ for(const d of game.defenders){
+  if(d.outForDrive)contactMark(d,'#ffd78c',d.fallT||0,.42,1.2);
+  else if(d.down>0&&d.down>1.02)contactMark(d,'#f0bb91',d.down-1.02,.23,1.0);
+ }
+ // Future defenders are scouted positions, not active threats. An open cool ring
+ // and translucent uniform distinguish them from fully arrived defenders.
+ for(const d of game.defenders){
+  if(d.outForDrive||d.ready!==false||clamp(d.appearance??1,0,1)>=1)continue;
+  const q=this.project(d.x,d.y);if(q.x<-35||q.x>w+35||q.y<-35||q.y>h+35)continue;
+  const reveal=clamp(d.appearance??.16,0,1);
+  c.save();c.globalAlpha=.30+.24*reveal;c.strokeStyle='#bee5f1';
+  c.lineWidth=Math.max(1.4,this.scale*.11);c.setLineDash([3,5]);
+  c.beginPath();c.ellipse(q.x,q.y+5,this.scale*1.08,this.sy*.84,0,0,Math.PI*2);c.stroke();
+  c.setLineDash([]);c.restore();
+ }
+ // World actors sorted by physical Y so nearer actors overlap correctly.
+ const actors=[];for(const b of game.blockers)actors.push({kind:'blocker',o:b});for(const d of game.defenders)actors.push({kind:'defender',o:d});actors.push({kind:'runner',o:p});actors.sort((a,b)=>b.o.y-a.o.y);
+ // A defender cannot secretly change the landing point after the tackle tell begins.
+ // Draw the exact dive commitment before athletes: the cue belongs in the field of play.
+ const commitments=game.defenders.filter(d=>!d.outForDrive&&d.ready!==false&&(d.appearance??1)>=1&&(d.windup>0||d.charge>0)&&Number.isFinite(d.targetX)&&Number.isFinite(d.targetY)).sort((a,b)=>dist(a,p)-dist(b,p));
+ // The closest committed tackler gets the strong signal; other commitments stay
+ // visible but quieter, preventing a stack of X markers over the ballcarrier.
+ for(const [index,d] of commitments.entries()){
+  const start=this.project(d.x,d.y),target=this.project(d.targetX,d.targetY);
+  if(target.x<-80||target.x>w+80||target.y<-80||target.y>h+80)continue;
+  const primary=index===0,diving=d.charge>0,ink=diving?'#ff9978':'#ffe1a0';
+  c.save();c.globalAlpha=primary?1:.4;c.strokeStyle=ink;c.lineWidth=primary?2.7:1.6;
+  c.setLineDash(diving?[4,4]:[7,5]);c.beginPath();c.moveTo(start.x,start.y);c.lineTo(target.x,target.y);c.stroke();c.setLineDash([]);
+  const ring=Math.max(10,this.scale*1.02);
+  c.fillStyle=diving?'#a42c2937':'#ffe3a522';c.beginPath();c.arc(target.x,target.y,ring,0,Math.PI*2);c.fill();c.stroke();
+  if(primary){
+   const windupMax=d.style==='wrap'?.32:.23;
+   const progress=diving?1:1-clamp(d.windup/windupMax,0,1);
+   c.strokeStyle='#fff4da';c.lineWidth=3;c.beginPath();c.arc(start.x,start.y+4,this.scale*1.55,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);c.stroke();
+   // Compact explicit stage label beside the tackler, not over the runner.
+   const label=diving?'DIVE':'WINDUP',fontSize=w<400?10:11;
+   c.font=`900 ${fontSize}px Arial,sans-serif`;const labelWidth=c.measureText(label).width+12;
+   const bx=clamp(start.x-labelWidth/2,4,w-labelWidth-4),by=Math.max(4,start.y-this.scale*3.5);
+   c.fillStyle=diving?'#82332d':'#4b3c25';c.fillRect(bx,by,labelWidth,17);
+   c.fillStyle='#fff4de';c.textAlign='center';c.textBaseline='middle';c.fillText(label,bx+labelWidth/2,by+8.5);
+  }
+  c.restore();
+ }
+ for(const a of actors)this.athlete(a.kind,a.o,game);
+ for(const part of game.particles){const t=this.project(part.x,part.y);c.globalAlpha=Math.max(0,part.t/part.max)*.7;c.fillStyle=part.color;c.beginPath();c.arc(t.x,t.y,Math.max(1.1,this.scale*.21),0,Math.PI*2);c.fill()}c.globalAlpha=1;
+ // Player sightline and target cursor are rendered on the field, not in HUD.
+ const s=this.project(p.x,p.y),ang=Math.atan2(p.vy,p.vx);
+ if(p.cut>0){c.save();c.globalAlpha=Math.min(.78,p.cut/.31);c.strokeStyle='#bffaf1';c.lineWidth=3;c.beginPath();c.arc(s.x,s.y+8,1.9*this.scale,Math.PI*.12,Math.PI*1.78);c.stroke();c.fillStyle='#fff0b6';c.font='900 12px Impact,Arial,sans-serif';c.textAlign='center';c.fillText('PLANT',s.x,s.y-this.scale*2.1);c.restore();}
+ if((game.phase==='playing'||game.phase==='paused')&&!game.driveState){
+  c.save();c.strokeStyle='#fff0a7';c.lineWidth=Math.max(2,this.scale*.19);
+  c.beginPath();c.arc(s.x,s.y+7,1.62*this.scale,0,Math.PI*2);c.stroke();
+  const forward=this.project(p.x+p.vx*.45,p.y+p.vy*.45);
+  c.strokeStyle='#fff1b580';c.setLineDash([4,6]);c.beginPath();c.moveTo(s.x,s.y+8);c.lineTo(forward.x,forward.y+8);c.stroke();c.setLineDash([]);
+  const labelY=s.y+this.scale*1.95;
+  c.fillStyle='#0d2c38e8';c.fillRect(s.x-18,labelY,36,15);
+  c.fillStyle='#ffe5a3';c.font='900 10px Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('YOU',s.x,labelY+7.8);c.restore();
+ }
+ c.fillStyle='#081a2d88';c.fillRect(0,h-3,w,3);
+ }
+ athlete(kind,o,game){const c=this.ctx,p=this.project(o.x,o.y);if(p.x<-80||p.x>this.w+80||p.y<-85||p.y>this.h+85)return;const s=Math.max(7,this.scale*.93),runner=kind==='runner',enemy=kind==='defender',stunned=!!o.stun,down=!!o.down;const shirt=runner?'#f1c879':enemy?'#cc554d':'#e2edf0',trim=runner?'#0c2a51':enemy?'#702a37':'#0f5d62';
+ if(enemy&&o.outForDrive){
+  const fall=1-clamp((o.fallT??0)/.42,0,1),eased=fall*fall*(3-2*fall);
+  c.save();c.translate(p.x+(o.fallSide||1)*s*.32*eased,p.y+s*.16*eased);
+  c.rotate((o.fallSide||1)*.20*eased);
+  c.fillStyle='#05241ec0';c.beginPath();c.ellipse(0,7,s*1.43,s*.48,0,0,Math.PI*2);c.fill();
+  c.globalAlpha=.74+.20*eased;
+  c.fillStyle='#202b40';c.fillRect(-s*1.36,-s*.24,s*.66,s*.34);c.fillRect(-s*1.30,s*.15,s*.63,s*.30);
+  c.fillStyle='#a13f40';c.beginPath();c.ellipse(-s*.04,-s*.05,s*.95,s*.50,0,0,Math.PI*2);c.fill();
+  c.strokeStyle='#e5a694';c.lineWidth=Math.max(1.5,s*.15);c.stroke();
+  c.fillStyle='#bb4f48';c.beginPath();c.ellipse(s*.98,-s*.04,s*.44,s*.42,0,0,Math.PI*2);c.fill();
+  c.strokeStyle='#f5d5c8';c.lineWidth=Math.max(1.2,s*.13);c.beginPath();c.moveTo(s*.90,-s*.26);c.lineTo(s*1.17,-s*.26);c.stroke();
+  c.restore();
+  if(eased>.72&&game&&dist(o,game.player)>7&&dist(o,game.player)<16){
+   c.save();c.globalAlpha=.9;c.font='900 9px Arial,sans-serif';c.textAlign='center';
+   c.fillStyle='#0e2730e6';c.fillRect(p.x-20,p.y-s*1.9,40,13);
+   c.fillStyle='#d3e5e4';c.fillText('DOWN',p.x,p.y-s*1.9+10);c.restore();
+  }
+  return;
+ }const speed=Math.hypot(o.vx||0,o.vy||0);const offset=typeof o.id==='string'?o.id.length*.31:(o.home||0)*.7;const phase=Math.sin(this.motionClock*16.2+offset);const limb=o.outForDrive||(runner&&game?.tackleVisualT>0)?0:s*.22*clamp(speed/8,0,1)*phase;const idle=enemy&&o.ready===false?Math.sin(this.motionClock*2.7+offset)*s*.025:0;const rotate=runner?clamp((o.vx||0)/28,-.40,.40):clamp((o.vx||0)/30,-.32,.32);
+ // Ghost presentation is purely visual. The feet remain anchored to the same world position.
+ const reveal=enemy?clamp(o.appearance??1,0,1):1;
+ const smooth=reveal*reveal*(3-2*reveal);
+ const size=enemy?.76+.24*smooth:1;
+ const opacity=enemy?.20+.67*smooth:1;
+ c.save();c.translate(p.x,p.y+idle);c.globalAlpha*=opacity;c.scale(size,size);c.fillStyle='#001b1780';c.beginPath();c.ellipse(0,6,s*.90,s*.37,0,0,2*Math.PI);c.fill();c.rotate(rotate);
+ if(enemy&&!o.outForDrive&&reveal>.90&&o.ready&&o.role&&o.windup<=0&&o.charge<=0){const role=o.reserve?'R':o.role==='safety'?'S':o.role.startsWith('contain')?'C':'P';c.fillStyle=o.role==='safety'?'#83ceea':o.role.startsWith('contain')?'#f6d28c':'#eeb7aa';c.font=`900 ${Math.max(9,s*.70)}px Impact,Arial,sans-serif`;c.textAlign='center';c.fillText(role,0,-s*2.2)}
+ // All contact poses are purely visual: actor coordinates/collision sizes never change.
+ // When a move wins, the opponent rolls fully onto the turf and stays there.
+ if(enemy&&down){
+  const dive=clamp((1.25-o.down)/.22,0,1)*clamp(o.down/.38,0,1);
+  c.rotate((Math.sign(o.vx||o.fallSide||1))*.93*dive);
+  c.scale(1+.09*dive,1-.48*dive);c.globalAlpha*=1-.12*dive;
+ // The defender visibly absorbs a blocker hit before recovering from stun.
+ }else if(enemy&&stunned){
+  const reaction=clamp((o.blockHitT||0)/.42,0,1);
+  c.rotate((Math.sign(o.vx||1))*.25*reaction);
+  c.translate(s*.22*reaction,0);
+ }else if(runner&&game?.tackleVisualT>0){
+  const fall=1-clamp(game.tackleVisualT/.58,0,1),eased=fall*fall*(3-2*fall);
+  c.translate((game.tackleVisualSide||1)*s*.34*eased,s*.22*eased);
+  c.rotate((game.tackleVisualSide||1)*1.16*eased);c.scale(1+.08*eased,1-.54*eased);
+ }else if(!runner&&!enemy&&o.contactT>0){
+  const impact=clamp(o.contactT/.34,0,1);
+  c.rotate((Math.sign(o.home||1))*.19*impact);
+  c.scale(1+.08*impact,1-.11*impact);
+ }else if(enemy&&o.windup>0){
+  c.scale(1+.08*(o.windup/.32),1-.13*(o.windup/.32));
+ }else if(enemy&&o.charge>0){
+  c.rotate(clamp((o.vx||0)/18,-.24,.24));
+ }
+ if(runner&&o.air>0){c.translate(0,-s*.5*Math.sin((.53-o.air)/.53*Math.PI))}if(runner&&o.plant>0){c.rotate(-o.cutDir*.18);c.translate(-o.cutDir*s*.10,0)}
+ // Cleats, legs, torso, exaggerated shoulder pads and helmet are drawn as separate articulated masses.
+ c.fillStyle='#122b4d';c.fillRect(-s*.57,-s*.13+limb,s*.35,s*.80);c.fillRect(s*.20,-s*.13-limb,s*.35,s*.80);
+ c.fillStyle=enemy?'#151f34':runner?'#f2f0d4':'#dde9eb';c.fillRect(-s*.66,s*.56+limb,s*.48,s*.24);c.fillRect(s*.21,s*.56-limb,s*.48,s*.24);
+ c.fillStyle=trim;c.beginPath();c.ellipse(0,-s*.35,s*.9,s*.72,0,0,Math.PI*2);c.fill();c.strokeStyle='#081a29';c.lineWidth=1.7;c.stroke();
+ c.fillStyle=enemy&&reveal<1?'#8cb5c0':shirt;c.beginPath();c.ellipse(0,-s*.45,s*.67,s*.62,0,0,Math.PI*2);c.fill();
+ c.fillStyle=enemy&&reveal<1?'#8cb5c0':shirt;c.beginPath();c.ellipse(-s*.77,-s*.56,s*.34,s*.37,-.25,0,Math.PI*2);c.ellipse(s*.77,-s*.56,s*.34,s*.37,.25,0,Math.PI*2);c.fill();
+ c.fillStyle=trim;c.font=`900 ${Math.max(8,s*.68)}px Impact,Arial,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(runner?'07':enemy?'54':'62',0,-s*.42);
+ // Arms; stiff-arm extends toward defense, spin swings both outward.
+ c.strokeStyle=runner?'#dec29c':enemy?'#ae7764':'#bfa592';c.lineCap='round';c.lineWidth=s*.3;c.beginPath();const reach=runner&&o.stiff>0?-s*1.7:-s*.5;const swing=runner&&o.spin>0?s*.8:0;c.moveTo(-s*.79,-s*.53);c.lineTo(-s*(1.09+swing/s),-s*.02);c.moveTo(s*.79,-s*.53);c.lineTo(s*1.07,reach);c.stroke();
+ // Football carried under left arm, original two-color ball stitching.
+ if(runner){c.fillStyle='#8c4b2e';c.beginPath();c.ellipse(-s*1.13,-s*.03,s*.39,s*.20,-.55,0,Math.PI*2);c.fill();c.strokeStyle='#f3dfca';c.lineWidth=1.2;c.beginPath();c.moveTo(-s*1.2,-s*.14);c.lineTo(-s*1.02,s*.07);c.stroke()}
+ c.fillStyle=runner?'#e9b85c':enemy?(reveal<1?'#8ebecb':'#a73536'):'#f2f6f4';c.beginPath();c.ellipse(0,-s*1.02,s*.56,s*.48,0,0,Math.PI*2);c.fill();c.strokeStyle='#102b44';c.lineWidth=2;c.stroke();c.strokeStyle=runner?'#f7f1c8':'#e4ebf4';c.lineWidth=2;c.beginPath();c.moveTo(-s*.3,-s*1.20);c.lineTo(s*.30,-s*1.20);c.stroke();c.fillStyle='#0f263a';c.fillRect(-s*.27,-s*.87,s*.54,s*.12);
+ c.restore()}
+}
+
+// A short, isolated gameplay-first experiment. No user accounts, analytics, networks, or old-save writes.
+(()=>{
+const $=id=>document.getElementById(id);const canvas=$('field');const game=new FootballGame(0xBEEFC0DE);const renderer=new FieldRenderer(canvas);
+// Separate read-only attract-mode simulation: real in-game defenders and physics,
+// never mutates the user's match, clock, best score, preferences or inputs.
+const attractCanvas=$('attractField');
+const attractGame=new FootballGame(0xACE0FEED);attractGame.start();
+const attractRenderer=new FieldRenderer(attractCanvas);
+let attractAccumulator=0,attractDrawClock=0,attractTick=0,attractResetCount=0;
+function drawAttract(elapsed){
+ if(document.hidden||$('menu').classList.contains('hidden')||!$('help').classList.contains('hidden'))return;
+ // Honor both the OS preference and the user's reduced-effects switch.
+ if(reducedEffects){if(attractDrawClock!==-1){attractRenderer.draw(attractGame,0);attractDrawClock=-1}return}
+ if(attractDrawClock<0)attractDrawClock=0;
+ const dt=Math.min(Math.max(0,elapsed),.07);attractAccumulator=Math.min(.1,attractAccumulator+dt);
+ let updates=0;
+ while(attractAccumulator>=CONFIG.step&&updates<5){
+  if(attractGame.phase==='over'){
+   attractGame.seed=(0xACE0FEED+(++attractResetCount)*7919)>>>0;
+   attractGame.rng=new Random(attractGame.seed);
+   attractGame.start();
+  }
+  const p=attractGame.player;
+  const threat=attractGame.defenders.filter(d=>!d.outForDrive&&d.ready!==false&&!d.reserve&&d.y>p.y-4&&d.y<p.y+15&&Math.abs(d.x-p.x)<12).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
+  let lateral=Math.sin(attractTick*.025)*.55;
+  if(threat){lateral=Math.sign(p.x-threat.x||Math.sin(attractTick*.12))*.8;if(Math.abs(p.x)>16)lateral=-Math.sign(p.x)*.85}
+  if(Math.abs(p.x)>20)lateral=-Math.sign(p.x);
+  const input={x:lateral,y:1,sprint:p.stamina>.34&&attractTick%170<105};
+  if(attractTick%92===0&&threat&&Math.abs(threat.y-p.y)<9)attractGame.trigger('juke');
+  attractGame.step(CONFIG.step,input);attractTick++;attractAccumulator-=CONFIG.step;updates++;
+ }
+ attractDrawClock+=dt;
+ if(attractDrawClock>=1/25){attractRenderer.draw(attractGame,Math.min(attractDrawClock,.06));attractDrawClock=0}
+}
+const keys=new Set();const joy={x:0,y:0};let joyPointer=null,sprintHeld=false;let paused=false,acc=0,last=performance.now(),uiTimer=0,lastEvent=0,toastUntil=0;let lastGamepad=[],trackedPad=null,controllerEngaged=false,padNeedsNeutral=false;let audio=null,soundEnabled=true,highVisibility=false,reducedEffects=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;let best=0;const perfMetrics={frames:0,steps:0,slowFrames:0,clampedFrames:0,maxFrameMs:0,maxSteps:0,hudUpdates:0,drawMsTotal:0,draws:0};const ownSaveKey='breakaway_field_test_v0',soundKey='breakaway_sfx_v1',visibilityKey='breakaway_visibility_rc1',effectsKey='breakaway_effects_rc1';try{soundEnabled=localStorage.getItem(soundKey)!=='off';highVisibility=localStorage.getItem(visibilityKey)==='on';const storedEffects=localStorage.getItem(effectsKey);if(storedEffects!==null)reducedEffects=storedEffects==='on'}catch{}
+try{const n=Number(JSON.parse(localStorage.getItem(ownSaveKey)||'{}').best);if(Number.isFinite(n))best=clamp(n,0,999999)}catch{}
+const hide=id=>{$(id).classList.add('hidden');syncAccessibilityLayers()};const show=id=>{$(id).classList.remove('hidden');syncAccessibilityLayers()};
+function syncAccessibilityLayers(){const active=['help','paused','result','menu'].find(id=>!$(id).classList.contains('hidden'));for(const el of $('game').children){if(el.dataset.baseAriaHidden===undefined)el.dataset.baseAriaHidden=el.getAttribute('aria-hidden')??'__absent__';const blocked=!!active&&el.id!==active;el.inert=blocked;if(blocked)el.setAttribute('aria-hidden','true');else if(el.dataset.baseAriaHidden==='__absent__')el.removeAttribute('aria-hidden');else el.setAttribute('aria-hidden',el.dataset.baseAriaHidden)}}
+const setText=(id,t)=>{if($(id).textContent!==String(t))$(id).textContent=String(t)};
+function syncSound(){const b=$('soundBtn');b.setAttribute('aria-pressed',String(soundEnabled));setText('soundBtn','SOUND EFFECTS: '+(soundEnabled?'ON':'OFF'))}
+function syncPreferences(){document.documentElement.classList.toggle('high-visibility',highVisibility);document.documentElement.classList.toggle('reduced-effects',reducedEffects);renderer.reducedMotion=reducedEffects;attractRenderer.reducedMotion=reducedEffects;attractDrawClock=0;for(const [id,enabled,title] of [['visibilityBtn',highVisibility,'HIGH VISIBILITY'],['motionBtn',reducedEffects,'REDUCED EFFECTS'],['helpVisibilityBtn',highVisibility,'HIGH VISIBILITY'],['helpMotionBtn',reducedEffects,'REDUCED EFFECTS']]){$(id).setAttribute('aria-pressed',String(enabled));setText(id,title+': '+(enabled?'ON':'OFF'))}}
+function toggleVisibility(){highVisibility=!highVisibility;try{localStorage.setItem(visibilityKey,highVisibility?'on':'off')}catch{}syncPreferences()}
+function toggleEffects(){reducedEffects=!reducedEffects;try{localStorage.setItem(effectsKey,reducedEffects?'on':'off')}catch{}syncPreferences()}
+function toggleSound(){soundEnabled=!soundEnabled;try{localStorage.setItem(soundKey,soundEnabled?'on':'off')}catch{}syncSound();if(soundEnabled)createSound()}
+function createSound(){if(!soundEnabled)return null;try{audio??=new (window.AudioContext||window.webkitAudioContext)()}catch{return null}if(audio.state==='suspended')audio.resume().catch(()=>{});return audio}
+function tone(freq=180,length=.09,type='triangle',volume=.055){if(!soundEnabled||!audio||audio.state!=='running'||document.hidden)return;try{const o=audio.createOscillator(),g=audio.createGain(),now=audio.currentTime;o.type=type;o.frequency.setValueAtTime(freq,now);g.gain.setValueAtTime(.0001,now);g.gain.linearRampToValueAtTime(volume,now+.008);g.gain.exponentialRampToValueAtTime(.0001,now+length);o.connect(g);g.connect(audio.destination);o.start(now);o.stop(now+length+.01)}catch{}}
+function gameStart(){createSound();game.start();controllerEngaged=false;padNeedsNeutral=false;trackedPad=activePad()?.index??null;setText('pauseReason','Take a second. The defense can wait.');lastEvent=0;hide('menu');hide('help');hide('result');hide('paused');$('pauseBtn').innerHTML='Ⅱ<span> PAUSE</span>';$('pauseBtn').setAttribute('aria-label','Pause game');keys.clear();joy.x=joy.y=0;joyPointer=null;syncStick();setSprint(false);lastGamepad=padSnapshot(activePad());paused=false;last=performance.now();acc=0;canvas.focus({preventScroll:true});tone(410,.08);setTimeout(()=>{if(game.phase==='playing')tone(530,.1)},120)}
+function openMenu(){game.reset();controllerEngaged=false;trackedPad=activePad()?.index??null;show('menu');hide('result');hide('paused');hide('help');keys.clear();joy.x=joy.y=0;joyPointer=null;syncStick();setSprint(false);lastGamepad=padSnapshot(activePad());padNeedsNeutral=false;lastEvent=0;paused=false;$('playBtn').focus({preventScroll:true})}
+function pause(reason='manual'){if(game.phase!=='playing')return;setText('pauseReason',reason==='controller'?'Controller disconnected. Reconnect it, or use keyboard and touch controls to resume.':reason==='hidden'?'Paused while this tab was inactive. Resume when ready.':'Take a second. The defense can wait.');game.phase='paused';paused=true;show('paused');$('pauseBtn').innerHTML='▶<span> RESUME</span>';$('pauseBtn').setAttribute('aria-label','Resume game');keys.clear();joy.x=joy.y=0;joyPointer=null;setSprint(false);syncStick();$('resumeBtn').focus({preventScroll:true})}
+function resume(){if(game.phase!=='paused'||document.hidden)return;game.phase='playing';paused=false;hide('paused');$('pauseBtn').innerHTML='Ⅱ<span> PAUSE</span>';$('pauseBtn').setAttribute('aria-label','Pause game');canvas.focus({preventScroll:true});last=performance.now();acc=0;uiTimer=0}
+function end(){const score=Math.round(game.score);if(score>best){best=score;try{localStorage.setItem(ownSaveKey,JSON.stringify({best,version:1}))}catch{}}setText('finalScore',String(score).padStart(4,'0'));setText('finalTd',String(game.tds).padStart(2,'0'));setText('finalBreaks',String(game.broken).padStart(2,'0'));setText('finalCuts',String(game.cleanCuts).padStart(2,'0'));setText('best',String(best).padStart(4,'0'));show('result');$('againBtn').focus({preventScroll:true});tone(440,.12);setTimeout(()=>{if(game.phase==='over')tone(290,.21)},140)}
+function action(name){createSound();if(game.trigger(name)){tone(name==='stiff'?110:name==='spin'?270:235,.08);updateHud()}}
+$('playBtn').addEventListener('click',gameStart);$('howBtn').addEventListener('click',()=>{show('help');$('closeHelp').focus({preventScroll:true})});$('closeHelp').addEventListener('click',()=>{hide('help');$('howBtn').focus({preventScroll:true})});$('helpPlay').addEventListener('click',gameStart);$('pauseBtn').addEventListener('click',()=>{if(game.phase==='paused')resume();else pause()});$('resumeBtn').addEventListener('click',resume);$('restartBtn').addEventListener('click',gameStart);$('againBtn').addEventListener('click',gameStart);$('menuBtn').addEventListener('click',openMenu);$('soundBtn').addEventListener('click',toggleSound);$('visibilityBtn').addEventListener('click',toggleVisibility);$('motionBtn').addEventListener('click',toggleEffects);$('helpVisibilityBtn').addEventListener('click',toggleVisibility);$('helpMotionBtn').addEventListener('click',toggleEffects);syncSound();syncPreferences();syncAccessibilityLayers();
+for(const actionName of ['juke','spin','stiff','hurdle'])$(actionName).addEventListener('click',()=>action(actionName));
+const keyActions={KeyJ:'juke',KeyK:'spin',KeyL:'stiff',Space:'hurdle'};window.addEventListener('keydown',e=>{const nativeSpace=e.code==='Space'&&e.target instanceof Element&&!!e.target.closest('button');if(game.phase==='playing'&&/^(Arrow|Space)/.test(e.code)&&!nativeSpace)e.preventDefault();if(!nativeSpace&&!keys.has(e.code)&&keyActions[e.code]&&game.phase==='playing')action(keyActions[e.code]);if(e.code==='KeyM'&&!e.repeat&&!keys.has(e.code)){toggleSound()}if((e.code==='Escape'||e.code==='KeyP')&&!e.repeat&&!keys.has(e.code)){if(game.phase==='playing')pause();else if(game.phase==='paused')resume()}if(e.code==='Escape'&&!$('help').classList.contains('hidden')){$('closeHelp').click();e.preventDefault()}if(e.code==='Enter'&&!$('menu').classList.contains('hidden')&&$('help').classList.contains('hidden')&&e.target===document.body)gameStart();keys.add(e.code)});document.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const active=['help','paused','result'].map(id=>$(id)).find(el=>!el.classList.contains('hidden'));if(!active)return;const focusable=Array.from(active.querySelectorAll('button:not([disabled]),a[href]')).filter(el=>el.getClientRects().length);if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&(document.activeElement===first||!active.contains(document.activeElement))){e.preventDefault();last.focus()}else if(!e.shiftKey&&(document.activeElement===last||!active.contains(document.activeElement))){e.preventDefault();first.focus()}},true);window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();if(game.phase==='playing')pause('hidden')});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){keys.clear();if(game.phase==='playing')pause('hidden');acc=0;last=performance.now()}});
+window.addEventListener('pagehide',()=>{keys.clear();if(game.phase==='playing')pause('hidden');acc=0;last=performance.now()});
+const joystick=$('joystick'),stick=$('stick');let sprintPointer=null;function syncStick(){stick.style.transform=`translate(${joy.x*29}px,${-joy.y*29}px)`}
+function setJoystick(e){const r=joystick.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),l=Math.max(1,Math.hypot(dx,dy)),radius=r.width*.38;joy.x=clamp(dx/radius,-1,1);joy.y=clamp(-dy/radius,-1,1);if(l>radius){joy.x=dx/l;joy.y=-dy/l}syncStick()}
+joystick.addEventListener('pointerdown',e=>{if(joyPointer!==null)return;e.preventDefault();joyPointer=e.pointerId;try{joystick.setPointerCapture(e.pointerId)}catch{}setJoystick(e)});joystick.addEventListener('pointermove',e=>{if(joyPointer===e.pointerId){e.preventDefault();setJoystick(e)}});const releaseJoy=e=>{if(joyPointer!==e.pointerId)return;joyPointer=null;joy.x=joy.y=0;syncStick()};joystick.addEventListener('pointerup',releaseJoy);joystick.addEventListener('pointercancel',releaseJoy);joystick.addEventListener('lostpointercapture',e=>{if(joyPointer!==e.pointerId)return;joyPointer=null;joy.x=joy.y=0;syncStick()});
+const sprint=$('sprintBtn');const setSprint=(v)=>{sprintHeld=v;if(!v)sprintPointer=null;sprint.classList.toggle('pressed',v)};sprint.addEventListener('pointerdown',e=>{if(sprintPointer!==null)return;e.preventDefault();sprintPointer=e.pointerId;try{sprint.setPointerCapture(e.pointerId)}catch{}setSprint(true)});for(const t of ['pointerup','pointercancel'])sprint.addEventListener(t,e=>{if(sprintPointer===e.pointerId)setSprint(false)});sprint.addEventListener('lostpointercapture',e=>{if(sprintPointer===e.pointerId)setSprint(false)});
+// Poll a single connected pad. On switching/reconnection, require neutral input
+// before accepting fresh actions, preventing held A/Start or stick ghost inputs.
+function connectedPads(){try{return Array.from(navigator.getGamepads?.()||[]).filter(g=>g&&g.connected)}catch{return []}}
+function activePad(){
+ const pads=connectedPads();if(!pads.length)return null;
+ const current=pads.find(g=>g.index===trackedPad);
+ if(current&&game.phase==='playing'&&controllerEngaged)return current;
+ const active=g=>padSnapshot(g).some(Boolean)||(g.axes||[]).some(v=>Math.abs(v)>.24);
+ if(current&&active(current))return current;
+ return pads.find(g=>g.index!==trackedPad&&active(g))||current||pads[0];
+}
+const padDown=(pad,i)=>{const b=pad?.buttons?.[i];return !!b&&(!!b.pressed||(Number(b.value)||0)>=(i===7?.25:.5))};
+const padSnapshot=pad=>Array.from({length:Math.max(16,pad?.buttons?.length||0)},(_,i)=>padDown(pad,i));
+function isPadNeutral(pad){return !padSnapshot(pad).some(Boolean)&&!(pad?.axes||[]).some(v=>Math.abs(v)>.18)}
+function trackPad(pad){const index=pad?.index??null;if(index===trackedPad)return false;
+ const wasConnected=trackedPad!==null;trackedPad=index;lastGamepad=padSnapshot(pad);padNeedsNeutral=!!pad;
+ if(wasConnected&&controllerEngaged&&game.phase==='playing')pause('controller');
+ if(pad&&game.phase==='paused'&&$('pauseReason').textContent.startsWith('Controller disconnected'))setText('pauseReason','Controller reconnected. Release buttons, then press A or Start to resume.');
+ return true}
+window.addEventListener('gamepaddisconnected',e=>{if(e.gamepad?.index===trackedPad){trackedPad=null;lastGamepad=[];padNeedsNeutral=false;if(controllerEngaged&&game.phase==='playing')pause('controller')}});
+const padLists={title:['playBtn','howBtn'],help:['closeHelp','helpVisibilityBtn','helpMotionBtn','helpPlay'],paused:['resumeBtn','soundBtn','visibilityBtn','motionBtn','restartBtn'],over:['againBtn','menuBtn']};
+function padMenuMode(){if(!$('help').classList.contains('hidden'))return'help';if(game.phase==='paused')return'paused';if(game.phase==='over')return'over';return'title'}
+function padMenuInput(){
+ if(document.hidden)return;
+ const pad=activePad();if(trackPad(pad)||!pad)return;
+ if(padNeedsNeutral){if(isPadNeutral(pad)){padNeedsNeutral=false;lastGamepad=padSnapshot(pad)}return}
+ const down=padSnapshot(pad),edge=i=>down[i]&&!lastGamepad[i],mode=padMenuMode(),ids=padLists[mode],buttons=ids.map(id=>$(id));
+ if(edge(12)||edge(14)||edge(13)||edge(15)){
+  const step=edge(12)||edge(14)?-1:1;
+  let selected=buttons.indexOf(document.activeElement);if(selected<0)selected=0;
+  buttons[(selected+step+buttons.length)%buttons.length].focus();
+ }
+ if(edge(1)){
+  if(mode==='help')$('closeHelp').click();
+  else if(mode==='paused')resume();
+  else if(mode==='over')openMenu();
+ }else if(edge(9)){
+  if(mode==='paused')resume();
+  else if(mode==='help')$('helpPlay').click();
+  else if(mode==='over')$('againBtn').click();
+  else gameStart();
+ }else if(edge(0)){
+  // A activates the focused menu control; otherwise it chooses the default.
+  const focused=buttons.includes(document.activeElement)?document.activeElement:buttons[0];focused.click();
+ }
+ // Consume held A/Start on the transition into gameplay: no unwanted opening juke.
+ if(game.phase==='playing')controllerEngaged=true;lastGamepad=down;
+}
+function controls(){const x=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0),y=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0);let ax=x||joy.x,ay=y||joy.y,boost=keys.has('ShiftLeft')||keys.has('ShiftRight')||sprintHeld;const pad=activePad();
+if(trackPad(pad)||game.phase!=='playing'||padNeedsNeutral){if(pad&&padNeedsNeutral&&isPadNeutral(pad)){padNeedsNeutral=false;lastGamepad=padSnapshot(pad)}return{x:ax,y:ay,sprint:boost}}
+if(pad){const px=Math.abs(pad.axes?.[0]||0)>.17?pad.axes[0]:0,py=Math.abs(pad.axes?.[1]||0)>.17?-pad.axes[1]:0;
+ const dx=Number(padDown(pad,15))-Number(padDown(pad,14)),dy=Number(padDown(pad,12))-Number(padDown(pad,13));
+ if(Math.hypot(px,py)>.15){ax=px;ay=py}else if(dx||dy){ax=dx;ay=dy}
+ boost=boost||padDown(pad,7);
+ const down=padSnapshot(pad);if(Math.hypot(px,py)>.18||dx||dy||down.some(Boolean))controllerEngaged=true;const actions=['juke','spin','stiff','hurdle'];
+ // Start pauses with the same logic as the keyboard. No accidental juke from Start.
+ if(down[9]&&!lastGamepad[9])pause();
+ if(game.phase==='playing')for(let i=0;i<4;i++)if(down[i]&&!lastGamepad[i])action(actions[i]);
+ lastGamepad=down;
+ }else lastGamepad=[];return{x:ax,y:ay,sprint:boost}}
+function updateHud(){const st=game.status(),clock=Math.ceil(st.clock),mm=Math.floor(clock/60),ss=clock%60;setText('time',`${mm}:${String(ss).padStart(2,'0')}`);setText('score',String(Math.round(st.score)).padStart(4,'0'));setText('td',String(st.tds).padStart(2,'0'));setText('yards',`${Math.floor(st.yd)} / 100 YDS`);setText('playCall',st.pursuitReleased?'END ZONE PURSUIT':st.formation);
+ const danger=game.phase==='playing'&&!st.driveState?game.defenders.filter(d=>!d.outForDrive&&d.ready!==false&&(d.appearance??1)>=1&&(d.windup>0||d.charge>0)&&Math.hypot(d.x-game.player.x,d.y-game.player.y)<10).sort((a,b)=>Math.hypot(a.x-game.player.x,a.y-game.player.y)-Math.hypot(b.x-game.player.x,b.y-game.player.y))[0]:null;
+ const info=$('infoBar');info.classList.toggle('threat',!!danger);info.classList.toggle('drive-done',!!st.driveState);
+ const hint=danger?(danger.charge>0?'DIVE COMMITTED — CHANGE COURSE':'TACKLE WINDUP — JUKE OR SPIN'):st.pursuitReleased?'RESERVE DEFENDERS CHARGING FROM THE FAR END ZONE':st.pursuitWarning?'PICK UP THE PACE — END ZONE PURSUIT COMING':st.defensiveRead!=='mixed'?'DEFENSE REMEMBERS '+st.defensiveRead.toUpperCase()+' RUNS — MIX IT UP':game.formation.cue;
+ setText('coachText',st.driveState?(st.driveState==='TACKLED'?'TACKLED — NEXT POSSESSION':'TOUCHDOWN — NEXT POSSESSION'):hint);
+ const callout=$('driveCallout');callout.classList.toggle('hidden',!st.driveState);callout.classList.toggle('tackled',st.driveState==='TACKLED');
+ if(st.driveState){setText('driveTitle',st.driveState==='TACKLED'?'TACKLED':'TOUCHDOWN!');setText('driveSub',st.driveState==='TACKLED'?'RESET AND FIND ANOTHER LANE':'+600 POINTS · +2 SECONDS');}
+ $('energyFill').style.width=(st.stamina*100).toFixed(1)+'%';$('energyFill').parentElement.setAttribute('aria-valuenow',String(Math.round(st.stamina*100)));for(const name of ['juke','spin','stiff','hurdle']){const cool=game.player.cool[name],btn=$(name);btn.disabled=cool>.01||game.phase!=='playing'||!!game.driveState;setText(name+'Cd',cool>.05?cool.toFixed(1)+'S':'READY')}}
+function feedback(){const recent=game.events.filter(e=>e.seq>lastEvent);if(recent.length){lastEvent=recent[recent.length-1].seq;const priority={FINAL:9,TOUCHDOWN:8,TACKLED:7,PURSUIT:6,HURRY:5,BREAK:4,CUT:4,KICKOFF:2,READ:1};const candidate=recent.filter(e=>priority[e.type]).sort((a,b)=>priority[b.type]-priority[a.type]||b.seq-a.seq)[0];if(candidate){if(['TOUCHDOWN','TACKLED','PURSUIT','HURRY','FINAL','BREAK'].includes(candidate.type))setText('liveState',candidate.message);setText('message',candidate.message);$('message').classList.add('visible');toastUntil=performance.now()+(candidate.type==='DIVE'?750:candidate.type==='READ'?1350:1700);if(candidate.type==='TOUCHDOWN')tone(630,.18);else if(candidate.type==='BREAK'||candidate.type==='CUT')tone(candidate.type==='CUT'?480:330,.09);else if(candidate.type==='TACKLED')tone(85,.15)}}if(performance.now()>toastUntil)$('message').classList.remove('visible')}
+// Fixed physics step at 60 Hz; cap catch-up so long stalls do not fast-forward gameplay.
+function advanceSimulation(elapsed,input){const d=Math.min(.08,Math.max(0,Number.isFinite(elapsed)?elapsed:0));
+ if(elapsed>.08)perfMetrics.clampedFrames++;
+ acc=Math.min(acc+d,CONFIG.step*5);let n=0;
+ while(acc+1e-9>=CONFIG.step&&n<5&&game.phase==='playing'){game.step(CONFIG.step,input);acc=Math.max(0,acc-CONFIG.step);n++}
+ perfMetrics.steps+=n;perfMetrics.maxSteps=Math.max(perfMetrics.maxSteps,n);return n}
+let lastPhase=game.phase;function frame(t){const elapsed=Math.max(0,(t-last)/1000);last=t;
+ perfMetrics.frames++;perfMetrics.maxFrameMs=Math.max(perfMetrics.maxFrameMs,elapsed*1000);if(elapsed>1/30+.005)perfMetrics.slowFrames++;
+ const d=Math.min(.08,elapsed);if(game.phase==='playing'&&!document.hidden){const input=controls();if(game.phase==='playing')advanceSimulation(elapsed,input);else acc=0}
+ else {acc=0;padMenuInput()}
+ const drawStart=performance.now();if(game.phase==='title'&&!$('menu').classList.contains('hidden'))drawAttract(elapsed);else renderer.draw(game,d);perfMetrics.drawMsTotal+=performance.now()-drawStart;perfMetrics.draws++;
+ uiTimer+=d;if(uiTimer>=.1){updateHud();feedback();uiTimer=uiTimer%.1;perfMetrics.hudUpdates++}
+ if(game.phase==='over'&&lastPhase!=='over')end();lastPhase=game.phase;requestAnimationFrame(frame)}
+window.addEventListener('resize',()=>{renderer.resize();attractRenderer.resize()});if('ResizeObserver'in window)new ResizeObserver(()=>renderer.resize()).observe(canvas);if('ResizeObserver'in window)new ResizeObserver(()=>attractRenderer.resize()).observe(attractCanvas);updateHud();attractRenderer.draw(attractGame,0);requestAnimationFrame(frame);
+// Read-only diagnostics for test harness. This prototype never reads/writes old Gridiron keys.
+window.__BREAKAWAY_TEST__={game,renderer,gameStart,action,controls,updateHud,pause,resume,openMenu,advanceSimulation,perfMetrics,get soundEnabled(){return soundEnabled},get controllerEngaged(){return controllerEngaged},get trackedPad(){return trackedPad},get padNeedsNeutral(){return padNeedsNeutral},get highVisibility(){return highVisibility},get reducedEffects(){return reducedEffects},syncAccessibilityLayers,attractGame,attractRenderer,get attractTick(){return attractTick}};
+})();
+</script></body></html>

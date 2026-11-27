@@ -1,5 +1,43 @@
 # Update the existing Turn In service
 
+## v18 current PIN sign-in
+
+Every PIN sign-in reads the current credential roster instead of accepting a
+ten-minute cached copy. A corrected PIN works on the next sign-in, and an old
+PIN or inactive membership is refused immediately. Membership and token checks
+reuse that fresh read within the same request and refresh the cache used by
+later saves, so the corrected credential's new session can save immediately.
+Autosave continues using the roster cache and the existing write locks.
+Account-session credential checks and expiry rules stay in place.
+
+The shared website prompt tells students to use the PIN that currently works
+for Daily Check-In or Hall Pass, and warns that an older PIN email can be out of
+date. This prompt is compatible with the existing deployed service.
+
+Deploy v18 through the existing production release workflow after its current
+approval and draft-preservation checks pass. Verify the stable `/exec` reports
+`2026-11-20-turn-in-v18`. No setup, workbook migration, PIN reset, or directory
+switch is required. A website release does not deploy this server change.
+
+For a directory connection, use the Hall Pass teacher preview, which refuses a
+connection with unmatched active memberships. Do not insert a directory setting
+directly to work around a student's rejection; that bypasses the coverage check
+and can remove other students' current sign-in credentials.
+
+## v15 classroom traffic recovery
+
+Sign-in, save and Turn In reuse the roster within a single request. The existing roster cache, PIN rules and write lock stay in place across requests. Slow requests (10 seconds or longer) write a `turn_in_slow_request` event in private execution logs with the action, total time, roster time, draft lookup time and lock wait. The event contains no student data. Use it to distinguish roster reads and write-lock contention from delay elsewhere in a request.
+
+The website update works with the existing Apps Script deployment. It staggers automatic saves, preserves the retry delay while students continue typing, and lets a slow sign-in finish within one 30-second request before the student retries.
+
+Release v15 through the guarded Turn In workflow, using the existing deployment. No sheet migration or setup is required. Confirm `2026-11-19-turn-in-v15` and `checkedWritesRequired: true` on the existing `/exec`. Run the private dependency check and verify the synthetic classroom write count before claiming server rollout.
+
+## v14 assignment sign-in diagnostics
+
+This release pairs the shared `desk-save.js` client with Turn In v14 on the existing deployment. The student keeps the existing sign-in message and can report a support code. In the private Apps Script Executions dashboard, open the `doPost` execution near the reported time and match its `turn_in_signin_failed` log entry by support code. The log supplies the assignment, version, stage, and reason without logging PINs, names, emails, answers, or raw exception text. Browser-only codes identify a timeout, network failure, unexpected response, or local loading failure. With an earlier Turn In deployment, the new website shows category codes such as `TI-PIN` and `TI-SETUP`. Request-level log correlation requires v14.
+
+From the Apps Script editor, run `checkTurnInSignInHealth` after deployment to verify that the roster, configured directory, and assignment workbook can be read. This check bypasses the roster cache and makes no spreadsheet changes. Check the existing `/exec` reports `2026-11-19-turn-in-v14` and `checkedWritesRequired: true`, then send one known unassigned synthetic PIN through a live assignment. Verify the student sees a support code and match it to the private log. Use synthetic fixtures for positive sign-in regression. No workbook migration or setup is required.
+
 The v12 release (Oct 29 2026) stores a bounded cursor bookmark separately from answers and permits Turn In using the existing signed account session after refresh. Cursor-only updates preserve finished status, checked revisions and retry idempotency. No sheet migration or setup is needed. Deploy through the existing guarded workflow, preserving the workbook, stable endpoint and access settings.
 
 The v11 release (Oct 29 2026) makes draft lookups read only the email and hub columns, so a save no longer holds the lock while reading every saved answer; lets a tab keep saving after its own save landed late; and always records a Turn In press, keeping a newer account version as current progress. Deploy with the Deploy Turn In Apps Script workflow.

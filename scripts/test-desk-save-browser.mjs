@@ -78,14 +78,19 @@ async function chromebook(server, options = {}) {
   // driving the tab-only and optional sign in paths that still exist behind it.
   const hooks = { endpoint: options.endpoint === false ? '' : ENDPOINT, debounceMs: 300, snapshotMs: 300, gate: false, ...(options.hooks || {}) };
   await context.addInitScript((h) => { window.__deskSaveTest = h; }, hooks);
-  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0 };
+  const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0, legacySignIn: false, signInGate: null };
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url());
     if (url.origin === new URL(BASE).origin) return route.continue();
     if (url.hostname === 'turnin.test') {
       if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors() });
       const body = route.request().postData() || '{}';
-      net.calls.push(JSON.parse(body).action);
+      const { action } = JSON.parse(body);
+      net.calls.push(action);
+      if (action === 'signin' && net.signInGate) {
+        await net.signInGate;
+        return;
+      }
       if (net.delayMs) await new Promise((r) => setTimeout(r, Math.random() * net.delayMs));
       if (net.down) return route.abort('internetdisconnected');
       if (net.flaky && Math.random() < net.flaky) {
@@ -94,6 +99,7 @@ async function chromebook(server, options = {}) {
         return route.abort('connectionreset');
       }
       const out = server.post(body);
+      if (net.legacySignIn && JSON.parse(body).action === 'signin') delete out.supportId;
       return route.fulfill({ status: 200, headers: { ...cors(), 'content-type': 'application/json' }, body: JSON.stringify(out) });
     }
     return route.abort('blockedbyclient');
@@ -541,6 +547,65 @@ async function passGate(page, pin, { confirm = true } = {}) {
   }
 }
 
+await test('editing through a save outage respects backoff and saves only the newest draft on recovery', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  try {
+    const page = await cb.context.newPage();
+    await page.clock.install();
+    await openHub(cb.context, 'bts-the-bargain.html', page);
+    await passGate(page, s.pin(PEOPLE.ada));
+    const box = page.locator('#q1');
+    const saves = () => cb.net.calls.filter(action => action === 'save').length;
+    cb.net.down = true;
+    await box.fill('First attempt during the outage');
+    await page.clock.runFor(1000);
+    await waitFor(() => saves() === 1);
+    await waitFor(async () => /retrying/.test(await chip(page).locator('.chip').textContent()));
+
+    await box.fill('Latest edit during the outage');
+    await page.clock.runFor(2000);
+    assert.equal(saves(), 1, 'typing cannot override the outstanding retry delay');
+    assert.equal(await box.inputValue(), 'Latest edit during the outage');
+
+    cb.net.down = false;
+    await page.clock.fastForward(22000);
+    await waitFor(() => s.rows('Progress').some(row => /Latest edit during the outage/.test(row.Answers)));
+    assert.equal(saves(), 2, 'only one retry sends the latest work');
+    assert.equal(s.rows('Drafts').length, 1);
+  } finally {
+    await cb.context.close();
+  }
+});
+
+await test('a slow sign-in has one request and can be tried again after its timeout', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  let release;
+  cb.net.signInGate = new Promise(resolve => { release = resolve; });
+  try {
+    const page = await cb.context.newPage();
+    await page.clock.install();
+    await openHub(cb.context, 'bts-the-bargain.html', page);
+    const pin = s.pin(PEOPLE.ada);
+    await gate(page).locator('input[type="password"]').fill(pin);
+    await gate(page).getByRole('button', { name: 'Start', exact: true }).click();
+    await waitFor(() => cb.net.calls.includes('signin'));
+    await page.clock.runFor(35000);
+    await waitFor(async () => /TI-TIMEOUT/.test(await gate(page).locator('.status').textContent()));
+    assert.deepEqual(cb.net.calls, ['signin'], 'one click must not start another execution after an abort');
+    assert.equal(await gateOpen(page), true);
+
+    cb.net.signInGate = null;
+    await passGate(page, pin);
+    assert.equal(await gateOpen(page), false);
+    assert.deepEqual(cb.net.calls, ['signin', 'signin']);
+  } finally {
+    release();
+    await cb.context.close();
+  }
+});
+
 await test('Roswell Signal keeps practice tab-local and saves all seven report answers to the verified account', async () => {
   const s = world();
   const school = await chromebook(s, { hooks: { gate: true } });
@@ -748,6 +813,148 @@ await test('every catalogue assignment uses the PIN gate, compact controls, auto
   assert.deepEqual(problems, []);
 });
 
+await test('BS High restores complete investigations and clears shared-device work', async () => {
+  const s = world();
+  const school = await chromebook(s, { hooks: { gate: true } });
+  const home = await chromebook(s, { hooks: { gate: true } });
+  const hub = 'bts-bs-high-student.html';
+  const legacy = 'bts_bs_high_review_board_v1';
+  const legacyHub = 'bs-high-system-behind-the-score';
+  try {
+    await school.context.addInitScript(key => localStorage.setItem(key, 'unowned test draft'), legacy);
+    const page = await school.open(hub);
+    const next = page.locator('#nextBtn');
+    await passGate(page, s.pin(PEOPLE.ada));
+    assert.equal(await page.evaluate(key => localStorage.getItem(key), legacy), null);
+    await page.locator('#studentName').fill('Synthetic Review');
+    await page.locator('#studentHour').fill('1');
+    await next.click();
+    assert.equal(await page.locator('#app').evaluate(el => document.activeElement === el), true);
+    const choice = page.locator('[data-score-choice="proves"]').first();
+    await choice.press('Enter');
+    assert.equal(await choice.getAttribute('aria-pressed'), 'true');
+    assert.equal(await choice.evaluate(el => document.activeElement === el), true);
+    await page.locator('#scoreTakeaway').fill('A score establishes the result.');
+    await next.click();
+    await page.locator('[data-thread-choice]').first().click();
+    await page.locator('#threadReason').fill('Check which institutions verified the school record.');
+    await next.click();
+    await page.locator('[data-audit-choice]').first().click();
+    await next.click();
+    for (const item of ['demand','claim','gap','gate','amp','scrutiny']) {
+      await page.locator('[data-chain="' + item + '"]').press('Enter');
+    }
+    await page.locator('[data-mech-answer="choices"]').click();
+    await next.click();
+    await page.locator('[data-alloc]').first().press('ArrowRight');
+    await page.locator('#allocEvidence').selectOption('schedule');
+    await page.locator('#allocThread').selectOption({ index: 1 });
+    await page.locator('#allocReason').fill('Verification could have changed the schedule.');
+    await next.click();
+    await page.locator('[data-safe]').first().click();
+    await page.locator('#safeReason').fill('Verify player safety before approving the matchup.');
+    await next.click();
+    await page.locator('[data-position="both"]').click();
+    await page.locator('#finalEvidence1').selectOption('finding');
+    await page.locator('#finalEvidence2').selectOption('film');
+    for (const id of ['finalClaim','finalReason1','finalReason2','finalLimit','finalPrevent']) {
+      await page.locator('#' + id).fill('Synthetic written response for ' + id);
+    }
+    await page.locator('#checkArgument').click();
+    await next.click();
+    await page.locator('#finalClaimText').getByText('Synthetic written response for finalClaim').waitFor();
+    assert.ok(await page.evaluate(() => window.__deskSave.saveCloud()), 'confirmed account save');
+    const captured = await page.locator('#case-choices').inputValue();
+    assert.ok(!captured.includes('Synthetic'), 'choices record excludes identifying and written work');
+    const decisions = JSON.parse(captured);
+    assert.equal(decisions.s1.answers.result, 'proves');
+    assert.equal(decisions.s5.evidence, 'schedule');
+    assert.equal(decisions.s7.evidence2, 'film');
+    assert.equal(decisions.step, 8);
+    const generated = await page.evaluate(() => window.__deskSave.timeline().fields['id:case-choices']);
+    assert.equal(generated.typed, 0);
+    assert.equal(generated.pasted, 0);
+    assert.deepEqual(generated.ops.map(op => [op[3], op[4]]), [[captured, 'i']], 'generated choices are starting text, not student writing');
+
+    const resumed = await home.open(hub);
+    await passGate(resumed, s.pin(PEOPLE.ada));
+    await resumed.locator('#finalClaimText').getByText('Synthetic written response for finalClaim').waitFor();
+    assert.equal(await resumed.locator('#case-choices').inputValue(), captured);
+    for (const [id, value] of Object.entries({
+      studentName: 'Synthetic Review',
+      scoreTakeaway: 'A score establishes the result.',
+      threadReason: 'Check which institutions verified the school record.',
+      allocReason: 'Verification could have changed the schedule.',
+      safeReason: 'Verify player safety before approving the matchup.',
+      finalPrevent: 'Synthetic written response for finalPrevent',
+    })) {
+      assert.equal(await resumed.locator('#' + id).inputValue(), value, id);
+    }
+    await resumed.reload({ waitUntil: 'load' });
+    await resumed.locator('#finalClaimText').getByText('Synthetic written response for finalClaim').waitFor();
+    const turn = panel(resumed).getByRole('button', { name: 'Turn In', exact: true });
+    await turn.click();
+    await waitFor(() => s.rows('Turn Ins').length === 1);
+    const submission = s.rows('Turn Ins')[0].Answers;
+    for (const text of ['A score establishes the result.', 'Synthetic written response for finalPrevent', '"evidence2":"film"']) {
+      assert.ok(submission.includes(text), 'complete submission contains ' + text);
+    }
+    const writing = s.rows('Writing Timeline')[0];
+    assert.ok(writing, 'Turn In records the teacher writing summary');
+    assert.ok(!writing.Flags.includes('Case investigation choices'), 'generated choices do not create a writing flag');
+
+    for (const width of [320, 390, 1440]) {
+      await resumed.setViewportSize({ width, height: 900 });
+      assert.equal(await resumed.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, width + 'px viewport');
+      const result = await new AxeBuilder({ page: resumed }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      const failures = result.violations.map(v => [v.id, v.nodes.map(n => n.target)]);
+      assert.equal(failures.length, 0, JSON.stringify({ width, failures }));
+    }
+    await resumed.evaluate(() => {
+      const roots = [...document.querySelectorAll('[id^="desk-save"]')].map(el => el.shadowRoot).filter(Boolean);
+      roots.flatMap(root => [...root.querySelectorAll('button')])
+        .find(button => button.textContent.trim() === 'Not you? Sign out').click();
+    });
+    await resumed.waitForFunction(() => window.__deskSave.gate());
+    await passGate(resumed, s.pin(PEOPLE.grace));
+    assert.equal(await resumed.locator('#studentName').inputValue(), '');
+    assert.equal(await resumed.locator('#scoreTakeaway').inputValue(), '');
+    assert.equal(await resumed.locator('#finalClaim').inputValue(), '');
+    assert.equal(await resumed.locator('#case-choices').inputValue(), '');
+    assert.ok(await resumed.locator('#studentName').isVisible());
+    await resumed.setViewportSize({ width: 320, height: 900 });
+    for (let step = 0; step < 8; step++) {
+      const widthFits = await resumed.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+      assert.ok(widthFits, 'viewport fits on screen ' + step);
+      const result = await new AxeBuilder({ page: resumed }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      const failures = result.violations.map(v => [v.id, v.nodes.map(n => n.target)]);
+      assert.equal(failures.length, 0, JSON.stringify({ step, failures }));
+      await resumed.locator('#nextBtn').click();
+      if (step === 0) {
+        await resumed.locator('#backBtn').click();
+        assert.ok(await resumed.locator('#studentName').isVisible());
+        await resumed.locator('#nextBtn').click();
+      }
+    }
+
+    const legacyAccount = s.post({ action: 'signin', pin: s.pin(PEOPLE.katherine), hub: legacyHub, device: 'old-browser' });
+    assert.ok(legacyAccount.ok);
+    assert.ok(s.post({
+      action: 'save',
+      token: legacyAccount.token,
+      hub: legacyHub,
+      answers: [{ k: 'id:scoreTakeaway', q: 'One-sentence takeaway', a: 'Old account draft recovered.' }],
+    }).ok);
+    const legacyPage = await home.open(hub);
+    await passGate(legacyPage, s.pin(PEOPLE.katherine));
+    await legacyPage.locator('#nextBtn').click();
+    assert.equal(await legacyPage.locator('#scoreTakeaway').inputValue(), 'Old account draft recovered.');
+  } finally {
+    await school.context.close();
+    await home.context.close();
+  }
+});
+
 await test('the gate covers an answer page until a PIN is entered, confirms the name, then saves from the first answer', async () => {
   const s = world();
   const cb = await chromebook(s, { hooks: { gate: true } });
@@ -756,12 +963,27 @@ await test('the gate covers an answer page until a PIN is entered, confirms the 
   assert.equal(await page.evaluate(() => Boolean(document.querySelector('#q1').closest('[inert]'))), true, 'answer boxes cannot be reached behind the gate');
   assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), 'hidden');
   assert.deepEqual(cb.net.calls, [], 'nothing is sent before a PIN');
+  const pinHelp = await gate(page).locator('#ds-gate-help').textContent();
+  assert.match(pinHelp, /PIN that works for Daily Check-In or Hall Pass now/);
+  assert.match(pinHelp, /Older PIN emails may be out of date/);
+  assert.equal(await gate(page).locator('input[type="password"]').getAttribute('aria-describedby'), 'ds-gate-help');
 
   const wrong = s.pin(PEOPLE.ada) === '123456' ? '654321' : '123456';
   await passGate(page, wrong);
-  assert.match(await gate(page).locator('.status').textContent(), /did not match/);
+  const rejected = await gate(page).locator('.status').textContent();
+  assert.match(rejected, /did not match/);
+  assert.match(rejected, /Older PIN emails may be out of date/);
+  const supportId = rejected.match(/Support code: (TI-[A-F0-9]{16})/)?.[1];
+  assert.ok(supportId, 'the student can report the support ID shown on the gate');
+  assert.ok(s.logs.some((entry) => entry.includes(supportId) && entry.includes('pin_no_match')),
+    'the support ID leads to the reason in the service log');
   assert.equal(await gateOpen(page), true, 'a wrong PIN never unlocks');
   assert.equal(await gate(page).getByRole('button', { name: 'Start without saving to my account' }).isHidden(), true);
+
+  cb.net.legacySignIn = true;
+  await passGate(page, wrong);
+  assert.match(await gate(page).locator('.status').textContent(), /Support code: TI-PIN\b/);
+  cb.net.legacySignIn = false;
 
   await passGate(page, s.pin(PEOPLE.ada), { confirm: false });
   assert.equal(await gate(page).locator('.who').textContent(), 'Ada');

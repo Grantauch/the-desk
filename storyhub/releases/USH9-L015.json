@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l015-who-showed-up.html",
-      "bytes": 78096,
-      "sha256": "a1157391bb42e9ed2977a87d63d5f82e2b3e9d25352aa0e1b8b1bf1b7bf0542e"
+      "bytes": 87491,
+      "sha256": "b14fe191a33b9a63d86054e0d956c0c4e4a1aa7f91675b963819980bfe17b925"
     },
     {
       "assetId": "A01",
@@ -97,8 +97,38 @@
       "path": "/storyhub/ush9/l015/assets/a14-ladder.svg",
       "bytes": 1189,
       "sha256": "e44a19b0de7112c8ef0c7bfb0e25e41c355e6fecf89e12956614927f573a730a"
+    },
+    {
+      "assetId": "A15",
+      "path": "/storyhub/ush9/l015/assets/a02-martinsburg-1877.jpg",
+      "bytes": 589865,
+      "sha256": "387f34c75e2b2553178be9ec13286b26ccf8cd00b67b0a60272fdaf94253728c"
+    },
+    {
+      "assetId": "A16",
+      "path": "/storyhub/ush9/l015/assets/a04-pittsburgh-1877.jpg",
+      "bytes": 415261,
+      "sha256": "f6d55bcf36f16d05b42444c7ee6ac003c82c77051e6a365a20492b75c62c96dc"
+    },
+    {
+      "assetId": "A17",
+      "path": "/storyhub/ush9/l015/assets/a07-haymarket-1886.jpg",
+      "bytes": 299091,
+      "sha256": "fffd390bcfc0123f33f45aa85785dad164bf8580c3c14e9ea1d61e6a23a8f3d2"
+    },
+    {
+      "assetId": "A18",
+      "path": "/storyhub/ush9/l015/assets/a11-homestead-barges-1892.jpg",
+      "bytes": 214156,
+      "sha256": "be7a4bcb38a898b4967e97731a98d0e736d599d87fe7a3b15b8d7fddf65ded92"
+    },
+    {
+      "assetId": "A19",
+      "path": "/storyhub/ush9/l015/assets/a12-pullman-houses-1890s.jpg",
+      "bytes": 159753,
+      "sha256": "c4fe80d855b466f20574df4f03b7457904fe2d0566cc3f01d3d4630b41eeed65"
     }
   ],
-  "totalBytes": 100041,
-  "sealedAt": "2026-10-26"
+  "totalBytes": 1787562,
+  "sealedAt": "2026-11-21"
 }

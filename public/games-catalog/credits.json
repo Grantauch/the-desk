@@ -1,0 +1,555 @@
+[
+  {
+    "game": "icebreak",
+    "route": "/hubs/icebreak.html",
+    "source": "https://grant-desk.com/hubs/icebreak",
+    "credit": null,
+    "depicted": "Original School rink at a fresh First Shift faceoff, captured from the public game in a signed-out isolated Chromium context immediately after pressing Drop the Puck, before any skating, shot or body-check.",
+    "rights": "Native, self-contained game graphics; capture of the original rink, teams and UI only. No separate artwork, real avatars, copyrighted team logos or third-party imagery in frame.",
+    "sourceImageSha256": "64d07d166bdd9b963f7fbc82eda85d020bf3a2c3882c92080d4e2d2b0dcd60e5",
+    "covers": [
+      {
+        "file": "icebreak-384.webp",
+        "sha256": "4be72a64cecc9c86444c951b17809363bb8530637a9cd1ecc0777ff75ef2bd81",
+        "width": 384,
+        "height": 216,
+        "bytes": 9494
+      },
+      {
+        "file": "icebreak-768.webp",
+        "sha256": "03e6442c0c7f514f50dc98829aecafecdae09d7d0097ace08965d5ef77f751a0",
+        "width": 768,
+        "height": 432,
+        "bytes": 21894
+      }
+    ],
+    "sourceBuildSha256": "6230968f1a3cd7df73ff7af54b23a8500435fb3dc7546fd643154b7053f35a48"
+  },
+  {
+    "game": "bridge lab",
+    "route": "/hubs/bridge-lab/",
+    "source": "https://grant-desk.com/hubs/bridge-lab/",
+    "credit": null,
+    "depicted": "Chromium captured locally while playing the synthetic First Crossing worked example. Car is actually driving across the truss, paused for the still.",
+    "rights": "Own game capture only; does not assert licensing for all underlying game art.",
+    "sourceImageSha256": "1eb3512692e8803008597ae3ed6e4faaec0610a220fef7d6b27ee64675477e1f",
+    "covers": [
+      {
+        "file": "bridge-lab-384.webp",
+        "sha256": "9fe0813dc895339975441fd4bb463f343a43953f310ddebc9b8bb6114ad2a3da",
+        "width": 384,
+        "height": 216,
+        "bytes": 21574
+      },
+      {
+        "file": "bridge-lab-768.webp",
+        "sha256": "c7177c1529c5f96600b4ac544b4570f1a07ab198d547cc8e2ca2110bc830bf05",
+        "width": 768,
+        "height": 432,
+        "bytes": 66148
+      }
+    ]
+  },
+  {
+    "game": "gridiron blitz",
+    "route": "/hubs/gridiron-blitz/",
+    "source": "https://grant-desk.com/hubs/gridiron-blitz/",
+    "credit": null,
+    "depicted": "Fresh solo Full Drive kickoff, centered stadium view at 0 yards and 0 points in the free GrantDesk edition. No move or ability input and no contact.",
+    "rights": "Native procedural stadium, field, generic athletes and HUD painted by the public HTML/JS; no separate raster model, commercial build, uploaded photo, or third-party sports logo in frame. In-site reproduction only; this is not a transferable or blanket IP license.",
+    "sourceImageSha256": "7595bc96075f8ce176519b73f4f71641677477569fb31965696296b558821a7a",
+    "covers": [
+      {
+        "file": "gridiron-blitz-384.webp",
+        "sha256": "8c0ee8d214de4463ca6b1b9f8f410bcba94392836e8616388aff0b6d0ba847b8",
+        "width": 384,
+        "height": 216,
+        "bytes": 14334
+      },
+      {
+        "file": "gridiron-blitz-768.webp",
+        "sha256": "6c347039828dfa6468d213d93127d67f0e35b980dc447a6286abae156faa0ce4",
+        "width": 768,
+        "height": 432,
+        "bytes": 37084
+      }
+    ]
+  },
+  {
+    "game": "blitzkrieg",
+    "route": "/hubs/blitzkrieg/",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for blitzkrieg; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "22527766e590dcd63124d9f5d3a97d7f850369af2a569df5cc6347f7ea0cba82",
+    "covers": [
+      {
+        "file": "blitzkrieg-384.webp",
+        "sha256": "67e56b753ba0f4d90afc07df9070786fe11fc90654bac8c4666b3f72e8dbd929",
+        "width": 384,
+        "height": 216,
+        "bytes": 30386
+      },
+      {
+        "file": "blitzkrieg-768.webp",
+        "sha256": "3d93dfc2025e9aa317d2fc33cc55f9ac6c8e2f4c10d33f7ed3a02b608de4f33e",
+        "width": 768,
+        "height": 432,
+        "bytes": 100810
+      }
+    ]
+  },
+  {
+    "game": "boss fight review",
+    "route": "/hubs/boss-fight-review.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for boss fight review; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "31ee278f50fe07fa75652a86dbac41dc699b552f146c7fb2c41b559c91181ee1",
+    "covers": [
+      {
+        "file": "boss-fight-review-384.webp",
+        "sha256": "04bc8ff0b716e10713c762f33c7fb0bf0abad163dd5ca3e433518cd5d9454f3e",
+        "width": 384,
+        "height": 216,
+        "bytes": 39970
+      },
+      {
+        "file": "boss-fight-review-768.webp",
+        "sha256": "79e89f613e4cfce2c0cb55ebc353c36ea8c9eeea4e32a255774bc4a3b7cc5ba7",
+        "width": 768,
+        "height": 432,
+        "bytes": 99122
+      }
+    ]
+  },
+  {
+    "game": "checklings · pixel camp",
+    "route": "/checklings/",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for checklings · pixel camp; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "7df5fb16031bc4ba910f9ee76402fca27fa227f46cbc49e7aa193170da3d279e",
+    "covers": [
+      {
+        "file": "checklings-384.webp",
+        "sha256": "32d21628f043d817e0eb929287469e0a28989608b6b1ef80863a0de8c7dfb003",
+        "width": 384,
+        "height": 216,
+        "bytes": 34004
+      },
+      {
+        "file": "checklings-768.webp",
+        "sha256": "4b1b4df4ab555f67036fa46c3eb36880a780af777740ee6bb54f97db6d9ab34f",
+        "width": 768,
+        "height": 432,
+        "bytes": 94928
+      }
+    ]
+  },
+  {
+    "game": "pond",
+    "route": "/hubs/pond/",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for pond; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "327d8ab27f7edce3374a39c05e364219550b36b66aa9144d1922a4058f5a1f30",
+    "covers": [
+      {
+        "file": "pond-384.webp",
+        "sha256": "004d32251aab36f543c4c6bad2f0584be8bdf387ad0b98cac63bd9e8e63958f4",
+        "width": 384,
+        "height": 216,
+        "bytes": 25818
+      },
+      {
+        "file": "pond-768.webp",
+        "sha256": "51d6ae7c7026b507bf558d41cfb3220073ee2319d2ab2b60600d161e5d6683bf",
+        "width": 768,
+        "height": 432,
+        "bytes": 74938
+      }
+    ]
+  },
+  {
+    "game": "dry county",
+    "route": "/hubs/dry-county/",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for dry county; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "9d515a79361c0f042cbf7a232ab7dd77a710b2dbfc0bfb17b3ce92d1a2e2201c",
+    "covers": [
+      {
+        "file": "dry-county-384.webp",
+        "sha256": "84f778a587b2c0e118d4ed8d907692faaa7444e7f61c2f1860c415e31430655a",
+        "width": 384,
+        "height": 216,
+        "bytes": 27264
+      },
+      {
+        "file": "dry-county-768.webp",
+        "sha256": "5c91e5f0e73cb54f05dce70500aab49d6b7dfdc6634e359cb761d36f41486696",
+        "width": 768,
+        "height": 432,
+        "bytes": 102130
+      }
+    ]
+  },
+  {
+    "game": "stop the presses",
+    "route": "/hubs/ush9-stop-the-presses.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for stop the presses; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "e9a6d9c98fc69b7a9263374c95eb2a478df3e254e2deb86dd3f2081b01c47df0",
+    "covers": [
+      {
+        "file": "ush9-stop-the-presses-384.webp",
+        "sha256": "377f746b94ac5adea15a7859964f26dc41b07859ef458c2de834cc82a3739079",
+        "width": 384,
+        "height": 216,
+        "bytes": 40836
+      },
+      {
+        "file": "ush9-stop-the-presses-768.webp",
+        "sha256": "f8eee20e366a74b8d70492fd8355fd64a31cd77278cecd922cd780e2133463d6",
+        "width": 768,
+        "height": 432,
+        "bytes": 100954
+      }
+    ]
+  },
+  {
+    "game": "the square deal",
+    "route": "/hubs/ush9-square-deal.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for the square deal; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "07fabff61b1426f3019b0055620040e08f98493b402ca25c0f859b569f25f472",
+    "covers": [
+      {
+        "file": "ush9-square-deal-384.webp",
+        "sha256": "f4c48f6eb1abfe858a6d9006f2e7edfc8afdcc08b1a822ad344680209f257a01",
+        "width": 384,
+        "height": 216,
+        "bytes": 38026
+      },
+      {
+        "file": "ush9-square-deal-768.webp",
+        "sha256": "b284719d3f53d11369a4721223c0e6ab9d62f8bfb251c3a6432f25af30324b93",
+        "width": 768,
+        "height": 432,
+        "bytes": 102336
+      }
+    ]
+  },
+  {
+    "game": "progressive era jeopardy",
+    "route": "/hubs/ush9-progressive-era-jeopardy-v3.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for progressive era jeopardy; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "ed54537ed75cfb67ce17040ba5bd5d1ae128967f6324104ec5b7fb3ae5a98ab8",
+    "covers": [
+      {
+        "file": "ush9-progressive-era-jeopardy-v3-384.webp",
+        "sha256": "bec9f5e41c2ff7b1a83a4c81a34ee953a91f846342a2a4c7429cb98c03b49787",
+        "width": 384,
+        "height": 216,
+        "bytes": 40728
+      },
+      {
+        "file": "ush9-progressive-era-jeopardy-v3-768.webp",
+        "sha256": "de9139a3ed7865baa9cb62274732f28c34c804fa89e881cadefc32164f96944b",
+        "width": 768,
+        "height": 432,
+        "bytes": 104734
+      }
+    ]
+  },
+  {
+    "game": "world war i jeopardy",
+    "route": "/hubs/ush9-wwi-jeopardy.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for world war i jeopardy; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "267b6cd25694d2d0cb870237dc652ba73451506364fa25a5b79aae1b730f1d94",
+    "covers": [
+      {
+        "file": "ush9-wwi-jeopardy-384.webp",
+        "sha256": "bad2485b079150f35affb20b14ec4a46a5a96e21a3fb947e4f4de1bc372457b6",
+        "width": 384,
+        "height": 216,
+        "bytes": 31958
+      },
+      {
+        "file": "ush9-wwi-jeopardy-768.webp",
+        "sha256": "a91b59f06dd318273cfbfd20de82a61bdc6e8ce8d354c0da060104a54bb165f3",
+        "width": 768,
+        "height": 432,
+        "bytes": 95354
+      }
+    ]
+  },
+  {
+    "game": "jeopardy live · student buzzer",
+    "route": "/hubs/jeopardy-buzz.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for jeopardy live · student buzzer; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "ef2807200cde816a431755dde753dce239a9d3e544340c97e23d3473e718a865",
+    "covers": [
+      {
+        "file": "jeopardy-buzz-384.webp",
+        "sha256": "b179c8b1cd04c2fd1ee95f439a3e3f7053c1033bdea53978f61a9e16ea81ea42",
+        "width": 384,
+        "height": 216,
+        "bytes": 23460
+      },
+      {
+        "file": "jeopardy-buzz-768.webp",
+        "sha256": "03328d12361883fe013637f0c340824f0085374a7107c0b0653b85d15510d17d",
+        "width": 768,
+        "height": 432,
+        "bytes": 69444
+      }
+    ]
+  },
+  {
+    "game": "blacktop kings",
+    "route": "/hubs/blacktop-kings.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for blacktop kings; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "48ae6c0f72f6dce136a75deeb9ef596fe7d7ab72f6be6386706eb5d6bdff8642",
+    "covers": [
+      {
+        "file": "blacktop-kings-384.webp",
+        "sha256": "19258a12c598391fa62c14c13bbd7a1a5965a0a5161ea2b6f9263b97eced6403",
+        "width": 384,
+        "height": 216,
+        "bytes": 30454
+      },
+      {
+        "file": "blacktop-kings-768.webp",
+        "sha256": "5a4791441f18dab2b5e9188352148695b91d0d3bd164d88cac02d02d3d361c18",
+        "width": 768,
+        "height": 432,
+        "bytes": 92342
+      }
+    ]
+  },
+  {
+    "game": "tale of the tape",
+    "route": "/hubs/tale-of-the-tape.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for tale of the tape; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "ed0f75bdc8ebfe9334859fc759de73ad89a1209ea22b99b0f0e8861516ffc693",
+    "covers": [
+      {
+        "file": "tale-of-the-tape-384.webp",
+        "sha256": "f12da22f196d99a35b032742a66efcf0818620ff773a30779c3e6b0dd734276c",
+        "width": 384,
+        "height": 216,
+        "bytes": 27644
+      },
+      {
+        "file": "tale-of-the-tape-768.webp",
+        "sha256": "ef87f021706a5be85b1258009f8fedbc771b1923a901ad5054b44907a361bc85",
+        "width": 768,
+        "height": 432,
+        "bytes": 98768
+      }
+    ]
+  },
+  {
+    "game": "the league",
+    "route": "/hubs/the-league.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for the league; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "0df3e0071280281cd198ef30b8b7ca49123ec0fb16fbf0c2f4fc8a2423bfa1f3",
+    "covers": [
+      {
+        "file": "the-league-384.webp",
+        "sha256": "cf11a5a4c361b3b6ec3709962d19d96adbbe9e5f0e1a60a2054bc9e0916d442f",
+        "width": 384,
+        "height": 216,
+        "bytes": 30046
+      },
+      {
+        "file": "the-league-768.webp",
+        "sha256": "97e935a695909731c62d804f9f49c7fc0568a61a81e936c90c1e950185cb7e92",
+        "width": 768,
+        "height": 432,
+        "bytes": 104524
+      }
+    ]
+  },
+  {
+    "game": "classroom jeopardy",
+    "route": "/hubs/classroom-jeopardy.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for classroom jeopardy; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "afc4422b1bdc1ce6485df5c4ef83ee067daaa06eac159e644686ca916b4827d9",
+    "covers": [
+      {
+        "file": "classroom-jeopardy-384.webp",
+        "sha256": "fd666dae98b4835f5827d1104bd016bf48becfa33ec0643450c0e26e1cd67be6",
+        "width": 384,
+        "height": 216,
+        "bytes": 37532
+      },
+      {
+        "file": "classroom-jeopardy-768.webp",
+        "sha256": "08bac17122eaa3ba3c87bf7d16a992cdb98816551632303571009245ea59b6e9",
+        "width": 768,
+        "height": 432,
+        "bytes": 103308
+      }
+    ]
+  },
+  {
+    "game": "robber barons",
+    "route": "/hubs/robber-barons.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for robber barons; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "595267e7083d25d9b5c9315921bf75e97e06e2aae806c0f1cd759ea0bbdac6d6",
+    "covers": [
+      {
+        "file": "robber-barons-384.webp",
+        "sha256": "fb3b8a726d4c1ac68acce20b3591c2fad181ac7794ed0948684d3b5d6bc96ba7",
+        "width": 384,
+        "height": 216,
+        "bytes": 35886
+      },
+      {
+        "file": "robber-barons-768.webp",
+        "sha256": "8651a2f3c058498729cc53d93749674d76fc6ee19d51f8d1da58aab928d8baa0",
+        "width": 768,
+        "height": 432,
+        "bytes": 104544
+      }
+    ]
+  },
+  {
+    "game": "jeopardy: hidden history unit 1",
+    "route": "/hubs/jeopardy-hidden-history-unit1.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for jeopardy: hidden history unit 1; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "373f846f7761e41d1e0a258d5555863f6bb2c25b36fceec04b490f553b72557e",
+    "covers": [
+      {
+        "file": "jeopardy-hidden-history-unit1-384.webp",
+        "sha256": "05f90ff83dc495195e0bb43348f5bb4f7c6e7c82552fb502403ee3f60dcaf1fd",
+        "width": 384,
+        "height": 216,
+        "bytes": 33624
+      },
+      {
+        "file": "jeopardy-hidden-history-unit1-768.webp",
+        "sha256": "53fbd39ab4f604cf30f416b502ed8a1ce8b4bed6f8663c7177931ce59185720e",
+        "width": 768,
+        "height": 432,
+        "bytes": 94164
+      }
+    ]
+  },
+  {
+    "game": "jeopardy: scoreboard unit 1",
+    "route": "/hubs/jeopardy-scoreboard-unit1.html",
+    "source": "Grant Auch's Gemini arcade cover pack (November 2026)",
+    "credit": "Grant Auch · generated with Gemini",
+    "depicted": "Illustrated promotional artwork for jeopardy: scoreboard unit 1; not a gameplay screenshot.",
+    "rights": "Grant provided these covers and authorized their use on the GrantDesk Arcade. No broader licensing claim.",
+    "sourceImageSha256": "e64889d83b7d9b9a4b5c879d9e4aabbe654ff3309fd0821e8704ff4c56933439",
+    "covers": [
+      {
+        "file": "jeopardy-scoreboard-unit1-384.webp",
+        "sha256": "f85045bab4325f7fc6ae7319ad867593dbae8a35e63c12ae7c0e87177df6a484",
+        "width": 384,
+        "height": 216,
+        "bytes": 34998
+      },
+      {
+        "file": "jeopardy-scoreboard-unit1-768.webp",
+        "sha256": "cbe97d9219d11e1d94ada6bab3a28e959a4623b73a312e8942fa454b116413df",
+        "width": 768,
+        "height": 432,
+        "bytes": 93592
+      }
+    ]
+  },
+  {
+    "game": "manifest-1848",
+    "route": "/hubs/manifest-1848/",
+    "source": "https://grant-desk.com/hubs/manifest-1848/",
+    "credit": "Manifest: 1848, GrantDesk game capture",
+    "depicted": "Outfit Your Wagon in a new local journey, cropped x=288, y=11, width=704, height=396 from a 1280 × 720 Chromium capture to focus on the Conestoga and Prairie Schooner. The HTML, scripts and visibly loaded game art matched the exact public GrantDesk source blobs. No player name, student information or external imagery was added.",
+    "rights": "In-site screenshot of the GrantDesk-published build and the art already bundled with it. No new external image, hotlink or separate license claim.",
+    "sourceImageSha256": "9d6cf04d815d4d22da4714a6e11e4fd3c0c9b6010114abd686f880ad861dc305",
+    "covers": [
+      {
+        "file": "manifest-1848-384.webp",
+        "sha256": "226f8d480293165794861017f11bb2ae7ff204b59ce00b3216f14727d29a0faa",
+        "width": 384,
+        "height": 216,
+        "bytes": 17086
+      },
+      {
+        "file": "manifest-1848-768.webp",
+        "sha256": "556162178e22035989365d9d7f21aba9dc5a3287b6bbf1a7d6323586e89ab869",
+        "width": 768,
+        "height": 432,
+        "bytes": 44628
+      }
+    ],
+    "sourceBuildSha256": "b7a6870aa8c4d43c061c731e7e977aa991ba10897ca59e2f5b32aa467526a30a"
+  },
+  {
+    "game": "manifest-expanse-1848",
+    "route": "/hubs/manifest-expanse-1848/",
+    "source": "https://grant-desk.com/hubs/manifest-expanse-1848/",
+    "credit": "Manifest Expanse: 1848, GrantDesk game capture",
+    "depicted": "Act 1: The Great Plains. Fresh local New Journey, Prairie Schooner, seed ARCADE1848, Blacksmith companion, guide dismissed. Uncropped 1280 × 720 Chromium capture. The game HTML and loaded art were verified against Git blobs. No student information or external imagery was added.",
+    "rights": "In-site screenshot of the GrantDesk-published build and art it already uses. No new external image, hotlink, or separate license claim.",
+    "sourceImageSha256": "4058bd9f64e05c95f5b28ea069dbe174411e14dee9d7cf4295896ba9502baad3",
+    "covers": [
+      {
+        "file": "manifest-expanse-1848-384.webp",
+        "sha256": "c77f7805e7619bf68ec05242aed2f4ac35f2ab3b36230ed5a8a2705226c7ddf4",
+        "width": 384,
+        "height": 216,
+        "bytes": 29178
+      },
+      {
+        "file": "manifest-expanse-1848-768.webp",
+        "sha256": "77ecd1ad9d67c2a212a8c27767598a8ac49b8a6130f327aa684ff0d144eba01a",
+        "width": 768,
+        "height": 432,
+        "bytes": 101362
+      }
+    ],
+    "sourceBuildSha256": "a815f63d7791ef80cf019e79eb5421b33ae5f5b7b44d198b00032668feb29fc3"
+  }
+]

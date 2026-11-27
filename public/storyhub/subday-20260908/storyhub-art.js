@@ -90,7 +90,7 @@
     const heroGrid = document.querySelector('.heroGrid');
     if (heroGrid) {
       const oldVisual = heroGrid.lastElementChild;
-      if (oldVisual && oldVisual !== heroGrid.firstElementChild) {
+      if (oldVisual && oldVisual !== heroGrid.firstElementChild && !oldVisual.hasAttribute('data-preserve-story-art')) {
         oldVisual.replaceWith(makeFigure(`${base}/${config.hero[0]}`, config.hero[1], { hero: true }));
       }
     }
@@ -98,10 +98,12 @@
     document.querySelectorAll('section.story').forEach((section, index) => {
       const scene = config.scenes[index];
       if (!scene) return;
+      const plate = section.querySelector('.plate');
+      // Leave explicitly authored evidence and teaching diagrams in place.
+      if (plate?.hasAttribute('data-preserve-story-art')) return;
       const art = makeFigure(`${base}/${scene[0]}`, scene[1], {
         wide: !section.querySelector('.sectionGrid'),
       });
-      const plate = section.querySelector('.plate');
       if (plate) {
         plate.replaceWith(art);
         return;

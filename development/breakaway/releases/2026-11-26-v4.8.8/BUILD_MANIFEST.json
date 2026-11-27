@@ -1,0 +1,20 @@
+{
+  "version": "4.8.8",
+  "date": "2026-11-26",
+  "name": "Grounded Athlete Motion",
+  "status": "GitHub source only",
+  "entry": "index.html",
+  "sha256": "1f9bcc89d94f96b1265ff0678272c9c33e354564f09c20e29b96bdf6cea2a9a9",
+  "git_blob_sha": "fb4fc36cecef127c096d331f0bf3b11d7c8b4db3",
+  "rollback": "source/baseline-v4.8.7.html",
+  "baseline_git_blob": "a995aba13678743801786e3023443ceb2d564045",
+  "engine_identical": true,
+  "automatedQA": {
+    "games": 500,
+    "frames": 1895815,
+    "assertions": 113284,
+    "draws": 2000,
+    "viewports": 4
+  },
+  "realDevicePending": true
+}

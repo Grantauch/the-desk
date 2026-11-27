@@ -19,6 +19,11 @@ const commit = (base, message) => {
   return git(base, 'rev-parse', 'HEAD').trim();
 };
 const coursePage = ({ name = 'The Gilded Age', title = 'L015', href = '/hubs/ush9-l015.html' } = {}) => `const units = [\n  {\n    name: '${name}',\n    storyhub: {\n      title: '${title}',\n      href: '${href}',\n      blurb: 'fixture',\n    },\n  },\n];\n`;
+const workPanel = (hubs, { count = hubs.length, checkedAt = '2026-10-29', mode = 'assignment' } = {}) => `${JSON.stringify({
+  checkedAt,
+  catalogueCount: count,
+  hubs: hubs.map(hub => ({ hub, mode, legacyStorageMovedToTab: false })),
+}, null, 2)}\n`;
 const createFixture = () => {
   const base = join(scratch, `case-${passed + 1}-${Math.random().toString(16).slice(2)}`);
   mkdirSync(base);
@@ -31,6 +36,7 @@ const createFixture = () => {
   write(base, 'public/storyhub/ush9/l015/assets/a.svg', '<svg/>\n');
   write(base, 'storyhub/stories/USH9/L015/story.json', '{}\n');
   write(base, 'src/pages/us-history.astro', coursePage());
+  write(base, 'docs/storyhub/work-panel-catalog.json', workPanel(['ush9-l015.html']));
   write(base, 'src/pages/hidden-history.astro', "const units = [{ name: 'Evidence' }];\n");
   write(base, 'src/pages/beyond-the-scoreboard.astro', "const units = [{ name: 'Sport' }];\n");
   write(base, 'src/components/Nav.astro', '<nav>core</nav>\n');
@@ -106,6 +112,54 @@ await test('staged local StoryHub batch is classified without committing', () =>
   const result = classifyRelease({ projectRoot: f.base, baseRef: 'HEAD', index: true });
   assert.equal(result.mode, 'storyhub');
   assert.ok(result.routes.includes('/hubs/ush9-l015.html'));
+});
+
+await test('adding a catalogued hub to the work panel catalog stays in fast lane', () => {
+  const f = createFixture();
+  write(f.base, 'src/data/storyhubs.ts', "export const storyHubs = [{ href: '/hubs/ush9-l015.html' }, { href: '/hubs/ush9-l016.html' }];\n");
+  write(f.base, 'public/hubs/ush9-l016.html', '<!doctype html><h1>L016</h1>\n');
+  write(f.base, 'docs/storyhub/work-panel-catalog.json', workPanel(['ush9-l015.html', 'ush9-l016.html'], { checkedAt: '2026-11-17' }));
+  const head = commit(f.base, 'new hub with work panel entry');
+  const result = classifyRelease({ projectRoot: f.base, baseRef: f.initial, headRef: head });
+  assert.equal(result.mode, 'storyhub');
+  assert.ok(result.routes.includes('/hubs/ush9-l016.html'));
+});
+
+await test('work panel catalog changes that do not match the StoryHub catalog require full lane', () => {
+  const cases = [
+    ['entry for an uncatalogued hub', workPanel(['ush9-l015.html', 'random-game.html'], { count: 1 })],
+    ['removed entry', workPanel([], { count: 1 })],
+    ['count that disagrees with the catalog', workPanel(['ush9-l015.html'], { count: 2 })],
+    ['malformed file', '{ not json\n'],
+  ];
+  for (const [label, text] of cases) {
+    const f = createFixture();
+    write(f.base, 'docs/storyhub/work-panel-catalog.json', text);
+    const head = commit(f.base, label);
+    const result = classifyRelease({ projectRoot: f.base, baseRef: f.initial, headRef: head });
+    assert.equal(result.mode, 'full', label);
+    assert.ok(result.disallowed.includes('docs/storyhub/work-panel-catalog.json'), label);
+  }
+});
+
+await test('a new top level field in the work panel catalog requires full lane', () => {
+  const f = createFixture();
+  const extra = JSON.parse(workPanel(['ush9-l015.html']));
+  extra.policy = 'changed';
+  write(f.base, 'docs/storyhub/work-panel-catalog.json', `${JSON.stringify(extra, null, 2)}\n`);
+  const head = commit(f.base, 'extra field');
+  assert.equal(classifyRelease({ projectRoot: f.base, baseRef: f.initial, headRef: head }).mode, 'full');
+});
+
+await test('a catalog entry written with quoted keys still counts as catalogued', () => {
+  const f = createFixture();
+  write(f.base, 'src/data/storyhubs.ts', "export const storyHubs = [{ href: '/hubs/ush9-l015.html' }, { \"href\": \"/hubs/hh-l02.html\" }];\n");
+  write(f.base, 'public/hubs/hh-l02.html', '<!doctype html><h1>HH</h1>\n');
+  write(f.base, 'docs/storyhub/work-panel-catalog.json', workPanel(['ush9-l015.html', 'hh-l02.html']));
+  const head = commit(f.base, 'quoted key hub');
+  const result = classifyRelease({ projectRoot: f.base, baseRef: f.initial, headRef: head });
+  assert.equal(result.mode, 'storyhub');
+  assert.ok(result.routes.includes('/hubs/hh-l02.html'));
 });
 
 console.log(`Release lane classifier: ${passed}/${passed} fixture groups passed.`);

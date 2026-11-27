@@ -294,17 +294,21 @@ try {
     await page.goto(`${origin}/hubs/pond/`);
     await page.getByRole('button',{name:'Make a mess',exact:true}).click();
     await page.getByRole('button',{name:'Pause',exact:true}).click();
-    const canvas = page.locator('canvas');
+    const canvas = page.getByRole('application',{name:/^Living dish/});
     await page.getByRole('button',{name:'Stone',exact:true}).click();
     await canvas.focus();
     await page.keyboard.press('ArrowUp');
     await page.keyboard.press('Enter');
     assert.ok(await page.getByRole('button',{name:'Undo',exact:true}).isEnabled());
     await page.getByRole('button',{name:'Undo',exact:true}).click();
-    const box = await canvas.boundingBox();
-    const x = box.x + box.width / 2, y = box.y + box.height / 2;
-    if (width < 600) await page.touchscreen.tap(x,y);
+    // Undo is in the tool panel. Clicking it can scroll the dish out of view
+    // in a stacked layout; raw pointer coordinates do not scroll it back.
+    if (width < 600) await canvas.tap();
     else {
+      await canvas.click({trial:true});
+      const box = await canvas.boundingBox();
+      assert.ok(box, 'The Pond canvas must be visible before dragging');
+      const x = box.x + box.width / 2, y = box.y + box.height / 2;
       await page.mouse.move(x,y);
       await page.mouse.down();
       await page.mouse.move(x+35,y-20,{steps:5});
@@ -318,9 +322,20 @@ try {
     await page.getByRole('dialog',{name:'Mixes'}).waitFor();
     await page.keyboard.press('Escape');
     assert.equal(await page.getByRole('dialog').count(),0);
-    const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button',{name:'Export world'}).click();
-    const download = await downloadPromise;
+    const archive = page.locator('#pond-field-archive');
+    if (width <= 800) {
+      // The mobile workbench hides the Archive until Preserve is selected.
+      assert.equal(await archive.isVisible(), false, 'Archive is not the active mobile station');
+      await page.getByRole('navigation',{name:'Pond field workflow'})
+        .getByRole('button',{name:'Go to world backups and imports',exact:true}).click();
+      await page.waitForFunction(() => document.activeElement?.id === 'pond-field-archive');
+    }
+    const exportButton = archive.getByRole('button',{name:'Export world',exact:true});
+    await exportButton.waitFor({state:'visible'});
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      exportButton.click(),
+    ]);
     const path = fileURLToPath(new URL(`pond-${width}.json`,out));
     await download.saveAs(path);
     const saved = JSON.parse(await readFile(path,'utf8'));

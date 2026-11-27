@@ -1,0 +1,22 @@
+---
+import type { StoryEdition, Visual } from '../../lib/storyhub/model';
+interface Props { story: StoryEdition; visual: Visual; hero?: boolean; caption?: boolean; class?: string; sizes?: string; }
+const { story, visual, hero = false, caption = true, class: className, sizes = '(max-width: 680px) 100vw, 72vw' } = Astro.props;
+const source = story.sources.find((item) => item.id === visual.source);
+const sources = visual.small ? visual.small + ' 650w, ' + visual.src + ' ' + visual.width + 'w' : undefined;
+---
+<figure class:list={['sh-figure', className]}>
+  <img
+    src={visual.src} srcset={sources} sizes={sources ? sizes : undefined}
+    width={visual.width} height={visual.height} alt={visual.alt}
+    decoding="async" loading={hero ? 'eager' : 'lazy'} fetchpriority={hero ? 'high' : undefined}
+    data-archival-image
+  />
+  <p class="sh-image-fallback" hidden data-image-fallback>Image unavailable. The caption and source describe this record.</p>
+  {caption && (
+    <figcaption>
+      <span>{visual.caption}</span>
+      <a href={source?.url}>{visual.credit}</a>
+    </figcaption>
+  )}
+</figure>

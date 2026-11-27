@@ -89,6 +89,28 @@
       "staticFallback": "Each universe stands alone in text.",
       "identityFit": "Dotted projector frames in the universe palette.",
       "status": "implemented"
+    },
+    {
+      "id": "I09",
+      "chapterId": "03-tree",
+      "type": "source-to-ink-reveal",
+      "teaches": "Distinguish original photographic evidence from the surface details invented during overpainting.",
+      "studentAction": "Use the native keyboard/touch range to uncover the original source, or open its source disclosure.",
+      "feedback": "The original photograph replaces the illustration with a percent description; a dated note identifies what the source can establish.",
+      "staticFallback": "Native details always exposes the source photograph and limits without JavaScript; reduced motion uses identical instant reveal.",
+      "identityFit": "Two visual layers of the same evidence frame, real captions and fine ink rules.",
+      "status": "implemented"
+    },
+    {
+      "id": "I10",
+      "chapterId": "16-making-of",
+      "type": "source-claim-disclosures",
+      "teaches": "A likeness photograph, a source-derived interpretation and a reconstructed scene have different evidentiary limits.",
+      "studentAction": "Open three native disclosures that question what each image can prove, then follow its link back to the relevant historical account.",
+      "feedback": "Each answer identifies the source date, what the image establishes and what the storyteller added.",
+      "staticFallback": "Native details works without JavaScript, with keyboard and touch; no animation or saved response is required.",
+      "identityFit": "Authentic source photos and a labeled reconstruction are compared as three evidence cards, with creators, licenses and explicit limits.",
+      "status": "implemented"
     }
   ]
 }

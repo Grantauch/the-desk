@@ -32,9 +32,10 @@ function client(ticket = null, hello = true) {
   if (hello) ws.on('open', () => ws.send(JSON.stringify({ t: 'hello', ticket })));
   ws.on('message', (d) => inbox.push(JSON.parse(d.toString())));
   const next = async (t, test = () => true, ms = 3000) => {
+    const kinds = Array.isArray(t) ? t : [t];
     const end = Date.now() + ms;
     while (Date.now() < end) {
-      const i = inbox.findIndex((m) => m.t === t && test(m));
+      const i = inbox.findIndex((m) => kinds.includes(m.t) && test(m));
       if (i >= 0) return inbox.splice(i, 1)[0];
       await sleep(20);
     }
@@ -76,6 +77,10 @@ try {
   const newHtml = await versionHtmlAssets(template, load);
   assert.notEqual(oldHtml, newHtml, 'updated bytes change the HTML address without a restart');
   assert.ok(newHtml.includes('href="/unknown.js"') && newHtml.includes('src="https://example.invalid/x.js"'), 'only registered local assets are versioned');
+  assert.match(pageHtml, /Leave this Chromebook/, 'the menu can leave a shared Chromebook');
+  assert.match(teacherHtml, /Removing a trainer disconnects them\./);
+  assert.match(teacherHtml, /A saved trainer keeps their name and their Checklings/);
+  assert.doesNotMatch(teacherHtml, /come back with a new name/);
   step('student and teacher assets have stable content versions that change with their bytes');
   const arrivals = await Promise.all(Array.from({ length: 35 }, async () => {
     const response = await fetch(`http://127.0.0.1:${PORT}/`);
@@ -309,14 +314,31 @@ try {
   const meX = wx.players.find((q) => q.id === wx.you);
   const toGate = route(wx.town.rows, [meX.x, meX.y], [12, 1]);
   assert.ok(toGate.length > 0, 'there is a way from the bus stop to the gate');
-  for (const d of toGate) await x.send({ t: 'move', d });
-  await x.send({ t: 'move', d: 'u' });
-  const outside = await x.next('room', (m) => m.room === 'wilds');
-  assert.equal(outside.kind, 'wilds');
-  await x.send({ t: 'move', d: 'd' }); await x.send({ t: 'move', d: 'd' });
-  assert.equal((await x.next('room', (m) => m.room === 'town')).kind, 'town');
-  await x.send({ t: 'move', d: 'u' });
-  await x.next('room', (m) => m.room === 'wilds');
+  const delta = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] };
+  let where = [meX.x, meX.y];
+  // Observe each authoritative reply before sending the next move. A client-side
+  // timer alone can queue several packets on a delayed CI server.
+  const gateMove = async (d, room, destination, label) => {
+    const [dx, dy] = delta[d];
+    const from = where;
+    const target = destination || [from[0] + dx, from[1] + dy];
+    const context = `town gate: ${label}, ${d} from ${from.join(',')}`;
+    x.ws.send(JSON.stringify({ t: 'move', d }));
+    const ack = await x.next(['pos', 'room'], (m) => m.t === 'room' || m.id === wx.you).catch((cause) => {
+      throw new Error(`${context}: no movement acknowledgement`, { cause });
+    });
+    assert.equal(ack.t, room ? 'room' : 'pos', `${context}: unexpected acknowledgement`);
+    if (room) assert.deepEqual([ack.room, ack.kind], [room, room], `${context}: unexpected room`);
+    const mover = room ? ack.players.find((q) => q.id === wx.you) : ack;
+    assert.deepEqual([mover?.x, mover?.y], target, `${context}: server did not reach the expected tile`);
+    where = target;
+    await sleep(130);
+  };
+  for (const d of toGate) await gateMove(d, null, null, 'walk to the town exit');
+  await gateMove('u', 'wilds', [28, 41], 'enter wilds');
+  await gateMove('d', null, null, 'walk to the wilds exit');
+  await gateMove('d', 'town', [12, 1], 'return to town');
+  await gateMove('u', 'wilds', [28, 41], 're-enter wilds');
   step('the town gate leads to the wilds and back');
   // From the trail into the tall grass: a few free steps, then every step can rouse a wild one (rate 1 in tests).
   for (const d of route(wx.wilds.rows, [28, 41], [17, 30])) await x.send({ t: 'move', d });

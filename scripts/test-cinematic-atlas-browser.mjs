@@ -110,8 +110,28 @@ try{
       assert.ok(!network.requests.some(url=>url.includes('copyright-photo.example')),'No publisher photo requests');
       await page.locator('[data-atlas-filter=both]').click();assert.equal(await page.locator('.atlas-choice').count(),8);
       await page.locator('[data-atlas-filter=history]').click();
-      await page.keyboard.press('Escape');assert.equal(await dialog.evaluate(d=>d.open),false);
-      assert.ok(await trigger.evaluate(el=>el===document.activeElement),'Focus returns to the Explore trigger');
+      // Arm the native close receipt before Escape so the test observes the actual
+      // dismissal independently of when the runner schedules a paint frame.
+      await dialog.evaluate(panel=>{
+        panel.addEventListener('close',()=>{panel.dataset.testCloseSeen='true';},{once:true});
+      });
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(()=>{
+        const panel=document.querySelector('[data-atlas-dialog]');
+        const button=document.querySelector('[data-atlas-explore]');
+        return panel?.dataset.testCloseSeen==='true'&&!panel.open&&button&&!panel.contains(button)&&document.activeElement===button;
+      },undefined,{polling:50,timeout:5000}).catch(async error=>{
+        if(error.name!=='TimeoutError')throw error;
+        const state=await page.evaluate(()=>{
+          const panel=document.querySelector('[data-atlas-dialog]');
+          const button=document.querySelector('[data-atlas-explore]');
+          const active=document.activeElement;
+          return {closeSeen:panel?.dataset.testCloseSeen==='true',open:panel?.open??null,
+            exploreInDialog:panel?.contains(button)??null,exploreFocused:!!button&&active===button,
+            activeTag:active?.tagName,windowFocused:document.hasFocus()};
+        });
+        assert.fail(`Focus returns to the Explore trigger after closing the dialog: ${JSON.stringify(state)}`);
+      });
       await trigger.click();await page.locator('[data-atlas-return]').click();
       assert.equal(await dialog.evaluate(d=>d.open),false);
     });

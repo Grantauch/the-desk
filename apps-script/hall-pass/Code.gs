@@ -604,8 +604,9 @@ function setupProject(options) {
 /* ------------------------------------------------------------ web entry ---- */
 
 function doGet(e) {
-  ensureWorkbookReady_();
   const requestedMode = String((e && e.parameter && e.parameter.mode) || 'student').toLowerCase();
+  if (requestedMode === 'checklings' || requestedMode === 'checklings-admin') return checklingsWeb_(e, requestedMode === 'checklings-admin');
+  ensureWorkbookReady_();
   if (requestedMode === 'setup-link' && typeof setupVerifyPublishedApp_ === 'function') {
     return setupVerifyPublishedApp_();
   }
@@ -677,6 +678,212 @@ function unrecognizedState_(settings, purpose, message) {
     message,
     serverNow: new Date().toISOString(),
   };
+}
+
+/* -------------------------------- optional expanded Checklings bridge ---- */
+// Disabled unless a privately provisioned configuration explicitly enables it.
+// Keys are independent random 32-byte base64url strings, used as UTF-8 HMAC
+// keys on BOTH sides (not decoded). No workbook IDs, names or PINs leave here.
+const CHECKLINGS_ALLOWED_ORIGINS = ['https://checklings.grant-desk.com'];
+function checklingsConfig_() {
+  let c;
+  try { c = JSON.parse(PropertiesService.getScriptProperties().getProperty('CHECKLINGS_BRIDGE_CONFIG') || '{}'); } catch (error) { c = {}; }
+  if (CHECKLINGS_ALLOWED_ORIGINS.indexOf(c.gameOrigin) === -1) throw new Error('Expanded Checklings is not available yet. Your classroom tools still work.');
+  const opaque = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(v);
+  const keys = [c.assertionKey, c.flowKey, c.schoolKey, c.identityKey];
+  if (c.enabled !== true || !opaque(c.issuer) || !opaque(c.audience) || !opaque(c.tenantId) ||
+      keys.some((key) => typeof key !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(key)) || new Set(keys).size !== 4 ||
+      !Array.isArray(c.classPeriods) || !c.classPeriods.length || c.classPeriods.length > 20 ||
+      c.classPeriods.some((p) => typeof p !== 'string' || !p.trim() || p !== p.trim() || p.length > 80) || new Set(c.classPeriods).size !== c.classPeriods.length) {
+    throw new Error('Expanded Checklings is not available yet. Your classroom tools still work.');
+  }
+  return c;
+}
+
+function checklingsMac_(key, domain, body) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(domain + '\n' + body, key, Utilities.Charset.UTF_8)).replace(/=+$/g, '');
+}
+function checklingsSign_(key, domain, payload) {
+  const body = encodeTokenPart_(JSON.stringify(payload));
+  return body + '.' + checklingsMac_(key, domain, body);
+}
+function checklingsRead_(key, domain, token) {
+  if (typeof token !== 'string' || token.length > 4096) throw new Error('Start again from Checklings.');
+  const parts = token.split('.');
+  if (parts.length !== 2 || !/^[A-Za-z0-9_-]+$/.test(parts[0]) || !/^[A-Za-z0-9_-]{43}$/.test(parts[1]) ||
+      !secureEquals_(parts[1], checklingsMac_(key, domain, parts[0]))) throw new Error('Start again from Checklings.');
+  try { return JSON.parse(decodeTokenPart_(parts[0])); } catch (error) { throw new Error('Start again from Checklings.'); }
+}
+function checklingsTicket_(c, ticket) {
+  const p = checklingsRead_(c.flowKey, 'checklings:launch:v1', ticket), now = Math.floor(Date.now() / 1000);
+  const fields = ['v', 'iss', 'aud', 'flowId', 'challenge', 'state', 'iat', 'exp'];
+  if (!p || Object.keys(p).length !== fields.length || !fields.every((k) => Object.prototype.hasOwnProperty.call(p, k)) ||
+      p.v !== 1 || p.iss !== c.audience || p.aud !== c.issuer ||
+      [p.flowId, p.challenge, p.state].some((v) => typeof v !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(v)) ||
+      !Number.isSafeInteger(p.iat) || !Number.isSafeInteger(p.exp) || p.iat > now || p.exp <= now || p.exp <= p.iat || p.exp - p.iat > 60) {
+    throw new Error('This sign-in expired. Start again from Checklings.');
+  }
+  return p;
+}
+function checklingsId_(c, kind, value) { return checklingsMac_(c.identityKey, 'checklings:identity:v1', kind + '\n' + c.tenantId + '\n' + value); }
+function checklingsPolicyKey_(c, period) { return 'ck-bridge-class:' + checklingsId_(c, 'class', period); }
+function checklingsPolicy_(c, period) {
+  if (!c.classPeriods.includes(period)) throw new Error('That class is not enabled for Checklings.');
+  const raw = PropertiesService.getScriptProperties().getProperty(checklingsPolicyKey_(c, period));
+  if (!raw) return { enabled: false, revision: 0 };
+  let p; try { p = JSON.parse(raw); } catch (error) { throw new Error('Ask your teacher to check Checklings access.'); }
+  if (typeof p.enabled !== 'boolean' || !Number.isSafeInteger(p.revision) || p.revision < 0) throw new Error('Ask your teacher to check Checklings access.');
+  return p;
+}
+function checklingsAccount_() { assertSchoolAccount_(getActiveEmail_(), getSettings_()); }
+
+/** Fresh PIN verification for this game only: no Hall Pass token/action proof. */
+function identifyChecklingsGame(pin, attemptNonce, ticket) {
+  const c = checklingsConfig_(), flow = checklingsTicket_(c, ticket);
+  ensureWorkbookReady_(); checklingsAccount_();
+  const students = verifyStudentPin_(pin, getActiveEmail_(), attemptNonce);
+  const eligible = students.filter((s) => c.classPeriods.includes(s.classPeriod) && checklingsPolicy_(c, s.classPeriod).enabled);
+  if (!eligible.length) throw new Error('Your teacher has not opened Checklings for your class.');
+  const now = Math.floor(Date.now() / 1000), exp = Math.min(flow.exp, now + 60);
+  const handle = Utilities.getUuid() + Utilities.getUuid();
+  // The handle is the only value returned. Identity stays in this user's cache.
+  CacheService.getUserCache().put(handle, JSON.stringify({
+    email: students[0].email, account: getActiveEmail_(), credentialVersion: credentialVersionForEmail_(students[0].email),
+    ticketHash: checklingsMac_(c.flowKey, 'checklings:ticket-hash:v1', ticket), iat: now, exp: exp,
+  }), 60);
+  return {
+    selection: handle,
+    classes: eligible.map((s) => ({ id: checklingsId_(c, 'class', s.classPeriod), label: s.classPeriod })),
+  };
+}
+
+/** Create a complete current class snapshot under the existing short lock.
+ * Network calls always happen AFTER release. Nothing hooks attendance/pass code.
+ */
+function checklingsSnapshot_(c, period, enabled) {
+  return withLock_(() => {
+    const properties = PropertiesService.getScriptProperties(), policy = checklingsPolicy_(c, period);
+    if (enabled !== undefined) policy.enabled = enabled;
+    if (policy.revision >= Number.MAX_SAFE_INTEGER) throw new Error('Ask your teacher to check Checklings access.');
+    // Closing access must work even if the roster is oversized or malformed.
+    // A disabled empty snapshot revokes all existing game memberships without
+    // reading roster identities or depending on current PIN health.
+    let members = [];
+    if (policy.enabled) {
+      const students = getRoster_().filter((s) => s.classPeriod === period);
+      if (students.length > 35) throw new Error('This pilot supports up to 35 active students per class.');
+      members = students.map((s) => {
+        const version = credentialVersionForEmail_(s.email);
+        return { memberId: checklingsId_(c, 'member', s.key), credentialVersion: checklingsMac_(c.identityKey, 'checklings:credential:v1', s.key + '\n' + (version || 'unavailable')), active: Boolean(version) };
+      });
+    }
+    policy.revision += 1;
+    properties.setProperty(checklingsPolicyKey_(c, period), JSON.stringify(policy));
+    const iat = Math.floor(Date.now() / 1000);
+    return { v: 1, iss: c.issuer, aud: c.audience, tenantId: c.tenantId, classId: checklingsId_(c, 'class', period),
+      revision: policy.revision, enabled: policy.enabled, members, iat, exp: iat + 120 };
+  }, 1000);
+}
+function checklingsPost_(c, path, body) {
+  try {
+    const response = UrlFetchApp.fetch(c.gameOrigin + path, { method: 'post', contentType: 'application/json',
+      payload: JSON.stringify(body), followRedirects: false, muteHttpExceptions: true, validateHttpsCertificates: true });
+    if (response.getResponseCode() !== 200) throw new Error('Unavailable');
+    const raw = response.getContentText();
+    if (raw.length > 8192) throw new Error('Unavailable');
+    return JSON.parse(raw);
+  } catch (error) { throw new Error('Checklings could not confirm access. Try again from the game.'); }
+}
+function checklingsSendSnapshot_(c, snapshot) {
+  return checklingsPost_(c, '/bridge/school', { snapshot: checklingsSign_(c.schoolKey, 'checklings:school:v1', snapshot) });
+}
+function checklingsTakeSelection_(selection) {
+  const cache = CacheService.getUserCache();
+  const usable = typeof selection === 'string' && selection.length > 0 && selection.length <= 250;
+  let raw = null;
+  try { if (usable) raw = cache.get(selection); } catch (error) { raw = null; }
+  try { if (usable) cache.remove(selection); } catch (error) { /* first read consumes the handle */ }
+  let selected = null;
+  try { if (typeof raw === 'string' && raw) selected = JSON.parse(raw); } catch (error) { selected = null; }
+  if (!selected || typeof selected !== 'object' || Array.isArray(selected)) throw new Error('Enter your PIN again from Checklings.');
+  return selected;
+}
+function completeChecklingsGame(selection, classId, ticket) {
+  const c = checklingsConfig_(), flow = checklingsTicket_(c, ticket);
+  ensureWorkbookReady_(); checklingsAccount_();
+  const selected = checklingsTakeSelection_(selection), now = Math.floor(Date.now() / 1000);
+  if (selected.account !== getActiveEmail_() || selected.exp <= now || selected.iat > now || selected.exp - selected.iat > 60 ||
+      !secureEquals_(selected.ticketHash, checklingsMac_(c.flowKey, 'checklings:ticket-hash:v1', ticket))) throw new Error('Enter your PIN again from Checklings.');
+  assertCredentialVersion_(selected.email, selected.credentialVersion);
+  const student = getStudentsByEmail_(selected.email).find((s) => checklingsId_(c, 'class', s.classPeriod) === classId);
+  if (!student || !c.classPeriods.includes(student.classPeriod) || !checklingsPolicy_(c, student.classPeriod).enabled) throw new Error('Choose one of your own enabled classes.');
+  const snapshot = checklingsSnapshot_(c, student.classPeriod), approval = checklingsSendSnapshot_(c, snapshot);
+  const memberId = checklingsId_(c, 'member', student.key), epoch = approval && approval.authEpochs && approval.authEpochs[memberId];
+  if (approval.ok !== true || !Number.isInteger(epoch) || epoch < 0) throw new Error('Checklings could not confirm your class access.');
+  // Recheck identity/policy after network work; no stale caller facts are issued.
+  gdClearMemo_(); checklingsTicket_(c, ticket); assertCredentialVersion_(student.email, selected.credentialVersion);
+  if (!getStudentByKey_(student.key) || !checklingsPolicy_(c, student.classPeriod).enabled) throw new Error('Your class access changed. Start again from Checklings.');
+  const iat = Math.floor(Date.now() / 1000), exp = Math.min(iat + 30, flow.exp);
+  const assertion = checklingsSign_(c.assertionKey, 'checklings:bridge:v1', {
+    v: 1, iss: c.issuer, aud: c.audience, tenantId: c.tenantId, memberId, classId, authEpoch: epoch,
+    flowId: flow.flowId, challenge: flow.challenge,
+    jti: checklingsMac_(c.assertionKey, 'checklings:jti:v1', Utilities.getUuid() + Utilities.getUuid()), iat, exp,
+  });
+  const result = checklingsPost_(c, '/bridge/assertion', { assertion });
+  if (!result || typeof result.code !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(result.code)) throw new Error('Start again from Checklings.');
+  return { callbackUrl: c.gameOrigin + '/auth/callback#flowId=' + encodeURIComponent(flow.flowId) + '&state=' + encodeURIComponent(flow.state) + '&code=' + encodeURIComponent(result.code), expiresMs: exp * 1000 };
+}
+
+function getChecklingsAccess() {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  const c = checklingsConfig_();
+  return c.classPeriods.map((period) => ({ period, enabled: checklingsPolicy_(c, period).enabled }));
+}
+function syncChecklingsAccess(period, enabled) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  const c = checklingsConfig_();
+  if (enabled !== null && typeof enabled !== 'boolean') throw new Error('Choose open, pause, or refresh.');
+  const snapshot = checklingsSnapshot_(c, period, enabled === null ? undefined : enabled);
+  try {
+    const result = checklingsSendSnapshot_(c, snapshot);
+    if (result.ok !== true) throw new Error('Unconfirmed');
+    return { enabled: snapshot.enabled, confirmed: true };
+  } catch (error) {
+    return { enabled: snapshot.enabled, confirmed: false, message: 'Saved here. The game has not confirmed it. Existing access expires within two minutes; retry refresh.' };
+  }
+}
+
+function checklingsPage_(ticket, admin) {
+  const safeTicket = JSON.stringify(ticket).replace(/</g, '\\u003c');
+  return '<!doctype html><html><head><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checklings access</title>' +
+    '<style>body{font:18px system-ui,sans-serif;max-width:620px;margin:40px auto;padding:20px;color:#16212b;background:#f5f7fa}button,input,select,a{font:inherit;padding:12px;margin:8px 0}input,select{max-width:100%;box-sizing:border-box}button,a{cursor:pointer}label{display:block}p{line-height:1.5}.row{border-top:1px solid #aab4bc;padding:12px 0}button{min-height:44px}a{display:inline-block} [hidden]{display:none!important}</style></head><body>' +
+    '<h1>Checklings</h1><p id="message" role="status" aria-live="polite"></p><main id="panel"></main><button id="done" type="button">Done / clear this screen</button>' +
+    '<script>(function(){"use strict";const ticket=' + safeTicket + ',admin=' + JSON.stringify(admin) + ';let generation=0,selection="",idle,expiry;' +
+    'const panel=document.getElementById("panel"),message=document.getElementById("message");' +
+    'const call=(name,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(()=>reject(new Error("Access could not be confirmed. Start again from Checklings.")))[name](...args));' +
+    'function clear(){generation++;selection="";panel.replaceChildren();message.textContent="Screen cleared. Start again from Checklings.";clearTimeout(idle);clearTimeout(expiry);}' +
+    'document.getElementById("done").onclick=clear;document.addEventListener("visibilitychange",()=>{if(document.hidden)clear();});window.addEventListener("pagehide",clear);' +
+    'function active(){clearTimeout(idle);idle=setTimeout(clear,120000);}document.addEventListener("pointerdown",active);document.addEventListener("keydown",active);active();' +
+    'async function boot(){const g=generation;try{if(admin){const rows=await call("getChecklingsAccess");if(g!==generation)return;message.textContent="Open or pause a class. Refresh renews verified access for up to two minutes. Student login also refreshes its class.";' +
+    'for(const row of rows){const div=document.createElement("div");div.className="row";const title=document.createElement("p");title.textContent=row.period+" — "+(row.enabled?"open":"paused");div.append(title);' +
+    'for(const [label,value] of [["Open",true],["Pause",false],["Refresh",null]]){const b=document.createElement("button");b.textContent=label;b.onclick=async()=>{b.disabled=true;try{const r=await call("syncChecklingsAccess",row.period,value);if(g!==generation)return;title.textContent=row.period+" — "+(r.enabled?"open":"paused");message.textContent=r.confirmed?"Game confirmed the current class access.":r.message;}catch(e){if(g===generation)message.textContent=e.message;}finally{if(g===generation)b.disabled=false;}};div.append(b);}panel.append(div);}return;}' +
+    'message.textContent="Enter your classroom PIN, then choose your class. This does not record attendance or start a Hall Pass.";' +
+    'const form=document.createElement("form");form.innerHTML=\'<label for="pin">Six-digit PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" required><button type="submit">Continue</button>\';panel.append(form);' +
+    'form.onsubmit=async e=>{e.preventDefault();const input=form.querySelector("input"),button=form.querySelector("button");let pin=input.value;input.value="";button.disabled=true;try{const r=await call("identifyChecklingsGame",pin,crypto.randomUUID(),ticket);pin="";if(g!==generation)return;selection=r.selection;panel.replaceChildren();' +
+    'const label=document.createElement("label");label.textContent="Choose your class";const select=document.createElement("select");label.append(select);for(const c of r.classes){const option=document.createElement("option");option.value=c.id;option.textContent=c.label;select.append(option);}const confirm=document.createElement("button");confirm.textContent="Confirm class";panel.append(label,confirm);' +
+    'confirm.onclick=async()=>{confirm.disabled=true;try{const r=await call("completeChecklingsGame",selection,select.value,ticket);if(g!==generation)return;selection="";panel.replaceChildren();const a=document.createElement("a");a.id="open-game";a.href=r.callbackUrl;a.target="_top";a.rel="noreferrer noopener";a.textContent="Open Checklings";panel.append(a);message.textContent="Ready. Open Checklings to finish signing in.";expiry=setTimeout(clear,Math.max(0,r.expiresMs-Date.now()));}catch(e){if(g===generation){clear();message.textContent=e.message;}}};' +
+    '}catch(e){if(g===generation){message.textContent=e.message;button.disabled=false;}}finally{pin="";}};' +
+    '}catch(e){if(g===generation)message.textContent=e.message;}}boot();})();</script></body></html>';
+}
+function checklingsWeb_(e, admin) {
+  try {
+    const c = checklingsConfig_();
+    if (admin) assertTeacher_(getActiveEmail_(), getSettings_());
+    else checklingsTicket_(c, e && e.parameter && e.parameter.ticket);
+    return HtmlService.createHtmlOutput(checklingsPage_(admin ? '' : e.parameter.ticket, admin)).setTitle('Checklings access');
+  } catch (error) {
+    return HtmlService.createHtmlOutput('<!doctype html><meta name="referrer" content="no-referrer"><h1>Checklings is unavailable</h1><p>Start again from the game, or ask your teacher. Your classroom tools still work.</p>').setTitle('Checklings access');
+  }
 }
 
 /* -------------------------------------------------------- identification ---- */
@@ -978,8 +1185,13 @@ function credentialVersionForEmail_(emailValue) {
     Object.entries(byEmail).forEach(([studentEmail, hashes]) => {
       if (hashes.size !== 1) return;
       const [pinHash] = [...hashes];
+      const entry = directoryEntryForEmail_(studentEmail);
+      const generation = entry && entry.generation ? entry.generation : '';
+      // The per-room salt stays in this HMAC. Credential Generation is shared
+      // material, not a second secret, so a bump invalidates every connected room.
+      const material = generation ? `credential:${pinHash}:gen:${generation}` : `credential:${pinHash}`;
       const bytes = Utilities.computeHmacSha256Signature(
-        `credential:${pinHash}`,
+        material,
         ensureSalt_(),
         Utilities.Charset.UTF_8
       );
@@ -5695,8 +5907,17 @@ function teacherResetStudentPin(studentEmail,reason,clientContract){
 /* --------------------------------------- shared school identity directory ---- */
 
 const GD_HALL_PASS_VERSION = '1.0.0-rc.1';
+const GD_HALL_PASS_PACKAGE_VERSION = '1.0.0-rc.2';
 const GD_DIRECTORY_SHEET = 'School Directory';
-const GD_DIRECTORY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status'];
+const GD_DIRECTORY_REVIEW_SHEET = 'Directory Review';
+// Until the district supplies a different authoritative id, the exact digit
+// string in School Student ID is both the directory lookup id and the only
+// student PIN. No second secret is stored. Five-digit values are not padded.
+// Leading zeros stay because the cell is text. Credential Generation is a
+// shared counter, not a secret. Classroom membership is the Roster, never Status.
+const GD_DIRECTORY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status', 'Credential Generation'];
+const GD_DIRECTORY_LEGACY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status'];
+const GD_DIRECTORY_REVIEW_HEADERS = ['Reason', 'School Student ID', 'Student Name', 'Review State'];
 const GD_DIRECTORY_SOURCE = 'SCHOOL_DIRECTORY_SOURCE_ID';
 const GD_DIRECTORY_OWNED = 'SCHOOL_DIRECTORY_OWNED_ID';
 
@@ -5729,32 +5950,51 @@ function readSchoolDirectory_(id) {
     try { sheet = SpreadsheetApp.openById(id).getSheetByName(GD_DIRECTORY_SHEET); }
     catch (error) { throw new Error('The school directory is unavailable. Ask the directory owner to check this teacher’s access.'); }
     if (!sheet || sheet.getLastRow() < 1) throw new Error('That spreadsheet does not contain a school directory.');
-    const header = sheet.getRange(1, 1, 1, 4).getValues()[0];
-    if (header.some((value, index) => value !== GD_DIRECTORY_HEADERS[index])) throw new Error('The school directory headings have changed. Ask its owner to repair them.');
+    const header = sheet.getRange(1, 1, 1, GD_DIRECTORY_HEADERS.length).getValues()[0];
+    const width = directoryHeaderWidth_(header);
     if (sheet.getLastRow() > 5001) throw new Error('The school directory exceeds 5,000 students.');
-    const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues() : [];
+    const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, width).getValues() : [];
     const ids = new Set(), emails = new Set();
     return rows.filter((row) => row.some((cell) => cell !== '')).map((row, index) => {
       // Numeric cells may already have lost zeros. Require the original text.
       if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0])) throw new Error(`School directory row ${index + 2}: student number must be five or six digits stored as text.`);
       const id = row[0], name = String(row[1] || '').trim(), email = normalizeEmail_(row[2]);
       const status = String(row[3] || '').trim().toUpperCase();
+      const generation = width === GD_DIRECTORY_HEADERS.length ? row[4] : '1';
       if (!name || name.length > 120 || !['AVAILABLE', 'DISABLED'].includes(status)) throw new Error(`School directory row ${index + 2}: check the name and status.`);
+      if (typeof generation !== 'string' || !/^[1-9]\d{0,8}$/.test(generation)) throw new Error(`School directory row ${index + 2}: credential generation must be a whole number stored as text.`);
       assertPlainSheetText_(name, 'Student name');
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(`School directory row ${index + 2}: invalid school email.`);
       if (ids.has(id) || (email && emails.has(email))) throw new Error(`School directory row ${index + 2}: duplicate student number or email.`);
       ids.add(id); if (email) emails.add(email);
-      return { id, name, email, status };
+      return { id, name, email, status, generation };
     });
   });
+}
+
+function directoryHeaderWidth_(header) {
+  if (GD_DIRECTORY_HEADERS.every((value, index) => header[index] === value)) return GD_DIRECTORY_HEADERS.length;
+  // A directory created before Credential Generation still reads. Nothing here
+  // rewrites that workbook; the next owner import stores the new column.
+  const legacy = GD_DIRECTORY_LEGACY_HEADERS.every((value, index) => header[index] === value) && !String(header[4] || '').trim();
+  if (legacy) return GD_DIRECTORY_LEGACY_HEADERS.length;
+  throw new Error('The school directory headings have changed. Ask its owner to repair them.');
+}
+
+function directoryEntryForEmail_(email) {
+  const source = schoolDirectorySourceId_();
+  if (!source) return null;
+  const entries = gdMemo_('directory-by-email', () => new Map(readSchoolDirectory_(source).filter((row) => row.email).map((row) => [row.email, row])));
+  return entries.get(email) || null;
 }
 
 function schoolDirectoryPin_(email, fallback) {
   const source = schoolDirectorySourceId_();
   if (!source) return fallback;
-  const entries = gdMemo_('directory-by-email', () => new Map(readSchoolDirectory_(source).filter((row) => row.email).map((row) => [row.email, row])));
-  const entry = entries.get(email);
-  return entry && entry.status === 'AVAILABLE' ? entry.id : '';
+  const entry = directoryEntryForEmail_(email);
+  if (!entry || entry.status !== 'AVAILABLE') return '';
+  if (openDirectoryReviewIds_(source).has(entry.id)) return '';
+  return entry.id;
 }
 
 function schoolDirectoryRecoveryPin_(email, fallback) {
@@ -5843,9 +6083,11 @@ function teacherGetSchoolDirectoryState(clientContract) {
   const ownedId = properties.getProperty(GD_DIRECTORY_OWNED) || '';
   const sourceId = schoolDirectorySourceId_();
   const rows = ownedId ? readSchoolDirectory_(ownedId) : [];
-  return { ok: true, version: GD_HALL_PASS_VERSION, ownedId, sourceId,
+  const reviewOpen = ownedId ? openDirectoryReviewIds_(ownedId).size : 0;
+  return { ok: true, version: GD_HALL_PASS_VERSION, applicationVersion: GD_HALL_PASS_VERSION,
+    packageVersion: GD_HALL_PASS_PACKAGE_VERSION, automaticSoftwareUpdates: false, ownedId, sourceId,
     directoryUrl: ownedId ? `https://docs.google.com/spreadsheets/d/${ownedId}/edit` : '',
-    students: rows.length, withoutEmail: rows.filter((row) => !row.email).length };
+    students: rows.length, withoutEmail: rows.filter((row) => !row.email).length, reviewOpen };
 }
 
 /** Import is additive. It creates no class memberships and activates no credentials. */
@@ -5862,32 +6104,175 @@ function teacherImportSchoolDirectory(text, mapping, confirmation, revision, cli
     const byId = new Map(existing.map((row) => [row.id, row]));
     incoming.forEach((row) => {
       const prior = byId.get(row.id);
-      byId.set(row.id, { ...row, status: prior && prior.status === 'DISABLED' ? 'DISABLED' : row.status, email: row.email || (prior && prior.email) || '' });
+      byId.set(row.id, {
+        ...row,
+        status: prior && prior.status === 'DISABLED' ? 'DISABLED' : row.status,
+        email: row.email || (prior && prior.email) || '',
+        generation: prior && prior.generation ? String(prior.generation) : '1',
+      });
     });
     const merged = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
     const seen = new Set();
     merged.forEach((row) => { if (row.email && seen.has(row.email)) throw new Error('The merged directory would assign one email to two numbers. Correct the source first.'); if (row.email) seen.add(row.email); });
     if (merged.length > 5000) throw new Error('The merged directory exceeds 5,000 students.');
-    const currentRevision = schoolDirectoryRevision_([existing, merged]);
+    const reviewPlan = planDirectoryReviews_(ownedId ? SpreadsheetApp.openById(ownedId) : null, merged);
+    const currentRevision = schoolDirectoryRevision_([existing, merged, reviewPlan]);
+    const reviewOpen = reviewPlan.filter((row) => row.state === 'OPEN').length;
     const preview = { total: merged.length, added: merged.length - existing.length,
-      withoutEmail: merged.filter((row) => !row.email).length, membershipsCreated: 0, revision: currentRevision };
+      withoutEmail: merged.filter((row) => !row.email).length, reviewOpen, membershipsCreated: 0, revision: currentRevision };
     if (confirmation !== 'IMPORT SCHOOL DIRECTORY') return { ok: true, applied: false, preview };
     if (revision !== currentRevision) throw new Error('The directory changed. Preview the import again before applying.');
     let book = ownedId ? SpreadsheetApp.openById(ownedId) : SpreadsheetApp.create('Hall Pass — Private School Directory');
-    let sheet = book.getSheetByName(GD_DIRECTORY_SHEET);
-    if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_SHEET);
-    if (sheet.getMaxRows() < merged.length + 1) sheet.insertRowsAfter(sheet.getMaxRows(), merged.length + 1 - sheet.getMaxRows());
-    // Text formatting precedes the write. Neither IDs nor names are evaluated as formulas.
-    sheet.getRange(1, 1, merged.length + 1, 4).setNumberFormat('@').setValues([
-      GD_DIRECTORY_HEADERS, ...merged.map((row) => [row.id, row.name, row.email, row.status]),
-    ]);
-    sheet.setFrozenRows(1);
+    writeSchoolDirectory_(book, merged);
+    const review = applyDirectoryReviews_(book, merged);
     properties.setProperty(GD_DIRECTORY_OWNED, book.getId());
     gdClearMemo_();
     auditTeacherAction_(teacher, { email: '', name: 'School directory', classPeriod: 'Unassigned' },
-      'SCHOOL_DIRECTORY_IMPORTED', [], `${merged.length} directory entries; no memberships created`, '');
+      'SCHOOL_DIRECTORY_IMPORTED', [], `${merged.length} directory entries; ${review.filter((row) => row.state === 'OPEN').length} review rows; no memberships created`, '');
     return { ok: true, applied: true, preview, directoryUrl: `https://docs.google.com/spreadsheets/d/${book.getId()}/edit` };
   }, 30000, 'school directory import');
+}
+
+function directoryDisplayKey_(name) {
+  return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function proposedDirectoryReviews_(rows) {
+  const counts = new Map();
+  rows.forEach((row) => {
+    const key = directoryDisplayKey_(row.name);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  return rows.filter((row) => counts.get(directoryDisplayKey_(row.name)) > 1).map((row) => ({
+    reason: 'DUPLICATE_DISPLAY_NAME', id: row.id, name: row.name,
+  }));
+}
+
+function readDirectoryReviewRows_(book) {
+  if (!book) return [];
+  const sheet = book.getSheetByName(GD_DIRECTORY_REVIEW_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const header = sheet.getRange(1, 1, 1, GD_DIRECTORY_REVIEW_HEADERS.length).getValues()[0];
+  if (header.some((value, index) => value !== GD_DIRECTORY_REVIEW_HEADERS[index])) {
+    throw new Error('The directory review headings have changed. Ask its owner to repair them.');
+  }
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_DIRECTORY_REVIEW_HEADERS.length).getValues();
+  return rows.filter((row) => String(row[1] || '')).map((row) => ({
+    reason: String(row[0] || ''), id: String(row[1]), name: String(row[2] || ''), state: String(row[3] || '').trim().toUpperCase(),
+  }));
+}
+
+function planDirectoryReviews_(book, rows) {
+  const prior = readDirectoryReviewRows_(book);
+  const resolved = new Set(prior.filter((row) => row.state === 'RESOLVED').map((row) => `${row.reason}\t${row.id}`));
+  return proposedDirectoryReviews_(rows).map((row) => ({
+    ...row, state: resolved.has(`${row.reason}\t${row.id}`) ? 'RESOLVED' : 'OPEN',
+  }));
+}
+
+function writeSchoolDirectory_(book, rows) {
+  let sheet = book.getSheetByName(GD_DIRECTORY_SHEET);
+  if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_SHEET);
+  if (sheet.getMaxRows() < rows.length + 1) sheet.insertRowsAfter(sheet.getMaxRows(), rows.length + 1 - sheet.getMaxRows());
+  sheet.getRange(1, 1, rows.length + 1, GD_DIRECTORY_HEADERS.length).setNumberFormat('@').setValues([
+    GD_DIRECTORY_HEADERS, ...rows.map((row) => [row.id, row.name, row.email, row.status, row.generation || '1']),
+  ]);
+  sheet.setFrozenRows(1);
+}
+
+function writeDirectoryReview_(book, review) {
+  let sheet = book.getSheetByName(GD_DIRECTORY_REVIEW_SHEET);
+  if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_REVIEW_SHEET);
+  const height = Math.max(review.length + 1, 2);
+  if (sheet.getMaxRows() < height) sheet.insertRowsAfter(sheet.getMaxRows(), height - sheet.getMaxRows());
+  const values = [GD_DIRECTORY_REVIEW_HEADERS, ...review.map((row) => [row.reason, row.id, row.name, row.state])];
+  while (values.length < height) values.push(['', '', '', '']);
+  sheet.getRange(1, 1, height, GD_DIRECTORY_REVIEW_HEADERS.length).setNumberFormat('@').setValues(values);
+  sheet.setFrozenRows(1);
+}
+
+function applyDirectoryReviews_(book, rows) {
+  const review = planDirectoryReviews_(book, rows);
+  writeDirectoryReview_(book, review);
+  return review;
+}
+
+function openDirectoryReviewIds_(directoryId) {
+  if (!directoryId) return new Set();
+  return gdMemo_('directory-review-open:' + directoryId, () => {
+    let book;
+    try { book = SpreadsheetApp.openById(directoryId); }
+    catch (error) { throw new Error('The school directory is unavailable. Ask the directory owner to check this teacher’s access.'); }
+    const open = new Set();
+    readDirectoryReviewRows_(book).forEach((row) => { if (row.state === 'OPEN') open.add(row.id); });
+    return open;
+  });
+}
+
+function ownedDirectoryBook_() {
+  const ownedId = PropertiesService.getScriptProperties().getProperty(GD_DIRECTORY_OWNED) || '';
+  if (!ownedId) throw new Error('Only the directory owner can change a shared credential.');
+  return SpreadsheetApp.openById(ownedId);
+}
+
+/** A display name never selects or changes a PIN. */
+function teacherCorrectDirectoryPinByName(name, replacement, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  throw new Error('A name-only correction cannot change a PIN. Use the exact student number.');
+}
+
+function teacherBumpDirectoryCredentialGeneration(studentId, confirmation, revision, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const book = ownedDirectoryBook_();
+    const rows = readSchoolDirectory_(book.getId());
+    const id = String(studentId || '').trim();
+    if (!/^\d{5,6}$/.test(id)) throw new Error('Use the exact student number. A name cannot select a PIN.');
+    const index = rows.findIndex((row) => row.id === id);
+    if (index < 0) throw new Error('That exact student number is not in the directory.');
+    const next = rows.map((row) => ({ ...row }));
+    const current = String(next[index].generation || '1');
+    if (!/^[1-9]\d{0,8}$/.test(current)) throw new Error('The credential generation is not a whole number.');
+    next[index] = { ...next[index], generation: String(Number(current) + 1) };
+    const currentRevision = schoolDirectoryRevision_([rows, next]);
+    const preview = { generation: next[index].generation, pinChanged: false, membershipsCreated: 0, revision: currentRevision };
+    if (confirmation !== 'BUMP CREDENTIAL GENERATION') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory changed. Preview the generation bump again.');
+    writeSchoolDirectory_(book, next);
+    gdClearMemo_();
+    auditTeacherAction_(getActiveEmail_(), { email: '', name: 'School directory', classPeriod: 'Unassigned' },
+      'CREDENTIAL_GENERATION_BUMPED', [], '1 credential generation bumped; the lunch number was not changed', '');
+    return { ok: true, applied: true, preview };
+  }, 30000, 'credential generation');
+}
+
+function teacherResolveDirectoryReview(studentId, confirmation, revision, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const book = ownedDirectoryBook_();
+    const id = String(studentId || '').trim();
+    if (!/^\d{5,6}$/.test(id)) throw new Error('Use the exact student number. A name cannot resolve a review.');
+    const rows = readDirectoryReviewRows_(book);
+    if (!rows.some((row) => row.id === id && row.state === 'OPEN')) throw new Error('That exact student number has no open directory review.');
+    const next = rows.map((row) => row.id === id && row.state === 'OPEN' ? { ...row, state: 'RESOLVED' } : row);
+    const currentRevision = schoolDirectoryRevision_([rows, next]);
+    const preview = { resolved: true, enrolled: false, pinChanged: false, revision: currentRevision };
+    if (confirmation !== 'RESOLVE DIRECTORY REVIEW') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory review changed. Preview it again.');
+    const before = readSchoolDirectory_(book.getId()).find((row) => row.id === id);
+    writeDirectoryReview_(book, next);
+    const after = readSchoolDirectory_(book.getId()).find((row) => row.id === id);
+    if (!before || !after || before.id !== after.id || before.generation !== after.generation) {
+      throw new Error('A directory review cannot change a PIN.');
+    }
+    gdClearMemo_();
+    auditTeacherAction_(getActiveEmail_(), { email: '', name: 'School directory', classPeriod: 'Unassigned' },
+      'DIRECTORY_REVIEW_RESOLVED', [], '1 directory review resolved; no enrollment and no PIN change', '');
+    return { ok: true, applied: true, preview };
+  }, 30000, 'directory review');
 }
 
 /** Connection is explicit, previewed, and refused if it would strand any active student. */
@@ -5919,8 +6304,10 @@ function teacherEnrollSchoolStudent(studentId, classPeriod, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
   const source = schoolDirectorySourceId_();
   if (!source) throw new Error('Connect this classroom to the school directory first.');
-  const row = readSchoolDirectory_(source).find((entry) => entry.id === String(studentId || '').trim());
+  const id = String(studentId || '').trim();
+  const row = readSchoolDirectory_(source).find((entry) => entry.id === id);
   if (!row || !row.email || row.status !== 'AVAILABLE') throw new Error('That school number needs an available, verified school email before enrollment.');
+  if (openDirectoryReviewIds_(source).has(row.id)) throw new Error('That school number is waiting for directory review. Resolve it before enrollment.');
   return teacherAddStudentClass(row.name, row.email, classPeriod, clientContract);
 }
 

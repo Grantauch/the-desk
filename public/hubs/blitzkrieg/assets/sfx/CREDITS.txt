@@ -1,0 +1,18 @@
+Sound effects in this folder
+
+Weapons, explosions, the air raid siren and aircraft engines:
+  Spring: 1944 (https://github.com/spring1944/spring1944), sounds/ folder.
+  Licensed under Creative Commons Attribution-NonCommercial 3.0 (CC BY-NC 3.0).
+  Credit: the Spring: 1944 development team. Use is non-commercial only.
+  Files: mg, atr, at37, at37b, mortar, aa, aa2, f75, emg, rifle, e20, e75, e75b, e50,
+  ex1-ex8, gren, flak1, flak2, veh1-veh3, bomb, art105, art155, flame, siren,
+  eng109, engp11, eng190.
+
+Foley, voices and ambience:
+  "Oculus Audio Pack 01" by Oculus VR, LLC
+  (https://developers.meta.com/vr/downloads/package/oculus-audio-pack-1/), licensed under CC BY 4.0,
+  via the Meta Open Sound repository (https://github.com/facebookincubator/meta-open-sound).
+  Files: horse1, horse2, case1, case2, clink, metal1-metal3, die1-die4, hurt1, scream,
+  ui, uiback, deny, uimetal, lever1, lever2, drop, anvil, amb_farm, amb_wind, amb_rain.
+
+All files were trimmed, faded, mixed to mono where noted and re-encoded to MP3 for the game.

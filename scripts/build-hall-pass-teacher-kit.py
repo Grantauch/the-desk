@@ -31,15 +31,15 @@ def build(destination: Path = DESTINATION) -> Path:
     # This builder only produces review candidates. Publishing is a separate gate.
     public = (ROOT / "public").resolve()
     if destination == public or public in destination.parents:
-        raise SystemExit("Candidate output must stay outside public/. Field acceptance and release approval are pending.")
+        raise SystemExit("Candidate output must stay outside public/. Copy an already built ZIP into public/ only when distributionApproved is true.")
     if not PACKAGE.is_dir():
         raise SystemExit("Missing teacher-kit source folder.")
     actual = tuple(sorted(p.name for p in PACKAGE.iterdir()))
     if actual != tuple(sorted(WHITELIST)):
         raise SystemExit("Refusing to package unknown files in the teacher-kit source folder.")
     data = json.loads((PACKAGE / "VERSION.json").read_text(encoding="utf-8"))
-    if data.get("version") != VERSION or data.get("status") != "RELEASE_CANDIDATE" or data.get("distributionApproved") is not False or data.get("productionCutoverAuthorized") is not False:
-        raise SystemExit("Version metadata is not the expected preview release.")
+    if data.get("version") != VERSION or data.get("status") != "RELEASE_CANDIDATE" or data.get("distributionApproved") is not True or data.get("productionCutoverAuthorized") is not True:
+        raise SystemExit("Version metadata is not the owner-authorized RC2 rollout.")
     if any((PACKAGE / name).is_symlink() for name in WHITELIST) or any((ROOT / name).is_symlink() for name in SOURCE_PATHS.values()):
         raise SystemExit("Refusing symlinked package inputs.")
     files = {name: (PACKAGE / name).read_bytes() for name in WHITELIST}
@@ -84,7 +84,7 @@ def main() -> None:
     destination = build(args.output)
     print("BUILT: " + str(destination))
     print("SHA256: " + hashlib.sha256(destination.read_bytes()).hexdigest())
-    print("STATUS: RELEASE_CANDIDATE — NOT APPROVED FOR DISTRIBUTION OR PRODUCTION CUTOVER")
+    print("STATUS: RELEASE_CANDIDATE — VERSION.json authorizes distribution and cutover. The Apps Script deploy remains owner-only.")
 
 if __name__ == "__main__":
     main()

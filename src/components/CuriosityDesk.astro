@@ -264,7 +264,8 @@ const first = curiosityItems[0];
         const request = (async () => {
           try {
             const functionController = new AbortController();
-            const functionTimeout = window.setTimeout(() => functionController.abort(), 10_000);
+            // Allow invocation/network overhead beyond the function's 9s LOC deadline.
+            const functionTimeout = window.setTimeout(() => functionController.abort(), 12_000);
             try {
               const functionUrl = new URL('/.netlify/functions/curiosity', window.location.origin);
               functionUrl.searchParams.set('collection', collection);
@@ -275,6 +276,9 @@ const first = curiosityItems[0];
               });
               if (functionResponse.ok) {
                 const functionPayload = await functionResponse.json();
+                // The function already tried LOC. Keep the reviewed local artifact
+                // during an outage instead of repeating the same failed request.
+                if (functionPayload?.mode === 'archive' && functionPayload.collection === collection) return false;
                 const resolved = (Array.isArray(functionPayload?.items) ? functionPayload.items : [])
                   .map((item) => normalizeResolvedItem(item, collection))
                   .filter(Boolean);

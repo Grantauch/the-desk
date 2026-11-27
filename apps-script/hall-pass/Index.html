@@ -1916,10 +1916,10 @@
       const openSchoolDirectoryDialog = async () => {
         const directory = await call('teacherGetSchoolDirectoryState');
         let previewKey = '', revision = '';
-        teacherFormDialog(`<p class="eyebrow">SCHOOLWIDE ROSTER · VERSION ${escapeHtml(directory.version)}</p><h2>one school number in every room.</h2>
-          <p>Import the school list into a separate private directory. Students stay unassigned until you add them to a class. Link verified school emails by the exact lunch number.</p>
-          ${directory.directoryUrl ? `<p><a href="${escapeHtml(directory.directoryUrl)}" target="_blank" rel="noopener">Open your private directory</a> · ${escapeHtml(directory.students)} students · ${escapeHtml(directory.withoutEmail)} need email mapping.</p>` : ''}
-          <label>Choose a task<select name="task"><option value="import">Import / update the school directory</option><option value="connect">Connect this classroom to a directory</option><option value="enroll">Enroll a student by school number</option></select></label>
+        teacherFormDialog(`<p class="eyebrow">SCHOOLWIDE ROSTER · APP ${escapeHtml(directory.applicationVersion || directory.version)} · PACKAGE ${escapeHtml(directory.packageVersion || '1.0.0-rc.2')}</p><h2>one school number in every room.</h2>
+          <p>Import the school list into a separate private directory. Students stay unassigned until you add them to a class. Link verified school emails by the exact lunch number. The lunch number is the only PIN. Duplicate names wait for a person before anyone can enroll them.</p>
+          ${directory.directoryUrl ? `<p><a href="${escapeHtml(directory.directoryUrl)}" target="_blank" rel="noopener">Open your private directory</a> · ${escapeHtml(directory.students)} students · ${escapeHtml(directory.withoutEmail)} need email mapping · ${escapeHtml(directory.reviewOpen || 0)} waiting for name review.</p>` : ''}
+          <label>Choose a task<select name="task"><option value="import">Import / update the school directory</option><option value="connect">Connect this classroom to a directory</option><option value="enroll">Enroll a student by school number</option><option value="resolve">Resolve a duplicate-name review</option><option value="bump">Bump credential generation for one exact number</option></select></label>
           <label>School list (number, then name; or tab-separated number, name, email)<textarea name="list" rows="7" autocomplete="off"></textarea></label>
           <label>Verified email mapping (optional; number,school email)<textarea name="mapping" rows="4" autocomplete="off"></textarea></label>
           <label>Directory spreadsheet link (for connection)<input name="directory" value="${escapeHtml(directory.sourceId ? ['https:', '', 'docs.google.com', 'spreadsheets', 'd', directory.sourceId, 'edit'].join('/') : directory.directoryUrl)}" autocomplete="off"></label>
@@ -1933,8 +1933,33 @@
             adoptState(await call('teacherEnrollSchoolStudent', form.elements.studentId.value, form.elements.period.value));
             renderTeacher(); return true;
           }
-          const key = JSON.stringify([task, list, mapping, directoryUrl]);
           const box = form.querySelector('.lunch-preview');
+          if (task === 'resolve' || task === 'bump') {
+            const phrase = task === 'resolve' ? 'RESOLVE DIRECTORY REVIEW' : 'BUMP CREDENTIAL GENERATION';
+            const key = JSON.stringify([task, form.elements.studentId.value]);
+            if (previewKey !== key || !revision) {
+              const result = task === 'resolve'
+                ? await call('teacherResolveDirectoryReview', form.elements.studentId.value, '', '')
+                : await call('teacherBumpDirectoryCredentialGeneration', form.elements.studentId.value, '', '');
+              revision = result.preview.revision; previewKey = key;
+              box.hidden = false;
+              box.innerHTML = task === 'resolve'
+                ? '<p>Resolving the review does not enroll the student and does not change the number.</p>'
+                : '<p>This bumps the shared generation only. The lunch number stays the same, and old sessions in every connected room stop working.</p>';
+              box.innerHTML += `<p>Type <strong>${phrase}</strong>, then save again to apply.</p>`;
+              form.elements.confirmation.value = '';
+              return false;
+            }
+            if (form.elements.confirmation.value.trim() !== phrase) throw new Error('Type ' + phrase + ' to apply the preview.');
+            const applied = task === 'resolve'
+              ? await call('teacherResolveDirectoryReview', form.elements.studentId.value, phrase, revision)
+              : await call('teacherBumpDirectoryCredentialGeneration', form.elements.studentId.value, phrase, revision);
+            if (!applied.applied) throw new Error('The change was not applied. Preview again.');
+            teacherNotice = task === 'resolve' ? 'Directory review resolved. The student is still not enrolled.' : 'Credential generation bumped. The lunch number did not change.';
+            renderTeacher();
+            return true;
+          }
+          const key = JSON.stringify([task, list, mapping, directoryUrl]);
           const phrase = task === 'connect' ? 'USE SCHOOL DIRECTORY' : 'IMPORT SCHOOL DIRECTORY';
           if (previewKey !== key || !revision) {
             const result = task === 'connect'
@@ -1944,7 +1969,7 @@
             box.hidden = false;
             box.innerHTML = task === 'connect'
               ? `<p>${escapeHtml(p.matched)} current students matched. ${escapeHtml(p.unmatched.length)} need verified mappings.</p>${p.unmatched.length ? `<p>${escapeHtml(p.unmatched.join(', '))}</p>` : `<p>Current PINs will change to the exact school lunch numbers. Open identity sessions will expire.</p>`}`
-              : `<p>${escapeHtml(p.total)} students in the directory, ${escapeHtml(p.added)} added, ${escapeHtml(p.withoutEmail)} without email mappings. No class enrollments are created.</p>`;
+              : `<p>${escapeHtml(p.total)} students in the directory, ${escapeHtml(p.added)} added, ${escapeHtml(p.withoutEmail)} without email mappings, ${escapeHtml(p.reviewOpen || 0)} waiting for name review. No class enrollments are created.</p>`;
             box.innerHTML += `<p>Type <strong>${phrase}</strong>, then save again to apply.</p>`;
             form.elements.confirmation.value = '';
             return false;

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FNL",
+  "title": "Who Pays for Friday Night?",
+  "route": "/hubs/bts-who-pays-for-friday-night.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/FNL/story.json",
+    "note": "Friday Night Lights companion. Openly licensed place photos printed in sodium amber, one in projector teal for the film. Real people appear through YouTube embeds and optional teacher supplied photos listed in people/people.json."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-who-pays-for-friday-night.html",
+      "bytes": 82549,
+      "sha256": "c5ce94e3b0f96333068c7e9fb736f4ee6725e40af236bcfce1162700ca49e0e2"
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/astrodome.webp",
+      "assetId": "A08",
+      "bytes": 132088,
+      "sha256": "8e4f8b9d766bd7b4c11a0667d158dd07842c93af0914f15cdfdd07325879ce36",
+      "width": 1200,
+      "height": 675
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/austin-memorial.webp",
+      "assetId": "A07",
+      "bytes": 263324,
+      "sha256": "1e661db7ebef6ffdd392e3c1af179a07bf2a691d99ddb52f57930c8c939c5442",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/friday-lights.webp",
+      "assetId": "A01",
+      "bytes": 98088,
+      "sha256": "a86f949b5ee2e5b43ea7d241dc7285f5d78e6e5835863c44d69470f48a9d271a",
+      "width": 1600,
+      "height": 563
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/jones-stadium.webp",
+      "assetId": "A05",
+      "bytes": 242186,
+      "sha256": "45ed96385a40cf4e90312d598a5cc704150881ad016d6269572adf027a7c50ee",
+      "width": 1200,
+      "height": 637
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/midland.webp",
+      "assetId": "A06",
+      "bytes": 212478,
+      "sha256": "cd6f1839db6078740d9008560be4cfbca60d0802353e6827aed0e4776c966e39",
+      "width": 1200,
+      "height": 750
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/odessa.webp",
+      "assetId": "A03",
+      "bytes": 159558,
+      "sha256": "8fbfcf14016bce9cab5ebba0c9724e22dece59c47ece308d027f10908b00dd5e",
+      "width": 1200,
+      "height": 769
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/pumpjack.webp",
+      "assetId": "A02",
+      "bytes": 164316,
+      "sha256": "30ea26a114963f82f1d2de7fa730288623e0fc64506b5f5dfdc6a58f0d59cce5",
+      "width": 1200,
+      "height": 801
+    },
+    {
+      "path": "/storyhub/bts/friday-night/assets/ratliff.webp",
+      "assetId": "A04",
+      "bytes": 118482,
+      "sha256": "ccdfb67cc72e579992e653c7d8905502a9c391b0e3ff7053ce55416bde447541",
+      "width": 1200,
+      "height": 900
+    }
+  ],
+  "totalBytes": 1473069,
+  "sealedAt": "2026-11-18"
+}

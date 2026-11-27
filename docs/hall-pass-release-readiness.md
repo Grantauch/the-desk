@@ -8,12 +8,12 @@ Owner: Codex. Review branch: `work/hall-pass-release-gate`. Inspected main: `e30
 | --- | --- | --- |
 | Private schoolwide directory, separate classroom memberships | `Code.gs` has a separate directory workbook. Import adds no classroom memberships. Active membership is required in each room. Independent-workbook synthetic tests pass. | Actual district sharing policy and two school-account installations must be tested. |
 | Exact shared lunch-number PIN | Server reads the same private directory in each room, preserves five/six digits and leading zeros, refuses local random resets when connected, and invalidates sessions/proofs when current credentials change. | Real mapping/cutover is not authorized here. District must authorize reuse of payment-related identifiers. |
-| Authoritative identity and import review | Exact number/email mappings; duplicate IDs/emails, wrong-domain records, malformed/numeric cells and stale previews are rejected. Private roster validator reports duplicate-name counts without printing records. | Browser import has no duplicate-name exception-review workflow. Directory columns use the lunch number as School Student ID plus verified email/status; separate immutable ID and explicit credential-version reference columns are not implemented. Current invalidation derives from the credential hash. Reconcile this schema with #319 before claiming full completion. |
+| Authoritative identity and import review | Exact number/email mappings; duplicate IDs/emails, wrong-domain records, malformed/numeric cells and stale previews are rejected. The exact digit string is both the lookup id and the only PIN. Credential Generation is a shared counter included in each room's salted session proof. Duplicate display names import inactive, land on a private review sheet, and cannot be enrolled until a person resolves that row. | The real number-to-email mapping stays outside git. A name-only correction cannot change a PIN. |
 | Classroom isolation and default denial | Teacher-owned workbooks/logs and explicit per-room enrollment; unassigned/disabled identities are refused. | Verify actual school-account roles, directory ACLs and managed kiosk account in the domain. Viewers of the directory can read identifiers; only individually authorized staff may receive that access. |
 | Kiosk privacy and defensive controls | Explicit five/six-digit submission, immediate clearing, timeout, persistent server throttling and fail-closed directory lookup are implemented and covered synthetically. | Real Chromebook keyboard/touchscreen/sleep/relaunch/Wi-Fi/lockout acceptance pending. |
 | Single versioned browser-first kit | This batch builds package `1.0.0-rc.2` with Start Here, all seven program files (classroom application `1.0.0-rc.1`, with corrected template setup recovery), package/source manifests, offline Preflight, optional IT verifier, smoke tests, recovery and school checklist. | No finished release or new public download is published. Google OAuth and owner deployment remain required steps. |
 | Exact template/source integrity | Package includes exact and editor-normalized source hashes; setup requests the coordinator's approved blank-template link instead of embedding an unchecked mutable template. | Current hosted template was not read/modified. IT must compare all seven files or provision an approved exact-source blank template. Version labels alone cannot prove integrity. |
-| Centrally managed software updates | Directory corrections are read automatically. Package and application versions are distinguished. | **Unmet:** independent Apps Script copies still require per-copy software deployment updates. Decide and implement an approved central service or school-managed update mechanism; test upgrade and compatible rollback before release. |
+| Centrally managed software updates | Directory corrections are read automatically. Package `1.0.0-rc.2` and application `1.0.0-rc.1` are reported separately. An owner-mediated rehearsal copies only the seven approved source files into a synthetic copy and can roll that copy back. History rows survive. Production script and spreadsheet ids are refused. | `automaticSoftwareUpdates` stays false. The rehearsal is not a hosted website and does not update copies by itself. |
 | Clean-environment release gate | Exact archive verifier, 16-case operator record, strict defaults and artifact fingerprints now exist. Incomplete/altered evidence cannot approve publication/cutover. | A clean supported computer, second school-account user and dedicated managed Chromebook have not completed the exact ZIP test. |
 | Recovery and production protection | Separate software/directory recovery, private backups, history preservation, compatible-version restrictions and coordinated credential recovery are documented. Builder refuses `public/` output. | School IT must rehearse restoration with synthetic history, retain private configuration and explicitly authorize a later cutover. |
 
@@ -29,16 +29,24 @@ Owner: Codex. Review branch: `work/hall-pass-release-gate`. Inspected main: `e30
 
 Archive: `HallPass-Teacher-Installer-v1.0.0-rc.2.zip`.
 
-SHA-256: `da342495e6906d90d39bb4002830b7fc81c0fc05f23bc847f3332eea60ba6855`.
+November 4 hashes `da342495e6906d90d39bb4002830b7fc81c0fc05f23bc847f3332eea60ba6855` and `c00e4f869652fa1bee17a533194da0e027457abc79d099a086d83af8b7f26dd7` are void.
 
-Payload manifest SHA-256: `c00e4f869652fa1bee17a533194da0e027457abc79d099a086d83af8b7f26dd7`.
+November 26 freeze, package `1.0.0-rc.2`, application `1.0.0-rc.1`:
+
+Archive: `public/downloads/HallPass-Teacher-Installer-v1.0.0-rc.2.zip` (190167 bytes).
+
+ZIP SHA-256: `525ca31479793c4a95d3fb67b233ef5bc57c9e0f73c4ff56b9bb65d757a40a44`.
+
+Payload manifest SHA-256: `4d78b3f75a641bc3c7862aeb1c275737d9aab1d6dfd5a8d9b6b8a739ce17a9c9`.
+
+`distributionApproved` and `productionCutoverAuthorized` are true because the owner instructed the rollout on November 25, 2026. `automaticSoftwareUpdates` stays false. The builder still refuses to write this ZIP under `public/`; the file above is a copy of the private build. Operator evidence still cannot flip either flag. The freeze commit is the commit that adds this ZIP and these hashes. Apps Script production deploy is not part of that commit.
 
 Rebuild privately with `python scripts/build-hall-pass-teacher-kit.py`; verify with the included `verify.py`. The candidate is not placed in `public/` or a release attachment.
 
 ## Verification evidence
 
 - `node scripts/test-hall-pass-teacher-kit.cjs`: PASS. Exercises actual launcher handlers, Preflight UI defaults and stale-artifact resets, deterministic builds, exact seven source files, checksum/tamper/missing/extra/duplicate failures, evidence binding and forged approval rejection. Invokes the synthetic Python negative tests.
-- `npm run hall-pass:verify`: PASS, including 441 runtime behaviors across 32 areas, structural/handoff checks, independent-room directory/credential/revocation/throttling tests and new kit checks.
+- `npm run hall-pass:verify`: PASS, including 446 runtime behaviors across 33 areas, structural/handoff checks, independent-room directory/credential/generation/review tests, the two-room dry run, the synthetic software-update rehearsal and kit checks.
 - `python scripts/test-schoolwide-hall-pass-roster.py`: PASS, 5 tests. No private roster was read.
 - Chrome HTTP preview: Start Here renders; synthetic template/deployment links generate correctly; Preflight renders 16 Not run cases with evidence download disabled initially. A hidden-link CSS issue observed in review was fixed. This is preview UI evidence only.
 - Browser limitation: direct `file://` navigation was rejected by the cloud browser's URL security policy. No workaround or policy change was attempted. The actual extracted local-file flow, browser folder hashing and downloaded evidence have **not** been browser-verified here. Node executes the real handlers/hash logic, but does not replace that field check. School IT/teacher must run the native extraction flow on the supported computer.
@@ -65,4 +73,4 @@ Google documents unsupported multiple-account sign-in in Apps Script: https://de
 
 The public setup guide and private review kit include those steps. Browser regression coverage uses only synthetic Google replies at phone and dialog widths, including repeated failure, invalid responses, blocked navigation, successful retry, preserved save inputs, step progress and WCAG A/AA. Protected CI and actual second-teacher field confirmation remain separate gates.
 
-November 5 focused Hall Pass verification passes all 441 runtime behaviors, structural/handoff validation, independent-room directory tests, setup handler regressions and package integrity negatives. Local Chrome startup was blocked by the execution environment (Unix-socket creation refused), so no local browser pass is claimed. The actual-HTML test is part of the required protected browser suite. Full canonical verification is still running at this source checkpoint.
+November 5 focused Hall Pass verification passed the runtime suite then current. The November 26 source passes 446 runtime behaviors across 33 areas, structural/handoff validation, independent-room directory tests, setup handler regressions and package integrity negatives. Local Chrome startup was blocked by the execution environment (Unix-socket creation refused), so no local browser pass is claimed. The actual-HTML test is part of the required protected browser suite. Full canonical verification is still running at this source checkpoint.
