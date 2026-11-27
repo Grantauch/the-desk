@@ -1221,7 +1221,7 @@ window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,
   <header class="ob-row"><div><small>ICEBREAK / INTERNET PLAY</small><h2 id="ob-title">Online beta</h2></div><button id="ob-close" type="button">Back to local</button></header>
   <p id="ob-status" role="status" aria-live="polite">Create a room or enter a friend's room code.</p>
   <section id="ob-setup">
-    <p>Up to eight devices in one room. Share only the six-character room code. Empty seats use AI.</p>
+    <p>Up to eight devices in one room. Share only the six-character room code. Empty seats use AI. Everyone must join before the host starts the match.</p>
     <div class="ob-fields">
       <label>Room code<input id="ob-code" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
       <label>Position<select id="ob-seat"></select></label>
@@ -1229,7 +1229,7 @@ window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,
     <div class="ob-row"><button id="ob-create" data-online-emphasis type="button">Create room</button><button id="ob-join" type="button">Join room</button></div>
   </section>
   <section id="ob-lobby" hidden aria-label="Room seats">
-    <p>Share code: <strong id="ob-room-code"></strong></p>
+    <p>Share code: <strong id="ob-room-code"></strong>. Invite everyone before you start the match.</p>
     <ol id="ob-roster" aria-label="Team readiness"></ol>
     <div class="ob-row"><button id="ob-ready" type="button" aria-pressed="false">Ready</button><button id="ob-start" data-online-emphasis type="button" disabled>Start match</button></div>
   </section>
@@ -1240,7 +1240,7 @@ window.__ICEBREAK_TEST__={getState:()=>({phase,paused,score:[...score],timeLeft,
       <div class="ob-pad"><span></span><button type="button" data-ob-key="w" aria-label="Skate up">↑</button><span></span><button type="button" data-ob-key="a" aria-label="Skate left">←</button><button type="button" data-ob-key="s" aria-label="Skate down">↓</button><button type="button" data-ob-key="d" aria-label="Skate right">→</button></div>
       <div class="ob-actions"><button type="button" data-ob-key="j" aria-label="Pass puck">Pass</button><button type="button" data-ob-key="k" aria-label="Shoot puck">Shoot</button><button type="button" data-ob-key="l" aria-label="Check skater">Check</button><button type="button" data-ob-key="shift" aria-label="Burst skate">Burst</button></div>
     </div>
-    <p>Keyboard: WASD or arrows to skate; J pass, K shoot, L check, Shift burst.</p>
+    <p>Keyboard: WASD or arrows to skate; J pass, K shoot, L check, Shift burst. Back to local leaves your seat.</p>
   </section>
 </dialog>
 
@@ -1467,9 +1467,9 @@ function initialize(url){
    if(!value.resumed)lobby.hidden=false;
    show(value.resumed?'Seat restored.':'Room open. Choose Ready when you are set.');
   }else if(type==='snapshot')refresh(value.frame,value.advancesWorld);
-  else if(type==='reconnecting'){connected=false;keys.clear();pointers.clear();by('ob-start').disabled=true;by('ob-ready').disabled=true;show('Connection lost. Rejoining your seat…');}
+  else if(type==='reconnecting'){connected=false;keys.clear();pointers.clear();by('ob-start').disabled=true;by('ob-ready').disabled=true;show('Connection lost. Keep this tab open while we reconnect.');}
   else if(type==='server-error'){
-   const notes={SEAT_TAKEN:'That position is taken. Pick another and try again.',ROOM_NOT_FOUND:'Room not found. Check the code.',ROOM_FULL:'The room already has eight players.',PLAYERS_NOT_READY:'A player is not ready yet.'};
+   const notes={SEAT_TAKEN:'That position is taken. Pick another and try again.',ROOM_NOT_FOUND:'Room not found. Check the code.',ROOM_FULL:'The room already has eight players.',MATCH_STARTED:'This match has already started. Join a new room to play.',PLAYERS_NOT_READY:'A player is not ready yet.'};
    show(notes[value]||'That room request could not be completed.');if(seat<0)setJoinButtons(false);
   }else if(['unavailable','expired','incompatible'].includes(type)){
    const messages={unavailable:'The online server did not answer. Local play is still available.',expired:'Your seat expired. Create or join a room again.',incompatible:'Online play needs an updated game server. Local play is still available.'};
