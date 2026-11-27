@@ -1,6 +1,6 @@
 # Breakaway V4.8.9 — QA report (in progress)
 
-**Date:** 2026-11-27. **Candidate SHA-256:** `4ec136ffd0493c2efbfc0a28043b3e6fa1aa1876c5147369ddf425c888afa9df`.
+**Date:** 2026-11-27. **Candidate SHA-256:** `8b3f5e0556bfdf8400d3bcc80e11bf3476275a57899fb02581cdd1d4087fdf17`.
 
 ## Completed
 - Development source published on a dedicated review branch; immutable V4.8.8 preserved as base and rollback. A readable source recipe independently reconstructed the exact candidate bytes.
@@ -13,10 +13,12 @@
   - **Total: 1,902,227 simulation frames, 75,644 state assertions.**
 - Assertions cover complete games, legal clock, finite ball-carrier positions, downed-defender permanence and scoring-ledger reconciliation.
 
+## Current candidate browser and package evidence
+- Node source reconstruction, manifest checksum, syntax, offline packaging and exact football engine parity passed.
+- The actual HTML passed Chromium emulation at 1440×900, 390×844, 320×568 and 844×390, including 2,000 draws, isolated and bounded replay buffers, clock freeze, early/middle/late skips, focus return, Reduced Effects and the contact prompt.
+- Tackle and touchdown replay were exercised at synthetic 30, 60, 90 and 120 fps and with uneven frame intervals in Chromium. Playback interpolation matched captured time; the duration cap trims older poses rather than speeding up the remaining clip. An emulated controller also passed skip and focus tests.
+
 ## Required, not yet passed
-- **The new V4.8.9 renderer has not yet been executed in a browser.** Local simulation evidence applies to the byte-identical football engine only.
-- Run `node tests/verify-build.cjs` on the exact 4.8.9 checkout to verify Node parsing, SHA-256 manifest and build recipe.
-- Run `python3 tests/qa-camera-browser.py` for all four Chromium layouts and 2,000 render draws. Replay skip, contact prompt, on-screen defender visibility, Reduced Effects and memory-bound checks remain pending.
 - Real-speed visual footage, hands-on iPhone/Android, Safari/Firefox and physical controller remain pending.
 - Independent review and source PR CI need confirmation before changing `LATEST.md`. Production release would require a **separate approved** rollout.
 
