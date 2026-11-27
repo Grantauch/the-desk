@@ -12,8 +12,8 @@
   "change_class": "renderer and replay UI only",
   "engine_identical_to_base": true,
   "QA": {
-    "engine_simulation": "25/25 local games, 96839 frames, 3849 assertions against byte-identical source core",
-    "required_500_games": "pending (500 game attempt timed out)",
+    "engine_simulation": "PASS 500/500 local full games on byte-identical 4.8.7->4.8.8->4.8.9 engine core; 1902227 frames; 75644 state assertions",
+    "required_500_games": "PASS via 4 partitions of 125 seeds using unchanged core",
     "browser_4_viewports": "pending",
     "renderer_2000_draws": "pending",
     "physical_phones": "pending",
