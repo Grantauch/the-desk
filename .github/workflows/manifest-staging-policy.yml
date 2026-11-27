@@ -1,0 +1,20 @@
+name: Manifest staging policy
+on:
+  pull_request:
+    paths:
+      - 'tools/manifest-phase22/**'
+      - '.github/workflows/manifest-staging-policy.yml'
+permissions:
+  contents: read
+jobs:
+  staging-policy:
+    name: Manifest staging policy (no deploy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check policy and negative cases
+        working-directory: tools/manifest-phase22
+        run: |
+          python3 -m py_compile staging_gate.py site_policy.py test_site_policy.py
+          python3 -m unittest -v test_site_policy
