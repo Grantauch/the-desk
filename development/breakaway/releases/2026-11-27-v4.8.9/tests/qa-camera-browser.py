@@ -22,7 +22,7 @@ def start_replay(page):
         t.captureReplay(1/28);
       }
       const count=t.replay.history.length;
-      const expected=t.replay.history.slice(-59).map(f=>f.player.x);
+      const expected=t.replay.history.slice(-59).filter(f=>t.replay.captureTime-f.replayAt<=2.80*.90/1.20).map(f=>f.player.x);
       g.driveState='TACKLED';
       const frozen=JSON.stringify({
         clock:g.clock,score:g.score,x:g.player.x,y:g.player.y,

@@ -1855,7 +1855,7 @@ function drawAttract(elapsed){
 // Replay stores only copied, bounded visual state. It never calls step(),
 // cannot change the game clock, and has a dedicated camera/render surface.
 const replayCanvas=$('replayCanvas'),replayRenderer=new FieldRenderer(replayCanvas);
-const replay={history:[],active:false,frames:[],time:0,duration:0,kind:'',seenDrive:0,lastPossession:0,captureAccumulator:0,seenEscape:false};
+const replay={history:[],active:false,frames:[],time:0,duration:0,kind:'',seenDrive:0,lastPossession:0,captureAccumulator:0,captureTime:0,span:0,still:false,seenEscape:false};
 const REPLAY_INTERVAL=1/28,REPLAY_MAX=92,REPLAY_PLAYBACK_MAX=60;
 function captureSnapshot(g){
  // Copy only render-relevant actors and the few labels they need. Never store
@@ -1870,11 +1870,18 @@ function captureSnapshot(g){
   lastDrive:g.lastDrive?{...g.lastDrive,breakdown:{...(g.lastDrive.breakdown||{})}}:null,
   formation:g.formation?{...g.formation}:null};
 }
+function replayDelta(elapsed){return clamp(Number.isFinite(elapsed)?elapsed:0,0,.08)}
 function captureReplay(elapsed){if(replay.active||game.escape||game.driveState||game.phase!=='playing')return;
- if(replay.lastPossession!==game.possession){replay.history=[];replay.lastPossession=game.possession;replay.captureAccumulator=0;}
- replay.captureAccumulator+=Math.min(.08,Math.max(0,elapsed));
- if(replay.captureAccumulator>=REPLAY_INTERVAL||!replay.history.length){replay.captureAccumulator=0;
- replay.history.push(captureSnapshot(game));if(replay.history.length>REPLAY_MAX)replay.history.shift();}
+ if(replay.lastPossession!==game.possession){replay.history=[];replay.lastPossession=game.possession;replay.captureAccumulator=0;replay.captureTime=0;}
+ const dt=replayDelta(elapsed);
+ replay.captureTime+=dt;
+ replay.captureAccumulator+=dt;
+ if(replay.captureAccumulator+1e-9>=REPLAY_INTERVAL||!replay.history.length){
+  // Capture once per real pose. Carry the phase across frames without inventing duplicate poses.
+  replay.captureAccumulator=Math.max(0,replay.captureAccumulator-Math.floor((replay.captureAccumulator+1e-9)/REPLAY_INTERVAL)*REPLAY_INTERVAL);
+  replay.history.push({...captureSnapshot(game),replayAt:replay.captureTime});
+  if(replay.history.length>REPLAY_MAX)replay.history.shift();
+ }
 }
 // No simulation work or live-state read is allowed inside replay drawing.
 function blendRecordedFrames(a,b,t){
@@ -1895,16 +1902,21 @@ function blendRecordedFrames(a,b,t){
   defenders:pair(a.defenders,b.defenders),
   blockers:pair(a.blockers,b.blockers)};
 }
-function showReplay(){
+function showReplay(elapsed=0){
  if(!game.driveState||replay.active||replay.seenDrive===game.possession)return false;
  replay.seenDrive=game.possession;
  if(!replaysEnabled)return false;
  replay.kind=game.driveState;
- replay.frames=replay.history.slice(-(REPLAY_PLAYBACK_MAX-1)).concat([captureSnapshot(game)]);
- if(replay.frames.length<2)replay.frames=[captureSnapshot(game),captureSnapshot(game)];
+ const rate=replay.kind==='TOUCHDOWN'?1.34:1.20, end=replay.captureTime+replayDelta(elapsed);
+ const final={...captureSnapshot(game),replayAt:end};
+ // Keep the most recent poses that fit the duration cap without speeding them up.
+ const history=replay.lastPossession===game.possession?replay.history:[];
+ const horizon=2.80*.90/rate;
+ replay.frames=history.slice(-(REPLAY_PLAYBACK_MAX-1)).filter(f=>end-f.replayAt<=horizon).concat(final);
+ replay.span=end-replay.frames[0].replayAt;
+ replay.still=reducedEffects||replay.span<=0;
  replay.time=0;
- const rate=replay.kind==='TOUCHDOWN'?1.34:1.20;
- replay.duration=reducedEffects?1.15:clamp(replay.frames.length*REPLAY_INTERVAL*rate,1.55,2.80);
+ replay.duration=replay.still?1.15:clamp(replay.span*rate/.90,1.55,2.80);
  replay.active=true;acc=0;keys.clear();joy.x=joy.y=0;joyPointer=null;syncStick();setSprint(false);
  replayRenderer.lastPossession=-1;
  replayRenderer.shakeX=0;replayRenderer.shakeY=0;
@@ -1912,7 +1924,7 @@ function showReplay(){
  $('replayStage').classList.remove('hidden');$('replayStage').setAttribute('aria-hidden','false');
  setText('replayTitle',replay.kind==='TOUCHDOWN'?'TOUCHDOWN REPLAY':'TACKLE REPLAY');
  const moment=replay.kind==='TOUCHDOWN'?'THE FINISH':game.lastDrive?.breakdown?.counters?'CONTACT & COUNTER':'THE STOP';
- setText('replayDetail',`${reducedEffects?'STILL FRAME':'SLOW MOTION'} · ${moment} · POSSESSION ${game.possession}`);
+ setText('replayDetail',`${replay.still?'STILL FRAME':'SLOW MOTION'} · ${moment} · POSSESSION ${game.possession}`);
  setText('liveState','Replay. Game clock frozen. Select Skip Replay to continue.');
  $('replaySkipBtn').focus({preventScroll:true});renderReplay(0);return true;
 }
@@ -1922,16 +1934,18 @@ function renderReplay(dt){
  const ratio=clamp(replay.time/replay.duration,0,1);
  const length=replay.frames.length;
  // Final moment holds briefly; the other 90% interpolates recorded poses.
- const playback=clamp(ratio/.90,0,1)*(length-1);
- const index=Math.min(length-1,Math.floor(playback));
- const fraction=playback-index;
- const view=reducedEffects?replay.frames[length-1]:
-  blendRecordedFrames(replay.frames[index],replay.frames[Math.min(length-1,index+1)],fraction);
+ const start=replay.frames[0].replayAt;
+ const playback=start+clamp(ratio/.90,0,1)*replay.span;
+ let index=0;
+ while(index<length-1&&replay.frames[index+1].replayAt<=playback)index++;
+ const a=replay.frames[index],next=replay.frames[index+1];
+ const fraction=next?clamp((playback-a.replayAt)/(next.replayAt-a.replayAt),0,1):0;
+ const view=replay.still?replay.frames[length-1]:blendRecordedFrames(a,next,fraction);
  const closing=clamp((ratio-.76)/.13,0,1)*clamp((1-ratio)/.11,0,1);
- const amp=reducedEffects?0:(replayRenderer.w<550?1.1:1.7)*closing;
+ const amp=replay.still?0:(replayRenderer.w<550?1.1:1.7)*closing;
  replayRenderer.shakeX=amp*Math.sin(replay.time*66);
  replayRenderer.shakeY=amp*.5*Math.cos(replay.time*71);
- replayRenderer.draw(view,reducedEffects?0:dt*.72);
+ replayRenderer.draw(view,replay.still?0:dt*.72);
  $('replayProgress').style.width=(ratio*100).toFixed(1)+'%';
  if(replay.time>=replay.duration)finishReplay();
 }
@@ -2121,7 +2135,7 @@ let lastPhase=game.phase;function frame(t){const elapsed=Math.max(0,(t-last)/100
  const d=Math.min(.08,elapsed);
  if(replay.active){acc=0;if(!document.hidden){const pad=activePad();if(!trackPad(pad)&&pad&&!padNeedsNeutral){const down=padSnapshot(pad);if((down[0]&&!lastGamepad[0])||(down[9]&&!lastGamepad[9]))finishReplay();lastGamepad=down;}}}
  else if(game.phase==='playing'&&!document.hidden){const input=controls();if(game.phase==='playing')advanceSimulation(elapsed,input);else acc=0;
-   if(game.phase==='playing'){if(game.driveState)showReplay();else captureReplay(elapsed);}}
+   if(game.phase==='playing'){if(game.driveState)showReplay(replay.seenEscape?0:d);else captureReplay(replay.seenEscape?0:d);}}
  else {acc=0;padMenuInput()}
  if(game.escape&&!replay.seenEscape){replay.seenEscape=true;syncEscapePanel();}
  if(!game.escape)replay.seenEscape=false;

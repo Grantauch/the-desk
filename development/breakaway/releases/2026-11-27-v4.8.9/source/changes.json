@@ -38,5 +38,50 @@
     "name": "version title",
     "from": "<title>BREAKAWAY V4.8.8 — Grounded Motion</title>",
     "to": "<title>BREAKAWAY V4.8.9 — Camera & Replay Director</title>"
+  },
+  {
+    "name": "Replay clock state",
+    "from": "captureAccumulator:0,seenEscape:false",
+    "to": "captureAccumulator:0,captureTime:0,span:0,still:false,seenEscape:false"
+  },
+  {
+    "name": "Timestamp and fractional capture cadence",
+    "from": "function captureReplay(elapsed){if(replay.active||game.escape||game.driveState||game.phase!=='playing')return;\n if(replay.lastPossession!==game.possession){replay.history=[];replay.lastPossession=game.possession;replay.captureAccumulator=0;}\n replay.captureAccumulator+=Math.min(.08,Math.max(0,elapsed));\n if(replay.captureAccumulator>=REPLAY_INTERVAL||!replay.history.length){replay.captureAccumulator=0;\n replay.history.push(captureSnapshot(game));if(replay.history.length>REPLAY_MAX)replay.history.shift();}\n}",
+    "to": "function replayDelta(elapsed){return clamp(Number.isFinite(elapsed)?elapsed:0,0,.08)}\nfunction captureReplay(elapsed){if(replay.active||game.escape||game.driveState||game.phase!=='playing')return;\n if(replay.lastPossession!==game.possession){replay.history=[];replay.lastPossession=game.possession;replay.captureAccumulator=0;replay.captureTime=0;}\n const dt=replayDelta(elapsed);\n replay.captureTime+=dt;\n replay.captureAccumulator+=dt;\n if(replay.captureAccumulator+1e-9>=REPLAY_INTERVAL||!replay.history.length){\n  // Capture once per real pose. Carry the phase across frames without inventing duplicate poses.\n  replay.captureAccumulator=Math.max(0,replay.captureAccumulator-Math.floor((replay.captureAccumulator+1e-9)/REPLAY_INTERVAL)*REPLAY_INTERVAL);\n  replay.history.push({...captureSnapshot(game),replayAt:replay.captureTime});\n  if(replay.history.length>REPLAY_MAX)replay.history.shift();\n }\n}"
+  },
+  {
+    "name": "Pass actual closing interval",
+    "from": "function showReplay(){",
+    "to": "function showReplay(elapsed=0){"
+  },
+  {
+    "name": "Bound clip by measured pose span",
+    "from": " replay.frames=replay.history.slice(-(REPLAY_PLAYBACK_MAX-1)).concat([captureSnapshot(game)]);\n if(replay.frames.length<2)replay.frames=[captureSnapshot(game),captureSnapshot(game)];\n replay.time=0;\n const rate=replay.kind==='TOUCHDOWN'?1.34:1.20;\n replay.duration=reducedEffects?1.15:clamp(replay.frames.length*REPLAY_INTERVAL*rate,1.55,2.80);",
+    "to": " const rate=replay.kind==='TOUCHDOWN'?1.34:1.20, end=replay.captureTime+replayDelta(elapsed);\n const final={...captureSnapshot(game),replayAt:end};\n // Keep the most recent poses that fit the duration cap without speeding them up.\n const history=replay.lastPossession===game.possession?replay.history:[];\n const horizon=2.80*.90/rate;\n replay.frames=history.slice(-(REPLAY_PLAYBACK_MAX-1)).filter(f=>end-f.replayAt<=horizon).concat(final);\n replay.span=end-replay.frames[0].replayAt;\n replay.still=reducedEffects||replay.span<=0;\n replay.time=0;\n replay.duration=replay.still?1.15:clamp(replay.span*rate/.90,1.55,2.80);"
+  },
+  {
+    "name": "Accurate still-frame label",
+    "from": "${reducedEffects?'STILL FRAME':'SLOW MOTION'}",
+    "to": "${replay.still?'STILL FRAME':'SLOW MOTION'}"
+  },
+  {
+    "name": "Interpolate using elapsed pose time",
+    "from": " const playback=clamp(ratio/.90,0,1)*(length-1);\n const index=Math.min(length-1,Math.floor(playback));\n const fraction=playback-index;\n const view=reducedEffects?replay.frames[length-1]:\n  blendRecordedFrames(replay.frames[index],replay.frames[Math.min(length-1,index+1)],fraction);",
+    "to": " const start=replay.frames[0].replayAt;\n const playback=start+clamp(ratio/.90,0,1)*replay.span;\n let index=0;\n while(index<length-1&&replay.frames[index+1].replayAt<=playback)index++;\n const a=replay.frames[index],next=replay.frames[index+1];\n const fraction=next?clamp((playback-a.replayAt)/(next.replayAt-a.replayAt),0,1):0;\n const view=replay.still?replay.frames[length-1]:blendRecordedFrames(a,next,fraction);"
+  },
+  {
+    "name": "Still-frame motion settings",
+    "from": "const amp=reducedEffects?0:(replayRenderer.w<550?1.1:1.7)*closing;",
+    "to": "const amp=replay.still?0:(replayRenderer.w<550?1.1:1.7)*closing;"
+  },
+  {
+    "name": "Still-frame renderer tick",
+    "from": "replayRenderer.draw(view,reducedEffects?0:dt*.72);",
+    "to": "replayRenderer.draw(view,replay.still?0:dt*.72);"
+  },
+  {
+    "name": "Keep paused and escape time out of the closing pose",
+    "from": "if(game.driveState)showReplay();else captureReplay(elapsed);",
+    "to": "if(game.driveState)showReplay(replay.seenEscape?0:d);else captureReplay(replay.seenEscape?0:d);"
   }
 ]
