@@ -33,5 +33,10 @@
     "name": "expose browser diagnostics",
     "from": ",captureReplay,captureSnapshot,tapEscape,",
     "to": ",captureReplay,captureSnapshot,blendRecordedFrames,tapEscape,"
+  },
+  {
+    "name": "version title",
+    "from": "<title>BREAKAWAY V4.8.8 — Grounded Motion</title>",
+    "to": "<title>BREAKAWAY V4.8.9 — Camera & Replay Director</title>"
   }
 ]
