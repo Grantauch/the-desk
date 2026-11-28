@@ -122,7 +122,7 @@ button:focus-visible,select:focus-visible,.seats summary:focus-visible{outline:3
         <div class="setup-head">03 / SELECT RINK <em>IDENTICAL ICE PHYSICS</em></div>
         <div class="rinks" role="group" aria-label="Rink"><button class="rink-card selected school" data-rink="school" aria-pressed="true"><span class="rink-art"><i></i></span><strong>SCHOOL</strong><small>Friday night lights</small></button><button class="rink-card park" data-rink="park" aria-pressed="false"><span class="rink-art"><i></i></span><strong>PARK</strong><small>Open-air winter</small></button><button class="rink-card mars" data-rink="mars" aria-pressed="false"><span class="rink-art"><i></i></span><strong>MARS</strong><small>Red planet arena</small></button></div>
         <details class="seats"><summary>04 / PLAYER SEATS <span id="seatCount">1 HUMAN · 7 AI</span></summary><p>Each team has exactly one center, one wing, one defender and one goalie. Assign a unique input to any seat; unassigned seats are AI. Up to eight local gamepads are supported. Online multiplayer is not yet available.</p><div id="seatGrid" class="seat-grid"></div><div class="controls-note"><b>Keyboard 1:</b> WASD · J pass · K shoot · L check · Shift burst<br><b>Keyboard 2:</b> arrows · N pass · M shoot · , check · Enter burst<br><b>Gamepads:</b> left stick · A pass · X shoot · B check · RT burst</div></details>
-      <details class="guide"><summary>HOW TO PLAY · SKATING, PASSING AND CHECKING</summary><p>Build speed, glide and brake into sharp turns. Pass to the highlighted open teammate. After a completed pass, watch for a gold GIVE & GO ring and return the puck to the open runner. Hold SHOOT as an incoming pass reaches your blade for a one-timer, or shoot immediately after receiving for a one-touch finish. Missed checks cost energy and balance.</p></details>
+      <details class="guide"><summary>HOW TO PLAY · SKATING, PASSING AND CHECKING</summary><p>Build speed, glide and brake into sharp turns. Pass to the highlighted open teammate. After a completed pass, watch for a gold GIVE & GO ring and return the puck to the open runner. Hold SHOOT as an incoming pass reaches your blade for a one-timer, or shoot immediately after receiving for a one-touch finish. Missed checks cost energy and balance. Get in front of the puck carrier and stay on him to poke the puck loose.</p></details>
         <section id="shiftBook" class="shiftbook" aria-label="Daily challenge and personal records">
           <div class="shiftbook-head">SHIFT BOOK <small>Solo vs AI · This device only</small></div>
           <strong id="dailyChallengeName">TODAY'S CHALLENGE</strong>
@@ -428,7 +428,9 @@ function prompt(text,secs=1.2,orange=false){hud.prompt.textContent=text;hud.prom
 function showOverlay(title,desc,button,mode){hud.title.innerHTML=title;hud.desc.textContent=desc;hud.play.textContent=button;hud.mode.textContent=mode;hud.setup.hidden=phase!=='menu';hud.report.hidden=phase!=='finished';hud.changeSetup.hidden=phase!=='finished';hud.footer.hidden=phase==='injury';hud.overlay.removeAttribute('aria-hidden');hud.overlay.classList.remove('hidden');if(phase==='finished'||phase==='menu')hud.overlay.querySelector?.('.panel')?.scrollTo?.({top:0})}
 function hideOverlay(){hud.overlay.classList.add('hidden');hud.overlay.setAttribute('aria-hidden','true')}
 function start(){if(phase==='injury'){endInjury();return}if(phase==='menu'||phase==='finished')fullReset();else paused=false;const btn=$('pauseBtn');btn.textContent='Ⅱ';btn.setAttribute('aria-label','Pause game');btn.title='Pause game';hideOverlay();audioInit()}
-hud.play.addEventListener('click',start);
+// Mix the clock into the seed on a real Play press so every game plays out
+// differently. Tests call start() directly and keep their fixed seeds.
+hud.play.addEventListener('click',()=>{seed=(seed^Date.now())>>>0||48171;start()});
 hud.changeSetup.addEventListener('click',()=>{
  if(phase!=='finished')return;
  phase='menu';
@@ -714,7 +716,11 @@ function steer(p,dx,dz,dt){const d=Math.hypot(dx,dz),max=p.goalie?SKATE.goalieSp
  const desired=Math.min(max,d/SKATE.arrivalRadius*max),[ux,uz]=normalize(dx,dz);
  let x=ux*desired-p.vx,z=uz*desired-p.vz,m=Math.hypot(x,z);
  if(d<.12&&Math.hypot(p.vx,p.vz)<.25){p.vx=p.vz=0;skate(p,0,0,dt);return}
- const strength=Math.min(1,m/3);skate(p,m?x/m*strength:0,m?z/m*strength:0,dt)
+ // Hold the desired speed as stick input and add the course correction on top.
+ // Correction alone settled at ~77% of top speed, so AI never matched humans.
+ let ix=ux*desired/max+x/3,iz=uz*desired/max+z/3;const mag=Math.hypot(ix,iz);
+ if(mag>1){ix/=mag;iz/=mag}
+ skate(p,ix,iz,dt)
 }
 function ai(p,dt){
  const level=aiLevelFor(p);
@@ -736,6 +742,14 @@ function ai(p,dt){
  if(p.has){
   const enemyGoal=attack*GOALX;
   target={x:enemyGoal-attack*5,z:clamp(p.z*.55,-6,6)};
+  // Skate around a defender standing in the lane instead of straight into him.
+  const blocker=enemies.filter(e=>{const ahead=(e.x-p.x)*attack;return ahead>0&&ahead<5.5&&Math.abs(e.z-p.z)<2.2})
+   .sort((a,b)=>dist(a,p)-dist(b,p))[0];
+  if(blocker&&Math.abs(enemyGoal-p.x)>7){
+   let side=p.z===blocker.z?(p.id%2?1:-1):Math.sign(p.z-blocker.z);
+   if(Math.abs(blocker.z+side*3.4)>9)side=-side;
+   target={x:p.x+attack*6,z:clamp(blocker.z+side*3.4,-9,9)};
+  }
   const defenders=enemies.filter(e=>e!==p);
   const shotLane=clearLane(p.x,p.z,enemyGoal,clamp(p.z*.35,-GOALZ+0.6,GOALZ-0.6),defenders,1.5);
   const underPressure=enemies.some(e=>dist(e,p)<3.8);
@@ -844,6 +858,30 @@ function updatePlayers(dt){
   }
   if(!overlapping)break;
  }
+ stickPressure(dt);
+}
+// Stick-on-puck pressure. Body checks need closing speed, so a defender parked
+// chest-to-chest against a carrier could never win the puck and play froze.
+// Sustained close pressure now pokes the puck loose for humans and AI alike.
+const POKE=Object.freeze({reach:1.3,hold:.7,decay:2,speed:5.5,front:-.2});
+function stickPressure(dt){
+ const c=puck.owner;
+ if(!c||c.goalie||phase!=='playing'){players.forEach(p=>p.pressTime=0);return}
+ // Only a defender in front of or beside the carrier has a stick on the puck;
+ // a chaser directly behind must still win the race or land a check.
+ const fx=Math.cos(c.facing),fz=Math.sin(c.facing);
+ const presser=players.find(e=>{if(e.team===c.team||e.goalie||e.stun>0||e.fallTime>0)return false;
+  const d=dist(e,c);return d<POKE.reach&&((e.x-c.x)*fx+(e.z-c.z)*fz)/Math.max(d,.001)>POKE.front});
+ c.pressTime=presser?(c.pressTime||0)+dt:Math.max(0,(c.pressTime||0)-POKE.decay*dt);
+ if(!presser||c.pressTime<POKE.hold)return;
+ c.pressTime=0;
+ // Knock it to the presser's forehand side so neither player simply re-catches it.
+ const nx=presser.x-c.x,nz=presser.z-c.z,side=(c.id%2?1:-1)*(c.team?-1:1);
+ cancelHitCombination(c);
+ releasePuck(c,nx-nz*side*.6,nz+nx*side*.6,POKE.speed);
+ c.shotCharge=0;presser.receiveWait=0;
+ if(c===control||presser===control)prompt(presser===control?'POKE CHECK!':'PUCK POKED AWAY',.5);
+ sound('grab');
 }
 function collideSkaters(a,b){
  const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);
@@ -985,7 +1023,12 @@ function step(dt){
  if(paused)return;
  if(phase==='goal'){goalDelay-=dt;replayElapsed+=dt;if(replayElapsed>MOMENT.replayStart&&replayElapsed<MOMENT.replayEnd&&replayFrames.length>1){hud.moment.textContent='INSTANT REPLAY · '+(goalMoment.team===0?'GLACIERS':'EMBERS')+' GOAL'+goalMoment.shooter}else if(goalMoment){hud.moment.textContent=(goalMoment.team===0?'GLACIERS':'EMBERS')+' GOAL'+goalMoment.shooter}if(goalDelay<=0){hud.moment.classList.remove('show');phase='playing';if(timeLeft<=0)finish();else resetFaceoff()}return}
  if(phase!=='playing')return;
- if(dropDelay>0){dropDelay-=dt;return}
+ if(dropDelay>0){dropDelay-=dt;
+  // Both centers start the same distance away and skate identically, so a dead
+  // drop always tied and the tie went to the first player in the list (Glaciers
+  // won every faceoff). A small random bounce decides it fairly, like a real drop.
+  if(dropDelay<=0&&!puck.owner){const a=rnd()*Math.PI*2;puck.vx=Math.cos(a)*1.6;puck.vz=Math.sin(a)*1.1}
+  return}
  timeLeft=Math.max(0,timeLeft-dt);if(lastShot)lastShot.age+=dt;updatePlayers(dt);
  if(phase!=='playing')return;
  puckPhysics(dt);if(phase==='playing')recordMoment(dt);updatePowerups(dt);if(timeLeft<=0&&phase==='playing')finish();
@@ -1041,12 +1084,15 @@ function possessionHUD(){
  guide.hidden=!tracking||phase!=='playing'||control.has||distance<18;
  if(!guide.hidden){const dir=(dx>3?'↑':dx<-3?'↓':'')+(dz>3?' →':dz<-3?' ←':'');guide.textContent='PUCK '+(dir||'NEARBY')+' · '+Math.round(distance)+'m'}
 }
+const TOP_HUD_ROOM=5;
 function cameraTarget(){
  if(phase==='menu')return 0;
- if(followActive()&&control){const distance=Math.hypot(puck.x-control.x,puck.z-control.z);const weight=clamp(.5+(distance-14)*.024,.5,.85);return clamp(control.x*weight+puck.x*(1-weight),-17,17)}
+ if(followActive()&&control){const distance=Math.hypot(puck.x-control.x,puck.z-control.z);const weight=clamp(.5+(distance-14)*.024,.5,.85);return clamp(control.x*weight+puck.x*(1-weight),-17,17+TOP_HUD_ROOM)}
  const puckX=puck.x;
  const carrierX=puck.owner?.x ?? puckX;
- return clamp(puckX*.72+carrierX*.28,-16,16);
+ // The scoreboard and status pills cover the top of the screen, so the camera may
+ // travel further toward that end; otherwise the top net sat hidden under them.
+ return clamp(puckX*.72+carrierX*.28,-16,16+TOP_HUD_ROOM);
 }
 function render2d(t){
  const ctx=ctx2d,dpr=canvas.width/W;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);

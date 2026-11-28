@@ -633,7 +633,7 @@ export function PondApp() {
           {started ? (
             <details className="mt-3 rounded-lg border border-current/20 p-3">
               <summary className="cursor-pointer font-semibold">Habitat clock <span className="text-xs">· Preview</span></summary>
-              <p className="mt-2 text-sm">Watch how the pond changes. The clock changes how often you take notes, not how sand or water moves. This preview does not evolve creatures or save clock readings.</p>
+              <p className="mt-2 text-sm">The clock checks the same spots across your pond. It can miss narrow streams or small patches. Changing the speed changes how often you get a reading, not how sand or water moves. This preview does not evolve creatures or save readings.</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <Button type="button" variant="quiet" size="sm" onClick={() => {
                   chronometer.controls.toggle();

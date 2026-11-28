@@ -15,6 +15,19 @@ test("samples water, plants and heat without writing the grid", () => {
   assert.deepEqual(grid, before);
 });
 
+test("a fixed observation grid can miss a narrow stream", () => {
+  const observations = [399, 400].map((x) => {
+    const sim = new PondSim(768, 768);
+    sim.clearInterior();
+    for (let y = 320; y < 448; y++) sim.grid[y * 768 + x] = E.WATER;
+    return observeHabitat(sim, 1);
+  });
+  assert.deepEqual(observations.map(({ samples, water }) => [samples, water]), [
+    [448, 0],
+    [448, 4],
+  ]);
+});
+
 test("one fixed step per call and one second per 45 steps at every speed", () => {
   for (const speed of [1, 4, 16, 64] as const) {
     const pilot = new ChronometerPilot();
