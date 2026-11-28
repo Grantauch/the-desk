@@ -551,5 +551,31 @@
       }
     ],
     "sourceBuildSha256": "a815f63d7791ef80cf019e79eb5421b33ae5f5b7b44d198b00032668feb29fc3"
+  },
+  {
+    "game": "breakaway",
+    "route": "/hubs/breakaway/",
+    "source": "https://grant-desk.com/hubs/breakaway/",
+    "credit": "Breakaway RC5, GrantDesk game capture",
+    "depicted": "A normal sprint between blockers and a defender, cropped x=369, y=294, width=416, height=234 from a 1152 × 648 Chromium frame. The live game matched Git blob bbaee3718b5600f2b06db9f0433aa5d3263cb96a. No student data, altered gameplay state, or external imagery.",
+    "rights": "In-site screenshot of the GrantDesk-published build. No external image or new license claim.",
+    "sourceImageSha256": "a068eb55606bdfe09c0b27c5c4374350a4543ad945fa9133d610aeb57f77cbd5",
+    "sourceBuildSha256": "7f4a0fc508bf6c3beb16fdae4c9ca5e59f5cb8815ed19c20336608e0960ae3d3",
+    "covers": [
+      {
+        "file": "breakaway-384.webp",
+        "sha256": "a0ecc9a2da7da6f47cf172ba021bd7b449e57c3f19c0814b0d6dc473ed14bd28",
+        "width": 384,
+        "height": 216,
+        "bytes": 5230
+      },
+      {
+        "file": "breakaway-768.webp",
+        "sha256": "98aed2fb19c9732222760e973c1eeda423fd8ae62bd8fb10bc8f9de06e846fd0",
+        "width": 768,
+        "height": 432,
+        "bytes": 10670
+      }
+    ]
   }
 ]

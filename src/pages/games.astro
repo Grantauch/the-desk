@@ -68,13 +68,7 @@ const covers: Record<string, string> = {
             <a class:list={['cabinet', { 'cabinet--lead': index === 0 }]} href={game.href} target="_blank" rel="noopener" aria-label={`Play ${game.name} (opens in a new tab)`} aria-describedby={blurbId}>
               <div class="cabinet-cover">
                 <GamePreview theme={game.theme} label={game.name} eyebrow={game.previewEyebrow} featured={game.featured} />
-                {cover === 'breakaway' ? (
-                  <img
-                    src="/games-catalog/breakaway.svg"
-                    width="800" height="500" alt=""
-                    loading="lazy" decoding="async" data-arcade-cover
-                  />
-                ) : src && (
+                {src && (
                   <picture>
                     <img
                       src={src + '-768.webp'}
