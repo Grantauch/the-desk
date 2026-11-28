@@ -1,0 +1,26 @@
+{
+  "game": "BREAKAWAY",
+  "version": "4.8.9",
+  "date": "2026-11-27",
+  "title": "Camera & Replay Director",
+  "status": "development candidate — QA incomplete, not promoted, not deployed",
+  "html": "index.html",
+  "sha256": "d8bcdbdc51b851af90f47388d5d815a846c7052f58fc38ae0cbd44163b287996",
+  "git_blob_sha": "22ca5588871b8c41746b3b3ff8ff6b171e6dc8d6",
+  "base_version": "4.8.8",
+  "base_sha256": "1f9bcc89d94f96b1265ff0678272c9c33e354564f09c20e29b96bdf6cea2a9a9",
+  "change_class": "renderer and replay UI only",
+  "engine_identical_to_base": true,
+  "QA": {
+    "engine_simulation": "PASS 500/500 local full games on byte-identical 4.8.7->4.8.8->4.8.9 engine core; 1902227 frames; 75644 state assertions",
+    "required_500_games": "PASS via 4 partitions of 125 seeds using unchanged core",
+    "browser_4_viewports": "PASS four Chromium viewports (emulated), replay and focus regression",
+    "renderer_2000_draws": "PASS 2000 Chromium draws",
+    "physical_phones": "pending",
+    "controller_physical": "pending",
+    "Safari_Firefox": "pending",
+    "replay_cadence": "PASS timestamped tackle and touchdown at 30/60/90/120 fps and uneven render intervals; bounded, no engine changes",
+    "replay_accessibility": "PASS exact revised HTML: three natural-tackle Chromium layouts; Tab and reverse Tab, Escape, timed completion, emulated touch Skip, and Pause focus regression. Physical devices and independent review pending."
+  },
+  "public_deployed": false
+}
