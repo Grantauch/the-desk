@@ -22,6 +22,8 @@ import { PondCanvas } from "@/components/pond/pond-canvas";
 import { DiscoveryGlyph } from "@/components/pond/discovery-glyph";
 import { WorldAtlas } from "@/components/pond/world-atlas";
 import { blankAtlas, revealAtlas, expandAtlas, type AtlasState } from "@/lib/pond/atlas";
+import { ChronometerPilot, type HabitatObservation } from "@/lib/pond/evolution/chronometer-pilot";
+import { TIME_SPEEDS, type TimeSpeed } from "@/lib/pond/evolution/clock";
 import { PondEcosystem, MAX_RESIDENTS, residentProfile, type ResidentSave } from "@/lib/pond/ecosystem";
 import {
   STARTERS, OUTCOME_SPACE, MAX_DISCOVERIES, DISCOVERY_STORAGE_KEY,
@@ -53,6 +55,16 @@ export function PondApp() {
     return s;
   }, []);
   const ecosystem = useMemo(() => new PondEcosystem(), []);
+  const [chronometer, setChronometer] = useState(() => new ChronometerPilot());
+  const [biologyPaused, setBiologyPaused] = useState(true);
+  const [biologySpeed, setBiologySpeed] = useState<TimeSpeed>(1);
+  const [habitatObservation, setHabitatObservation] = useState<HabitatObservation | null>(null);
+  const resetChronometer = useCallback(() => {
+    setChronometer(new ChronometerPilot());
+    setBiologyPaused(true);
+    setBiologySpeed(1);
+    setHabitatObservation(null);
+  }, []);
   const undoRef = useRef<Array<{ size: PondSize; world: Uint8Array; residents: ResidentSave[]; camera: PondCamera; atlas: AtlasState }>>([]);
   const [pondSize, setPondSize] = useState<PondSize>(192);
   const [camera, setCamera] = useState<PondCamera>(() => initialCamera(192));
@@ -111,6 +123,7 @@ export function PondApp() {
     if (!previous) return;
     sim.resize(previous.size);
     sim.restore(previous.world);
+    resetChronometer();
     ecosystem.restore(previous.residents, sim);
     setPondSize(previous.size);
     setCamera(previous.camera);
@@ -120,7 +133,7 @@ export function PondApp() {
     setCanUndo(undoRef.current.length > 0);
     setPaused(true);
     setToast("Undone. Paused so you can inspect it.");
-  }, [sim, ecosystem]);
+  }, [sim, ecosystem, resetChronometer]);
 
   useEffect(() => {
     try {
@@ -231,7 +244,7 @@ export function PondApp() {
       if (target.closest("input, textarea, select, [contenteditable=true]")) return;
       if (e.code === "Escape") { setGuide(false); return; }
       if (guide || !started) return;
-      if (e.code === "Space" && target.closest("button, a")) return;
+      if (e.code === "Space" && target.closest("button, a, summary")) return;
       if (e.code === "Space") {
         e.preventDefault();
         if (started) setPaused((p) => !p);
@@ -271,6 +284,7 @@ export function PondApp() {
   const onStats = useCallback(
     (g: number) => {
       setGrains(g);
+      setHabitatObservation(chronometer.observation);
       setResidentCount(ecosystem.count);
       setEcosystemNews(ecosystem.lastInteraction);
       if (Date.now() - lastAtlasRefresh.current > 1200) {
@@ -290,7 +304,7 @@ export function PondApp() {
         }
       }
     },
-    [sim, ecosystem],
+    [sim, ecosystem, chronometer],
   );
 
   const begin = () => {
@@ -301,6 +315,7 @@ export function PondApp() {
   const stamp = (id: SceneId) => {
     checkpoint();
     loadScene(sim, id);
+    resetChronometer();
     ecosystem.clear();
     setResidentCount(0);
     setEcosystemNews(null);
@@ -340,6 +355,7 @@ export function PondApp() {
   const clear = () => {
     checkpoint();
     sim.clearInterior();
+    resetChronometer();
     ecosystem.clear();
     setResidentCount(0);
     setEcosystemNews(null);
@@ -366,6 +382,7 @@ export function PondApp() {
       checkpoint();
       sim.resize(restored.size);
       sim.restore(restored.particles);
+      resetChronometer();
       ecosystem.restore(restored.residents, sim);
       setPondSize(restored.size);
       const startingCamera = initialCamera(restored.size);
@@ -561,6 +578,7 @@ export function PondApp() {
                   panMode={panMode}
                   onPan={panBy}
                   ecosystem={ecosystem}
+                  chronometer={chronometer}
                   specimenId={specimenId}
                   onSpecimenPlace={placeSpecimen}
                   tool={tool}
@@ -611,6 +629,36 @@ export function PondApp() {
               </div>
               <p className="field-route-suggestion"><strong>A place to start:</strong> {suggestedText} <span>Everything is optional.</span></p>
             </nav>
+          ) : null}
+          {started ? (
+            <details className="mt-3 rounded-lg border border-current/20 p-3">
+              <summary className="cursor-pointer font-semibold">Habitat clock <span className="text-xs">· Preview</span></summary>
+              <p className="mt-2 text-sm">The clock checks the same spots across your pond. It can miss narrow streams or small patches. Changing the speed changes how often you get a reading, not how sand or water moves. This preview does not evolve creatures or save readings.</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Button type="button" variant="quiet" size="sm" onClick={() => {
+                  chronometer.controls.toggle();
+                  setBiologyPaused(chronometer.controls.paused);
+                }}>{biologyPaused ? "Run habitat clock" : "Pause habitat clock"}</Button>
+                <label className="flex items-center gap-2 text-sm">
+                  Clock speed
+                  <select className="rounded border border-current/30 bg-background p-1" value={biologySpeed} onChange={(event) => {
+                    const speed = Number(event.currentTarget.value);
+                    const selected = TIME_SPEEDS.find((value) => value === speed);
+                    if (selected === undefined) return;
+                    chronometer.controls.setSpeed(selected);
+                    setBiologySpeed(selected);
+                  }}>
+                    {TIME_SPEEDS.map((speed) => <option key={speed} value={speed}>{speed}×</option>)}
+                  </select>
+                </label>
+              </div>
+              <p className="mt-2 text-sm">
+                {paused && !biologyPaused ? "Resume the world to advance the clock. " : ""}
+                {habitatObservation
+                  ? `Day ${habitatObservation.day} · ${habitatObservation.water} water, ${habitatObservation.plants} plant and ${habitatObservation.heat} hot spots out of ${habitatObservation.samples} sampled spots.`
+                  : "No reading yet. Run the clock to sample the pond."}
+              </p>
+            </details>
           ) : null}
           {started && ecosystemNews ? (
             <p className="field-ecosystem-ticker" aria-live="off"><Leaf size={14}/> <span>From the field:</span> {ecosystemNews}</p>

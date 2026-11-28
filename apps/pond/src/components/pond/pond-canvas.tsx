@@ -3,6 +3,7 @@ import { ERASER, WIND, type ToolId } from "@/lib/pond/elements";
 import { pondAudio } from "@/lib/pond/audio";
 import type { PondSim } from "@/lib/pond/sim";
 import { activeCameraRegion, type PondCamera } from "@/lib/pond/camera";
+import type { ChronometerPilot } from "@/lib/pond/evolution/chronometer-pilot";
 import type { PondEcosystem } from "@/lib/pond/ecosystem";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,7 @@ type PondCanvasProps = {
   panMode: boolean;
   onPan: (dx: number, dy: number) => void;
   ecosystem: PondEcosystem;
+  chronometer?: ChronometerPilot;
   specimenId: string | null;
   onSpecimenPlace?: (id: string, x: number, y: number) => void;
   tool: ToolId;
@@ -23,7 +25,7 @@ type PondCanvasProps = {
   onStrokeStart?: () => void;
 };
 
-export function PondCanvas({ sim, enhancedGraphics = true, camera, panMode, onPan, ecosystem, specimenId, onSpecimenPlace, tool, brush, running, className, onStats, onStrokeStart }: PondCanvasProps) {
+export function PondCanvas({ sim, enhancedGraphics = true, camera, panMode, onPan, ecosystem, chronometer, specimenId, onSpecimenPlace, tool, brush, running, className, onStats, onStrokeStart }: PondCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const painting = useRef(false);
@@ -37,6 +39,7 @@ export function PondCanvas({ sim, enhancedGraphics = true, camera, panMode, onPa
   const onSpecimenPlaceRef = useRef(onSpecimenPlace);
   const brushRef = useRef(brush);
   const runningRef = useRef(running);
+  const chronometerRef = useRef(chronometer);
   const graphicsRef = useRef(enhancedGraphics);
   const onStatsRef = useRef(onStats);
   const onStrokeRef = useRef(onStrokeStart);
@@ -51,6 +54,7 @@ export function PondCanvas({ sim, enhancedGraphics = true, camera, panMode, onPa
   onSpecimenPlaceRef.current = onSpecimenPlace;
   brushRef.current = brush;
   runningRef.current = running;
+  chronometerRef.current = chronometer;
   graphicsRef.current = enhancedGraphics;
   onStatsRef.current = onStats;
   onStrokeRef.current = onStrokeStart;
@@ -82,8 +86,13 @@ export function PondCanvas({ sim, enhancedGraphics = true, camera, panMode, onPa
       while (acc >= STEP && steps < 2) {
         if (runningRef.current) {
           const zone = sim.w > 320 ? activeCameraRegion(cameraRef.current) : undefined;
-          sim.step(zone);
-          if (!sim.paused) ecosystem.step(sim, zone);
+          const step = () => {
+            sim.step(zone);
+            if (!sim.paused) ecosystem.step(sim, zone);
+          };
+          const pilot = chronometerRef.current;
+          if (pilot && !sim.paused && !pilot.controls.paused) pilot.step(sim, step);
+          else step();
         }
         acc -= STEP;
         steps++;
