@@ -26,3 +26,15 @@ The largest hit freezes the game clock and stops play for five seconds. The time
 - Run Chromium playtests with `node tests/icebreak/browser.cjs` after installing the repository's Playwright browser. Screenshots and a renderer report go to `browser-results/icebreak` by default.
 - The focused suite checks impulse and momentum, missed and repeated check costs, natural burst-to-check reach in all three rinks, hit outcomes, injury countdown and skip paths, skating, puck attachment and release, both goal directions, the mode/rink matrix, and eight unique assignments. Chromium checks cover 1440×900 desktop and 390×844 emulated touch in WebGL 2 via SwiftShader and forced Canvas 2D.
 - Physical phones, gamepads, hardware GPU performance and long-session hit balance still need playtesting. Online multiplayer is unimplemented.
+
+## Game flow fixes (November 27)
+
+Simulated AI-vs-AI matches (`tests/icebreak/flow.cjs`) found four problems. Every one of 20 games froze in a shoving stalemate, the Glaciers won every faceoff, and there were only 0.8 goals per game.
+
+- **Stick check.** A body check needs closing speed, so a defender parked chest-to-chest with the carrier could never win the puck. A defender who stays in front of or beside the carrier (within 1.3 units) for 0.7 seconds now pokes the puck loose. This works for humans and AI. A chaser directly behind still has to win the race or land a check.
+- **AI top speed.** `steer()` used only the course correction as stick input, so AI skaters settled at about 77% of top speed. It now holds the desired speed and adds the correction on top, so AI and humans skate at the same speeds.
+- **Carriers skate around defenders.** An AI carrier more than 7 units from the net now cuts 3.4 units to the open side of a defender in its lane.
+- **Fair faceoffs.** Both centers started the same distance from a dead puck, and the tie went to the first player in the list. The drop now gets a small random bounce, and the Play button mixes the clock into the random seed so each game differs. Tests keep fixed seeds.
+- **Camera.** The camera can now travel 5 units further toward the top end, so the top net is no longer hidden under the scoreboard.
+
+Measured over 40 simulated games: no stalls (the worst pause in possession was 0.8 seconds), 2.6 goals per game, and a goal split of 52 to 54.
