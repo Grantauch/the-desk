@@ -2131,5 +2131,17 @@
     "verification_status": "SYNTAX_AND_AUDIO_STATE_REGRESSIONS_PASS_CANONICAL_VERIFICATION_RUNNING",
     "deployment_status": "PROTECTED_PR_AND_PRODUCTION_READBACK_PENDING",
     "field_status": "PHYSICAL_DEVICE_LISTENING_PENDING"
+  },
+  "hall-pass-teacher-audit-retry-2026-11-17": {
+    "status": "IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Teacher retries repair a missing audit row and resume queue settlement after the attendance or pass row has already committed.",
+    "verification_status": "LOCAL_RUNTIME_453_CHECKS_PASS_APPS_SCRIPT_NOT_DEPLOYED",
+    "deployment_status": "SOURCE_ONLY_APPS_SCRIPT_DEPLOY_NOT_AUTHORIZED",
+    "field_status": "NOT_DEPLOYED",
+    "evidence": [
+      "Synthetic runtime fixtures cover late-review replay, student-originated check-in, pass start and return, and absence mark and clear.",
+      "Replayed onto current main after the RC2 freeze. This does not deploy Apps Script or change the RC2 installer, VERSION.json flags, or the deploy workflow."
+    ]
   }
 }
