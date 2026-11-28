@@ -1,3 +1,7 @@
+## November 27 Hall Pass active PIN agreement
+
+Signed student actions now require every active class membership for that student to carry the same PIN hash that was just entered. An inactive historical hash no longer makes the current credential version look changed. Disagreeing active hashes fail before a one-use action proof is issued. The local Hall Pass runtime passed 448 checks. This is source only: it does not deploy Apps Script, rotate any PIN, or change the RC2 installer, VERSION.json flags, or the Apps Script deploy workflow.
+
 ## November 22 Manifest soundtrack integration
 
 Grant authorized live release of the supplied soundtrack and procedural audio. Copper and Talon is the recurring main theme; West of the Divide is gated exclusively to endScreen(true), after full-game completion. Copper Sky plays at camp. The master Sound switch controls music and effects, including title and ending controls; hidden tabs pause audio. Local syntax, media decoding, and audio-state regressions pass. Canonical verification, protected CI and production readback are pending; physical-device listening remains unverified.
@@ -819,3 +823,7 @@ Release review reproduced 109 invisible narrative elements without JavaScript: t
 Owner Codex, branch feat/pearl-harbor-storyhub. The Astro edition adds a historical briefing, twelve documentary chapters and a reusable contextual dock. The scope is open exploration. The companion, captioned media, historical data, source notes and implementation guide are part of this change.
 
 Focused built-browser checks passed for desktop and touch widths through 320 pixels, keyboard and touch controls, map and timeline synchronization, reading position, reduced motion, interrupted media and fallbacks. The current candidate goes through the protected full site gate, followed by a Netlify revision check and an independent test on grant-desk.com. Managed Chromebook and classroom acceptance remain open.
+
+## November 27 Hall Pass teacher-audit retry
+
+A teacher retry after a pass, check-in, late review, or absence row has already committed now repairs the missing audit row and finishes queue cleanup instead of writing a second attendance row. A teacher check-in does not take credit for an arrival the student already recorded. The local Hall Pass runtime passed 453 checks. This is source only: it does not deploy Apps Script or change the RC2 installer, VERSION.json flags, or the Apps Script deploy workflow.
