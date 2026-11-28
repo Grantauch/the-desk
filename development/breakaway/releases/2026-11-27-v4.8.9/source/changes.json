@@ -83,5 +83,35 @@
     "name": "Keep paused and escape time out of the closing pose",
     "from": "if(game.driveState)showReplay();else captureReplay(elapsed);",
     "to": "if(game.driveState)showReplay(replay.seenEscape?0:d);else captureReplay(replay.seenEscape?0:d);"
+  },
+  {
+    "name": "Replay controls scope 1",
+    "from": "<div id=\"replayStage\" class=\"hidden\" aria-hidden=\"true\">",
+    "to": "<div id=\"replayStage\" class=\"hidden\" aria-hidden=\"true\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"replayTitle\">"
+  },
+  {
+    "name": "Replay controls scope 2",
+    "from": "function showReplay(elapsed=0){",
+    "to": "let replayInertSiblings=[];\nfunction showReplay(elapsed=0){"
+  },
+  {
+    "name": "Replay controls scope 3",
+    "from": "$('replaySkipBtn').focus({preventScroll:true});renderReplay(0);return true;",
+    "to": "replayInertSiblings=Array.from($('game').children).filter(el=>el!==$('replayStage')&&!el.inert);\n replayInertSiblings.forEach(el=>{el.inert=true});\n $('replaySkipBtn').focus({preventScroll:true});renderReplay(0);return true;"
+  },
+  {
+    "name": "Replay controls scope 4",
+    "from": "$('game').classList.remove('replay-active');",
+    "to": "$('game').classList.remove('replay-active');\n replayInertSiblings.forEach(el=>{el.inert=false});replayInertSiblings=[];"
+  },
+  {
+    "name": "Replay controls scope 5",
+    "from": "const active=['help','paused','result'].map",
+    "to": "const active=['replayStage','help','paused','result'].map"
+  },
+  {
+    "name": "Replay controls scope 6",
+    "from": "</head>",
+    "to": "<style>@media (orientation: landscape) and (max-height: 480px) { .replay-controls { left: auto; right: max(clamp(16px,4vw,40px), env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: min(235px, calc(100vw - 32px)); transform: none; padding: 6px; gap: 7px; } }</style></head>"
   }
 ]

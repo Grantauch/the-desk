@@ -5,8 +5,8 @@
   "title": "Camera & Replay Director",
   "status": "development candidate — QA incomplete, not promoted, not deployed",
   "html": "index.html",
-  "sha256": "8b3f5e0556bfdf8400d3bcc80e11bf3476275a57899fb02581cdd1d4087fdf17",
-  "git_blob_sha": "63ebb498c16c0c730cfbb1e189e3d180cab8533f",
+  "sha256": "d8bcdbdc51b851af90f47388d5d815a846c7052f58fc38ae0cbd44163b287996",
+  "git_blob_sha": "22ca5588871b8c41746b3b3ff8ff6b171e6dc8d6",
   "base_version": "4.8.8",
   "base_sha256": "1f9bcc89d94f96b1265ff0678272c9c33e354564f09c20e29b96bdf6cea2a9a9",
   "change_class": "renderer and replay UI only",
@@ -19,7 +19,8 @@
     "physical_phones": "pending",
     "controller_physical": "pending",
     "Safari_Firefox": "pending",
-    "replay_cadence": "PASS timestamped tackle and touchdown at 30/60/90/120 fps and uneven render intervals; bounded, no engine changes"
+    "replay_cadence": "PASS timestamped tackle and touchdown at 30/60/90/120 fps and uneven render intervals; bounded, no engine changes",
+    "replay_accessibility": "PASS exact revised HTML: three natural-tackle Chromium layouts; Tab and reverse Tab, Escape, timed completion, emulated touch Skip, and Pause focus regression. Physical devices and independent review pending."
   },
   "public_deployed": false
 }

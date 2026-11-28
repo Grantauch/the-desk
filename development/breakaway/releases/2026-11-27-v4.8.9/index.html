@@ -281,9 +281,9 @@ main{background:#051421}
 .reduced-effects #replayCanvas{filter:none!important}
 @media(max-width:650px){.replay-broadcast{top:88px;padding:9px 11px}.replay-clock-tag{top:auto;bottom:105px;right:12px;font-size:9px}.replay-controls{bottom:35px}.replay-broadcast strong{font-size:24px}}
 @media(max-height:480px){.replay-controls{bottom:14px}.replay-broadcast{top:63px}.replay-clock-tag{top:72px;bottom:auto}}
-</style></head>
+</style><style>@media (orientation: landscape) and (max-height: 480px) { .replay-controls { left: auto; right: max(clamp(16px,4vw,40px), env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: min(235px, calc(100vw - 32px)); transform: none; padding: 6px; gap: 7px; } }</style></head>
 <body><main id="game" aria-label="Breakaway Football"><canvas id="field" tabindex="-1" role="img" aria-describedby="canvasInstructions" aria-label="Football field with moving players and defenders"></canvas><div id="vignette" aria-hidden="true"></div>
-<div id="replayStage" class="hidden" aria-hidden="true"><canvas id="replayCanvas" role="img" aria-label="Read-only replay of the last football run"></canvas><div class="replay-broadcast"><strong id="replayTitle">INSTANT REPLAY</strong><span id="replayDetail">BROADCAST HIGHLIGHT</span></div><div class="replay-clock-tag">GAME CLOCK HELD</div><div class="replay-controls"><div class="replay-track" aria-hidden="true"><i id="replayProgress"></i></div><button type="button" id="replaySkipBtn">SKIP REPLAY ▶</button></div></div>
+<div id="replayStage" class="hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="replayTitle"><canvas id="replayCanvas" role="img" aria-label="Read-only replay of the last football run"></canvas><div class="replay-broadcast"><strong id="replayTitle">INSTANT REPLAY</strong><span id="replayDetail">BROADCAST HIGHLIGHT</span></div><div class="replay-clock-tag">GAME CLOCK HELD</div><div class="replay-controls"><div class="replay-track" aria-hidden="true"><i id="replayProgress"></i></div><button type="button" id="replaySkipBtn">SKIP REPLAY ▶</button></div></div>
 <div id="escapeStage" class="hidden" role="group" aria-label="Break free from tackle" aria-hidden="true">
   <div class="escape-anchor" id="escapeAnchor">
     <button id="escapeTapBtn" type="button" aria-label="Mash to break free from the tackle"><span class="escape-letter" id="escapeGlyph" aria-hidden="true">E</span></button>
@@ -1902,6 +1902,7 @@ function blendRecordedFrames(a,b,t){
   defenders:pair(a.defenders,b.defenders),
   blockers:pair(a.blockers,b.blockers)};
 }
+let replayInertSiblings=[];
 function showReplay(elapsed=0){
  if(!game.driveState||replay.active||replay.seenDrive===game.possession)return false;
  replay.seenDrive=game.possession;
@@ -1926,6 +1927,8 @@ function showReplay(elapsed=0){
  const moment=replay.kind==='TOUCHDOWN'?'THE FINISH':game.lastDrive?.breakdown?.counters?'CONTACT & COUNTER':'THE STOP';
  setText('replayDetail',`${replay.still?'STILL FRAME':'SLOW MOTION'} · ${moment} · POSSESSION ${game.possession}`);
  setText('liveState','Replay. Game clock frozen. Select Skip Replay to continue.');
+ replayInertSiblings=Array.from($('game').children).filter(el=>el!==$('replayStage')&&!el.inert);
+ replayInertSiblings.forEach(el=>{el.inert=true});
  $('replaySkipBtn').focus({preventScroll:true});renderReplay(0);return true;
 }
 function renderReplay(dt){
@@ -1956,6 +1959,7 @@ function finishReplay(){
  replayRenderer.shakeX=0;replayRenderer.shakeY=0;
  $('replayStage').classList.add('hidden');$('replayStage').setAttribute('aria-hidden','true');
  $('game').classList.remove('replay-active');
+ replayInertSiblings.forEach(el=>{el.inert=false});replayInertSiblings=[];
  replay.lastPossession=0;acc=0;last=performance.now();uiTimer=0;
  setText('liveState','Replay finished. Next possession is ready.');
  if(skipFocused)(game.driveState&&!$('nextPlayBtn').disabled?$('nextPlayBtn'):canvas).focus({preventScroll:true});
@@ -2015,7 +2019,7 @@ const keyActions={KeyJ:'juke',KeyK:'spin',KeyL:'stiff',Space:'hurdle'};window.ad
  if(replay.active){if(!e.repeat&&['Space','Enter','Escape','KeyE'].includes(e.code)){e.preventDefault();finishReplay();}return}
  if(game.escape){if(!e.repeat&&['Space','KeyE','Enter'].includes(e.code)){if(e.code!=='Space'||e.target!==$('escapeTapBtn')){e.preventDefault();tapEscape();}}if((e.code==='Escape'||e.code==='KeyP')&&!e.repeat)pause();return}
 const nativeSpace=e.code==='Space'&&e.target instanceof Element&&!!e.target.closest('button');if(game.phase==='playing'&&/^(Arrow|Space)/.test(e.code)&&!nativeSpace)e.preventDefault();if(!nativeSpace&&!e.repeat&&!keys.has(e.code)&&game.phase==='playing'&&game.driveState&&(e.code==='Space'||e.code==='Enter')){if(nextPlay())e.preventDefault()}
- else if(!nativeSpace&&!keys.has(e.code)&&keyActions[e.code]&&game.phase==='playing')action(keyActions[e.code]);if(e.code==='KeyM'&&!e.repeat&&!keys.has(e.code)){toggleSound()}if((e.code==='Escape'||e.code==='KeyP')&&!e.repeat&&!keys.has(e.code)){if(game.phase==='playing')pause();else if(game.phase==='paused')resume()}if(e.code==='Escape'&&!$('help').classList.contains('hidden')){$('closeHelp').click();e.preventDefault()}if(e.code==='Enter'&&!$('menu').classList.contains('hidden')&&$('help').classList.contains('hidden')&&e.target===document.body)gameStart();keys.add(e.code)});document.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const active=['help','paused','result'].map(id=>$(id)).find(el=>!el.classList.contains('hidden'));if(!active)return;const focusable=Array.from(active.querySelectorAll('button:not([disabled]),a[href]')).filter(el=>el.getClientRects().length);if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&(document.activeElement===first||!active.contains(document.activeElement))){e.preventDefault();last.focus()}else if(!e.shiftKey&&(document.activeElement===last||!active.contains(document.activeElement))){e.preventDefault();first.focus()}},true);window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();if(game.phase==='playing')pause('hidden')});
+ else if(!nativeSpace&&!keys.has(e.code)&&keyActions[e.code]&&game.phase==='playing')action(keyActions[e.code]);if(e.code==='KeyM'&&!e.repeat&&!keys.has(e.code)){toggleSound()}if((e.code==='Escape'||e.code==='KeyP')&&!e.repeat&&!keys.has(e.code)){if(game.phase==='playing')pause();else if(game.phase==='paused')resume()}if(e.code==='Escape'&&!$('help').classList.contains('hidden')){$('closeHelp').click();e.preventDefault()}if(e.code==='Enter'&&!$('menu').classList.contains('hidden')&&$('help').classList.contains('hidden')&&e.target===document.body)gameStart();keys.add(e.code)});document.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const active=['replayStage','help','paused','result'].map(id=>$(id)).find(el=>!el.classList.contains('hidden'));if(!active)return;const focusable=Array.from(active.querySelectorAll('button:not([disabled]),a[href]')).filter(el=>el.getClientRects().length);if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&(document.activeElement===first||!active.contains(document.activeElement))){e.preventDefault();last.focus()}else if(!e.shiftKey&&(document.activeElement===last||!active.contains(document.activeElement))){e.preventDefault();first.focus()}},true);window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();if(game.phase==='playing')pause('hidden')});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){keys.clear();if(game.phase==='playing')pause('hidden');acc=0;last=performance.now()}});
 window.addEventListener('pagehide',()=>{keys.clear();if(game.phase==='playing')pause('hidden');acc=0;last=performance.now()});
 const joystick=$('joystick'),stick=$('stick');let sprintPointer=null;function syncStick(){stick.style.transform=`translate(${joy.x*29}px,${-joy.y*29}px)`}
